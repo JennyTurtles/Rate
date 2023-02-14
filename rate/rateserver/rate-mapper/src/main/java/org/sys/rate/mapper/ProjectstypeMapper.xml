@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.ProjectstypeMapper">
+    
+    <resultMap type="org.sys.rate.model.Projectstype" id="ProjectstypeResult">
+        <result property="ID"    column="ID"    />
+        <result property="name"    column="name"    />
+        <result property="indicaterID"    column="indicaterID"    />
+        <result property="type"    column="type"    />
+    </resultMap>
+
+    <sql id="selectProjectstypeVo">
+        select ID, name, indicaterID, type from projectstype
+    </sql>
+
+    <select id="selectList" resultMap="ProjectstypeResult">
+        <include refid="selectProjectstypeVo"></include>
+    </select>
+
+    <select id="selectProjectstypeList" parameterType="org.sys.rate.model.Projectstype" resultMap="ProjectstypeResult">
+        <include refid="selectProjectstypeVo"/>
+        <where>
+            <if test="ID !=null and ID !=''">and ID =#{ID}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="indicaterID != null "> and indicaterID = #{indicaterID}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+        </where>
+    </select>
+    
+    <select id="selectProjectstypeById" parameterType="Long" resultMap="ProjectstypeResult">
+        <include refid="selectProjectstypeVo"/>
+        where ID = #{ID}
+    </select>
+        
+    <insert id="insertProjectstype" parameterType="org.sys.rate.model.Projectstype">
+        insert into projectstype
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ID != null">ID,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="indicaterID != null">indicaterID,</if>
+            <if test="type != null">type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ID != null">#{ID},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="indicaterID != null">#{indicaterID},</if>
+            <if test="type != null">#{type},</if>
+         </trim>
+    </insert>
+
+    <update id="updateProjectstype" parameterType="org.sys.rate.model.Projectstype">
+        update projectstype
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="indicaterID != null">indicaterID = #{indicaterID},</if>
+            <if test="type != null">type = #{type},</if>
+        </trim>
+        where ID = #{ID}
+    </update>
+
+    <delete id="deleteProjectstypeById" parameterType="Long">
+        delete from projectstype where ID = #{ID}
+    </delete>
+
+    <delete id="deleteProjectstypeByIds" parameterType="String">
+        delete from projectstype where ID in 
+        <foreach item="ID" collection="array" open="(" separator="," close=")">
+            #{ID}
+        </foreach>
+    </delete>
+
+</mapper>

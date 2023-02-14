@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.InfoItemMapper">
+  <resultMap id="BaseResultMap" type="org.sys.rate.model.InfoItem">
+    <id column="ID" jdbcType="INTEGER" property="ID" />
+    <result column="activityID" jdbcType="INTEGER" property="activityID" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="sizelimit" jdbcType="VARCHAR" property="sizelimit" />
+    <result column="contentType" jdbcType="VARCHAR" property="contentType"/>
+    <result column="byParticipant" jdbcType="BOOLEAN" property="byParticipant" />
+    <result column="display" jdbcType="BOOLEAN" property="display" />
+  </resultMap>
+  <resultMap id="ResultInfoItemValue" type="org.sys.rate.model.InfoItemValue">
+    <result column="ID" property="ID" jdbcType="INTEGER"/>
+    <result column="name" property="name" jdbcType="VARCHAR"/>
+    <result column="content" property="content" jdbcType="VARCHAR"/>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    ID, activityID, name, sizelimit,byParticipant,display
+  </sql>
+
+  <select id="selectScoreItemByActivityId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from scoreitem s
+    where s.activityID = #{activityId,jdbcType=INTEGER}
+    order by s.byExpert ,s.ID
+
+  </select>
+
+  <select id="selectInfoItemByActivityIdWhereNotByExpert" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select  *
+    from infoitem s
+    where s.activityID = #{activityId} and s.byParticipant=false
+    order by s.ID
+  </select>
+  <select id="ScoreItemByActivityIdWhereNotByExpertCount" resultType="INTEGER">
+    select count(*) from scoreitem s
+    where s.activityID = #{activityId,jdbcType=INTEGER} and s.byExpert='0'
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from scoreitem
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from scoreitem
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="org.sys.rate.model.InfoItem">
+    insert into infoitem (ID, activityID, name,
+                          contentType, sizelimit, byParticipant,display
+    )
+    values (#{ID,jdbcType=INTEGER}, #{activityID,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+            #{contentType,jdbcType=VARCHAR}, #{sizelimit,jdbcType=VARCHAR}, #{byParticipant,jdbcType=BOOLEAN}, #{display,jdbcType=BOOLEAN}
+           )
+  </insert>
+
+  <select id="getActivitiesByPage" resultMap="BaseResultMap">
+    select e.ID,e.activityID,e.name,e.sizelimit,e.contentType,e.byParticipant,e.display from infoitem e
+    <if test="keywords!=null">
+      where e.activityID=#{keywords}
+    </if>
+    <if test="page !=null and size!=null">
+      limit #{page},#{size}
+    </if>
+  </select>
+  <select id="getTotal" resultType="java.lang.Long">
+    select count(*) from infoitem
+    <if test="keywords!=null">
+      where activityID=#{keywords}
+    </if>
+  </select>
+
+  <select id="getActivitiesByPageAndCompany" resultMap="BaseResultMap">
+    select e.id,e.name,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID from activities e where e.deleteFlag = '0'
+    <if test="company !=null">
+      and e.name like concat('%',#{company},'%')
+    </if>
+    <if test="page !=null and size!=null">
+      limit #{page},#{size}
+    </if>
+  </select>
+  <update id="insert_update" parameterType="org.sys.rate.model.InfoItem">
+  </update>
+
+  <update id="delete" parameterType="org.sys.rate.model.InfoItem">
+    DELETE FROM infoitem WHERE ID = #{ID,jdbcType=INTEGER};
+    </update>
+  <update id="update" parameterType="org.sys.rate.model.InfoItem">
+    UPDATE infoitem SET activityID=#{activityID,jdbcType=INTEGER},
+                         name=#{name,jdbcType=VARCHAR},
+                        contentType=#{contentType,jdbcType=VARCHAR},
+                        sizelimit=#{sizelimit,jdbcType=VARCHAR},
+                         byParticipant=#{byParticipant,jdbcType=BOOLEAN},
+                        display=#{display,jdbcType=BOOLEAN}
+    where ID=#{ID,jdbcType=INTEGER}
+  </update>
+  <select id="getTotalforactivityCount" resultType="java.lang.Integer">
+    select count(*) from scoreitem
+    <if test="keywords!=null">
+      where activityID like concat('%',#{keywords},'%')
+    </if>
+  </select>
+
+  <select id="selectInfoItemByActivityId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select  *
+    from infoitem s
+    where s.activityID = #{activitiesID}
+    order by s.ID
+  </select>
+
+  <select id="selectInfoItemByActivityIdIsShow" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select *
+    from infoitem s
+    where s.activityID = #{activitiesID} and s.display =true
+    order by s.ID
+  </select>
+
+  <select id="getInfoItemValue" resultMap="ResultInfoItemValue">
+    select si.ID,si.name,s.content from  infos s, infoitem si where s.activityID=#{activitiesID} and s.participantID=#{participantID} and si.byParticipant=false and s.infoitemID=si.ID
+  </select>
+
+  <select id="getInfoItemAll" resultMap="ResultInfoItemValue">
+    select si.ID,si.name from  infoitem si where si.activityID=#{activitiesID} and si.byParticipant=false;
+  </select>
+
+</mapper>

@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.ExpertactivitiesMapper">
+  <resultMap id="BaseResultMap" type="org.sys.rate.model.Expertactivities">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="teacherID" jdbcType="INTEGER" property="teacherID" />
+    <result column="activityID" jdbcType="INTEGER" property="activityid" />
+    <result column="groupID" jdbcType="INTEGER" property="groupid" />
+    <result column="finished" jdbcType="BOOLEAN" property="finished" />
+  </resultMap>
+  <resultMap id="BaseResultMapA" type="org.sys.rate.model.Expertactivities">
+<!--    <id column="ID" jdbcType="INTEGER" property="id" />-->
+    <result column="teacherID" jdbcType="INTEGER" property="teacherID" />
+<!--    <result column="activityID" jdbcType="INTEGER" property="activityid" />-->
+<!--    <result column="groupID" jdbcType="INTEGER" property="groupid" />-->
+<!--    <result column="finished" jdbcType="BOOLEAN" property="finished" />-->
+  </resultMap>
+
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    ID, teacherID, activityID, groupID, finished
+  </sql>
+
+  <select id="selectAllExpertsByFinished" parameterType="java.lang.Integer" resultMap="BaseResultMapA">
+    select teacherID
+    from expertactivities
+    where finished = true
+      and activityID = #{activityId,jdbcType=INTEGER}
+      and groupID =#{groupId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from expertactivities
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+
+  <select id="checkByIDandActivityID" resultType="java.lang.Integer">
+    select groupID from expertactivities where teacherID=#{id} and activityID=#{activityid}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from expertactivities
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <update id="updateState">
+    update expertactivities e
+    set e.finished=#{finished,jdbcType=BOOLEAN}
+    where e.teacherID=#{expertID,jdbcType=INTEGER} and e.activityID=#{activityId,jdbcType=INTEGER}
+          and e.groupID=#{groupId,jdbcType=INTEGER}
+  </update>
+
+  <update id="updategroupid">
+    update expertactivities
+    set groupID = #{groupid}
+    where teacherID = #{id} and activityID = #{activityid}
+  </update>
+
+  <delete id="deletegroupid">
+    delete from expertactivities
+    where teacherID = #{id} and activityID = #{activityid} and groupID = #{groupid};
+    UPDATE activities set expertCount=expertCount-1 where ID=#{activityid};
+    UPDATE `groups` set expertCount=expertCount-1 where ID=#{groupid}
+  </delete>
+
+  <update id="insert" parameterType="org.sys.rate.model.Expertactivities">
+    INSERT into expertactivities (ID, teacherID, activityID,
+      groupID, finished)
+VALUES (#{id,jdbcType=INTEGER}, #{expertid,jdbcType=INTEGER}, #{activityid,jdbcType=INTEGER},
+    #{groupid,jdbcType=INTEGER}, #{finished,jdbcType=BOOLEAN}) ON DUPLICATE KEY UPDATE groupID =values(groupID);
+    UPDATE activities set expertCount=expertCount+1 where ID=#{activityid,jdbcType=INTEGER};
+    UPDATE `groups` set expertCount=expertCount+1 where ID=#{groupid,jdbcType=INTEGER}
+  </update>
+  <insert id="insertSelective" parameterType="org.sys.rate.model.Expertactivities">
+    insert into expertactivities
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="expertid != null">
+        teacherID,
+      </if>
+      <if test="activityid != null">
+        activityID,
+      </if>
+      <if test="groupid != null">
+        groupID,
+      </if>
+      <if test="finished != null">
+        finished,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="expertid != null">
+        #{expertid,jdbcType=INTEGER},
+      </if>
+      <if test="activityid != null">
+        #{activityid,jdbcType=INTEGER},
+      </if>
+      <if test="groupid != null">
+        #{groupid,jdbcType=INTEGER},
+      </if>
+      <if test="finished != null">
+        #{finished,jdbcType=BOOLEAN},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByExampleSelective" parameterType="map">
+    update expertactivities
+    <set>
+      <if test="record.id != null">
+        ID = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.expertid != null">
+        teacherID = #{record.expertid,jdbcType=INTEGER},
+      </if>
+      <if test="record.activityid != null">
+        activityID = #{record.activityid,jdbcType=INTEGER},
+      </if>
+      <if test="record.groupid != null">
+        groupID = #{record.groupid,jdbcType=INTEGER},
+      </if>
+      <if test="record.finished != null">
+        finished = #{record.finished,jdbcType=BOOLEAN},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update expertactivities
+    set ID = #{record.id,jdbcType=INTEGER},
+    teacherID = #{record.expertid,jdbcType=INTEGER},
+      activityID = #{record.activityid,jdbcType=INTEGER},
+      groupID = #{record.groupid,jdbcType=INTEGER},
+      finished = #{record.finished,jdbcType=BOOLEAN}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="org.sys.rate.model.Expertactivities">
+    update expertactivities
+    <set>
+      <if test="expertid != null">
+        teacherID = #{expertid,jdbcType=INTEGER},
+      </if>
+      <if test="activityid != null">
+        activityID = #{activityid,jdbcType=INTEGER},
+      </if>
+      <if test="groupid != null">
+        groupID = #{groupid,jdbcType=INTEGER},
+      </if>
+      <if test="finished != null">
+        finished = #{finished,jdbcType=BOOLEAN},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.sys.rate.model.Expertactivities">
+    update expertactivities
+    set teacherID = #{expertid,jdbcType=INTEGER},
+      activityID = #{activityid,jdbcType=INTEGER},
+      groupID = #{groupid,jdbcType=INTEGER},
+      finished = #{finished,jdbcType=BOOLEAN}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="selectGroupId" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+    select exa.groupID
+    from expertactivities exa
+    where exa.teacherID=#{expertid,jdbcType=INTEGER} and exa.activityID=#{activitiesId,jdbcType=INTEGER}
+  </select>
+  <select id="selectState" parameterType="java.lang.Integer" resultType="java.lang.Boolean">
+    select exa.finished
+    from expertactivities exa
+    where exa.teacherID=#{expertID,jdbcType=INTEGER}
+      and exa.activityID=#{activitiesID,jdbcType=INTEGER}
+      and exa.groupID=#{groupId,jdbcType=INTEGER}
+  </select>
+
+  <select id="selectGroupNameById" parameterType="java.lang.Integer" resultType="java.lang.String">
+    select g.name
+    from `groups` g
+    where g.ID=#{groupId,jdbcType=INTEGER} and g.activityID = #{activityID,jdbcType=INTEGER}
+  </select>
+
+  <select id="getOldGroupByIDandActivityID" resultType="java.lang.Integer">
+    select groupID from expertactivities where teacherID=#{id} and activityID=#{activityid}
+  </select>
+
+  <select id="getActByExpertID" parameterType="java.lang.Integer" resultMap="BaseResultMapA">
+    select activityID,groupID from expertactivities where teacherID=#{expertID} order by activityID,groupID
+  </select>
+
+</mapper>

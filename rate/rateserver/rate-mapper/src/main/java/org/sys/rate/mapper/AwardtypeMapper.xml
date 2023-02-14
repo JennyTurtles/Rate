@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.AwardtypeMapper">
+    
+    <resultMap type="org.sys.rate.model.Awardtype" id="AwardtypeResult">
+        <result property="ID"    column="ID"    />
+        <result property="name"    column="name"    />
+        <result property="indicaterID"    column="indicaterID"    />
+        <result property="type"    column="type"    />
+    </resultMap>
+
+    <sql id="selectAwardtypeVo">
+        select ID, name, indicaterID, type from awardtype
+    </sql>
+
+    <select id="selectList" resultMap="AwardtypeResult">
+        <include refid="selectAwardtypeVo"></include>
+    </select>
+
+    <select id="selectAwardtypeList" parameterType="org.sys.rate.model.Awardtype" resultMap="AwardtypeResult">
+        <include refid="selectAwardtypeVo"/>
+        <where>
+            <if test="ID !=null and ID !=''">and ID =#{ID}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="indicaterID != null "> and indicaterID = #{indicaterID}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+        </where>
+    </select>
+    
+    <select id="selectAwardtypeById" parameterType="Long" resultMap="AwardtypeResult">
+        <include refid="selectAwardtypeVo"/>
+        where ID = #{ID}
+    </select>
+        
+    <insert id="insertAwardtype" parameterType="org.sys.rate.model.Awardtype">
+        insert into awardtype
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ID != null">ID,</if>
+            <if test="name != null">name,</if>
+            <if test="indicaterID != null">indicaterID,</if>
+            <if test="type != null">type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ID != null">#{ID},</if>
+            <if test="name != null">#{name},</if>
+            <if test="indicaterID != null">#{indicaterID},</if>
+            <if test="type != null">#{type},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAwardtype" parameterType="org.sys.rate.model.Awardtype">
+        update awardtype
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="indicaterID != null">indicaterID = #{indicaterID},</if>
+            <if test="type != null">type = #{type},</if>
+        </trim>
+        where ID = #{ID}
+    </update>
+
+    <delete id="deleteAwardtypeById" parameterType="Long">
+        delete from awardtype where ID = #{ID}
+    </delete>
+
+    <delete id="deleteAwardtypeByIds" parameterType="String">
+        delete from awardtype where ID in 
+        <foreach item="ID" collection="array" open="(" separator="," close=")">
+            #{ID}
+        </foreach>
+    </delete>
+
+</mapper>

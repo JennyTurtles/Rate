@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.ScoresMapper">
+    <resultMap id="BaseResultMap" type="org.sys.rate.model.Scores">
+        <id column="ID" jdbcType="INTEGER" property="ID" />
+        <result column="expertID" jdbcType="INTEGER" property="expertID" />
+        <result column="activityID" jdbcType="INTEGER" property="activityID" />
+        <result column="participantID" jdbcType="INTEGER" property="participantID" />
+        <result column="scoreItemID" jdbcType="INTEGER" property="scoreItemID" />
+        <result column="score" jdbcType="DOUBLE" property="score" />
+    </resultMap>
+    <insert id="insertScore" >
+        insert into scores(expertID,activityID,participantID,scoreItemID,score)
+        values (
+                   #{expertID,jdbcType=INTEGER},
+                   #{activityID,jdbcType=INTEGER},
+                   #{participantID,jdbcType=INTEGER},
+                   #{scoreItemID,jdbcType=INTEGER},
+                   #{score,jdbcType=DOUBLE})
+    </insert>
+    <update id="updateScore" >
+        update scores s
+        set s.score=#{score,jdbcType=DOUBLE}
+        where s.expertID=#{expertID,jdbcType=INTEGER} and s.activityID=#{activityID,jdbcType=INTEGER} and s.participantID=#{participantID,jdbcType=INTEGER} and s.scoreItemID=#{scoreItemID,jdbcType=INTEGER}
+    </update>
+    <insert id="insertScore1" parameterType="org.sys.rate.model.Scores">
+
+        insert into scores  (ID,expertID,activityID,participantID,scoreItemID,score)
+        values (#{ID,jdbcType=INTEGER},
+                #{expertID,jdbcType=INTEGER},
+                #{activityID,jdbcType=INTEGER},
+                #{participantID,jdbcType=INTEGER},
+                #{scoreItemID,jdbcType=INTEGER},
+                #{score,jdbcType=DOUBLE}
+               )
+
+    </insert>
+    <select id="selectScoreListByAE" resultMap="BaseResultMap">
+        select * from scores sc
+        where sc.activityID = #{activitiesId,jdbcType=INTEGER}
+        and sc.expertID is null
+        and sc.scoreItemID in
+        (select si.Id
+            from scoreitem si
+            where si.activityID=#{activitiesId,jdbcType=INTEGER}
+            and si.byExpert=false)
+        and sc.participantID in
+            ( select p.ID
+              from participants p
+              where p.groupID=#{groupId,jdbcType=INTEGER} and p.activityID = #{activitiesId,jdbcType=INTEGER})
+    </select>
+
+    <select id="selectScoreByP" resultType="INTEGER">
+        select count(*) from scores sc
+        where sc.expertID=#{expertID,jdbcType=INTEGER} and sc.activityID=#{activityID,jdbcType=INTEGER}
+          and sc.participantID=#{participantID,jdbcType=INTEGER} and sc.scoreItemID=#{scoreItemID,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectScoreByPE" resultType="DOUBLE">
+        select sc.score from scores sc
+        where sc.expertID=#{expertId,jdbcType=INTEGER} and sc.participantID=#{participantID,jdbcType=INTEGER}
+          and sc.scoreItemID = (select si.ID from scoreitem si where si.activityID=#{activityId,jdbcType=INTEGER} and si.name="总分")
+    </select>
+
+    <select id="selectScoreListByAE_null" resultMap="BaseResultMap">
+        select * from scores sc
+        where sc.activityID = #{activitiesId,jdbcType=INTEGER}
+        <if test="expertid!=null">
+            and   sc.expertID=#{expertid,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <delete id="deleteByActivityID">
+        delete from scoreitem as si
+        where si.activityID = #{activityID}
+    </delete>
+
+    <select id="CheckExists" resultType="java.lang.Integer">
+        select exists (select * from scores where activityID=#{activityID,jdbcType=INTEGER} and participantID=#{participantID,jdbcType=INTEGER} and scoreItemID=#{scoreItemID,jdbcType=INTEGER})
+    </select>
+
+    <update id="UpdateScore1">
+        update scores
+        set score=#{score,jdbcType=DOUBLE}
+        where activityID=#{activityID,jdbcType=INTEGER} and participantID=#{participantID,jdbcType=INTEGER} and scoreItemID=#{scoreItemID,jdbcType=INTEGER}
+    </update>
+
+    <select id="selectScoreListByAP" resultMap="BaseResultMap">
+       select * from scores sc
+       where sc.activityID = #{activitiesId,jdbcType=INTEGER}
+       and sc.expertID = #{expertID,jdbcType=INTEGER}
+         and sc.participantID in
+           ( select p.ID
+            from participants p
+            where p.groupID=#{groupId,jdbcType=INTEGER} and p.activityID = #{activitiesId,jdbcType=INTEGER})
+    </select>
+
+    <select id="selectScoreListExpert" resultMap="BaseResultMap">
+        select * from scores sc
+        where sc.activityID = #{activitiesId,jdbcType=INTEGER}
+          and (sc.expertID = #{expertID,jdbcType=INTEGER} or sc.expertID is null)
+          and sc.participantID in
+              ( select p.ID
+                from participants p
+                where p.groupID=#{groupId,jdbcType=INTEGER} and p.activityID = #{activitiesId,jdbcType=INTEGER})
+    </select>
+</mapper>

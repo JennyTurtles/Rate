@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.ScoreItemMapper">
+  <resultMap id="BaseResultMap" type="org.sys.rate.model.ScoreItem">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="activityID" jdbcType="INTEGER" property="activityid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="score" jdbcType="DOUBLE" property="score" />
+    <result column="coef" jdbcType="DOUBLE" property="coef" />
+    <result column="comment" property="comment" jdbcType="VARCHAR"/>
+    <result column="byExpert" jdbcType="BOOLEAN" property="byexpert" />
+  </resultMap>
+  <resultMap id="ResultScoreItemValue" type="org.sys.rate.model.ScoreItemValue">
+    <result column="ID" property="ID" jdbcType="INTEGER"/>
+    <result column="name" property="name" jdbcType="VARCHAR"/>
+    <result column="score" property="score" jdbcType="DOUBLE"/>
+  </resultMap>
+  <resultMap id="ResultScoreItemExpert" type="org.sys.rate.model.ScoreItemValue">
+    <result column="ID" property="ID" jdbcType="INTEGER"/>
+    <result column="name" property="name" jdbcType="VARCHAR"/>
+    <result column="score" property="score" jdbcType="DOUBLE"/>
+    <result column="expertID" property="expertID" jdbcType="INTEGER"/>
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    ID, activityID, name, score, coef,comment, byExpert
+  </sql>
+
+  <select id="selectScoreItemByActivityId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" /> from(
+    select <include refid="Base_Column_List" /> from scoreitem s where s.activityID = #{activityId,jdbcType=INTEGER} and s.byExpert=false ORDER BY s.ID) a
+    UNION
+    select <include refid="Base_Column_List" /> from(
+    select <include refid="Base_Column_List" /> from scoreitem s where s.activityID = #{activityId,jdbcType=INTEGER} and s.name!='总分' order by s.ID) b
+    UNION
+    select <include refid="Base_Column_List" /> from(
+    select <include refid="Base_Column_List" /> from scoreitem s where s.activityID = #{activityId,jdbcType=INTEGER} and s.name='总分' order by s.ID) c
+
+  </select>
+
+  <select id="selectScoreItemByEActivityId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" />
+    from scoreitem s
+    where s.activityID = #{activityId,jdbcType=INTEGER} and s.byExpert=true ORDER BY s.ID
+  </select>
+
+  <select id="selectScoreItemByActivityIdWhereNotByExpert" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from scoreitem s
+    where s.activityID = #{activityId,jdbcType=INTEGER} and s.name!='总分'
+    order by s.byExpert ,s.ID
+
+  </select>
+
+  <select id="selectScoreItemFinal" parameterType="java.lang.Integer" resultType="INTEGER">
+    select s.ID
+    from scoreitem s
+    where s.activityID = #{activityId,jdbcType=INTEGER} and s.name='总分'
+  </select>
+  <select id="ScoreItemByActivityIdWhereNotByExpertCount" resultType="INTEGER">
+    select count(*) from scoreitem s
+    where s.activityID = #{activityId,jdbcType=INTEGER} and s.byExpert='0'
+  </select>
+
+  <select id="getScoreItemValue" resultMap="ResultScoreItemValue">
+    select si.ID,si.name,s.score from scores s, scoreitem si where s.activityID=#{activitiesID} and s.participantID=#{participantID} and si.byExpert=false and s.scoreitemID=si.ID and si.name!='总分'
+  </select>
+
+  <select id="getScoreTotalValue" resultMap="ResultScoreItemValue">
+    select si.ID,si.name,s.score from scores s, scoreitem si where s.activityID=#{activitiesID} and s.participantID=#{participantID} and s.scoreitemID=si.ID and si.name='总分' order by s.expertID
+  </select>
+
+  <select id="getScoreItemAll" resultMap="ResultScoreItemValue">
+    select si.ID,si.name from scoreitem si where si.activityID=#{activitiesID} and si.byExpert=false and si.name!='总分';
+   </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from scoreitem
+    where ID = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from scoreitem
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="org.sys.rate.model.ScoreItem">
+    insert into scoreitem (ID, activityID, name,
+                           score, coef, byExpert,comment
+    )
+    values (#{id,jdbcType=INTEGER}, #{activityid,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+            #{score,jdbcType=DOUBLE}, #{coef,jdbcType=DOUBLE}, #{byexpert,jdbcType=BOOLEAN},#{comment,jdbcType=VARCHAR}
+           )
+  </insert>
+  <insert id="insertSelective" parameterType="org.sys.rate.model.ScoreItem">
+    insert into scoreitem
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="activityid != null">
+        activityID,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="score != null">
+        score,
+      </if>
+      <if test="coef != null">
+        coef,
+      </if>
+      <if test="byexpert != null">
+        byExpert,
+      </if>
+      <if test="comment != null">
+        comment,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="activityid != null">
+        #{activityid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="score != null">
+        #{score,jdbcType=DOUBLE},
+      </if>
+      <if test="coef != null">
+        #{coef,jdbcType=DOUBLE},
+      </if>
+      <if test="byexpert != null">
+        #{byexpert,jdbcType=BOOLEAN},
+      </if>
+      <if test="comment != null">
+        #{comment,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByExampleSelective" parameterType="map">
+    update scoreitem
+    <set>
+      <if test="record.id != null">
+        ID = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.activityid != null">
+        activityID = #{record.activityid,jdbcType=INTEGER},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.score != null">
+        score = #{record.score,jdbcType=DOUBLE},
+      </if>
+      <if test="record.coef != null">
+        coef = #{record.coef,jdbcType=DOUBLE},
+      </if>
+      <if test="record.byexpert != null">
+        byExpert = #{record.byexpert,jdbcType=BOOLEAN},
+      </if>
+      <if test="record.comment != null">
+        comment = #{record.comment,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update scoreitem
+    set ID = #{record.id,jdbcType=INTEGER},
+    activityID = #{record.activityid,jdbcType=INTEGER},
+    name = #{record.name,jdbcType=VARCHAR},
+    score = #{record.score,jdbcType=DOUBLE},
+    coef = #{record.coef,jdbcType=DOUBLE},
+    byExpert = #{record.byexpert,jdbcType=BOOLEAN},
+    comment = #{comment,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="org.sys.rate.model.ScoreItem">
+    update scoreitem
+    <set>
+      <if test="activityid != null">
+        activityID = #{activityid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="score != null">
+        score = #{score,jdbcType=DOUBLE},
+      </if>
+      <if test="coef != null">
+        coef = #{coef,jdbcType=DOUBLE},
+      </if>
+      <if test="byexpert != null">
+        byExpert = #{byexpert,jdbcType=BOOLEAN},
+      </if>
+      <if test="comment != null">
+        comment = #{comment,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.sys.rate.model.ScoreItem">
+    update scoreitem
+    set activityID = #{activityid,jdbcType=INTEGER},
+        name = #{name,jdbcType=VARCHAR},
+        score = #{score,jdbcType=DOUBLE},
+        coef = #{coef,jdbcType=DOUBLE},
+        byExpert = #{byexpert,jdbcType=BOOLEAN},
+      comment = #{comment,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="getActivitiesByPage" resultMap="BaseResultMap">
+    select e.ID,e.activityID,e.name,e.score,e.coef,e.byExpert,e.comment from scoreitem e
+    where e.name!='总分'
+    <if test="keywords!=null">
+      and e.activityID=#{keywords}
+    </if>
+    <if test="page !=null and size!=null">
+      limit #{page},#{size}
+    </if>
+  </select>
+  <select id="getTotal" resultType="java.lang.Long">
+    select count(*) from scoreitem
+    where name!='总分'
+    <if test="keywords!=null">
+      and activityID=#{keywords}
+    </if>
+  </select>
+
+  <select id="getActivitiesByPageAndCompany" resultMap="BaseResultMap">
+    select e.id,e.name,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID from activities e where e.deleteFlag = '0'
+    <if test="company !=null">
+      and e.name like concat('%',#{company},'%')
+    </if>
+    <if test="page !=null and size!=null">
+      limit #{page},#{size}
+    </if>
+  </select>
+  <update id="insert_update" parameterType="org.sys.rate.model.ScoreItem">
+    UPDATE activities a SET a.scoreItemCount = a.scoreItemCount+1  WHERE a.ID = #{activityid,jdbcType=INTEGER}
+  </update>
+
+  <update id="delete" parameterType="org.sys.rate.model.ScoreItem">
+    DELETE FROM scoreitem WHERE ID = #{id,jdbcType=INTEGER};
+    UPDATE activities SET scoreItemCount = scoreItemCount-1  WHERE ID = #{activityid,jdbcType=INTEGER}
+  </update>
+  <update id="update" parameterType="org.sys.rate.model.ScoreItem">
+    UPDATE scoreitem SET activityID=#{activityid,jdbcType=INTEGER},
+                         name=#{name,jdbcType=VARCHAR},
+                         score=#{score,jdbcType=DOUBLE},
+                         coef=#{coef,jdbcType=DOUBLE},
+                         byExpert=#{byexpert,jdbcType=BOOLEAN},
+                         comment = #{comment,jdbcType=VARCHAR}
+    where ID=#{id,jdbcType=INTEGER}
+  </update>
+  <select id="getTotalforactivityCount" resultType="java.lang.Integer">
+    select count(*) from scoreitem
+    <if test="keywords!=null">
+      where activityID like concat('%',#{keywords},'%')
+    </if>
+  </select>
+  <select id="maxWorkID" resultType="java.lang.Integer">
+    select max(id) from scoreitem
+  </select>
+
+  <select id="getScoreEx" resultMap="ResultScoreItemValue">
+    select si.ID,si.name,s.score from scores s,scoreitem si
+    where s.activityID=#{activityID} and s.scoreitemID=si.ID and s.expertID=#{expertID}  and s.participantID=#{participantID};
+    </select>
+</mapper>

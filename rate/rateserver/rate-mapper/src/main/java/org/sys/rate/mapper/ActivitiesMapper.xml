@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.sys.rate.mapper.ActivitiesMapper">
+    <resultMap id="BaseResultMap" type="org.sys.rate.model.Activities">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="ACname" property="name" jdbcType="VARCHAR"/>
+        <result column="startDate" property="startDate" jdbcType="DATE"/>
+        <result column="scoreItemCount" property="scoreItemCount" jdbcType="INTEGER"/>
+        <result column="score" property="score" jdbcType="DOUBLE"/>
+        <result column="groupCount" property="groupCount" jdbcType="INTEGER"/>
+        <result column="expertCount" property="expertCount" jdbcType="INTEGER"/>
+        <result column="participantCount" property="participantCount" jdbcType="INTEGER"/>
+        <result column="comment" property="comment" jdbcType="VARCHAR"/>
+        <result column="deleteFlag" property="deleteFlag" jdbcType="BIT"/>
+        <result column="institutionID" property="institutionID" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, name, startDate, scoreItemCount, score, groupCount, expertCount, participantCount, comment, deleteFlag, institutionID
+    </sql>
+    <select id="maxWorkID" resultType="java.lang.Integer">
+    select max(workID) from employee
+  </select>
+    <select id="getAllActivity_info" resultMap="BaseResultMap">
+        select id,name as ACname from activities;
+    </select>
+    <select id="getEmployeeById" >
+        select e.*,p.`id` as pid,p.`name` as pname,n.`id` as nid,n.`name` as nname,d.`id` as did,d.`name` as
+        dname,j.`id` as jid,j.`name` as jname,pos.`id` as posid,pos.`name` as posname from employee e,nation
+        n,politicsstatus p,department d,joblevel j,position pos where e.`nationId`=n.`id` and e.`politicId`=p.`id` and
+        e.`departmentId`=d.`id` and e.`jobLevelId`=j.`id` and e.`posId`=pos.`id` and e.`id`=#{id}
+    </select>
+    <select id="getActivitiesByPage" resultMap="BaseResultMap">
+        select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID,e.status
+        from activities e
+        where e.deleteFlag = '0'
+        and e.institutionID = #{institutionID}
+        and e.deleteFlag != 1
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+        <!--<if test="emp.company !=null and emp.company!=''">
+            and e.company like concat('%',#{emp.company},'%')
+        </if>
+        <if test="emp.activityCount !=null">
+            and e.activityCount =#{emp.activityCount}
+        </if>
+        <if test="emp.uplimit !=null">
+            and e.uplimit =#{emp.uplimit}
+        </if>
+        <if test="emp.comment !=null">
+            and e.comment =#{emp.comment}
+        </if>
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>-->
+    </select>
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from activities e
+        where e.deleteFlag = '0'
+        and e.institutionID = #{institutionID}
+    </select>
+    <select id="getInstitution_Current_Total" parameterType="org.sys.rate.model.Activities" resultType="java.lang.Integer">
+        select count(*) from activities e
+        where e.institutionID = #{institutionID}
+    </select>
+    <select id="getInstitution_Total" parameterType="org.sys.rate.model.Activities" resultType="java.lang.Integer">
+        select uplimit from institution
+        where id = #{institutionID}
+    </select>
+
+    <select id="selectScoreItemCount" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select a.scoreItemCount
+        from activities a
+        where a.ID=#{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="getActivitiesByPageAndCompany" resultMap="BaseResultMap">
+        select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID,e.status from activities e where e.deleteFlag = '0' and e.institutionID=#{institutionID}
+        <if test="company !=null">
+            and e.name like concat('%',#{company},'%')
+        </if>
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+    <select id="getTotalByCompany" resultType="java.lang.Long">
+        select count(*) from activities e
+        <where>
+            and e.deleteFlag = '0'
+            and e.institutionID=#{institutionID}
+                <if test="company !=null">
+                    and e.name like concat('%',#{company},'%')
+                </if>
+        </where>
+    </select>
+    <insert id="insert" parameterType="org.sys.rate.model.Activities">
+        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID
+        )
+        values  (#{name,jdbcType=VARCHAR}, #{startDate,jdbcType=DATE}, #{scoreItemCount,jdbcType=INTEGER},
+                #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER});
+        insert into scoreitem (activityID,name,score,coef,byExpert)
+        values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'总分',100,1,true)
+    </insert>
+
+    <update id="insert_update" parameterType="org.sys.rate.model.Activities">
+        UPDATE institution a SET a.activityCount = a.activityCount+1  WHERE a.id = #{institutionID,jdbcType=INTEGER}
+    </update>
+
+    <update id="predelete" parameterType="java.lang.Integer">
+        UPDATE activities SET deleteFlag = 1
+        where id = #{id}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete from scoreitem
+        where activityID = #{id};
+        delete from activities
+        where ID = #{id};
+    </delete>
+
+    <update id="endActivities" parameterType="org.sys.rate.model.Activities">
+        UPDATE activities SET status = 'close'
+        where id = #{id}
+    </update>
+
+    <update id="update" parameterType="org.sys.rate.model.Activities">
+        UPDATE activities SET name=#{name,jdbcType=VARCHAR},
+                              startDate=#{startDate,jdbcType=DATE},
+                              scoreItemCount=#{scoreItemCount,jdbcType=INTEGER},
+                               comment=#{comment,jdbcType=VARCHAR}
+        where id=#{id,jdbcType=INTEGER}
+    </update>
+
+    <select id="selectActivitiesName" parameterType="java.lang.Integer" resultType="java.lang.String" >
+       select a.name as ACname
+       from activities a where a.ID=#{activityID,jdbcType=INTEGER}
+    </select>
+    <select id="selectActivitiesDate" parameterType="java.lang.Integer" resultType="java.lang.String">
+        select a.startDate
+        from activities a where a.ID=#{activityID,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectByActivityId" parameterType="java.lang.Integer" resultType="java.lang.Integer" >
+        select institutionID from activities where activities.ID=#{id};
+    </select>
+
+    <select id="queryById" parameterType="java.lang.Integer" resultType="org.sys.rate.model.Activities">
+        select * from activities where ID = #{id};
+    </select>
+
+    <select id="selectActivity" parameterType="java.lang.Integer" resultType="org.sys.rate.model.Activities">
+        select * from activities where ID = #{activityID};
+    </select>
+</mapper>

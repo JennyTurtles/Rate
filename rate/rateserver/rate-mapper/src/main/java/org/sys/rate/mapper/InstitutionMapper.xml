@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.sys.rate.mapper.InstitutionMapper">
+    <resultMap id="BaseResultMap" type="org.sys.rate.model.Institution">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="company" property="company" jdbcType="VARCHAR"/>
+        <result column="activityCount" property="activityCount" jdbcType="INTEGER"/>
+        <result column="uplimit" property="uplimit" jdbcType="INTEGER"/>
+        <result column="comment" property="comment" jdbcType="VARCHAR"/>
+        <result column="deleteFlag" property="deleteFlag" jdbcType="BIT"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, company, activityCount, uplimit, comment, deleteFlag
+    </sql>
+    <select id="maxWorkID" resultType="java.lang.Integer">
+    select max(workID) from employee
+  </select>
+    <select id="getEmployeeById" >
+        select e.*,p.`id` as pid,p.`name` as pname,n.`id` as nid,n.`name` as nname,d.`id` as did,d.`name` as
+        dname,j.`id` as jid,j.`name` as jname,pos.`id` as posid,pos.`name` as posname from employee e,nation
+        n,politicsstatus p,department d,joblevel j,position pos where e.`nationId`=n.`id` and e.`politicId`=p.`id` and
+        e.`departmentId`=d.`id` and e.`jobLevelId`=j.`id` and e.`posId`=pos.`id` and e.`id`=#{id}
+    </select>
+    <select id="getInstitutionByPage" resultMap="BaseResultMap">
+        select e.id,e.company,e.activityCount,e.uplimit,e.comment from institution e where e.deleteFlag = '0'
+        <if test="emp.company !=null and emp.company!=''">
+            and e.company like concat('%',#{emp.company},'%')
+        </if>
+        <if test="emp.activityCount !=null">
+            and e.activityCount =#{emp.activityCount}
+        </if>
+        <if test="emp.uplimit !=null">
+            and e.uplimit =#{emp.uplimit}
+        </if>
+        <if test="emp.comment !=null">
+            and e.comment =#{emp.comment}
+        </if>
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from institution e
+        <where>
+                and e.deleteFlag = '0'
+            <if test="emp!=null">
+                <if test="emp.company !=null and emp.company!=''">
+                    and e.company like concat('%',#{emp.company},'%')
+                </if>
+                <if test="emp.activityCount !=null">
+                    and e.activityCount =#{emp.activityCount}
+                </if>
+                <if test="emp.uplimit !=null">
+                    and e.uplimit =#{emp.uplimit}
+                </if>
+            </if>
+        </where>
+    </select>
+
+
+    <select id="getInstitutionByPageAndCompany" resultMap="BaseResultMap">
+        select e.id,e.company,e.activityCount,e.uplimit,e.comment from institution e where e.deleteFlag = '0'
+        <if test="company !=null">
+            and e.company like concat('%',#{company},'%')
+        </if>
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+    <select id="getTotalByCompany" resultType="java.lang.Long">
+        select count(*) from institution e
+        <where>
+            and e.deleteFlag = '0'
+                <if test="company !=null">
+                    and e.company like concat('%',#{company},'%')
+                </if>
+        </where>
+    </select>
+    <insert id="insert" parameterType="org.sys.rate.model.Institution">
+        insert into institution (company, activityCount, uplimit, comment, deleteFlag
+        )
+        values (#{company,jdbcType=VARCHAR}, #{activityCount,jdbcType=INTEGER}, #{uplimit,jdbcType=INTEGER},
+                #{comment,jdbcType=VARCHAR},0)
+    </insert>
+
+    <update id="delete" parameterType="org.sys.rate.model.Institution">
+        UPDATE institution SET deleteFlag = 1
+        where company = #{company,jdbcType=VARCHAR}
+    </update>
+
+    <update id="update" parameterType="org.sys.rate.model.Institution">
+        UPDATE institution SET company=#{company,jdbcType=VARCHAR},
+                               uplimit=#{uplimit,jdbcType=INTEGER},
+                               comment=#{comment,jdbcType=VARCHAR}
+        where id=#{id,jdbcType=INTEGER}
+    </update>
+</mapper>

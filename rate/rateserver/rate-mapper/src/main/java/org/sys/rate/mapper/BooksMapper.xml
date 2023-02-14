@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.BooksMapper">
+    
+    <resultMap type="org.sys.rate.model.Books" id="BookResult">
+        <result property="ID"    column="ID"    />
+        <result property="name"    column="name"    />
+        <result property="unit"    column="unit"    />
+        <result property="member"    column="member"    />
+        <result property="rank"    column="rank"    />
+        <result property="version"    column="version"    />
+        <result property="year"    column="year"    />
+        <result property="month"    column="month"    />
+        <result property="time"    column="time"    />
+        <result property="type"    column="type"    />
+        <result property="place"    column="place"    />
+        <result property="indicaterID"    column="indicaterID"    />
+    </resultMap>
+
+    <sql id="selectBookVo">
+        select ID, name, unit, member, `rank`, version, year, month, time, type, place, indicaterID from book
+    </sql>
+
+    <select id="selectList" resultMap="BookResult">
+        <include refid="selectBookVo"></include>
+    </select>
+
+    <select id="selectBookList" parameterType="org.sys.rate.model.Books" resultMap="BookResult">
+        <include refid="selectBookVo"/>
+        <where>
+            <if test="ID !=null and ID !=''">and ID =#{ID}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="unit != null  and unit != ''"> and unit = #{unit}</if>
+            <if test="member != null  and member != ''"> and member = #{member}</if>
+            <if test="rank != null  and rank != ''"> and rank = #{rank}</if>
+            <if test="version != null  and version != ''"> and version = #{version}</if>
+            <if test="year != null  and year != ''"> and year = #{year}</if>
+            <if test="month != null  and month != ''"> and month = #{month}</if>
+            <if test="time != null  and time != ''"> and time = #{time}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="place != null  and place != ''"> and place = #{place}</if>
+            <if test="indicaterID != null "> and indicaterID = #{indicaterID}</if>
+        </where>
+    </select>
+    
+    <select id="selectBookById" parameterType="Long" resultMap="BookResult">
+        <include refid="selectBookVo"/>
+        where ID = #{ID}
+    </select>
+        
+    <insert id="insertBook" parameterType="org.sys.rate.model.Books">
+        insert into book
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ID != null">ID,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="unit != null">unit,</if>
+            <if test="member != null">member,</if>
+            <if test="rank != null and rank != ''">rank,</if>
+            <if test="version != null">version,</if>
+            <if test="year != null">year,</if>
+            <if test="month != null">month,</if>
+            <if test="time != null">time,</if>
+            <if test="type != null">type,</if>
+            <if test="place != null">place,</if>
+            <if test="indicaterID != null">indicaterID,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ID != null">#{ID},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="unit != null">#{unit},</if>
+            <if test="member != null">#{member},</if>
+            <if test="rank != null and rank != ''">#{rank},</if>
+            <if test="version != null">#{version},</if>
+            <if test="year != null">#{year},</if>
+            <if test="month != null">#{month},</if>
+            <if test="time != null">#{time},</if>
+            <if test="type != null">#{type},</if>
+            <if test="place != null">#{place},</if>
+            <if test="indicaterID != null">#{indicaterID},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBook" parameterType="org.sys.rate.model.Books">
+        update book
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="unit != null">unit = #{unit},</if>
+            <if test="member != null">member = #{member},</if>
+            <if test="rank != null and rank != ''">rank = #{rank},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="year != null">year = #{year},</if>
+            <if test="month != null">month = #{month},</if>
+            <if test="time != null">time = #{time},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="place != null">place = #{place},</if>
+            <if test="indicaterID != null">indicaterID = #{indicaterID},</if>
+        </trim>
+        where ID = #{ID}
+    </update>
+
+    <delete id="deleteBookById" parameterType="Long">
+        delete from book where ID = #{ID}
+    </delete>
+
+    <delete id="deleteBookByIds" parameterType="String">
+        delete from book where ID in 
+        <foreach item="ID" collection="array" open="(" separator="," close=")">
+            #{ID}
+        </foreach>
+    </delete>
+
+</mapper>

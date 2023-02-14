@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.sys.rate.mapper.ParticipatesMapper">
+    <resultMap id="BaseResultMap" type="org.sys.rate.model.Participates">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <result column="score" property="score" jdbcType="DOUBLE"/>
+        <result column="groupID" property="groupID" jdbcType="INTEGER"/>
+        <result column="groupName" property="groupName" jdbcType="VARCHAR"/>
+        <result column="activityID" property="activityID" jdbcType="INTEGER"/>
+        <result column="studentID" property="studentID" jdbcType="INTEGER"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="displaySequence" property="displaySequence" jdbcType="INTEGER"/>
+        <result column="school" property="school" jdbcType="VARCHAR"/>
+        <result column="major" property="major" jdbcType="VARCHAR"/>
+        <result column="sex" property="sex" jdbcType="VARCHAR"/>
+        <result column="examscore" property="examscore" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="ResultMapGroup" type="org.sys.rate.model.Participates">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <result column="score" property="score" jdbcType="DOUBLE"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="groupID" property="groupID" jdbcType="INTEGER"/>
+        <result column="activityID" property="activityID" jdbcType="INTEGER"/>
+        <result column="studentID" property="studentID" jdbcType="INTEGER"/>
+        <result column="displaySequence" property="displaySequence" jdbcType="INTEGER"/>
+        <result column="school" property="school" jdbcType="VARCHAR"/>
+        <result column="major" property="major" jdbcType="VARCHAR"/>
+        <result column="sex" property="sex" jdbcType="VARCHAR"/>
+        <result column="examscore" property="examscore" jdbcType="VARCHAR"/>
+        <association property="student" javaType="org.sys.rate.model.Student">
+            <id column="SID" property="ID" jdbcType="INTEGER"/>
+            <result column="name" property="name" jdbcType="VARCHAR"/>
+        </association>
+    </resultMap>
+    <resultMap id="ResultMapP" type="org.sys.rate.model.Participates">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <result column="score" property="score" jdbcType="DOUBLE"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="groupID" property="groupID" jdbcType="INTEGER"/>
+        <result column="activityID" property="activityID" jdbcType="INTEGER"/>
+        <result column="studentID" property="studentID" jdbcType="INTEGER"/>
+        <result column="displaySequence" property="displaySequence" jdbcType="INTEGER"/>
+        <association property="expertactivities" javaType="org.sys.rate.model.Expertactivities">
+            <id column="EID" jdbcType="INTEGER" property="id" />
+            <result column="teacherID" jdbcType="INTEGER" property="expertid" />
+            <result column="activityID" jdbcType="INTEGER" property="activityid" />
+            <result column="groupID" jdbcType="INTEGER" property="groupid" />
+            <result column="finished" jdbcType="BOOLEAN" property="finished" />
+        </association>
+    </resultMap>
+    <resultMap id="ResultMapPEexpert" type="org.sys.rate.model.PEexport">
+        <result column="expertID" property="expertID" jdbcType="INTEGER"/>
+        <result column="score" property="score" jdbcType="DOUBLE"/>
+        <result column="expertName" property="expertName" jdbcType="VARCHAR"/>
+        <result column="groupID" property="groupID" jdbcType="INTEGER"/>
+        <result column="groupName" property="groupName" jdbcType="VARCHAR"/>
+        <result column="participantID" property="participantID" jdbcType="INTEGER"/>
+        <result column="participantName" property="participantName" jdbcType="VARCHAR"/>
+        <result column="participantID" property="participantID" jdbcType="INTEGER"/>
+        <result column="scoreItemName" property="scoreItemName" jdbcType="VARCHAR"/>
+        <result column="scoreItemID" property="scoreItemID" jdbcType="INTEGER"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="displaySequence" property="displaySequence" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        ID,studentID,activityID,score,groupID,code,displaySequence,department
+    </sql>
+    <sql id="Column_ListByGroupId">
+        ID,department,code
+    </sql>
+    <sql id="CPByGroupId">
+       p.ID,p.code,p.studentID,p.activityID,p.score,p.groupID,p.displaySequence,s.ID as SID, s.name,s.IDNumber, s.studentnumber, s.telephone, s.email, s.username, s.password, s.year, s.tutorID
+    </sql>
+
+<!--    <select id="getparticipantsByGroupId"  parameterType="java.lang.Integer" resultMap="BaseResultMap">-->
+<!--        select-->
+<!--        <include refid="Column_ListByGroupId" />-->
+<!--        from participants p-->
+<!--        where p.groupID=#{groupId,jdbcType=INTEGER}-->
+<!--        order by p.displaySequence-->
+<!--    </select>-->
+<select id="getPartByGroupId" parameterType="java.lang.Integer" resultMap="ResultMapGroup">
+    select p.ID,p.displaySequence,p.code,s.name,p.studentID
+            from participants p,student s
+            where p.groupID=#{groupId,jdbcType=INTEGER}
+              and p.activityID=#{activitiesID,jdbcType=INTEGER}
+              and p.studentID=s.ID
+            order by p.displaySequence
+</select>
+
+    <select id="getPartByGroupIdForPEexpert" parameterType="java.lang.Integer" resultMap="ResultMapPEexpert">
+        select s.expertID,t.name as expertName,p.groupID,g.name as groupName,s.participantID,stu.name as participantName,p.code,p.displaySequence,s.scoreitemID,sc.name as scoreitemName,s.score from scores s,teacher t,student stu,participants p,scoreitem sc,`groups` g where s.expertID=t.ID and stu.ID=p.studentID and p.ID=s.participantID and s.scoreitemID=sc.ID and p.groupID=g.ID and s.activityID=#{activityID}
+        order by g.name,t.name,p.displaySequence,s.scoreitemID
+    </select>
+
+    <select id="getPartByGroupIdForPEexpert_null" parameterType="java.lang.Integer" resultMap="ResultMapPEexpert">
+        select s.expertID,p.groupID,g.name as groupName,s.participantID,stu.name as participantName,p.code,p.displaySequence,s.scoreitemID,sc.name as scoreitemName,s.score from scores s,student stu,participants p,scoreitem sc,`groups` g where s.expertID is null and stu.ID=p.studentID and p.ID=s.participantID and s.scoreitemID=sc.ID and p.groupID=g.ID and s.activityID=#{activityID} and sc.byExpert=false
+        order by g.name,p.displaySequence,s.scoreitemID;
+    </select>
+
+    <select id="getPartByGroupIdForPEexpertByGID" parameterType="java.lang.Integer" resultMap="ResultMapPEexpert">
+        select s.expertID,t.name as expertName,p.groupID,g.name as groupName,s.participantID,stu.name as participantName,p.code,p.displaySequence,s.scoreitemID,sc.name as scoreitemName,s.score from scores s,teacher t,student stu,participants p,scoreitem sc,`groups` g where s.expertID=t.ID and stu.ID=p.studentID and p.ID=s.participantID and s.scoreitemID=sc.ID and p.groupID=g.ID and p.groupID=#{groupID}
+        order by g.name,t.name,p.displaySequence,s.scoreitemID
+    </select>
+
+    <select id="getPartByGroupIdForPEexpert_nullByGID" parameterType="java.lang.Integer" resultMap="ResultMapPEexpert">
+        select s.expertID,p.groupID,g.name as groupName,s.participantID,stu.name as participantName,p.code,p.displaySequence,s.scoreitemID,sc.name as scoreitemName,s.score from scores s,student stu,participants p,scoreitem sc,`groups` g where s.expertID is null and stu.ID=p.studentID and p.ID=s.participantID and s.scoreitemID=sc.ID and p.groupID=g.ID and p.groupID=#{groupID} and sc.byExpert=false
+        order by g.name,p.displaySequence,s.scoreitemID;
+    </select>
+
+    <select id="selectAllParticipants" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select p.ID
+        from participants p
+        where p.activityID = #{activityId,jdbcType=INTEGER}
+          and p.groupID =#{groupId,jdbcType=INTEGER}
+    </select>
+    <select id="maxWorkID" resultType="java.lang.Integer">
+    select max(workID) from employee
+  </select>
+    <select id="getEmployeeById" resultMap="BaseResultMap">
+        select * from participants where ID=#{ID,jdbcType=INTEGER}
+    </select>
+
+
+    <select id="getActivitiesByPage" resultMap="BaseResultMap">
+        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID from participants e,student s where e.studentID =s.ID and e.groupID=#{groupID} order by e.displaySequence
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+
+    <select id="getPByGID" resultMap="BaseResultMap">
+        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID,g.name as groupName from participants e, student s, `groups` g where e.studentID =s.ID and e.groupID=#{groupID} and g.ID=e.groupID order by e.score desc,e.displaySequence
+<if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+
+    <select id="getPByACID" resultMap="BaseResultMap">
+        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID,g.name as groupName from participants e, student s, `groups` g where e.studentID =s.ID and e.activityID=#{groupID} and g.ID=e.groupID order by e.score desc,e.displaySequence
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+
+    <select id="getParticipantsPageByACID" resultMap="BaseResultMap">
+        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID from participants e,student s where e.studentID =s.ID and e.activityID=#{activitiesID} order by e.groupID,e.displaySequence
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+
+    <select id="getLongParticipantsByPage" resultMap="BaseResultMap">
+        select s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence from participants e,student s where e.studentID =s.ID and e.groupID=#{groupID} order by e.displaySequence
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+
+    <select id="getTotal" resultType="java.lang.Long">
+               select count(*) from participants e,student s where e.studentID =s.ID and e.groupID=#{groupID}
+        <!--<where>
+                and e.deleteFlag = '0'-->
+<!--            <if test="emp!=null">
+                <if test="emp.company !=null and emp.company!=''">
+                    and e.company like concat('%',#{emp.company},'%')
+                </if>
+                <if test="emp.activityCount !=null">
+                    and e.activityCount =#{emp.activityCount}
+                </if>
+                <if test="emp.uplimit !=null">
+                    and e.uplimit =#{emp.uplimit}
+                </if>
+            </if>-->
+        <!--</where>-->
+    </select>
+    <select id="getTotalByACID" resultType="java.lang.Long">
+        select count(*) from participants e,student s where e.studentID =s.ID and e.activityID=#{activitiesID}
+    </select>
+
+    <select id="getActivitiesByPageAndCompany" resultMap="BaseResultMap">
+        select e.id,e.name,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.IDvarchar from activities e where e.deleteFlag = '0'
+        <if test="company !=null">
+            and e.name like concat('%',#{company},'%')
+        </if>
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+    <select id="getTotalByCompany" resultType="java.lang.Long">
+        select count(*) from participants e
+        <where>
+            and e.deleteFlag = '0'
+                <if test="company !=null">
+                    and e.company like concat('%',#{company},'%')
+                </if>
+        </where>
+    </select>
+    <!--<insert id="insert" parameterType="org.sys.rate.model.Activities">
+        insert into participants (IDvarchar, name, IDvarchar
+        )
+        values  (#{IDvarchar,jdbcType=VARCHAR},
+                #{name,jdbcType=VARCHAR},#{IDvarchar,jdbcType=VARCHAR});
+    </insert>-->
+    <insert id="insert" parameterType="org.sys.rate.model.Participates">
+        insert into student  (ID,
+                              name,IDNumber, username,
+                              password, telephone, email,deleteflag
+        )
+        values (#{ID,jdbcType=INTEGER},
+                #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR},
+                #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false
+               )
+    </insert>
+
+    <update id="insert_update" parameterType="org.sys.rate.model.Activities">
+        UPDATE institution a SET a.activityCount = a.activityCount+1  WHERE a.id = #{IDvarchar,jdbcType=INTEGER}
+    </update>
+
+    <update id="saveScore" >
+        UPDATE participants SET score=#{score,jdbcType=DOUBLE}
+        where ID=#{participateId,jdbcType=INTEGER}
+    </update>
+
+    <update id="saveLscore">
+        update participants set score=#{sum,jdbcType=DOUBLE}
+        where ID=#{participantID,jdbcType=INTEGER}
+    </update>
+
+    <update id="saveAvgscore">
+        update participants p set p.score=(select avg(sc.score) from scores sc
+       where sc.participantID=#{participantID}
+       and sc.scoreItemID = (select si.ID from scoreitem si where si.activityID=#{activityID} and si.name="总分"))
+        where p.ID=#{participantID} and p.activityID=#{activityID};
+    </update>
+
+    <delete id="delete" parameterType="org.sys.rate.model.Participates">
+        delete from scores
+        where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
+        delete from infos
+        where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
+        delete from participants
+        where ID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
+        UPDATE activities set participantCount=participantCount-1 where ID=#{activityID,jdbcType=INTEGER};
+        UPDATE `groups` set participantCount=participantCount-1 where ID=#{groupID,jdbcType=INTEGER};
+        update activities set expertCount=(select count(*) from expertactivities where activityID=#{activityID,jdbcType=INTEGER} and ID!='0') where ID=#{activityID,jdbcType=INTEGER};
+        update activities set participantCount=(select count(*) from participants where activityID=#{activityID,jdbcType=INTEGER} and ID!='0') where ID=#{activityID,jdbcType=INTEGER};
+        update `groups` set expertCount=(select count(*) from expertactivities where groupID=#{groupID,jdbcType=INTEGER} and ID!='0') where ID=#{groupID,jdbcType=INTEGER};
+        update `groups` set participantCount=(select count(*) from participants where groupID=#{groupID,jdbcType=INTEGER} and ID!='0') where ID=#{groupID,jdbcType=INTEGER}
+    </delete>
+
+    <update id="update" parameterType="org.sys.rate.model.Participates">
+        UPDATE participants SET code=#{code,jdbcType=VARCHAR}
+        where ID=#{ID,jdbcType=INTEGER};
+        UPDATE student SET name=#{name,jdbcType=VARCHAR}
+        where ID=#{studentID,jdbcType=INTEGER}
+    </update>
+    <select id="getParticipatesByPage" resultMap="BaseResultMap">
+        select s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence from participants e,student s  where e.studentID=s.ID
+    </select>
+    <select id="getTotaloutput" resultType="java.lang.Long">
+    select count(*) from participants e
+    </select>
+
+    <insert id="addParticipatess">
+        insert into participants (ID, name, IDvarchar
+        )
+        values
+        <foreach collection="list" separator="," item="emp">
+            (#{emp.ID,jdbcType=VARCHAR}, #{emp.name,jdbcType=VARCHAR},
+            #{emp.IDvarchar,jdbcType=INTEGER}
+            )
+        </foreach>
+    </insert>
+
+    <select id="getPID" resultType="java.lang.Integer">
+        select ID from participants where studentID=#{studentID,jdbcType=INTEGER} and activityID=#{activityID,jdbcType=INTEGER}
+                                      <if test="groupID!=null"> and groupID=#{groupID,jdbcType=INTEGER}</if>
+    </select>
+
+    <select id="getID" resultType="java.lang.Integer">
+        select ID from student where IDNumber=#{idNumber}
+    </select>
+
+    <update id="insert_relationship" parameterType="org.sys.rate.model.Participates">
+        INSERT into participants (ID, studentID, activityID,
+        <if test="groupID!= -1">groupID,</if><if test="displaySequence!= -1">displaySequence,</if>code)
+        VALUES (#{ID,jdbcType=INTEGER}, #{studentID,jdbcType=INTEGER}, #{activityID,jdbcType=INTEGER}
+        <if test="groupID!= -1">,#{groupID,jdbcType=INTEGER}</if>
+        <if test="displaySequence!= -1">,#{displaySequence,jdbcType=INTEGER}</if>
+    ,#{code,jdbcType=VARCHAR}) ON DUPLICATE KEY UPDATE groupID =values(groupID);
+        UPDATE activities set participantCount=participantCount+1 where ID=#{activityID,jdbcType=INTEGER};
+        UPDATE `groups` set participantCount=participantCount+1 where ID=#{groupID,jdbcType=INTEGER};
+        update activities set expertCount=(select count(*) from expertactivities where activityID=#{activityID,jdbcType=INTEGER} and ID!='0') where ID=#{activityID,jdbcType=INTEGER};
+        update activities set participantCount=(select count(*) from participants where activityID=#{activityID,jdbcType=INTEGER} and ID!='0') where ID=#{activityID,jdbcType=INTEGER};
+        update `groups` set expertCount=(select count(*) from expertactivities where groupID=#{groupID,jdbcType=INTEGER} and ID!='0') where ID=#{groupID,jdbcType=INTEGER};
+        update `groups` set participantCount=(select count(*) from participants where groupID=#{groupID,jdbcType=INTEGER} and ID!='0') where ID=#{groupID,jdbcType=INTEGER}
+    </update>
+
+    <update id="update_relationship" parameterType="org.sys.rate.model.Participates">
+        UPDATE participants  set <if test="groupID!= -1">groupID=#{groupID,jdbcType=INTEGER},</if>
+        <if test="displaySequence!= -1">
+            displaySequence=#{displaySequence,jdbcType=INTEGER},
+        </if>
+        <if test="code!= null">
+            code=#{code,jdbcType=VARCHAR}
+        </if>
+       where activityID=#{activityID,jdbcType=INTEGER} and studentID=#{studentID,jdbcType=INTEGER};
+        update activities set expertCount=(select count(*) from expertactivities where activityID=#{activityID,jdbcType=INTEGER} and ID!='0') where ID=#{activityID,jdbcType=INTEGER};
+        update activities set participantCount=(select count(*) from participants where activityID=#{activityID,jdbcType=INTEGER} and ID!='0') where ID=#{activityID,jdbcType=INTEGER};
+        update `groups` set expertCount=(select count(*) from expertactivities where groupID=#{groupID,jdbcType=INTEGER} and ID!='0') where ID=#{groupID,jdbcType=INTEGER};
+        update `groups` set participantCount=(select count(*) from participants where groupID=#{groupID,jdbcType=INTEGER} and ID!='0') where ID=#{groupID,jdbcType=INTEGER}
+
+    </update>
+
+    <update id="subDisplaySequence">
+        UPDATE participants set displaySequence=displaySequence-1
+        where groupID=#{groupID} and displaySequence &gt; #{small}  and ID!='0'
+        <if test="big!= null">
+        and displaySequence &lt;= #{big}
+        </if>
+        </update>
+
+    <update id="addDisplaySequence">
+        UPDATE participants set displaySequence=displaySequence+1
+        where groupID=#{groupID} and displaySequence &lt; #{big} and displaySequence &gt;= #{small} and ID!='0'
+    </update>
+
+    <update id="saveDisplaySequence">
+        UPDATE participants set displaySequence=#{newP}
+        where groupID=#{groupID} and ID=#{ID}
+    </update>
+
+    <select id="checkByIDandActivityID" resultType="java.lang.Integer">
+        select groupID from participants where studentID=#{id} and activityID=#{activityid}
+    </select>
+
+    <select id="getOldGroupByIDandActivityID" resultType="java.lang.Integer">
+        select groupID from participants where studentID=#{id} and activityID=#{activityid}
+    </select>
+    <select id="selectGroupNameById" parameterType="java.lang.Integer" resultType="java.lang.String">
+        select g.name
+        from `groups` g
+        where g.ID=#{groupId,jdbcType=INTEGER}
+    </select>
+
+    <select id="getlastDisplaySequence" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select p.displaySequence
+        from `participants` p
+        where p.groupID=#{groupID}  order by p.displaySequence desc
+        limit 1
+    </select>
+    <select id="checkGroupIDExists" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        select exists (select *from participants
+                       where activityID=#{activityID} and studentID=#{studentID})
+    </select>
+
+    <select id="getExpertSituationByExpertID" parameterType="java.lang.Integer" resultMap="ResultMapPEexpert">
+        select p.groupID,g.name as groupName,s.participantID,stu.name as participantName,p.code,p.displaySequence,s.scoreitemID,sc.name as scoreitemName,s.score from scores s,student stu,participants p,scoreitem sc,`groups` g where s.expertID=#{expertID} and stu.ID=p.studentID and p.ID=s.participantID and s.scoreitemID=sc.ID and p.groupID=g.ID and p.groupID=#{groupID}
+        order by g.name,p.displaySequence,s.scoreitemID
+        <!--<if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>-->
+    </select>
+
+    <select id="getExpertSituationTotal" resultType="java.lang.Long">
+        select count(*)  from scores s,student stu,participants p,scoreitem sc,`groups` g where s.expertID=#{expertID} and stu.ID=p.studentID and p.ID=s.participantID and s.scoreitemID=sc.ID and p.groupID=g.ID and p.groupID=#{groupID}
+        order by g.name,p.displaySequence,s.scoreitemID
+    </select>
+</mapper>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.ProjectsMapper">
+    
+    <resultMap type="org.sys.rate.model.Projects" id="ProjectsResult">
+        <result property="ID"    column="ID"    />
+        <result property="name"    column="name"    />
+        <result property="source"    column="source"    />
+        <result property="sub"    column="sub"    />
+        <result property="head"    column="head"    />
+        <result property="division"    column="division"    />
+        <result property="year"    column="year"    />
+        <result property="way"    column="way"    />
+        <result property="starttime"    column="starttime"    />
+        <result property="endtime"    column="endtime"    />
+        <result property="typeId"    column="typeId"    />
+    </resultMap>
+
+    <sql id="selectProjectsVo">
+        select ID, name, source, sub, head, division, year, way, starttime, endtime, typeId from projects
+    </sql>
+
+    <select id="selectList" resultMap="ProjectsResult">
+        <include refid="selectProjectsVo"></include>
+    </select>
+
+    <select id="selectProjectsList" parameterType="org.sys.rate.model.Projects" resultMap="ProjectsResult">
+        <include refid="selectProjectsVo"/>
+        <where>
+            <if test="ID !=null and ID !=''">and ID =#{ID}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="source != null  and source != ''"> and source = #{source}</if>
+            <if test="sub != null  and sub != ''"> and sub = #{sub}</if>
+            <if test="head != null  and head != ''"> and head = #{head}</if>
+            <if test="division != null  and division != ''"> and division = #{division}</if>
+            <if test="year != null "> and year = #{year}</if>
+            <if test="way != null  and way != ''"> and way = #{way}</if>
+            <if test="starttime != null "> and starttime = #{starttime}</if>
+            <if test="endtime != null "> and endtime = #{endtime}</if>
+            <if test="typeId != null "> and typeId = #{typeId}</if>
+        </where>
+    </select>
+    
+    <select id="selectProjectsById" parameterType="Long" resultMap="ProjectsResult">
+        <include refid="selectProjectsVo"/>
+        where ID = #{ID}
+    </select>
+        
+    <insert id="insertProjects" parameterType="org.sys.rate.model.Projects">
+        insert into projects
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ID != null">ID,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="source != null">source,</if>
+            <if test="sub != null">sub,</if>
+            <if test="head != null">head,</if>
+            <if test="division != null">division,</if>
+            <if test="year != null">year,</if>
+            <if test="way != null">way,</if>
+            <if test="starttime != null">starttime,</if>
+            <if test="endtime != null">endtime,</if>
+            <if test="typeId != null">typeId,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ID != null">#{ID},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="source != null">#{source},</if>
+            <if test="sub != null">#{sub},</if>
+            <if test="head != null">#{head},</if>
+            <if test="division != null">#{division},</if>
+            <if test="year != null">#{year},</if>
+            <if test="way != null">#{way},</if>
+            <if test="starttime != null">#{starttime},</if>
+            <if test="endtime != null">#{endtime},</if>
+            <if test="typeId != null">#{typeId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateProjects" parameterType="org.sys.rate.model.Projects">
+        update projects
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="source != null">source = #{source},</if>
+            <if test="sub != null">sub = #{sub},</if>
+            <if test="head != null">head = #{head},</if>
+            <if test="division != null">division = #{division},</if>
+            <if test="year != null">year = #{year},</if>
+            <if test="way != null">way = #{way},</if>
+            <if test="starttime != null">starttime = #{starttime},</if>
+            <if test="endtime != null">endtime = #{endtime},</if>
+            <if test="typeId != null">typeId = #{typeId},</if>
+        </trim>
+        where ID = #{ID}
+    </update>
+
+    <delete id="deleteProjectsById" parameterType="Long">
+        delete from projects where ID = #{ID}
+    </delete>
+
+    <delete id="deleteProjectsByIds" parameterType="String">
+        delete from projects where ID in 
+        <foreach item="ID" collection="array" open="(" separator="," close=")">
+            #{ID}
+        </foreach>
+    </delete>
+
+</mapper>

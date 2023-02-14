@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.ExpertsMapper">
+  <resultMap id="BaseResultMap" type="org.sys.rate.model.Experts">
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="institutionID" jdbcType="INTEGER" property="institutionid" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="department" jdbcType="VARCHAR" property="department" />
+    <result column="IDNumber" jdbcType="VARCHAR" property="idnumber" />
+    <result column="username"  jdbcType="VARCHAR" property="username"/>
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="phone" jdbcType="VARCHAR" property="phone" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="deleteFlag" property="deleteFlag" jdbcType="BIT"/>
+    <result column="role" property="role" jdbcType="VARCHAR"/>
+  </resultMap>
+  <resultMap id="PEexportResultMap" type="org.sys.rate.model.PEexport">
+    <result column="eID" jdbcType="INTEGER" property="eID" />
+    <result column="ename" jdbcType="VARCHAR" property="ename" />
+    <result column="groupID" jdbcType="INTEGER" property="groupID" />
+  </resultMap>
+
+<!--  <resultMap id="ResultMapWithA" type="org.sys.rate.model.Experts">-->
+<!--    <id column="ID" jdbcType="INTEGER" property="id" />-->
+<!--    <result column="institutionID" jdbcType="INTEGER" property="institutionid" />-->
+<!--    <result column="name" jdbcType="VARCHAR" property="name" />-->
+<!--    <result column="department" jdbcType="VARCHAR" property="department" />-->
+<!--    <result column="IDNumber" jdbcType="VARCHAR" property="idnumber" />-->
+<!--    <result column="username"  jdbcType="VARCHAR" property="username"/>-->
+<!--    <result column="password" jdbcType="VARCHAR" property="password" />-->
+<!--    <result column="phone" jdbcType="VARCHAR" property="phone" />-->
+<!--    <result column="email" jdbcType="VARCHAR" property="email" />-->
+<!--    <collection property="activitiesList" ofType="org.sys.rate.model.Activities">-->
+<!--      <id column="ACid" property="id"  jdbcType="INTEGER"/>-->
+<!--      <result column="ACname" property="name" jdbcType="VARCHAR"/>-->
+<!--      <result column="startDate" property="startDate" jdbcType="DATE"/>-->
+<!--      <result column="scoreItemCount" property="scoreItemCount" jdbcType="INTEGER"/>-->
+<!--      <result column="score" property="score" jdbcType="DOUBLE"/>-->
+<!--      <result column="groupCount" property="groupCount" jdbcType="INTEGER"/>-->
+<!--      <result column="expertCount" property="expertCount" jdbcType="INTEGER"/>-->
+<!--      <result column="participantCount" property="participantCount" jdbcType="INTEGER"/>-->
+<!--      <result column="comment" property="comment" jdbcType="VARCHAR"/>-->
+<!--&lt;!&ndash;      <result column="deleteFlag" property="deleteFlag" jdbcType="BIT"/>&ndash;&gt;-->
+<!--      <result column="ACinstitutionID" property="institutionID" jdbcType="INTEGER"/>-->
+<!--      <result column="status" property="status" jdbcType="VARCHAR"/>-->
+<!--      <association property="institution" javaType="org.sys.rate.model.Institution">-->
+<!--        <id column="Inid" property="id" jdbcType="INTEGER"/>-->
+<!--        <result column="company" property="company" jdbcType="VARCHAR"/>-->
+<!--      </association>-->
+<!--    </collection>-->
+<!--  </resultMap>-->
+<resultMap id="ResultMapWithA" type="org.sys.rate.model.Activities">
+        <id column="ACid" property="id"  jdbcType="INTEGER"/>
+        <result column="ACname" property="name" jdbcType="VARCHAR"/>
+        <result column="startDate" property="startDate" jdbcType="DATE"/>
+        <result column="scoreItemCount" property="scoreItemCount" jdbcType="INTEGER"/>
+        <result column="score" property="score" jdbcType="DOUBLE"/>
+        <result column="groupCount" property="groupCount" jdbcType="INTEGER"/>
+        <result column="expertCount" property="expertCount" jdbcType="INTEGER"/>
+        <result column="participantCount" property="participantCount" jdbcType="INTEGER"/>
+        <result column="comment" property="comment" jdbcType="VARCHAR"/>
+  <!--      <result column="deleteFlag" property="deleteFlag" jdbcType="BIT"/>-->
+        <result column="ACinstitutionID" property="institutionID" jdbcType="INTEGER"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+  <association property="institution" javaType="org.sys.rate.model.Institution">
+          <id column="Inid" property="id" jdbcType="INTEGER"/>
+          <result column="company" property="company" jdbcType="VARCHAR"/>
+</association>
+</resultMap>
+
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    ID, username, institutionID, name, department, IDNumber, password,phone, email,deleteFlag,role
+  </sql>
+    <sql id="Column_ListWithActivities">
+      ac.id as ACid, ac.name as ACname, ac.startDate, ac.scoreItemCount, ac.score,
+      ac.groupCount, ac.expertCount, ac.participantCount,
+      ac.comment, ac.institutionID as ACinstitutionID,ac.status,
+      i.id as Inid, i.company
+    </sql>
+
+<!--  没写完-->
+<!--<sql id="Column_ListWithscore">-->
+
+<!--</sql>-->
+  <select id="getTotalActivities" parameterType="Integer" resultType="java.lang.Long">
+    select count(*) from expertactivities ex,experts e
+    where e.ID = #{id,jdbcType=INTEGER}
+    and ex.expertId = e.ID
+    and ac.status='open'
+  </select>
+
+<!--  <select id="getParticipates" parameterType="Integer" resultMap="org.sys.rate.model.Participates">-->
+
+<!--  </select>-->
+
+  <select id="selectActivitiesById" parameterType="Integer" resultMap="ResultMapWithA">
+      select
+      <include refid="Column_ListWithActivities" />
+      from expertactivities ex,experts e,activities ac,institution i
+      where e.ID = #{id,jdbcType=INTEGER}
+      and ex.expertId = e.ID and ex.activityID=ac.ID and ac.institutionID=i.id
+      and ac.status='open'
+      order by ac.ID
+    </select>
+
+  <select id="loadUserByUsername" resultMap="BaseResultMap">
+    select t.ID, t.username, t.institutionID, t.name, t.department, t.IDNumber, t.password,t.phone, t.email from teacher t where t.username=#{username}
+  </select>
+
+  <select id="getAdminRolesById" resultType="org.sys.rate.model.Role">
+    select r.* from role r,teacher a where a.`role`=r.`id` and a.`id`=#{id}
+  </select>
+  <update id="update" parameterType="org.sys.rate.model.Experts">
+    UPDATE teacher SET department=#{department,jdbcType=VARCHAR},
+                     institutionID=#{institutionid,jdbcType=INTEGER},
+                     name=#{name,jdbcType=VARCHAR},
+                       phone=#{phone,jdbcType=VARCHAR},
+                     email=#{email,jdbcType=INTEGER},
+                       IDNumber=#{idnumber,jdbcType=VARCHAR}
+    where id=#{id,jdbcType=INTEGER}
+  </update>
+  <update id="updatePasswd">
+    UPDATE teacher SET password=#{password}
+    where ID=#{id}
+  </update>
+
+
+    <select id="selectByPrimaryId" parameterType="Integer" resultMap="BaseResultMap">
+      select
+      <include refid="Base_Column_List" />
+      from experts
+      where ID = #{id,jdbcType=INTEGER}
+    </select>
+<!--    <delete id="deleteByPrimaryKey" parameterType="org.sys.rate.model.ExpertsKey">-->
+<!--      delete from experts-->
+<!--      where ID = #{id,jdbcType=INTEGER}-->
+<!--        and username = #{username,jdbcType=VARCHAR}-->
+<!--    </delete>-->
+  <delete id="deleteById" parameterType="Integer">
+    delete from experts
+    where ID = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="org.sys.rate.model.Experts">
+    insert into teacher (ID, institutionID,
+      name,jobnumber, department, IDNumber, username,
+      password,phone, email,sex,deleteflag,role
+      )
+    values (#{id,jdbcType=INTEGER},
+            #{institutionid,jdbcType=INTEGER},
+            #{name,jdbcType=VARCHAR},
+            #{jobNumber,jdbcType=VARCHAR},
+            #{department,jdbcType=VARCHAR},
+            #{idnumber,jdbcType=VARCHAR},
+            #{username,jdbcType=VARCHAR},
+            #{password,jdbcType=VARCHAR},
+            #{phone,jdbcType=VARCHAR},
+            #{email,jdbcType=VARCHAR},
+            #{sex,jdbcType=VARCHAR},
+            false,
+            '3'
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="org.sys.rate.model.Experts">
+    insert into experts
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="institutionid != null">
+        institutionID,
+      </if>
+      <if test="name != null">
+        name,
+      </if>
+      <if test="department != null">
+        department,
+      </if>
+      <if test="idnumber != null">
+        IDNumber,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="phone != null">
+        phone,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="institutionid != null">
+        #{institutionid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="department != null">
+        #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="idnumber != null">
+        #{idnumber,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+
+
+  <update id="updateByExampleSelective" parameterType="map">
+    update experts
+    <set>
+      <if test="record.id != null">
+        ID = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.username != null">
+        username = #{record.username,jdbcType=VARCHAR},
+      </if>
+      <if test="record.institutionid != null">
+        institutionID = #{record.institutionid,jdbcType=INTEGER},
+      </if>
+      <if test="record.name != null">
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.department != null">
+        department = #{record.department,jdbcType=VARCHAR},
+      </if>
+      <if test="record.idnumber != null">
+        IDNumber = #{record.idnumber,jdbcType=VARCHAR},
+      </if>
+      <if test="record.password != null">
+        password = #{record.password,jdbcType=VARCHAR},
+      </if>
+      <if test="record.phone != null">
+        phone = #{record.phone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.email != null">
+        email = #{record.email,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update experts
+    set ID = #{record.id,jdbcType=INTEGER},
+      username = #{record.username,jdbcType=VARCHAR},
+      institutionID = #{record.institutionid,jdbcType=INTEGER},
+      name = #{record.name,jdbcType=VARCHAR},
+      department = #{record.department,jdbcType=VARCHAR},
+      IDNumber = #{record.idnumber,jdbcType=VARCHAR},
+      password = #{record.password,jdbcType=VARCHAR},
+      phone = #{record.phone,jdbcType=VARCHAR},
+      email = #{record.email,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="org.sys.rate.model.Experts">
+    update experts
+    <set>
+      <if test="institutionid != null">
+        institutionID = #{institutionid,jdbcType=INTEGER},
+      </if>
+      <if test="name != null">
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="department != null">
+        department = #{department,jdbcType=VARCHAR},
+      </if>
+      <if test="idnumber != null">
+        IDNumber = #{idnumber,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=INTEGER}
+      and username = #{username,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="org.sys.rate.model.Experts">
+    update teacher
+    set institutionID = #{institutionid,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      department = #{department,jdbcType=VARCHAR},
+      IDNumber = #{idnumber,jdbcType=VARCHAR},
+      username = #{username,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR}
+    where ID = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="getExpertsByPage" resultMap="BaseResultMap">
+    /*select * from teacher g*/
+      select t.ID, t.username, t.institutionID, t.name, t.department, t.IDNumber, t.password,t.phone, t.email from teacher t,expertactivities e where e.`teacherID`=t.`id` and e.`groupID`=#{keywords}
+    <if test="page !=null and size!=null">
+      limit #{page},#{size}
+    </if>
+  </select>
+  <select id="getTotal" resultType="java.lang.Long">
+    select count(*)  from teacher t,expertactivities e where e.`teacherID`=t.`id` and e.`groupID`=#{keywords}
+  </select>
+
+  <select id="check" resultType="java.lang.Integer">
+    select exists (select * from teacher where IDNumber=#{idnumber,jdbcType=VARCHAR})
+  </select>
+
+
+  <select id="getID" resultType="java.lang.Integer">
+    select ID from teacher where IDNumber=#{idNumber}
+  </select>
+
+  <!--
+  <update id="updateByIdNumber" parameterType="org.sys.rate.model.Experts">
+    update teacher set
+                     institutionID = #{institutionid,jdbcType=INTEGER},
+                     name = #{name,jdbcType=VARCHAR},
+                     department = #{department,jdbcType=VARCHAR},
+                     username = #{username,jdbcType=VARCHAR},
+                     password = #{password,jdbcType=VARCHAR},
+                     phone = #{phone,jdbcType=VARCHAR},
+                     email = #{email,jdbcType=VARCHAR},
+                    jobnumber=#{jobNumber,jdbcType=VARCHAR},
+                     sex=#{sex,jdbcType=VARCHAR}
+            where IDNumber=#{idnumber};
+  </update>-->
+
+  <update id="updateByIdNumber" parameterType="org.sys.rate.model.Experts">
+    update teacher set
+                     institutionID = #{institutionid,jdbcType=INTEGER},
+                     name = #{name,jdbcType=VARCHAR},
+                     department = #{department,jdbcType=VARCHAR},
+                     jobnumber=#{jobNumber,jdbcType=VARCHAR},
+                     sex=#{sex,jdbcType=VARCHAR}
+    where IDNumber=#{idnumber};
+  </update>
+
+  <select id="checkUsername" resultType="java.lang.Integer">
+    select count(username) from teacher where username=#{username};
+  </select>
+
+  <select id="getExperts" resultMap="PEexportResultMap">
+    select t.ID as eID,t.name as ename,e.groupID from teacher t,expertactivities e where e.`teacherID`=t.`id` and e.activityID=#{activityID} order by t.name
+  </select>
+</mapper>

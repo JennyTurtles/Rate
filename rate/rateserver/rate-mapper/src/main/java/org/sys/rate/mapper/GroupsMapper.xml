@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.sys.rate.mapper.GroupsMapper">
+    <resultMap id="BaseResultMap" type="org.sys.rate.model.Groups">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <result column="expertCount" property="expertCount" jdbcType="INTEGER"/>
+        <result column="participantCount" property="participantCount" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <!--<result column="startDate" property="startDate" jdbcType="INTEGER"/>-->
+        <!--<result column="scoreItemCount" property="scoreItemCount" jdbcType="INTEGER"/>
+        <result column="score" property="score" jdbcType="DOUBLE"/>
+        <result column="groupCount" property="groupCount" jdbcType="INTEGER"/>
+        <result column="expertCount" property="expertCount" jdbcType="INTEGER"/>
+        <result column="participantCount" property="participantCount" jdbcType="INTEGER"/>
+        <result column="comment" property="comment" jdbcType="VARCHAR"/>
+        <result column="byExpert" property="byExpert" jdbcType="BIT"/>-->
+        <result column="activityID" property="activityID" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        ID, activityID, name, expertCount, participantCount
+    </sql>
+    <select id="maxWorkID" resultType="java.lang.Integer">
+        select max(workID)
+        from employee
+    </select>
+    <select id="getEmployeeById" resultMap="BaseResultMap">
+        select *
+        from `groups`
+        where ID= #{id}
+    </select>
+    <select id="getActivitiesByPage" resultMap="BaseResultMap">
+        select g.ID,g.activityID,g.name,g.expertCount,g.participantCount from `groups` g
+        <if test="keywords!=null">
+            where g.activityID=#{keywords}
+        </if>
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+    <select id="getTotal" resultType="java.lang.Long">
+        select count(*) from `groups` g
+        <if test="keywords!=null">
+            where g.activityID=#{keywords}
+        </if>
+    </select>
+    <select id="getTotalforactivityCount" resultType="java.lang.Integer">
+        select count(*) from `groups`
+        <if test="keywords!=null">
+            where activityID=#{keywords}
+        </if>
+    </select>
+
+    <select id="getActivitiesByPageAndCompany" resultMap="BaseResultMap">
+        select
+        e.id,e.name,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID
+        from activities e where e.deleteFlag = '0'
+        <if test="company !=null">
+            and e.name like concat('%',#{company},'%')
+        </if>
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+    <select id="getTotalByCompany" resultType="java.lang.Long">
+        select count(*) from participants e
+        <where>
+            and e.deleteFlag = '0'
+            <if test="company !=null">
+                and e.company like concat('%',#{company},'%')
+            </if>
+        </where>
+    </select>
+    <insert id="insert" parameterType="org.sys.rate.model.Groups">
+        insert into `groups` (ID, activityID, name, expertCount, participantCount)
+        values (#{ID,jdbcType=INTEGER}, #{activityID,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+                #{expertCount,jdbcType=INTEGER}, #{participantCount,jdbcType=INTEGER});
+        UPDATE activities
+        SET groupCount = groupCount + 1
+        WHERE ID = #{activityID,jdbcType=INTEGER}
+    </insert>
+
+    <update id="insert_update" parameterType="org.sys.rate.model.Groups">
+        UPDATE institution a
+        SET a.activityCount = a.activityCount + 1
+        WHERE a.id = #{institutionID,jdbcType=INTEGER}
+    </update>
+
+    <update id="delete" parameterType="org.sys.rate.model.Groups">
+        DELETE
+        FROM `groups`
+        WHERE ID = #{ID,jdbcType=INTEGER};
+        UPDATE activities
+        SET groupCount = groupCount - 1
+        WHERE ID = #{activityID,jdbcType=INTEGER}
+    </update>
+
+    <update id="update" parameterType="org.sys.rate.model.Groups">
+        UPDATE `groups`
+        SET name=#{name,jdbcType=VARCHAR}
+        where ID = #{ID,jdbcType=INTEGER}
+    </update>
+
+    <select id="queryMaxId" resultType="java.lang.Integer">
+        select max(id)
+        from `groups`
+    </select>
+
+</mapper>

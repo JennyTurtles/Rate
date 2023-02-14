@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.sys.rate.mapper.StudentMapper">
+    <resultMap id="BaseResultMap" type="org.sys.rate.model.Student">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+<!--        <result column="institutionID" jdbcType="INTEGER" property="institutionid" />-->
+        <result column="studentnumber" property="studentnumber" jdbcType="VARCHAR"/>
+<!--        <result column="IDNumber" property="IDNumber" jdbcType="VARCHAR"/>-->
+        <result column="telephone" property="telephone" jdbcType="VARCHAR"/>
+        <result column="email" property="email" jdbcType="VARCHAR"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+<!--        <result column="deleteFlag" property="deleteFlag" jdbcType="BIT"/>-->
+        <result column="year" property="year" jdbcType="INTEGER"/>
+        <result column="tutorID" property="tutorID" jdbcType="VARCHAR"/>
+        <result column="role" property="role" jdbcType="INTEGER"/>
+        <association property="teachers" javaType="org.sys.rate.model.Teachers">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="name" column="tname"/>
+        </association>
+
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID, name,institutionID,IDNumber, studentnumber, telephone, email, username, password, year,deleteflag, tutorID
+    </sql>
+
+    <select id="getTotal" resultType="org.sys.rate.model.Student">
+        select count(*) from rate.student
+        where deleteflag = 0;
+    </select>
+    <select id="getById" resultType="org.sys.rate.model.Student">
+        select * from student
+        where ID=#{ID}
+    </select>
+
+    <insert id="insert" parameterType="org.sys.rate.model.Student">
+        insert into rate.student (name, studentnumber, telephone, email
+        )
+        values  (#{name,jdbcType=VARCHAR}, #{studentnumber,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR},
+                 #{email,jdbcType=VARCHAR});
+    </insert>
+
+    <update id="delete" parameterType="org.sys.rate.model.Student">
+        UPDATE rate.student SET deleteFlag = 1
+        where rate.student.ID = #{ID,jdbcType=INTEGER};
+    </update>
+
+    <update id="update" parameterType="org.sys.rate.model.Student">
+        UPDATE rate.student SET name=#{name,jdbcType=VARCHAR},
+                                studentnumber=#{studentnumber,jdbcType=VARCHAR},
+                                telephone=#{telephone,jdbcType=VARCHAR},
+                                email=#{email,jdbcType=VARCHAR}
+        where ID=#{ID,jdbcType=INTEGER};
+    </update>
+
+    <select id="check" resultType="java.lang.Integer">
+        select exists (select * from student where IDNumber=#{IDNumber})
+    </select>
+<!--    <select id="getAdminRolesById" resultType="org.sys.rate.model.Role">-->
+<!--&#45;&#45;         select r.* from role r,student a where a.`role`=r.`id` and a.`id`=#{id}-->
+<!--            select * from student where ID=#{ID}-->
+<!--    </select>-->
+    <sql id="selectStudentVo">
+        select ID, name, studentnumber, telephone, email, username, password, year, tutorID from student
+    </sql>
+    <select id="selectList" resultMap="BaseResultMap">
+        <include refid="selectStudentVo"></include>
+    </select>
+<!--    <select id="loadUserByUsername" resultMap="BaseResultMap">-->
+<!--        select *-->
+<!--        from student s-->
+<!--        where s.username=#{username}-->
+<!--    </select>-->
+    <select id="loadUserByUsername" resultMap="BaseResultMap">
+        select s.ID,s.name,s.studentnumber,s.telephone,s.email,s.username,s.password,s.tutorID,s.year,s.role,t.name as tname
+        from student s,teacher t
+        where s.username=#{username} and s.tutorID=t.ID
+    </select>
+
+    <insert id="insertFROMImport" parameterType="org.sys.rate.model.Student">
+        insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,tutorID
+        )
+        values (#{ID,jdbcType=INTEGER},
+                #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
+        <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
+                #{username,jdbcType=VARCHAR},
+                #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,'1003'
+               )
+    </insert>
+
+    <update id="updateFROMImport" parameterType="org.sys.rate.model.Student">
+        update student  <set>
+        <if test="institutionid!=-1">institutionID=#{institutionid,jdbcType=INTEGER},</if>
+        <if test="name!=null">name=#{name,jdbcType=VARCHAR},</if>
+        <if test="password!=null">password=#{password,jdbcType=VARCHAR},</if>
+        <if test="username!=null">username=#{username,jdbcType=VARCHAR},</if>
+                </set>
+        where IDNumber=#{IDNumber,jdbcType=VARCHAR} and ID!='0'
+    </update>
+</mapper>

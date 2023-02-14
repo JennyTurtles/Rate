@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.PublicationMapper">
+    
+    <resultMap type="org.sys.rate.model.Publication" id="PublicationResult">
+        <result property="ID"    column="ID"    />
+        <result property="name"    column="name"    />
+        <result property="abbr"    column="abbr"    />
+        <result property="publisher"    column="publisher"    />
+        <result property="url"    column="url"    />
+        <result property="type"    column="type"    />
+        <result property="level"    column="level"    />
+        <result property="indicatorID"    column="indicatorID"    />
+        <association property="indicator" javaType="org.sys.rate.model.Indicator">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="score" column="score"/>
+        </association>
+    </resultMap>
+
+    <sql id="selectPublicationVo">
+        select ID, name, abbr, publisher, url, level, indicatorID from publication
+    </sql>
+
+    <select id="selectList" resultMap="PublicationResult">
+        <include refid="selectPublicationVo"></include>
+    </select>
+
+<!--    <sql id="selectScore" >-->
+<!--        select score from indicator-->
+<!--    </sql>-->
+
+<!--    <select id="selectScoreById" resultMap="PublicationResult">-->
+<!--        select score from indicator where ID = 1-->
+<!--    </select>-->
+
+<!--    模糊查询-->
+    <select id="selectListByPubName" resultMap="PublicationResult" parameterType="String">
+        select pub.ID, pub.name, pub.abbr, pub.publisher, pub.url, pub.level, pub.indicatorID,ind.score
+        from publication pub,indicator ind
+        where pub.name != '' and pub.name like concat('%', #{publicationName}, '%') and pub.indicatorID=ind.ID
+    </select>
+
+    <select id="selectPublicationList" parameterType="org.sys.rate.model.Publication" resultMap="PublicationResult">
+        <include refid="selectPublicationVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="abbr != null  and abbr != ''"> and abbr = #{abbr}</if>
+            <if test="publisher != null  and publisher != ''"> and publisher = #{publisher}</if>
+            <if test="url != null  and url != ''"> and url = #{url}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="level != null  and level != ''"> and level = #{level}</if>
+            <if test="indicatorID != null "> and indicatorID = #{indicatorID}</if>
+        </where>
+    </select>
+    
+    <select id="selectPublicationById" parameterType="Long" resultMap="PublicationResult">
+        <include refid="selectPublicationVo"/>
+        where ID = #{ID}
+    </select>
+        
+    <insert id="insertPublication" parameterType="org.sys.rate.model.Publication">
+        insert into publication
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ID != null">ID,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="abbr != null">abbr,</if>
+            <if test="publisher != null">publisher,</if>
+            <if test="url != null">url,</if>
+            <if test="type != null">type,</if>
+            <if test="level != null">level,</if>
+            <if test="indicatorID != null">indicatorID,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ID != null">#{ID},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="abbr != null">#{abbr},</if>
+            <if test="publisher != null">#{publisher},</if>
+            <if test="url != null">#{url},</if>
+            <if test="type != null">#{type},</if>
+            <if test="level != null">#{level},</if>
+            <if test="indicatorID != null">#{indicatorID},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePublication" parameterType="org.sys.rate.model.Publication">
+        update publication
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="abbr != null">abbr = #{abbr},</if>
+            <if test="publisher != null">publisher = #{publisher},</if>
+            <if test="url != null">url = #{url},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="level != null">level = #{level},</if>
+            <if test="indicatorID != null">indicatorID = #{indicatorID},</if>
+        </trim>
+        where ID = #{ID}
+    </update>
+
+    <delete id="deletePublicationById" parameterType="Long">
+        delete from publication where ID = #{ID}
+    </delete>
+
+    <delete id="deletePublicationByIds" parameterType="String">
+        delete from publication where ID in 
+        <foreach item="ID" collection="array" open="(" separator="," close=")">
+            #{ID}
+        </foreach>
+    </delete>
+
+</mapper>

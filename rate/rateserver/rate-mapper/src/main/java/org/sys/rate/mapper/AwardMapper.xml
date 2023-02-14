@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.AwardMapper">
+    
+    <resultMap type="org.sys.rate.model.Award" id="AwardResult">
+        <result property="ID"    column="ID"    />
+        <result property="name"    column="name"    />
+        <result property="awardname"    column="awardname"    />
+        <result property="year"    column="year"    />
+        <result property="member"    column="member"    />
+        <result property="unit"    column="unit"    />
+        <result property="total"    column="total"    />
+        <result property="rank"    column="rank"    />
+        <result property="awardID"    column="awardID"    />
+    </resultMap>
+
+    <sql id="selectAwardVo">
+        select ID, name, awardname, year, member, unit, total, `rank`, awardID from award
+    </sql>
+
+    <select id="selectList" resultMap="AwardResult">
+        <include refid="selectAwardVo"></include>
+    </select>
+
+    <select id="selectAwardList" parameterType="org.sys.rate.model.Award" resultMap="AwardResult">
+        <include refid="selectAwardVo"/>
+        <where>
+            <if test="ID !=null and ID !=''">and ID =#{ID}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="awardname != null  and awardname != ''"> and awardname like concat('%', #{awardname}, '%')</if>
+            <if test="year != null "> and year = #{year}</if>
+            <if test="member != null  and member != ''"> and member = #{member}</if>
+            <if test="unit != null  and unit != ''"> and unit = #{unit}</if>
+            <if test="total != null "> and total = #{total}</if>
+            <if test="rank != null "> and rank = #{rank}</if>
+            <if test="awardID != null "> and awardID = #{awardID}</if>
+        </where>
+    </select>
+    
+    <select id="selectAwardById" parameterType="Long" resultMap="AwardResult">
+        <include refid="selectAwardVo"/>
+        where ID = #{ID}
+    </select>
+        
+    <insert id="insertAward" parameterType="org.sys.rate.model.Award">
+        insert into award
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ID != null">ID,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="awardname != null and awardname != ''">awardname,</if>
+            <if test="year != null">year,</if>
+            <if test="member != null">member,</if>
+            <if test="unit != null">unit,</if>
+            <if test="total != null">total,</if>
+            <if test="rank != null">rank,</if>
+            <if test="awardID != null">awardID,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ID != null">#{ID},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="awardname != null and awardname != ''">#{awardname},</if>
+            <if test="year != null">#{year},</if>
+            <if test="member != null">#{member},</if>
+            <if test="unit != null">#{unit},</if>
+            <if test="total != null">#{total},</if>
+            <if test="rank != null">#{rank},</if>
+            <if test="awardID != null">#{awardID},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAward" parameterType="org.sys.rate.model.Award">
+        update award
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="awardname != null and awardname != ''">awardname = #{awardname},</if>
+            <if test="year != null">year = #{year},</if>
+            <if test="member != null">member = #{member},</if>
+            <if test="unit != null">unit = #{unit},</if>
+            <if test="total != null">total = #{total},</if>
+            <if test="rank != null">rank = #{rank},</if>
+            <if test="awardID != null">awardID = #{awardID},</if>
+        </trim>
+        where ID = #{ID}
+    </update>
+
+    <delete id="deleteAwardById" parameterType="Long">
+        delete from award where ID = #{ID}
+    </delete>
+
+    <delete id="deleteAwardByIds" parameterType="String">
+        delete from award where ID in 
+        <foreach item="ID" collection="array" open="(" separator="," close=")">
+            #{ID}
+        </foreach>
+    </delete>
+
+</mapper>
