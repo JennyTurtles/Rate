@@ -98,7 +98,7 @@
         width="80%">
       <span slot="title" style="float:left;font-size: 25px" >请上传需要导入的文件</span>
       <el-button @click="downloadExcel('PublicationSample')" type="warning">下载Excel模板</el-button>
-      <span style="float:right;font-size: 16px;color: red" v-show="errorRow.length != 0">请检查excel中第{{errorRow}}行的刊物全称和年份</span>
+      <span style="float:right;font-size: 16px;color: red" v-show="errorRow.length != 0">excel中第{{errorRow}}行的刊物名称为空</span>
       <span style="float:right;font-size: 16px;color: green" v-show="uploadResultValid">数据校验通过</span>
       <el-upload
           action
@@ -135,10 +135,6 @@
         <el-table-column
             prop="收录级别"
             label="收录级别">
-        </el-table-column>
-        <el-table-column
-            prop="年份"
-            label="年份">
         </el-table-column>
       </el-table>
 
@@ -426,7 +422,6 @@
       <el-table-column prop="publisher" label="出版社"></el-table-column>
       <el-table-column prop="url" label="网址"></el-table-column>
       <el-table-column prop="level" label="收录级别"></el-table-column>
-      <el-table-column prop="year" label="年份"></el-table-column>
     </el-table>
   </div>
 </template>
@@ -499,7 +494,6 @@ export default {
           publisher: "你的刊物出版社",
           url: "你的刊物网址",
           level: "收录级别1;级别2;（请用分号隔开）",
-          year:  "年份"
         },
       ],
       errorRow:[],
@@ -602,7 +596,7 @@ export default {
     },
     appendPublicationAsync(){
       for (let i = 0;i < this.tableUploadData.length;i++) {
-        if (typeof this.tableUploadData[i]['刊物全称'] === 'undefined' || typeof this.tableUploadData[i]['年份'] === 'undefined' || isNaN(this.tableUploadData[i]['年份']))
+        if (typeof this.tableUploadData[i]['刊物全称'] === 'undefined')
           return
         var publicationInf = {
           name: this.tableUploadData[i]['刊物全称'],
@@ -824,7 +818,7 @@ export default {
         console.log(this.tableUploadData)
         for(let i = 0; i < this.tableUploadData.length; i++)
         {
-          if (typeof this.tableUploadData[i]['刊物全称'] === 'undefined' || typeof this.tableUploadData[i]['年份'] === 'undefined' || isNaN(this.tableUploadData[i]['年份']))
+          if (typeof this.tableUploadData[i]['刊物全称'] === 'undefined')
             this.errorRow.push(i+2)
         }
         if (this.errorRow.length === 0)
@@ -889,7 +883,7 @@ export default {
       return table_write;
     },
     checkUploadData({row, rowIndex}){
-      if (typeof row['刊物全称'] === 'undefined' || typeof row['年份'] === 'undefined' || isNaN(row['年份'])) {
+      if (typeof row['刊物全称'] === 'undefined') {
         return 'warning-row';
       }
       return '';
