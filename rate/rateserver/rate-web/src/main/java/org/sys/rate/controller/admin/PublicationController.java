@@ -8,6 +8,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.PublicationMapper;
+import org.sys.rate.model.Indicator;
 import org.sys.rate.model.Publication;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.PublicationService;
@@ -107,7 +108,7 @@ public class PublicationController
         return new JsonResult(publicationService.deletePublicationById(ids));
     }
 
-    // 文档2.14 功能1
+    // 文档2.14 功能1 用部分名字搜全称
     @GetMapping("/searchNamesByStr/{name}")
     @ResponseBody
     public RespBean getNamesByStr(@PathVariable String name){
@@ -129,5 +130,34 @@ public class PublicationController
     }
 
     // 文档2.14 功能6
+    @DeleteMapping("/pubs")
+    @ResponseBody
+    public RespBean deleteByYearId(@RequestBody Publication publication){
+        Integer year = publication.getYear();
+        Integer indicatorID = Math.toIntExact(publication.getIndicatorID());
+        int res = publicationMapper.deleteByYearId(year,indicatorID);
+        return RespBean.ok("success", res);
+    }
+
+    // 文档2.14 功能7 用部分名字搜全称
+    @PostMapping("searchNamesByIdName")
+    @ResponseBody
+    public RespBean getNamesByIdName(@RequestBody Publication publication){
+        Integer indicatorID = Math.toIntExact(publication.getIndicatorID());
+        String name = publication.getName();
+        if (!name.startsWith("《")) {
+            name = "《" + name;
+        }
+        List<String> res = publicationMapper.getNamesByIdName(indicatorID,name);
+        return RespBean.ok("success",res);
+    }
+
+    // 文档2.14 功能8 用部分名字搜全称
+    @GetMapping("searchByName/{name}")
+    @ResponseBody
+    public RespBean getPubsByName(@PathVariable String name){
+        List<Publication> res = publicationMapper.getPubsByName(name);
+        return RespBean.ok("success",res);
+    }
 
 }
