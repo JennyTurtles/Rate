@@ -24,8 +24,10 @@ public interface IndicatorInfMapper {
     @Update("update publication set name = #{name}, abbr = #{abbr}, publisher = #{publisher}, url = #{url}, level = #{level}, year = #{year} where ID = #{ID}")
     public int updatePublicationById(IndicatorPublication indicatorPublication);
 
-    @Select("select * from publication where indicatorID = #{indicatorID} AND year = #{year}")
+    @Select("SELECT * FROM publication \n" +
+            "WHERE indicatorID = #{indicatorID} AND `year` = (SELECT MAX(year) FROM publication WHERE indicatorID = #{indicatorID} AND `year` <= #{year})")
     public List<IndicatorPublication> getPublicationByIndicatorAndYear(Integer indicatorID,Integer year);
+
 
     @Select("select ID from publication where name = #{name} AND year = #{year}")
     public Integer getIdByNameAndYear(String name, Integer year);

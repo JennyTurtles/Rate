@@ -65,7 +65,7 @@
         <el-form-item label="收录级别">
           <el-input v-model="searchInf2.level" placeholder="多个级别请用英文分号隔开"></el-input>
         </el-form-item>
-        <el-form-item label="年份">
+        <el-form-item label="录入年份">
           <el-input v-model="searchInf2.year"></el-input>
         </el-form-item>
       </el-form>
@@ -164,7 +164,7 @@
       </el-table-column>
       <el-table-column
           prop="year"
-          label="年份">
+          label="录入年份">
       </el-table-column>
       <el-table-column
           prop="level"
@@ -201,7 +201,7 @@
         <el-form-item label="收录级别" >
           <el-input v-model="publicationInf.level" placeholder="多个级别请用英文分号隔开"></el-input>
         </el-form-item>
-        <el-form-item label="年份" >
+        <el-form-item label="录入年份" >
           <el-input v-model="publicationInf.year" :placeholder=nowYear></el-input>
         </el-form-item>
       </el-form>
@@ -232,7 +232,7 @@
         <el-form-item label="收录级别" >
           <el-input v-model="rowData.level" ></el-input>
         </el-form-item>
-        <el-form-item label="年份" >
+        <el-form-item label="录入年份" >
           <el-input v-model="rowData.year" ></el-input>
         </el-form-item>
       </el-form>
@@ -504,9 +504,9 @@ export default {
     getTableByYear(indicatorID,year){
       var that = this
       axios.post("/publicationByYear",{"indicatorID":indicatorID,"year":year}).then(function (resp){
-        that.ID = resp.obj[0]
-        that.tableData = resp.obj[1]
+        that.tableData = resp.obj
         that.totalCount = that.tableData.length
+        console.log(resp)
       })
     },
     changeYear(){
@@ -566,7 +566,6 @@ export default {
         return
       }
       var postData = {
-        id:this.ID,
         name:this.publicationInf.name,
         abbr:this.publicationInf.abbr,
         publisher:this.publicationInf.publisher,
@@ -591,7 +590,6 @@ export default {
           that.totalCount++
         }
       })
-      this.ID++
       this.publicationInf = {}
     },
     appendPublicationAsync(){
@@ -620,7 +618,6 @@ export default {
     },
     appendAward(){
       var postData = {
-        id:this.ID,
         name:this.awardInf.name,
         indicatorID:this.indicatorID
       }
@@ -640,12 +637,10 @@ export default {
             message: '添加成功!'
           });
       })
-      this.ID++
       this.awardInf = {}
     },
     appendProgram(){
       var postData = {
-        id:this.ID,
         name:this.programInf.name,
         indicatorID:this.indicatorID
       }
@@ -665,12 +660,10 @@ export default {
             message: '添加成功!'
           });
       })
-      this.ID++
       this.programInf = {}
     },
     appendDecision(){
       var postData = {
-        id:this.ID,
         name:this.decisionInf.name,
         indicatorID:this.indicatorID
       }
@@ -690,7 +683,6 @@ export default {
             message: '添加成功!'
           });
       })
-      this.ID++
       this.decisionInf = {}
     },
     searchAllItem(){ //获取name,indicatorID,表内ID,假定没有重名 用name充当for内的value
@@ -740,15 +732,16 @@ export default {
       this.year = this.nowYear
       for (var i = 0; i < 5;i++)
         this.years.push(this.nowYear-i)
-      axios.get("/maxYear/" + indicatorID).then(function (resp){
-        if (typeof resp === "undefined")
-          that.$message("无记录")
-        else{
-          that.year = resp.obj
-          that.getTableByYear(indicatorID,that.year)
-        }
-
-      })
+      that.getTableByYear(indicatorID,that.year)
+      // axios.get("/maxYear/" + indicatorID).then(function (resp){
+      //   if (typeof resp === "undefined")
+      //     that.$message("无记录")
+      //   else{
+      //     that.year = resp.obj
+      //     that.getTableByYear(indicatorID,that.year)
+      //   }
+      //
+      // })
 
     },
     closeSearch(){

@@ -32,14 +32,16 @@ public class IndicatorInfController {
         return year != null ? RespBean.ok("success!",year) : RespBean.ok("无记录!");
     }
 
+    // 如果当前年为空则往前找（找小于等于最接近的那一年）
     @PostMapping("/publicationByYear")
     public RespBean getPublicationByIndicatorAndYear(@RequestBody IndicatorPublication indicatorPublication){
-        Integer maxId= indicatorInfService.getMaxID("publication") + 1;
+//        Integer maxId= indicatorInfService.getMaxID("publication") + 1;
+//        List<IndicatorPublication> res = indicatorInfService.getPublicationByIndicatorAndYear(indicatorPublication.getIndicatorID(), indicatorPublication.getYear());
+//        List<Object> idAndRes = new ArrayList<>();
+//        idAndRes.add(maxId);
+//        idAndRes.add(res);
         List<IndicatorPublication> res = indicatorInfService.getPublicationByIndicatorAndYear(indicatorPublication.getIndicatorID(), indicatorPublication.getYear());
-        List<Object> idAndRes = new ArrayList<>();
-        idAndRes.add(maxId);
-        idAndRes.add(res);
-        return RespBean.ok("success",idAndRes);
+        return RespBean.ok("success",res);
     }
 
     @PostMapping("/publication")
