@@ -1,4 +1,13 @@
 # Rate
-### 文档地址：https://dztv98nd86.feishu.cn/docx/NH40dxSYWoynLpx1iNHcaMnFnDc
-### 开发规范
-- controller中每个函数标注：日期-功能编号
+## 文档地址：https://dztv98nd86.feishu.cn/docx/NH40dxSYWoynLpx1iNHcaMnFnDc
+## 开发规范
+- 开发方式：前后端分离
+- 在文档中按照格式描述各自的需求和对应的功能，需要包含以下信息：
+  - 功能编号
+  - 开发类型
+  - 前端请求类型
+  - 前端请求URL
+  - 请求参数
+  - 返回响应
+- 前后端协作功能标记为红色，仅前端功能标记为绿色，仅后端功能标记为黄色
+- controller中每个新增的函数需要标注：日期-功能编号，与文档中的功能一一对应
