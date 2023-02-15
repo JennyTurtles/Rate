@@ -86,6 +86,12 @@
     select * from teacher
     where ID=#{ID}
   </select>
+
+  <select id="getByEmail" resultType="org.sys.rate.model.Teacher">
+    select * from teacher
+    where email=#{email}
+  </select>
+
   <!--  没写完-->
   <!--<sql id="Column_ListWithscore">-->
 

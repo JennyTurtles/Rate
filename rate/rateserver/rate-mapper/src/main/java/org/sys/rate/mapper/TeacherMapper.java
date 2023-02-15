@@ -13,7 +13,11 @@ import java.util.List;
 @Mapper
 public interface TeacherMapper {
     Teacher loadUserByUsername(String username);
+
     Teacher getById(Integer ID);
+
+    Teacher getByEmail(String email);
+
     int deleteById(Integer id);
 
     int insert(Teacher record);

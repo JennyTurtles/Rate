@@ -45,6 +45,15 @@ public class TeacherService implements UserDetailsService {
         }
         return null;
     }
+
+    public Teacher getByEmail(String email){
+        Teacher tea = TeacherMapper.getByEmail(email);
+        if(tea != null){
+            return tea;
+        }
+        return null;
+    }
+
     public Integer addTeacher(Teacher record) {
         int result = TeacherMapper.insert(record);
         return result;

@@ -19,7 +19,7 @@ public class Student extends Account {
     private String username;
     private String password;
     private Integer year;
-    private String tutorID;
+    private Integer tutorID;
     private Teachers teachers;//老师对象
     private Integer deleteflag;
     private Integer role;
@@ -99,11 +99,11 @@ public class Student extends Account {
         this.password = password;
     }
 
-    public String getTutorID() {
+    public Integer getTutorID() {
         return tutorID;
     }
 
-    public void setTutorID(String tutorID) {
+    public void setTutorID(Integer tutorID) {
         this.tutorID = tutorID;
     }
 

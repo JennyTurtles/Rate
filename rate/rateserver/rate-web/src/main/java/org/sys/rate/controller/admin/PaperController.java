@@ -19,9 +19,11 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.*;
+import org.sys.rate.service.mail.MailService;
 import org.w3c.dom.Text;
 
 import javax.annotation.Resource;
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,14 +38,22 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/paper/basic")
 public class PaperController
 {
-    @Autowired
+    @Resource
     private PaperService paperService;
-    @Autowired
+    @Resource
     PublicationService publicationService;
-    @Autowired
+    @Resource
     IndicatorService indicatorService;
-    @Autowired
+    @Resource
     PaperOperService paperoperService;
+    @Resource
+    MailService mailService;
+    @Resource
+    StudentService studentService;
+    @Resource
+    TeacherService teacherService;
+
+    private String uploadFileName;
 
 //    @GetMapping("/studentID")有页码
 //    public JsonResult<List> getById(Integer studentID,@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size){
@@ -90,7 +100,7 @@ public class PaperController
 
 //    修改论文状态
     @GetMapping("/edit_state")
-    public JsonResult getById(String state, Long ID){
+    public JsonResult getById(String state, Long ID) throws MessagingException {
         return new JsonResult(paperService.edit_state(state,ID));
     }
 
@@ -168,13 +178,14 @@ public class PaperController
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Paper paper)
-    {
+    public JsonResult addSave(Paper paper) throws MessagingException {
         System.out.println("传来的参数paper:");
 //        System.out.println(paper.getName());
         Integer res=paperService.insertPaper(paper);
         System.out.println("新增的paper id:");
         System.out.println(paper.getID());
+
+        mailService.sendMail(paper, uploadFileName);
         return new JsonResult(paper.getID());
 //        return new JsonResult();
     }
@@ -184,10 +195,10 @@ public class PaperController
      */
     @PostMapping("/edit")
     @ResponseBody
-    public JsonResult editSave(Paper paper)
-    {
+    public JsonResult editSave(Paper paper) throws MessagingException {
         System.out.println(paper.getName());
         System.out.println(paper.getID());
+        mailService.sendMail(paper, uploadFileName);
         return new JsonResult(paperService.updatePaper(paper));
     }
 
@@ -214,6 +225,8 @@ public class PaperController
         String fPath=new File("upload").getAbsolutePath() + "/" + filename;
         File newFile = new File(fPath);
         file.transferTo(newFile);
+
+        uploadFileName = filename;
         //返回文件存储路径
         return new JsonResult(fPath);
     }

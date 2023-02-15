@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Award;
 import org.sys.rate.model.Paper;
 
@@ -17,6 +18,15 @@ import java.util.List;
 @Mapper
 public interface PaperMapper 
 {
+    /**
+     * 通过ID获取Paper
+     *
+     * @param ID
+     * @return
+     */
+    @Select("select * from paper where ID = #{ID}")
+    Paper getById(Integer ID);
+
     /**
      * 查询论文成果
      * 

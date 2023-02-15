@@ -13,7 +13,7 @@
         <result column="password" property="password" jdbcType="VARCHAR"/>
 <!--        <result column="deleteFlag" property="deleteFlag" jdbcType="BIT"/>-->
         <result column="year" property="year" jdbcType="INTEGER"/>
-        <result column="tutorID" property="tutorID" jdbcType="VARCHAR"/>
+        <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
         <result column="role" property="role" jdbcType="INTEGER"/>
         <association property="teachers" javaType="org.sys.rate.model.Teachers">
             <id property="ID" column="ID" jdbcType="INTEGER"/>

@@ -8,17 +8,36 @@ import org.sys.rate.model.Paper;
 import org.sys.rate.mapper.PublicationMapper;
 import org.sys.rate.model.Publication;
 
+import org.sys.rate.service.mail.MailToStuService;
 import org.w3c.dom.Text;
+
+import javax.annotation.Resource;
+import javax.mail.MessagingException;
 import java.util.List;
 
 @Service
 public class PaperService {
 
-    @Autowired
+    @Resource
     private PaperMapper paperMapper;
+    @Resource
+    MailToStuService mailToStuService;
 
     public Paper selectPaperById(Long ID){
         return paperMapper.selectPaperById(ID);
+    }
+
+    /**
+     * 通过ID寻找paper信息
+     * @param ID
+     * @return paper
+     */
+    public Paper getById(Integer ID){
+        Paper paper = paperMapper.getById(ID);
+        if(paper != null){
+            return paper;
+        }
+        return null;
     }
 
     /**
@@ -82,7 +101,8 @@ public class PaperService {
     }
 
 //    修改论文状态
-    public int edit_state(String state, Long ID){
+    public int edit_state(String state, Long ID) throws MessagingException {
+        mailToStuService.sendStuMail(state, ID);
         return paperMapper.editState(state,ID);
     }
 }
