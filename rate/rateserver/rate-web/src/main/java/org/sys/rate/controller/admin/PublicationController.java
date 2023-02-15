@@ -7,8 +7,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.PublicationMapper;
 import org.sys.rate.model.Publication;
+import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.PublicationService;
+
+import javax.annotation.Resource;
 
 
 /**
@@ -24,6 +28,9 @@ public class PublicationController
 
     @Autowired
     private PublicationService publicationService;
+
+    @Resource
+    private PublicationMapper publicationMapper;
 
     @GetMapping("/List")
     public JsonResult<List> getCollect(){
@@ -62,6 +69,7 @@ public class PublicationController
 //        return new JsonResult(publicationService.selectPublicationListByYear(year));
 //    }
 
+    // 2.14 功能4
     // 按照indicatorId进行分类，每类中对年份进行筛选，取小于目标年份且最大的年份的所有期刊
     @GetMapping("/list/{year}")
     public JsonResult listByYear(@PathVariable Integer year){
@@ -98,4 +106,28 @@ public class PublicationController
     {
         return new JsonResult(publicationService.deletePublicationById(ids));
     }
+
+    // 文档2.14 功能1
+    @GetMapping("/searchNamesByStr/{name}")
+    @ResponseBody
+    public RespBean getNamesByStr(@PathVariable String name){
+        if (!name.startsWith("《")) {
+            name = "《" + name;
+        }
+        List<String> res = publicationMapper.getNamesByStr(name);
+        return RespBean.ok("success",res);
+    }
+
+    // 文档2.14 功能2
+    @PostMapping("/searchByYearName")
+    @ResponseBody
+    public RespBean getNamesByYearName(@RequestBody Publication publication){
+        Integer year = publication.getYear();
+        String name = publication.getName();
+        Publication res = publicationMapper.getNamesByYearName(year,name);
+        return RespBean.ok("success",res);
+    }
+
+    // 文档2.14 功能6
+
 }

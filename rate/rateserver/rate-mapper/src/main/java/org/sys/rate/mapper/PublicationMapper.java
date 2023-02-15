@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Award;
 import org.sys.rate.model.Publication;
+import org.sys.rate.model.RespBean;
 
 import java.util.List;
 
@@ -84,4 +85,12 @@ public interface PublicationMapper
             "FROM publication t1\n" +
             "WHERE year = (SELECT MAX(year) FROM publication t2 WHERE t1.indicatorID = t2.indicatorID AND `year`<=#{year}))")
     public List<Publication> selectPublicationByYear(Integer year);
+
+    @Select("SELECT DISTINCT name FROM publication WHERE `name` LIKE '${name}%'")
+    public List<String> getNamesByStr(String name);
+
+    @Select("SELECT publication.ID,publication.name,publication.indicatorID,indicator.score \n" +
+            "FROM publication,indicator\n" +
+            "WHERE `year` = #{year} AND publication.`name` = #{name} AND publication.indicatorID = indicator.ID ")
+    public Publication getNamesByYearName(Integer year,String name);
 }

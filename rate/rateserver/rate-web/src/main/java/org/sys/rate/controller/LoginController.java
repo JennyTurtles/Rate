@@ -24,6 +24,7 @@ public class LoginController {
 
     @PostMapping
     public RespBean login(@RequestBody LoginInf loginInf) {
+
 //        loginInf.setPassword(rsaUtil.decrypt(loginInf.getPassword())); // 解密加密后的密码，并放入loginInf中
         LoginInf res = loginService.login(loginInf);
         if (res == null) // 未找到用户则返回用户名不存在
