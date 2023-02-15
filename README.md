@@ -1,6 +1,6 @@
 # Rate
-## 文档地址：https://dztv98nd86.feishu.cn/docx/NH40dxSYWoynLpx1iNHcaMnFnDc
-## 开发规范
+### 文档地址：https://dztv98nd86.feishu.cn/docx/NH40dxSYWoynLpx1iNHcaMnFnDc
+### 开发规范
 - 开发方式：前后端分离
 - 在文档中按照格式描述各自的需求和对应的功能，需要包含以下信息：
   - 功能编号
