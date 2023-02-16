@@ -36,6 +36,8 @@ public class LoginService {
             String token = TokenUtils.genToken(account.getID().toString(),account.getPassword());
             loginInf.setToken(token);
             loginInf.setID(account.getID());
+            loginInf.setInstitutionID(account.getInstitutionID());
+
             return loginInf;
         }
         else

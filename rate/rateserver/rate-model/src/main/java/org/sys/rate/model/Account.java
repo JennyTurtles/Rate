@@ -15,6 +15,8 @@ public class Account implements UserDetails {
     Integer ID;
     Integer id;
     String name;
+    Integer institutionID;
+
     private Boolean enabled;
 
     private String username;
@@ -41,6 +43,13 @@ public class Account implements UserDetails {
         return roles;
     }
 
+    public Integer getInstitutionID() {
+        return institutionID;
+    }
+
+    public void setInstitutionID(Integer institutionID) {
+        this.institutionID = institutionID;
+    }
     public void setRoles(List<Role> roles) {
         this.roles = roles;
     }

@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginInf {
     private Integer ID;
+    private Integer institutionID;
     private String username;
     private String password;
     private String role;
