@@ -19,62 +19,65 @@
       <el-container class="homeContainer">
         <el-aside width="15%" class="aside">
           <el-menu router unique-opened class="menu" @open="handleOpen">
-            <template v-for="(item,index) in routes" v-if="!item.hidden && item.name != '隐藏显示'">
-              <el-menu-item :index="item.path" v-if="!item.children" :key="index" @click="handleOpen">
+            <!-- <template> -->
+            <template v-for="(item,index) in routes" v-if="item.enabled && item.name != '隐藏显示'">
+              <el-menu-item :index="item.path" v-if="!item.children && item.enabled" :key="index" @click="handleOpen">
                 {{item.name}}
               </el-menu-item>
-              <template v-else>
+              <template v-else-if="item.children && item.enabled">
                 <el-submenu :index="index+''" :key="index" @open="handleOpen">
-						      <template slot="title">
-							      <i 
-                      style="color: #409eff; margin-right: 5px"
-                      :class="item.iconCls"></i>
-							      <span >{{ item.name }}</span>
-						      </template>
-						<!-- 第二层 -->
-						      <template v-for="(subItem,indexSub) in item.children">
-							<!-- 如果第二层有子菜单，则继续循环 -->
-                    <el-menu-item :index="subItem.path" v-if="!subItem.children" :key="indexSub" class="submenu" @click="handleOpen">
+                  <template slot="title">
+                    <i
+                        style="color: #409eff; margin-right: 5px"
+                        :class="item.iconCls"></i>
+                    <span >{{ item.name }}</span>
+                  </template>
+                  <!-- 第二层 -->
+                  <template v-for="(subItem,indexSub) in item.children" v-if="subItem.enabled">
+                    <!-- 如果第二层有子菜单，则继续循环 -->
+                    <el-menu-item :index="subItem.path" v-if="!subItem.children && subItem.enabled" :key="indexSub" class="submenu" @click="handleOpen">
                       {{subItem.name}}
                     </el-menu-item>
-							      <template v-else>
-								        <el-submenu :index="subItem.name" :key="indexSub" class="submenu" @open="handleOpen">
-									        <template slot="title">
-										        <i 
+                    <template v-else-if="subItem.enabled && subItem.children">
+                      <el-submenu :index="subItem.name" :key="indexSub" class="submenu" @open="handleOpen">
+                        <template slot="title">
+                          <i
                               style="color: #409eff; margin-right: 5px"
                               :class="subItem.iconCls"></i>
-										        <span slot="title">{{ subItem.name }}</span>
-									        </template>
-                          <template v-for="(subItem2,indexsub2) in subItem.children"> 
-										<!-- 如果第三层有子菜单，则继续循环 -->
-                            <el-menu-item :index="subItem2.path" v-if="!subItem2.children" :key="indexsub2" @click="handleOpen"
-                            class="submenu">
-                              {{subItem2.name}}
-                            </el-menu-item>
-										        <template v-else>
-											        <el-submenu :index="subItem2.path" :key="indexsub2" class="submenu" @open="handleOpen">
-												        <template slot="title">
-													        <i 
+                          <span slot="title">{{ subItem.name }}</span>
+                        </template>
+                        <template v-for="(subItem2,indexsub2) in subItem.children" v-if="subItem2.enabled">
+                          <!-- 如果第三层有子菜单，则继续循环 -->
+                          <el-menu-item :index="subItem2.path" v-if="!subItem2.children && subItem2.enabled" :key="indexsub2" @click="handleOpen"
+                                        class="submenu">
+                            {{subItem2.name}}
+                          </el-menu-item>
+                          <template v-else-if="subItem2.enable && subItem2.children">
+                            <el-submenu :index="subItem2.path" :key="indexsub2" class="submenu" @open="handleOpen">
+                              <template slot="title">
+                                <i
                                     style="color: #409eff; margin-right: 5px"
                                     :class="subItem2.iconCls"></i>
-													        <span slot="title">{{ subItem2.name }}</span>
-												        </template>
-                              </el-submenu>
-                            </template>
+                                <span slot="title">{{ subItem2.name }}</span>
+                              </template>
+                            </el-submenu>
                           </template>
-                        </el-submenu> 
+                        </template>
+                      </el-submenu>
                     </template>
                   </template>
                 </el-submenu>
               </template>
             </template>
+            <!-- </template> -->
+
           </el-menu>
         </el-aside>
         <el-main>
 
           <div
-            class="homeWelcome"
-            v-if="this.$router.currentRoute.path == '/home'"
+              class="homeWelcome"
+              v-if="this.$router.currentRoute.path == '/home'"
           >
             {{ user.name }}欢迎来到评分管理系统!
           </div>

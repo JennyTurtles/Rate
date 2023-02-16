@@ -164,6 +164,10 @@ router.beforeEach((to, from, next) => {
     //除登录外的其他路径
     else {
         if (localStorage.getItem('user')) {
+            if(JSON.parse(localStorage.getItem('user')).role == "3"){
+                next()
+                return
+            }
             initMenu(router, store)
             var routs = JSON.parse(localStorage.getItem("initRoutes"))
             let res=[];

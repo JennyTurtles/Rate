@@ -69,7 +69,7 @@
                     m2.`id` as id2,m2.`component` as component2,m2.`enabled` as enabled2,m2.`iconCls` as iconCls2,m2.`keepAlive` as keepAlive2,m2.`name` as name2,m2.`parentId` as parentId2,m2.`requireAuth` as requireAuth2,m2.`path` as path2
     from menu m1,menu m2,student hrr,menu_role mr
     where m1.`id`=m2.`parentId` and
-          mr.`rid`=#{role} and mr.`mid`=m2.`id` and m2.`enabled` =true
+          mr.`rid`=#{role} and mr.`mid`=m2.`id`
     order by m1.`id`,m2.`id`
   </select>
 
@@ -77,7 +77,7 @@
     select distinct m1.*,m2.`id` as id2,m2.`component` as component2,m2.`enabled` as enabled2,m2.`iconCls` as iconCls2,m2.`keepAlive` as keepAlive2,m2.`name` as name2,m2.`parentId` as parentId2,m2.`requireAuth` as requireAuth2,m2.`path` as path2
     from menu m1,menu m2,teacher hrr,menu_role mr
     where m1.`id`=m2.`parentId`  and
-          mr.`rid`=#{role} and mr.`mid`=m2.`id` and m2.`enabled`=true
+          mr.`rid`=#{role} and mr.`mid`=m2.`id`
     order by m1.`id`,m2.`id`
   </select>
 

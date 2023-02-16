@@ -116,12 +116,30 @@ export default new Router({
           },
         },
         {
+          path:'/student/search',
+          name:'活动列表',
+          hidden:true,
+          component:()=>import('./views/student/Stusearch'),
+          meta: {
+            title: '活动列表',
+          },
+        },
+        {
           path: '/student/Achievements',
           name: '成果列表',
           hidden: true,
           component: () => import('./views/student/Achievements'),
           meta: {
             title: '成果列表',
+          },
+        },
+        {
+          path:'/teacher/tperact/score',
+          name:'',
+          hidden:false,
+          component:()=>import('./views/teacher/Score'),
+          meta: {
+            title: '打分',
           },
         },
         {
@@ -141,6 +159,24 @@ export default new Router({
           meta: {
             title: '学术专著和教材',
           },
+        },
+        {
+          path: '/teacher/tperact/actList',
+          name: '活动列表',
+          hidden: true,
+          component: () => import('./views/teacher/ActList'),
+          meta: {
+            title: '活动列表',
+          },
+        },
+        {
+          path:'/teacher/tperact/score',
+          name:'score',
+          hidden:false,
+          component:()=>import('./views/teacher/Score'),
+          meta:{
+            title:'分数'
+          }
         },
         {
           path: '/teacher/tResearchProject',

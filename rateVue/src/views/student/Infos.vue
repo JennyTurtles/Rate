@@ -1,161 +1,91 @@
 <template>
-<!--评分项设置-->
+  <!--评分项设置-->
   <div>
     <div style="display: flex; justify-content: left">
       <div style="width: 100%;text-align: center">{{ keywords_name }}信息项设置</div>
-      <div style="margin-left: auto">
-        <el-button icon="el-icon-back" type="primary" @click="back">
-          返回
-        </el-button>
-      </div>
     </div>
-    <div style="margin-top: 10px">
-      <el-table
-          ref="multipleTable"
-          :data="hrs"
-          stripe
-          border
-          v-loading="loading"
-          
-          :row-class-name="tableRowClassName"
-          element-loading-text="正在加载..."
-          element-loading-spinner="el-icon-loading"
-          element-loading-background="rgba(0, 0, 0, 0.08)"
-          style="width: 100%"
-      >
-        <el-table-column type="selection" width="35"></el-table-column>
-        <el-table-column
-            prop="name"
-            align="center"
-            label="名称"
-            width="280px"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="shuZuType"
-            label="内容"
-            align="center"
-            min-width="10%"
-        >
-          <template slot-scope="scope">
-            <template v-if="!scope.row.byParticipant">
-                <span >此项不可修改填写！</span>
+    <div style="padding-top: 16px;
+                margin-top:15px;
+                backgroundColor:white;
+                padding-bottom:20px">
+      <el-form :model="form_hrs" ref="form"
+
+               element-loading-text="正在加载..."
+               element-loading-spinner="el-icon-loading"
+               element-loading-background="rgba(0, 0, 0, 0.08)">
+        <el-form-item v-for="(item,index) in form_hrs.hrs" :key="item.id"
+                      :label="item.name+':'">
+          <template >
+            <template v-if="!item.byParticipant">
+              <span style="color:gray">此项不可修改填写！</span>
             </template>
-            <template v-else-if="scope.row.contentType == 'textbox'">
-                <div>
-                    <el-input v-if="scope.row.byParticipant" style="width:65%"
-                    @blur="saveTextbox(scope.row)"
-                    @change="judgeTextboxChange()"
-                    v-model="infoTextboxContent">
-                    </el-input>
-                    
-                </div>
-            </template>
-            <template v-else-if="scope.row.contentType == 'textarea'">
-                    <el-button @click="editSaveTextarea(scope.row)" type="primary" size="mini"
-                        style="width:97px;height:28px" icon="el-icon-edit">
-                        编&nbsp;&nbsp;辑
-                    </el-button>
-            </template>
-            <template v-else-if="(scope.row.contentType.indexOf('pdf') >= 0 || scope.row.contentType.indexOf('zip') >= 0
-                            || scope.row.contentType.indexOf('jpg') >= 0)"
-                            style="height:100%">
-                <el-upload
-                    :file-list="files"
-                    action="#" 
-                    ref="upload"
-                    :limit="1"
-                    :headers="headers"
-                    :on-remove="()=>{handleDelete(scope.row)}"
-                    :auto-upload="false"
-                    :on-exceed="handleExceed"
-                    :on-change="(file,fileList)=>{handleChangeFiles(file,fileList,scope.row)}"
+            <template v-else-if="item.contentType == 'textbox'">
+              <div>
+                <el-input style="width:80%"
+                          @blur="saveTextbox(item,'textbox')"
+                          @change="judgeTextboxChange()"
+                          v-model="infoTextboxContent"
+                          placeholder="请输入内容"
                 >
-                    <el-button type="primary" icon="el-icon-upload2"
-                        slot="trigger"  size="mini"
-                    >选择文件</el-button>
-                </el-upload>
+                </el-input>
+
+              </div>
             </template>
-          </template>
-        </el-table-column>
-        <el-table-column
-            prop="sizelimit"
-            label="历史信息"
-            align="center"
-            min-width="5%"
-        >
-          <template slot-scope="scope">
-            <span v-if="(scope.row.contentType.indexOf('pdf')>=0 || scope.row.contentType.indexOf('zip')>=0
-                        || scope.row.contentType.indexOf('jpg')>=0)">
-                {{urlFile|fileNameFilter}}
-            </span>
-            
-            <span v-else
-                style="width: 100%; height: 100%; display: inline-block"
-            >{{ scope.row.content }}</span
-            >
-          </template>
-        </el-table-column>
-        <!-- <el-table-column align="center" min-width="5%" label="操作"> -->
-          <!-- <template slot-scope="scope">
-            <el-upload
-                v-if="(scope.row.contentType.indexOf('pdf')>0 || scope.row.contentType.indexOf('zip')>0
-                        || scope.row.contentType.indexOf('jpg')>0)"
-                :file-list="files"
-                action="#" 
-                ref="upload"
-                :limit="1"
-                :headers="headers"
-                :on-remove="handleDelete"
-                :auto-upload="false"
-                :on-exceed="handleExceed"
-                :on-change="(file,fileList)=>{handleChangeFiles(file,fileList,scope.row)}"
+            <template v-else-if="item.contentType == 'textarea'">
+              <el-input
+                  @blur="saveTextbox(item,'textarea')"
+                  @change="judgeTextareaChange()"
+                  v-model="infoTextareaContent"
+                  type="textarea"
+                  :rows="8"
+                  placeholder="请输入内容"
+                  style="width:80%"
+              >
+              </el-input>
+            </template>
+            <template v-else-if="(item.contentType.indexOf('pdf') >= 0 || item.contentType.indexOf('zip') >= 0
+                            || item.contentType.indexOf('jpg') >= 0)"
+                      style="height:100%">
+              <el-upload
+                  :file-list="files"
+                  :data="formData"
+                  action="/infoItem/basic/upload"
+                  ref="upload"
+                  :limit="1"
+                  :headers="headers"
+                  :on-change="(file,fileList)=>{handleChangeFiles(file,fileList,item,0)}"
+                  style="width:100%;margin-left:20px;height:50%"
+                  :on-remove="()=>{handleDelete(item)}"
+                  :auto-upload="false"
+                  :on-exceed="handleExceed"
+                  :on-success="successUploadFile"
               >
                 <el-button type="primary" icon="el-icon-upload2"
-                    slot="trigger"  size="mini"
+                           slot="trigger"  size="mini"
                 >选择文件</el-button>
-              </el-upload> -->
-            <!-- <el-button
-                v-else
-                @click="UpdateOrNew(scope.row)"
-                style="padding: 4px;width:97px;height:28px"
-                icon="el-icon-collection"
-                type="primary"
-                plain
-            >保&nbsp;&nbsp;存
-            </el-button
-            > -->
-          <!-- </template> -->
-        <!-- </el-table-column> -->
-      </el-table>
-      <div style="margin: 20px 0; display: flex; justify-content: left">
-        <div style="margin-left: auto">
-          <el-pagination
-              background
-              @current-change="currentChange"
-              @size-change="sizeChange"
-              layout="sizes, prev, pager, next, jumper, ->, total, slot"
-              :total="total"
-          >
-          </el-pagination>
-        </div>
-      </div>
+                <template
+                    style="
+                    width: 100%; height: 100%; display: inline-block;
+                    margin-left:12px;color:lightgray">
+                    <span style="color:gray;font-size:11px;margin-left:12px;"
+                          v-if="urlFile == null || urlFile == ''">只允许{{item.contentType}}类型文件
+                      &nbsp;&nbsp;不能超过{{item.sizelimit}}
+                    </span>
+
+                  <!-- <span v-if="(item.contentType.indexOf('pdf')>=0 || item.contentType.indexOf('zip')>=0
+                              || item.contentType.indexOf('jpg')>=0)"> -->
+                  <!-- <span v-if="urlFile == null || urlFile == ''"></span> -->
+                  <span v-else>{{urlFile|fileNameFilter}}</span>
+                  <!-- </span> -->
+                  <!-- <span v-else>{{ item.content }}</span> -->
+                  <!-- <span>x</span> -->
+                </template>
+              </el-upload>
+            </template>
+          </template>
+        </el-form-item>
+      </el-form>
     </div>
-    <el-dialog :visible.sync="isShowSaveTextarea">
-        <el-input
-            v-model="infoTextareaContent"
-            type="textarea"
-            :rows="8"
-            placeholder="请输入内容"
-        >
-        </el-input>
-        <span slot="footer">
-          <el-button @click="saveTextarea()" type="primary">
-            保存
-            </el-button>
-            <el-button @click="isShowSaveTextarea = false" type="primary">取消</el-button>
-        </span>
-    </el-dialog>
   </div>
 </template>
 
@@ -167,9 +97,10 @@ export default {
   name: "SalInfos",
   data() {
     return {
+      formData:{},
       infoTextboxContent:"",//textbox的内容
       isChangeTextbox:false,//判断textbox框的值是否改变
-      isShowSaveTextarea:false,        
+      isChangeTextarea:false,//判断textarea框的值是否改变
       currentfocusdata: "",//当前焦点数据
       searchValue: {
         compnayName: null,
@@ -185,8 +116,8 @@ export default {
       files:[],//上传的文件
       urlFile:'',//文件路径
       headers: {
-		'Content-Type': 'multipart/form-data'
-	},
+        'Content-Type': 'multipart/form-data'
+      },
       title: "",
       page: 1,
       tabClickIndex: null, // 点击的单元格
@@ -209,6 +140,9 @@ export default {
       size: 10,
       total: 0,
       loading: false,
+      form_hrs:{
+        hrs:[]
+      },
       hrs: [],
       selectedRoles: [],
       allroles: [],
@@ -280,20 +214,24 @@ export default {
   filters:{
     fileNameFilter:function(data){//将上传的材料显示出来
       if(data == null || data == ''){
-        return '未选择材料'
+        return ''
       }else{
         var arr= data.split('/')
-        return  arr.reverse()[0]
+        return  arr.reverse()[0] + '  x'
       }
     }
   },
   methods: {
-    judgeTextboxChange(){//判断textbox内容是否变化
-        this.isChangeTextbox = true
+    successUploadFile(){
+      console.log(".....");
+      // console.log(this.$refs.upload);
+      // this.$refs.upload.clearFiles()
     },
-    editSaveTextarea(data){//点击编辑按钮
-        this.isShowSaveTextarea = true
-        this.info = data
+    judgeTextboxChange(){//判断textbox内容是否变化
+      this.isChangeTextbox = true
+    },
+    judgeTextareaChange(){//判断textarea内容是否变化
+      this.isChangeTextarea = true
     },
     judgeSize(value){//判断输入内容是否超过限制大小，分中文和英文
       var pattern = new RegExp("[A-Za-z]")
@@ -307,56 +245,53 @@ export default {
       }
       return length
     },
-    saveTextUrl(edit){
-        var url = "/info/basic/savetextarea"
-        this.postRequest1(url,edit).then((response)=>{
-            if(response.status == 200){
-                this.$message.success("保存成功！")
-                this.isShowSaveTextarea = false//保存框关闭
-                this.isChangeTextbox = false//判断输入框是否变化的变量
-                this.reset()
-            }
-        },(error)=>{})
-    },
-    saveTextbox(data){
-        var edit = {
-            infoItemID:data.id,
-            content:"",
-            activityID:data.activityID,
-            studentID:JSON.parse(localStorage.getItem("user")).id
+    saveTextUrl(edit,type){
+      var url = "/info/basic/savetextarea"
+      this.postRequest1(url,edit).then((response)=>{
+        if(response.status == 200){
+          this.$message.success("保存成功！")
+          if(type == "textarea"){
+            this.isChangeTextarea = false
+          }else{
+            this.isChangeTextbox = false//判断输入框是否变化的变量
+          }
+          this.reset()
         }
+      },(error)=>{})
+    },
+    saveTextbox(data,type){//textbox失去焦点保存内容
+      var edit = {
+        infoItemID:data.id,
+        content:"",
+        activityID:data.activityID,
+        studentID:JSON.parse(localStorage.getItem("user")).id
+      }
+      var length
+      if(type == "textbox"){
         if(this.isChangeTextbox){
-            edit.content = this.infoTextboxContent
+          edit.content = this.infoTextboxContent
         }//内容发生了改变
         else{
-            return           
+          // this.$message.warning("不能提交空白数据！")
+          return
         }
-        var length = this.judgeSize(this.infoTextboxContent)
-        if(length > data.sizelimit){
-            this.$message.warning("大小不超过" + data.sizelimit + "!")
+        length = this.judgeSize(this.infoTextboxContent)
+      }else if(type == "textarea"){
+        if(this.isChangeTextarea){
+          edit.content = this.infoTextareaContent
         }else{
-            this.saveTextUrl(edit)
+          // this.$message.warning("不能提交空白数据！")
+          return
         }
-        
-    },
-    saveTextarea(){//textarea和textbox失去焦点保存内容
-        var edit = {
-            infoItemID:this.info.id,
-            content:this.infoTextareaContent,
-            activityID:this.info.activityID,
-            studentID:JSON.parse(localStorage.getItem("user")).id
-        }
-        if(this.infoTextareaContent == null){
-            this.$message.warning("不能提交空白数据！")
-            return
-        }
-        var length = this.judgeSize(this.infoTextareaContent)
-        console.log(length);
-        if(length > this.info.sizelimit){
-            this.$message.warning("大小不超过" + this.info.sizelimit + "!")
-        }else{
-            this.saveTextUrl(edit)
-        }
+        length = this.judgeSize(this.infoTextareaContent)
+      }
+
+      if(length > data.sizelimit){
+        this.$message.warning("大小不超过" + data.sizelimit + "!")
+      }else{
+        this.saveTextUrl(edit,type)
+      }
+
     },
     handleDelete(data) {//删除选择的文件
       var file={
@@ -366,19 +301,20 @@ export default {
         infoItemID:data.id
       }
       this.postRequest1("/infoItem/basic/deleteFile",file).then(
-        (response)=>{
-          console.log(response)
-          this.reset()
-        },()=>{}
+          (response)=>{
+            console.log(response)
+            this.reset()
+            this.urlFile = ""
+          },()=>{}
       )
     },
     handleExceed(){//超过限制数量
       this.$message.error(`只允许上传1个文件`);
     },
-
-    handleChangeFiles(file,fileList,data){//文件列表数量改变
-        console.log(this.files);
-        console.log(data);
+    handleChangeFiles(file,fileList,data,index){//文件列表数量改变
+      // console.log(index);
+      // console.log(this.$refs.upload);
+      // this.$refs.upload.clearFiles()
       this.files=[]
       var attachmentType = data.contentType.split(",")
       var type=file.name.split('.')
@@ -390,26 +326,56 @@ export default {
         this.$message.error("不支持上传该类型的附件")
         return
       }
-      var formData=new FormData();
+      // this.$refs.upload[index].fileList.push(file)
+
+
+      console.log(this.$refs.upload);
+
+      // var formData=new FormData();
+      var formData = this.formData
       this.files.push(file);
-      formData.append("file",this.files[0].raw)
-      formData.append("activityID",data.activityID)
-      formData.append("studentID",JSON.parse(localStorage.getItem("user")).id)
-      formData.append("infoItemID",data.id)
-      axios.post("/infoItem/basic/upload",formData,{
-        headers:{
-          'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
-        }
-      }).then(
-        (response)=>{
-          this.$message({
-            message:'上传成功！'
-          })
-            //获取文件存储的路径
-          this.urlFile=response.data
-          this.reset()
-        },()=>{}
-      )
+      formData.activityID = data.activityID
+      formData.studentID = JSON.parse(localStorage.getItem("user")).id
+      formData.infoItemID = data.id
+      var _this = this
+      const up = this.$refs.upload
+      if(up && up.length){
+        up.forEach((item,index_) =>{
+          if(index_ != index){
+            item.clearFiles()
+          }
+        })
+      }
+      // setTimeout(()=>{
+      //   const up = this.$refs.upload
+      //   if(up && up.length){
+      //     up.forEach((item,index_) =>{
+      //       if(index_ != index){
+      //         item.clearFiles()
+      //       }
+      //     })
+      //   }
+      this.$refs.upload[index].submit()
+      // },1000)
+      // formData.append("file",this.files[0].raw)
+      // formData.append("activityID",data.activityID)
+      // formData.append("studentID",JSON.parse(localStorage.getItem("user")).id)
+      // formData.append("infoItemID",data.id)
+      // axios.post("/infoItem/basic/upload",formData,{
+      //   headers:{
+      //     'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
+      //   }
+      // }).then(
+      //   (response)=>{
+      //     this.$message({
+      //       message:'上传成功！'
+      //     })
+      //       //获取文件存储的路径
+      //     this.urlFile=response.data
+      //     this.$refs.upload[index].clearFiles()
+      //     this.reset()
+      //   },()=>{}
+      // )
     },
     initAllRoles() {
       this.getRequest("/system/hr/roles").then((resp) => {
@@ -421,8 +387,8 @@ export default {
     initHrs() {//获取该活动下的所有信息项
       this.loading = true;
       this.getRequest(
-          "/infoItem/basic/stu/?keywords=26" +
-        //   this.keywords +
+          "/infoItem/basic/stu/?keywords=" +
+          this.keywords +
           "&page=" +
           this.page +
           "&size=" +
@@ -434,13 +400,15 @@ export default {
         if (resp) {
           this.loading = false;
           var hrs = []
-          resp.data.forEach(element => {//是否允许显示给学生
-            if(element.display){
-                hrs.push(element)
-            }
-          });
+          // resp.data.forEach(element => {//是否允许显示给学生
+          //   if(element.display){
+          //       hrs.push(element)
+          //   }
+          // });
+          hrs = resp.data
           this.hrs = hrs
           this.total = hrs.length
+          this.form_hrs.hrs = this.hrs
           console.log(resp.data);
         }
       });
@@ -466,7 +434,7 @@ export default {
     reset(){
       this.initHrs();
     },
-    initData() {//获取所有活动 
+    initData() {//获取所有活动
       this.getRequest("/activities/basic/get_activity_info").then((resp) => {
         if (resp) {
           this.activitydata = resp;
@@ -478,6 +446,11 @@ export default {
 </script>
 
 <style>
+
+.el-form-item__label {
+  /* padding-left: 12px; */
+  margin-left: 20px ;
+}
 .userinfo-container div {
   font-size: 12px;
   color: #409eff;
