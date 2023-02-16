@@ -245,5 +245,7 @@ public class Paper
         return publicationID;
     }
 
+    public Paper() {
+    }
 
 }

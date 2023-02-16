@@ -20,6 +20,8 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class ReceiveIMAPmails {
@@ -77,7 +79,7 @@ public class ReceiveIMAPmails {
         folder.open(Folder.READ_WRITE);
 
         // 获取收件箱的·未读·邮件列表
-        Message[] messages = folder.getMessages(folder.getMessageCount()-folder.getUnreadMessageCount()+1,folder.getMessageCount());
+        Message[] messages = folder.getMessages(1,folder.getMessageCount());
 
         // 解析邮件
         parseMessage(messages);
@@ -143,10 +145,13 @@ public class ReceiveIMAPmails {
      * @throws MessagingException
      */
     public boolean SafeCheck(Long ID, String remark, String state, String from) throws MessagingException {
-        Paper paper = paperService.getById((int)(long)ID);
+        Paper paper = null;
         Student student;
         Teacher teacher;
-
+        
+        if(ID!=null){
+            paper = paperService.getById((int)(long)ID);
+        }
 
 
         // 若paper_state != commit，则禁止修改
@@ -161,9 +166,9 @@ public class ReceiveIMAPmails {
                 teacher = teacherService.getById(student.getTutorID());
                 if(from.equals(teacher.getEmail())) {
                     // 邮箱地址和PaperID匹配
-                    // 若不通过需要添加
+                    // 若不通过需要添加remark
                     if (state.equals("tea_reject")) {
-                        if (remark.isEmpty()) {
+                        if (remark.isEmpty()||remark.equals("(请填写理由)")) {
                             mailService.sendFeedbackMail(from, ID, "sendRemarkMail");
                         } else {
                             mailService.sendFeedbackMail(from, ID, "sendRejtSuccessMail");
@@ -245,26 +250,46 @@ public class ReceiveIMAPmails {
             InternetAddress address = (InternetAddress) message.getFrom()[0];
             String from = address.getAddress();
             String content=getTextFromMessage(message);
+            // delete read messages
+            message.setFlag(Flags.Flag.DELETED,true);
 
 
             if(subject!=null)
                 System.out.println("邮件的主题是："+subject+"\t发件人的地址是："+from+"\n邮件正文：" + content+"\t");
-            String flag_PaperID = content.substring(1,6);
-            if(!flag_PaperID.equals("论文编号：")){
-                mailService.sendFeedbackMail(from, 0L, "sendErrMail");
-                return;
+
+            // 正则化查找目标字符串
+            String flag_PaperID="", flag_Pass="", flag_remark="";
+            String pattern1="(论文编号：)(.*?)(\\D)";
+            String pattern2="(审核结果：)(.*?)(通过)";
+            String pattern3="(驳回理由：)(.*?)(本邮件由)";
+            Pattern pattern11 = Pattern.compile(pattern1);
+            Pattern pattern22 = Pattern.compile(pattern2);
+            Pattern pattern33 = Pattern.compile(pattern3, Pattern.DOTALL);
+            Matcher matcher11 = pattern11.matcher(content);
+            Matcher matcher22 = pattern22.matcher(content);
+            Matcher matcher33 = pattern33.matcher(content);
+
+            while (matcher11.find()){
+                flag_PaperID= matcher11.group(2);
+            }
+            while (matcher22.find()){
+                flag_Pass= matcher22.group(2)+"通过";
+            }
+            while (matcher33.find()){
+                flag_remark= matcher33.group(2);
             }
 
 
-            String temp1 = content.substring(6, content.length());
-            String[] temp2 = temp1.split("是否通过：");
+
             Long ID = null;
-            ID = Long.parseLong(temp2[0]);
-            String state = temp2[1].substring(0,2).equals("通过")?"tea_pass":"tea_reject";
-            String remark = "";
-            if(state.equals("tea_reject")){
-                remark = temp2[1].substring(9, temp2[1].length());
+            String state="";
+            if(flag_PaperID!="") {
+                ID = Long.parseLong(flag_PaperID);
+                state = flag_Pass.equals("通过") ? "tea_pass" : "tea_reject";
             }
+            String remark = flag_remark;
+
+
 
             // 进行安全检查！！！
             // 1. 检查paperID和收件人的邮箱地址
@@ -286,8 +311,7 @@ public class ReceiveIMAPmails {
             }else{
                 System.out.println("·····修改论文状态失败！·····");
             }
-            // delete read messages
-            message.setFlag(Flags.Flag.DELETED,true);
+
         }
     }
 }

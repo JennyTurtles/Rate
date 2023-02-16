@@ -63,17 +63,17 @@ public class MailService {
                 "论文标题："+paper.getName()+"。<br>"+
                 "发表期刊："+pubName+"<br>" +
                 "出版年月："+paper.getYear()+"-"+paper.getMonth()+"<br>"+
-                "第一作者："+student.getName()+"<br>"+
+                "作者列表："+paper.getAuthor()+"<br>"+
                 "提交时间："+timeStr1+"<br>"+
                 "证明材料："+"请查看邮件附件"+"<br><br>"+
-                "<b>您可以登录教学<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">系统</a>进行审核，也可以直接回复" +
+                "<b>您可以登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复" +
                         "本邮件完成审核。</b><br>"+
-                "如果回复本邮件，方式如下"+
-                "(1) 若审核<b>通过</b>该成果，请在邮件中仅保留以下两行并<a href=\"mailto:ratemail@126.com?subject=InstructorReply\">回复</a>。<br>"+
+                "如果回复本邮件，方式如下：<br>"+
+                "(1) 若审核<b>通过</b>该成果，请在邮件中仅保留以下两行并回复。<br>"+
                 "论文编号："+paper.getID()+"<br>"+
                 "审核结果："+"通过"+"<br>"+
 
-                "(2) 若<b>驳回</b>该论文，请在邮件中仅保留以下三行并<a href=\"mailto:ratemail@126.com?subject=InstructorReply\">回复</a>。<br>"+
+                "(2) 若<b>驳回</b>该论文，请在邮件中仅保留以下三行并回复。<br>"+
                 "论文编号："+paper.getID()+"<br>"+
                 "审核结果："+"不通过"+"<br>"+
                 "驳回理由："+"<span style=\"color:red;\">(请填写理由)"+"</span><br><br>"+
@@ -101,9 +101,13 @@ public class MailService {
 
     @GetMapping("multi")
     public void sendFeedbackMail(String to, Long ID, String mailState) throws MessagingException{
-        Paper paper = paperService.getById((int)(long)ID);
+        Paper paper = null;
         Student student = null;
         Teacher teacher = null;
+
+        if(ID!=null){
+            paper = paperService.getById((int)(long)ID);
+        }
 
         if(paper!=null) {
             student = studentService.getById((int) (long) paper.getStudentID());
@@ -119,80 +123,71 @@ public class MailService {
 
         // 这里要不要加上如果不符合要求，那么交给管理员审阅尼？
         switch (mailState){
-            case "sendNoEditMail":subject="禁止修改该论文状态，论文编号："+ID;
+            case "sendNoEditMail":subject="成果申报无需重复审核，论文编号："+ID;
                                   String temp = "";
                                   switch (paper.getState()){
                                       case "tea_pass":temp="导师通过";break;
                                       case "tea_reject":temp="导师驳回";break;
-                                      case "admin_pass":temp="管理员通过";break;
-                                      case "admin_reject":temp="管理员驳回";break;
+                                      case "adm_pass":temp="管理员通过";break;
+                                      case "adm_reject":temp="管理员驳回";break;
                                       default:System.out.println("paper的状态不对！请检查数据库！");
                                   }
                                   content="亲爱的用户：<br>"+
                                           "您好！<br>"+
-                                          "<b>"+student.getName()+"的"+paper.getName()+"的状态已经修改为“"+temp+"”，禁止通过回信修改论文状态，论文编号："+ID+"</b><br>"+
-                                          "若要修改论文状态，请登录系统(http://localhost:8080/#/Teacher/Login)或者通过邮件联系管理员。<br><br>"+
-                                          "如有其他需求或建议，请联系管理员rateAdmin@126.com<br>"+
-                                          "祝好，<br>"+"ratemail团队";
+                                          ""+student.getName()+"的"+paper.getName()+"的状态目前状态是：<span style=\"color:red;\"><b>"+temp+"</b></span><br>"+
+                                          "该成果申报的当前状态不需要您审核。如需修改您的审核结果，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>。<br><br>"+
+                                          "本邮件由系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
                                   break;
-            case "sendRemarkMail":subject="修改论文不通过状态失败！论文编号："+ID;
+            case "sendRemarkMail":subject="修改论文状态失败！论文编号："+ID;
                                   content="亲爱的用户：<br>"+
                                           "您好！<br>"+
-                                          "<b>您若是想驳回"+student.getName()+"的"+paper.getName()+"，需要在回信中添加不通过的理由！</b><br>"+
-                                          "请在邮件的正文中添加下面内容，完善不通过理由，回复至ratemail@126.com:<br>"+
+                                          "您若是想驳回"+student.getName()+"的"+paper.getName()+"，<b>需要在回信中填写驳回理由！</b><br>"+
+                                          "请在邮件的正文中添加下面内容，完善不通过理由，回复至本邮箱。<br>"+
                                           "论文编号："+paper.getID()+"<br>"+
-                                          "是否通过：不通过<br>"+
-                                          "不通过理由：<br><br>"+
-                                          "如有其他需求或建议，请联系管理员rateAdmin@126.com<br>"+
-                                          "祝好，<br>"+"ratemail团队";
+                                          "审核结果："+"不通过"+"<br>"+
+                                          "驳回理由："+"<span style=\"color:red;\">(请填写理由)"+"</span><br><br>"+
+                                          "本邮件由系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
                                   break;
             case "sendRejtSuccessMail":subject=student.getName()+"的论文已经成功被导师驳回！论文编号："+ID;
                                        content="亲爱的用户：<br>"+
                                                "您好！<br>"+
-                                               student.getName()+"的论文已经成功被导师驳回！论文编号："+ID+"<br>"+
-                                               "请登录系统(http://localhost:8080/#/Teacher/Login)查看详情！"+"<br><br>"+
-                                               "如有其他需求或建议，请联系管理员rateAdmin@126.com<br>"+
-                                               "祝好，<br>"+"ratemail团队";
+                                               student.getName()+"的论文已经成功被"+teacher.getName()+"驳回！论文编号："+ID+"<br>"+
+                                               "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！"+"<br><br>"+
+                                               "本邮件由系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
                                        break;
-            case "sendPassSuccessMail":subject=student.getName()+"的论文已经成功被导师通过！论文编号："+ID;
+            case "sendPassSuccessMail":subject=student.getName()+"的论文已经成功被"+teacher.getName()+"通过！论文编号："+ID;
                                        content="亲爱的用户：<br>"+
                                                "您好！<br>"+
                                                student.getName()+"的论文已经成功被导师通过！论文编号："+ID+"<br>"+
-                                               "请登录系统(http://localhost:8080/#/Teacher/Login)查看详情！"+"<br><br>"+
-                                               "如有其他需求或建议，请联系管理员rateAdmin@126.com<br>"+
-                                               "祝好，<br>"+"ratemail团队";
+                                               "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！"+"<br><br>"+
+                                               "本邮件由系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
                                        break;
             case "sendPIDErrMail":subject="修改论文状态失败！请检查论文编号:"+ID+"是否正确！";
                                   content="亲爱的用户：<br>"+
                                           "您好！<br>"+
                                           "<b>该邮箱对应的数据库中不存在编号为"+ID+"的论文</b>，请检查论文编号是否正确！"+"<br>"+
-                                          "请登录系统(http://localhost:8080/#/Teacher/Login)查看待审核论文的详情！"+"<br><br>"+
-                                          "如有其他需求或建议，请联系管理员rateAdmin@126.com<br>"+
-                                          "祝好，<br>"+"ratemail团队";
+                                          "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！"+"<br><br>"+
+                                          "本邮件由系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
                                   break;
             case "sendEmailErrMail":subject="修改论文状态失败！请检查邮箱地址是否正确！论文编号:"+ID;
                                     content="亲爱的用户：<br>"+
                                             "您好！<br>"+
-                                            "回信审核编号为<b>"+ID+"</b>的论文时，请使用注册时的<b>"+teacher.getEmail()+"</b>邮箱，按照格式重新发送给ratemail@126.com。"+"<br>"+
-                                            "请登录系统(http://localhost:8080/#/Teacher/Login)查看待审核论文的详情！"+"<br><br>"+
-                                            "如有其他需求或建议，请联系管理员rateAdmin@126.com<br>"+
-                                            "祝好，<br>"+"ratemail团队";
+                                            "您若是想回信审核"+student.getName()+"的"+paper.getName()+"，<b>需要使用系统注册时的邮箱：<b>"+teacher.getEmail()+"</b><br>"+
+                                            "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！"+"<br><br>"+
+                                            "本邮件由系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
                                     break;
             case "sendPIDEmailMail":subject="修改论文状态失败！请检查邮箱地址和论文编号是否正确！论文编号:"+ID;
                                     content="亲爱的用户：<br>"+
                                             "您好！<br>"+
-                                            "回信审核编号为<b>"+ID+"</b>的论文时，<b>请检查是否使用注册时的邮箱，以及论文编号是否复制错误。</b><br>" +
-                                            "之后可以按照格式重新发送给ratemail@126.com。"+"<br>"+
-                                            "或者直接登录系统(http://localhost:8080/#/Teacher/Login)查看待审核论文的详情！"+"<br><br>"+
-                                            "如有其他需求或建议，请联系管理员rateAdmin@126.com<br>"+
-                                            "祝好，<br>"+"ratemail团队";
+                                            "回信审核论文编号为<b>"+ID+"</b>的论文时，<b>请检查是否为系统注册时的邮箱，以及论文编号是否有误。</b><br>" +
+                                            "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！"+"<br><br>"+
+                                            "本邮件由系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
                                     break;
-            case "sendErrMail":subject="请注册或登录后使用专家打分系统！";
+            case "sendErrMail":subject="修改论文状态失败！邮箱地址未登记！";
                                content="亲爱的用户：<br>"+
                                        "您好！<br>"+
-                                       "请注册后使用本系统，或者检查邮箱的收件箱和垃圾邮件按照格式回复！"+"<br><br>"+
-                                       "如有其他需求或建议，请联系管理员rateAdmin@126.com<br>"+
-                                       "祝好，<br>"+"ratemail团队";
+                                       "请很高兴收到您的邮件，但很遗憾您的邮箱地址未在系统中登记，请使用您在教学系统中登记的邮箱发邮件给<a href=\"mailto:rateAdmin@126.com?\">我</a>，谢谢！"+"<br><br>"+
+                                       "教学系统机器人";
                                break;
             default:System.out.println("导师回信出现其他错误，请检查邮箱！");
         }
