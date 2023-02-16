@@ -11,7 +11,7 @@
  Target Server Version : 80030 (8.0.30)
  File Encoding         : 65001
 
- Date: 16/02/2023 16:32:38
+ Date: 16/02/2023 20:41:27
 */
 
 SET NAMES utf8mb4;
@@ -1104,8 +1104,8 @@ INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAl
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (68, '/', '/admin/SalPaper', 'Paper', '所有成果', NULL, NULL, 1, 66, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (69, '/', '/home', 'Home', '成果申报', 'fa-fa-windows', NULL, 1, 43, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (70, '/', '/home', 'Home', '成果列表', 'fa-fa-windows', NULL, 1, 43, 1);
-INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (71, '/', '/home', 'Home', '毕业论文', NULL, NULL, 1, 1, 1);
-INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (72, '/salary/search/**', '/student/PaperCommit', 'PaperCommit', '评审', NULL, NULL, 1, 71, 1);
+INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (71, '/', '/home', 'Home', '毕业论文评审', 'fa fa-windows', NULL, 1, 44, 1);
+INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (72, '/salary/search/**', '/student/PaperCommit', 'PaperCommit', '毕业论文评审记录', 'fa fa-windows', NULL, 1, 71, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (73, '/salary/search/**', '/teacher/tperact/actList', 'ActList', '活动列表', NULL, NULL, 1, 4, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (74, '/salary/search/**', '/student/infos', 'Infos', '信息项设置', NULL, NULL, 1, 4, 0);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (75, '/salary/search/**', '/teacher/tperact/score', 'Score', '分数', NULL, NULL, 1, 4, 0);
@@ -1125,7 +1125,7 @@ CREATE TABLE `menu_role` (
   KEY `rid` (`rid`) USING BTREE,
   CONSTRAINT `menu_role_ibfk_1` FOREIGN KEY (`mid`) REFERENCES `menu` (`id`),
   CONSTRAINT `menu_role_ibfk_2` FOREIGN KEY (`rid`) REFERENCES `role` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=324 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=326 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of menu_role
@@ -1173,6 +1173,8 @@ INSERT INTO `menu_role` (`id`, `mid`, `rid`) VALUES (319, 70, 11);
 INSERT INTO `menu_role` (`id`, `mid`, `rid`) VALUES (321, 75, 3);
 INSERT INTO `menu_role` (`id`, `mid`, `rid`) VALUES (322, 76, 11);
 INSERT INTO `menu_role` (`id`, `mid`, `rid`) VALUES (323, 76, 7);
+INSERT INTO `menu_role` (`id`, `mid`, `rid`) VALUES (324, 72, 8);
+INSERT INTO `menu_role` (`id`, `mid`, `rid`) VALUES (325, 71, 8);
 COMMIT;
 
 -- ----------------------------
@@ -1499,8 +1501,8 @@ INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (4, 'ROLE_train', '培训主�
 INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (5, 'ROLE_performance', '薪酬绩效主管');
 INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (6, 'ROLE_admin', '系统管理员');
 INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (7, 'ROLE_participants', '选手');
-INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (8, 'ROLE_teacher', '教师');
-INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (9, 'ROLE_teacher_2', '研究生导师');
+INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (8, 'ROLE_teacher_under', '本科生导师');
+INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (9, 'ROLE_teacher_post', '研究生导师');
 INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (10, 'ROLE_student_under', '本科生');
 INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (11, 'ROLE_student_post', '研究生');
 INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (12, 'ROLE_tmp', '临时人员');
@@ -1947,7 +1949,7 @@ INSERT INTO `student` (`ID`, `name`, `institutionID`, `studentnumber`, `IDNumber
 INSERT INTO `student` (`ID`, `name`, `institutionID`, `studentnumber`, `IDNumber`, `telephone`, `email`, `username`, `password`, `year`, `deleteflag`, `tutorID`, `role`) VALUES (2094, '王青芙', NULL, NULL, '310111111111111119', '13812341239', '131@dhu.edu.cn', '181310009', '$2a$10$MSARsU7QH6uvFDgUfuWcSO1lsmE/mqGJ1MLlccmNkXeFAQMdm.yeO', NULL, 0, 1003, '10');
 INSERT INTO `student` (`ID`, `name`, `institutionID`, `studentnumber`, `IDNumber`, `telephone`, `email`, `username`, `password`, `year`, `deleteflag`, `tutorID`, `role`) VALUES (2095, '测试序号', 21, NULL, '310111111111121000', '10012341234', '123@dhu.edu.cn', '1191310000', '$2a$10$zYoet0Y0hIt65XHVWy6svewahcA5inu8CfcxCYRh9ukUK4Ylxtat.', NULL, 0, 1003, '10');
 INSERT INTO `student` (`ID`, `name`, `institutionID`, `studentnumber`, `IDNumber`, `telephone`, `email`, `username`, `password`, `year`, `deleteflag`, `tutorID`, `role`) VALUES (2096, '测试分组', NULL, NULL, '310111111111111222', NULL, NULL, '1991310000', '$2a$10$CGlijEQCIwiSWg2bn26l6OmISrugSqQEoxqNgIE5LvJX5iYSlz3Oi', NULL, 0, 1003, '10');
-INSERT INTO `student` (`ID`, `name`, `institutionID`, `studentnumber`, `IDNumber`, `telephone`, `email`, `username`, `password`, `year`, `deleteflag`, `tutorID`, `role`) VALUES (2097, '卢三old', 1, NULL, '310111111111111111', '13812341231', '123@dhu.edu.cn', 'studentold', '7c4a8d09ca3762af61e59520943dc26494f8941b', NULL, 0, 1003, '10;11');
+INSERT INTO `student` (`ID`, `name`, `institutionID`, `studentnumber`, `IDNumber`, `telephone`, `email`, `username`, `password`, `year`, `deleteflag`, `tutorID`, `role`) VALUES (2097, '卢三old', 1, NULL, '310111111111111111', '13812341231', '123@dhu.edu.cn', 'studentold', '7c4a8d09ca3762af61e59520943dc26494f8941b', NULL, 0, 1003, '10');
 INSERT INTO `student` (`ID`, `name`, `institutionID`, `studentnumber`, `IDNumber`, `telephone`, `email`, `username`, `password`, `year`, `deleteflag`, `tutorID`, `role`) VALUES (2098, '选手test', 1, NULL, '2222776', NULL, NULL, 'participants', '7c4a8d09ca3762af61e59520943dc26494f8941b', NULL, 0, NULL, '12');
 COMMIT;
 
