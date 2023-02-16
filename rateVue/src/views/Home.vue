@@ -101,9 +101,9 @@ export default {
   },
   computed: {
     routes() {
-      console.log("routs:");
-      console.log(JSON.parse(localStorage.getItem('initRoutes')));
-      console.log(this.$store.state.routes);
+      // console.log("routs:");
+      // console.log(JSON.parse(localStorage.getItem('initRoutes')));
+      // console.log(this.$store.state.routes);
       // return this.$store.state.routes; //store->index.js->state: {router.beforeEach->initMenu
       return JSON.parse(localStorage.getItem('initRoutes'))
     },

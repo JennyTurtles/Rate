@@ -61,7 +61,8 @@
     select m.*,r.`id` as rid,r.`name` as rname,r.`nameZh` as rnameZh from menu m,menu_role mr,role r where m.`id`=mr.`mid` and mr.`rid`=r.`id` order by m.`id`
   </select>
   <select id="getMenusById" resultMap="Menus2">
-    select distinct m1.*,m2.`id` as id2,m2.`component` as component2,m2.`enabled` as enabled2,m2.`iconCls` as iconCls2,m2.`keepAlive` as keepAlive2,m2.`name` as name2,m2.`parentId` as parentId2,m2.`requireAuth` as requireAuth2,m2.`path` as path2 from menu m1,menu m2,admin hrr,menu_role mr where m1.`id`=m2.`parentId` and hrr.`id`=#{id} and hrr.`role`=mr.`rid` and mr.`mid`=m2.`id` and m2.`enabled`=true order by m1.`id`,m2.`id`
+    select distinct m1.*,m2.`id` as id2,m2.`component` as component2,m2.`enabled` as enabled2,m2.`iconCls` as iconCls2,m2.`keepAlive` as keepAlive2,m2.`name` as name2,m2.`parentId` as parentId2,m2.`requireAuth` as requireAuth2,m2.`path` as path2
+    from menu m1,menu m2,admin hrr,menu_role mr where m1.`id`=m2.`parentId` and hrr.`id`=#{id} and hrr.`role`=mr.`rid` and mr.`mid`=m2.`id` and m2.`enabled`=true order by m1.`id`,m2.`id`
   </select>
   <select id="getMenusByStuId" resultMap="Menus2">
     select distinct m1.*,
@@ -79,6 +80,16 @@
           mr.`rid`=#{role} and mr.`mid`=m2.`id` and m2.`enabled`=true
     order by m1.`id`,m2.`id`
   </select>
+
+  <select id="getMenusWithCompetitor" resultMap="Menus2">
+    select distinct m1.*,
+                    m2.`id` as id2,m2.`component` as component2,m2.`enabled` as enabled2,m2.`iconCls` as iconCls2,m2.`keepAlive` as keepAlive2,m2.`name` as name2,m2.`parentId` as parentId2,m2.`requireAuth` as requireAuth2,m2.`path` as path2
+    from menu m1,menu m2,menu_role mr
+    where m1.`id`=m2.`parentId` and
+      mr.`rid`=#{role} and mr.`mid`=m2.`id` and m2.`enabled` =true
+    order by m1.`id`,m2.`id`
+  </select>
+
   <sql id="Base_Column_List" >
     id, url, path, component, name, iconCls, keepAlive, requireAuth, parentId, enabled
   </sql>

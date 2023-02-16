@@ -1,5 +1,6 @@
 package org.sys.rate.mapper;
 
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Menu;
 
 import java.util.List;
@@ -21,10 +22,17 @@ public interface MenuMapper {
 
     List<Menu> getMenusByStuId(Integer role);
     List<Menu> getMenusByTeaId(Integer hrid,Integer role);
+    List<Menu> getMenusWithCompetitor(Integer role);
 
     List<Menu> getAllMenusWithRole();
 
     List<Menu> getAllMenus();
 
     List<Integer> getMidsByRid(Integer rid);
+
+    @Select("SELECT COUNT(*) from participants WHERE studentID = #{stuId}")
+    int isCompetitor(Integer stuId);
+
+    @Select("SELECT COUNT(*) from expertactivities WHERE teacherID = #{teaId}")
+    int isExpert(Integer teaId);
 }

@@ -12,6 +12,8 @@ export const initMenu = (router, store) => {
             router.addRoutes(fmtRoutes);  //添加到路由
             store.commit('initRoutes', fmtRoutes);  //将数据存到vuex
             localStorage.setItem('initRoutes',JSON.stringify(fmtRoutes))
+            console.log("menu.js")
+            console.log(data)
         }
     })
 }

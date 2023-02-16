@@ -41,18 +41,22 @@ public class MenuService {
     //获取每个角色的菜单
     public List<Menu> getAllRoleMenus(Integer id, String role){
         List<Menu> res = new ArrayList<>();
+        if (role.equals(("3")))
+            System.out.println("3");
         if(role.equals("8") || role.equals("9") || role.equals(("3"))){//8本科生老师 9研究生老师 3是专家
             res=menuMapper.getMenusByTeaId(id,Integer.parseInt(role));
         }
         else if(role.equals("10") || role.equals("11")){//10本科生 11研究生
             res=menuMapper.getMenusByStuId(Integer.parseInt(role));
-//            return res;
+        }
+        else if(role.equals("12")) //12选手
+        {
+            res = menuMapper.getMenusWithCompetitor(Integer.parseInt(role));
         }
         else {
             res = menuMapper.getMenusById(id);
             return res;
         }
-
         List<Menu> newMenu=new ArrayList<>();
         for (int i = 0 ;i<res.size();i++){
 
@@ -71,10 +75,12 @@ public class MenuService {
             }
         }
         return newMenu;
-//        return res;
     }
+
     public List<Menu> getMenusByAdminId(Integer id, String role) {
         //多个角色；分割
+        if (menuMapper.isCompetitor(id) != 0)
+            role = role + ";12";
         String[] roles = role.split(";");
         List<Menu> res=new ArrayList<>();
         for (int i = 0;i < roles.length;i++){
