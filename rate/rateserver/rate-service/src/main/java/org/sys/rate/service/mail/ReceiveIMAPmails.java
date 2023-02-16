@@ -259,24 +259,26 @@ public class ReceiveIMAPmails {
 
             // 正则化查找目标字符串
             String flag_PaperID="", flag_Pass="", flag_remark="";
-            String pattern1="(论文编号：)(.*?)(\\D)";
+            String pattern1="(论文编号：)(.*?)(\n)";
             String pattern2="(审核结果：)(.*?)(通过)";
-            String pattern3="(驳回理由：)(.*?)(本邮件由)";
-            Pattern pattern11 = Pattern.compile(pattern1);
-            Pattern pattern22 = Pattern.compile(pattern2);
+            String pattern3="(驳回理由：)(.*?)(\n\n)";
+            Pattern pattern11 = Pattern.compile(pattern1,1);
+            Pattern pattern22 = Pattern.compile(pattern2,1);
             Pattern pattern33 = Pattern.compile(pattern3, Pattern.DOTALL);
             Matcher matcher11 = pattern11.matcher(content);
             Matcher matcher22 = pattern22.matcher(content);
             Matcher matcher33 = pattern33.matcher(content);
 
-            while (matcher11.find()){
+            if (matcher11.find()){
                 flag_PaperID= matcher11.group(2);
             }
-            while (matcher22.find()){
+            if (matcher22.find()){
                 flag_Pass= matcher22.group(2)+"通过";
             }
-            while (matcher33.find()){
-                flag_remark= matcher33.group(2);
+            if(flag_Pass.equals("不通过")) {
+                if (matcher33.find()) {
+                    flag_remark = matcher33.group(2);
+                }
             }
 
 
