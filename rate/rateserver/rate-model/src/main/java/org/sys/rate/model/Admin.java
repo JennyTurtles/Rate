@@ -14,7 +14,7 @@ import java.util.Objects;
 public class Admin extends Account {
     //private Integer id;
     private String companyName;
-    private Integer institutionID;
+//    private Integer institutionID;
     //private String name;
 
     private String phone;
@@ -71,13 +71,13 @@ public class Admin extends Account {
         this.companyName = companyName == null ? null : companyName.trim();
     }
 
-    public Integer getinstitutionID() {
-        return institutionID;
-    }
-
-    public void setinstitutionID(Integer institutionID) {
-        this.institutionID = institutionID;
-    }
+//    public Integer getinstitutionID() {
+//        return institutionID;
+//    }
+//
+//    public void setinstitutionID(Integer institutionID) {
+//        this.institutionID = institutionID;
+//    }
 
 /*    public String getName() {
         return name;

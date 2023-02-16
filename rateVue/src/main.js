@@ -132,6 +132,7 @@ import { initMenu } from "./utils/menus";
 import { initMenu_ex } from "./utils/menus";
 import 'font-awesome/css/font-awesome.min.css'
 import Directives from './directives/index.js'
+import ro from "element-ui/src/locale/lang/ro";
 Vue.use(Directives)
 Vue.prototype.postRequest = postRequest;
 Vue.prototype.postRequest1 = postRequest1;

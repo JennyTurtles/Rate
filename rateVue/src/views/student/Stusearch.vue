@@ -257,6 +257,7 @@ export default {
     },
     initEmps() {
       this.loading = true;
+      console.log("init")
       console.log(this.user);
       let url = "/activities/basic/?page=" + this.page + "&size=" + this.size + "&institutionID=" + this.user.institutionID;
       this.getRequest(url).then((resp) => {

@@ -12,8 +12,6 @@ export const initMenu = (router, store) => {
             router.addRoutes(fmtRoutes);  //添加到路由
             store.commit('initRoutes', fmtRoutes);  //将数据存到vuex
             localStorage.setItem('initRoutes',JSON.stringify(fmtRoutes))
-            console.log("menu.js")
-            console.log(data)
         }
     })
 }
@@ -43,7 +41,8 @@ export const formatRoutes = (routes) => {
             meta,
             iconCls,
             keepalive,
-            children
+            children,
+            enabled
         } = router;
         if (children && children instanceof Array) {
             children = formatRoutes(children);
@@ -55,6 +54,7 @@ export const formatRoutes = (routes) => {
             keepalive:keepalive,
             meta: meta,
             children: children,
+            enabled:enabled,
             component(resolve) {
                 if (component.startsWith("Home")) {
                     require(['../views/' + component + '.vue'], resolve);

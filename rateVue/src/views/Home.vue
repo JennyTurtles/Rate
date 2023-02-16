@@ -10,7 +10,7 @@
               <el-dropdown-item command="userinfo">个人中心</el-dropdown-item>
               <!--                            <el-dropdown-item command="setting">设置</el-dropdown-item>-->
               <el-dropdown-item command="logout" divided
-                >注销登录</el-dropdown-item
+              >注销登录</el-dropdown-item
               >
             </el-dropdown-menu>
           </el-dropdown>
@@ -159,27 +159,27 @@ export default {
           cancelButtonText: "取消",
           type: "warning",
         })
-          .then(() => {
-            var url
-            console.log(this.role)
-            if (this.role == 8)
-              url = "/Teacher/Login"
-            else if (this.role == 1)
-              url = "/Admin/Login"
-            else if (this.role == 7)
-              url = "/"
-            this.getRequest("/logout");
-            // window.sessionStorage.removeItem("user"); //清楚session
-            localStorage.clear()
-            this.$store.commit("initRoutes", []); //清空路由
-            this.$router.replace(url);
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消操作",
+            .then(() => {
+              var url
+              console.log(this.role)
+              if (this.role == 8)
+                url = "/Teacher/Login"
+              else if (this.role == 1)
+                url = "/Admin/Login"
+              else if (this.role == 7)
+                url = "/"
+              this.getRequest("/logout");
+              // window.sessionStorage.removeItem("user"); //清楚session
+              localStorage.clear()
+              this.$store.commit("initRoutes", []); //清空路由
+              this.$router.replace(url);
+            })
+            .catch(() => {
+              this.$message({
+                type: "info",
+                message: "已取消操作",
+              });
             });
-          });
       } else if (cmd == "userinfo") {
         this.$router.push("/hrinfo");
       }
@@ -251,8 +251,8 @@ export default {
   border-radius: 10px;
   margin-left: 0.25%;
   box-shadow: 15px 0 15px -15px rgb(119, 117, 117),
-    /* 0px 15px 15px -15px rgb(119, 117, 117), */
-    /* 0px 15px 15px -15px rgb(119, 117, 117); */
+  /* 0px 15px 15px -15px rgb(119, 117, 117), */
+  /* 0px 15px 15px -15px rgb(119, 117, 117); */
 }
 .el-aside {
   background-color: #ecf5ff;
@@ -261,6 +261,6 @@ export default {
   border-radius: 10px;
   margin-right: 0.25%;
   box-shadow: 15px 0 15px -15px rgb(117, 119, 119),
-    -15px 0 15px -15px rgb(119, 117, 117);
+  -15px 0 15px -15px rgb(119, 117, 117);
 }
 </style>
