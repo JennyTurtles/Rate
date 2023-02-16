@@ -47,7 +47,7 @@ export const postKeyValueRequest = (url, params) => {
         }],
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'token': window.sessionStorage.getItem('user') ? JSON.parse(window.sessionStorage.getItem('user')).token : ''
+            'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
         }
     });
 }
@@ -59,7 +59,7 @@ export const postRequest = (url, params) => {
 		//contentType:"applicaiton/json",
 		headers: {
 		    'Content-Type': 'application/json',
-            'token': window.sessionStorage.getItem('user') ? JSON.parse(window.sessionStorage.getItem('user')).token : ''
+            'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
 		}
     })
 }
@@ -70,7 +70,7 @@ export const postRequest1 = (url, params) => {
         url: `${base}${url}`,
         data: qs.stringify(params),
 		headers: {
-            'token': window.sessionStorage.getItem('user') ? JSON.parse(window.sessionStorage.getItem('user')).token : ''
+            'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
 		}
     })
 }
@@ -88,7 +88,7 @@ export const getRequest = (url, params) => {
         url: `${base}${url}`,
         params: params,
         headers:{
-            'token': window.sessionStorage.getItem('user') ? JSON.parse(window.sessionStorage.getItem('user')).token : ''
+            'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
         }
     })
 }
