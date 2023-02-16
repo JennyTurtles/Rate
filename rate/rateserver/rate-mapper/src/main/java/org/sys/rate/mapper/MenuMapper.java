@@ -22,7 +22,7 @@ public interface MenuMapper {
 
     List<Menu> getMenusByStuId(Integer role);
     List<Menu> getMenusByTeaId(Integer hrid,Integer role);
-    List<Menu> getMenusWithCompetitor(Integer role);
+    List<Menu> getMenusWithParticipants(Integer role);
 
     List<Menu> getAllMenusWithRole();
 
@@ -31,7 +31,7 @@ public interface MenuMapper {
     List<Integer> getMidsByRid(Integer rid);
 
     @Select("SELECT COUNT(*) from participants WHERE studentID = #{stuId}")
-    int isCompetitor(Integer stuId);
+    int isParticipants(Integer stuId);
 
     @Select("SELECT COUNT(*) from expertactivities WHERE teacherID = #{teaId}")
     int isExpert(Integer teaId);

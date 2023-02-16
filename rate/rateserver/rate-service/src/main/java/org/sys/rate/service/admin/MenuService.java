@@ -49,9 +49,9 @@ public class MenuService {
         else if(role.equals("10") || role.equals("11")){//10本科生 11研究生
             res=menuMapper.getMenusByStuId(Integer.parseInt(role));
         }
-        else if(role.equals("12")) //12选手
+        else if(role.equals("7")) //7选手
         {
-            res = menuMapper.getMenusWithCompetitor(Integer.parseInt(role));
+            res = menuMapper.getMenusWithParticipants(Integer.parseInt(role));
         }
         else {
             res = menuMapper.getMenusById(id);
@@ -79,8 +79,10 @@ public class MenuService {
 
     public List<Menu> getMenusByAdminId(Integer id, String role) {
         //多个角色；分割
-        if (menuMapper.isCompetitor(id) != 0)
-            role = role + ";12";
+        if (!role.contains("10") && !role.contains("11") && menuMapper.isParticipants(id) != 0)
+            role = role + ";7";
+        if (!role.contains("3") && menuMapper.isExpert(id) != 0)
+            role = role + ";3";
         String[] roles = role.split(";");
         List<Menu> res=new ArrayList<>();
         for (int i = 0;i < roles.length;i++){
@@ -91,9 +93,6 @@ public class MenuService {
                 res.add(li);
             }
         }
-        //去重
-//        Set<Menu> set = new LinkedHashSet<>(res);
-//        res = new ArrayList<>(set);
         return res;
     }
 
