@@ -48,5 +48,8 @@ public interface InfoItemMapper {
     Integer maxWorkID();
 
     List<InfoItem> selectInfoItemByActivityId(@Param("activitiesID") Integer activitiesID);
+
+
+
     List<InfoItem> selectInfoItemByActivityIdIsShow(@Param("activitiesID") Integer activitiesID);
 }

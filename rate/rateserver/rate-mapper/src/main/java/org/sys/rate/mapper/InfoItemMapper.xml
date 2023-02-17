@@ -5,6 +5,7 @@
     <id column="ID" jdbcType="INTEGER" property="ID" />
     <result column="activityID" jdbcType="INTEGER" property="activityID" />
     <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
     <result column="sizelimit" jdbcType="VARCHAR" property="sizelimit" />
     <result column="contentType" jdbcType="VARCHAR" property="contentType"/>
     <result column="byParticipant" jdbcType="BOOLEAN" property="byParticipant" />
@@ -163,12 +164,21 @@
     </if>
   </select>
 
-  <select id="selectInfoItemByActivityId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectInfoItemByActivityId1" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select  *
     from infoitem s
     where s.activityID = #{activitiesID}
     order by s.ID
   </select>
+
+  <select id="selectInfoItemByActivityId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select  DISTINCT s.ID,s.activityID,s.name,s.sizelimit,s.contentType,s.byParticipant,s.display,i.content
+    from infos i
+    right join infoitem s on s.ID = i.infoItemID
+    where s.activityID = #{activitiesID}
+    order by s.ID
+  </select>
+
 
   <select id="selectInfoItemByActivityIdIsShow" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select *
