@@ -11,7 +11,7 @@
  Target Server Version : 80030 (8.0.30)
  File Encoding         : 65001
 
- Date: 16/02/2023 20:41:27
+ Date: 17/02/2023 15:21:16
 */
 
 SET NAMES utf8mb4;
@@ -1081,7 +1081,7 @@ INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAl
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (45, '/salary/search/**', '/UserInfo', 'UserInfo', '个人资料', NULL, NULL, 1, 42, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (46, '/salary/search/**', '/student/Paper', 'Paper', '论文', NULL, NULL, 1, 69, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (47, '/salary/search/**', '/student/Patent', 'Patent', '专利', NULL, NULL, 1, 69, 1);
-INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (48, '/salary/search/**', '/student/ResearchAward', 'ResearchAward', '科研获奖', NULL, NULL, 1, 69, 1);
+INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (48, '/salary/search/**', '/student/ResearchAward', 'ResearchAward', '奖励', NULL, NULL, 1, 69, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (49, '/salary/search/**', '/student/Product', 'Product', '科研项目', NULL, NULL, 1, 69, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (50, '/salary/search/**', '/student/AcademicMonograph', 'AcademicMonograph', '学术专著和教材', NULL, NULL, 1, 69, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (51, '/salary/search/**', '/student/ResearchProject', 'ResearchProject', '制造或设计的产品', NULL, NULL, 1, 69, 1);
@@ -1198,7 +1198,7 @@ CREATE TABLE `paper` (
   PRIMARY KEY (`ID`) USING BTREE,
   KEY `publication_paper` (`publicationID`),
   CONSTRAINT `publication_paper` FOREIGN KEY (`publicationID`) REFERENCES `publication` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=6101 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=6103 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of paper
@@ -1210,6 +1210,7 @@ INSERT INTO `paper` (`ID`, `studentID`, `name`, `year`, `month`, `author`, `rank
 INSERT INTO `paper` (`ID`, `studentID`, `name`, `year`, `month`, `author`, `rank`, `total`, `point`, `publicationID`, `pubPage`, `state`, `url`) VALUES (6098, 2086, '4', '2022', 4, '卢三', 1, 1, 12, 2, '2-3', 'tea_reject', '');
 INSERT INTO `paper` (`ID`, `studentID`, `name`, `year`, `month`, `author`, `rank`, `total`, `point`, `publicationID`, `pubPage`, `state`, `url`) VALUES (6099, 2086, '5', '2022', 2, '卢三;zz', 1, 2, 12, 5, '2-3', 'adm_reject', '/Users/luyiru/Desktop/研究生网站开发/Rate/work2/rate/upload/测试.docx');
 INSERT INTO `paper` (`ID`, `studentID`, `name`, `year`, `month`, `author`, `rank`, `total`, `point`, `publicationID`, `pubPage`, `state`, `url`) VALUES (6100, 2086, '6', '2022', 2, '卢三;', 1, 2, 12, 4, '2-22', 'adm_pass', '/Users/luyiru/Desktop/研究生网站开发/Rate/work2/rate/upload/知识产权作业.pdf');
+INSERT INTO `paper` (`ID`, `studentID`, `name`, `year`, `month`, `author`, `rank`, `total`, `point`, `publicationID`, `pubPage`, `state`, `url`) VALUES (6101, 2086, '7', '2023', 1, '卢三', 1, 1, 12, 2, '1-2', 'commit', '/Users/gongrunze/Rate/upload/00丨开篇词丨这一次，让我们一起来搞懂MySQL.pdf');
 COMMIT;
 
 -- ----------------------------
@@ -1230,7 +1231,7 @@ CREATE TABLE `paper_oper` (
   `state` varchar(128) DEFAULT NULL COMMENT '状态',
   `remark` text COMMENT '备注',
   PRIMARY KEY (`ID`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=214 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=216 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of paper_oper
@@ -1253,6 +1254,8 @@ INSERT INTO `paper_oper` (`ID`, `operatorRole`, `operatorID`, `operatorName`, `p
 INSERT INTO `paper_oper` (`ID`, `operatorRole`, `operatorID`, `operatorName`, `paperID`, `paperName`, `pubID`, `pubName`, `time`, `operation`, `state`, `remark`) VALUES (211, 'student', 2098, '卢三', 6104, 'sss', 2, '《International Conference on Data Engineering(ICDE)》', '2022-12-26 23:08:54', '提交论文', 'commit', '');
 INSERT INTO `paper_oper` (`ID`, `operatorRole`, `operatorID`, `operatorName`, `paperID`, `paperName`, `pubID`, `pubName`, `time`, `operation`, `state`, `remark`) VALUES (212, 'student', 2098, '卢三', 6105, 'dsdsa', 1, '《中国社会科学》', '2022-12-26 23:09:59', '提交论文', 'commit', '');
 INSERT INTO `paper_oper` (`ID`, `operatorRole`, `operatorID`, `operatorName`, `paperID`, `paperName`, `pubID`, `pubName`, `time`, `operation`, `state`, `remark`) VALUES (213, 'admin', 34, '龚三', 6100, '6', 4, '刊物全称1', '2022-12-26 23:14:19', '管理员审核通过', 'adm_pass', '');
+INSERT INTO `paper_oper` (`ID`, `operatorRole`, `operatorID`, `operatorName`, `paperID`, `paperName`, `pubID`, `pubName`, `time`, `operation`, `state`, `remark`) VALUES (214, 'student', 2086, '卢三', 6101, '7', 2, '《International Conference on Data Engineering(ICDE)》', '2023-02-17 15:18:49', '提交论文', 'commit', '');
+INSERT INTO `paper_oper` (`ID`, `operatorRole`, `operatorID`, `operatorName`, `paperID`, `paperName`, `pubID`, `pubName`, `time`, `operation`, `state`, `remark`) VALUES (215, 'student', 2086, '卢三', 6102, '7', 2, '《International Conference on Data Engineering(ICDE)》', '2023-02-17 15:18:51', '提交论文', 'commit', '');
 COMMIT;
 
 -- ----------------------------
