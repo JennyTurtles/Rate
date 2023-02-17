@@ -88,7 +88,7 @@ public interface PublicationMapper
             "WHERE year = (SELECT MAX(year) FROM publication t2 WHERE t1.indicatorID = t2.indicatorID AND `year`<=#{year}))")
     public List<Publication> selectPublicationByYear(Integer year);
 
-    @Select("SELECT DISTINCT name FROM publication WHERE `name` LIKE '${name}%' LIMIT 10")
+    @Select("SELECT DISTINCT name FROM publication WHERE `name` LIKE '$%{name}%' LIMIT 10")
     public List<String> getNamesByStr(String name);
 
     @Select("SELECT publication.ID,publication.name,publication.indicatorID,indicator.score \n" +
@@ -99,7 +99,7 @@ public interface PublicationMapper
     @Delete("DELETE FROM publication WHERE `year`= #{year} AND indicatorID = #{indicatorID}")
     public int deleteByYearId(@Param("year")Integer year, @Param("indicatorID") Integer indicatorID);
 
-    @Select("SELECT `name` FROM publication WHERE indicatorID = #{indicatorID} AND name LIKE '${name}%' LIMIT 10")
+    @Select("SELECT `name` FROM publication WHERE indicatorID = #{indicatorID} AND name LIKE '$%{name}%' LIMIT 10")
     public List<String> getNamesByIdName(Integer indicatorID,String name);
 
     @Select("SELECT * FROM publication WHERE name = #{name}")
