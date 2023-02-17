@@ -134,15 +134,6 @@ export default new Router({
           },
         },
         {
-          path:'/teacher/tperact/score',
-          name:'',
-          hidden:false,
-          component:()=>import('./views/teacher/Score'),
-          meta: {
-            title: '打分',
-          },
-        },
-        {
           path: '/teacher/tProduct',
           name: '制造或设计的产品2',
           hidden: true,
@@ -169,15 +160,7 @@ export default new Router({
             title: '活动列表',
           },
         },
-        {
-          path:'/teacher/tperact/score',
-          name:'score',
-          hidden:false,
-          component:()=>import('./views/teacher/Score'),
-          meta:{
-            title:'分数'
-          }
-        },
+
         {
           path: '/teacher/tResearchProject',
           name: '科研项目2',
@@ -260,6 +243,16 @@ export default new Router({
           },
         },
       ],
+    },
+      //新打开一个页面
+    {
+      path:'/teacher/tperact/score',
+      name:'score',
+      hidden:false,
+      component:()=>import('./views/teacher/Score'),
+      meta:{
+        title:'分数'
+      }
     },
     {
       path: '*',

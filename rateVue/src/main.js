@@ -170,8 +170,8 @@ router.beforeEach((to, from, next) => {
                 return
             }
             initMenu(router, store)
-            var routs = JSON.parse(localStorage.getItem("initRoutes"))
-            let res=[];
+            var routs = JSON.parse(localStorage.getItem('initRoutes'))
+            var res=[];
             res.push("/home")
             routs.forEach(item=>{
                 if(item.children.length){

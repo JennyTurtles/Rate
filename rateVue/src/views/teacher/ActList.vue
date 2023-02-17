@@ -93,6 +93,7 @@ export default {
   mounted(){
     this.user = JSON.parse(localStorage.getItem("user"))
     this.$store.dispatch('initsize',this.user.id)
+    console.log(JSON.parse(localStorage.getItem("peract")))
   },
   methods: {
     //表头样式
@@ -100,13 +101,20 @@ export default {
       return "background:#b3d8ff;color:black;font-size:10px;text-align:center";
     },
     showEnterView(data, index) {
-      this.$router.push({
-        path: "/teacher/tperact/score",
+      let routeUrl = this.$router.resolve({
+        path:"/teacher/tperact/score",
         query: {
-          keywords: index,
-          // keywords: 26,
-        },
-      });
+              keywords: index,
+            },
+      })
+      window.open(routeUrl.href)
+      // this.$router.push({
+      //   path: "/teacher/tperact/score",
+      //   query: {
+      //     keywords: index,
+      //     // keywords: 26,
+      //   },
+      // });
 
     },
   },

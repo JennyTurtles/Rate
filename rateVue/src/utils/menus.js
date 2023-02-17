@@ -10,8 +10,10 @@ export const initMenu = (router, store) => {
         if (data) {
             let fmtRoutes = formatRoutes(data); //格式化router
             router.addRoutes(fmtRoutes);  //添加到路由
-            store.commit('initRoutes', fmtRoutes);  //将数据存到vuex
             localStorage.setItem('initRoutes',JSON.stringify(fmtRoutes))
+            // localStorage.setItem('initRoutes_allmenus',JSON.stringify(res))
+            store.commit('initRoutes', fmtRoutes);  //将数据存到vuex
+
         }
     })
 }

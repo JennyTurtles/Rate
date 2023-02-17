@@ -5,58 +5,10 @@
         style="display: flex; justify-content: space-between; margin: 15px 0"
       >
         <div>
-          <!-- <el-input
-            placeholder="请输入论文名称进行搜索，可以直接回车搜索..."
-            prefix-icon="el-icon-search"
-            clearable
-            @clear="searchEmps"
-            style="width: 350px; margin-right: 10px"
-            v-model="keyword"
-            @keydown.enter.native="searchEmps"
-            :disabled="showAdvanceSearchView"
-          ></el-input>
-          <el-button
-            icon="el-icon-search"
-            type="primary"
-            @click="searchEmps"
-            :disabled="showAdvanceSearchView"
-          >
-            搜索
-          </el-button> -->
-          <!-- <el-button
-            icon="el-icon-refresh"
-            type="primary"
-            @click="initEmps"
-            :disabled="showAdvanceSearchView"
-          >
-            重置
-          </el-button> -->
           <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
             添加论文
           </el-button>
         </div>
-        <!-- <div>
-          <el-upload
-            :show-file-list="false"
-            :before-upload="beforeUpload"
-            :on-success="onSuccess"
-            :on-error="onError"
-            :disabled="importDataDisabled"
-            style="display: inline-flex; margin-right: 8px"
-            action="/employee/basic/import"
-          >
-            <el-button
-              :disabled="importDataDisabled"
-              type="primary"
-              :icon="importDataBtnIcon"
-            >
-              {{ importDataBtnText }}
-            </el-button>
-          </el-upload> -->
-          <!--<el-button type="primary" @click="exportData" icon="el-icon-download">
-            导出数据
-          </el-button>-->
-        <!-- </div> -->
       </div>
     </div>
     <div style="margin-top: 10px;">
@@ -79,15 +31,6 @@
           width="200px"
         >
         </el-table-column>
-        <!-- width="200" -->
-        <!-- <el-table-column
-          prop="studentID"
-          fixed
-          align="center"
-          label="所属人学号"
-          width="200"
-        >
-        </el-table-column> -->
         <el-table-column
           prop="state"
           label="状态"
@@ -125,21 +68,6 @@
           align="center"
           style="width:220px"
         >
-        <!-- <span v-for="(item,index) in remarksort" :key="index"
-        style="white-space: pre-wrap;">
-          {{item}}
-        </span> -->
-        <!-- <template slot-scope="scope">
-            <el-tooltip placement="top" :content="scope.row.remark">
-              <p v-for="(item,index) in scope.row.remark" :key="index"
-                style="overflow:hidden;text-overflow:ellipsis;
-                work-break:break-all;display: -webkit-box;
-                -webkit-line-clamp: 3;
-                -webkit-box-orient: vertical;"
-              >{{item}}</p>
-            </el-tooltip>
-        </template> -->
-        <!-- 驳回理由 -->
         </el-table-column>
         <el-table-column
           prop="point"
@@ -160,62 +88,6 @@
               v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject'? true:false"
               >编辑</el-button
             >
-            
-             <!-- <el-button
-              @click="tijiao(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              icon="el-icon-edit"
-              type="primary"
-              plain
-              v-show="scope.row.state == 'tea_reject' ? true:false"
-              >提交审核</el-button
-            > -->
-            <!-- <el-button
-              @click="showScoreItem(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              icon="el-icon-tickets"
-              type="primary"
-              plain
-              >评分项设置</el-button
-            > -->
-            <!-- <el-button
-              @click="showGroupmanagement(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              icon="el-icon-s-operation"
-              type="primary"
-              plain
-              >分组管理</el-button
-            > -->
-            <!-- <el-button
-              @click="showInsertmanagement(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              icon="el-icon-plus"
-              type="primary"
-              plain
-              >导入选手</el-button
-            > -->
-            <!-- <el-button
-                @click="showteachermanagement(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-plus"
-                type="primary"
-                plain
-            >导入专家</el-button
-            > -->
-            <!-- <el-button
-              @click="deleteEmp(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              type="danger"
-              icon="el-icon-circle-close"
-              plain
-              >结束论文</el-button
-            > -->
             <el-button
               @click="deleteEmp(scope.row)"
               style="padding: 4px"
@@ -280,29 +152,34 @@
         </el-form-item>
         <el-form-item  label="所属期刊:" prop="name" label-width="80px" style="margin-left: 20px;">
             <span class="isMust">*</span>
-            <div>
-              <el-select
-              :disabled="data_picker === ''"
-              id="input_publicationName"
-              style="width:80%"
-              prefix-icon="el-icon-edit"
-              v-model="publicationName"
-              clearable
-              filterable
-              @change="select_pub"
-              placeholder="请输入论文所属期刊"
-              >
-                <el-option
-                  style="width:100%"
-                  v-for="val in options"
-                  :key="val.index"
-                  :value="JSON.stringify({'name':val.value,'point':val.point,'pubId':val.index})"
-                  :label="val.value"
+            <div class="select_div_input">
+              <input
+                  autocomplete="off"
+                  style="margin-left:5px;width:120px;line-height:28px;
+                              border:1px solid lightgrey;padding:0 10px 1px 15px;
+                              border-radius:4px;color:gray"
+                  :disabled="disabledInput"
+                  placeholder="请输入期刊名称"
+                  v-model="publicationName"
+                  @focus="inputPubFocus"
+                  @blur="ispubShow=ispubFlag"
+                  id="input_publicationName"/>
+              <div class="select_div"
+                   v-show="ispubShow && publicationName && emp.year ? true:false"
+                   :style="'height:${menuHeight}'"
+                   @mouseover="ispubFlag = true"
+                   @mouseleave="ispubFlag = false">
+                <div
+                    style="margin:12px 0px 3px 12px;width:90%"
+                    v-for="val in select_pubName"
+                    :key="val.index"
+                    :value="val.value"
+                    @click="filter_pub(val.value)"
                 >
-                </el-option>
-              </el-select>
+                  {{ val.value }}
+                </div>
+              </div>
             </div>
-            
         </el-form-item>
        
         <el-form-item  prop="total" label="作者列表:" label-width="80px" style="margin-left: 20px;">
@@ -333,16 +210,6 @@
           ></el-input>
         </el-form-item>      
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
-          <!-- <el-input
-            id="url_input"
-            size="mini"
-            style="width: 420px"
-            prefix-icon="el-icon-edit"
-            v-model="urlFile"
-            placeholder="请选择文件"
-          ></el-input> -->
-           <!-- <input type="file" v-on:change="up" ref="inputer" name="file" multiple required="required"
-           style="margin-left:10px" /> -->
            <el-upload
                 :file-list="files"
                 action="#" 
@@ -359,10 +226,6 @@
                 <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
                   &nbsp;&nbsp;大小不能超过10MB
                 </span>
-                <!-- <el-button type="primary" icon="el-icon-upload2"
-                    @click="up()" :disabled="files.length < 1"
-                  >上传文件
-                </el-button> -->
               </el-upload>
               <div>
                 
@@ -376,50 +239,6 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="doAddEmp()" v-show="addButtonState">提 交</el-button>
-      </span>
-    </el-dialog>
-
-    <el-dialog
-      :title="title_show"
-      :visible.sync="dialogVisible_show"
-      width="25%"
-      center>
-      <el-form
-        :label-position="labelPosition"
-        label-width="120px"
-        :model="emp"
-        :rules="rules"
-        ref="empForm"
-        style="margin-left: 60px">
-
-        <el-form-item label="论文名:" prop="name">
-          <span>{{ emp.name }}</span
-          ><br />
-        </el-form-item>
-        <!-- <el-form-item label="所属人id:" prop="studentID">
-          <span>{{ emp.studentID }}</span
-          ><br />
-        </el-form-item> -->
-        <el-form-item label="出版年:">
-          <span>{{ emp.year }}</span>
-        </el-form-item>
-        <el-form-item label="出版月:">
-          <span>{{ emp.month }}</span>
-        </el-form-item>
-        <el-form-item label="第一作者:">
-          <span>{{ emp.total }}</span>
-        </el-form-item>
-        <el-form-item label="积分:">
-          <span>{{ emp.point }}</span>
-        </el-form-item>
-        <el-form-item label="路径">
-          <span>{{ emp.url }}</span>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogVisible_show = false"
-          >关 闭</el-button
-        >
       </span>
     </el-dialog>
 
@@ -509,6 +328,11 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      disabledInput:true,
+      timer:null,
+      select_pubName:[],
+      ispubFlag:false,
+      ispubShow:false,
       empPaperName:'',//添加论文中的论文名称
       view_point:0,
       headers: {
@@ -595,9 +419,28 @@ export default {
       },
     };
   },
+  watch:{
+    publicationName:{
+      handler(val){//函数抖动
+        this.delayInputTimer(val)
+      }
+    },
+    data_picker:{//清除时间input设置为不可输入
+      handler(val){
+        if(!val){
+          this.disabledInput = true
+        }
+      }
+    }
+  },
   computed: {
     user() {
       return this.$store.state.currentHr; //object信息
+    },
+    menuHeight() {
+      return this.publicationName.length * 50 > 150
+          ? 150 + 'px'
+          : '${this.publicationName.length * 50}px'
     },
   },
   created() {},
@@ -616,9 +459,83 @@ export default {
     }
   },
   methods: {
-    getPublicationByYear(year){
-      console.log("year")
-      console.log(year.year)
+    delayInputTimer(val){//期刊输入框，根据name查找全称 每隔300ms发送请求
+      console.log("change")
+      if(this.timer){
+        clearInterval(this.timer)
+      }
+      if(!val){
+        return
+      }
+      this.timer = setInterval(()=>{
+        let url = "/publication/basic/searchNamesByStr/" + val
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.select_pubName=[]
+            if(resp.obj){
+              console.log(resp)
+              for(var i=0;i<resp.obj.length;i++){
+                this.select_pubName.push(
+                    {//保存返回期刊的name
+                      value:resp.obj[i],
+                    }
+                )
+              }
+            }else{
+              this.$message.error(`请检查期刊名称的拼写`);
+            }
+          }
+          clearInterval(this.timer)
+        });
+      },300)
+    },
+    inputPubFocus(){//input获取焦点判断是否有下拉框，是否可输入
+      if(this.emp.year){
+        this.ispubShow = true//控制下拉框是否显示
+        this.disabledInput = false
+      }else {
+        this.publicationName = ''
+        this.$message.error('请选择时间！')
+        this.disabledInput = true
+      }
+    },
+    filter_pub(val){//选择下拉框的某个期刊 得到选择的期刊的id score等信息
+      this.publicationName=val
+      this.ispubFlag=false
+      this.ispubShow=false
+      if(!val){
+          return
+      }
+      var publication={}
+      publication.year = this.emp.year
+      publication.name = this.publicationName
+      var url = "/publication/basic/searchByYearName"
+      this.postRequest(url,publication).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            // this.select_pubName=[]
+            if(resp.obj){
+              this.publicationID = resp.obj.id
+              this.publicationName = resp.obj.name
+              this.view_point = resp.obj.score
+                // this.select_pubName.push(
+                    //{//保存返回期刊的id name 积分
+                    //   index:resp.obj.id,
+                    //   value:resp.obj.name,
+                    //   point:resp.obj.indicatorID,
+                    //   indicatorID:resp.obj.score
+                    // }
+                // )
+              // this.view_point = resp.obj.score
+            }else {
+              this.publicationName = ''
+              this.$message.error('无该期刊！请重新选择时间！')
+            }
+            clearInterval(this.timer)
+          }
+        console.log(this.view_point)
+        });
     },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
@@ -678,42 +595,14 @@ export default {
         },()=>{}
       )
     },
-    select_pub(val){//所属期刊的输入框 触发的事件 点击某个选项
-      var val = JSON.parse(val)
-      this.publicationName=val.name
-      this.view_point = val.point
-      this.publicationID = val.pubId
-    },
     timechange(picker){//选择日历调用的方法
       var data=new Date(picker)
       this.emp.year=data.getFullYear()
       this.emp.month=data.getMonth()+1
+      this.disabledInput = false
       this.options=[]
-      this.publicationName=""
-      // 日期选中后获取期刊列表
-      this.getRequest("/publication/basic/list/"+this.emp.year).then((resp) => {
-        if (resp) {
-          for(var i=0;i<resp.data.length;i++){
-            this.options.push( //修改
-                {
-                  index:resp.data[i].id,
-                  value:resp.data[i].name,
-                  point:resp.data[i].score
-                }
-            )
-          }
-        }
-      })
     },
     judgeWriter(){//输入作者框 失去焦点触发事件
-      // for(var i=0;i<this.options.length;i++){
-      //   if(this.options[i].value==this.publicationName){
-      //     this.emp.publicationID=this.options[i].index
-      //     // this.emp.point = this.options[i].point
-      //     this.view_point=this.emp.point
-      //       break;
-      //   }
-      // }
       var val=this.writer;
       var isalph = false//判断输入中是否有英文字母
       for(var i in val){
@@ -782,28 +671,6 @@ export default {
       console.log(this.writer);
       console.log(this.emp.point);
     },
-    // input_wri(){//填入作者 触发的事件
-    //   var val=this.writer;
-    //   var num=null
-    //   if(val.indexOf("；")>-1 && val.indexOf(";") == -1){
-    //     num=val.split('；')          
-    //   }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){
-    //     num=val.split(';')       
-    //   }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){
-    //     this.$message.success('输入不合法请重新输入！')
-    //   }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){
-    //     this.emp.rank=1
-    //     this.emp.total=1
-    //     return
-    //   }
-    //   var info=JSON.parse(window.sessionStorage.getItem("user"))
-    //   this.emp.total=num.length
-    //   if(num.indexOf(info.teachers.name)>-1){
-    //     num.splice(num.indexOf(info.teachers.name),1)
-    //   }
-    //   console.log(num)
-    //   this.emp.rank=num.indexOf(info.name)+1
-    // },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
@@ -912,40 +779,6 @@ export default {
         })
       }
     },
-    // up(){//上传文件
-    //   var formData=new FormData();
-    //   this.files.forEach(
-    //     (val,index)=>{
-    //       formData.append("file",val.raw)
-    //     }
-    //   )
-      
-    //   axios.post("/paper/basic/upload",formData).then(
-    //     (response)=>{
-    //       console.log(response);
-    //       this.$message({
-    //         message:'上传成功！'
-    //       })
-    //     },()=>{}
-    //   )
-    // },
-    // doAddEmpConfirm(){
-    //   var postData = {
-    //     name:this.publicationName,
-    //     year:this.emp.yearrate_test.sql
-    //   }
-    //   axios.post("/paper/basic/score",postData).then((resp) => {
-    //     if (resp.data == null)
-    //       alert("请检查年份，当前无法获得积分")
-    //     else{
-    //       this.emp.publicationID = resp.data.id
-    //       this.emp.point = resp.data.score
-    //       if(confirm("您将获得"+this.emp.point+"分，是否提交？")){
-    //         this.doAddEmp()
-    //       }
-    //     }
-    //   });
-    // },
     doAddEmp() {//确定添加论文
       if (this.emp.id) {//emptyEmp中没有将id设置为空 所以可以判断
         // if(confirm('确定要提交吗？')){
@@ -1076,14 +909,10 @@ export default {
     initEmps() {
       this.loading = true;
       let url = "/paper/basic/studentID?studentID="+JSON.parse(localStorage.getItem('user')).id
-          // +"&page=" +
-          // this.page +
-          // "&size=" +
-          // this.size;
       this.getRequest(url).then((resp) => {
-        console.log(resp)
         this.loading = false;
         if (resp) {
+          console.log("论文resp:..")
           console.log(resp);
           this.emps = resp.data;
           this.total = 11;
@@ -1175,6 +1004,30 @@ export default {
 </script>
 
 <style>
+.select_div_input{
+  margin-left:3px;
+  width:120px;
+  height:32px;
+  position:relative;
+  display:inline-block
+}
+.select_div{
+  border-radius: 3px;
+  margin-top: 5px;
+  font-size: 14px;
+  position: absolute;
+  background-color: #fff;
+  z-index: 999;
+  overflow: auto;
+  width: 300px;
+  cursor: pointer;
+}
+/*input[type=text]::placeholder {*/
+/*  color:lightgrey;*/
+/*}*/
+/*input:focus{*/
+/*  border:1px solid lightblue;*/
+/*}*/
 .showInfo_dialog .el-form-item{
   margin-bottom: 5px;
 }

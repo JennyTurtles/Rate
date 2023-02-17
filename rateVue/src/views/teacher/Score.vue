@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div style="margin: 20px">
     <!-- 表名 -->
-    <div class="content">
+    <div class="content" >
       <div class="leftTitle">
         <el-form>
           <el-row>
@@ -117,7 +117,7 @@
         <el-table-column
             v-for="(v, i) in datalist.infoItems"
             :key="v.name"
-            v-if="v.display == true"
+            v-if="v.display"
             :label="v.name"
             min-width="150px"
             align="center"
@@ -196,33 +196,28 @@
         </el-table-column>
       </el-table>
     </div>
+    <!-- 查看详情按钮 -->
     <el-dialog
+        center
+        class="showInfo_dialog"
         :title="title_show"
         :visible.sync="dialogVisible_show"
-        width="50%"
+        width="520px"
     >
-      <div class="dialog">
         <el-form
             label-position="left"
-            label-width="120px"
+            label-width="80px"
             :model="dialogdata"
             ref="dialogdataForm"
+            style="margin-left: 20px"
         >
           <template slot-scope="scope">
-            <el-row>
-              <el-col :span="10">
                 <el-form-item label="姓 名 :">
                   <span>{{ dialogdata.name }}</span>
                 </el-form-item>
-              </el-col>
-              <el-col :span="10" :offset="1">
                 <el-form-item label="编 号 :">
                   <span>{{ dialogdata.idCode }}</span>
                 </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="10">
                 <el-form-item
                     v-for="(val, idx) in datalist.infoItems"
                     :key="idx"
@@ -231,8 +226,6 @@
                 >
                   <span>{{ dialogdata["info" + val.name] }}</span>
                 </el-form-item>
-              </el-col>
-              <el-col :span="10" :offset="1">
                 <el-form-item
                     v-for="(val, idx) in datalist.infoItems"
                     :key="idx"
@@ -241,8 +234,6 @@
                 >
                   <span>{{ dialogdata["info" + val.name] }}</span>
                 </el-form-item>
-              </el-col>
-            </el-row>
             <el-form-item
                 v-for="(val, idx) in datalist.infoItems"
                 :key="idx"
@@ -258,15 +249,15 @@
             </el-form-item>
           </template>
         </el-form>
-      </div>
-
-      <template slot="footer" class="dialog-footer">
-        <div class="divider"></div>
-        <el-button type="primary" @click="dialogVisible_show = false"
-        >关 闭</el-button
-        >
-      </template>
+      <span slot="footer" class="dialog-footer">
+        <el-button
+            id="but_reject"
+            @click="dialogVisible_show= false"
+            type="primary"
+        >关闭</el-button>
+      </span>
     </el-dialog>
+
   </div>
 </template>
 
@@ -329,7 +320,8 @@ export default {
     if (localStorage.getItem("score")) {
       let initscore = JSON.parse(localStorage.getItem("score"));
       this.datalist = initscore;
-    } else {
+    }
+    else {
       this.fullscreenLoading = true;
       this.initAct();
       setTimeout(() => {
@@ -407,11 +399,7 @@ export default {
       }
     },
     showEditEmpView_show(row, index) {
-      this.title_show =
-          "学生 " +
-          this.datalist.participatesList[index].student.name +
-          " 详细信息";
-      // this.title_show = "学生详细信息";
+      this.title_show = "显示详情";
       this.dialogVisible_show = true;
       let q = this.datalist.infoItems.length;
       let w = this.datalist.infosList.length;
@@ -435,6 +423,12 @@ export default {
           }
         }
       }
+      for (var i = 0;i<this.datalist.infoItems.length;i++){
+        var item = this.datalist.infoItems[i]
+        this.dialogdata['info' + item.name] = item.content
+      }
+      console.log(".....")
+      console.log(this.dialogdata)
     },
     //表头换行
     renderheader(h, { column, $index }) {
@@ -598,16 +592,18 @@ export default {
     },
     initdata() {
       this.Tname = this.user.name;
+      //Act对象
       this.Adata.Auserid = this.user.id;
+      // 传来的参数
       let num = this.$route.query.keywords;
       let listActivityTemp = this.list.activitiesList;
-      console.log(this.list.activitiesList);
       this.Adata.Aid = listActivityTemp[num].activityID;
       this.Adata.AgroupId = listActivityTemp[num].groupId;
       this.Aname = listActivityTemp[num].activityLists[0].name;
       this.groupName = listActivityTemp[num].groupName;
       this.groupId = listActivityTemp[num].groupId;
       this.comment = listActivityTemp[num].activityLists[0].comment;
+      console.log(this.list);
     },
     async initAct() {
       if (this.list.count != 0) {
@@ -746,20 +742,18 @@ export default {
   font-size: 14px;
   margin: 20px 20px 10px 0;
 }
-
-.el-dialog {
-  border-radius: 8px;
+.showInfo_dialog .el-form-item{
+  margin-bottom: 5px;
 }
+.el-form-item label{
+  text-align: justify;
+}
+
 .dialog {
   margin: 10px 10px 10px 40px;
 }
 .el-table-column {
   white-space: pre-line;
-}
-.el-dialog__header {
-  background-color: #4b8ffe;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
 }
 .el-dialog__title {
   color: white;
