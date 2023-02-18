@@ -99,7 +99,7 @@ export default {
 
             this.$store.commit("INIT_CURRENTHR", this.loginResult.obj); //需要去掉
             // console.log(resp)
-            sessionStorage.setItem(
+            localStorage.setItem(
               "teacher",
               JSON.stringify(this.loginResult.obj)
             ); //存用户session

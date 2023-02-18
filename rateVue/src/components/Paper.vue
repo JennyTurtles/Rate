@@ -345,7 +345,10 @@
           <!-- <el-button @click="download(emp)" type="primary">下载材料</el-button> -->
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(emp)">{{emp.url|fileNameFilter}}</a>
+          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(emp)"
+             onmouseover="this.style.color = 'blue'"
+             onmouseleave="this.style.color = 'gray'">
+            {{emp.url|fileNameFilter}}</a>
           <br />
         </el-form-item>
         <div >

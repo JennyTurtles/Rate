@@ -86,14 +86,14 @@ export default {
   },
   computed: {
     tablelist() {
-      return JSON.parse(localStorage.getItem("peract")).activitiesList;
+      return JSON.parse(sessionStorage.getItem("peract")).activitiesList;
     },
 
   },
   mounted(){
     this.user = JSON.parse(localStorage.getItem("user"))
     this.$store.dispatch('initsize',this.user.id)
-    console.log(JSON.parse(localStorage.getItem("peract")))
+    console.log(JSON.parse(sessionStorage.getItem("peract")))
   },
   methods: {
     //表头样式

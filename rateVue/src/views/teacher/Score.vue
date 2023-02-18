@@ -200,13 +200,13 @@
     <el-dialog
         center
         class="showInfo_dialog"
-        :title="title_show"
+        title="显示详情"
         :visible.sync="dialogVisible_show"
         width="520px"
     >
         <el-form
             label-position="left"
-            label-width="80px"
+            label-width="100px"
             :model="dialogdata"
             ref="dialogdataForm"
             style="margin-left: 20px"
@@ -224,7 +224,7 @@
                     :label="val.name + ' :'"
                     v-if="dialogdata['info' + val.name] && val.name == '报考专业'"
                 >
-                  <span>{{ dialogdata["info" + val.name] }}</span>
+                  <span>{{ dialogdata["info" + val.name].content }}</span>
                 </el-form-item>
                 <el-form-item
                     v-for="(val, idx) in datalist.infoItems"
@@ -232,7 +232,7 @@
                     :label="val.name + ' :'"
                     v-if="dialogdata['info' + val.name] && val.name == '毕业单位'"
                 >
-                  <span>{{ dialogdata["info" + val.name] }}</span>
+                  <span>{{ dialogdata["info" + val.name].content }}</span>
                 </el-form-item>
             <el-form-item
                 v-for="(val, idx) in datalist.infoItems"
@@ -240,12 +240,20 @@
                 :label="val.name + ' :'"
                 width="130px"
                 v-if="
-                dialogdata['info' + val.name] &&
-                val.name != '报考专业' &&
-                val.name != '毕业单位'
-              "
+                  val.name != '报考专业' &&
+                  val.name != '毕业单位'"
             >
-              <span>{{ dialogdata["info" + val.name] }}</span>
+              <a v-if="((val.contentType.indexOf('pdf') >= 0 || val.contentType.indexOf('zip') >= 0
+                            || val.contentType.indexOf('jpg') >= 0)) && dialogdata['info' + val.name]"
+                 style="color:gray;font-size:14px;text-decoration:none;cursor:pointer;
+                "
+                onmouseover="this.style.color = 'blue'"
+                onmouseleave="this.style.color = 'gray'">
+                {{dialogdata["info" + val.name].content | fileNameFilter}}
+              </a>
+              <span v-else-if="(val.contentType.indexOf('textarea') >= 0 || val.contentType.indexOf('textbox') >= 0) && dialogdata['info' + val.name]">
+                {{ dialogdata["info" + val.name].content }}
+              </span>
             </el-form-item>
           </template>
         </el-form>
@@ -298,8 +306,8 @@ export default {
   },
   computed: {
     list() {
-      if (localStorage.getItem("peract")) {
-        let list = JSON.parse(localStorage.getItem("peract"));
+      if (sessionStorage.getItem("peract")) {
+        let list = JSON.parse(sessionStorage.getItem("peract"));
         return list;
       } else {
         return this.$store.state.peract;
@@ -311,28 +319,40 @@ export default {
   },
 
   mounted() {
+
     this.$nextTick(() => {
       this.windowScreenHeight = window.innerHeight - 210;
     });
     this.user = JSON.parse(localStorage.getItem("user"));
-
+    console.log('initdata')
     this.initdata();
-    if (localStorage.getItem("score")) {
-      let initscore = JSON.parse(localStorage.getItem("score"));
+    if (sessionStorage.getItem("score")) {
+      let initscore = JSON.parse(sessionStorage.getItem("score"));
       this.datalist = initscore;
     }
     else {
       this.fullscreenLoading = true;
+      //浏览器保存score
       this.initAct();
       setTimeout(() => {
         this.datalist = this.datal;
         this.initState();
-        localStorage.setItem("score", JSON.stringify(this.datalist));
+        sessionStorage.setItem("score", JSON.stringify(this.datalist));
         if (!this.datalist.finished) {
           this.reload();
         }
         this.fullscreenLoading = false;
       }, 700);
+    }
+  },
+  filters:{
+    fileNameFilter:function(data){//将上传的材料显示出来
+      if(data == null || data == ''){
+        return ''
+      }else{
+        var arr= data.split('/')
+        return  arr.reverse()[0]
+      }
     }
   },
   methods: {
@@ -372,8 +392,8 @@ export default {
       return url;
     },
     isGetPdf() {
-      if (localStorage.getItem("score")) {
-        let JSONfinish = JSON.parse(localStorage.getItem("score"));
+      if (sessionStorage.getItem("score")) {
+        let JSONfinish = JSON.parse(sessionStorage.getItem("score"));
         if (JSONfinish.finished) {
           // this.getPdfTable(this.Aname, this.datalist, this.Tname);
           this.loading = true;
@@ -399,36 +419,33 @@ export default {
       }
     },
     showEditEmpView_show(row, index) {
-      this.title_show = "显示详情";
+      // this.title_show = "显示详情";
       this.dialogVisible_show = true;
-      let q = this.datalist.infoItems.length;
-      let w = this.datalist.infosList.length;
+      let infoitems = this.datalist.infoItems.length;
+      let infolist = this.datalist.infosList.length;
       this.dialogdata = {};
+      //mei每个该活动参与者的编号
       this.dialogdata.idCode = this.datalist.participatesList[index].code;
       this.dialogdata.name = this.datalist.participatesList[index].student.name;
-      for (var j = 0; j < w; j++) {
+      for (var j = 0; j < infolist; j++) {
         if (row["id"] == this.datalist.infosList[j]["participantID"]) {
-          for (var k = 0; k < q; k++) {
-            if (
-                this.datalist.infosList[j]["infoItemID"] ==
-                this.datalist.infoItems[k]["id"]
-            ) {
+          for (var k = 0; k < infoitems; k++) {
+            if (this.datalist.infosList[j]["infoItemID"] ==
+                this.datalist.infoItems[k]["id"]) {
               var name = this.datalist.infoItems[k]["name"];
+              var contentType = this.datalist.infoItems[k]["contentType"];
               this.$set(
                   this.dialogdata,
                   "info" + name,
-                  this.datalist.infosList[j]["content"]
+                  {
+                    content:this.datalist.infosList[j]["content"],
+                    contentType:this.datalist.infoItems[k]["contentType"]
+                  }
               );
             }
           }
         }
       }
-      for (var i = 0;i<this.datalist.infoItems.length;i++){
-        var item = this.datalist.infoItems[i]
-        this.dialogdata['info' + item.name] = item.content
-      }
-      console.log(".....")
-      console.log(this.dialogdata)
     },
     //表头换行
     renderheader(h, { column, $index }) {
@@ -454,6 +471,7 @@ export default {
       return "text-align:center";
     },
     initState() {
+      console.log('initstate')
       let n = this.datalist.participatesList.length;
       let m = this.datalist.scoreitems.length;
       let p = this.datalist.scoresListNoExpert.length;
@@ -591,6 +609,7 @@ export default {
       this.$store.dispatch("setScoreParticipatesList", this.datalist);
     },
     initdata() {
+      //获取activitiesList
       this.Tname = this.user.name;
       //Act对象
       this.Adata.Auserid = this.user.id;
@@ -607,6 +626,7 @@ export default {
     },
     async initAct() {
       if (this.list.count != 0) {
+        console.log('initdata')
         this.$store.dispatch("initAct", this.Adata);
         // const value =  await getRequest("/system/Experts/score?activitiesID=" + this.Adata.Aid + '&expertID=' + this.Adata.Auserid + '&groupId=' + this.Adata.AgroupId)
         // if(value){
@@ -655,7 +675,7 @@ export default {
             .then(async () => {
               this.clear();
               this.datalist.finished = true;
-              localStorage.setItem("score", JSON.stringify(this.datalist));
+              sessionStorage.setItem("score", JSON.stringify(this.datalist));
               this.$forceUpdate();
               await this.postRequest(
                   "/system/Experts/ChangeState?activityId=" +

@@ -746,15 +746,32 @@ export default {
           // year:this.tableUploadData[i]['年份'],
           indicatorID:this.indicatorID,
         }
+        var token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
+
         var that = this
-        axios.post("/publication",publicationInf).then(function (resp){
-          if (resp.status != 200)
-            that.$message({
-              type: 'error',
-              message: '添加失败!'
-            });
+        var publication ={}
+        publication.year = this.importSelectYear
+        publication.indicatorID = this.indicatorID
+        var promise = new Promise((resolve,reject) => {
+          axios.delete(
+              "/publication/basic/pubs/" + publication,
+              {headers:{'token':token}}).then((resp) => {
+            if (resp) {
+              console.log(resp)
+              resolve(resp)
+            }
+          })
         })
-        this.success++
+        promise.then(resp => {
+            that.postRequest("/publication",publicationInf).then( (res)=>{
+              if (res.status != 200)
+                that.$message({
+                  type: 'error',
+                  message: '添加失败!'
+                });
+            })
+            this.success++
+        })
       }
     },
     appendAward(){

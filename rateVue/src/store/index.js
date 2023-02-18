@@ -63,16 +63,17 @@ const store = new Vuex.Store({
             state.hrs = data;
         },
         INIT_PERACT(state, data) {
-            localStorage.setItem("peract", JSON.stringify(data));
+            sessionStorage.setItem("peract", JSON.stringify(data));
             state.peract = data
         },
         INIT_SCORE(state, data) {
             state.score = data
-            localStorage.setItem("score", JSON.stringify(data));
+            sessionStorage.setItem("score", JSON.stringify(data));
+            console.log('initscore')
         },
         INIT_ScoreParticipatesList(state, data) {
             state.score = data
-            localStorage.setItem("score", JSON.stringify(state.score));
+            sessionStorage.setItem("score", JSON.stringify(state.score));
         },
         INIT_initchangeList(state) {
             state.changeList = false
@@ -112,7 +113,7 @@ const store = new Vuex.Store({
             getRequest("/system/Experts/activities?expertID=" + data).then(resp => {
                 if (resp) {
                     resp = resp.extend;
-                    if (localStorage.getItem('peract')) {
+                    if (sessionStorage.getItem('peract')) {
                         console.log('存在peract')
                     } else {
                         context.commit('INIT_PERACT', resp)
@@ -170,8 +171,8 @@ const store = new Vuex.Store({
                         }
                     }
                     // 如果页面存在sessionStorage
-                    if (localStorage.getItem("score")) {
-                        let JSONscore = JSON.parse(localStorage.getItem("score"))
+                    if (sessionStorage.getItem("score")) {
+                        let JSONscore = JSON.parse(sessionStorage.getItem("score"))
                         let length = value.participatesList.length
 
 

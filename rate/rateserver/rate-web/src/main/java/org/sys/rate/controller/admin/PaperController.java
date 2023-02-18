@@ -179,8 +179,6 @@ public class PaperController
     @PostMapping("/add")
     @ResponseBody
     public JsonResult addSave(Paper paper) throws MessagingException {
-        System.out.println("传来的参数paper:");
-//        System.out.println(paper.getName());
         Integer res=paperService.insertPaper(paper);
         System.out.println("新增的paper id:");
         System.out.println(paper.getID());
