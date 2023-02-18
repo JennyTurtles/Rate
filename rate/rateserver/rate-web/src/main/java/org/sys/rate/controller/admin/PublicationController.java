@@ -2,6 +2,8 @@ package org.sys.rate.controller.admin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -112,9 +114,6 @@ public class PublicationController
     @GetMapping("/searchNamesByStr/{name}")
     @ResponseBody
     public RespBean getNamesByStr(@PathVariable String name){
-        if (!name.startsWith("《")) {
-            name = "《" + name;
-        }
         List<String> res = publicationMapper.getNamesByStr(name);
         return RespBean.ok("success",res);
     }
@@ -122,11 +121,16 @@ public class PublicationController
     // 文档2.14 功能2
     @PostMapping("/searchByYearName")
     @ResponseBody
-    public RespBean getNamesByYearName(@RequestBody Publication publication){
+    public RespBean getPubByYearName(@RequestBody Publication publication){
         Integer year = publication.getYear();
         String name = publication.getName();
-        Publication res = publicationMapper.getNamesByYearName(year,name);
-        return RespBean.ok("success",res);
+        Publication p = publicationMapper.getPubByYearName(year,name);
+        Integer year1 = p.getYear();
+        Integer indicatorId = Math.toIntExact(p.getIndicatorID());
+        Integer year2 = publicationMapper.getMaxYearByIdYear(indicatorId,year);
+        if (year1 < year2)
+            p.setScore(0);
+        return RespBean.ok("success",p);
     }
 
     // 文档2.14 功能6
@@ -145,9 +149,6 @@ public class PublicationController
     public RespBean getNamesByIdName(@RequestBody Publication publication){
         Integer indicatorID = Math.toIntExact(publication.getIndicatorID());
         String name = publication.getName();
-        if (!name.startsWith("《")) {
-            name = "《" + name;
-        }
         List<String> res = publicationMapper.getNamesByIdName(indicatorID,name);
         return RespBean.ok("success",res);
     }

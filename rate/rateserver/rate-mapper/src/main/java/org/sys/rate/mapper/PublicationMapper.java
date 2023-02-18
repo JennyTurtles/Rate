@@ -88,18 +88,33 @@ public interface PublicationMapper
             "WHERE year = (SELECT MAX(year) FROM publication t2 WHERE t1.indicatorID = t2.indicatorID AND `year`<=#{year}))")
     public List<Publication> selectPublicationByYear(Integer year);
 
-    @Select("SELECT DISTINCT name FROM publication WHERE `name` LIKE '$%{name}%' LIMIT 10")
+    @Select("SELECT DISTINCT name FROM publication WHERE `name` LIKE CONCAT('%', #{name}, '%') LIMIT 10")
     public List<String> getNamesByStr(String name);
 
-    @Select("SELECT publication.ID,publication.name,publication.indicatorID,indicator.score \n" +
-            "FROM publication,indicator\n" +
-            "WHERE `year` = #{year} AND publication.`name` = #{name} AND publication.indicatorID = indicator.ID ")
-    public Publication getNamesByYearName(Integer year,String name);
+//    @Select("SELECT publication.ID,publication.name,publication.indicatorID,indicator.score \n" +
+//            "FROM publication,indicator\n" +
+//            "WHERE `year` = #{year} AND publication.`name` = #{name} AND publication.indicatorID = indicator.ID ")
+//    public Publication getNamesByYearName(Integer year,String name);
+
+//    @Select("SELECT publication.ID,publication.name,publication.indicatorID,indicator.score FROM publication,indicator\n" +
+//            "WHERE `year` = (SELECT MAX(year) FROM publication WHERE name = #{name} AND year <= #{year})\n" +
+//            "AND publication.`name` = #{name}  AND publication.indicatorID = indicator.ID")
+//    public Publication getNamesByYearName(Integer year,String name);
+
+    // 获取最近年份和indicatorId
+    @Select("SELECT publication.ID,publication.name,publication.indicatorID,indicator.score,publication.year FROM publication,indicator\n" +
+            "WHERE `year` = (SELECT MAX(year) FROM publication WHERE publication.name = #{name} AND year <= #{year})\n" +
+            "AND publication.name = #{name} AND publication.indicatorID = indicator.ID")
+    public Publication getPubByYearName(Integer year,String name);
+
+    @Select("SELECT MAX(`year`) FROM publication WHERE indicatorID = #{Id} AND `year` <= #{year}")
+    public Integer getMaxYearByIdYear(Integer Id,Integer year);
+
 
     @Delete("DELETE FROM publication WHERE `year`= #{year} AND indicatorID = #{indicatorID}")
     public int deleteByYearId(@Param("year")Integer year, @Param("indicatorID") Integer indicatorID);
 
-    @Select("SELECT `name` FROM publication WHERE indicatorID = #{indicatorID} AND name LIKE '$%{name}%' LIMIT 10")
+    @Select("SELECT `name` FROM publication WHERE indicatorID = #{indicatorID} AND name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
     public List<String> getNamesByIdName(Integer indicatorID,String name);
 
     @Select("SELECT * FROM publication WHERE name = #{name}")
