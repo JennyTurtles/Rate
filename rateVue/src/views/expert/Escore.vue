@@ -323,7 +323,7 @@ export default {
     this.$nextTick(() => {
       this.windowScreenHeight = window.innerHeight - 210;
     });
-    this.user = JSON.parse(sessionStorage.getItem("teacher"));
+    this.user = JSON.parse(localStorage.getItem("teacher"));
 
     this.initdata();
     if (sessionStorage.getItem("score")) {

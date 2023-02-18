@@ -96,6 +96,9 @@ export const deleteRequest = (url, params) => {
     return axios({
         method: 'delete',
         url: `${base}${url}`,
-        params: params
+        params: params,
+        headers:{
+            'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
+        }
     })
 }

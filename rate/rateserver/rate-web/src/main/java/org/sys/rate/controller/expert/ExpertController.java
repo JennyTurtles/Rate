@@ -74,18 +74,22 @@ public class ExpertController {
     public Msg getParticiants(@RequestParam(value = "activitiesID") Integer activitiesID,
                               @RequestParam(value = "expertID") Integer expertID,
                               @RequestParam(value = "groupId") Integer groupId) {
+//        返回 participant的p.ID,p.displaySequence,p.code,学生姓名s.name,p.studentID 多个学生记录
         List<Participates> participatesL = participatesService.getParticipantsByGroupId(activitiesID,groupId);
+//        返回分数 查找的expertid是null
         List<Scores> scoresListNoBy = scoresService.getScoreListNoExpert(activitiesID,groupId);
+        //        返回分数 查找的expertid是null
         List<Scores> scoresListByExpert = scoresService.getScoreListByExpert(expertID,activitiesID,groupId);
-        //获得专家活动评分状态
+        //获得专家活动评分状态 是否已经完成评分
         Boolean finished = expertactivitiesService.getState(activitiesID, expertID,groupId);
-        //获得评分项的个数根据活动id
+        //获得评分项的个数根据活动id 分数项
         Integer scoreItemCount = activitiesService.getScoreItemCount(activitiesID);
         //System.out.println(scoreItemCount);
-        //获得该活动的评分项列表
+        //获得该活动的评分项列表  byexpert是false
         List<ScoreItem> scoreitems = scoreItemService.getScoreItemByActivityId(activitiesID);
         //获得inforItem项列表
         List<InfoItem> infoItems = infoItemService.getInforItemByActivityId(activitiesID);
+
         List<Infos> infosList = infosService.getInforsList(activitiesID,groupId);
 
         return Msg.success().add("finished", finished).add("scoreitems", scoreitems).add("scoreItemCount", scoreItemCount)
