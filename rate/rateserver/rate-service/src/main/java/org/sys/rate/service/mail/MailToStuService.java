@@ -52,31 +52,31 @@ public class MailToStuService {
 
         switch (state){
             case "tea_pass":subject="恭喜你，你的论文已经被导师通过！";
-                            content="亲爱的用户：<br>"+
+                            content="亲爱的同学：<br>"+
                                     "您好！<br>"+
                                     "<b>您的"+paper.getName()+"已经被"+teacher.getName()+"老师通过！</b><br>"+
                                     "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！"+"<br><br>"+
-                                    "本邮件由系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
+                                    "本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
                             break;
             case "tea_reject":subject="你的论文已经被导师驳回！";
-                            content="亲爱的用户：<br>"+
+                            content="亲爱的同学：<br>"+
                                     "您好！<br>"+
                                     "<b>您的"+paper.getName()+"已经被"+teacher.getName()+"老师驳回！</b><br>"+
                                     "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！"+"<br><br>"+
-                                    "本邮件由系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
+                                    "本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
                             break;
             case "adm_pass":subject="恭喜你，你的论文已经被管理员通过！";
-                            content="亲爱的用户：<br>"+
+                            content="亲爱的同学：<br>"+
                                     "您好！<br>"+
                                     "<b>您的"+paper.getName()+"已经被管理员通过！</b><br>"+
                                     "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！"+"<br><br>"+
-                                    "本邮件由系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
+                                    "本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
                             break;
             case "adm_reject":subject="你的论文已经被管理员驳回！";
-                            content="亲爱的用户：<br>"+
+                            content="亲爱的同学：<br>"+
                                     "您好！<br>"+
                                     "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！"+"<br><br>"+
-                                    "本邮件由系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
+                                    "本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
                             break;
             default:System.out.println("未知状态！");
         }
