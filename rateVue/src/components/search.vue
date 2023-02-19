@@ -733,6 +733,25 @@ export default {
       this.publicationInf = {}
     },
     appendPublicationAsync(){
+      var token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
+      var that = this
+      var promise = new Promise((resolve,reject) => {
+        axios.post(
+            "/publication/basic/delPubs" ,
+            {
+              "year":this.importSelectYear,
+              "indicatorID":this.indicatorID,
+              headers:{
+                token:token
+              }
+            }).then((resp) => {
+          if (resp) {
+            this.$message.success('删除成功')
+            resolve(resp)
+          }
+        })
+      })
+      var publicationInfList = []
       for (let i = 0;i < this.tableUploadData.length;i++) {
         if (typeof this.tableUploadData[i]['刊物全称'] === 'undefined')
           return
@@ -743,43 +762,22 @@ export default {
           url: this.tableUploadData[i]['网址'],
           level: this.tableUploadData[i]['收录级别'],
           year:this.importSelectYear,
-          // year:this.tableUploadData[i]['年份'],
           indicatorID:this.indicatorID,
         }
-        var token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
-        var that = this
-        var publication ={}
-        publication.year = this.importSelectYear
-        publication.indicatorID = this.indicatorID
-        var promise = new Promise((resolve,reject) => {
-          axios.post(
-              "/publication/basic/delPubs" ,
-              {
-                "year":this.importSelectYear,
-                "indicatorID":this.indicatorID,
-                headers:{
-                  token:token
-                }
-              }).then((resp) => {
-            if (resp) {
-              console.log(resp)
-              resolve(resp)
-            }
-          })
-        })
-        promise.then(resp => {
-          console.log("pub")
-          console.log(publicationInf)
-          that.postRequest("/publication",publicationInf).then( (res)=>{
-            if (res.status != 200)
-              that.$message({
-                type: 'error',
-                message: '添加失败!'
-              });
-          })
-          this.success++
-        })
+        publicationInfList.push(publicationInf)
       }
+      promise.then(resp => {
+        console.log("pub")
+        console.log(publicationInf)
+        that.postRequest("/publications",publicationInfList).then( (res)=>{
+          this.success = this.tableUploadData.length
+        },()=>{
+          that.$message({
+            type: 'error',
+            message: '添加失败!'
+          });
+        })
+      })
     },
     appendAward(){
       var postData = {
