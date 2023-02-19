@@ -463,7 +463,6 @@ export default {
   },
   methods: {
     delayInputTimer(val){//期刊输入框，根据name查找全称 每隔300ms发送请求
-      console.log("change")
       if(this.timer){
         clearInterval(this.timer)
       }
