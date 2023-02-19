@@ -4,7 +4,8 @@
       <el-breadcrumb-item style="margin-left: 5px"> {{p1}}</el-breadcrumb-item>
       <el-breadcrumb-item>{{category}}（{{indicatorTypeZH}}）：{{score}}分</el-breadcrumb-item>
     </el-breadcrumb>
-    <el-select style="float: left;margin-left: 20px;width: 80px" v-model="year"v-show="isRoot" @change="changeYear">
+    <!--    选择年份-->
+    <el-select style="float: left;margin-left: 20px;width: 80px" v-model="year" v-show="isRoot" @change="changeYear">
       <el-option
           v-for="item in years"
           :key="item"
@@ -28,76 +29,111 @@
           this.dialogVisibleAppendDecision = true;
       }" icon="el-icon-circle-plus">添加</el-button>
       <el-button type="primary" style="float: right;margin-left: 10px" @click="uploadVisible=true" icon="el-icon-s-order">批量导入</el-button>
-      <el-button @click="searchUnAvailable = false;searchAllItem()" type="primary" style="float: right" icon="el-icon-search" >搜索</el-button>
+      <el-button @click="searchUnAvailable = false;dialogVisibleSearch = true" type="primary" style="float: right" icon="el-icon-search" >搜索</el-button>
 
     </div>
+    <!--    点击搜索按钮-->
     <el-dialog
         :visible.sync="dialogVisibleSearch"
         @close="closeSearch"
         width="50%">
       <span slot="title" style="float:left;font-size: 20px" >请输入需要搜索的期刊/项目/科技奖/咨询成果名</span>
-
-      <el-select style="width: 100%" value-key="name" v-model="searchInf" @change="searchItem" filterable :disabled="searchUnAvailable" placeholder="请输入名称以进行搜索">
-        <el-option
-            v-for="item in searchResult"
-            :key="item.name"
-            :label="item.name"
-            :value="item"
-        >
-        </el-option>
-      </el-select>
-      <div style="margin-top: 10px" v-show="pathVisible">分值：{{searchPathInf.score}}分</div>
-      <div style="margin-top: 10px" v-show="pathVisible">类型：{{searchPathInf.type}}</div>
-      <div style="margin-top: 10px" v-show="pathVisible">分类：{{searchPathInf.name}}</div>
-      <el-form style="margin-top: 20px"  :model="searchInf2" v-show="searchPathInf.type === '论文'">
-        <el-form-item label="期刊全称">
-          <el-input v-model="searchInf2.name"></el-input>
-        </el-form-item>
-        <el-form-item label="刊物简称">
-          <el-input v-model="searchInf2.abbr"></el-input>
-        </el-form-item>
-        <el-form-item label="出版社">
-          <el-input v-model="searchInf2.publisher"></el-input>
-        </el-form-item>
-        <el-form-item label="网址">
-          <el-input v-model="searchInf2.url"></el-input>
-        </el-form-item>
-        <el-form-item label="收录级别">
-          <el-input v-model="searchInf2.level" placeholder="多个级别请用英文分号隔开"></el-input>
-        </el-form-item>
-        <el-form-item label="录入年份">
-          <el-input v-model="searchInf2.year"></el-input>
-        </el-form-item>
-      </el-form>
-      <el-form style="margin-top: 20px"  :model="searchInf2" v-show="searchPathInf.type === '纵向科研项目'">
-        <el-form-item label="项目名">
-          <el-input v-model="searchInf2.name"></el-input>
-        </el-form-item>
-      </el-form>
-      <el-form style="margin-top: 20px"  :model="searchInf2" v-show="searchPathInf.type === '科技奖'">
-        <el-form-item label="奖项名">
-          <el-input v-model="searchInf2.name"></el-input>
-        </el-form-item>
-      </el-form>
-      <el-form style="margin-top: 20px" :model="searchInf2" v-show="searchPathInf.type === '决策咨询成果'">
-        <el-form-item label="决策咨询成果名">
-          <el-input v-model="searchInf2.name"></el-input>
-        </el-form-item>
-      </el-form>
-
+      <div class="select_div_input">
+        <input
+            autocomplete="off"
+            style="margin-left:5px;width:80%;line-height:28px;
+                              border:1px solid lightgrey;padding:0 10px 1px 15px;
+                              border-radius:4px;color:gray"
+            placeholder="请输入期刊名称"
+            v-model="publicationName"
+            @focus="ispubShow = true"
+            @blur="ispubShow=ispubFlag"
+            id="input_publicationName"/>
+        <div class="select_div"
+             v-show="ispubShow && publicationName ? true:false"
+             :style="'height:${menuHeight}'"
+             @mouseover="ispubFlag = true"
+             @mouseleave="ispubFlag = false">
+          <div
+              class="select_div_div"
+              v-for="(val,idx) in select_pubName"
+              :key="idx"
+              :value="val.value"
+              @click="filter_pub(val.value)"
+          >
+            {{ val.value }}
+          </div>
+        </div>
+      </div>
+      <!--      <div style="margin-top: 10px" v-show="pathVisible">分值：{{searchPathInf.score}}分</div>-->
+      <!--      <div style="margin-top: 10px" v-show="pathVisible">类型：{{searchPathInf.type}}</div>-->
+      <!--      <div style="margin-top: 10px" v-show="pathVisible">分类：{{searchPathInf.name}}</div>-->
+      <!--      searchInf2-->
+      <el-table v-if="searchPathInf.type === '论文'"
+                :data="listSearchPublicationsByName"
+                border
+                style="width: 100%">
+        <el-table-column
+            fixed
+            prop="name"
+            label="刊物全称">
+        </el-table-column>
+        <el-table-column
+            prop="abbr"
+            label="刊物简称">
+        </el-table-column>
+        <el-table-column
+            prop="publisher"
+            label="出版社">
+        </el-table-column>
+        <el-table-column
+            prop="year"
+            label="录入年份">
+        </el-table-column>
+        <el-table-column
+            prop="level"
+            label="收录级别">
+        </el-table-column>
+        <el-table-column
+            fixed="right"
+            label="操作"
+            width="150">
+          <template slot-scope="scope">
+            <el-button @click="rowData=JSON.parse(JSON.stringify(scope.row));dialogVisibleUpdatePublication=true" size="mini">编辑</el-button>
+            <el-button @click="remove(scope.row.id,indicatorType)" type="danger" size="mini">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
       <span slot="footer" class="dialog-footer">
         <el-button type="danger" v-show="pathVisible" @click="searchDelete(searchInf2.id,searchPathInf.type)" >删除</el-button>
         <el-button type="primary" v-show="pathVisible" @click="dialogVisibleSearch = false;searchUpdate(searchPathInf.type)" >修改</el-button>
         <el-button @click="closeSearch()">关 闭</el-button>
       </span>
     </el-dialog>
+
     <!--批量导入-->
     <el-dialog
         :visible.sync="uploadVisible"
         @close=""
         width="80%">
       <span slot="title" style="float:left;font-size: 25px" >请上传需要导入的文件</span>
-      <el-button @click="downloadExcel('PublicationSample')" type="warning">下载Excel模板</el-button>
+      <span>请选择导入的年份：</span>
+      <el-select
+          style="margin-right: 20px;width: 120px;"
+          v-model="importSelectYear"
+          v-show="isRoot"
+      >
+        <el-option
+            v-for="item in years"
+            :key="item"
+            :label="item"
+            :value="item">
+        </el-option>
+      </el-select>
+      <div>
+        <el-button @click="downloadExcel('PublicationSample')" type="warning">下载Excel模板</el-button>
+      </div>
+      <!--      </template>-->
       <span style="float:right;font-size: 16px;color: red" v-show="errorRow.length != 0">excel中第{{errorRow}}行的刊物名称为空</span>
       <span style="float:right;font-size: 16px;color: green" v-show="uploadResultValid">数据校验通过</span>
       <el-upload
@@ -115,7 +151,7 @@
       </el-upload>
 
       <el-table v-show="uploadResult" :data="tableUploadData" :row-class-name="checkUploadData"
-          style="width: 100%">
+                style="width: 100%">
         <el-table-column
             prop="刊物全称"
             label="刊物全称">
@@ -146,9 +182,9 @@
 
     <!--期刊-->
     <el-table v-if="indicatorType === 'publication'"
-        :data="tableData.slice((currentPage-1)*PageSize,currentPage*PageSize)"
-        border
-        style="width: 100%">
+              :data="tableData.slice((currentPage-1)*PageSize,currentPage*PageSize)"
+              border
+              style="width: 100%">
       <el-table-column
           fixed
           prop="name"
@@ -436,6 +472,13 @@ export default {
   props:['category','type','order','score','p1','p2'],
   data(){
     return{
+      listSearchPublicationsByName:[],
+      ispubFlag:false,
+      ispubShow:false,
+      select_pubName:[],
+      timer:null,
+      publicationName:'',//搜索中要搜索的期刊
+      importSelectYear:2023,
       years:[],
       year:0,
       nowYear:new Date().getFullYear(),
@@ -464,7 +507,7 @@ export default {
       searchInf:{}, //存放某个期刊（或其他）的indicatorID,名称,表格内id
       searchInf2:{}, //存放某个期刊（或其他）的具体信息
       searchResult:{}, //存放所有的结果
-      searchPathInf:{},//存放某个期刊（或其他）的目录信息(来自indicator)
+      searchPathInf:{type:'论文'},//存放某个期刊（或其他）的目录信息(来自indicator)
       publicationInf:{
         name:"",
         abbr:"",
@@ -500,7 +543,104 @@ export default {
       searchUnAvailable:false,
     }
   },
+  watch:{
+    publicationName:{
+      handler(val){
+        this.delaySelectInput(val)
+      }
+    }
+  },
   methods: {
+    filter_pub(val){//选择下拉框的某个期刊 得到选择的期刊的id score等信息
+      this.publicationName=val
+      this.ispubFlag=false
+      this.ispubShow=false
+      if(!val){
+        return
+      }
+      var url = "/publication/basic/searchByName/" + val
+      this.getRequest(url).then((resp) => {
+        this.loading = false;
+        if (resp) {
+          this.listSearchPublicationsByName=[]
+          console.log('resp:...')
+          console.log(resp)
+          if(resp.obj){
+            resp.obj.forEach((item)=>{
+              if(this.searchPathInf.type == '论文'){
+                this.listSearchPublicationsByName.push(
+                    {//保存返回期刊的id name 积分
+                      abbr:item.abbr,
+                      id:item.id,
+                      indicatorID:item.indicatorID,
+                      level:item.level,
+                      name:item.name,
+                      publisher:item.publisher,
+                      url:item.url,
+                      year:item.year
+                    })
+              }else if(this.searchPathInf.type == '决策咨询成果'){
+                this.listSearchPublicationsByName.push(
+                    {//保存返回期刊的id name 积分
+                      name:item.name,
+                    })
+              }else if(this.searchPathInf.type == '科技奖'){
+                this.listSearchPublicationsByName.push(
+                    {//保存返回期刊的id name 积分
+                      name:item.name,
+                    })
+              }else if(this.searchPathInf.type == '纵向科研项目'){
+                this.listSearchPublicationsByName.push(
+                    {//保存返回期刊的id name 积分
+                      name:item.name,
+                    })
+              }
+            })
+            console.log(this.searchPathInf)
+          }else {
+            this.$message.error('无该期刊！请重新选择时间！')
+          }
+          clearInterval(this.timer)
+        }
+      });
+    },
+    delaySelectInput(val){//期刊输入框 每隔300ms发送请求
+      console.log("change")
+      if(this.timer){
+        clearInterval(this.timer)
+      }
+      if(!val){
+        this.listSearchPublicationsByName=[]
+        return
+      }
+      var publication={}
+      publication.indicatorID = this.indicatorID
+      publication.name = val
+      this.timer = setInterval(()=>{
+        let url = "/publication/basic/searchNamesByIdName"
+        this.postRequest(url,publication).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.select_pubName=[]
+            if(resp.obj != null){
+              console.log(resp)
+              for(var i=0;i<resp.obj.length;i++){
+                this.select_pubName.push(
+                    {//保存返回期刊的name
+                      value:resp.obj[i],
+                    }
+                )
+              }
+            }else{
+              this.select_pubName=[]
+              this.ispubShow = false
+              this.$message.error(`无期刊结果`);
+            }
+          }
+          clearInterval(this.timer)
+        });
+      },300)
+    },
     getTableByYear(indicatorID,year){
       var that = this
       axios.post("/publicationByYear",{"indicatorID":indicatorID,"year":year}).then(function (resp){
@@ -529,9 +669,9 @@ export default {
               type: 'success',
               message: '删除成功!'
             })
-            that.totalCount--;
-            if (that.currentPage > (that.totalCount - 1) / that.PageSize + 1)
-              that.currentPage--;
+          that.totalCount--;
+          if (that.currentPage > (that.totalCount - 1) / that.PageSize + 1)
+            that.currentPage--;
         })
       })
       that.closeSearch()
@@ -602,7 +742,8 @@ export default {
           publisher: this.tableUploadData[i]['出版社'],
           url: this.tableUploadData[i]['网址'],
           level: this.tableUploadData[i]['收录级别'],
-          year:this.tableUploadData[i]['年份'],
+          year:this.importSelectYear,
+          // year:this.tableUploadData[i]['年份'],
           indicatorID:this.indicatorID,
         }
         var token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
@@ -622,14 +763,14 @@ export default {
           })
         })
         promise.then(resp => {
-            that.postRequest("/publication",publicationInf).then( (res)=>{
-              if (res.status != 200)
-                that.$message({
-                  type: 'error',
-                  message: '添加失败!'
-                });
-            })
-            this.success++
+          that.postRequest("/publication",publicationInf).then( (res)=>{
+            if (res.status != 200)
+              that.$message({
+                type: 'error',
+                message: '添加失败!'
+              });
+          })
+          this.success++
         })
       }
     },
@@ -702,35 +843,7 @@ export default {
       })
       this.decisionInf = {}
     },
-    searchAllItem(){ //获取name,indicatorID,表内ID,假定没有重名 用name充当for内的value
-      this.dialogVisibleSearch = true
-      var that = this;
-      axios.get("/searchAll").then(function (resp)  {
-        that.searchResult = resp.obj
-      })
-    },
-    searchItem(){
-      this.searchUnAvailable = true;
-      var indicatorID = this.searchInf.indicatorID
-      var id = this.searchInf.id
-      var that = this
-      axios.get("/searchAll/"+indicatorID).then(function (resp)  {
-        that.searchPathInf =  resp.obj[0]
-        var type = ""
-        if (that.searchPathInf.type === '论文')
-          type = 'publication'
-        else if (that.searchPathInf.type === '纵向科研项目')
-          type = 'program'
-        else if (that.searchPathInf.type === '科技奖')
-          type = 'award'
-        else if (that.searchPathInf.type === '决策咨询成果')
-          type = 'decision'
-        axios.get("/searchAll/"+type+"/" + id).then(function (resp)  {
-          that.searchInf2 = resp.obj[0]
-        })
-      })
-      this.pathVisible = true;
-    },
+
     getData(indicatorID,type){
       //初始化
       this.isRoot = true;
@@ -750,22 +863,13 @@ export default {
       for (var i = 0; i < 5;i++)
         this.years.push(this.nowYear-i)
       that.getTableByYear(indicatorID,that.year)
-      // axios.get("/maxYear/" + indicatorID).then(function (resp){
-      //   if (typeof resp === "undefined")
-      //     that.$message("无记录")
-      //   else{
-      //     that.year = resp.obj
-      //     that.getTableByYear(indicatorID,that.year)
-      //   }
-      //
-      // })
 
     },
     closeSearch(){
       this.dialogVisibleSearch = false
       this.pathVisible = false
       this.searchInf=''
-      this.searchPathInf = ''
+      // this.searchPathInf = ''
     },
     searchUpdate(indicatorType){
       this.rowData = this.searchInf2
@@ -843,13 +947,13 @@ export default {
       this.errorRow = []
       this.uploadResultValid = false;
     },
-    uploadConfirm(){
+    uploadConfirm(){//上传导入的文件
       var that = this
       this.$confirm('是否确定添加'+this.tableUploadData.length+'条记录', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
+      }).then(() => {//点击确认
         this.uploadAppendPublication().then(
             () => {
               this.getTableByYear(that.indicatorID,that.year)
@@ -904,6 +1008,34 @@ export default {
 </script>
 
 <style>
+.select_div_input{
+  margin-left:3px;
+  width:90%;
+  height:35px;
+  position:relative;
+  display:inline-block
+}
+.select_div{
+  border: .5px solid #fff;
+  border-radius: 3px;
+  margin-top: 5px;
+  font-size: 14px;
+  position: absolute;
+  background-color: #fff;
+  z-index: 999;
+  overflow: auto;
+  width: 300px;
+  cursor: pointer;
+}
+.select_div_div:hover{
+  color: blue;
+}
+.select_div_div{
+  padding-bottom: 7px;
+  padding-top: 7px;
+  padding-left: 12px;
+  width: 100%;
+}
 .el-form-item__label-wrap{
   margin-left: 0px !important;
 }
