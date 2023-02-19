@@ -747,15 +747,21 @@ export default {
           indicatorID:this.indicatorID,
         }
         var token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
-
         var that = this
         var publication ={}
         publication.year = this.importSelectYear
         publication.indicatorID = this.indicatorID
         var promise = new Promise((resolve,reject) => {
           axios.delete(
-              "/publication/basic/pubs/" + publication,
-              {headers:{'token':token}}).then((resp) => {
+              "/publication/basic/pubs" ,
+              {
+                data:{
+                  publication:publication
+                },
+                headers:{
+                  token:token
+                }
+              }).then((resp) => {
             if (resp) {
               console.log(resp)
               resolve(resp)
