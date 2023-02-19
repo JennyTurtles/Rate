@@ -49,7 +49,15 @@ public class IndicatorInfController {
     {
 
         boolean flag = indicatorInfService.savePublication(indicatorPublication);
-        return flag ? RespBean.ok("update success!") : RespBean.error("update fail!");
+        return flag ? RespBean.ok("insert success!") : RespBean.error("insert fail!");
+    }
+
+    @PostMapping("/publications")
+    public RespBean savePublications(@RequestBody List<IndicatorPublication> indicatorPublications)
+    {
+
+        int res = indicatorInfService.savePublications(indicatorPublications);
+        return RespBean.ok("insert success!",res);
     }
 
     @DeleteMapping("/publication/{id}")

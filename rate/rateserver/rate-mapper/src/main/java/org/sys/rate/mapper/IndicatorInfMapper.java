@@ -18,6 +18,16 @@ public interface IndicatorInfMapper {
     @Insert("insert into publication values(#{ID},#{name},#{abbr},#{publisher},#{url},#{level},#{indicatorID},#{year})")
     public int savePublication(IndicatorPublication indicatorPublication);
 
+    @Insert({
+            "<script>",
+            "insert into publication (name, abbr, publisher,url,level,indicatorID,year) values ",
+            "<foreach collection='list' item='item' separator=','>",
+            "(#{item.name}, #{item.abbr}, #{item.publisher},#{item.url}, #{item.level}, #{item.indicatorID},#{item.year})",
+            "</foreach>",
+            "</script>"
+    })
+    public int savePublications(@Param("list") List<IndicatorPublication> publications);
+
     @Delete("delete from publication where ID = #{id}")
     public int deletePublication(Integer id);
 

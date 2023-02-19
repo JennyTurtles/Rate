@@ -486,7 +486,6 @@ export default {
       uploadResult:false,
       uploadResultValid:false,
       tableUploadData:[],
-      success:0,
       fileList:[],
       ID:0,
       indicatorID:0,
@@ -746,7 +745,7 @@ export default {
               }
             }).then((resp) => {
           if (resp) {
-            this.$message.success('删除成功')
+            // this.$message.success('删除成功')
             resolve(resp)
           }
         })
@@ -767,10 +766,8 @@ export default {
         publicationInfList.push(publicationInf)
       }
       promise.then(resp => {
-        console.log("pub")
-        console.log(publicationInf)
         that.postRequest("/publications",publicationInfList).then( (res)=>{
-          this.success = this.tableUploadData.length
+          that.getTableByYear(that.indicatorID,that.year)
         },()=>{
           that.$message({
             type: 'error',
@@ -954,21 +951,18 @@ export default {
     },
     uploadConfirm(){//上传导入的文件
       var that = this
-      this.$confirm('是否确定添加'+this.tableUploadData.length+'条记录', '提示', {
+      this.$confirm('是否确定添加'+this.tableUploadData.length+'条记录，批量导入后将覆盖所有'+this.year+"年的数据", '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {//点击确认
         this.uploadAppendPublication().then(
             () => {
-              this.getTableByYear(that.indicatorID,that.year)
               that.$message({
                     type: 'success',
-                    message: '成功添加'+that.success+'条记录'
+                    message: '添加成功'
                   },
               )
-              that.totalCount += that.success
-              that.success = 0
               that.uploadVisible = false
               that.handleClose()
             }

@@ -26,14 +26,19 @@ public class IndicatorInfService {
     public List<IndicatorPublication> getPublication (Integer indicatorID){return indicatorInfMapper.getPublication(indicatorID);}
 
     public boolean savePublication(IndicatorPublication indicatorPublication){
-        Integer id = getIdByNameAndYear(indicatorPublication.getName(),indicatorPublication.getYear());
-        if (id != null) // 已经存在重复的记录，直接在重复记录上编辑
-        {
-            indicatorPublication.setID(id);
-            return updatePublicationById(indicatorPublication);
-        }
-        else // 不存在重复记录，添加记录
-            return indicatorInfMapper.savePublication(indicatorPublication) > 0;
+//        Integer id = getIdByNameAndYear(indicatorPublication.getName(),indicatorPublication.getYear());
+//        if (id != null) // 已经存在重复的记录，直接在重复记录上编辑
+//        {
+//            indicatorPublication.setID(id);
+//            return updatePublicationById(indicatorPublication);
+//        }
+//        else // 不存在重复记录，添加记录
+//            return indicatorInfMapper.savePublication(indicatorPublication) > 0;
+        return indicatorInfMapper.savePublication(indicatorPublication) > 0;
+    }
+
+    public int savePublications(List<IndicatorPublication> indicatorPublications){
+        return indicatorInfMapper.savePublications(indicatorPublications);
     }
 
     public Integer getIdByNameAndYear(String name, Integer year){
