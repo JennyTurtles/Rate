@@ -26,11 +26,11 @@ export default {
   created(){
   },
   mounted(){
-    let user = JSON.parse(localStorage.getItem("user"))
-    if(user == null){
-        // this.$message.error('请重新登录！')
-        this.$router.push('/')
-    }
+    // let user = JSON.parse(localStorage.getItem("user"))
+    // if(user == null){
+    //     // this.$message.error('请重新登录！')
+    //     this.$router.push('/')
+    // }
 
   },
 }

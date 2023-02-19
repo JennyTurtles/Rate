@@ -1,19 +1,54 @@
 import {getRequest} from "./api";
-
+import this_ from '../main'
+import router from '../router'
+import {log} from "@/utils/sockjs";
 export const initMenu = (router, store) => {
     if (store.state.routes.length > 0) {
         return;
     }
-    // console.log(store.state.currentHr);
     let user = JSON.parse(localStorage.getItem('user'))
     getRequest("/system/config/menu?id="+user.id+"&role="+user.role).then(data => {
         if (data) {
             let fmtRoutes = formatRoutes(data); //格式化router
             router.addRoutes(fmtRoutes);  //添加到路由
-            localStorage.setItem('initRoutes',JSON.stringify(fmtRoutes))
-            // localStorage.setItem('initRoutes_allmenus',JSON.stringify(res))
             store.commit('initRoutes', fmtRoutes);  //将数据存到vuex
+            if(localStorage.getItem('initRoutes')){
+                localStorage.clear('initRoutes')
+            }
+            localStorage.setItem('initRoutes',JSON.stringify(fmtRoutes))
 
+            var data = JSON.parse(JSON.stringify(fmtRoutes))
+            let res = ['/home']
+            data.forEach(item=>{
+                if(item.children.length){
+                    item.children.forEach(item1=>{
+                        if(!item1.children){
+                            res.push(
+                                item1.path
+                            );
+                        }else{
+                            item1.children.forEach(item2=>{
+                                if(!item2.children){
+                                    res.push(
+                                        item2.path
+                                    );
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+            localStorage.setItem('initRoutes_AllSameForm',res)
+            this_.$router.replace('/home').then(
+                resolve =>{
+                    console.log('succe')
+                }
+            ).catch(
+                err => {
+                    console.log(err)
+                });
+            // console.log('menu:...')
+            // console.log(localStorage.getItem('initRoutes'))
         }
     })
 }

@@ -54,6 +54,7 @@ export default {
   name: "actList",
   data() {
     return {
+      tablelist:[],
       user:{
 
       },
@@ -84,16 +85,15 @@ export default {
       ],
     };
   },
-  computed: {
-    tablelist() {
-      return JSON.parse(sessionStorage.getItem("peract")).activitiesList;
-    },
-
-  },
+  computed: {},
   mounted(){
     this.user = JSON.parse(localStorage.getItem("user"))
-    this.$store.dispatch('initsize',this.user.id)
-    console.log(JSON.parse(sessionStorage.getItem("peract")))
+    new Promise((resolve, reject) => {
+      this.$store.dispatch('initsize',this.user.id).then(()=>{
+        this.tablelist = JSON.parse(sessionStorage.getItem("peract")).activitiesList
+      })
+      // resolve()
+    })
   },
   methods: {
     //表头样式

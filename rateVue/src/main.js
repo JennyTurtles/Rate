@@ -149,19 +149,15 @@ Vue.prototype.$confirm = MessageBox.confirm
 
 // //路由跳转之前
 router.beforeEach((to, from, next) => {
-    if (to.path == '/Admin/Login') {
+    if (to.path == '/Admin/Login' || to.path == '/Expert/Login' || to.path == '/' ||
+        to.path == '/Student/Login' || to.path == '/Teacher/Login' || to.path == '/Student') {
+        if(localStorage.getItem('user') || localStorage.getItem('initRoutes') || localStorage.getItem('initRoutes_AllSameForm')){
+            store.commit('initRoutes',[])
+            store.commit('INIT_CURRENTHR',{})
+            localStorage.clear()
+        }
         next()
-    } else if (to.path == '/Expert/Login') {
-        next()
-    } else if (to.path == '/Student') {
-        next()
-    } else if (to.path == '/') {
-        next()
-    } else if (to.path == '/Student/Login') {
-        next()
-    } else if (to.path == '/Teacher/Login') {
-        next()
-    } 
+    }
     //除登录外的其他路径
     else {
         if (localStorage.getItem('user')) {
@@ -169,34 +165,18 @@ router.beforeEach((to, from, next) => {
                 next()
                 return
             }
-            initMenu(router, store)
-            var routs = JSON.parse(localStorage.getItem('initRoutes'))
-            var res=[];
-            res.push("/home")
-            routs.forEach(item=>{
-                if(item.children.length){
-                    item.children.forEach(item1=>{
-                        if(!item1.children){
-                            res.push(item1.path);
-                        }else{
-                            item1.children.forEach(item2=>{
-                                if(!item2.children){
-                                    res.push(item2.path);
-                                }
-                            })
-                        }
-                    })
-                }
-            })
-            if(res.indexOf(to.path) == -1){
+            // initMenu(router, store)//设置新登录账号的路由，个人信息在浏览器和vuex
+            var routs = localStorage.getItem('initRoutes_AllSameForm')
+            console.log(JSON.stringify(routs))
+            if(routs.indexOf(to.path) == -1){
                 Message.warning('无权限！请重新登录')
                 next('/')
                 return
             }
             next()
         } else {
-            // next('/?redirect=' + to.path)
-            next('/')
+            next('/?redirect=' + to.path)
+            // next('/')
         }
     }
 })
@@ -219,8 +199,9 @@ Vue.filter('dataFormat', function (originVal) {
     // 拼接时间数据
     return `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`;
 });
-new Vue({
+let vue = new Vue({
     router,
     store,
     render: h => h(App)
 }).$mount('#app')
+export default vue

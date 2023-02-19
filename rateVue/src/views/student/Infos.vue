@@ -9,7 +9,6 @@
                 backgroundColor:white;
                 padding-bottom:20px">
       <el-form :model="form_hrs" ref="form"
-
                element-loading-text="正在加载..."
                element-loading-spinner="el-icon-loading"
                element-loading-background="rgba(0, 0, 0, 0.08)">
@@ -48,17 +47,17 @@
                       style="height:100%">
               <el-upload
                   :file-list="files"
-                  :data="formData"
-                  action="/infoItem/basic/upload"
+                  :data="item"
+                  action="string"
                   ref="upload"
                   :limit="1"
                   :headers="headers"
-                  :on-change="(file,fileList)=>{handleChangeFiles(file,fileList,item,0)}"
-                  style="width:100%;margin-left:20px;height:50%"
+                  :on-change="(file,fileList)=>{handleChangeFiles(file,fileList,item,index)}"
+                  style="width:70%;margin-left:20px;height:50%"
                   :on-remove="()=>{handleDelete(item)}"
                   :auto-upload="false"
                   :on-exceed="handleExceed"
-                  :on-success="successUploadFile"
+                  :http-request="upload(item)"
               >
                 <el-button type="primary" icon="el-icon-upload2"
                            slot="trigger"  size="mini"
@@ -67,18 +66,8 @@
                     style="
                     width: 100%; height: 100%; display: inline-block;
                     margin-left:12px;color:lightgray">
-                    <span style="color:gray;font-size:11px;margin-left:12px;"
-                          v-if="urlFile == null || urlFile == ''">只允许{{item.contentType}}类型文件
-                      &nbsp;&nbsp;不能超过{{item.sizelimit}}
+                    <span style="color:gray;font-size:11px;margin-left:12px;">只允许{{item.contentType}}类型文件&nbsp;&nbsp;不能超过{{item.sizelimit}}
                     </span>
-
-                  <!-- <span v-if="(item.contentType.indexOf('pdf')>=0 || item.contentType.indexOf('zip')>=0
-                              || item.contentType.indexOf('jpg')>=0)"> -->
-                  <!-- <span v-if="urlFile == null || urlFile == ''"></span> -->
-                  <span v-else>{{urlFile|fileNameFilter}}</span>
-                  <!-- </span> -->
-                  <!-- <span v-else>{{ item.content }}</span> -->
-                  <!-- <span>x</span> -->
                 </template>
               </el-upload>
             </template>
@@ -97,6 +86,8 @@ export default {
   name: "SalInfos",
   data() {
     return {
+      uploadInfoid:0,
+      fileUploadList:[],
       formData:{},
       infoTextboxContent:"",//textbox的内容
       isChangeTextbox:false,//判断textbox框的值是否改变
@@ -222,10 +213,34 @@ export default {
     }
   },
   methods: {
-    successUploadFile(){
-      console.log(".....");
-      // console.log(this.$refs.upload);
-      // this.$refs.upload.clearFiles()
+    upload(data){
+      if(data.id != this.uploadInfoid){//渲染了多了upload，用每一个infoitem的id做标识，判断是哪个upload被点击了
+        return;
+      }
+      if(this.fileUploadList.length == 0){
+        return;
+      }
+      var formData=new FormData();
+      formData.append("file",this.fileUploadList[0].file.raw)
+      formData.append("activityID",data.activityID)
+      formData.append("studentID",JSON.parse(localStorage.getItem("user")).id)
+      formData.append("infoItemID",data.id)
+
+      axios.post("/infoItem/basic/upload",formData,{
+        headers:{
+          'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
+        }
+      }).then(
+        (response)=>{
+          this.$message({
+            message:'上传成功！'
+          })
+            //获取文件存储的路径
+          this.urlFile=response.data
+          this.reset()
+          this.fileUploadList = []
+        },()=>{}
+      )
     },
     judgeTextboxChange(){//判断textbox内容是否变化
       this.isChangeTextbox = true
@@ -305,6 +320,7 @@ export default {
             console.log(response)
             this.reset()
             this.urlFile = ""
+            this.files = ''
           },()=>{}
       )
     },
@@ -312,9 +328,7 @@ export default {
       this.$message.error(`只允许上传1个文件`);
     },
     handleChangeFiles(file,fileList,data,index){//文件列表数量改变
-      // console.log(index);
-      // console.log(this.$refs.upload);
-      // this.$refs.upload.clearFiles()
+      this.fileUploadList=[]
       this.files=[]
       var attachmentType = data.contentType.split(",")
       var type=file.name.split('.')
@@ -326,56 +340,13 @@ export default {
         this.$message.error("不支持上传该类型的附件")
         return
       }
-      // this.$refs.upload[index].fileList.push(file)
-
-
-      console.log(this.$refs.upload);
-
-      // var formData=new FormData();
-      var formData = this.formData
-      this.files.push(file);
-      formData.activityID = data.activityID
-      formData.studentID = JSON.parse(localStorage.getItem("user")).id
-      formData.infoItemID = data.id
-      var _this = this
-      const up = this.$refs.upload
-      if(up && up.length){
-        up.forEach((item,index_) =>{
-          if(index_ != index){
-            item.clearFiles()
-          }
-        })
-      }
-      // setTimeout(()=>{
-      //   const up = this.$refs.upload
-      //   if(up && up.length){
-      //     up.forEach((item,index_) =>{
-      //       if(index_ != index){
-      //         item.clearFiles()
-      //       }
-      //     })
-      //   }
-      this.$refs.upload[index].submit()
-      // },1000)
-      // formData.append("file",this.files[0].raw)
-      // formData.append("activityID",data.activityID)
-      // formData.append("studentID",JSON.parse(localStorage.getItem("user")).id)
-      // formData.append("infoItemID",data.id)
-      // axios.post("/infoItem/basic/upload",formData,{
-      //   headers:{
-      //     'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
-      //   }
-      // }).then(
-      //   (response)=>{
-      //     this.$message({
-      //       message:'上传成功！'
-      //     })
-      //       //获取文件存储的路径
-      //     this.urlFile=response.data
-      //     this.$refs.upload[index].clearFiles()
-      //     this.reset()
-      //   },()=>{}
-      // )
+      this.uploadInfoid = data.id
+      this.fileUploadList.push({
+        index:index,
+        name:data.name,
+        file:file
+      })
+      this.files = null
     },
     initAllRoles() {
       this.getRequest("/system/hr/roles").then((resp) => {

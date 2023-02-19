@@ -38,14 +38,16 @@
 </template>
 
 <script>
-
+import store from '../store/index.js'
+import router from '../router.js'
 import sha1 from "sha1";
-
+import { initMenu } from "../utils/menus.js";
 export default {
   name: "Login",
   props:["inf"], // 接受父组的loginForm，通过role判断角色
   data () {
     return {
+      timer:null,
       loading: false,
       // vcUrl: '/verifyCode?time='+new Date(),
       loginForm: {},
@@ -71,6 +73,7 @@ export default {
         if (valid) {//判断是否符合prop要求
           this.loading = true;
           // 发送加密后的密码
+          var that = this
           var loginFormPost = {username: this.loginForm.username, password: sha1(this.loginForm.password),role: this.loginForm.role}
           this.postRequest('/doLogin', loginFormPost).then(resp => {
             this.loading = false;
@@ -78,7 +81,7 @@ export default {
               this.$store.commit('INIT_CURRENTHR', resp.obj);//objet.set2
               localStorage.setItem("user", JSON.stringify(resp.obj));//存session
               let path = this.$route.query.redirect;
-              this.$router.replace('/home').catch(err => err);
+              initMenu(router,store)//保设置新登录账号的路由，个人信息在浏览器和vuex
             } else {
               // this.vcUrl = '/verifyCode?time='+new Date();
             }

@@ -16,6 +16,7 @@ const now = new Date();
 
 const store = new Vuex.Store({
     state: { //全局对象，用于保存所有组件的公共数据
+        routes_AllSameForm:[],
         routes: [],
         sessions: {},
         hrs: [],
@@ -110,16 +111,20 @@ const store = new Vuex.Store({
             })
         },
         initsize(context, data) {
-            getRequest("/system/Experts/activities?expertID=" + data).then(resp => {
-                if (resp) {
-                    resp = resp.extend;
-                    if (sessionStorage.getItem('peract')) {
-                        console.log('存在peract')
-                    } else {
-                        context.commit('INIT_PERACT', resp)
+            var promise = new Promise((resolve, reject) => {
+                getRequest("/system/Experts/activities?expertID=" + data).then(resp => {
+                    if (resp) {
+                        resp = resp.extend;
+                        if (sessionStorage.getItem('peract')) {
+                            console.log('存在peract')
+                        } else {
+                            context.commit('INIT_PERACT', resp)
+                        }
+                        resolve(resp)
                     }
-                }
+                })
             })
+            return promise
         },
         initAct(context, AI) {
             getRequest("/system/Experts/score?activitiesID=" + AI.Aid + '&expertID=' + AI.Auserid + '&groupId=' + AI.AgroupId).then(value => {

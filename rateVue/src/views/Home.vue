@@ -95,32 +95,22 @@ export default {
   name: "Home",
   data() {
     return {
-      // user: JSON.parse(localStorage.getItem("user")),
-      role:-1,
+      routes:[],
+      role:'',
       name:"",
       //获取页面高度
       clientHeight: "",
     };
   },
   computed: {
-    routes() {
-      // console.log("routs:");
-      // console.log(JSON.parse(localStorage.getItem('initRoutes')));
-      // console.log(this.$store.state.routes);
-      // return this.$store.state.routes; //store->index.js->state: {router.beforeEach->initMenu
-      console.log(JSON.parse(localStorage.getItem('initRoutes')))
-      return JSON.parse(localStorage.getItem('initRoutes'))
-    },
     user() {
-      // return this.$store.state.currentHr; //object信息
       return JSON.parse(localStorage.getItem("user"))
     },
   },
   mounted() {
+    this.routes = JSON.parse(localStorage.getItem('initRoutes'))
     // 获取浏览器可视区域高度
     this.clientHeight = `${document.documentElement.clientHeight}`;
-    //document.body.clientWidth;
-    //console.log(self.clientHeight);
     this.role = JSON.parse(localStorage.getItem("user")).role
     this.name = JSON.parse(localStorage.getItem("user")).name
     window.onresize = function temp() {
@@ -135,12 +125,12 @@ export default {
   },
   methods: {
     handleOpen() {
-      if (this.role !== JSON.parse(localStorage.getItem("user")).role || this.name !== JSON.parse(localStorage.getItem("user")).name) {
+      if (this.role != JSON.parse(localStorage.getItem("user")).role || this.name != JSON.parse(localStorage.getItem("user")).name) {
         var url
         Message.warning('无权限！请重新登录')
-        if (this.role == 8)
+        if (this.role == '8' || this.role == '9')
           url = "/Teacher/Login"
-        else if (this.role == 1)
+        else if (this.role == '1')
           url = "/Admin/Login"
         else
           url = "/"
@@ -149,8 +139,6 @@ export default {
     },
     changeFixed(clientHeight) {
       //动态修改样式
-      // console.log(clientHeight);
-      // console.log(this.$refs.homePage.$el.style.height);
       this.$refs.homePage.$el.style.height = clientHeight - 20 + "px";
     },
     commandHandler(cmd) {
@@ -159,16 +147,15 @@ export default {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning",
-        })
-            .then(() => {
-              var url
-              console.log(this.role)
-              if (this.role == 8)
-                url = "/Teacher/Login"
-              else if (this.role == 1)
-                url = "/Admin/Login"
-              else if (this.role == 7)
-                url = "/"
+        }).then(() => {
+              var url = '/'
+              // console.log(this.role)
+              // if (this.role == '8' || this.role == '9')
+              //   url = "/Teacher/Login"
+              // else if (this.role == 1)
+              //   url = "/Admin/Login"
+              // else if (this.role == 7)
+              //   url = "/"
               this.getRequest("/logout");
               // window.sessionStorage.removeItem("user"); //清楚session
               localStorage.clear()
