@@ -50,6 +50,7 @@
 
 <script>
 import { postRequest, getRequest } from "@/utils/api";
+import sha1 from "sha1";
 export default {
   name: "ExpertLogin",
   data() {
@@ -78,6 +79,7 @@ export default {
       this.$refs.loginForm.validate(async (valid) => {
         if (valid) {
           this.loading = true;
+          this.loginForm.password = sha1(this.loginForm.password)
           this.loginResult = await postRequest("/doLogin", this.loginForm);
 
           if (this.loginResult.status === 200) {
