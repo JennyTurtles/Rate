@@ -37,7 +37,7 @@
         :visible.sync="dialogVisibleSearch"
         @close="closeSearch"
         width="50%">
-      <span slot="title" style="float:left;font-size: 20px" >请输入需要搜索的期刊/项目/科技奖/咨询成果名</span>
+      <span slot="title" style="float:left;font-size: 20px" >请输入需要搜索的名称</span>
       <div class="select_div_input">
         <input
             autocomplete="off"
