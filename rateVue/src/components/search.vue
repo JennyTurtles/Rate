@@ -752,12 +752,11 @@ export default {
         publication.year = this.importSelectYear
         publication.indicatorID = this.indicatorID
         var promise = new Promise((resolve,reject) => {
-          axios.delete(
-              "/publication/basic/pubs" ,
+          axios.post(
+              "/publication/basic/delPubs" ,
               {
-                data:{
-                  publication:publication
-                },
+                "year":this.importSelectYear,
+                "indicatorID":this.indicatorID,
                 headers:{
                   token:token
                 }
@@ -769,6 +768,8 @@ export default {
           })
         })
         promise.then(resp => {
+          console.log("pub")
+          console.log(publicationInf)
           that.postRequest("/publication",publicationInf).then( (res)=>{
             if (res.status != 200)
               that.$message({

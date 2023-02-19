@@ -134,7 +134,7 @@ public class PublicationController
     }
 
     // 文档2.14 功能6
-    @DeleteMapping("/pubs")
+    @PostMapping("/delPubs")
     @ResponseBody
     public RespBean deleteByYearId(@RequestBody Publication publication){
         Integer year = publication.getYear();
