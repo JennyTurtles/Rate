@@ -45,47 +45,47 @@ export default new Router({
         },
         {
           path: '/student/Product',
-          name: '制造或设计的产品',
+          name: '制造或设计的产品1',
           hidden: true,
           component: () => import('./views/student/Product'),
           meta: {
-            title: '制造或设计的产品',
+            title: '制造或设计的产品1',
           },
         },
         {
           path: '/student/AcademicMonograph',
-          name: '学术专著和教材',
+          name: '学术专著和教材1',
           hidden: true,
           component: () => import('./views/student/Academic-Monograph'),
           meta: {
-            title: '学术专著和教材',
+            title: '学术专著和教材1',
           },
         },
         {
           path: '/student/ResearchProject',
-          name: '科研项目',
+          name: '科研项目1',
           hidden: true,
           component: () => import('./views/student/Research-Project'),
           meta: {
-            title: '科研项目',
+            title: '科研项目1',
           },
         },
         {
           path: '/student/ResearchAward',
-          name: '科研获奖',
+          name: '科研获奖1',
           hidden: true,
           component: () => import('./views/student/Research-Award'),
           meta: {
-            title: '科研获奖',
+            title: '科研获奖1',
           },
         },
         {
           path: '/student/Patent',
-          name: '专利',
+          name: '专利1',
           hidden: true,
           component: () => import('./views/student/Patent'),
           meta: {
-            title: '专利',
+            title: '专利1',
           },
         },
         {
@@ -117,20 +117,20 @@ export default new Router({
         },
         {
           path:'/student/search',
-          name:'活动列表',
+          name:'学生活动列表',
           hidden:true,
           component:()=>import('./views/student/Stusearch'),
           meta: {
-            title: '活动列表',
+            title: '学生活动列表',
           },
         },
         {
           path: '/student/Achievements',
-          name: '成果列表',
+          name: '成果列表1',
           hidden: true,
           component: () => import('./views/student/Achievements'),
           meta: {
-            title: '成果列表',
+            title: '成果列表1',
           },
         },
         {
@@ -139,7 +139,7 @@ export default new Router({
           hidden: true,
           component: () => import('./views/teacher/Product'),
           meta: {
-            title: '制造或设计的产品',
+            title: '制造或设计的产品2',
           },
         },
         {
@@ -148,16 +148,16 @@ export default new Router({
           hidden: true,
           component: () => import('./views/teacher/Academic-Monograph'),
           meta: {
-            title: '学术专著和教材',
+            title: '学术专著和教材2',
           },
         },
         {
           path: '/teacher/tperact/actList',
-          name: '活动列表',
+          name: '教师活动列表',
           hidden: true,
           component: () => import('./views/teacher/ActList'),
           meta: {
-            title: '活动列表',
+            title: '教师活动列表',
           },
         },
 
@@ -167,7 +167,7 @@ export default new Router({
           hidden: true,
           component: () => import('./views/teacher/Research-Project'),
           meta: {
-            title: '科研项目',
+            title: '科研项目2',
           },
         },
         {
@@ -301,7 +301,7 @@ export default new Router({
     },
     {
       path: '/Expert/peract',
-      name: '专家活动列表',
+      name: '活动列表2',
       component: () => import('./views/expert/Eperact'),
       meta: { title: 'peract' },
       children: [
@@ -313,9 +313,9 @@ export default new Router({
         },
         {
           path: 'actList',
-          name: '活动列表',
+          name: '专家活动列表',
           component: () => import('./views/expert/EactList'),
-          meta: { title: '活动列表' },
+          meta: { title: '专家活动列表2' },
         },
         {
           path: 'score',

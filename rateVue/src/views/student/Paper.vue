@@ -450,7 +450,6 @@ export default {
   created() {},
   mounted() {
     this.initEmps();
-    this.initPositions();
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
