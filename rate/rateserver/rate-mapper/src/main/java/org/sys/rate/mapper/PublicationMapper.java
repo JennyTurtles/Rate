@@ -114,7 +114,7 @@ public interface PublicationMapper
     @Delete("DELETE FROM publication WHERE `year`= #{year} AND indicatorID = #{indicatorID}")
     public int deleteByYearId(@Param("year")Integer year, @Param("indicatorID") Integer indicatorID);
 
-    @Select("SELECT `name` FROM publication WHERE indicatorID = #{indicatorID} AND name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
+    @Select("SELECT DISTINCT `name` FROM publication WHERE indicatorID = #{indicatorID} AND name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
     public List<String> getNamesByIdName(Integer indicatorID,String name);
 
     @Select("SELECT * FROM publication WHERE name = #{name}")
