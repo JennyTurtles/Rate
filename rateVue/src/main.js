@@ -165,9 +165,7 @@ router.beforeEach((to, from, next) => {
                 next()
                 return
             }
-            // initMenu(router, store)//设置新登录账号的路由，个人信息在浏览器和vuex
             var routs = localStorage.getItem('initRoutes_AllSameForm')
-            console.log(JSON.stringify(routs))
             if(routs.indexOf(to.path) == -1){
                 Message.warning('无权限！请重新登录')
                 next('/')
@@ -176,7 +174,6 @@ router.beforeEach((to, from, next) => {
             next()
         } else {
             next('/?redirect=' + to.path)
-            // next('/')
         }
     }
 })

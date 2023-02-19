@@ -43,6 +43,74 @@ export default new Router({
             title: '个人中心',
           },
         },
+        {//管理员下的
+          path: '/bookview',
+          name: 'SalBookView',
+          component: () => import('./views/admin/SalBookView'),
+          meta: { title: 'BookView' },
+          children: [
+            {
+              path: 'search',
+              name: 'Search',
+              component: () => import('./components/search'),
+              meta: { title: 'Search' },
+            },
+          ],
+        },
+        {//管理员下的
+          path: '/SalLog',
+          name: 'SalLog',
+          component: () => import('./views/admin/SalLog'),
+          meta: { title: 'SalLog' },
+
+        },
+        {//管理员下的
+          path: '/ActivitM/search',
+          name: 'SalSearch',
+          component: () => import('./views/admin/SalSearch'),
+          meta: { title: 'SalSearch' },
+
+        },
+        {//管理员下的
+          path: '/ActivitM/month',
+          name: 'Salmonth',
+          component: () => import('./views/admin/SalMonth'),
+          meta: { title: 'Salmonth' },
+
+        },
+        {//管理员下的
+          path: '/ActivitM/table',
+          name: 'SalTable',
+          component: () => import('./views/admin/SalTable'),
+          meta: { title: 'SalTable' },
+
+        },{//管理员下的
+          path: '/ActivitM/sobcfg',
+          name: 'SalSobCfg',
+          component: () => import('./views/admin/SalSobCfg'),
+          meta: { title: 'SalSobCfg' },
+
+        },
+        {//管理员下的
+          path: '/admin/SalExamine',
+          name: 'SalExamine',
+          component: () => import('./views/admin/Examine'),
+          meta: { title: 'SalExamine' },
+
+        },{//管理员下的
+          path: '/ActivitM/group',
+          name: 'SalGroup',
+          component: () => import('./views/admin/SalGroup'),
+          meta: { title: 'SalGroup' },
+
+        },
+        {//管理员下的
+          path: '/participantsM',
+          name: 'SalPar',
+          component: () => import('./views/admin/SalPar'),
+          meta: { title: 'SalPar' },
+
+        },
         {
           path: '/student/Product',
           name: '制造或设计的产品1',
@@ -325,20 +393,7 @@ export default new Router({
         },
       ],
     },
-    // {
-    //   path: '/bookview',
-    //   name: 'SalBookView',
-    //   component: () => import('./views/admin/SalBookView'),
-    //   meta: { title: 'BookView' },
-    //   children: [
-    //     {
-    //       path: 'search',
-    //       name: 'Search',
-    //       component: () => import('./components/search'),
-    //       meta: { title: 'Search' },
-    //     },
-    //   ],
-    // },
+
     // {
     //   path: '/test',
     //   name: 'test',

@@ -23,12 +23,6 @@
                   auto-complete="off"
                   placeholder="请输入密码"></el-input>
       </el-form-item>
-      <!-- <el-form-item prop="code">
-                <el-input size="normal" type="text" v-model="loginForm.code" auto-complete="off"
-                          placeholder="点击图片更换验证码" @keydown.enter.native="submitLogin" style="width: 250px"></el-input>
-                <img :src="vcUrl" @click="updateVerifyCode" alt="" style="cursor: pointer">
-            </el-form-item> -->
-      <!-- <el-checkbox size="normal" class="loginRemember" v-model="checked">记住状态</el-checkbox> -->
       <el-button size="normal"
                  type="primary"
                  style="width: 100%;"
