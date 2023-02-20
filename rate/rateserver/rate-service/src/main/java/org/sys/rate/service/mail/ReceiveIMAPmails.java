@@ -137,78 +137,6 @@ public class ReceiveIMAPmails {
         return result;
     }
 
-    /**
-     * 安全检查，反馈邮件
-     *
-     * @param ID
-     * @param remark
-     * @param state
-     * @param from
-     * @throws MessagingException
-     */
-    public boolean SafeCheck(Long ID, String remark, String state, String from) throws MessagingException {
-        Paper paper = null;
-        Student student;
-        Teacher teacher;
-
-        if (ID != null) {
-            paper = paperService.getById((int) (long) ID);
-        }
-
-
-        // 若paper_state != commit，则禁止修改
-        if (paper != null && !paper.getState().equals("commit")) {
-            mailService.sendFeedbackMail(from, ID, "sendNoEditMail");
-            return false;
-        }
-
-        if (teacherService.getByEmail(from) != null) {
-            if (paper != null) {
-                student = studentService.getById((int) (long) paper.getStudentID());
-                teacher = teacherService.getById(student.getTutorID());
-                if (from.equals(teacher.getEmail())) {
-                    // 邮箱地址和PaperID匹配
-                    // 若不通过需要添加remark
-                    if (state.equals("tea_reject")) {
-                        if (remark.isEmpty() || remark.equals("(请填写理由)")) {
-                            mailService.sendFeedbackMail(from, ID, "sendRemarkMail");
-                        } else {
-                            mailService.sendFeedbackMail(from, ID, "sendRejtSuccessMail");
-                            return true;
-                        }
-                    } else {
-                        mailService.sendFeedbackMail(from, ID, "sendPassSuccessMail");
-                        return true;
-                    }
-                } else {
-                    // 邮箱地址正确，paperID在数据库中存在，但是邮箱地址和PaperID不匹配
-                    mailService.sendFeedbackMail(from, ID, "sendPIDErrMail");
-                }
-            } else {
-                // 邮箱地址正确，但是paperID在数据库中不存在；
-                mailService.sendFeedbackMail(from, ID, "sendPIDErrMail");
-            }
-        } else {
-            // 邮箱地址在数据库中不存在，但是paperID在正文中出现！
-            if (ID != null) {
-                if (paper != null) {
-                    // paperID在数据库中存在
-                    student = studentService.getById((int) (long) paper.getStudentID());
-                    teacher = teacherService.getById(student.getTutorID());
-                    mailService.sendFeedbackMail(from, ID, "sendEmailErrMail");
-                } else {
-                    // paperID在数据库中不存在
-                    mailService.sendFeedbackMail(from, ID, "sendPIDEmailMail");
-                }
-            } else {
-                // 若数据库中没有该地址，且paperID也不存在
-                mailService.sendFeedbackMail(from, ID, "sendErrMail");
-            }
-        }
-        return false;
-
-    }
-
     public void editPaperOperation(Long ID, String remark, String state) {
         Paper paper = paperService.getById((int) (long) ID);
         Student student = studentService.getById((int) (long) paper.getStudentID());
@@ -288,6 +216,8 @@ public class ReceiveIMAPmails {
             InternetAddress address = (InternetAddress) message.getFrom()[0];
             String from = address.getAddress();
             String content = getTextFromMessage(message);
+            content = content.trim();
+            content = content.replace("\r", "");
             // delete read messages
             message.setFlag(Flags.Flag.DELETED, true);
 
@@ -300,38 +230,44 @@ public class ReceiveIMAPmails {
             boolean flag = false;
 
 
+            String replyContent = "------------------ 原始邮件 ------------------<br>" +
+                    "<p style=\"background-color:#efefef;\">发件人: \"ratemail\" <ratemail@126.com>;\n" +
+                    "发送时间: 2023年2月19日(星期天) 中午1:47\n" +
+                    "收件人: \"" + from.substring(0, from.indexOf("@")) + "\"<" + from + ">;\n" +
+                    "主题: " + subject +"\n</p>" +
+                    content;
+            replyContent = replyContent.replaceAll("\n","<br>");
+
             // 0.检测是否为垃圾邮件
             if ((numOccurrences(content, "成果类型：") == 0)
                     && (numOccurrences(content, "成果编号：") == 0)
                     && (numOccurrences(content, "审核结果：") == 0)) {
                 //判断为垃圾邮件
-                mailService.sendFeedbackMail(from, ID, "junkMail");
+                mailService.sendFeedbackMail(from, ID, "junkMail", replyContent);
                 return;
             } else if ((numOccurrences(content, "成果类型：") > 1)
                     || (numOccurrences(content, "成果编号：") > 1)
                     || (numOccurrences(content, "审核理由：") > 1)) {
                 //判断为垃圾邮件
-                mailService.sendFeedbackMail(from, ID, "duplicateVarMail");
+                mailService.sendFeedbackMail(from, ID, "duplicateVarMail", replyContent);
                 return;
             } else {
                 //判断不为垃圾邮件
                 // 0.0 修剪content,去除首尾空行
 //                content = content.replaceFirst("\n\n", "\n");
-                content = content.trim();
-                content = content.replace("\r","");
                 String[] lines = content.split("\n");
                 String line1 = lines[0], line2 = lines[1], line3 = lines[2], line4 = "";
 
                 // 保障基本上四句话都要大于5个字符
                 if (lines.length > 3) {
                     line4 = lines[3];
-                    if(line1.length()<5 || line2.length()<5 || line3.length()<5 || line4.length()<5){
-                        mailService.sendFeedbackMail(from, ID, "less5Mail");
+                    if (line1.length() < 5 || line2.length() < 5 || line3.length() < 5 || line4.length() < 5) {
+                        mailService.sendFeedbackMail(from, ID, "less5Mail", replyContent);
                         return;
                     }
-                }else{
-                    if(line1.length()<5 || line2.length()<5 || line3.length()<5){
-                        mailService.sendFeedbackMail(from, ID, "less5Mail");
+                } else {
+                    if (line1.length() < 5 || line2.length() < 5 || line3.length() < 5) {
+                        mailService.sendFeedbackMail(from, ID, "less5Mail", replyContent);
                         return;
                     }
                 }
@@ -352,7 +288,7 @@ public class ReceiveIMAPmails {
                 if (isNumeric(line2.substring(5)) && !line2.substring(5).equals("")) {
                     ID = Long.parseLong(line2.substring(5));
                 } else {
-                    mailService.sendFeedbackMail(from, ID, "IDNotDigitErrMail");
+                    mailService.sendFeedbackMail(from, ID, "IDNotDigitErrMail", replyContent);
                     return;
                 }
                 // 0.2 判断ID是否在数据库中
@@ -364,23 +300,23 @@ public class ReceiveIMAPmails {
                     teacher = teacherService.getById(student.getTutorID());
                     if (!from.equals(teacher.getEmail())) {
                         if (teacherService.getByEmail(from) != null) {
-                            mailService.sendFeedbackMail(from, ID, "matchErrMail");
+                            mailService.sendFeedbackMail(from, ID, "matchErrMail", replyContent);
                         } else {
-                            mailService.sendFeedbackMail(from, ID, "emailErrMail");
+                            mailService.sendFeedbackMail(from, ID, "emailErrMail", replyContent);
                         }
                         return;
                     }
                 } else {
                     if (teacherService.getByEmail(from) != null) {
-                        mailService.sendFeedbackMail(from, ID, "IDNotExistErrMail");
+                        mailService.sendFeedbackMail(from, ID, "IDNotExistErrMail", replyContent);
                     } else {
-                        mailService.sendFeedbackMail(from, ID, "registerMail");
+                        mailService.sendFeedbackMail(from, ID, "registerMail", replyContent);
                     }
                     return;
                 }
                 // 0.3 再判断是否有成果编号字样
                 if (!line2.substring(0, 5).equals("成果编号：")) {
-                    mailService.sendFeedbackMail(from, ID, "lackMail_2");
+                    mailService.sendFeedbackMail(from, ID, "lackMail_2", replyContent);
                     return;
                 }
 
@@ -394,11 +330,11 @@ public class ReceiveIMAPmails {
                         }
                     }
                     if (!flag) {
-                        mailService.sendFeedbackMail(from, ID, "typeErrMail");
+                        mailService.sendFeedbackMail(from, ID, "typeErrMail", replyContent);
                         return;
                     }
                 } else {
-                    mailService.sendFeedbackMail(from, ID, "lackMail_1");
+                    mailService.sendFeedbackMail(from, ID, "lackMail_1", replyContent);
                     return;
                 }
 
@@ -407,31 +343,31 @@ public class ReceiveIMAPmails {
                     state = line3.substring(5);
                     if (state.equals("通过") || state.equals("驳回")) {
                         if (!paper.getState().equals("commit")) {
-                            mailService.sendFeedbackMail(from, ID, "dupStateErrMail");
+                            mailService.sendFeedbackMail(from, ID, "dupStateErrMail", replyContent);
                             return;
                         }
                     } else {
-                        mailService.sendFeedbackMail(from, ID, "stateErrMail");
+                        mailService.sendFeedbackMail(from, ID, "stateErrMail", replyContent);
                         return;
                     }
                 } else {
-                    mailService.sendFeedbackMail(from, ID, "lackMail_3");
+                    mailService.sendFeedbackMail(from, ID, "lackMail_3", replyContent);
                     return;
                 }
 
                 // 4.1 判断第四行
                 if (state.equals("通过")) {
-                    mailService.sendFeedbackMail(from, ID, "sendPassMail");
+                    mailService.sendFeedbackMail(from, ID, "sendPassMail", replyContent);
                 } else {
                     if (line4.substring(0, 5).equals("审核理由：")) {
                         if (remark.length() > 1) {
-                            mailService.sendFeedbackMail(from, ID, "sendRejectMail");
+                            mailService.sendFeedbackMail(from, ID, "sendRejectMail", replyContent);
                         } else {
-                            mailService.sendFeedbackMail(from, ID, "lackMail_reason");
+                            mailService.sendFeedbackMail(from, ID, "lackMail_reason", replyContent);
                             return;
                         }
                     } else {
-                        mailService.sendFeedbackMail(from, ID, "lackMail_4");
+                        mailService.sendFeedbackMail(from, ID, "lackMail_4", replyContent);
                         return;
                     }
                 }
@@ -448,55 +384,6 @@ public class ReceiveIMAPmails {
             }
 
 
-// 安全检查
-//            if (SafeCheck(ID, remark, state, from)) {
-//                // 修改论文操作的状态
-//                editPaperOperation(ID, remark, state);
-//                // 修改论文的状态
-//                paperService.edit_state(state, ID);
-//                System.out.println("·····修改论文状态成功！·····");
-//            } else {
-//                System.out.println("·····修改论文状态失败！·····");
-//            }
-
-
         }
     }
 }
-
-
-// 正则化
-// 正则化查找目标字符串
-//String flag_type="", flag_PaperID="", flag_Pass="", flag_remark="";
-//    String pattern0="(成果类型：)(.*?)(\n)";
-//    String pattern1="(成果编号：)(.*?)(\n)";
-//    String pattern2="(审核结果：)(.*?)(通过)";
-//    String pattern3="(审核理由：)(.*?)(\n\n)";
-//    Pattern pattern11 = Pattern.compile(pattern1,1);
-//    Pattern pattern22 = Pattern.compile(pattern2,1);
-//    Pattern pattern33 = Pattern.compile(pattern3, Pattern.DOTALL);
-//    Matcher matcher11 = pattern11.matcher(content);
-//    Matcher matcher22 = pattern22.matcher(content);
-//    Matcher matcher33 = pattern33.matcher(content);
-//
-//            if (matcher11.find()){
-//                    flag_PaperID= matcher11.group(2);
-//                    }
-//                    if (matcher22.find()){
-//                    flag_Pass= matcher22.group(2)+"通过";
-//                    }
-//                    if(flag_Pass.equals("不通过")) {
-//                    if (matcher33.find()) {
-//                    flag_remark = matcher33.group(2);
-//                    }
-//                    }
-//
-//
-//
-//                    Long ID = null;
-//                    String state="";
-//                    if(flag_PaperID!="") {
-//                    ID = Long.parseLong(flag_PaperID);
-//                    state = flag_Pass.equals("通过") ? "tea_pass" : "tea_reject";
-//                    }
-//                    String remark = flag_remark;
