@@ -32,9 +32,10 @@ export default {
       teacher:"",
     }
   },
+  created() {
+    this.teacher = JSON.parse(localStorage.getItem('teacher'))
+  },
   mounted(){
-    // 获取当前用户，在导航栏中展示
-    this.teacher = JSON.parse(sessionStorage.getItem('teacher'))
   },
   methods: {
     commandHandler(cmd) {

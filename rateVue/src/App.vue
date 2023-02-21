@@ -24,6 +24,14 @@ export default {
     }
   },
   created(){
+    //页面加载时读取session
+    if(sessionStorage.getItem('initRoutes')){
+      this.$store.replaceState(Object.assign({},this.$store.state.routes,JSON.parse(sessionStorage.getItem('initRoutes'))))
+    }
+    //页面刷新数据加载到浏览器
+    window.addEventListener('beforeunload',() => {
+      sessionStorage.setItem('initRoutes',JSON.stringify(this.$store.state.routes))
+    })
   },
   mounted(){
     // let user = JSON.parse(localStorage.getItem("user"))

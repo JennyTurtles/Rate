@@ -108,7 +108,7 @@ export default {
     },
   },
   mounted() {
-    this.routes = JSON.parse(localStorage.getItem('initRoutes'))
+    this.routes = JSON.parse(sessionStorage.getItem('initRoutes'))
     // 获取浏览器可视区域高度
     this.clientHeight = `${document.documentElement.clientHeight}`;
     this.role = JSON.parse(localStorage.getItem("user")).role
@@ -158,8 +158,10 @@ export default {
               //   url = "/"
               this.getRequest("/logout");
               // window.sessionStorage.removeItem("user"); //清楚session
-              localStorage.clear()
-              this.$store.commit("initRoutes", []); //清空路由
+              localStorage.clear('user')
+              sessionStorage.clear('initRoutes')
+              sessionStorage.clear('initRoutes_AllSameForm')
+          this.$store.commit("initRoutes", []); //清空路由
               this.$router.replace(url);
             })
             .catch(() => {

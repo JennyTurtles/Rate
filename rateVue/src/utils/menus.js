@@ -12,10 +12,10 @@ export const initMenu = (router, store) => {
             let fmtRoutes = formatRoutes(data); //格式化router
             router.addRoutes(fmtRoutes);  //添加到路由
             store.commit('initRoutes', fmtRoutes);  //将数据存到vuex
-            if(localStorage.getItem('initRoutes')){
+            if(sessionStorage.getItem('initRoutes')){
                 localStorage.clear('initRoutes')
             }
-            localStorage.setItem('initRoutes',JSON.stringify(fmtRoutes))
+            sessionStorage.setItem('initRoutes',JSON.stringify(fmtRoutes))
 
             var data = JSON.parse(JSON.stringify(fmtRoutes))
             let res = ['/home']
@@ -38,17 +38,13 @@ export const initMenu = (router, store) => {
                     })
                 }
             })
-            localStorage.setItem('initRoutes_AllSameForm',res)
+            sessionStorage.setItem('initRoutes_AllSameForm',res)
             this_.$router.replace('/home').then(
-                resolve =>{
-                    console.log('succe')
-                }
+                resolve =>{}
             ).catch(
                 err => {
                     console.log(err)
                 });
-            // console.log('menu:...')
-            // console.log(localStorage.getItem('initRoutes'))
         }
     })
 }

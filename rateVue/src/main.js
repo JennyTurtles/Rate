@@ -151,10 +151,11 @@ Vue.prototype.$confirm = MessageBox.confirm
 router.beforeEach((to, from, next) => {
     if (to.path == '/Admin/Login' || to.path == '/Expert/Login' || to.path == '/' ||
         to.path == '/Student/Login' || to.path == '/Teacher/Login' || to.path == '/Student') {
-        if(localStorage.getItem('user') || localStorage.getItem('initRoutes') || localStorage.getItem('initRoutes_AllSameForm')){
+        if(localStorage.getItem('user') || sessionStorage.getItem('initRoutes') || localStorage.getItem('initRoutes_AllSameForm')){
             store.commit('initRoutes',[])
             store.commit('INIT_CURRENTHR',{})
             localStorage.clear()
+            sessionStorage.clear()
         }
         next()
     }
@@ -165,15 +166,18 @@ router.beforeEach((to, from, next) => {
                 next()
                 return
             }
-            var routs = localStorage.getItem('initRoutes_AllSameForm')
+            var routs = sessionStorage.getItem('initRoutes_AllSameForm')
             if(routs.indexOf(to.path) == -1){
                 Message.warning('无权限！请重新登录')
                 next('/')
                 return
             }
             next()
-        } else {
-            next('/?redirect=' + to.path)
+        } else if(localStorage.getItem('teacher')) {
+            // next('/?redirect=' + to.path)
+            next()
+        }else {
+            next('/')
         }
     }
 })
