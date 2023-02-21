@@ -28,7 +28,7 @@
          else if (indicatorType === 'decision')
           this.dialogVisibleAppendDecision = true;
       }" icon="el-icon-circle-plus">添加</el-button>
-      <el-button type="primary" style="float: right;margin-left: 10px" @click="uploadVisible=true" icon="el-icon-s-order">批量导入</el-button>
+      <el-button type="primary" style="float: right;margin-left: 10px" @click="uploadVisible=true;importSelectYear = year" icon="el-icon-s-order">批量导入</el-button>
       <el-button @click="searchUnAvailable = false;dialogVisibleSearch = true" type="primary" style="float: right" icon="el-icon-search" >搜索</el-button>
 
     </div>

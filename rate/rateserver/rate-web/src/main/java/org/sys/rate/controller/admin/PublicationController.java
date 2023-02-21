@@ -124,10 +124,10 @@ public class PublicationController
     public RespBean getPubByYearName(@RequestBody Publication publication){
         Integer year = publication.getYear();
         String name = publication.getName();
-        Publication p = publicationMapper.getPubByYearName(year,name);
+        Publication p = publicationMapper.getPubByYearName(year,name); //year和name匹配的pub
         Integer year1 = p.getYear();
         Integer indicatorId = Math.toIntExact(p.getIndicatorID());
-        Integer year2 = publicationMapper.getMaxYearByIdYear(indicatorId,year);
+        Integer year2 = publicationMapper.getMaxYearByIdYear(indicatorId,year); //当前indicator中最大的year
         if (year1 < year2)
             p.setScore(0);
         return RespBean.ok("success",p);
