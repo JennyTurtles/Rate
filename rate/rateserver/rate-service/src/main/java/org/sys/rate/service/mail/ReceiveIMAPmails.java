@@ -95,7 +95,7 @@ public class ReceiveIMAPmails {
         folder.close(false);    // 关闭邮件夹对象；若删除邮件则及时更新Folder,打开.
         // If you just close the folder, you can't do anything more to the folder, but you can still operate on the store.
         store.close();             // 关闭连接对象
-        System.out.println("-----解封未读邮件成功！-----");
+//        System.out.println("-----解封未读邮件成功！-----");
 
     }
 
@@ -160,7 +160,7 @@ public class ReceiveIMAPmails {
 
 
         paperOperService.insertPaperOper(paperOper);
-        System.out.println("---------------论文状态修改成功！--------------------");
+//        System.out.println("---------------论文状态修改成功！--------------------");
     }
 
 
@@ -206,7 +206,7 @@ public class ReceiveIMAPmails {
         Teacher teacher;
 
         if (messages == null || messages.length < 1) {
-            System.out.println("-----暂时没有其他未读的邮件！-----");
+//            System.out.println("-----暂时没有其他未读的邮件！-----");
 //            throw new MessagingException("暂时还没有其他要解析的邮件!");
             return;
         }
@@ -222,7 +222,7 @@ public class ReceiveIMAPmails {
             message.setFlag(Flags.Flag.DELETED, true);
 
 
-            System.out.println("邮件的主题是：" + subject + "\t发件人的地址是：" + from + "\n邮件正文：" + content + "\t");
+//            System.out.println("邮件的主题是：" + subject + "\t发件人的地址是：" + from + "\n邮件正文：" + content + "\t");
 
             Long ID = null;
             String type = "", remark = "", state = "";
@@ -378,7 +378,7 @@ public class ReceiveIMAPmails {
                 editPaperOperation(ID, remark, state);
                 // 修改论文的状态
                 paperService.edit_state(state, ID);
-                System.out.println("·····修改论文状态成功！·····");
+//                System.out.println("·····修改论文状态成功！·····");
 
 
             }

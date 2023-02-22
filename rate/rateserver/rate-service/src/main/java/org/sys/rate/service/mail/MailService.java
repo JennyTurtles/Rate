@@ -100,7 +100,7 @@ public class MailService {
 
 
         mailSender.send(message);
-        System.out.println("邮件已经成功发送");
+//        System.out.println("邮件已经成功发送");
     }
 
     @GetMapping("multi")
@@ -338,7 +338,7 @@ public class MailService {
 
 
         mailSender.send(message);
-        System.out.println("反馈邮件已经成功发送");
+//        System.out.println("反馈邮件已经成功发送");
     }
 
 

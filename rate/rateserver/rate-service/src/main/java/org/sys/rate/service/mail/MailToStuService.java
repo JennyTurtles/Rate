@@ -38,7 +38,7 @@ public class MailToStuService {
     public void sendStuMail(String state, Long ID) throws MessagingException {
         if(state.equals("commit"))
                 return;
-        System.out.println("------------开始给相关的学生发送邮件！------------");
+//        System.out.println("------------开始给相关的学生发送邮件！------------");
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message,true);
@@ -90,6 +90,6 @@ public class MailToStuService {
 
 
         mailSender.send(message);
-        System.out.println("------------给学生的邮件已经成功发送------------");
+//        System.out.println("------------给学生的邮件已经成功发送------------");
     }
 }

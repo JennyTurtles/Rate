@@ -33,7 +33,7 @@ public class InitRunner implements ApplicationRunner {
             public void run() {
                 try {
                     String timeStr1= LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-                    System.out.println("-----启动解封未读邮件功能！-----当前时间为:"+timeStr1);
+//                    System.out.println("-----启动解封未读邮件功能！-----当前时间为:"+timeStr1);
                     receiveIMAPmails.readMails();
                 } catch (Exception e) {
                     e.printStackTrace();
