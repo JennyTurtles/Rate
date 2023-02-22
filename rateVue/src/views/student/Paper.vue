@@ -143,7 +143,7 @@
         <el-form-item  prop="year" label="出版年月:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-date-picker
-              style="width:100%"
+              style="width:80%"
               v-model="data_picker"
               type="month"
               placeholder="请选择出版年"
@@ -155,7 +155,7 @@
             <div class="select_div_input">
               <input
                   autocomplete="off"
-                  style="margin-left:5px;width:120px;line-height:28px;
+                  style="width:90%;line-height:28px;
                               border:1px solid lightgrey;padding:0 10px 1px 15px;
                               border-radius:4px;color:gray"
                   :disabled="disabledInput"
@@ -170,7 +170,8 @@
                    @mouseover="ispubFlag = true"
                    @mouseleave="ispubFlag = false">
                 <div
-                    style="margin:12px 0px 3px 12px;width:90%"
+                    class="select_div_div"
+
                     v-for="val in select_pubName"
                     :key="val.index"
                     :value="val.value"
@@ -1007,22 +1008,32 @@ export default {
 
 <style>
 .select_div_input{
-  margin-left:3px;
-  width:120px;
+  /*margin-left:3px;*/
+  width:80%;
   height:32px;
   position:relative;
   display:inline-block
 }
 .select_div{
+  border: .5px solid lightgray;
   border-radius: 3px;
   margin-top: 5px;
   font-size: 14px;
   position: absolute;
   background-color: #fff;
   z-index: 999;
-  overflow: auto;
-  width: 300px;
+  overflow: hidden;
+  width: 90%;
   cursor: pointer;
+}
+.select_div_div:hover{
+  background-color: lightgray;
+}
+.select_div_div{
+  padding-bottom: 2px;
+  /*padding-top: 7px;*/
+  padding-left: 12px;
+  width: 100%;
 }
 /*input[type=text]::placeholder {*/
 /*  color:lightgrey;*/

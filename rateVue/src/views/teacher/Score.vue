@@ -123,7 +123,9 @@
             align="center"
         >
           <template slot-scope="scope">
-            <span>{{ scope.row["info" + v.name] }}</span>
+            <span v-if="((v.contentType.indexOf('pdf') >= 0 || v.contentType.indexOf('zip') >= 0
+                            || v.contentType.indexOf('jpg') >= 0))">{{scope.row["info" + v.name] | fileNameFilter}}</span>
+            <span v-else>{{ scope.row["info" + v.name] }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -243,14 +245,14 @@
                   val.name != '报考专业' &&
                   val.name != '毕业单位'"
             >
-              <a v-if="((val.contentType.indexOf('pdf') >= 0 || val.contentType.indexOf('zip') >= 0
+              <span v-if="((val.contentType.indexOf('pdf') >= 0 || val.contentType.indexOf('zip') >= 0
                             || val.contentType.indexOf('jpg') >= 0)) && dialogdata['info' + val.name]"
-                 style="color:gray;font-size:14px;text-decoration:none;cursor:pointer;
-                "
+                 style="color:gray;font-size:14px;text-decoration:none;cursor:pointer;"
                 onmouseover="this.style.color = 'blue'"
-                onmouseleave="this.style.color = 'gray'">
+                onmouseleave="this.style.color = 'gray'"
+                @click="downloadInfoItems(val)">
                 {{dialogdata["info" + val.name].content | fileNameFilter}}
-              </a>
+              </span>
               <span v-else-if="(val.contentType.indexOf('textarea') >= 0 || val.contentType.indexOf('textbox') >= 0) && dialogdata['info' + val.name]">
                 {{ dialogdata["info" + val.name].content }}
               </span>
@@ -272,6 +274,8 @@
 <script>
 import { Message } from "element-ui";
 import { getRequest } from "@/utils/api";
+import axios from "axios";
+
 export default {
   name: "score",
   inject: ["reload"],
@@ -356,6 +360,45 @@ export default {
     }
   },
   methods: {
+    // downloadInfoItems(data){//下载证明材料
+    //   const fileName = data.content.split('/').reverse()[0]
+    //   axios({
+    //     url:"/paper/basic/download?fileUrl=" + data.content + "&fileName=" + fileName,
+    //     method: 'get',
+    //     responseType: 'blob',
+    //   }).then(res => {
+    //     const filestream = res.data;  // 返回的文件流
+    //     // {type: 'application/vnd.ms-excel'}指定对应文件类型为.XLS (.XLS的缩写就为application/vnd.ms-excel)
+    //     const blob = new Blob([filestream]);
+    //     const a = document.createElement('a');
+    //     const href = window.URL.createObjectURL(blob); // 创建下载连接
+    //     a.href = href;
+    //     a.download = decodeURL(fileName );
+    //     document.body.appendChild(a);
+    //     a.click();
+    //     document.body.removeChild(a); // 下载完移除元素
+    //     window.URL.revokeObjectURL(href); // 释放掉blob对象
+    //   })
+    //
+    //   // console.log(data)
+    //   // var fileName = data.content.split('/').reverse()[0]
+    //   // // // console.log(fileName);
+    //   // if(localStorage.getItem("user")){
+    //   // var url="/paper/basic/download?fileUrl=" + data.content + "&fileName=" + fileName
+    //   // window.location.href = encodeURI(url);
+    //   // let url = '/Users/luyiru/IdeaProjects/Rate2/upload/改编全流程获取流量的核心.pdf'
+    //   //   window.location.href = encodeURI(url);
+    //   // }else{
+    //   //   this.$message.error("请重新登录！");
+    //   // }
+    //   //   var $a = document.createElement('a');
+    //   //   $a.setAttribute("href", url);
+    //   //   $a.setAttribute("download", "");
+    //   //   // console.log($a.href)
+    //   //   var evObj = document.createEvent('MouseEvents');
+    //   //   evObj.initMouseEvent( 'click', true, true, window, 0, 0, 0, 0, 0, false, false, true, false, 0, null);
+    //   //   $a.dispatchEvent(evObj);
+    // },
     download() {
       this.loading = true;
       Message.success("正在导出");
@@ -419,8 +462,7 @@ export default {
       }
     },
     showEditEmpView_show(row, index) {
-      // this.title_show = "显示详情";
-      this.dialogVisible_show = true;
+      this.dialogVisible_show = false;
       let infoitems = this.datalist.infoItems.length;
       let infolist = this.datalist.infosList.length;
       this.dialogdata = {};
@@ -446,6 +488,14 @@ export default {
           }
         }
       }
+      let routeUrl = this.$router.resolve({
+        path:"/teacher/tperact/InformationDetails",
+        query: {
+          datalist: JSON.stringify({datalist:this.datalist}),
+          dialogdata: JSON.stringify(this.dialogdata),
+        },
+      })
+      window.open(routeUrl.href)
     },
     //表头换行
     renderheader(h, { column, $index }) {
