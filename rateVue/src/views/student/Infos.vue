@@ -220,7 +220,7 @@ export default {
   },
   methods: {
   downloadFile(e){
-    console.log(e, "点击上传的文件列表的文件的操作");
+    // 参考：https://blog.csdn.net/qq_44603011/article/details/124941102
     var a = document.createElement("a");
     var event = new MouseEvent("click");
     a.target = "_blank";
