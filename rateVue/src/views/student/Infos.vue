@@ -58,6 +58,7 @@
                   :auto-upload="false"
                   :on-exceed="handleExceed"
                   :http-request="upload(item)"
+                  :on-preview='downloadFile'
               >
                 <el-button type="primary" icon="el-icon-upload2"
                            slot="trigger"  size="mini"
@@ -218,8 +219,19 @@ export default {
     }
   },
   methods: {
+  downloadFile(e){
+    console.log(e, "点击上传的文件列表的文件的操作");
+    var a = document.createElement("a");
+    var event = new MouseEvent("click");
+    a.target = "_blank";
+    a.download = e.name;
+    a.href = e.url;//路径前拼上前缀，完整路径
+    a.dispatchEvent(event);
+    },
     downloadInfosFile(data){//下载上传的该文件
       const fileName = this.fileDownloadList[data.id]
+      console.log("下载")
+      console.log(fileName)
       // axios({
       //   url: 'http://www.xxx.com/download',
       //   method: 'get',
@@ -240,13 +252,12 @@ export default {
       // })
     },
     upload(data){
-      if(data.id != this.uploadInfoid){//渲染了多了upload，用每一个infoitem的id做标识，判断是哪个upload被点击了
+      if(data.id != this.uploadInfoid){//渲染了多个upload，用每一个infoitem的id做标识，判断是哪个upload被点击了
         return;
       }
       if(this.fileUploadList.length == 0){
         return;
       }
-      console.log(this.fileDownloadList)
       var formData=new FormData();
       formData.append("file",this.fileUploadList[0].file.raw)
       formData.append("activityID",data.activityID)
@@ -262,8 +273,7 @@ export default {
           this.$message({
             message:'上传成功！'
           })
-          this.fileDownloadList['index'] = {
-            index:this.uploadInfoid,
+          this.fileDownloadList[this.uploadInfoid] = {
             fileUrl:response.data,
             file:this.fileUploadList[0].file.raw
           }
