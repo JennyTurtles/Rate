@@ -130,11 +130,26 @@
             :value="item">
         </el-option>
       </el-select>
+      <span>请选择导入的类别：</span>
+      <el-select
+          style="margin-right: 20px;width: 120px;"
+          v-model="importSelectType"
+          v-show="isRoot"
+      >
+        <el-option
+            v-for="item in selectTypes"
+            :key="item"
+            :label="item"
+            :value="item">
+        </el-option>
+      </el-select>
       <div>
-        <el-button @click="downloadExcel('PublicationSample')" type="warning">下载Excel模板</el-button>
+<!--        <el-button @click="downloadExcel('PublicationSample')" type="warning">下载Excel模板</el-button>-->
+        <el-button @click="btnClickExport" type="warning">下载Excel模板</el-button>
+
       </div>
       <!--      </template>-->
-      <span style="float:right;font-size: 16px;color: red" v-show="errorRow.length != 0">excel中第{{errorRow}}行的刊物名称为空</span>
+<!--      <span style="float:right;font-size: 16px;color: red" v-show="errorRow.length != 0">excel中第{{errorRow}}行的刊物名称为空</span>-->
       <span style="float:right;font-size: 16px;color: green" v-show="uploadResultValid">数据校验通过</span>
       <el-upload
           action
@@ -153,6 +168,10 @@
       <el-table v-show="uploadResult" :data="tableUploadData" :row-class-name="checkUploadData"
                 style="width: 100%">
         <el-table-column
+            prop="所属类别"
+            label="所属类别">
+        </el-table-column>
+        <el-table-column
             prop="刊物全称"
             label="刊物全称">
         </el-table-column>
@@ -169,8 +188,8 @@
             label="网址">
         </el-table-column>
         <el-table-column
-            prop="收录级别"
-            label="收录级别">
+            prop="收录级别 （收录级别1;级别2;（请用分号隔开））"
+            label="收录级别 （收录级别1;级别2;（请用分号隔开））">
         </el-table-column>
       </el-table>
 
@@ -184,14 +203,16 @@
     <el-table v-if="indicatorType === 'publication'"
               :data="tableData.slice((currentPage-1)*PageSize,currentPage*PageSize)"
               border
+              :header-cell-style="{'textAlign':'center'}"
               style="width: 100%">
       <el-table-column
-          fixed
           prop="name"
+          width="200px"
           label="刊物全称">
       </el-table-column>
       <el-table-column
           prop="abbr"
+          width="80px"
           label="刊物简称">
       </el-table-column>
       <el-table-column
@@ -200,6 +221,7 @@
       </el-table-column>
       <el-table-column
           prop="year"
+          width="60px"
           label="录入年份">
       </el-table-column>
       <el-table-column
@@ -449,16 +471,16 @@
       >
       </el-pagination>
     </div>
-    <el-table v-show="false"
-              id="PublicationSample"
-              :data="tablePublicationSample"
-    >
-      <el-table-column prop="name" label="刊物全称"></el-table-column>
-      <el-table-column prop="abbr" label="刊物简称"></el-table-column>
-      <el-table-column prop="publisher" label="出版社"></el-table-column>
-      <el-table-column prop="url" label="网址"></el-table-column>
-      <el-table-column prop="level" label="收录级别"></el-table-column>
-    </el-table>
+<!--    <el-table v-show="false"-->
+<!--              id="PublicationSample"-->
+<!--              :data="tablePublicationSample"-->
+<!--    >-->
+<!--      <el-table-column prop="name" label="刊物全称"></el-table-column>-->
+<!--      <el-table-column prop="abbr" label="刊物简称"></el-table-column>-->
+<!--      <el-table-column prop="publisher" label="出版社"></el-table-column>-->
+<!--      <el-table-column prop="url" label="网址"></el-table-column>-->
+<!--      <el-table-column prop="level" label="收录级别"></el-table-column>-->
+<!--    </el-table>-->
   </div>
 </template>
 
@@ -472,12 +494,18 @@ export default {
   props:['category','type','order','score','p1','p2'],
   data(){
     return{
+      typeOfAllPaper:[],
+      typeOfAllProject:[],
+      typeOfAllDecision:[],
+      typeOfAllTechnical:[],
       listSearchPublicationsByName:[],
       ispubFlag:false,
       ispubShow:false,
       select_pubName:[],
       timer:null,
       publicationName:'',//搜索中要搜索的期刊
+      importSelectType:'论文',
+      selectTypes:['论文','纵向科研项目','科技奖','决策咨询成果'],
       importSelectYear:2023,
       years:[],
       year:0,
@@ -529,13 +557,30 @@ export default {
       totalCount:0,
       pageSizes:[13,20,25],
       PageSize:13,
-      tablePublicationSample: [
+      tablePaperSample: [//论文
         {
-          name: "你的刊物全称（必填项）",
-          abbr: "你的刊物简称",
-          publisher: "你的刊物出版社",
-          url: "你的刊物网址",
-          level: "收录级别1;级别2;（请用分号隔开）",
+          '刊物全称': "",
+          '刊物简称': "",
+          '出版社': "",
+          '网址': "",
+          '收录级别 （收录级别1;级别2;（请用分号隔开））': "",
+        },
+      ],
+      tableTechnicalSample: [//科技奖
+        {
+          '奖项名称': "",
+
+        },
+      ],
+      tableProjectSample: [//项目
+        {
+          '项目名称': "",
+        },
+      ],
+      tableDecisionSample: [//咨询
+        {
+          '成果名称': "你的决策咨询成果名称（必填项）",
+
         },
       ],
       errorRow:[],
@@ -548,6 +593,29 @@ export default {
         this.delaySelectInput(val)
       }
     }
+  },
+  mounted() {
+    axios.get("/indicator").then( (resp) =>  { //此处可以让父组件向子组件传递url,提高复用性
+      var data = resp.obj[1]
+      var that = this;
+      data.forEach((item,idx1) => {
+        if(item.children){//大类 1 2 3
+          // console.log(item)
+          item.children.forEach((subItem,idx2) => {//大类下面的4个小类
+            if(subItem.type == '论文'){
+              that.typeOfAllPaper = [...that.typeOfAllPaper,...subItem.children]
+            } else if(subItem.type == '纵向科研项目'){
+              that.typeOfAllProject = [...that.typeOfAllProject,...subItem.children]
+            }else if(subItem.type == '科技奖'){
+              that.typeOfAllTechnical = [...that.typeOfAllTechnical,...subItem.children]
+            }else if(subItem.type == '决策咨询成果'){
+              that.typeOfAllDecision = [...that.typeOfAllDecision,...subItem.children]
+            }
+          })
+        }
+      })
+      // console.log(that.typeOfAllPaper)
+    })
   },
   methods: {
     filter_pub(val){//选择下拉框的某个期刊 得到选择的期刊的id score等信息
@@ -645,7 +713,7 @@ export default {
       axios.post("/publicationByYear",{"indicatorID":indicatorID,"year":year}).then(function (resp){
         that.tableData = resp.obj
         that.totalCount = that.tableData.length
-        console.log(resp)
+        // console.log(resp)
       })
     },
     changeYear(){
@@ -734,12 +802,22 @@ export default {
     appendPublicationAsync(){
       var token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
       var that = this
+      var indicatorNames=[]
+
+      for(var i = 0;i<this.tableUploadData.length;i++){
+        indicatorNames.push(this.tableUploadData[i]['所属类别'])
+      }
+      var setIndicatorNames = new Set(indicatorNames)
+      indicatorNames = []
+      for(var val of setIndicatorNames){
+        indicatorNames.push(val)
+      }
       var promise = new Promise((resolve,reject) => {
         axios.post(
             "/publication/basic/delPubs" ,
             {
               "year":this.importSelectYear,
-              "indicatorID":this.indicatorID,
+              "indicatorNames":indicatorNames,
               headers:{
                 token:token
               }
@@ -761,13 +839,13 @@ export default {
           url: this.tableUploadData[i]['网址'],
           level: this.tableUploadData[i]['收录级别'],
           year:this.importSelectYear,
-          indicatorID:this.indicatorID,
+          indicatorName:this.tableUploadData[i]['所属类别'],
         }
         publicationInfList.push(publicationInf)
       }
       promise.then(resp => {
         that.postRequest("/publications",publicationInfList).then( (res)=>{
-          that.getTableByYear(that.indicatorID,that.year)
+          // that.getTableByYear(that.indicatorID,that.year)
         },()=>{
           that.$message({
             type: 'error',
@@ -929,17 +1007,45 @@ export default {
       } else {
         let data = await this.readFile(file);
         let workbook = XLSX.read(data, {type: "binary"});//解析二进制格式数据
-        let worksheet = workbook.Sheets[workbook.SheetNames[0]];//获取第一个Sheet
-        this.tableUploadData = XLSX.utils.sheet_to_json(worksheet);//json数据格式
-        console.log(this.tableUploadData)
-        for(let i = 0; i < this.tableUploadData.length; i++)
-        {
-          if (typeof this.tableUploadData[i]['刊物全称'] === 'undefined')
-            this.errorRow.push(i+2)
+        var flag = false
+        var results = {}
+        for(var i = 0;i<workbook.SheetNames.length;i++){
+          const firstSheetName = workbook.SheetNames[i];
+          results[firstSheetName] = []
+          const worksheet = workbook.Sheets[firstSheetName];
+          if (typeof worksheet.A1 != "undefined" && worksheet.A2.v != '') { //判断一下有没有空表 或者空白表格
+            flag = true
+            results[firstSheetName] = [...results[firstSheetName],...XLSX.utils.sheet_to_json(worksheet)]
+          }
         }
-        if (this.errorRow.length === 0)
+        // console.log(results)
+        for(var i = 0;i<workbook.SheetNames.length;i++){//比如有6种论文类别
+          const firstSheetName = workbook.SheetNames[i];
+          for(var j = 0;j < results[firstSheetName].length;j ++){
+            if(results[firstSheetName].length){
+              results[firstSheetName][j]['所属类别'] = firstSheetName
+            }
+          }
+          if(results[firstSheetName].length){//该类别数据不为空
+            this.tableUploadData = [...this.tableUploadData,...results[firstSheetName]]
+          }
+        }
+        // console.log(this.tableUploadData)
+        if(flag){
           this.uploadResultValid = true
+        }
         this.uploadResult = true
+        // console.log(this.tableUploadData)
+      //   this.tableUploadData = XLSX.utils.sheet_to_json(worksheet);//json数据格式
+      //   console.log(this.tableUploadData)
+      //   for(let i = 0; i < this.tableUploadData.length; i++)
+      //   {
+      //     if (typeof this.tableUploadData[i]['刊物全称'] === 'undefined')
+      //       this.errorRow.push(i+2)
+      //   }
+      //   if (this.errorRow.length === 0)
+      //     this.uploadResultValid = true
+      //   this.uploadResult = true
       }
     },
     handleClose(){ //批量添加关闭
@@ -977,23 +1083,100 @@ export default {
     async uploadAppendPublication(){
       await this.appendPublicationAsync()
     },
-    downloadExcel(idname) {
-      let tables = document.getElementById(idname);
-      let table_book = XLSX.utils.table_to_book(tables);
-      var table_write = XLSX.write(table_book, {
-        bookType: "xlsx",
-        bookSST: true,
-        type: "array",
-      });
-      try {
-        FileSaver.saveAs(
-            new Blob([table_write], { type: "application/octet-stream" }),
-            "模版.xlsx"
-        );
-      } catch (e) {
-        if (typeof console !== "undefined") console.log(e, table_write);
+
+    //导出按钮
+    btnClickExport() {
+      var sheetTitlesAndId = []
+      var tableSample = []
+      if(this.importSelectType == '论文'){
+          this.typeOfAllPaper.forEach((item) => {
+            sheetTitlesAndId.push(item)
+          })
+        tableSample = this.tablePaperSample
+      }else if(this.importSelectType == '科技奖'){
+        this.typeOfAllTechnical.forEach((item) => {
+          sheetTitlesAndId.push(item)
+        })
+        tableSample = this.tableTechnicalSample
+      }else if(this.importSelectType == '咨询决策成果'){
+        this.typeOfAllDecision.forEach((item) => {
+          sheetTitlesAndId.push(item)
+        })
+        tableSample = this.tableDecisionSample
+
+      }else if(this.importSelectType == '纵向科研成果'){
+        this.typeOfAllProject.forEach((item) => {
+          sheetTitlesAndId.push(item)
+        })
+        tableSample = this.tableProjectSample
       }
-      return table_write;
+      // console.log(sheetTitlesAndId)
+      var wb = XLSX.utils.book_new();
+      for(var i = 0;i<sheetTitlesAndId.length;i ++){
+        var sheet = XLSX.utils.json_to_sheet(tableSample);
+        XLSX.utils.book_append_sheet(wb, sheet, sheetTitlesAndId[i].label);
+      }
+      // console.log(wb)
+      const workbookBlob = this.workbook2blob(wb);
+      this.openDownloadDialog(workbookBlob, '模版.xlsx');
+    },
+    workbook2blob(workbook) {
+      // 生成excel的配置项
+      var wopts = {
+        // 要生成的文件类型
+        bookType: "xlsx",
+        // 是否生成Shared String Table，官方解释是，如果开启生成速度会下降，但在低版本IOS设备上有更好的兼容性
+        bookSST: false,
+        type: "binary"
+      };
+      var wbout = XLSX.write(workbook, wopts);
+      // 将字符串转ArrayBuffer
+      function s2ab(s) {
+        var buf = new ArrayBuffer(s.length);
+        var view = new Uint8Array(buf);
+        for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xff;
+        return buf;
+      }
+      var blob = new Blob([s2ab(wbout)], {
+        type: "application/octet-stream"
+      });
+      return blob;
+    },
+    openDownloadDialog(blob, fileName) {
+      if (typeof blob == "object" && blob instanceof Blob) {
+        blob = URL.createObjectURL(blob); // 创建blob地址
+      }
+      var aLink = document.createElement("a");
+      aLink.href = blob;
+      // HTML5新增的属性，指定保存文件名，可以不要后缀，注意，有时候 file///模式下不会生效
+      aLink.download = fileName || "";
+      var event;
+      if (window.MouseEvent) event = new MouseEvent("click");
+      //   移动端
+      else {
+        event = document.createEvent("MouseEvents");
+        event.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+      }
+      aLink.dispatchEvent(event);
+    },
+    downloadExcel(idname) {
+      // let tables = document.getElementById(idname);
+      // let table_book = XLSX.utils.table_to_book(tables);
+      //
+      // var table_write = XLSX.write(table_book, {
+      //   bookType: "xlsx",
+      //   bookSST: true,
+      //   type: "array",
+      // });
+      // try {
+      //   FileSaver.saveAs(
+      //       new Blob([table_write], { type: "application/octet-stream" }),
+      //       "模版.xlsx"
+      //   );
+      // } catch (e) {
+      //   if (typeof console !== "undefined") console.log(e, table_write);
+      // }
+      // return table_write;
     },
     checkUploadData({row, rowIndex}){
       if (typeof row['刊物全称'] === 'undefined') {
@@ -1007,6 +1190,7 @@ export default {
 </script>
 
 <style>
+
 .select_div_input{
   margin-left:3px;
   width:90%;
@@ -1045,8 +1229,8 @@ export default {
   border-left: 1px solid rgb(223,230,236);
   box-sizing: content-box;
 }
-
 .el-table .warning-row {
   background: oldlace;
+
 }
 </style>
