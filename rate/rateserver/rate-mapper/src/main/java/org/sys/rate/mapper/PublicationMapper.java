@@ -111,12 +111,19 @@ public interface PublicationMapper
     public Integer getMaxYearByIdYear(Integer Id,Integer year);
 
 
-    @Delete("DELETE FROM publication WHERE `year`= #{year} AND indicatorID = #{indicatorID}")
-    public int deleteByYearId(@Param("year")Integer year, @Param("indicatorID") Integer indicatorID);
+    public int deleteByYearId(@Param("year") int year, @Param("indicatorIDs") List<Integer> indicatorIDs);
 
     @Select("SELECT DISTINCT `name` FROM publication WHERE indicatorID = #{indicatorID} AND name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
     public List<String> getNamesByIdName(Integer indicatorID,String name);
 
+    @Select("SELECT DISTINCT `name` FROM publication WHERE name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
+    public List<String> getNamesByName(String name);
+
     @Select("SELECT * FROM publication WHERE name = #{name}")
     public List<Publication> getPubsByName(String name);
+
+    @Select("SELECT p.ID,p.`name`,p.abbr,p.publisher,p.url,p.`level`,p.indicatorID,p.year,i.score,i.`name` as indicatorName,i.type from publication p, indicator i \n" +
+            "WHERE p.`name` = #{name} AND\n" +
+            "i.ID = p.indicatorID")
+    public List<Publication> getInfByName(String name);
 }

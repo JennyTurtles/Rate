@@ -23,6 +23,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select ID, name, abbr, publisher, url, level, indicatorID from publication
     </sql>
 
+    <delete id="deleteByYearId">
+        DELETE FROM publication
+        WHERE year = #{year} AND indicatorID IN
+        <foreach item="item" index="index" collection="indicatorIDs" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
     <select id="selectList" resultMap="PublicationResult">
         <include refid="selectPublicationVo"></include>
     </select>

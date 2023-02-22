@@ -1,5 +1,7 @@
 package org.sys.rate.model;
 
+import java.util.List;
+
 public class IndicatorPublication {
     private Integer ID;
     private String name;
@@ -9,11 +11,12 @@ public class IndicatorPublication {
     private String level;
     private Integer indicatorID;
     private Integer year;
+    private List<Integer> indicatorIDs;
 
     public IndicatorPublication() {
     }
 
-    public IndicatorPublication(Integer ID, String name, String abbr, String publisher, String url, String level, Integer indicatorID,Integer year) {
+    public IndicatorPublication(Integer ID, String name, String abbr, String publisher, String url, String level, Integer indicatorID,Integer year,List<Integer> indicatorIDs) {
         this.ID = ID;
         this.name = name;
         this.abbr = abbr;
@@ -22,6 +25,15 @@ public class IndicatorPublication {
         this.level = level;
         this.indicatorID = indicatorID;
         this.year = year;
+        this.indicatorIDs = indicatorIDs;
+    }
+
+    public List<Integer> getIndicatorIDs() {
+        return indicatorIDs;
+    }
+
+    public void setIndicatorIDs(List<Integer> indicatorIDs) {
+        this.indicatorIDs = indicatorIDs;
     }
 
     public Integer getID() {

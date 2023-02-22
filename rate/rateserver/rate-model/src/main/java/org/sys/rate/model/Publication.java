@@ -39,9 +39,17 @@ public class Publication
     private Long indicatorID;
 
     private Indicator indicator;
-
+    private String indicatorName;
     public Integer getYear() {
         return year;
+    }
+
+    public String getIndicatorName() {
+        return indicatorName;
+    }
+
+    public void setIndicatorName(String indicatorName) {
+        this.indicatorName = indicatorName;
     }
 
     public void setYear(Integer year) {

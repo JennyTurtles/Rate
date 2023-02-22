@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.PublicationMapper;
 import org.sys.rate.model.Indicator;
+import org.sys.rate.model.IndicatorPublication;
 import org.sys.rate.model.Publication;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.PublicationService;
@@ -25,7 +26,6 @@ import javax.annotation.Resource;
  * @date 2022-03-13
  */
 @RestController
-@RequestMapping("/publication/basic")
 public class PublicationController
 {
 
@@ -35,7 +35,7 @@ public class PublicationController
     @Resource
     private PublicationMapper publicationMapper;
 
-    @GetMapping("/List")
+    @GetMapping("/publication/basic/List")
     public JsonResult<List> getCollect(){
 //        不传递参数 查找所有刊物
         List<Publication> publications = publicationService.selectList();
@@ -48,7 +48,7 @@ public class PublicationController
         return new JsonResult<>(res);
     }
 
-    @GetMapping("/listByName")
+    @GetMapping("/publication/basic/listByName")
     public JsonResult listByName(String publicationName){
         List<Publication> list = publicationService.selectPublicationListByName(publicationName);
 //        System.out.println(list.get(0).getIndicator().getScore());
@@ -57,7 +57,7 @@ public class PublicationController
     /**
      * 查询刊物列表
      */
-    @PostMapping("/list")
+    @PostMapping("/publication/basic/list")
     @ResponseBody
     public JsonResult list(Publication publication)
     {
@@ -74,7 +74,7 @@ public class PublicationController
 
     // 2.14 功能4
     // 按照indicatorId进行分类，每类中对年份进行筛选，取小于目标年份且最大的年份的所有期刊
-    @GetMapping("/list/{year}")
+    @GetMapping("/publication/basic/list/{year}")
     public JsonResult listByYear(@PathVariable Integer year){
         return new JsonResult(publicationService.selectPublicationListByYear(year));
     }
@@ -82,7 +82,7 @@ public class PublicationController
     /**
      * 新增保存刊物
      */
-    @PostMapping("/add")
+    @PostMapping("/publication/basic/add")
     @ResponseBody
     public JsonResult addSave(Publication publication)
     {
@@ -93,7 +93,7 @@ public class PublicationController
     /**
      * 修改保存刊物
      */
-    @PostMapping("/edit")
+    @PostMapping("/publication/basic/edit")
     @ResponseBody
     public JsonResult editSave(Publication publication)
     {
@@ -103,7 +103,7 @@ public class PublicationController
     /**
      * 删除刊物
      */
-    @PostMapping( "/remove")
+    @PostMapping( "/publication/basic/remove")
     @ResponseBody
     public JsonResult remove(Long ids)
     {
@@ -111,7 +111,7 @@ public class PublicationController
     }
 
     // 文档2.14 功能1 用部分名字搜全称
-    @GetMapping("/searchNamesByStr/{name}")
+    @GetMapping("/publication/basic/searchNamesByStr/{name}")
     @ResponseBody
     public RespBean getNamesByStr(@PathVariable String name){
         List<String> res = publicationMapper.getNamesByStr(name);
@@ -119,12 +119,12 @@ public class PublicationController
     }
 
     // 文档2.14 功能2
-    @PostMapping("/searchByYearName")
+    @PostMapping("/publication/basic/searchByYearName")
     @ResponseBody
     public RespBean getPubByYearName(@RequestBody Publication publication){
         Integer year = publication.getYear();
         String name = publication.getName();
-        Publication p = publicationMapper.getPubByYearName(year,name); //year和name匹配的pub
+        Publication p = publicationMapper.getPubByYearName(year,name); //year和name匹配的pub // 问题
         Integer year1 = p.getYear();
         Integer indicatorId = Math.toIntExact(p.getIndicatorID());
         Integer year2 = publicationMapper.getMaxYearByIdYear(indicatorId,year); //当前indicator中最大的year
@@ -133,32 +133,38 @@ public class PublicationController
         return RespBean.ok("success",p);
     }
 
-    // 文档2.14 功能6
-    @PostMapping("/delPubs")
+    // 文档2.14 功能6 -> 2.21 功能1
+    @PostMapping("/publication/dels")
     @ResponseBody
-    public RespBean deleteByYearId(@RequestBody Publication publication){
-        Integer year = publication.getYear();
-        Integer indicatorID = Math.toIntExact(publication.getIndicatorID());
-        int res = publicationMapper.deleteByYearId(year,indicatorID);
-        return RespBean.ok("success", res);
-    }
+    public RespBean deleteByYearId(@RequestBody IndicatorPublication indicatorPublication){
 
-    // 文档2.14 功能7 用部分名字搜全称
-    @PostMapping("searchNamesByIdName")
-    @ResponseBody
-    public RespBean getNamesByIdName(@RequestBody Publication publication){
-        Integer indicatorID = Math.toIntExact(publication.getIndicatorID());
-        String name = publication.getName();
-        List<String> res = publicationMapper.getNamesByIdName(indicatorID,name);
+        int res = publicationMapper.deleteByYearId(indicatorPublication.getYear(),indicatorPublication.getIndicatorIDs());
         return RespBean.ok("success",res);
     }
 
-    // 文档2.14 功能8 用部分名字搜全称
-    @GetMapping("searchByName/{name}")
+    // 文档2.14 功能7 用部分名字搜全称 -> 2.21 功能3
+    @GetMapping("/publication/getNames/{name}")
     @ResponseBody
-    public RespBean getPubsByName(@PathVariable String name){
-        List<Publication> res = publicationMapper.getPubsByName(name);
+    public RespBean getNamesByName(@PathVariable("name") String name){
+        List<String> res = publicationMapper.getNamesByName(name);
         return RespBean.ok("success",res);
     }
+
+    //文档2.14 功能8 用部分名字搜全称 -> 2.21 功能4
+    @GetMapping("/publication/getInf/{name}")
+    @ResponseBody
+    public RespBean getInfByName(@PathVariable("name") String name){
+
+        List<Publication> res = publicationMapper.getInfByName(name);
+        return RespBean.ok("success",res);
+    }
+
+//    // 文档2.14 功能8 用部分名字搜全称
+//    @GetMapping("/publication/basic/searchByName/{name}")
+//    @ResponseBody
+//    public RespBean getPubsByName(@PathVariable String name){
+//        List<Publication> res = publicationMapper.getPubsByName(name);
+//        return RespBean.ok("success",res);
+//    }
 
 }
