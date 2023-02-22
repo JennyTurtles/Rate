@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.*;
 
 @Mapper
@@ -48,4 +49,7 @@ public interface ExpertsMapper {
     Long getTotalActivities(Integer id);
 
     Integer getID(@Param("idNumber") String idNumber);
+
+    @Select("SELECT COUNT(*) from expertactivities WHERE teacherID = #{teaId}")
+    int isExpert(Integer teaId);
 }

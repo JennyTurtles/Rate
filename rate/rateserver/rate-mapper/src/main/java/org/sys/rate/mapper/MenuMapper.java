@@ -30,9 +30,4 @@ public interface MenuMapper {
 
     List<Integer> getMidsByRid(Integer rid);
 
-    @Select("SELECT COUNT(*) from participants WHERE studentID = #{stuId}")
-    int isParticipants(Integer stuId);
-
-    @Select("SELECT COUNT(*) from expertactivities WHERE teacherID = #{teaId}")
-    int isExpert(Integer teaId);
 }

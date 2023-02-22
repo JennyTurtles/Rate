@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.PEexport;
 import org.sys.rate.model.Participates;
 
@@ -104,4 +105,7 @@ public interface ParticipatesMapper {
 
     Integer saveAvgscore(@Param("participantID") Integer participantID,
                          @Param("activityID") Integer activityID);
+
+    @Select("SELECT COUNT(*) from participants WHERE studentID = #{stuId}")
+    int isParticipants(Integer stuId);
 }

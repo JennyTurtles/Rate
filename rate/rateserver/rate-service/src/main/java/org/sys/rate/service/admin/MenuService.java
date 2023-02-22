@@ -1,8 +1,10 @@
 package org.sys.rate.service.admin;
 
 import org.apache.poi.util.StringUtil;
+import org.sys.rate.mapper.ExpertsMapper;
 import org.sys.rate.mapper.MenuMapper;
 import org.sys.rate.mapper.MenuRoleMapper;
+import org.sys.rate.mapper.ParticipatesMapper;
 import org.sys.rate.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -24,6 +26,11 @@ public class MenuService {
     MenuMapper menuMapper;
     @Autowired(required = false)
     MenuRoleMapper menuRoleMapper;
+    @Autowired
+    ExpertsMapper expertsMapper;
+    @Autowired
+    ParticipatesMapper participatesMapper;
+
     //获取子菜单
     public List<Menu> getChild(Integer id,List<Menu> rootMenu,Menu newMenu){
         // 子菜单
@@ -79,9 +86,9 @@ public class MenuService {
 
     public List<Menu> getMenusByAdminId(Integer id, String role) {
         //多个角色；分割
-        if (!role.contains("10") && !role.contains("11") && menuMapper.isParticipants(id) != 0)
+        if (!role.contains("10") && !role.contains("11") && participatesMapper.isParticipants(id) != 0)
             role = role + ";7";
-        if (!role.contains("3") && menuMapper.isExpert(id) != 0)
+        if (!role.contains("3") && expertsMapper.isExpert(id) != 0)
             role = role + ";3";
         String[] roles = role.split(";");
         List<Menu> res=new ArrayList<>();
