@@ -110,28 +110,38 @@ public class PublicationController
         return new JsonResult(publicationService.deletePublicationById(ids));
     }
 
-    // 文档2.14 功能1 用部分名字搜全称
-    @GetMapping("/publication/basic/searchNamesByStr/{name}")
+    // 文档2.14 功能1 用部分名字搜全称 -> 文档2.21 功能5 PART1
+    @PostMapping("/publication/getInfByNameYear")
     @ResponseBody
-    public RespBean getNamesByStr(@PathVariable String name){
-        List<String> res = publicationMapper.getNamesByStr(name);
+    public RespBean getNamesByNameYear(@RequestBody Publication publication){
+        Integer year = publication.getYear();
+        String name = publication.getName();
+        List<Publication> res = publicationMapper.getNamesByNameYear(name,year);
         return RespBean.ok("success",res);
     }
 
-    // 文档2.14 功能2
-    @PostMapping("/publication/basic/searchByYearName")
+    // 文档2.21 功能5 PART2
+    @GetMapping("/publication/getScore/{id}")
     @ResponseBody
-    public RespBean getPubByYearName(@RequestBody Publication publication){
-        Integer year = publication.getYear();
-        String name = publication.getName();
-        Publication p = publicationMapper.getPubByYearName(year,name); //year和name匹配的pub // 问题
-        Integer year1 = p.getYear();
-        Integer indicatorId = Math.toIntExact(p.getIndicatorID());
-        Integer year2 = publicationMapper.getMaxYearByIdYear(indicatorId,year); //当前indicator中最大的year
-        if (year1 < year2)
-            p.setScore(0);
-        return RespBean.ok("success",p);
+    public RespBean getScore(@PathVariable Integer id){
+        Integer score = publicationMapper.getScore(id);
+        return score != null ? RespBean.ok("success",score) : RespBean.ok("fail!",0);
     }
+
+//    // 文档2.14 功能2
+//    @PostMapping("/publication/basic/searchByYearName")
+//    @ResponseBody
+//    public RespBean getPubByYearName(@RequestBody Publication publication){
+//        Integer year = publication.getYear();
+//        String name = publication.getName();
+//        Publication p = publicationMapper.getPubByYearName(year,name); //year和name匹配的pub // 问题
+//        Integer year1 = p.getYear();
+//        Integer indicatorId = Math.toIntExact(p.getIndicatorID());
+//        Integer year2 = publicationMapper.getMaxYearByIdYear(indicatorId,year); //当前indicator中最大的year
+//        if (year1 < year2)
+//            p.setScore(0);
+//        return RespBean.ok("success",p);
+//    }
 
     // 文档2.14 功能6 -> 2.21 功能1
     @PostMapping("/publication/dels")

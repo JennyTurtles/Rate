@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.sys.rate.model.Award;
 import org.sys.rate.model.Publication;
 import org.sys.rate.model.RespBean;
@@ -90,6 +91,13 @@ public interface PublicationMapper
 
     @Select("SELECT DISTINCT name FROM publication WHERE `name` LIKE CONCAT('%', #{name}, '%') LIMIT 10")
     public List<String> getNamesByStr(String name);
+
+    @Select("SELECT * FROM publication t1\n" +
+            "WHERE year = (SELECT MAX(year) FROM publication t2 WHERE t1.indicatorID = t2.indicatorID AND `year`<=#{year}) AND name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
+    public List<Publication> getNamesByNameYear(String name, Integer year);
+
+    @Select("SELECT score FROM indicator WHERE id = #{id}")
+    public Integer getScore(Integer id);
 
 //    @Select("SELECT publication.ID,publication.name,publication.indicatorID,indicator.score \n" +
 //            "FROM publication,indicator\n" +
