@@ -4,11 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.InfoItemMapper;
 import org.sys.rate.mapper.InfosMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.InfoItemService;
 import org.sys.rate.service.admin.LogService;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -27,6 +29,8 @@ public class InfoItemController {
     InfosMapper infosMapper;
     @Autowired
     LogService logService;
+    @Resource
+    InfoItemMapper infoItemMapper;
 
     @GetMapping("/")
     public RespPageBean getActivitiesByPage(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, InfoItem employee) {
@@ -135,5 +139,10 @@ public class InfoItemController {
     @GetMapping("/stu")
     public RespPageBean getActivitiesByStudent(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, @RequestParam Integer studentID,InfoItem employee) {
         return infoItemService.getActivitiesByStudent(keywords, page, size, studentID,employee);
+    }
+
+    @GetMapping("/getAll/{id}")
+    public RespBean getAll(@PathVariable Integer id){
+        return RespBean.ok("success",infoItemMapper.getAll(id));
     }
 }

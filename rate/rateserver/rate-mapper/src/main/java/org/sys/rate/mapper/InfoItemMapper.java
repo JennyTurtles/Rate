@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.InfoItem;
 import org.sys.rate.model.InfoItemValue;
 import org.sys.rate.model.ScoreItemValue;
@@ -50,4 +51,7 @@ public interface InfoItemMapper {
     List<InfoItem> selectInfoItemByActivityId(@Param("activitiesID") Integer activitiesID);
 
     List<InfoItem> selectInfoItemByActivityIdIsShow(@Param("activitiesID") Integer activitiesID);
+
+    @Select("SELECT * FROM infoitem WHERE activityID = #{activityID}")
+    List<InfoItem> getAll(Integer activityID);
 }
