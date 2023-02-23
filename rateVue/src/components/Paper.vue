@@ -420,6 +420,7 @@
 
 <script>
 import { set } from 'vue';
+import axios from "axios";
 export default {
   name: "SalSearch",
   data() {
@@ -565,13 +566,20 @@ export default {
   methods: {
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
-      console.log(fileName);
-      if(localStorage.getItem("user")){
-        var url="/paper/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
-        window.location.href = encodeURI(url);
-      }else{
-        this.$message.error("请重新登录！");
-      }
+      var url = data.url
+      axios({
+        url: '/paper/basic/downloadByUrl?url='+url,
+        method: 'GET',
+        responseType: 'blob'
+      }).then(response => {
+        const url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
     },
     filter(val,options){
       document.getElementById(options).value=val
@@ -675,14 +683,13 @@ export default {
       this.dialogVisible = true;
     },
     showEditEmpView_show(data) {
+      console.log(data.url)
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
       this.getRequest("/paperoper/basic/List?ID="+data.id).then((resp) => {
           this.loading = false;
           if (resp) {
-            console.log("/paperoper/basic/List?ID=");
-            console.log(resp);
             this.isShowInfo=false
             this.operList=resp.data
             this.operList.sort(function(a,b){
@@ -770,7 +777,6 @@ export default {
       this.loading = true;
       this.role = JSON.parse(localStorage.getItem('user')).role
       let url = "/paper/basic/List";
-      console.log(url);
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {

@@ -479,15 +479,16 @@ export default {
           if (resp) {
             this.select_pubName=[]
             if(resp.obj){
-              console.log(resp)
               for(var i=0;i<resp.obj.length;i++){
                 this.select_pubName.push(
                     {//保存返回期刊的name
                       value:resp.obj[i].name,
                       indicatorID:resp.obj[i].indicatorID,
+                      publicationID:resp.obj[i].id
                     }
                 )
               }
+              console.log(this.select_pubName)
             }else{
               this.$message.error(`请检查期刊名称的拼写`);
             }
@@ -519,6 +520,7 @@ export default {
           if (resp) {
             if(resp.obj){
               this.view_point = resp.obj
+              this.publicationID = val.publicationID
             }else {
               this.publicationName = ''
               this.$message.error('无该期刊！请重新选择时间！')
@@ -755,6 +757,8 @@ export default {
     },
     showEditEmpView_show(data) {
       this.title_show = "显示详情";
+      console.log("详情")
+      console.log(this.emp)
       this.emp = data;
       this.dialogVisible_show = true;
     },
@@ -980,8 +984,6 @@ export default {
       this.getRequest("/paperoper/basic/List?ID="+data.id).then((resp) => {
           this.loading = false;
           if (resp) {
-            console.log("/paperoper/basic/List?ID=");
-            console.log(resp);
             // this.isShowInfo=false
             this.operList=resp.data
             this.operList.sort(function(a,b){

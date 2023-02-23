@@ -41,7 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectList" resultMap="PaperResult">
 -- 老师查询所有学生的论文
-        select p.ID,p.studentID,p.name,p.point,p.publicationID,p.state,p.pubPage,p.rank,p.total,p.year,p.month,p.author,
+        select p.ID,p.studentID,p.name,p.point,p.publicationID,p.state,p.pubPage,p.rank,p.total,p.year,p.month,p.author,p.url,
                s.name as sname,
                pub.name as pname,
                paperoper.remark,paperoper.operatorRole,paperoper.time,
