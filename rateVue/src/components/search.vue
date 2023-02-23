@@ -38,6 +38,21 @@
         @close="closeSearch"
         width="50%">
       <span slot="title" style="float:left;font-size: 20px" >请输入需要搜索的名称</span>
+      <div style="margin-bottom: 10px">
+        <span>请选择搜索的类别：</span>
+        <el-select
+            style="margin-right: 20px;width: 120px;"
+            v-model="searchSelectType"
+        >
+          <el-option
+              v-for="item in selectTypes"
+              :key="item"
+              :label="item"
+              :value="item">
+          </el-option>
+        </el-select>
+      </div>
+
       <div class="select_div_input">
         <input
             autocomplete="off"
@@ -73,6 +88,11 @@
                 :data="listSearchPublicationsByName"
                 border
                 style="width: 100%">
+        <el-table-column
+            fixed
+            prop="indicatorName"
+            label="指标点名称">
+        </el-table-column>
         <el-table-column
             fixed
             prop="name"
@@ -275,7 +295,7 @@
         width="30%">
       <span slot="title" style="float:left;font-size: 20px" >请输入期刊的相关信息</span>
       <el-form :model="rowData">
-        <el-form-item label="期刊全称" >
+        <el-form-item label="期刊全称" >x
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
         <el-form-item label="刊物简称" >
@@ -504,6 +524,7 @@ export default {
       select_pubName:[],
       timer:null,
       publicationName:'',//搜索中要搜索的期刊
+      searchSelectType:'',
       importSelectType:'论文',
       selectTypes:['论文','纵向科研项目','科技奖','决策咨询成果'],
       importSelectYear:2023,
@@ -625,7 +646,7 @@ export default {
       if(!val){
         return
       }
-      var url = "/publication/basic/searchByName/" + val
+      var url = "/publication/getInf/" + val
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
@@ -639,7 +660,7 @@ export default {
                     {//保存返回期刊的id name 积分
                       abbr:item.abbr,
                       id:item.id,
-                      indicatorID:item.indicatorID,
+                      indicatorName:item.indicatorName,
                       level:item.level,
                       name:item.name,
                       publisher:item.publisher,
@@ -681,10 +702,10 @@ export default {
         return
       }
       var publication={}
-      publication.indicatorID = this.indicatorID
+      publication.type = this.searchSelectType
       publication.name = val
       this.timer = setInterval(()=>{
-        let url = "/publication/basic/searchNamesByIdName"
+        let url = "/publication/getNames"
         this.postRequest(url,publication).then((resp) => {
           this.loading = false;
           if (resp) {
