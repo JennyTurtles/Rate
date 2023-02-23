@@ -1,18 +1,13 @@
 package org.sys.rate.controller.admin;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -20,12 +15,9 @@ import org.sys.rate.config.JsonResult;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.*;
 import org.sys.rate.service.mail.MailService;
-import org.w3c.dom.Text;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 
 /**
@@ -257,4 +249,19 @@ public class PaperController
         return new JsonResult(pub);
     }
 
+    @GetMapping("/downloadByUrl")
+    @ResponseBody
+    public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
+        File file = new File(url);
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=test.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
 }

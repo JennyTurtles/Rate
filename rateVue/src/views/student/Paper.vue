@@ -757,6 +757,8 @@ export default {
     },
     showEditEmpView_show(data) {
       this.title_show = "显示详情";
+      console.log("详情")
+      console.log(this.emp)
       this.emp = data;
       this.dialogVisible_show = true;
     },
@@ -982,8 +984,6 @@ export default {
       this.getRequest("/paperoper/basic/List?ID="+data.id).then((resp) => {
           this.loading = false;
           if (resp) {
-            console.log("/paperoper/basic/List?ID=");
-            console.log(resp);
             // this.isShowInfo=false
             this.operList=resp.data
             this.operList.sort(function(a,b){
