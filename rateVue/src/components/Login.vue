@@ -36,6 +36,7 @@ import store from '../store/index.js'
 import router from '../router.js'
 import sha1 from "sha1";
 import { initMenu } from "../utils/menus.js";
+import this_ from "@/main";
 export default {
   name: "Login",
   props:["inf"], // 接受父组的loginForm，通过role判断角色
@@ -76,13 +77,13 @@ export default {
               localStorage.setItem("user", JSON.stringify(resp.obj));//存session
               let path = this.$route.query.redirect;
               //保设置新登录账号的路由，个人信息在浏览器和vuex
-              // initMenu(router,store)
-                this.$router.replace('/home').then(
-                    resolve =>{}
-                ).catch(
-                    err => {
-                        console.log(err)
-                    });
+              // initMenu(router,store)//保设置新登录账号的路由，个人信息在浏览器和vuex
+              that.$router.replace('/home').then(
+                  resolve =>{}
+              ).catch(
+                  err => {
+                    console.log(err)
+                  });
             } else {
               // this.vcUrl = '/verifyCode?time='+new Date();
             }

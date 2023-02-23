@@ -1,12 +1,10 @@
 import {getRequest} from "./api";
 import this_ from '../main'
 import router from '../router'
-import store from '../store/index'
 import {log} from "@/utils/sockjs";
-
-export const initMenu = new Promise((resolve, reject) => {
+export const initMenu = (router, store) => {
     if (store.state.routes.length > 0) {
-        reject()
+        return;
     }
     let user = JSON.parse(localStorage.getItem('user'))
     getRequest("/system/config/menu?id="+user.id+"&role="+user.role).then(data => {
@@ -42,33 +40,30 @@ export const initMenu = new Promise((resolve, reject) => {
             })
             sessionStorage.setItem('initRoutes_AllSameForm',res)
             store.commit('initRoutesAllSameForm',res)
-            resolve(data)
-        }
-    })
-})
             // this_.$router.replace('/home').then(
             //     resolve =>{}
             // ).catch(
             //     err => {
             //         console.log(err)
             //     });
-
-
+        }
+    })
+}
 
 export const initMenu_ex = (router, store) => {
     if (store.state.routes.length > 0) {
         return;
     }
-        getRequest("/system/config/menuex").then(data => {
-            if (data) {
-                console.log("/system/config/menuex"+data);
-                let fmtRoutes = formatRoutes(data); //格式化router
-                router.addRoutes(fmtRoutes);  //添加到路由
-                store.commit('initRoutes', fmtRoutes);  //将数据存到vuex
-                console.log("fmtRoutes:"+fmtRoutes);
-                //store.dispatch('connect');//mail好像没用
-            }
-        })
+    getRequest("/system/config/menuex").then(data => {
+        if (data) {
+            console.log("/system/config/menuex"+data);
+            let fmtRoutes = formatRoutes(data); //格式化router
+            router.addRoutes(fmtRoutes);  //添加到路由
+            store.commit('initRoutes', fmtRoutes);  //将数据存到vuex
+            console.log("fmtRoutes:"+fmtRoutes);
+            //store.dispatch('connect');//mail好像没用
+        }
+    })
 }
 export const formatRoutes = (routes) => {
     let fmRoutes = [];

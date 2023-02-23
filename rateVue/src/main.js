@@ -153,6 +153,7 @@ router.beforeEach((to, from, next) => {
         to.path == '/Student/Login' || to.path == '/Teacher/Login' || to.path == '/Student') {
         if(localStorage.getItem('user') || sessionStorage.getItem('initRoutes') || localStorage.getItem('initRoutes_AllSameForm')){
             store.commit('initRoutes',[])
+            store.commit('initRoutes_AllSameForm',[])
             store.commit('INIT_CURRENTHR',{})
             localStorage.clear()
             sessionStorage.clear()
@@ -166,15 +167,14 @@ router.beforeEach((to, from, next) => {
                 next()
                 return
             }
-            initMenu.then((res)=>{
-                var routs = sessionStorage.getItem('initRoutes_AllSameForm')
-                if(routs.indexOf(to.path) == -1){
-                    Message.warning('无权限！请重新登录')
-                    next('/')
-                    return
-                }
-                next()
-            })
+            initMenu(router,store)
+            var routs = sessionStorage.getItem('initRoutes_AllSameForm')
+            if(routs.indexOf(to.path) == -1){
+                Message.warning('无权限！请重新登录')
+                next('/')
+                return
+            }
+            next()
         } else if(localStorage.getItem('teacher')) {
             // next('/?redirect=' + to.path)
             next()
