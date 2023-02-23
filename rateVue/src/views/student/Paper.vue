@@ -171,11 +171,10 @@
                    @mouseleave="ispubFlag = false">
                 <div
                     class="select_div_div"
-
                     v-for="val in select_pubName"
                     :key="val.index"
                     :value="val.value"
-                    @click="filter_pub(val.value)"
+                    @click="filter_pub(val)"
                 >
                   {{ val.value }}
                 </div>
@@ -470,9 +469,12 @@ export default {
       if(!val){
         return
       }
+      var publication={}
+      publication.year = this.emp.year
+      publication.name = this.publicationName
       this.timer = setInterval(()=>{
-        let url = "/publication/basic/searchNamesByStr/" + val
-        this.getRequest(url).then((resp) => {
+        let url = "/publication/getInfByNameYear"
+        this.postRequest(url,publication).then((resp) => {
           this.loading = false;
           if (resp) {
             this.select_pubName=[]
@@ -481,7 +483,8 @@ export default {
               for(var i=0;i<resp.obj.length;i++){
                 this.select_pubName.push(
                     {//保存返回期刊的name
-                      value:resp.obj[i],
+                      value:resp.obj[i].name,
+                      indicatorID:resp.obj[i].indicatorID,
                     }
                 )
               }
@@ -504,33 +507,18 @@ export default {
       }
     },
     filter_pub(val){//选择下拉框的某个期刊 得到选择的期刊的id score等信息
-      this.publicationName=val
       this.ispubFlag=false
       this.ispubShow=false
       if(!val){
           return
       }
-      var publication={}
-      publication.year = this.emp.year
-      publication.name = this.publicationName
-      var url = "/publication/basic/searchByYearName"
-      this.postRequest(url,publication).then((resp) => {
+      this.publicationName=val.value
+      var url = "/publication/getScore/" + val.indicatorID
+      this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
-            // this.select_pubName=[]
             if(resp.obj){
-              this.publicationID = resp.obj.id
-              this.publicationName = resp.obj.name
-              this.view_point = resp.obj.score
-                // this.select_pubName.push(
-                    //{//保存返回期刊的id name 积分
-                    //   index:resp.obj.id,
-                    //   value:resp.obj.name,
-                    //   point:resp.obj.indicatorID,
-                    //   indicatorID:resp.obj.score
-                    // }
-                // )
-              // this.view_point = resp.obj.score
+              this.view_point = resp.obj
             }else {
               this.publicationName = ''
               this.$message.error('无该期刊！请重新选择时间！')
