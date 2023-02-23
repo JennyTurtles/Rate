@@ -1,10 +1,12 @@
 import {getRequest} from "./api";
 import this_ from '../main'
 import router from '../router'
+import store from '../store/index'
 import {log} from "@/utils/sockjs";
-export const initMenu = (router, store) => {
+
+export const initMenu = new Promise((resolve, reject) => {
     if (store.state.routes.length > 0) {
-        return;
+        reject()
     }
     let user = JSON.parse(localStorage.getItem('user'))
     getRequest("/system/config/menu?id="+user.id+"&role="+user.role).then(data => {
@@ -13,7 +15,7 @@ export const initMenu = (router, store) => {
             router.addRoutes(fmtRoutes);  //添加到路由
             store.commit('initRoutes', fmtRoutes);  //将数据存到vuex
             if(sessionStorage.getItem('initRoutes')){
-                localStorage.clear('initRoutes')
+                sessionStorage.clear('initRoutes')
             }
             sessionStorage.setItem('initRoutes',JSON.stringify(fmtRoutes))
 
@@ -39,15 +41,19 @@ export const initMenu = (router, store) => {
                 }
             })
             sessionStorage.setItem('initRoutes_AllSameForm',res)
-            this_.$router.replace('/home').then(
-                resolve =>{}
-            ).catch(
-                err => {
-                    console.log(err)
-                });
+            store.commit('initRoutesAllSameForm',res)
+            resolve(data)
         }
     })
-}
+})
+            // this_.$router.replace('/home').then(
+            //     resolve =>{}
+            // ).catch(
+            //     err => {
+            //         console.log(err)
+            //     });
+
+
 
 export const initMenu_ex = (router, store) => {
     if (store.state.routes.length > 0) {

@@ -27,10 +27,13 @@ export default {
     //页面加载时读取session
     if(sessionStorage.getItem('initRoutes')){
       this.$store.replaceState(Object.assign({},this.$store.state.routes,JSON.parse(sessionStorage.getItem('initRoutes'))))
+      this.$store.replaceState(Object.assign({},this.$store.state.routesAllSameForm,JSON.parse(sessionStorage.getItem('initRoutesAllSameForm'))))
+
     }
     //页面刷新数据加载到浏览器
     window.addEventListener('beforeunload',() => {
       sessionStorage.setItem('initRoutes',JSON.stringify(this.$store.state.routes))
+      sessionStorage.setItem('initRoutesAllSameForm',JSON.stringify(this.$store.state.routesAllSameForm))
     })
   },
   mounted(){
