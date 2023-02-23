@@ -473,7 +473,7 @@ export default {
       publication.year = this.emp.year
       publication.name = this.publicationName
       this.timer = setInterval(()=>{
-        let url = "/publication/getInfByNameYear"
+        let url = "/publication/getNames"
         this.postRequest(url,publication).then((resp) => {
           this.loading = false;
           if (resp) {
