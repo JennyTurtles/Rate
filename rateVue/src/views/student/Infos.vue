@@ -225,6 +225,8 @@ export default {
     var event = new MouseEvent("click");
     a.target = "_blank";
     a.download = e.name;
+    if (!e.url)
+        e.url = URL.createObjectURL(e.raw);
     a.href = e.url;//路径前拼上前缀，完整路径
     a.dispatchEvent(event);
     },
