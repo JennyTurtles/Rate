@@ -12,11 +12,13 @@ public class IndicatorPublication {
     private Integer indicatorID;
     private Integer year;
     private List<Integer> indicatorIDs;
+    private List<String> indicatorNames;
+    private String indicatorName;
 
     public IndicatorPublication() {
     }
 
-    public IndicatorPublication(Integer ID, String name, String abbr, String publisher, String url, String level, Integer indicatorID,Integer year,List<Integer> indicatorIDs) {
+    public IndicatorPublication(Integer ID, String name, String abbr, String publisher, String url, String level, Integer indicatorID,Integer year,List<Integer> indicatorIDs,List<String> indicatorNames,String indicatorName) {
         this.ID = ID;
         this.name = name;
         this.abbr = abbr;
@@ -26,6 +28,24 @@ public class IndicatorPublication {
         this.indicatorID = indicatorID;
         this.year = year;
         this.indicatorIDs = indicatorIDs;
+        this.indicatorNames = indicatorNames;
+        this.indicatorName = indicatorName;
+    }
+
+    public String getIndicatorName() {
+        return indicatorName;
+    }
+
+    public void setIndicatorName(String indicatorName) {
+        this.indicatorName = indicatorName;
+    }
+
+    public List<String> getIndicatorNames() {
+        return indicatorNames;
+    }
+
+    public void setIndicatorNames(List<String> indicatorNames) {
+        this.indicatorNames = indicatorNames;
     }
 
     public List<Integer> getIndicatorIDs() {

@@ -28,6 +28,9 @@ public interface IndicatorInfMapper {
     })
     public int savePublications(@Param("list") List<IndicatorPublication> publications);
 
+    @Select("select ID from indicator where name = #{name} AND type = '论文'")
+    public Integer getIndicatorID(String name);
+
     @Delete("delete from publication where ID = #{id}")
     public int deletePublication(Integer id);
 

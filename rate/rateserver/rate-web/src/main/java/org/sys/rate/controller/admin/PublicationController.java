@@ -148,7 +148,7 @@ public class PublicationController
     @ResponseBody
     public RespBean deleteByYearId(@RequestBody IndicatorPublication indicatorPublication){
 
-        int res = publicationMapper.deleteByYearId(indicatorPublication.getYear(),indicatorPublication.getIndicatorIDs());
+        int res = publicationMapper.deleteByYearIndicatorNames(indicatorPublication.getYear(),indicatorPublication.getIndicatorNames());
         return RespBean.ok("success",res);
     }
 
