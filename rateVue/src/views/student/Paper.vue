@@ -143,10 +143,10 @@
         <el-form-item  prop="year" label="出版年月:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-date-picker
-              style="width:80%"
+              style="width:155px"
               v-model="data_picker"
               type="month"
-              placeholder="请选择出版年"
+              placeholder="请选择出版年月"
               @change="timechange"
           ></el-date-picker>
         </el-form-item>
@@ -155,7 +155,7 @@
             <div class="select_div_input">
               <input
                   autocomplete="off"
-                  style="width:90%;line-height:28px;
+                  style="width:95%;line-height:28px;
                               border:1px solid lightgrey;padding:0 10px 1px 15px;
                               border-radius:4px;color:gray"
                   :disabled="disabledInput"

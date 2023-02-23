@@ -814,7 +814,7 @@ export default {
       }
       var promise = new Promise((resolve,reject) => {
         axios.post(
-            "/publication/basic/delPubs" ,
+            "/publication/dels" ,
             {
               "year":this.importSelectYear,
               "indicatorNames":indicatorNames,

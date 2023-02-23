@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.sys.rate.model.Award;
+import org.sys.rate.model.InfoItem;
 import org.sys.rate.model.Publication;
 import org.sys.rate.model.RespBean;
 
@@ -115,11 +116,14 @@ public interface PublicationMapper
             "AND publication.name = #{name} AND publication.indicatorID = indicator.ID")
     public Publication getPubByYearName(Integer year,String name);
 
+
+
+
     @Select("SELECT MAX(`year`) FROM publication WHERE indicatorID = #{Id} AND `year` <= #{year}")
     public Integer getMaxYearByIdYear(Integer Id,Integer year);
 
 
-    public int deleteByYearId(@Param("year") int year, @Param("indicatorIDs") List<Integer> indicatorIDs);
+    public int deleteByYearIndicatorNames(@Param("year") int year, @Param("IndicatorNames") List<String> IndicatorNames);
 
     @Select("SELECT DISTINCT `name` FROM publication WHERE indicatorID = #{indicatorID} AND name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
     public List<String> getNamesByIdName(Integer indicatorID,String name);

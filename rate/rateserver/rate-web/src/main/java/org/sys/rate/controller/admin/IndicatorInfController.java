@@ -2,9 +2,11 @@ package org.sys.rate.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.sys.rate.mapper.IndicatorInfMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.IndicatorInfService;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +14,9 @@ import java.util.List;
 public class IndicatorInfController {
     @Autowired
     private IndicatorInfService indicatorInfService;
+
+    @Resource
+    private IndicatorInfMapper indicatorInfMapper;
 
     //期刊
     @GetMapping("/publication/{id}")
@@ -52,10 +57,13 @@ public class IndicatorInfController {
         return flag ? RespBean.ok("insert success!") : RespBean.error("insert fail!");
     }
 
+    // 收到的是indicatorName
     @PostMapping("/publications")
     public RespBean savePublications(@RequestBody List<IndicatorPublication> indicatorPublications)
     {
-
+        for (int i = 0; i < indicatorPublications.size(); i++) {
+            indicatorPublications.get(i).setIndicatorID(indicatorInfMapper.getIndicatorID(indicatorPublications.get(i).getIndicatorName()));
+        }
         int res = indicatorInfService.savePublications(indicatorPublications);
         return RespBean.ok("insert success!",res);
     }
