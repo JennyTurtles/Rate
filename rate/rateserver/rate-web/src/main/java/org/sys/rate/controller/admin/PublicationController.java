@@ -153,10 +153,15 @@ public class PublicationController
     }
 
     // 文档2.14 功能7 用部分名字搜全称 -> 2.21 功能3
-    @GetMapping("/publication/getNames/{name}")
+    @PostMapping("/publication/getNames")
     @ResponseBody
-    public RespBean getNamesByName(@PathVariable("name") String name){
-        List<String> res = publicationMapper.getNamesByName(name);
+    public RespBean getNamesByName(@RequestBody Publication publication){
+        String name = publication.getName();
+        String type = publication.getType();
+        List<String> res = new ArrayList<>();
+        if (type.equals("论文")){
+            res = publicationMapper.getNamesByName(name);
+        }
         return RespBean.ok("success",res);
     }
 
