@@ -479,15 +479,16 @@ export default {
           if (resp) {
             this.select_pubName=[]
             if(resp.obj){
-              console.log(resp)
               for(var i=0;i<resp.obj.length;i++){
                 this.select_pubName.push(
                     {//保存返回期刊的name
                       value:resp.obj[i].name,
                       indicatorID:resp.obj[i].indicatorID,
+                      publicationID:resp.obj[i].id
                     }
                 )
               }
+              console.log(this.select_pubName)
             }else{
               this.$message.error(`请检查期刊名称的拼写`);
             }
@@ -519,6 +520,7 @@ export default {
           if (resp) {
             if(resp.obj){
               this.view_point = resp.obj
+              this.publicationID = val.publicationID
             }else {
               this.publicationName = ''
               this.$message.error('无该期刊！请重新选择时间！')
