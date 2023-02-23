@@ -75,7 +75,14 @@ export default {
               this.$store.commit('INIT_CURRENTHR', resp.obj);//objet.set2
               localStorage.setItem("user", JSON.stringify(resp.obj));//存session
               let path = this.$route.query.redirect;
-              initMenu(router,store)//保设置新登录账号的路由，个人信息在浏览器和vuex
+              //保设置新登录账号的路由，个人信息在浏览器和vuex
+              // initMenu(router,store)
+                this.$router.replace('/home').then(
+                    resolve =>{}
+                ).catch(
+                    err => {
+                        console.log(err)
+                    });
             } else {
               // this.vcUrl = '/verifyCode?time='+new Date();
             }

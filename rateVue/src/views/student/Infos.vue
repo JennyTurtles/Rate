@@ -63,16 +63,12 @@
                 <el-button type="primary" icon="el-icon-upload2"
                            slot="trigger"  size="mini"
                 >选择文件</el-button>
-
                 <template
                     style="
                     width: 100%; height: 100%; display: inline-block;
                     margin-left:12px;color:lightgray">
                     <span style="color:gray;font-size:11px;margin-left:12px;">只允许{{item.contentType}}类型文件&nbsp;&nbsp;不能超过{{item.sizelimit}}
                     </span>
-                  <el-button type="primary" icon="el-icon-download"
-                             slot="trigger"  size="mini" @click="downloadInfosFile(item)"
-                  >下载文件</el-button>
                 </template>
               </el-upload>
             </template>
@@ -229,29 +225,7 @@ export default {
         e.url = URL.createObjectURL(e.raw);
     a.href = e.url;//路径前拼上前缀，完整路径
     a.dispatchEvent(event);
-    },
-    downloadInfosFile(data){//下载上传的该文件
-      const fileName = this.fileDownloadList[data.id]
-      console.log("下载")
-      console.log(fileName)
-      // axios({
-      //   url: 'http://www.xxx.com/download',
-      //   method: 'get',
-      //   responseType: 'blob',
-      // }).then(res => {
-      //   fileName = res.headers.content-disposition.split(';')[1].split('filename=')[1];
-      //   const filestream = res.data;  // 返回的文件流
-      //   // {type: 'application/vnd.ms-excel'}指定对应文件类型为.XLS (.XLS的缩写就为application/vnd.ms-excel)
-      //   const blob = new Blob([filestream], {type: 'application/vnd.ms-excel'});
-      //   const a = document.createElement('a');
-      //   const href = window.URL.createObjectURL(blob); // 创建下载连接
-      //   a.href = href;
-      //   a.download = decodeURL(fileName );
-      //   document.body.appendChild(a);
-      //   a.click();
-      //   document.body.removeChild(a); // 下载完移除元素
-      //   window.URL.revokeObjectURL(href); // 释放掉blob对象
-      // })
+    console.log(e.url)
     },
     upload(data){
       if(data.id != this.uploadInfoid){//渲染了多个upload，用每一个infoitem的id做标识，判断是哪个upload被点击了

@@ -16,8 +16,8 @@ const now = new Date();
 
 const store = new Vuex.Store({
     state: { //全局对象，用于保存所有组件的公共数据
-        routes_AllSameForm:[],
         routes: [],
+        routesAllSameForm:[],
         sessions: {},
         hrs: [],
         currentSession: null,
@@ -36,6 +36,9 @@ const store = new Vuex.Store({
         },
         initRoutes(state, data) {
             state.routes = data;
+        },
+        initRoutesAllSameForm(state, data) {
+            state.routesAllSameForm = data;
         },
         changeCurrentSession(state, currentSession) {
             Vue.set(state.isDot, state.currentHr.username + '#' + currentSession.username, false);

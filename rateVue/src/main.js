@@ -166,13 +166,15 @@ router.beforeEach((to, from, next) => {
                 next()
                 return
             }
-            var routs = sessionStorage.getItem('initRoutes_AllSameForm')
-            if(routs.indexOf(to.path) == -1){
-                Message.warning('无权限！请重新登录')
-                next('/')
-                return
-            }
-            next()
+            initMenu.then((res)=>{
+                var routs = sessionStorage.getItem('initRoutes_AllSameForm')
+                if(routs.indexOf(to.path) == -1){
+                    Message.warning('无权限！请重新登录')
+                    next('/')
+                    return
+                }
+                next()
+            })
         } else if(localStorage.getItem('teacher')) {
             // next('/?redirect=' + to.path)
             next()

@@ -640,6 +640,7 @@ export default {
   },
   methods: {
     filter_pub(val){//选择下拉框的某个期刊 得到选择的期刊的id score等信息
+      this.select_pubName = []
       this.publicationName=val
       this.ispubFlag=false
       this.ispubShow=false

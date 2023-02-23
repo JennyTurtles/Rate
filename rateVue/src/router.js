@@ -65,12 +65,19 @@ export default new Router({
 
         },
         {//管理员下的
+          path: '/ActivitM/SalPartipicantGroup',
+          name: 'SalPartipicantGroup',
+          component: () => import('./views/admin/SalPartipicantGroup'),
+          meta: { title: 'SalPartipicantGroup' },
+
+        },{//管理员下的
           path: '/ActivitM/search',
           name: 'SalSearch',
           component: () => import('./views/admin/SalSearch'),
           meta: { title: 'SalSearch' },
 
         },
+
         {//管理员下的
           path: '/ActivitM/month',
           name: 'Salmonth',
