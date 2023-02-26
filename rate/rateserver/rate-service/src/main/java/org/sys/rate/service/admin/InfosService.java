@@ -59,7 +59,8 @@ public class InfosService {
     public void savetext(Infos info){
         Integer res = infosMapper.selectStudent(info.getStudentID(),info.getActivityID());
         info.setParticipantID(res);
-
-        infosMapper.UpdateScore1(info);
+        if (infosMapper.UpdateScore1(info) == 0){ // 更新不到记录则添加
+            infosMapper.insertScore1(info);
+        }
     }
 }

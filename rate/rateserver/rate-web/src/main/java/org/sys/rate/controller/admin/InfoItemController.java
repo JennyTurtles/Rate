@@ -116,7 +116,11 @@ public class InfoItemController {
         //将文件的保存路径存入数据库的content中
         Infos infos = getParticipantIDByStu(activityID,studentID,infoItemID);
         infos.setContent(fPath);
-        infosMapper.UpdateScore1(infos);
+        Integer res = infosMapper.selectStudent(studentID,activityID);
+        infos.setParticipantID(res);
+        if (infosMapper.UpdateScore1(infos) == 0){
+            infosMapper.insertScore1(infos);
+        }
         //返回文件存储路径
         return new JsonResult(fPath);
     }

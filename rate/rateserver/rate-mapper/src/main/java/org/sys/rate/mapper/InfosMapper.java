@@ -14,11 +14,11 @@ public interface InfosMapper {
                     @Param("scoreItemID")Integer scoreItemID,
                     @Param("score")Double score);
 
-    Integer insertScore1(Infos scores);
-
     Integer CheckExists(Infos scores);
 
-    void UpdateScore1(Infos scores);
+    int UpdateScore1(Infos scores);
+
+    int insertScore1(Infos scores);
 
     List<Infos> selectScoreListByAE(@Param("activitiesId") Integer activitiesId, @Param("expertid") Integer expertid);
 

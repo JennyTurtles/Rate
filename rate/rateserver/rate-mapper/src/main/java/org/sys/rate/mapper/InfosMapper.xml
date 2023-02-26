@@ -31,7 +31,6 @@
                 #{infoItemID,jdbcType=INTEGER},
                 #{content,jdbcType=VARCHAR}
                )
-
     </insert>
     <select id="selectScoreListByAE" resultMap="BaseResultMap">
         select * from scores sc
