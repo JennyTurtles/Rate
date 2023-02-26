@@ -530,6 +530,7 @@ export default {
       });
     },
     doAddEmp() {
+
       if (this.emp.id) {
         // console.log(this.emp);
         this.$refs["empForm"].validate((valid) => {

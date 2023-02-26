@@ -18,7 +18,7 @@ public class Experts extends Account {
 
     //private Integer id;
     private Integer institutionid;
-
+    private Integer id;
     //private String name;
     private String jobNumber;
 
@@ -42,14 +42,6 @@ public class Experts extends Account {
     //private String role;
     //private List<Role> roles;
 
-   /* public List<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
-    }
-
     public Integer getId() {
         return id;
     }
@@ -58,13 +50,29 @@ public class Experts extends Account {
         this.id = id;
     }
 
-    public String getUsername() {
-        return username;
-    }
+    /* public List<Role> getRoles() {
+            return roles;
+        }
 
-    public void setUsername(String username) {
-        this.username = username == null ? null : username.trim();
-    }*/
+        public void setRoles(List<Role> roles) {
+            this.roles = roles;
+        }
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username == null ? null : username.trim();
+        }*/
     public Integer getInstitutionid() {
         return institutionid;
     }

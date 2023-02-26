@@ -9,8 +9,12 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
+import javax.lang.model.element.NestingKind;
 import javax.swing.text.Document;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -186,6 +190,22 @@ public class ExpertService implements UserDetailsService {
 		return true;
 	}
 
+	public String sh1(String password) {
+		MessageDigest digest = null;
+		try {
+			digest = MessageDigest.getInstance("SHA-1");
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}
+		assert digest != null;
+		byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
+		StringBuilder sb = new StringBuilder();
+		for (byte b : hash) {
+			sb.append(String.format("%02x", b));
+		}
+		return sb.toString();
+	}
+
 	//2.service
 	public List<String> addTeachers(Integer groupid, Integer activityid, List<Experts> list) {
 		List<String> result = new ArrayList<>();
@@ -209,11 +229,10 @@ public class ExpertService implements UserDetailsService {
 				System.out.println("专家信息更新！条数：" + i + " id: " + experts.getName());
 			} else {
 				//对密码进行处理，默认身份证后六位。
-				BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 				if (experts.getPassword().equals("")) {
-					experts.setPassword(encoder.encode(experts.getIdnumber().substring(12, 18)));
+					experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
 				} else {
-					experts.setPassword(encoder.encode(experts.getPassword()));
+					experts.setPassword(sh1(experts.getPassword()));
 				}
 				//对用户名进行处理，如果没有读到默认为电话号码
 				experts.setUsername(experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
