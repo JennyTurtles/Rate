@@ -185,7 +185,7 @@ export default new Router({
           path: '/student/PaperCommit',
           name: '毕业论文评审',
           hidden: true,
-          component: () => import('./views/student/PaperCommit'),
+          component: () => import('./views/student/PaperComment'),
           meta: {
             title: '毕业论文评审',
           },
