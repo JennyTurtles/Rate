@@ -123,7 +123,9 @@
           align="center"
         >
           <template slot-scope="scope">
-            <span>{{ scope.row["info" + v.name] }}</span>
+            <span v-if="((v.contentType.indexOf('pdf') >= 0 || v.contentType.indexOf('zip') >= 0
+                            || v.contentType.indexOf('jpg') >= 0))">{{scope.row["info" + v.name] | fileNameFilter}}</span>
+            <span v-else>{{ scope.row["info" + v.name] }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -229,7 +231,7 @@
                   :label="val.name + ' :'"
                   v-if="dialogdata['info' + val.name] && val.name == '报考专业'"
                 >
-                  <span>{{ dialogdata["info" + val.name] }}</span>
+                  <span>{{ dialogdata["info" + val.name].content }}</span>
                 </el-form-item>
               </el-col>
               <el-col :span="10" :offset="1">
@@ -239,7 +241,7 @@
                   :label="val.name + ' :'"
                   v-if="dialogdata['info' + val.name] && val.name == '毕业单位'"
                 >
-                  <span>{{ dialogdata["info" + val.name] }}</span>
+                  <span>{{ dialogdata["info" + val.name].content }}</span>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -249,12 +251,21 @@
               :label="val.name + ' :'"
               width="130px"
               v-if="
-                dialogdata['info' + val.name] &&
                 val.name != '报考专业' &&
                 val.name != '毕业单位'
               "
             >
-              <span>{{ dialogdata["info" + val.name] }}</span>
+              <span v-if="((val.contentType.indexOf('pdf') >= 0 || val.contentType.indexOf('zip') >= 0
+                            || val.contentType.indexOf('jpg') >= 0)) && dialogdata['info' + val.name]"
+                    style="color:gray;font-size:14px;text-decoration:none;cursor:pointer;"
+                    onmouseover="this.style.color = 'blue'"
+                    onmouseleave="this.style.color = 'gray'"
+                    @click="downloadInfoItems(val)">
+                {{dialogdata["info" + val.name].content | fileNameFilter}}
+              </span>
+              <span v-else-if="(val.contentType.indexOf('textarea') >= 0 || val.contentType.indexOf('textbox') >= 0) && dialogdata['info' + val.name]">
+                {{ dialogdata["info" + val.name].content }}
+              </span>
             </el-form-item>
           </template>
         </el-form>
@@ -273,6 +284,7 @@
 <script>
 import { Message } from "element-ui";
 import { getRequest } from "@/utils/api";
+import axios from "axios";
 export default {
   name: "score",
   inject: ["reload"],
@@ -343,7 +355,37 @@ export default {
       }, 700);
     }
   },
+  filters:{
+    fileNameFilter:function(data){//将上传的材料显示出来
+      if(data == null || data == ''){
+        return ''
+      }else{
+        var arr= data.split('/')
+        return  arr.reverse()[0]
+      }
+    }
+  },
   methods: {
+    downloadInfoItems(data){//下载证明材料
+      const fileName = data.content.split('/').reverse()[0]
+      axios({
+        url:"/paper/basic/download?fileUrl=" + data.content + "&fileName=" + fileName,
+        method: 'get',
+        responseType: 'blob',
+      }).then(res => {
+        const filestream = res.data;  // 返回的文件流
+        // {type: 'application/vnd.ms-excel'}指定对应文件类型为.XLS (.XLS的缩写就为application/vnd.ms-excel)
+        const blob = new Blob([filestream]);
+        const a = document.createElement('a');
+        const href = window.URL.createObjectURL(blob); // 创建下载连接
+        a.href = href;
+        a.download = decodeURL(fileName );
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a); // 下载完移除元素
+        window.URL.revokeObjectURL(href); // 释放掉blob对象
+      })
+    },
     download() {
       this.loading = true;
       Message.success("正在导出");
@@ -407,12 +449,12 @@ export default {
       }
     },
     showEditEmpView_show(row, index) {
-      this.title_show =
-        "学生 " +
-        this.datalist.participatesList[index].student.name +
-        " 详细信息";
+      // this.title_show =
+      //   "学生 " +
+      //   this.datalist.participatesList[index].student.name +
+      //   " 详细信息";
       // this.title_show = "学生详细信息";
-      this.dialogVisible_show = true;
+      this.dialogVisible_show = false;
       let q = this.datalist.infoItems.length;
       let w = this.datalist.infosList.length;
       this.dialogdata = {};
@@ -426,15 +468,27 @@ export default {
               this.datalist.infoItems[k]["id"]
             ) {
               var name = this.datalist.infoItems[k]["name"];
+              var contentType = this.datalist.infoItems[k]["contentType"];
               this.$set(
-                this.dialogdata,
-                "info" + name,
-                this.datalist.infosList[j]["content"]
+                  this.dialogdata,
+                  "info" + name,
+                  {
+                    content:this.datalist.infosList[j]["content"],
+                    contentType:this.datalist.infoItems[k]["contentType"]
+                  }
               );
             }
           }
         }
       }
+      let routeUrl = this.$router.resolve({
+        path:"/admin/InformationDetails",
+        query: {
+          datalist: JSON.stringify({datalist:this.datalist}),
+          dialogdata: JSON.stringify(this.dialogdata),
+        },
+      })
+      window.open(routeUrl.href)
     },
     //表头换行
     renderheader(h, { column, $index }) {

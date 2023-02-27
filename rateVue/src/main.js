@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
+import VueRouter from 'vue-router'
 import store from './store'
 import Vuex from "vuex";
 import * as XLSX from 'xlsx/xlsx.mjs'
@@ -111,6 +112,7 @@ Vue.use(Form);
 Vue.use(Tag);
 Vue.use(Vuex)
 Vue.use(Popconfirm)
+Vue.use(VueRouter)
 // Vue.use(XLSX)
 // Vue.use(FileSaver)
 Vue.prototype.$message = Message
@@ -146,17 +148,28 @@ Vue.prototype.$qs = qs;
 Vue.config.productionTip = false
 Vue.prototype.$confirm = MessageBox.confirm
 
-
+const originalPush = VueRouter.prototype.push
+const originalReplace = VueRouter.prototype.replace
+// push
+VueRouter.prototype.push = function push (location, onResolve, onReject) {
+    if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject)
+    return originalPush.call(this, location).catch(err => err)
+}
+// replace
+VueRouter.prototype.replace = function push (location, onResolve, onReject) {
+    if (onResolve || onReject) return originalReplace.call(this, location, onResolve, onReject)
+    return originalReplace.call(this, location).catch(err => err)
+}
 // //路由跳转之前
 router.beforeEach((to, from, next) => {
     if (to.path == '/Admin/Login' || to.path == '/Expert/Login' || to.path == '/' ||
         to.path == '/Student/Login' || to.path == '/Teacher/Login' || to.path == '/Student') {
-        if(localStorage.getItem('user') || sessionStorage.getItem('initRoutes') || localStorage.getItem('initRoutes_AllSameForm')){
+        if(localStorage.getItem('user') || sessionStorage.getItem('initRoutes') || sessionStorage.getItem('initRoutes_AllSameForm')){
             store.commit('initRoutes',[])
-            store.commit('initRoutes_AllSameForm',[])
+            store.commit('initRoutesAllSameForm',[])
             store.commit('INIT_CURRENTHR',{})
-            localStorage.clear()
-            sessionStorage.clear()
+            localStorage.clear('initRoutes')
+            sessionStorage.clear('initRoutes_AllSameForm')
         }
         next()
     }
@@ -175,7 +188,8 @@ router.beforeEach((to, from, next) => {
                 return
             }
             next()
-        } else if(localStorage.getItem('teacher')) {
+        }
+        else if(localStorage.getItem('teacher')) {
             // next('/?redirect=' + to.path)
             next()
         }else {

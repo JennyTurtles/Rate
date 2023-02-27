@@ -1035,7 +1035,7 @@ export default {
   margin-bottom: 5px;
 }
 .isMust{
-  position: absolute;
+    position: absolute;
     color: #F56C6C;
     top: 2px;
     left: -100px;

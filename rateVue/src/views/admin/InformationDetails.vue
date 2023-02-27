@@ -49,8 +49,8 @@
               <span v-if="((val.contentType.indexOf('pdf') >= 0 || val.contentType.indexOf('zip') >= 0
                             || val.contentType.indexOf('jpg') >= 0)) && dialogdata['info' + val.name]">
                 <a  style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(val)"
-                   onmouseover="this.style.color = 'blue'"
-                   onmouseleave="this.style.color = 'gray'">
+                    onmouseover="this.style.color = 'blue'"
+                    onmouseleave="this.style.color = 'gray'">
                     {{dialogdata["info" + val.name].content | fileNameFilter}}</a>
               </span>
             <span v-else-if="(val.contentType.indexOf('textarea') >= 0 || val.contentType.indexOf('textbox') >= 0) && dialogdata['info' + val.name]">
