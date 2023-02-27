@@ -11,7 +11,7 @@
  Target Server Version : 80023
  File Encoding         : 65001
 
- Date: 27/02/2023 13:38:54
+ Date: 27/02/2023 18:22:12
 */
 
 SET NAMES utf8mb4;
@@ -1070,7 +1070,7 @@ INSERT INTO `menu` VALUES (68, '/', '/admin/SalPaper', 'Paper', '所有成果', 
 INSERT INTO `menu` VALUES (69, '/', '/home', 'Home', '成果申报', 'fa-fa-windows', NULL, 1, 43, 1);
 INSERT INTO `menu` VALUES (70, '/', '/home', 'Home', '成果列表', 'fa-fa-windows', NULL, 1, 43, 1);
 INSERT INTO `menu` VALUES (71, '/', '/home', 'Home', '毕业论文评审', 'fa fa-windows', NULL, 1, 44, 1);
-INSERT INTO `menu` VALUES (72, '/salary/search/**', '/student/PaperCommit', 'PaperCommit', '毕业论文评审记录', 'fa fa-windows', NULL, 1, 71, 1);
+INSERT INTO `menu` VALUES (72, '/salary/search/**', '/student/PaperComment', 'PaperCommit', '毕业论文评审记录', 'fa fa-windows', NULL, 1, 71, 1);
 INSERT INTO `menu` VALUES (73, '/salary/search/**', '/teacher/tperact/actList', 'ActList', '活动列表', NULL, NULL, 1, 4, 1);
 INSERT INTO `menu` VALUES (74, '/salary/search/**', '/student/infos', 'Infos', '信息项设置', NULL, NULL, 1, 4, 0);
 INSERT INTO `menu` VALUES (75, '/salary/search/**', '/teacher/tperact/score', 'Score', '分数', NULL, NULL, 1, 4, 0);
