@@ -36,7 +36,7 @@
     <el-dialog
         :visible.sync="dialogVisibleSearch"
         @close="closeSearch"
-        width="50%">
+        width="70%">
       <span slot="title" style="float:left;font-size: 20px" >请输入需要搜索的名称</span>
       <div style="margin-bottom: 10px">
         <span>请选择搜索的类别：</span>
@@ -56,7 +56,7 @@
       <div class="select_div_input">
         <input
             autocomplete="off"
-            style="margin-left:5px;width:80%;line-height:28px;
+            style="margin-left:5px;width:30%;line-height:28px;
                               border:1px solid lightgrey;padding:0 10px 1px 15px;
                               border-radius:4px;color:gray"
             placeholder="请输入期刊名称"
@@ -108,7 +108,10 @@
         </el-table-column>
         <el-table-column
             prop="year"
-            label="录入年份">
+            label="录入年份"
+            align="center"
+            width="70px"
+        >
         </el-table-column>
         <el-table-column
             prop="level"
@@ -241,8 +244,10 @@
       </el-table-column>
       <el-table-column
           prop="year"
-          width="60px"
-          label="录入年份">
+          width="70px"
+          label="录入年份"
+          align="center"
+      >
       </el-table-column>
       <el-table-column
           prop="level"
@@ -295,7 +300,7 @@
         width="30%">
       <span slot="title" style="float:left;font-size: 20px" >请输入期刊的相关信息</span>
       <el-form :model="rowData">
-        <el-form-item label="期刊全称" >x
+        <el-form-item label="期刊全称" >
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
         <el-form-item label="刊物简称" >
@@ -1092,6 +1097,8 @@ export default {
               )
               that.uploadVisible = false
               that.handleClose()
+              // that.getTableByYear(that.indicatorID,that.year)
+              // 修改
             }
         )
       }).catch(() => {
