@@ -1,6 +1,7 @@
 package org.sys.rate.service.mail;
 
 import com.sun.mail.imap.IMAPStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.Paper;
 import org.sys.rate.model.PaperOper;
@@ -25,6 +26,13 @@ import java.util.regex.Pattern;
 
 @Service
 public class ReceiveIMAPmails {
+    @Value("${spring.mail.username}")
+    private String user;
+
+    @Value("${spring.mail.password}")
+    private String password;
+
+
     @Resource
     PaperService paperService;
 
@@ -68,7 +76,7 @@ public class ReceiveIMAPmails {
 //        Store store = session.getStore("imap");
         IMAPStore store = (IMAPStore) session.getStore("imap");
         // 连接邮箱服务器
-        store.connect("ratemail@126.com", "IOLMDKJXAQJQUAMN");
+        store.connect(user, password);
         store.id(IAM);
 
 
@@ -84,19 +92,9 @@ public class ReceiveIMAPmails {
         // 解析邮件
         parseMessage(messages);
 
-//        // 打印不同状态的邮件数量
-//        System.out.println("收件箱中共有"+messages.length+"封邮件！");
-//        System.out.println("收件箱中共有"+folder.getUnreadMessageCount()+"封未读邮件！");
-//        System.out.println("收件箱中共有"+folder.getNewMessageCount()+"封新邮件！");
-//        System.out.println("收件箱中共有"+folder.getDeletedMessageCount()+"封已经删除邮件！");
-//
-
-
         folder.close(false);    // 关闭邮件夹对象；若删除邮件则及时更新Folder,打开.
         // If you just close the folder, you can't do anything more to the folder, but you can still operate on the store.
         store.close();             // 关闭连接对象
-//        System.out.println("-----解封未读邮件成功！-----");
-
     }
 
     /**
@@ -193,6 +191,21 @@ public class ReceiveIMAPmails {
         return pattern.matcher(str).matches();
     }
 
+    public int indexLine(String linex) {
+        if (linex.substring(0, 4).equals("成果类型")) {
+            return 0;
+        }
+        if (linex.substring(0, 4).equals("成果编号")) {
+            return 1;
+        }
+        if (linex.substring(0, 4).equals("审核结果")) {
+            return 2;
+        }
+        if (linex.substring(0, 4).equals("审核理由")) {
+            return 3;
+        }
+        return -1;
+    }
 
     /**
      * 解析邮件的内容。
@@ -221,6 +234,9 @@ public class ReceiveIMAPmails {
             // delete read messages
             message.setFlag(Flags.Flag.DELETED, true);
 
+            if(from.equals("Postmaster@126.com"))
+                return;
+
 
 //            System.out.println("邮件的主题是：" + subject + "\t发件人的地址是：" + from + "\n邮件正文：" + content + "\t");
 
@@ -228,15 +244,16 @@ public class ReceiveIMAPmails {
             String type = "", remark = "", state = "";
             String[] allTypes = {"论文", "专利", "奖励", "科研项目", "学术专著和教材", "制造或设计的产品"};
             boolean flag = false;
+            int[] indexContent = new int[4];
 
 
             String replyContent = "------------------ 原始邮件 ------------------<br>" +
                     "<p style=\"background-color:#efefef;\">发件人: \"ratemail\" <ratemail@126.com>;\n" +
                     "发送时间: 2023年2月19日(星期天) 中午1:47\n" +
                     "收件人: \"" + from.substring(0, from.indexOf("@")) + "\"<" + from + ">;\n" +
-                    "主题: " + subject +"\n</p>" +
+                    "主题: " + subject + "\n</p>" +
                     content;
-            replyContent = replyContent.replaceAll("\n","<br>");
+            replyContent = replyContent.replaceAll("\n", "<br>");
 
             // 0.检测是否为垃圾邮件
             if ((numOccurrences(content, "成果类型：") == 0)
@@ -248,7 +265,7 @@ public class ReceiveIMAPmails {
             } else if ((numOccurrences(content, "成果类型：") > 1)
                     || (numOccurrences(content, "成果编号：") > 1)
                     || (numOccurrences(content, "审核理由：") > 1)) {
-                //判断为垃圾邮件
+                //判断为内容重复
                 mailService.sendFeedbackMail(from, ID, "duplicateVarMail", replyContent);
                 return;
             } else {
@@ -257,19 +274,51 @@ public class ReceiveIMAPmails {
 //                content = content.replaceFirst("\n\n", "\n");
                 String[] lines = content.split("\n");
                 String line1 = lines[0], line2 = lines[1], line3 = lines[2], line4 = "";
+                for (int i = 0; i < 3; ++i)
+                    indexContent[i] = indexLine(lines[i]);
 
                 // 保障基本上四句话都要大于5个字符
                 if (lines.length > 3) {
                     line4 = lines[3];
+                    indexContent[3] = indexLine(line4);
                     if (line1.length() < 5 || line2.length() < 5 || line3.length() < 5 || line4.length() < 5) {
                         mailService.sendFeedbackMail(from, ID, "less5Mail", replyContent);
                         return;
                     }
+                    // 直接另外等于即可；
+                    String line11="",line22="",line33="",line44="";
+                    for(int i =0;i<4;++i){
+                        switch (indexContent[i]){
+                            case 0:line11=lines[i];break;
+                            case 1:line22=lines[i];break;
+                            case 2:line33=lines[i];break;
+                            case 3:line44=lines[i];break;
+                            default:System.out.println("老师回信内容顺序错误，请排查！");
+                        }
+                    }
+                    line1=line11;
+                    line2=line22;
+                    line3=line33;
+                    line4=line44;
+
                 } else {
                     if (line1.length() < 5 || line2.length() < 5 || line3.length() < 5) {
                         mailService.sendFeedbackMail(from, ID, "less5Mail", replyContent);
                         return;
                     }
+                    // 直接另外等于即可；
+                    String line11="",line22="",line33="";
+                    for(int i =0;i<3;++i){
+                        switch (indexContent[i]){
+                            case 0:line11=lines[i];break;
+                            case 1:line22=lines[i];break;
+                            case 2:line33=lines[i];break;
+                            default:System.out.println("老师回信内容顺序错误，请排查！");
+                        }
+                    }
+                    line1=line11;
+                    line2=line22;
+                    line3=line33;
                 }
 
                 for (int i = 3; i < lines.length; i++) {
