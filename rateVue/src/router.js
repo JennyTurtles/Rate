@@ -321,6 +321,15 @@ export default new Router({
     },
       //新打开一个页面
     {
+      path: '/admin/InformationDetails',
+      name: '详情信息',
+      hidden: false,
+      component: () => import('./views/admin/InformationDetails'),
+      meta: {
+        title: '详情信息',
+      },
+    },
+    {
       path: '/teacher/tperact/InformationDetails',
       name: 'score详情信息',
       hidden: false,
@@ -329,6 +338,7 @@ export default new Router({
         title: 'score详情信息',
       },
     },
+
     {
       path:'/teacher/tperact/score',
       name:'score',

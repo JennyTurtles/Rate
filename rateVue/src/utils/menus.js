@@ -2,53 +2,55 @@ import {getRequest} from "./api";
 import this_ from '../main'
 import router from '../router'
 import {log} from "@/utils/sockjs";
+import store from '../store'
+// export async function initMenu(router, store)  {
 export const initMenu = (router, store) => {
-    if (store.state.routes.length > 0) {
-        return;
-    }
-    let user = JSON.parse(localStorage.getItem('user'))
-    getRequest("/system/config/menu?id="+user.id+"&role="+user.role).then(data => {
-        if (data) {
-            let fmtRoutes = formatRoutes(data); //格式化router
-            router.addRoutes(fmtRoutes);  //添加到路由
-            store.commit('initRoutes', fmtRoutes);  //将数据存到vuex
-            if(sessionStorage.getItem('initRoutes')){
-                sessionStorage.clear('initRoutes')
-            }
-            sessionStorage.setItem('initRoutes',JSON.stringify(fmtRoutes))
-
-            var data = JSON.parse(JSON.stringify(fmtRoutes))
-            let res = ['/home']
-            data.forEach(item=>{
-                if(item.children.length){
-                    item.children.forEach(item1=>{
-                        if(!item1.children){
-                            res.push(
-                                item1.path
-                            );
-                        }else{
-                            item1.children.forEach(item2=>{
-                                if(!item2.children){
-                                    res.push(
-                                        item2.path
-                                    );
-                                }
-                            })
-                        }
-                    })
-                }
-            })
-            sessionStorage.setItem('initRoutes_AllSameForm',res)
-            store.commit('initRoutesAllSameForm',res)
-            // this_.$router.replace('/home').then(
-            //     resolve =>{}
-            // ).catch(
-            //     err => {
-            //         console.log(err)
-            //     });
+// export function initMenu(router, store,to){
+//     return new Promise((resolve,reject) => {
+        if (store.state.routes.length > 0) {
+            return;
         }
-    })
+        let user = JSON.parse(localStorage.getItem('user'))
+        // new Promise(resolve => {
+        getRequest("/system/config/menu?id="+user.id+"&role="+user.role).then(data => {
+            if (data) {
+                let fmtRoutes = formatRoutes(data); //格式化router
+                router.addRoutes(fmtRoutes);  //添加到路由
+                store.commit('initRoutes', fmtRoutes);  //将数据存到vuex
+                if(sessionStorage.getItem('initRoutes')){
+                    sessionStorage.clear('initRoutes')
+                    sessionStorage.clear('initRoutes_AllSameForm')
+                }
+                sessionStorage.setItem('initRoutes',JSON.stringify(fmtRoutes))
+                var data = JSON.parse(JSON.stringify(fmtRoutes))
+                let res = ['/home']
+                data.forEach(item=>{
+                    if(item.children.length){
+                        item.children.forEach(item1=>{
+                            if(!item1.children){
+                                res.push(
+                                    item1.path
+                                );
+                            }else{
+                                item1.children.forEach(item2=>{
+                                    if(!item2.children){
+                                        res.push(
+                                            item2.path
+                                        );
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+                sessionStorage.setItem('initRoutes_AllSameForm',res)
+                store.commit('initRoutesAllSameForm',res)
+
+            }
+        })
 }
+
+
 
 export const initMenu_ex = (router, store) => {
     if (store.state.routes.length > 0) {

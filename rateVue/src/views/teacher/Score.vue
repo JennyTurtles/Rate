@@ -313,8 +313,15 @@ export default {
       if (sessionStorage.getItem("peract")) {
         let list = JSON.parse(sessionStorage.getItem("peract"));
         return list;
-      } else {
+      } else if(this.$store.state.peract){
         return this.$store.state.peract;
+      }else{
+        // new Promise((resolve, reject) => {
+          this.$store.dispatch('initsize',this.user.id).then(()=>{
+            return  JSON.parse(sessionStorage.getItem("peract"))
+          // })
+          // resolve()
+        })
       }
     },
     datal() {
@@ -360,45 +367,26 @@ export default {
     }
   },
   methods: {
-    // downloadInfoItems(data){//下载证明材料
-    //   const fileName = data.content.split('/').reverse()[0]
-    //   axios({
-    //     url:"/paper/basic/download?fileUrl=" + data.content + "&fileName=" + fileName,
-    //     method: 'get',
-    //     responseType: 'blob',
-    //   }).then(res => {
-    //     const filestream = res.data;  // 返回的文件流
-    //     // {type: 'application/vnd.ms-excel'}指定对应文件类型为.XLS (.XLS的缩写就为application/vnd.ms-excel)
-    //     const blob = new Blob([filestream]);
-    //     const a = document.createElement('a');
-    //     const href = window.URL.createObjectURL(blob); // 创建下载连接
-    //     a.href = href;
-    //     a.download = decodeURL(fileName );
-    //     document.body.appendChild(a);
-    //     a.click();
-    //     document.body.removeChild(a); // 下载完移除元素
-    //     window.URL.revokeObjectURL(href); // 释放掉blob对象
-    //   })
-    //
-    //   // console.log(data)
-    //   // var fileName = data.content.split('/').reverse()[0]
-    //   // // // console.log(fileName);
-    //   // if(localStorage.getItem("user")){
-    //   // var url="/paper/basic/download?fileUrl=" + data.content + "&fileName=" + fileName
-    //   // window.location.href = encodeURI(url);
-    //   // let url = '/Users/luyiru/IdeaProjects/Rate2/upload/改编全流程获取流量的核心.pdf'
-    //   //   window.location.href = encodeURI(url);
-    //   // }else{
-    //   //   this.$message.error("请重新登录！");
-    //   // }
-    //   //   var $a = document.createElement('a');
-    //   //   $a.setAttribute("href", url);
-    //   //   $a.setAttribute("download", "");
-    //   //   // console.log($a.href)
-    //   //   var evObj = document.createEvent('MouseEvents');
-    //   //   evObj.initMouseEvent( 'click', true, true, window, 0, 0, 0, 0, 0, false, false, true, false, 0, null);
-    //   //   $a.dispatchEvent(evObj);
-    // },
+    downloadInfoItems(data){//下载证明材料
+      const fileName = data.content.split('/').reverse()[0]
+      axios({
+        url:"/paper/basic/download?fileUrl=" + data.content + "&fileName=" + fileName,
+        method: 'get',
+        responseType: 'blob',
+      }).then(res => {
+        const filestream = res.data;  // 返回的文件流
+        // {type: 'application/vnd.ms-excel'}指定对应文件类型为.XLS (.XLS的缩写就为application/vnd.ms-excel)
+        const blob = new Blob([filestream]);
+        const a = document.createElement('a');
+        const href = window.URL.createObjectURL(blob); // 创建下载连接
+        a.href = href;
+        a.download = decodeURL(fileName );
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a); // 下载完移除元素
+        window.URL.revokeObjectURL(href); // 释放掉blob对象
+      })
+    },
     download() {
       this.loading = true;
       Message.success("正在导出");

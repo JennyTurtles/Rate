@@ -447,7 +447,6 @@ export default {
     },
     deleteEmp(data) {
       data.institutionID = this.user.institutionID;
-      //console.log(data);
       this.getRequest("/activities/basic/check?id=" + data.id).then(res => {
         //console.log(res);
         if (res == true) {
@@ -487,27 +486,6 @@ export default {
           });
         }
       })
-
-
-      // console.log(data);
-      if (data.groupCount == 0)
-      this.$confirm(
-          "此操作将永久删除【" + data.name + "】, 是否继续?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          }
-      ).then(() => {
-        this.postRequest("/activities/basic/delete", data).then((resp) => {
-          if (resp) {
-            this.dialogVisible = false;
-            this.initEmps();
-          }
-        });
-      });
-
     },
     endEmp(data) {
       data.institutionID = this.user.institutionID;
@@ -529,10 +507,9 @@ export default {
         });
       });
     },
-    doAddEmp() {
+    doAddEmp() {//添加活动
 
       if (this.emp.id) {
-        // console.log(this.emp);
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
@@ -551,9 +528,6 @@ export default {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
-            // this.emp.institutionID = this.user.id;
-            // console.log(this.emp);
-            // console.log(this.user.id);
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(
                 (resp) => {
@@ -593,7 +567,7 @@ export default {
         }
       });
     },
-    showGroupOfPartipicant(data){
+    showGroupOfPartipicant(data){//选手分组
       const _this = this;
       _this.$router.push({
         path: "/ActivitM/SalPartipicantGroup",
@@ -655,7 +629,6 @@ export default {
     },
     searchEmps() {
       this.loading = true;
-      //console.log('---------', this.user.institutionID);
       const _this = this;
       //let url =
       this.getRequest(

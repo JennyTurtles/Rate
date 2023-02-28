@@ -46,30 +46,39 @@
                             || item.contentType.indexOf('jpg') >= 0)"
                       style="height:100%">
               <el-upload
+                  class="myupload"
                   :file-list="files"
                   :data="item"
                   action="string"
                   ref="upload"
                   :limit="1"
+                  :on-exceed="handleExceed(item)"
                   :headers="headers"
+                  :disabled="uploadListElement[index].disabled"
+                  :show-file-list="false"
                   :on-change="(file,fileList)=>{handleChangeFiles(file,fileList,item,index)}"
                   style="width:70%;margin-left:20px;height:50%"
-                  :on-remove="()=>{handleDelete(item)}"
                   :auto-upload="false"
-                  :on-exceed="handleExceed"
-                  :http-request="upload(item)"
-                  :on-preview='downloadFile'
+                  :http-request="upload(item,index)"
               >
                 <el-button type="primary" icon="el-icon-upload2"
-                           slot="trigger"  size="mini"
+                           slot="trigger"  size="mini" ref="uploadButton"
+                           :disabled="uploadListElement[index].disabled"
                 >选择文件</el-button>
-                <template
+                <div
                     style="
                     width: 100%; height: 100%; display: inline-block;
-                    margin-left:12px;color:lightgray">
-                    <span style="color:gray;font-size:11px;margin-left:12px;">只允许{{item.contentType}}类型文件&nbsp;&nbsp;不能超过{{item.sizelimit}}
+                    color:lightgray;margin-left: 20px">
+                    <span style="color:gray;font-size:11px;">只允许{{item.contentType}}类型文件&nbsp;&nbsp;不能超过{{item.sizelimit}}
                     </span>
-                </template>
+                  <div v-if="fileDownloadList[item.id] && fileDownloadList[item.id].length" class="fileList">
+                    <a :id="item.id" @click="downloadFileALink(item)"></a>
+                    <span @click="downloadFileALink(item)">
+                      {{fileDownloadList[item.id][0].fileUrl | fileNameFilter}}
+                    </span>
+                    <a class="deleteFileStyle" @click="handleDelete(item,index)"></a>
+                  </div>
+                </div>
               </el-upload>
             </template>
           </template>
@@ -87,6 +96,8 @@ export default {
   name: "SalInfos",
   data() {
     return {
+      uploadButtonDisabled:false,
+      uploadListElement:{},//所有upload组件，用于记录index
       uploadInfoid:0,
       fileDownloadList:{},//保存所有上传的文件，用索引标识
       fileUploadList:[],
@@ -210,28 +221,87 @@ export default {
         return ''
       }else{
         var arr= data.split('/')
-        return  arr.reverse()[0] + '  x'
+        return  arr.reverse()[0]
       }
     }
   },
   methods: {
-  downloadFile(e){
-    // 参考：https://blog.csdn.net/qq_44603011/article/details/124941102
-    var a = document.createElement("a");
-    var event = new MouseEvent("click");
-    a.target = "_blank";
-    a.download = e.name;
-    if (!e.url)
-        e.url = URL.createObjectURL(e.raw);
-    a.href = e.url;//路径前拼上前缀，完整路径
-    a.dispatchEvent(event);
-    console.log(e.url)
+    handleExceed(data,index){
+      if(data.id == this.uploadInfoid && this.fileDownloadList[data.id] && this.fileDownloadList[data.id].length > 1){//超过数量限制
+        this.$message.error(`只允许上传1个文件`);
+        return;
+      }
     },
-    upload(data){
+    renderFileIcon(fileName,data) {//渲染上传文件的图标
+      this.$nextTick(() => {
+        // let fileElementList = document.getElementsByClassName('el-upload-list__item-name');
+        // if (fileElementList && fileElementList.length > 0) {
+        //   for (let ele of fileElementList) {
+        //     let fileName = ele.innerText;
+            //获取文件名后缀
+            let fileType = fileName.substring(fileName.lastIndexOf(".") + 1);
+            let iconElement = document.getElementById(data.id);
+            if (['png','jpg','jpeg',".gif",'PNG','JPG','JPEG',"GIF"].indexOf(fileType) != -1) {
+              iconElement.className = "imgicon-img" // 图⽚，动图
+            }
+            // else if (['mp4','3gp','avi',"flv",'MP4','3GP','AVI',"FLV"].indexOf(fileType) != -1) {
+            //   iconElement.className = 'imgicon-video' // 视频
+            // }
+            else if (['doc','docx','DOC','DOCX'].indexOf(fileType) != -1) {
+              iconElement.className = 'imgicon-docx' // 文档
+            }
+            // else if (['xls','xlsx','XLS','XLSX'].indexOf(fileType) != -1) {
+            //   iconElement.className = 'imgicon-xlsx' // 表格
+            // } else if (['ppt','pptx','PPT','PPTX'].indexOf(fileType) != -1) {
+            //   iconElement.className = 'imgicon-pptx' // PPT
+            // }
+            else if (['zip','ZIP'].indexOf(fileType) != -1) {
+              iconElement.className = 'imgicon-zip' // 压缩包
+            } else if (['pdf','PDF'].indexOf(fileType) != -1) {
+              iconElement.className = 'imgicon-pdf' // PDF
+            } else {
+              iconElement.className = 'imgicon-default' //默认图标
+            }
+          // }
+        // }
+      })
+    },
+    downloadFileALink(data){
+      // console.log(this.fileDownloadList[data.id])
+      var fileUrl = this.fileDownloadList[data.id][0].fileUrl
+      var fileName = fileUrl.split('/').reverse()[0]
+      var url = fileUrl
+      axios({
+        url: '/paper/basic/downloadByUrl?url='+url,
+        method: 'GET',
+        responseType: 'blob'
+      }).then(response => {
+        const url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+    },//通过点击a标签或者图标下载文件
+    downloadFile(e){//通过el-upload的on-preview进行下载
+      // 参考：https://blog.csdn.net/qq_44603011/article/details/124941102
+      var a = document.createElement("a");
+      var event = new MouseEvent("click");
+      a.target = "_blank";
+      a.download = e.name;
+      if (!e.url)
+          e.url = URL.createObjectURL(e.raw);
+      a.href = e.url;//路径前拼上前缀，完整路径
+      a.dispatchEvent(event);
+      console.log(e.url)
+    },
+    upload(data,index){
       if(data.id != this.uploadInfoid){//渲染了多个upload，用每一个infoitem的id做标识，判断是哪个upload被点击了
         return;
       }
-      if(this.fileUploadList.length == 0){
+      if(this.fileUploadList.length == 0){//没有上传文件
         return;
       }
       var formData=new FormData();
@@ -239,7 +309,6 @@ export default {
       formData.append("activityID",data.activityID)
       formData.append("studentID",JSON.parse(localStorage.getItem("user")).id)
       formData.append("infoItemID",data.id)
-
       axios.post("/infoItem/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
@@ -249,14 +318,16 @@ export default {
           this.$message({
             message:'上传成功！'
           })
-          this.fileDownloadList[this.uploadInfoid] = {
+          this.fileDownloadList[this.uploadInfoid] = []//保存每个upload上传的文件列表，用index做标识，每个index是一个数组
+          this.fileDownloadList[this.uploadInfoid].push({
             fileUrl:response.data,
             file:this.fileUploadList[0].file.raw
-          }
-            //获取文件存储的路径
-          this.urlFile=response.data
-          this.reset()
-          this.fileUploadList = []
+          })
+          this.urlFile=response.data//获取文件存储的路径
+          this.fileUploadList = []//每上传一次就设置为空，所以每个upload都只有一个文件
+          this.renderFileIcon(response.data,data)//渲染图标
+          this.uploadListElement[index].disabled = true
+          // this.reset()
         },()=>{}
       )
     },
@@ -326,26 +397,31 @@ export default {
       }
 
     },
-    handleDelete(data) {//删除选择的文件
+    handleDelete(data,index) {//删除选择的文件
+      if(!this.fileDownloadList[data.id])
+        return;
       var file={
-        filepath:this.urlFile,
+        filepath:this.fileDownloadList[data.id][0].fileUrl,
         activityID:data.activityID,
         studentID:JSON.parse(localStorage.getItem("user")).id,
         infoItemID:data.id
       }
       this.postRequest1("/infoItem/basic/deleteFile",file).then(
           (response)=>{
-            console.log(response)
-            this.reset()
+            // this.reset()
             this.urlFile = ""
-            this.files = ''
+            this.files = []
+            this.fileDownloadList[data.id] = null//删除这个index
+            //删除这个在refs中记录的文件，防止影响别的upload
+            this.$refs.upload[this.uploadListElement[index].elementIndex].uploadFiles = []
+            this.uploadListElement[index].disabled = false
           },()=>{}
       )
-    },
-    handleExceed(){//超过限制数量
-      this.$message.error(`只允许上传1个文件`);
+
     },
     handleChangeFiles(file,fileList,data,index){//文件列表数量改变
+      console.log('file:')
+      console.log(this.$refs.upload)
       this.fileUploadList=[]
       this.files=[]
       var attachmentType = data.contentType.split(",")
@@ -385,15 +461,20 @@ export default {
           "&studentID=" +
           JSON.parse(localStorage.getItem("user")).id
       ).then((resp) => {
-        // console.log("resp",resp);
         if (resp) {
           this.loading = false;
           var hrs = []
-          // resp.data.forEach(element => {//是否允许显示给学生
-          //   if(element.display){
-          //       hrs.push(element)
-          //   }
-          // });
+          var idx = 0;
+          resp.data.forEach((element,index) => {
+            if(element.contentType.indexOf('pdf') >= 0 || element.contentType.indexOf('jpg') >= 0 || element.contentType.indexOf('zip')>=0){
+                this.uploadListElement[index] = {//在所有infoitem中的索引值
+                      element,
+                      elementIndex:idx,//用于记录当前的upload对于所有的upload处于第几个位置,上传文件会用到
+                      disabled:false
+                }
+                idx ++;
+            }
+          });
           hrs = resp.data
           this.hrs = hrs
           this.total = hrs.length
@@ -435,7 +516,53 @@ export default {
 </script>
 
 <style>
-
+.myupload .deleteFileStyle{
+  margin-left: 90px;
+  background-image: url("../../assets/images/删除.png") !important;
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+  background-size: 100% 100%;
+  margin-bottom: -3px;
+}
+.fileList{
+  display: inline-block;
+  width: 90%;
+  margin-top: 5px;
+  height: 100%;
+  color: #333333
+}
+.fileList:hover{
+  background-color: lightgray;
+  cursor: pointer;
+}
+.myupload  .imgicon-img {
+  display: inline-block;
+  width: 20px;
+  margin-bottom: -3px;
+  height: 20px;
+  background-size: 100% 100%;
+  margin-right: 10px;
+  background-image: url("../../assets/images/fileicon/Jpg.png") !important;
+}
+.myupload .imgicon-pdf {
+  display: inline-block;
+  width: 30px;
+  margin-bottom: -3px;
+  height: 30px;
+  background-size: 100% 100%;
+  margin-right: 10px;
+  background-image: url("../../assets/images/fileicon/PDF.png") !important;
+}
+.myupload .imgicon-zip {
+  display: inline-block;
+  width: 20px;
+  margin-bottom: -3px;
+  height: 20px;
+  background-size: 100% 100%;
+  margin-right: 10px;
+  background-image: url("../../assets/images/fileicon/zip.png") !important;
+}
 .el-form-item__label {
   /* padding-left: 12px; */
   margin-left: 20px ;

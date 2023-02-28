@@ -306,20 +306,23 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
-      })
-          .then(() => {
+      }).then(() => {
             this.postRequest("/scoreItem/basic/delete?institutionID="+this.user.institutionID, si).then((resp) => {
               if (resp) {
+                this.$message({
+                      type: "info",
+                      message: "删除成功",
+                    });
                 this.initHrs();
               }
             });
           })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消删除",
-            });
-          });
+          // .catch(() => {
+          //   this.$message({
+          //     type: "info",
+          //     message: "已取消删除",
+          //   });
+          // });
     },
 
     enabledChange(hr) {
@@ -462,10 +465,6 @@ export default {
     },
     // 失去焦点初始化
     inputBlur() {
-      //console.log(this.hrs);
-      // if (this.currentfocusdata == null) {
-      //   Message.error('输入内容不能为空！操作未保存！')
-      // }
       this.tabClickIndex = null;
       this.tabClickLabel = "";
       this.currentfocusdata = ""

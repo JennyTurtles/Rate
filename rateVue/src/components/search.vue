@@ -36,7 +36,7 @@
     <el-dialog
         :visible.sync="dialogVisibleSearch"
         @close="closeSearch"
-        width="50%">
+        width="70%">
       <span slot="title" style="float:left;font-size: 20px" >请输入需要搜索的名称</span>
       <div style="margin-bottom: 10px">
         <span>请选择搜索的类别：</span>
@@ -56,7 +56,7 @@
       <div class="select_div_input">
         <input
             autocomplete="off"
-            style="margin-left:5px;width:80%;line-height:28px;
+            style="margin-left:5px;width:30%;line-height:28px;
                               border:1px solid lightgrey;padding:0 10px 1px 15px;
                               border-radius:4px;color:gray"
             placeholder="请输入期刊名称"
@@ -108,7 +108,10 @@
         </el-table-column>
         <el-table-column
             prop="year"
-            label="录入年份">
+            label="录入年份"
+            align="center"
+            width="70px"
+        >
         </el-table-column>
         <el-table-column
             prop="level"
@@ -241,8 +244,10 @@
       </el-table-column>
       <el-table-column
           prop="year"
-          width="60px"
-          label="录入年份">
+          width="70px"
+          label="录入年份"
+          align="center"
+      >
       </el-table-column>
       <el-table-column
           prop="level"
@@ -295,7 +300,7 @@
         width="30%">
       <span slot="title" style="float:left;font-size: 20px" >请输入期刊的相关信息</span>
       <el-form :model="rowData">
-        <el-form-item label="期刊全称" >x
+        <el-form-item label="期刊全称" >
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
         <el-form-item label="刊物简称" >
@@ -616,14 +621,14 @@ export default {
     }
   },
   mounted() {
-    axios.get("/indicator").then( (resp) =>  { //此处可以让父组件向子组件传递url,提高复用性
+    axios.get("/indicator").then( (resp) =>  { //获得所有指标点
       var data = resp.obj[1]
       var that = this;
       data.forEach((item,idx1) => {
         if(item.children){//大类 1 2 3
           // console.log(item)
           item.children.forEach((subItem,idx2) => {//大类下面的4个小类
-            if(subItem.type == '论文'){
+            if(subItem.type == '论文'){//添加所有是论文类别的，所有大类
               that.typeOfAllPaper = [...that.typeOfAllPaper,...subItem.children]
             } else if(subItem.type == '纵向科研项目'){
               that.typeOfAllProject = [...that.typeOfAllProject,...subItem.children]
@@ -829,9 +834,9 @@ export default {
       for(var i = 0;i<this.tableUploadData.length;i++){
         indicatorNames.push(this.tableUploadData[i]['所属类别'])
       }
-      var setIndicatorNames = new Set(indicatorNames)
+      var setIndicatorNames = new Set(indicatorNames)//去重
       indicatorNames = []
-      for(var val of setIndicatorNames){
+      for(var val of setIndicatorNames){//所有sheet的indicator名
         indicatorNames.push(val)
       }
       var promise = new Promise((resolve,reject) => {
@@ -845,7 +850,6 @@ export default {
               }
             }).then((resp) => {
           if (resp) {
-            // this.$message.success('删除成功')
             resolve(resp)
           }
         })
@@ -1077,7 +1081,7 @@ export default {
       this.errorRow = []
       this.uploadResultValid = false;
     },
-    uploadConfirm(){//上传导入的文件
+    uploadConfirm(){//确认上传导入的文件
       var that = this
       this.$confirm('是否确定添加'+this.tableUploadData.length+'条记录，批量导入后将覆盖所有'+this.year+"年的数据", '提示', {
         confirmButtonText: '确定',
@@ -1093,6 +1097,8 @@ export default {
               )
               that.uploadVisible = false
               that.handleClose()
+              // that.getTableByYear(that.indicatorID,that.year)
+              // 修改
             }
         )
       }).catch(() => {
@@ -1106,10 +1112,10 @@ export default {
       await this.appendPublicationAsync()
     },
 
-    //导出按钮
+    //导出excel模版按钮
     btnClickExport() {
-      var sheetTitlesAndId = []
-      var tableSample = []
+      var sheetTitlesAndId = []//保存所有sheet信息
+      var tableSample = []//sheet表头信息 标题
       if(this.importSelectType == '论文'){
           this.typeOfAllPaper.forEach((item) => {
             sheetTitlesAndId.push(item)
@@ -1135,7 +1141,7 @@ export default {
       // console.log(sheetTitlesAndId)
       var wb = XLSX.utils.book_new();
       for(var i = 0;i<sheetTitlesAndId.length;i ++){
-        var sheet = XLSX.utils.json_to_sheet(tableSample);
+        var sheet = XLSX.utils.json_to_sheet(tableSample);//设置每个sheet的表头标题
         XLSX.utils.book_append_sheet(wb, sheet, sheetTitlesAndId[i].label);
       }
       // console.log(wb)

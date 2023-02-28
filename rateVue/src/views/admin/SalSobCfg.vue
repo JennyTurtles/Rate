@@ -59,18 +59,6 @@
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%"
       >
-        <!--        <el-table-column
-            type="selection"
-            min-width="1%">
-        </el-table-column>
-        <el-table-column
-            prop="activityID"
-            fixed
-            align="left"
-            label="活动编号"
-            min-width="2%"
-        >
-        </el-table-column>-->
         <el-table-column prop="name" fixed label="专家姓名" min-width="3%">
           <template slot-scope="scope">
             <el-input
@@ -497,8 +485,8 @@ export default {
           this.size
       ).then((resp) => {
         if (resp) {
-          this.hrs = resp.data;
-          this.total = resp.total;
+          this.hrs = resp;
+          this.total = resp.length;
           //console.log(this.hrs);
         }
       });

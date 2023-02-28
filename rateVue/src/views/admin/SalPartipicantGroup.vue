@@ -29,6 +29,15 @@
         创建分组
       </el-button>
     </div>
+    <div style="margin-top: 10px">
+      <el-table
+        >
+        <el-table-column
+          label="">
+
+        </el-table-column>
+      </el-table>
+    </div>
   </div>
 </template>
 
@@ -51,8 +60,6 @@ export default {
     this.keywords = this.$route.query.keywords
     this.keyword_name = this.$route.query.keyword_name
     this.groupNums = Array.from(Array(20).keys(),n=>n+1)
-    // const List = len => [...new Array(len).keys()+1]
-    // this.groupNums = List(20)
     this.initData()
   },
   methods:{
@@ -60,7 +67,6 @@ export default {
         var url = '/infoItem/basic/getAll/' + this.keywords
         this.getRequest(url).then((resp)=>{
           if(resp)
-            // console.log(resp)
             this.groupInfoNums = resp.obj
         })
     },
