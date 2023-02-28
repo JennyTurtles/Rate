@@ -75,9 +75,13 @@ export default new Router({
           name: 'SalSearch',
           component: () => import('./views/admin/SalSearch'),
           meta: { title: 'SalSearch' },
-
         },
-
+        {
+          path: '/ActivitM/subActivity',
+          name: 'SalSubActivity',
+          component: () => import('./views/admin/SalSubActivity'),
+          meta: { title: 'SalSubActivity' },
+        },
         {//管理员下的
           path: '/ActivitM/month',
           name: 'Salmonth',

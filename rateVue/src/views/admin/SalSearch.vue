@@ -166,6 +166,17 @@
             </el-button
             >
             <el-button
+                @click="showSubActivity(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-plus"
+                type="primary"
+                plain
+            >子活动管理
+            </el-button
+            >
+
+            <el-button
                 @click="exportEx(scope.row)"
                 :loading="loading"
                 style="padding: 4px"
@@ -595,6 +606,12 @@ export default {
           keywords: data.id,
           keyword_name: data.name,
         },
+      });
+    },
+    showSubActivity(data) {
+      const _this = this;
+      _this.$router.push({
+        path: "/ActivitM/subActivity",
       });
     },
     showteachermanagement(data) {

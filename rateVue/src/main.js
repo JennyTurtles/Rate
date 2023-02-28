@@ -189,6 +189,7 @@ router.beforeEach((to, from, next) => {
             }
             next()
         }
+        
         else if(localStorage.getItem('teacher')) {
             // next('/?redirect=' + to.path)
             next()
