@@ -1,5 +1,8 @@
 package org.sys.rate.service.admin;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Select;
@@ -55,6 +58,12 @@ public class IndicatorInfService {
     }
 
     public List<IndicatorPublication> getPublicationByIndicatorAndYear(Integer indicatorID,Integer year){
+        return indicatorInfMapper.getPublicationByIndicatorAndYear(indicatorID,year);
+    }
+
+    public List<IndicatorPublication> getPublicationByIndicatorAndYear2(Integer indicatorID,Integer year,Integer pageNum,Integer pageSize){
+        Page page = PageHelper.startPage(pageNum, pageSize);
+        PageInfo info = new PageInfo<>(page.getResult());
         return indicatorInfMapper.getPublicationByIndicatorAndYear(indicatorID,year);
     }
 

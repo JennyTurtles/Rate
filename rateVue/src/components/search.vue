@@ -229,9 +229,10 @@
       </span>
     </el-dialog>
 
+<!--    :data="tableData.slice((currentPage-1)*PageSize,currentPage*PageSize)"-->
     <!--期刊-->
     <el-table v-if="indicatorType === 'publication'"
-              :data="tableData.slice((currentPage-1)*PageSize,currentPage*PageSize)"
+              :data="tableData"
               border
               :header-cell-style="{'textAlign':'center'}"
               style="width: 100%">
@@ -520,6 +521,7 @@
 import axios from "axios";
 import * as XLSX from 'xlsx/xlsx.mjs'
 import FileSaver from 'file-saver'
+import th from "element-ui/src/locale/lang/th";
 export default {
 
   name:'search',
@@ -588,8 +590,8 @@ export default {
       isRoot:false,
       currentPage:1,
       totalCount:0,
-      pageSizes:[13,20,25],
-      PageSize:13,
+      pageSizes:[2,15,20,25],
+      PageSize:15,
       tablePaperSample: [//论文
         {
           '刊物全称': "",
@@ -743,12 +745,12 @@ export default {
         });
       },300)
     },
-    getTableByYear(indicatorID,year){
+    getTableByYear(indicatorID,year,a){ //待修改
+
       var that = this
-      axios.post("/publicationByYear",{"indicatorID":indicatorID,"year":year}).then(function (resp){
-        that.tableData = resp.obj
-        that.totalCount = that.tableData.length
-        // console.log(resp)
+      axios.get("/publicationByYear?indicatorID="+indicatorID+"&year="+year+"&pageNum="+that.currentPage+"&pageSize="+that.PageSize).then(function (resp){
+        that.tableData = resp.obj[0]
+        that.totalCount = resp.obj[1]
       })
     },
     changeYear(){
@@ -1018,11 +1020,14 @@ export default {
       this.PageSize=val
       // 注意：在改变每页显示的条数时，要将页码显示到第一页
       this.currentPage=1
+      this.getTableByYear(this.indicatorID,this.year)
     },
     // 显示第几页
     handleCurrentChange(val) {
       // 改变默认的页数
       this.currentPage=val;
+      // 修改
+      this.getTableByYear(this.indicatorID,this.year)
     },
     readFile(file) {//文件读取
       return new Promise(resolve => {

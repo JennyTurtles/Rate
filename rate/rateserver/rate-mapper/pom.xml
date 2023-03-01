@@ -13,6 +13,12 @@
 
 
     <dependencies>
+        <dependency><!--导入分页插件-->
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+            <version>1.3.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.sys</groupId>
             <artifactId>rate-model</artifactId>

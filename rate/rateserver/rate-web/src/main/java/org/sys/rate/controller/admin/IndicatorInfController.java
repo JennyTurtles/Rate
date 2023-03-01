@@ -1,5 +1,8 @@
 package org.sys.rate.controller.admin;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.IndicatorInfMapper;
@@ -8,6 +11,7 @@ import org.sys.rate.service.admin.IndicatorInfService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -38,21 +42,19 @@ public class IndicatorInfController {
     }
 
     // 如果当前年为空则往前找（找小于等于最接近的那一年）
-    @PostMapping("/publicationByYear")
-    public RespBean getPublicationByIndicatorAndYear(@RequestBody IndicatorPublication indicatorPublication){
-//        Integer maxId= indicatorInfService.getMaxID("publication") + 1;
-//        List<IndicatorPublication> res = indicatorInfService.getPublicationByIndicatorAndYear(indicatorPublication.getIndicatorID(), indicatorPublication.getYear());
-//        List<Object> idAndRes = new ArrayList<>();
-//        idAndRes.add(maxId);
-//        idAndRes.add(res);
-        List<IndicatorPublication> res = indicatorInfService.getPublicationByIndicatorAndYear(indicatorPublication.getIndicatorID(), indicatorPublication.getYear());
-        return RespBean.ok("success",res);
+    @GetMapping("/publicationByYear")
+    public RespBean getPublicationByIndicatorAndYear(@RequestParam("indicatorID")Integer indicatorID,@RequestParam("year")Integer year,
+                                                     @RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
+        Page page = PageHelper.startPage(pageNum, pageSize);
+        List<IndicatorPublication> res = indicatorInfMapper.getPublicationByIndicatorAndYear(indicatorID,year);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] a = {res,info.getTotal()};
+        return RespBean.ok("success", a);
     }
 
     @PostMapping("/publication")
     public RespBean savePublication(@RequestBody IndicatorPublication indicatorPublication)
     {
-
         boolean flag = indicatorInfService.savePublication(indicatorPublication);
         return flag ? RespBean.ok("insert success!") : RespBean.error("insert fail!");
     }
