@@ -40,7 +40,7 @@
         <template slot-scope="scope">
             <span
               style="padding: 4px"
-              :style="scope.row.state=='tea_reject' ? {'color':'red'}:{'color':'gray'}"
+              :style="scope.row.state=='tea_reject' || scope.row.state=='adm_reject' ? {'color':'red'}:{'color':'gray'}"
               size="mini"
               >
               {{scope.row.state=="commit" 
@@ -76,7 +76,7 @@
           width="80px"
         >
         </el-table-column>
-        <el-table-column align="center" width="280px" label="操 作">
+        <el-table-column align="center" width="280px" label="操作">
           <template slot-scope="scope">
             <el-button
               @click="showEditEmpView(scope.row)"
@@ -85,7 +85,7 @@
               icon="el-icon-edit"
               type="primary"
               plain
-              v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject'? true:false"
+              v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject' || scope.row.state == 'adm_reject' ? true:false"
               >编辑</el-button
             >
             <el-button
@@ -95,7 +95,7 @@
               type="danger"
               icon="el-icon-delete"
               plain
-              v-show="scope.row.state == 'tea_reject' || scope.row.state == 'commit'? true:false"
+              v-show="scope.row.state == 'tea_reject' || scope.row.state == 'commit' || scope.row.state == 'adm_reject'? true:false"
               >删除</el-button
             >
             <el-button
@@ -474,6 +474,7 @@ export default {
       publication.name = this.publicationName
       this.timer = setInterval(()=>{
         let url = "/publication/getInfByNameYear"
+        console.log("id")
         this.postRequest(url,publication).then((resp) => {
           this.loading = false;
           if (resp) {
@@ -510,6 +511,7 @@ export default {
     filter_pub(val){//选择下拉框的某个期刊 得到选择的期刊的id score等信息
       this.ispubFlag=false
       this.ispubShow=false
+      var that = this
       if(!val){
           return
       }
@@ -520,6 +522,12 @@ export default {
           if (resp) {
             if(resp.obj){
               this.view_point = resp.obj
+              const id = JSON.parse(localStorage.getItem('user')).id
+              if (this.view_point === 2){
+                // that.getRequest("/publication/checkScore/"+id).then((resp)=>{
+                //
+                // }
+              }
               this.publicationID = val.publicationID
             }else {
               this.publicationName = ''
@@ -590,6 +598,11 @@ export default {
     },
     timechange(picker){//选择日历调用的方法
       var data=new Date(picker)
+      if (data.getFullYear() != this.emp.year)
+      {
+        this.publicationName = ""
+        this.view_point = 0
+      }
       this.emp.year=data.getFullYear()
       this.emp.month=data.getMonth()+1
       this.disabledInput = false
@@ -776,7 +789,7 @@ export default {
     },
     doAddEmp() {//确定添加论文
       if (this.emp.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        // if(confirm('确定要提交吗？')){
+        console.log("编辑")
           var empdata=this.emp
           this.emptyEmp()
           this.$refs["empForm"].validate((valid) => {
@@ -803,17 +816,26 @@ export default {
                   })
                   return
                 }
-                this.postRequest1("/paper/basic/edit", _this.emp).then(
-                  (resp) => {
+                if (this.emp.point == 2){ // 检查该学生是否存在审核中或已通过的2分指标点
+                  this.getRequest("/publication/checkScore/"+this.emp.studentID).then((resp) =>{
+                    if (resp.obj != -1 && resp.obj != this.emp.ID)
+                    {
+                      this.$message.error('已经存在审核中或已通过的2积分指标点，无法继续提交');
+                      return
+                    }
+                  })
+                }
+                this.getRequest("/publication/checkScore/"+this.emp.studentID).then((resp)=>{
+                  this.postRequest1("/paper/basic/edit", _this.emp).then((resp) => {
                     if (resp) {
                       this.dialogVisible = false;
                       this.initEmps();
-                      }
-                    }
-                  );
-                }
+                    }});
+                })
+              }
           });
       } else {
+        console.log("添加")
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.publicationName=document.getElementById("input_publicationName").value
@@ -830,17 +852,23 @@ export default {
               this.$message.error('请上传证明材料！')
               return
             }
-            console.log("emp")
-            console.log(_this.emp)
-            this.postRequest1("/paper/basic/add",_this.emp).then(
-              (resp) => {
-                if (resp) {
-                  this.dialogVisible = false;
-                  this.doAddOper("commit",this.emp.name,this.publicationName,
-                      this.emp.publicationID,resp.data)
-                }
+            this.getRequest("/publication/checkScore/"+this.emp.studentID).then((resp)=>{
+              console.log(resp)
+              if (resp.obj == -1){
+                this.postRequest1("/paper/basic/add",_this.emp).then(
+                    (resp) => {
+                      if (resp) {
+                        this.dialogVisible = false;
+                        this.doAddOper("commit",this.emp.name,this.publicationName,
+                            this.emp.publicationID,resp.data)
+                      }
+                    }
+                );
+              }else{
+                this.$message.error('已经存在审核中或已通过的2积分指标点，无法继续提交');
               }
-            );
+            })
+
           }
         });
       }

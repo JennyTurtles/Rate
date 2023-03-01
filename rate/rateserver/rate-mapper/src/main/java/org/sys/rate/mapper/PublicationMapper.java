@@ -97,6 +97,9 @@ public interface PublicationMapper
             "WHERE year = (SELECT MAX(year) FROM publication t2 WHERE t1.indicatorID = t2.indicatorID AND `year`<=#{year}) AND name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
     public List<Publication> getNamesByNameYear(String name, Integer year);
 
+    @Select("SELECT ID FROM paper WHERE studentID = #{stuID} AND point = 2 AND (state = 'commit' OR state = 'tea_pass' OR state = 'adm_pass')")
+    public Integer checkScore(Integer stuID);
+
     @Select("SELECT score FROM indicator WHERE id = #{id}")
     public Integer getScore(Integer id);
 
@@ -135,7 +138,6 @@ public interface PublicationMapper
     public List<Publication> getPubsByName(String name);
 
     @Select("SELECT p.ID,p.`name`,p.abbr,p.publisher,p.url,p.`level`,p.indicatorID,p.year,i.score,i.`name` as indicatorName,i.type from publication p, indicator i \n" +
-            "WHERE p.`name` = #{name} AND\n" +
-            "i.ID = p.indicatorID")
+            "WHERE p.`name` = #{name} AND i.ID = p.indicatorID ORDER BY year DESC")
     public List<Publication> getInfByName(String name);
 }

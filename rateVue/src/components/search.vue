@@ -36,7 +36,7 @@
     <el-dialog
         :visible.sync="dialogVisibleSearch"
         @close="closeSearch"
-        width="70%">
+        width="90%">
       <span slot="title" style="float:left;font-size: 20px" >请输入需要搜索的名称</span>
       <div style="margin-bottom: 10px">
         <span>请选择搜索的类别：</span>
@@ -92,6 +92,13 @@
             fixed
             prop="indicatorName"
             label="指标点名称">
+        </el-table-column>
+        <el-table-column
+            fixed
+            width="50px"
+            prop="score"
+            align="center"
+            label="分值">
         </el-table-column>
         <el-table-column
             fixed
@@ -671,7 +678,8 @@ export default {
                       name:item.name,
                       publisher:item.publisher,
                       url:item.url,
-                      year:item.year
+                      year:item.year,
+                      score:item.score
                     })
               }else if(this.searchPathInf.type == '决策咨询成果'){
                 this.listSearchPublicationsByName.push(

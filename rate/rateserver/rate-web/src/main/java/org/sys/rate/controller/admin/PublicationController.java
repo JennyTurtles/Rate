@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -116,8 +117,19 @@ public class PublicationController
     public RespBean getNamesByNameYear(@RequestBody Publication publication){
         Integer year = publication.getYear();
         String name = publication.getName();
+//        Integer stuId = Math.toIntExact(publication.getID());
         List<Publication> res = publicationMapper.getNamesByNameYear(name,year);
         return RespBean.ok("success",res);
+    }
+
+    @GetMapping("/publication/checkScore/{stuId}")
+    @ResponseBody
+    public RespBean checkScore(@PathVariable Integer stuId){
+        Integer id = publicationMapper.checkScore(stuId);
+        if (id == null){
+            return RespBean.ok("success",-1);
+        }else // 已经获得了2分的论文指标点，返回paper的id
+            return RespBean.ok("success",id);
     }
 
     // 文档2.21 功能5 PART2
