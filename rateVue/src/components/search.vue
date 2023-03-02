@@ -594,11 +594,11 @@ export default {
       PageSize:15,
       tablePaperSample: [//论文
         {
-          '刊物全称': "",
-          '刊物简称': "",
-          '出版社': "",
-          '网址': "",
-          '收录级别 （收录级别1;级别2;（请用分号隔开））': "",
+          '刊物全称': "《东华大学计算机学报》",
+          '刊物简称': "《东华计算机》",
+          '出版社': "东华大学出版社",
+          '网址': "https://cst.dhu.edu.cn",
+          '收录级别 （收录级别1;级别2;（请用分号隔开））': "收录级别1;收录级别2",
         },
       ],
       tableTechnicalSample: [//科技奖
@@ -1052,7 +1052,7 @@ export default {
           const firstSheetName = workbook.SheetNames[i];
           results[firstSheetName] = []
           const worksheet = workbook.Sheets[firstSheetName];
-          if (typeof worksheet.A1 != "undefined" && worksheet.A2.v != '') { //判断一下有没有空表 或者空白表格
+          if (typeof worksheet.A1 != "undefined" && (worksheet.A2.v != '《东华大学计算机学报》'|| typeof worksheet.A3 != "undefined")) { //判断一下有没有空表 或者空白表格
             flag = true
             results[firstSheetName] = [...results[firstSheetName],...XLSX.utils.sheet_to_json(worksheet)]
           }
@@ -1060,7 +1060,13 @@ export default {
         // console.log(results)
         for(var i = 0;i<workbook.SheetNames.length;i++){//比如有6种论文类别
           const firstSheetName = workbook.SheetNames[i];
+          if(results[firstSheetName].length){
+            if (results[firstSheetName][0]["刊物全称"] == "《东华大学计算机学报》")
+              results[firstSheetName].shift()
+          }
           for(var j = 0;j < results[firstSheetName].length;j ++){
+            // if (results[firstSheetName][j]["刊物全称"] == "《东华大学计算机学报》")
+            //   continue
             if(results[firstSheetName].length){
               results[firstSheetName][j]['所属类别'] = firstSheetName
             }
@@ -1073,6 +1079,8 @@ export default {
         if(flag){
           this.uploadResultValid = true
         }
+        console.log("table")
+        console.log(this.tableUploadData)
         this.uploadResult = true
         // console.log(this.tableUploadData)
       //   this.tableUploadData = XLSX.utils.sheet_to_json(worksheet);//json数据格式
@@ -1155,9 +1163,10 @@ export default {
       var wb = XLSX.utils.book_new();
       for(var i = 0;i<sheetTitlesAndId.length;i ++){
         var sheet = XLSX.utils.json_to_sheet(tableSample);//设置每个sheet的表头标题
+        console.log(sheet)
         XLSX.utils.book_append_sheet(wb, sheet, sheetTitlesAndId[i].label);
       }
-      // console.log(wb)
+      console.log(wb)
       const workbookBlob = this.workbook2blob(wb);
       this.openDownloadDialog(workbookBlob, '模版.xlsx');
     },
