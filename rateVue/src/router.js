@@ -116,6 +116,13 @@ export default new Router({
 
         },
         {//管理员下的
+          path: '/ActivitM/infos',
+          name: 'SalInfos',
+          component: () => import('./views/admin/SalInfos'),
+          meta: { title: 'SalInfos' },
+
+        },
+        {//管理员下的
           path: '/participantsM',
           name: 'SalPar',
           component: () => import('./views/admin/SalPar'),

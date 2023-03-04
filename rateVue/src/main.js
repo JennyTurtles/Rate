@@ -172,6 +172,8 @@ router.beforeEach((to, from, next) => {
             sessionStorage.clear('initRoutes_AllSameForm')
         }
         next()
+    }else if(to.path == '/teacher/tperact/InformationDetails'){
+        next()
     }
     //除登录外的其他路径
     else {
@@ -182,6 +184,7 @@ router.beforeEach((to, from, next) => {
             }
             initMenu(router,store)
             var routs = sessionStorage.getItem('initRoutes_AllSameForm')
+            // console.log(routs)
             if(routs.indexOf(to.path) == -1){
                 Message.warning('无权限！请重新登录')
                 next('/')

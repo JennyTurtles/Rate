@@ -10,6 +10,7 @@
       </div>
     </div>
     <div><br/>单元格中内容双击后可编辑</div>
+    <div><br/>是否展示：该信息项是否在展示给专家打分。大小限制：对文件大小或输入内容字数的限制</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -54,7 +55,7 @@
         </el-table-column>
         <el-table-column
             prop="shuZuType"
-            label="contentType"
+            label="类型"
             align="center"
             min-width="10%"
         >
@@ -67,7 +68,7 @@
                        @change="handleEdit(scope.$index,scope.row,'name')"
                        @blur="inputBlur"
                        prefix-icon="el-icon-edit"
-                       clearable
+
             >
               <el-option
                   v-for="x in shuju"
@@ -80,7 +81,7 @@
         </el-table-column>
         <el-table-column
             prop="sizelimit"
-            label="sizelimit(字节默认为M，字为字数)"
+            label="大小限制(字节默认为M，字为字数)"
             align="center"
             min-width="5%"
         >
@@ -101,7 +102,7 @@
             <span
                 style="width: 100%; height: 100%; display: inline-block"
                 v-else
-            >{{ scope.row.sizelimit }}字(节)</span
+            >{{ scope.row.sizelimit }}字</span
             >
           </template>
         </el-table-column>
@@ -123,7 +124,7 @@
         </el-table-column>
         <el-table-column
             prop="comment"
-            label="是否display"
+            label="是否展示"
             align="center"
             min-width="3%"
         >
@@ -284,7 +285,7 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.currentHr; //object信息
+      return JSON.parse(localStorage.getItem('user')); //object信息
     },
   },
   created() {

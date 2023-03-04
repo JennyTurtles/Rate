@@ -50,6 +50,8 @@
 </template>
 
 <script>
+import {getRequest} from "@/utils/api";
+
 export default {
   name: "actList",
   data() {
@@ -88,12 +90,12 @@ export default {
   computed: {},
   mounted(){
     this.user = JSON.parse(localStorage.getItem("user"))
-    new Promise((resolve, reject) => {
-      this.$store.dispatch('initsize',this.user.id).then(()=>{
+    // new Promise((resolve, reject) => {
+    this.$store.dispatch('initsize',this.user.id).then(()=>{
         this.tablelist = JSON.parse(sessionStorage.getItem("peract")).activitiesList
       })
-      // resolve()
-    })
+    // resolve()
+    // })
   },
   methods: {
     //表头样式
@@ -108,14 +110,6 @@ export default {
             },
       })
       window.open(routeUrl.href)
-      // this.$router.push({
-      //   path: "/teacher/tperact/score",
-      //   query: {
-      //     keywords: index,
-      //     // keywords: 26,
-      //   },
-      // });
-
     },
   },
 };

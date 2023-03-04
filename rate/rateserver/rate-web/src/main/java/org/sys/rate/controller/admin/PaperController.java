@@ -225,7 +225,7 @@ public class PaperController
     public RespBean download(Integer paperID,String filename) throws IOException {
         File newFile = new File(new File("upload").getAbsolutePath() + "/" + filename);
 //        file.transferTo(newFile);
-        return RespBean.ok("success");
+        return RespBean.ok("success",newFile);
     }
     @PostMapping("/deleteFile")//删除某个文件
     @ResponseBody

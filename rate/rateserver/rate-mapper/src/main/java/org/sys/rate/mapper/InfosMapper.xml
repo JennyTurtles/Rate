@@ -95,4 +95,11 @@
         select content from infos
         where infoItemID = #{infoItemID} and activityID = #{activityID} and participantID=#{participantID}
     </select>
+    <select id="getParticipantIDtByAIdAndInfoItemID" resultMap="BaseResultMap">
+        select *
+        from infos
+        where infos.activityID = #{activityID} and infos.infoItemID = #{infoItemID}
+    </select>
+
+
 </mapper>

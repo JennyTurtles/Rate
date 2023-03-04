@@ -81,7 +81,7 @@ public class ExpertService implements UserDetailsService {
 
 	}
 
-	public RespPageBean getExpertsByPage(Integer keywords, Integer page, Integer size, Experts employee) {
+	public List<Experts> getExpertsByPage(Integer keywords, Integer page, Integer size, Experts employee) {
 		if (page != null && size != null) {
 			page = (page - 1) * size;
 		}
@@ -90,7 +90,7 @@ public class ExpertService implements UserDetailsService {
 		RespPageBean bean = new RespPageBean();
 		bean.setData(data);
 		bean.setTotal(total);
-		return bean;
+		return data;
 	}
 
 	public RespPageBean getExpertSituationByExpertID(Integer keywords,Integer expertID, Integer page, Integer size) {

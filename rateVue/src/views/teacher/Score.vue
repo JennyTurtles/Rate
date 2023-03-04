@@ -281,6 +281,8 @@ export default {
   inject: ["reload"],
   data() {
     return {
+      // list:{},
+      // datal:'',
       Aname: "",
       groupName: "",
       Adata: {
@@ -307,54 +309,54 @@ export default {
   },
   created() {
     this.dataRefreh();
+
   },
   computed: {
-    list() {
-      if (sessionStorage.getItem("peract")) {
-        let list = JSON.parse(sessionStorage.getItem("peract"));
-        return list;
-      } else if(this.$store.state.peract){
-        return this.$store.state.peract;
-      }else{
-        // new Promise((resolve, reject) => {
-          this.$store.dispatch('initsize',this.user.id).then(()=>{
-            return  JSON.parse(sessionStorage.getItem("peract"))
-          // })
-          // resolve()
-        })
-      }
-    },
+    // list() {
+    //   if (sessionStorage.getItem("peract")) {
+    //     let list = JSON.parse(sessionStorage.getItem("peract"));
+    //     console.log('sessionStorage')
+    //     return list;
+    //   } else if(this.$store.state.peract){
+    //     console.log('state')
+    //     return this.$store.state.peract;
+    //   }else{
+    //         this.$store.dispatch("initsize", this.user.id).then(()=>{
+    //           this.list = this.$store.state.peract
+    //         })
+    //       }
+    // },
     datal() {
       return this.$store.state.score;
     },
   },
 
   mounted() {
-
-    this.$nextTick(() => {
-      this.windowScreenHeight = window.innerHeight - 210;
-    });
     this.user = JSON.parse(localStorage.getItem("user"));
-    console.log('initdata')
-    this.initdata();
-    if (sessionStorage.getItem("score")) {
-      let initscore = JSON.parse(sessionStorage.getItem("score"));
-      this.datalist = initscore;
-    }
-    else {
-      this.fullscreenLoading = true;
-      //浏览器保存score
-      this.initAct();
-      setTimeout(() => {
-        this.datalist = this.datal;
-        this.initState();
-        sessionStorage.setItem("score", JSON.stringify(this.datalist));
-        if (!this.datalist.finished) {
-          this.reload();
-        }
-        this.fullscreenLoading = false;
-      }, 700);
-    }
+    this.$store.dispatch('initsize',this.user.id).then(()=>{
+      this.list = JSON.parse(sessionStorage.getItem("peract"));
+      this.initdata();
+      console.log(this.list)
+      this.$nextTick(() => {
+        this.windowScreenHeight = window.innerHeight - 210;
+      });
+      if (sessionStorage.getItem("score")) {
+        let initscore = JSON.parse(sessionStorage.getItem("score"));
+        this.datalist = initscore;
+      } else {
+        this.fullscreenLoading = true;
+        this.initAct();
+        setTimeout(() => {
+          this.datalist = this.datal;
+          this.initState();
+          sessionStorage.setItem("score", JSON.stringify(this.datalist));
+          if (!this.datalist.finished) {
+            this.reload();
+          }
+          this.fullscreenLoading = false;
+        }, 700);
+      }
+    })
   },
   filters:{
     fileNameFilter:function(data){//将上传的材料显示出来
@@ -367,6 +369,22 @@ export default {
     }
   },
   methods: {
+    // async initActivityList(teacher) {
+    //   const result = await getRequest(
+    //       "/system/Experts/activities?expertID=" + teacher.id
+    //   );
+    //   if (result.code === 200) {
+    //     this.loading = false;
+    //     if (result.extend.count !== 0) {
+    //       // 存活动列表session
+    //       sessionStorage.setItem(
+    //           "activitiesList",
+    //           JSON.stringify(result.extend.activitiesList)
+    //       );
+    //     }
+    //   }
+    // },
+
     downloadInfoItems(data){//下载证明材料
       const fileName = data.content.split('/').reverse()[0]
       axios({
@@ -509,7 +527,8 @@ export default {
       return "text-align:center";
     },
     initState() {
-      console.log('initstate')
+      console.log('initState')
+      console.log(this.datalist)
       let n = this.datalist.participatesList.length;
       let m = this.datalist.scoreitems.length;
       let p = this.datalist.scoresListNoExpert.length;
@@ -652,6 +671,7 @@ export default {
       //Act对象
       this.Adata.Auserid = this.user.id;
       // 传来的参数
+      console.log(this.list)
       let num = this.$route.query.keywords;
       let listActivityTemp = this.list.activitiesList;
       this.Adata.Aid = listActivityTemp[num].activityID;
@@ -660,12 +680,11 @@ export default {
       this.groupName = listActivityTemp[num].groupName;
       this.groupId = listActivityTemp[num].groupId;
       this.comment = listActivityTemp[num].activityLists[0].comment;
-      console.log(this.list);
     },
-    async initAct() {
+     async initAct() {
       if (this.list.count != 0) {
-        console.log('initdata')
-        this.$store.dispatch("initAct", this.Adata);
+        // console.log(this.Adata)
+        await this.$store.dispatch("initAct", this.Adata);
         // const value =  await getRequest("/system/Experts/score?activitiesID=" + this.Adata.Aid + '&expertID=' + this.Adata.Auserid + '&groupId=' + this.Adata.AgroupId)
         // if(value){
         //   this.datalist = value.extend

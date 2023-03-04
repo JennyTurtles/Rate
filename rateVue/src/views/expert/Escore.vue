@@ -481,14 +481,16 @@ export default {
           }
         }
       }
-      let routeUrl = this.$router.resolve({
-        path:"/admin/InformationDetails",
-        query: {
-          datalist: JSON.stringify({datalist:this.datalist}),
-          dialogdata: JSON.stringify(this.dialogdata),
-        },
-      })
-      window.open(routeUrl.href)
+      console.log(this.datalist)
+      console.log(this.dialogdata)
+      // let routeUrl = this.$router.resolve({
+      //   path:"/admin/InformationDetails",
+      //   query: {
+      //     datalist: JSON.stringify({datalist:this.datalist}),
+      //     dialogdata: JSON.stringify(this.dialogdata),
+      //   },
+      // })
+      // window.open(routeUrl.href)
     },
     //表头换行
     renderheader(h, { column, $index }) {

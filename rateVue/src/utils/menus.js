@@ -45,7 +45,6 @@ export const initMenu = (router, store) => {
                 })
                 sessionStorage.setItem('initRoutes_AllSameForm',res)
                 store.commit('initRoutesAllSameForm',res)
-
             }
         })
 }

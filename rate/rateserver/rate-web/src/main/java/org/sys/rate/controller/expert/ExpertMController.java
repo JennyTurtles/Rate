@@ -40,8 +40,11 @@ public class ExpertMController {
     LogService logService;
 
     @GetMapping("/")
-    public RespPageBean getExpertsByPage(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, Experts employee) {
-        return expertService.getExpertsByPage(keywords,page, size, employee);
+    @ResponseBody
+    public List<Experts> getExpertsByPage(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, Experts employee) {
+        List<Experts> res = expertService.getExpertsByPage(keywords,page, size, employee);
+        System.out.println(res);
+        return res;
     }
 
     @GetMapping("/show_situ")

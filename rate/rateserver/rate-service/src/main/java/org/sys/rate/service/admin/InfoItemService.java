@@ -129,5 +129,9 @@ public class InfoItemService {
         List<InfoItem> infoItems = infoItemMapper.selectInfoItemByActivityIdIsShow(activitiesID);
         return infoItems;
     }
+    public List<InfoItem>  getInforItemAndContentByActivityIdAndPIdAndInfoId(Integer activitiesID,Integer participantID){
+        List<InfoItem> infoItems = infoItemMapper.selectInforItemAndContentByActivityIdAndPIdAndInfoId(activitiesID,participantID);
+        return infoItems;
+    }
 
 }

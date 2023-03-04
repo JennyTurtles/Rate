@@ -107,17 +107,7 @@
           </template>
         </el-table-column>
       </el-table>
-
-      <div style="display: flex; justify-content: flex-end; margin: 10px 0">
-        <el-pagination
-          background
-          @current-change="currentChange"
-          @size-change="sizeChange"
-          layout="sizes, prev, pager, next, jumper, ->, total, slot"
-          :total="total"
-        >
-        </el-pagination>
-      </div>
+      
     </div>
 
 <!-- 添加论文对话框 -->

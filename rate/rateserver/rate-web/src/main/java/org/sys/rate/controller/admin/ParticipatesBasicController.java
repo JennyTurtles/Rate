@@ -220,4 +220,13 @@ public class ParticipatesBasicController {
     public List<String> check_null(@RequestParam Integer groupid,MultipartFile file){
         return POIUtils.check(file);
     }
+
+    @GetMapping("/getParticipantIDByIdNumber")
+    @ResponseBody
+    public List<InfoItem> getParticipantIDByIdNumber(@RequestParam Integer activityID,@RequestParam String IDNumber){
+        //通过IDNumber大拿到选手id，通过三个id去找到infos，包括了content
+        Integer participantID = participatesService.getParticipantIDByIDNumber(activityID,IDNumber);
+        List<InfoItem> infoItems = infoItemService.getInforItemAndContentByActivityIdAndPIdAndInfoId(activityID,participantID);
+        return infoItems;
+    }
 }

@@ -21,17 +21,20 @@
             <template v-else-if="item.contentType == 'textbox'">
               <div>
                 <el-input style="width:80%"
+                          :maxlength="item.sizelimit"
+                          show-word-limit
                           @blur="saveTextbox(item,'textbox')"
                           @change="judgeTextboxChange()"
                           v-model="infoTextboxContent"
                           placeholder="请输入内容"
                 >
                 </el-input>
-
               </div>
             </template>
             <template v-else-if="item.contentType == 'textarea'">
               <el-input
+                  :maxlength="item.sizelimit"
+                  show-word-limit
                   @blur="saveTextbox(item,'textarea')"
                   @change="judgeTextareaChange()"
                   v-model="infoTextareaContent"
@@ -54,30 +57,32 @@
                   :limit="1"
                   :on-exceed="handleExceed(item)"
                   :headers="headers"
-                  :disabled="uploadListElement[index].disabled"
+                  :disabled="!uploadListElement[index].isShow"
                   :show-file-list="false"
                   :on-change="(file,fileList)=>{handleChangeFiles(file,fileList,item,index)}"
                   style="width:70%;margin-left:20px;height:50%"
                   :auto-upload="false"
                   :http-request="upload(item,index)"
               >
-                <el-button type="primary" icon="el-icon-upload2"
-                           slot="trigger"  size="mini" ref="uploadButton"
-                           :disabled="uploadListElement[index].disabled"
-                >选择文件</el-button>
                 <div
                     style="
                     width: 100%; height: 100%; display: inline-block;
-                    color:lightgray;margin-left: 20px">
-                    <span style="color:gray;font-size:11px;">只允许{{item.contentType}}类型文件&nbsp;&nbsp;不能超过{{item.sizelimit}}
+                    color:lightgray;margin-left: 12px"
+                    v-show="uploadListElement[index].isShow">
+                <el-button type="primary" icon="el-icon-upload2"
+                           slot="trigger"  size="mini" ref="uploadButton"
+                           :disabled="!uploadListElement[index].isShow"
+                >选择文件</el-button>
+                    <span style="color:gray;font-size:11px;margin-left: 5px">只允许{{item.contentType}}类型文件&nbsp;&nbsp;不能超过{{item.sizelimit}}
                     </span>
-                  <div v-if="fileDownloadList[item.id] && fileDownloadList[item.id].length" class="fileList">
+                </div>
+
+                <div v-if="fileDownloadList[item.id] && fileDownloadList[item.id].length" class="fileList">
                     <a :id="item.id" @click="downloadFileALink(item)"></a>
                     <span @click="downloadFileALink(item)">
                       {{fileDownloadList[item.id][0].fileUrl | fileNameFilter}}
                     </span>
                     <a class="deleteFileStyle" @click="handleDelete(item,index)"></a>
-                  </div>
                 </div>
               </el-upload>
             </template>
@@ -267,7 +272,6 @@ export default {
       })
     },
     downloadFileALink(data){
-      // console.log(this.fileDownloadList[data.id])
       var fileUrl = this.fileDownloadList[data.id][0].fileUrl
       var fileName = fileUrl.split('/').reverse()[0]
       var url = fileUrl
@@ -299,16 +303,19 @@ export default {
     },
     upload(data,index){
       if(data.id != this.uploadInfoid){//渲染了多个upload，用每一个infoitem的id做标识，判断是哪个upload被点击了
-        return;
+        return ;
       }
       if(this.fileUploadList.length == 0){//没有上传文件
-        return;
+        return ;
       }
       var formData=new FormData();
       formData.append("file",this.fileUploadList[0].file.raw)
       formData.append("activityID",data.activityID)
       formData.append("studentID",JSON.parse(localStorage.getItem("user")).id)
       formData.append("infoItemID",data.id)
+      this.$message({
+        message:'正在上传'
+      })
       axios.post("/infoItem/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
@@ -326,7 +333,7 @@ export default {
           this.urlFile=response.data//获取文件存储的路径
           this.fileUploadList = []//每上传一次就设置为空，所以每个upload都只有一个文件
           this.renderFileIcon(response.data,data)//渲染图标
-          this.uploadListElement[index].disabled = true
+          this.uploadListElement[index].isShow = false
           // this.reset()
         },()=>{}
       )
@@ -414,26 +421,30 @@ export default {
             this.fileDownloadList[data.id] = null//删除这个index
             //删除这个在refs中记录的文件，防止影响别的upload
             this.$refs.upload[this.uploadListElement[index].elementIndex].uploadFiles = []
-            this.uploadListElement[index].disabled = false
+            this.uploadListElement[index].isShow = true
           },()=>{}
       )
 
     },
     handleChangeFiles(file,fileList,data,index){//文件列表数量改变
       console.log('file:')
-      console.log(this.$refs.upload)
+      console.log(file)
+      console.log(data.sizelimit)
       this.fileUploadList=[]
       this.files=[]
       var attachmentType = data.contentType.split(",")
       var type=file.name.split('.')
-      if(file.size > data.sizelimit*1024){
+      var sizelim = data.sizelimit.substr(0,data.sizelimit.length-1)
+      console.log(sizelim*1024*1024)
+      if(file.size > sizelim*1024*1024){
         this.$message.error('上传文件大小不能超过'+ data.sizelimit +'大小!');
-        return
+        return false
       }
       if(attachmentType.indexOf(type[type.length-1].toLowerCase()) === -1) {
         this.$message.error("不支持上传该类型的附件")
-        return
+        return false
       }
+
       this.uploadInfoid = data.id
       this.fileUploadList.push({
         index:index,
@@ -470,7 +481,7 @@ export default {
                 this.uploadListElement[index] = {//在所有infoitem中的索引值
                       element,
                       elementIndex:idx,//用于记录当前的upload对于所有的upload处于第几个位置,上传文件会用到
-                      disabled:false
+                      isShow:true
                 }
                 idx ++;
             }
@@ -517,7 +528,7 @@ export default {
 
 <style>
 .myupload .deleteFileStyle{
-  margin-left: 90px;
+  margin-left: 50px;
   background-image: url("../../assets/images/删除.png") !important;
   width: 15px;
   height: 15px;
@@ -527,7 +538,7 @@ export default {
 }
 .fileList{
   display: inline-block;
-  width: 90%;
+  width: 100%;
   margin-top: 5px;
   height: 100%;
   color: #333333

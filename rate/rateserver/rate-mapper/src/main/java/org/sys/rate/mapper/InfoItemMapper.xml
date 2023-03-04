@@ -179,6 +179,14 @@
     order by s.ID
   </select>
 
+  <select id="selectInforItemAndContentByActivityIdAndPIdAndInfoId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select  DISTINCT s.ID,s.activityID,s.name,s.sizelimit,s.contentType,s.byParticipant,s.display,i.content
+    from infos i
+    right join infoitem s on s.ID = i.infoItemID
+    where s.activityID = #{activitiesID} and i.participantID = #{participantID}
+    order by s.ID
+  </select>
+
 
   <select id="selectInfoItemByActivityIdIsShow" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select *
@@ -194,5 +202,6 @@
   <select id="getInfoItemAll" resultMap="ResultInfoItemValue">
     select si.ID,si.name from  infoitem si where si.activityID=#{activitiesID} and si.byParticipant=false;
   </select>
+
 
 </mapper>

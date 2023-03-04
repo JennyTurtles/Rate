@@ -8,6 +8,7 @@ import org.sys.rate.model.Participates;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface ParticipatesMapper {
@@ -108,4 +109,8 @@ public interface ParticipatesMapper {
 
     @Select("SELECT COUNT(*) from participants WHERE studentID = #{stuId}")
     int isParticipants(Integer stuId);
+
+    List<Participates> getParticipantByAIdAndID(Integer activityID, List<Integer> participantID);
+
+    Integer getParticipantIDByIDNumber(Integer activityID,String IDNumber);
 }

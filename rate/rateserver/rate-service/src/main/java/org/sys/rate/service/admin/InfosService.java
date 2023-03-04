@@ -3,14 +3,18 @@ package org.sys.rate.service.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.InfosMapper;
+import org.sys.rate.mapper.ParticipatesMapper;
 import org.sys.rate.model.Infos;
+import org.sys.rate.model.Participates;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 public class InfosService {
     @Autowired
     InfosMapper infosMapper;
+    @Autowired
+    ParticipatesMapper participatesMapper;
 
     public Integer saveScore(Integer expertID, Integer activityID, Integer participantID, Integer scoreItemID, Double score) {
         int i=infosMapper.insertScore(expertID,activityID,participantID,scoreItemID,score);
@@ -62,5 +66,18 @@ public class InfosService {
         if (infosMapper.UpdateScore1(info) == 0){ // 更新不到记录则添加
             infosMapper.insertScore1(info);
         }
+    }
+    public List<Participates> getPartipicantByActivityId(Integer activityID,Integer infoItemID,List<String> infoContent){
+        List<Infos> res = infosMapper.getParticipantIDtByAIdAndInfoItemID(activityID,infoItemID);
+        List<Integer> participantID = new ArrayList<>();
+        //根据infos的活动ID和infoitemid得到选手id
+
+        for(int i = 0;i < res.size(); i++){
+            if(infoContent.contains(res.get(i).getContent())){
+                participantID.add(res.get(i).getParticipantID());
+            }
+        }
+        List<Participates> pares = participatesMapper.getParticipantByAIdAndID(activityID,participantID);
+        return pares;
     }
 }

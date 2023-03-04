@@ -147,6 +147,8 @@ public class InfoItemController {
 
     @GetMapping("/getAll/{id}")
     public RespBean getAll(@PathVariable("id") Integer id){
-        return RespBean.ok("success",infoItemMapper.getAll(id));
+        List<InfoItem> infoItems = infoItemService.getInforItemByActivityId(id);
+        return RespBean.ok("success",infoItems);
     }
+
 }

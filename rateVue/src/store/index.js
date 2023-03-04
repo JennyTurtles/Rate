@@ -123,6 +123,8 @@ const store = new Vuex.Store({
                         } else {
                             context.commit('INIT_PERACT', resp)
                         }
+                        console.log('initsize')
+
                         resolve(resp)
                     }
                 })
@@ -130,7 +132,10 @@ const store = new Vuex.Store({
             return promise
         },
         initAct(context, AI) {
-            getRequest("/system/Experts/score?activitiesID=" + AI.Aid + '&expertID=' + AI.Auserid + '&groupId=' + AI.AgroupId).then(value => {
+            console.log(AI)
+            var Aid = AI.Aid
+            var promise = new Promise((resolve, reject) => {
+                getRequest("/system/Experts/score?activitiesID=" + 26 + '&expertID=' + 1043 + '&groupId=' + 26).then(value => {
                 if (value) {
                     value = value.extend
                     let n = value.participatesList.length;
@@ -285,8 +290,11 @@ const store = new Vuex.Store({
                     } else {
                         context.commit('INIT_SCORE', value)
                     }
+                    resolve()
                 }
             })
+            })
+            return promise
         },
         setScoreParticipatesList(context, data) {
             context.commit('INIT_ScoreParticipatesList', data)
@@ -294,7 +302,9 @@ const store = new Vuex.Store({
         initchangeList(context) {
             context.commit('INIT_initchangeList')
         }
+
     },
+
 })
 
 store.watch(function (state) {

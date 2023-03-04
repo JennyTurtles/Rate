@@ -23,6 +23,7 @@
             下载模板
           </el-button>
           第二步：
+<!--          导入选手按钮-->
           <el-upload
               :show-file-list="false"
               :before-upload="beforeUpload"
@@ -36,7 +37,13 @@
               {{importDataBtnText}}
             </el-button>
           </el-upload>
-<!--          <el-progress v-if="show" :percentage="percentage"></el-progress>-->
+
+          <el-button type="primary" @click="groupsForParticipant" icon="el-icon-upload" style="margin-right: 8px">
+            选手分组
+          </el-button>
+          <el-button type="danger" icon="el-icon-delete" @click="deleteGroupsOfParticipant"  style="margin-right: 8px">
+            删除分组
+          </el-button>
         </div>
         <div>
           <el-button type="primary" @click="exportData" :loading="loading" icon="el-icon-download">
@@ -138,6 +145,104 @@
         </el-pagination>
       </div>
     </div>
+
+
+    <el-dialog title="选手分组" :visible.sync="dialogPartipicantGroups" width="70%" center
+               @close='closeDialogGroupOfParticipant'>
+      <div>
+        <div>
+          <span>请选择进行分组的信息项：</span>
+          <el-select
+              style="margin-right: 20px;width: 120px;"
+              v-model="selectedGroupInfo"
+          >
+            <el-option
+                v-for="(item,key,index) in groupInfoNums"
+                :key="key"
+                :label="key"
+                :value="key">
+            </el-option>
+          </el-select>
+          <template>
+            <span>请选择分组个数：</span>
+            <el-select
+                style="margin-right: 20px;width: 150px;"
+                v-model="selectedGroupNums"
+            >
+              <el-option
+                  v-for="item in groupNums"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+              </el-option>
+            </el-select>
+          </template>
+          <template v-if="groupSubOfSelectedInfos.length != 0">
+            <span>请对{{selectedGroupInfo}}选择细分：</span>
+            <el-select
+                style="margin-right: 20px;width: 150px;"
+                v-model="selectedSubGroupInfo"
+                multiple
+            >
+              <el-option
+                  v-for="item in groupSubOfSelectedInfos"
+                  :key="item"
+                  :label="item"
+                  :value="item">
+              </el-option>
+            </el-select>
+          </template>
+          <br>
+
+          <div style="margin-top: 8px">
+            <template>
+              <el-radio v-model="radio" label="1">均分每组人数</el-radio>
+              <el-radio v-model="radio" label="2">指定每组人数</el-radio>
+            </template>
+          </div>
+
+          <div id="tableOfGroupNums" v-show="selectedGroupNums > 1 ? true:false" style="margin: auto;width: 100%;position: relative;text-align: center;margin-top: 8px">
+            <div v-for="item in groupNumsInput" style="margin: auto;margin-top: 6px;width: 100%">
+              第{{item.idx + 1}}组：
+              <input v-model="item.value" ></input>
+            </div>
+          </div>
+
+          <div style="margin-top: 10px;text-align: center;width: 100%">
+            <el-button @click="creatGroup">
+              创建分组
+            </el-button>
+          </div>
+
+        </div>
+<!--        对话框里显示没有分组的学生-->
+<!--        <div style="margin-top: 10px">-->
+<!--          <el-table-->
+<!--              :data="filterNoGroupPar"-->
+<!--          >-->
+<!--            <el-table-column-->
+<!--                label="学生ID"-->
+<!--                prop="studentID">-->
+
+<!--            </el-table-column>-->
+<!--            <el-table-column-->
+<!--                label="活动ID"-->
+<!--                prop="activityID">-->
+
+<!--            </el-table-column><el-table-column-->
+<!--              label="选手ID"-->
+<!--              prop="id">-->
+
+<!--          </el-table-column><el-table-column-->
+<!--              label="code"-->
+<!--              prop="code">-->
+
+<!--          </el-table-column>-->
+<!--          </el-table>-->
+<!--        </div>-->
+      </div>
+
+    </el-dialog>
 
 
     <el-dialog :title="title" :visible.sync="dialogVisible" width="30%" center>
@@ -331,6 +436,16 @@ export default {
   name: "SalGroup",
   data() {
     return{
+      groupNumsInput:[],//用于存放选择分为几组后的div和input框
+      radio:'1',
+      filterNoGroupPar:[],//对话框中的展示table数据
+      groupSubOfSelectedInfos:[],//对子信息项再进行选择
+      selectedSubGroupInfo:[],//选择的子信息项
+      selectedGroupNums:null,//选择的分组数量
+      groupNums:null,//分数个数列表
+      selectedGroupInfo:'',//被选择的信息项
+      groupInfoNums: {},//所有信息项 选项
+      dialogPartipicantGroups:false,//选手分组的对话框
       title: '',
       labelPosition: "left",
       importDataBtnText: '导入选手',
@@ -387,7 +502,56 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.currentHr;//object信息
+      return JSON.parse(localStorage.getItem('user'));//object信息
+    }
+  },
+  watch:{
+    selectedGroupNums:{//监听用户选择了分为几组
+      handler(val){
+        this.groupNumsInput = []
+        for(var i = 0;i < val;i ++){
+          this.groupNumsInput.push({
+            idx:i,
+            value:''
+          })
+        }
+        this.calculationGroupInputValue()
+      }
+    },
+    radio:{
+      handler(val){
+        if(this.radio == '1'){//均分
+
+        }else//指定每组人数
+        {
+
+        }
+      }
+    },
+    selectedGroupInfo:{//监听第一个下拉框的变化
+      handler(val){
+        if(this.selectedSubGroupInfo.length!=0){//信息项和信息项的子选项都被选择了
+          this.filterNoGroupParticipants()
+        }else {
+          this.groupSubOfSelectedInfos = []
+          //取出选择的信息项的所有内容content
+          if(this.groupInfoNums[val].length!=0) {
+            for (var i = 0; i < this.groupInfoNums[val].length; i++) {
+              if (this.groupSubOfSelectedInfos.indexOf(this.groupInfoNums[val][i].content) == -1 &&
+                  this.groupInfoNums[val][i].content != '') {
+                this.groupSubOfSelectedInfos.push(this.groupInfoNums[val][i].content)
+              }
+            }
+          }
+        }
+      }
+    },
+    selectedSubGroupInfo:{//第二个下拉框的变化
+      handler(val){
+        if(this.selectedGroupInfo != ''){//信息项和信息项的子选项都被选择了
+          this.filterNoGroupParticipants()
+        }
+      }
     }
   },
   created() {
@@ -401,6 +565,76 @@ export default {
     this.initEmps();
   },
   methods: {
+    deleteGroupsOfParticipant(){//删除分组
+
+    },
+    calculationGroupInputValue(){//计算选择组数和单选按钮后input框的赋值
+      var participantNums = 45//选手人数
+      var groupNums = this.selectedGroupNums//组数
+      if(this.radio == '1' && this.selectedGroupNums != null){//均分
+        var baseNums = Math.floor(participantNums / groupNums);
+        for(var i = 0;i<groupNums;i++){
+          this.groupNumsInput[i].value = baseNums;
+        }
+        for(var i = 0;i<(participantNums - baseNums * groupNums);i ++){
+          this.groupNumsInput[i].value ++;
+        }
+      }
+
+    },
+    closeDialogGroupOfParticipant(){//选手分组对话框关闭,清空遗留数据
+      this.selectedGroupInfo = ''
+      this.selectedSubGroupInfo = []
+      this.selectedGroupNums = 1
+      this.filterNoGroupPar = []
+    },
+    filterNoGroupParticipants(){
+      //通过2个id找infos的选手id， 通过活动id，选手id找没有分组的选手，返回信息
+      if(this.selectedSubGroupInfo.length == 0 || this.selectedGroupInfo == ''){
+        return
+      }
+      var data = {
+        'activityID':[this.keywords.toString()],
+        'infoItemID':[this.groupInfoNums[this.selectedGroupInfo][0].id.toString()],
+        'infoContent':this.selectedSubGroupInfo
+      }
+      var url = '/info/basic/getPartipicantIDByInfos'
+      this.postRequest(url,data).then((res)=>{
+        if(res){
+          console.log('res:')
+          console.log(res.obj)
+          this.filterNoGroupPar = res.obj//存放没有分好组的选手，但是不显示在页面上
+          if(this.filterNoGroupPar.length == 0){
+            this.$message.warning('该信息项下已分组!')
+          }
+        }
+      })
+
+    },
+    groupsForParticipant(){//选手分组,点击按钮对话框弹出
+      //获得该活动下的所有Infoitem，其中包括content
+      this.groupSubOfSelectedInfos = []
+      var url = '/infoItem/basic/getAll/' + this.keywords
+      this.getRequest(url).then((resp)=>{
+        if(resp){
+          for(var i = 0;i < resp.obj.length;i ++){
+            if(!(resp.obj[i].name in this.groupInfoNums)){
+              this.groupInfoNums[resp.obj[i].name]=[]
+            }
+            this.groupInfoNums[resp.obj[i].name].push(resp.obj[i])//将每一个信息项改为对象形式
+          }
+          // console.log(this.groupInfoNums)
+          if(!this.groupNums){
+            this.groupNums = Array.from(Array(10).keys(),n=>n+1)
+          }
+          this.dialogPartipicantGroups = true
+        }
+      })
+      //  怎么判断哪些信息项是有多个选项？
+    },
+    creatGroup(){//创建分组
+
+    },
     /** 查询角色列表 */
     onError(err, file, fileList) {
       this.importDataBtnText = '导入选手';
@@ -425,62 +659,60 @@ export default {
     },
     handleChange(file) {
       this.show = true;
-        let fd = new FormData();
-        let fileName = file.file.name + new Date().getTime();
-        fd.append("file", file.file);
-        fd.append("key", fileName);
-        let url = "/participants/basic/check?groupid=0";
-      axios.post(url, fd, {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-              /*onUploadProgress: (progressEvent) => {
-                // onUploadProgress 文件上传时的函数   上传进度
-                this.percentage = Number(
-                    ((progressEvent.loaded / progressEvent.total) * 100).toFixed(0)
-                );
-              },*/
-            })
-            .then((res1) => {
-              if(res1.length===0)
+      var that = this
+      let fd = new FormData();
+      let fileName = file.file.name + new Date().getTime();
+      fd.append("file", file.file);
+      fd.append("key", fileName);
+      let url = "/participants/basic/check?groupid=0";
+      this.postRequest(url, fd, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              'token':this.user.token
+            },
+          })
+          .then((res1) => {
+            if(res1.length===0)
+            {
+              url = "/participants/basic/import?groupid=0"+"&activityid="+this.keywords+"&insititutionID="+this.user.institutionID;
+              axios.post(url, fd, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                  'token':that.user.token
+                },
+              }).then((res) => {
+                this.$message(res.msg);
+              })
+            }
+            else{
+              let newD=[],h=this.$createElement;
+              newD.push(h('p',null,'导入数据中'));
+              for(const i in res1)
               {
+                newD.push(h('p',null,res1[i]))
+              }
+              newD.push(h('p',null,'为空，以上列数据会被置空，是否确认继续?'));
+              this.$confirm(h('div',null,newD), '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
                 url = "/participants/basic/import?groupid=0"+"&activityid="+this.keywords+"&insititutionID="+this.user.institutionID;
                 axios.post(url, fd, {
                   headers: {
                     "Content-Type": "multipart/form-data",
+                    'token':that.user.token
                   },
                 }).then((res) => {
+                  this.initEmps();
                   this.$message(res.msg);
                 })
-              }
-              else{
-                let newD=[],h=this.$createElement;
-                newD.push(h('p',null,'导入数据中'));
-                for(const i in res1)
-                {
-                  newD.push(h('p',null,res1[i]))
-                }
-                newD.push(h('p',null,'为空，以上列数据会被置空，是否确认继续?'));
-                this.$confirm(h('div',null,newD), '提示', {
-                  confirmButtonText: '确定',
-                  cancelButtonText: '取消',
-                  type: 'warning'
-                }).then(() => {
-                  url = "/participants/basic/import?groupid=0"+"&activityid="+this.keywords+"&insititutionID="+this.user.institutionID;
-                  axios.post(url, fd, {
-                    headers: {
-                      "Content-Type": "multipart/form-data",
-                    },
-                  }).then((res) => {
-                    this.initEmps();
-                    this.$message(res.msg);
-                  })
-                })
-              }
-            })
-            .catch((err) => {
-              console.log(err);
-            });
+              })
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
 
     },
 
@@ -504,9 +736,6 @@ export default {
       this.dialogVisible_checkbox=true;
     },
     exportMo() {
-      // console.log(this.dymatic_list);
-      // console.log(this.scoreitem);
-      // console.log(this.infoitem);
       this.dialogVisible_checkbox=false;
       Message.success("正在下载模板");
       let url = "/participants/basic/exportMoPar_Group?activityid="+this.keywords+"&dymatic_list="+this.dymatic_list+"&scoreitem="+this.scoreitem+"&infoitem="+this.infoitem;

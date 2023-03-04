@@ -367,4 +367,18 @@
         select count(*)  from scores s,student stu,participants p,scoreitem sc,`groups` g where s.expertID=#{expertID} and stu.ID=p.studentID and p.ID=s.participantID and s.scoreitemID=sc.ID and p.groupID=g.ID and p.groupID=#{groupID}
         order by g.name,p.displaySequence,s.scoreitemID
     </select>
+
+    <select id="getParticipantByAIdAndID" resultMap="BaseResultMap">
+        select *
+        from participants
+        where activityID = #{activityID} and ISNULL(groupID) and ID in
+        <foreach close=")" collection="participantID" item="ID" open="(" separator=",">
+            #{ID}
+        </foreach>
+    </select>
+    <select id="getParticipantIDByIDNumber" resultType="java.lang.Integer">
+        select p.ID
+        from student as s,participants as p
+        where s.IDNumber = #{IDNumber} and s.ID = p.studentID and p.activityID = #{activityID}
+    </select>
 </mapper>
