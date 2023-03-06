@@ -28,7 +28,7 @@
          else if (indicatorType === 'decision')
           this.dialogVisibleAppendDecision = true;
       }" icon="el-icon-circle-plus">添加</el-button>
-      <el-button type="primary" style="float: right;margin-left: 10px" @click="uploadVisible=true;importSelectYear = year" icon="el-icon-s-order">批量导入</el-button>
+      <el-button type="primary" style="float: right;margin-left: 10px" @click="uploadVisible=true;importSelectYear = year;uploadResultError = false" icon="el-icon-s-order">批量导入</el-button>
       <el-button @click="searchUnAvailable = false;dialogVisibleSearch = true" type="primary" style="float: right" icon="el-icon-search" >搜索</el-button>
 
     </div>
@@ -179,7 +179,7 @@
 
       </div>
       <!--      </template>-->
-<!--      <span style="float:right;font-size: 16px;color: red" v-show="errorRow.length != 0">excel中第{{errorRow}}行的刊物名称为空</span>-->
+      <span style="float:right;font-size: 16px;color: red" v-show="uploadResultError">请检查期刊全称是否都不为空</span>
       <span style="float:right;font-size: 16px;color: green" v-show="uploadResultValid">数据校验通过</span>
       <el-upload
           action
@@ -224,7 +224,7 @@
       </el-table>
 
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" v-show="errorRow.length == 0" @click="uploadConfirm()" >确认</el-button>
+        <el-button type="primary" v-show="uploadResultValid===true" @click="uploadConfirm()" >确认</el-button>
         <el-button @click="uploadVisible=false;handleClose()">关 闭</el-button>
       </span>
     </el-dialog>
@@ -548,6 +548,7 @@ export default {
       tableData:[],
       uploadResult:false,
       uploadResultValid:false,
+      uploadResultError:false,
       tableUploadData:[],
       fileList:[],
       ID:0,
@@ -745,7 +746,7 @@ export default {
         });
       },300)
     },
-    getTableByYear(indicatorID,year,a){ //待修改
+    getTableByYear(indicatorID,year,a){
 
       var that = this
       axios.get("/publicationByYear?indicatorID="+indicatorID+"&year="+year+"&pageNum="+that.currentPage+"&pageSize="+that.PageSize).then(function (resp){
@@ -1026,7 +1027,6 @@ export default {
     handleCurrentChange(val) {
       // 改变默认的页数
       this.currentPage=val;
-      // 修改
       this.getTableByYear(this.indicatorID,this.year)
     },
     readFile(file) {//文件读取
@@ -1046,18 +1046,15 @@ export default {
       } else {
         let data = await this.readFile(file);
         let workbook = XLSX.read(data, {type: "binary"});//解析二进制格式数据
-        var flag = false
         var results = {}
         for(var i = 0;i<workbook.SheetNames.length;i++){
           const firstSheetName = workbook.SheetNames[i];
           results[firstSheetName] = []
           const worksheet = workbook.Sheets[firstSheetName];
           if (typeof worksheet.A1 != "undefined" && (worksheet.A2.v != '《东华大学计算机学报》'|| typeof worksheet.A3 != "undefined")) { //判断一下有没有空表 或者空白表格
-            flag = true
             results[firstSheetName] = [...results[firstSheetName],...XLSX.utils.sheet_to_json(worksheet)]
           }
         }
-        // console.log(results)
         for(var i = 0;i<workbook.SheetNames.length;i++){//比如有6种论文类别
           const firstSheetName = workbook.SheetNames[i];
           if(results[firstSheetName].length){
@@ -1065,22 +1062,19 @@ export default {
               results[firstSheetName].shift()
           }
           for(var j = 0;j < results[firstSheetName].length;j ++){
-            // if (results[firstSheetName][j]["刊物全称"] == "《东华大学计算机学报》")
-            //   continue
             if(results[firstSheetName].length){
               results[firstSheetName][j]['所属类别'] = firstSheetName
+              if (typeof results[firstSheetName][j]["刊物全称"] == "undefined")
+                this.uploadResultError = true
             }
           }
           if(results[firstSheetName].length){//该类别数据不为空
             this.tableUploadData = [...this.tableUploadData,...results[firstSheetName]]
           }
         }
-        // console.log(this.tableUploadData)
-        if(flag){
+        if (!this.uploadResultError){
           this.uploadResultValid = true
         }
-        console.log("table")
-        console.log(this.tableUploadData)
         this.uploadResult = true
         // console.log(this.tableUploadData)
       //   this.tableUploadData = XLSX.utils.sheet_to_json(worksheet);//json数据格式
@@ -1119,7 +1113,6 @@ export default {
               that.uploadVisible = false
               that.handleClose()
               // that.getTableByYear(that.indicatorID,that.year)
-              // 修改
             }
         )
       }).catch(() => {
