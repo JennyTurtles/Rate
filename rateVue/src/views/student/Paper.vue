@@ -813,15 +813,14 @@ export default {
                       this.$message.error('已经存在审核中或已通过的2积分指标点，无法继续提交');
                       return
                     }
+                    this.postRequest1("/paper/basic/edit", _this.emp).then((resp) => {
+                      if (resp) {
+                        this.dialogVisible = false;
+                        this.initEmps();
+                        this.$message.success('编辑成功');
+                      }});
                   })
                 }
-                this.getRequest("/publication/checkScore/"+this.emp.studentID).then((resp)=>{
-                  this.postRequest1("/paper/basic/edit", _this.emp).then((resp) => {
-                    if (resp) {
-                      this.dialogVisible = false;
-                      this.initEmps();
-                    }});
-                })
               }
           });
       } else {
