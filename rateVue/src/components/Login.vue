@@ -70,17 +70,18 @@ export default {
           // 发送加密后的密码
           var that = this
           var loginFormPost = {username: this.loginForm.username, password: sha1(this.loginForm.password),role: this.loginForm.role}
-          this.postRequest('/doLogin', loginFormPost).then(resp => {
+           this.postRequest('/doLogin', loginFormPost).then(resp => {
             this.loading = false;
             if (resp) {
               this.$store.commit('INIT_CURRENTHR', resp.obj);//objet.set2
               localStorage.setItem("user", JSON.stringify(resp.obj));//存session
               let path = this.$route.query.redirect;
-              // initMenu(router,store)//保设置新登录账号的路由，个人信息在浏览器和vuex
-              this.$router.push({
-                path: "/home",
-              });
-            } else {
+              //保设置新登录账号的路由，个人信息在浏览器和vuex
+              initMenu(router,store).then(()=>{
+                this.$router.push({
+                  path: "/home",
+                });
+              })
             }
           })
         } else {

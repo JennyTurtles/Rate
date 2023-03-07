@@ -543,4 +543,8 @@ public class ParticipatesService {
     public Integer getParticipantIDByIDNumber(Integer activityID,String IDNumber){
         return participatesMapper.getParticipantIDByIDNumber(activityID,IDNumber);
     }
+    public void deleteGroups(Integer activityID){
+        participatesMapper.deleteGroups(activityID);//删除groups表中的数据
+        participatesMapper.deleteGroupsOfParticipantsAnaAcitivity(activityID);//删除选手表和活动表中的groupid
+    }
 }

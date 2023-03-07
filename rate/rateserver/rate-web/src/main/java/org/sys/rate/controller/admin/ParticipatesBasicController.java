@@ -229,4 +229,10 @@ public class ParticipatesBasicController {
         List<InfoItem> infoItems = infoItemService.getInforItemAndContentByActivityIdAndPIdAndInfoId(activityID,participantID);
         return infoItems;
     }
+    @PostMapping("/deleteGroups")
+    public Msg deleteGroups(@RequestParam Integer activityID){
+        participatesService.deleteGroups(activityID);
+        return Msg.success();
+    }
+
 }

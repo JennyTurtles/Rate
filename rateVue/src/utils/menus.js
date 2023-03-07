@@ -6,47 +6,28 @@ import store from '../store'
 // export async function initMenu(router, store)  {
 export const initMenu = (router, store) => {
 // export function initMenu(router, store,to){
-//     return new Promise((resolve,reject) => {
+    return new Promise((resolve,reject) => {
         if (store.state.routes.length > 0) {
             return;
         }
         let user = JSON.parse(localStorage.getItem('user'))
         // new Promise(resolve => {
         getRequest("/system/config/menu?id="+user.id+"&role="+user.role).then(data => {
-            if (data) {
-                let fmtRoutes = formatRoutes(data); //格式化router
+            if (data.code == 200) {
+                let fmtRoutes = formatRoutes(data.extend.res); //格式化router
                 router.addRoutes(fmtRoutes);  //添加到路由
                 store.commit('initRoutes', fmtRoutes);  //将数据存到vuex
-                if(sessionStorage.getItem('initRoutes')){
+                if(sessionStorage.getItem('initRoutes') && sessionStorage.getItem('initRoutes_AllSameForm')){
                     sessionStorage.clear('initRoutes')
                     sessionStorage.clear('initRoutes_AllSameForm')
                 }
                 sessionStorage.setItem('initRoutes',JSON.stringify(fmtRoutes))
-                var data = JSON.parse(JSON.stringify(fmtRoutes))
-                let res = ['/home']
-                data.forEach(item=>{
-                    if(item.children.length){
-                        item.children.forEach(item1=>{
-                            if(!item1.children){
-                                res.push(
-                                    item1.path
-                                );
-                            }else{
-                                item1.children.forEach(item2=>{
-                                    if(!item2.children){
-                                        res.push(
-                                            item2.path
-                                        );
-                                    }
-                                })
-                            }
-                        })
-                    }
-                })
-                sessionStorage.setItem('initRoutes_AllSameForm',res)
-                store.commit('initRoutesAllSameForm',res)
+                sessionStorage.setItem('initRoutes_AllSameForm',data.extend.res_same)
+                store.commit('initRoutesAllSameForm',data.extend.res_same)
+                resolve(data.extend.res_same)
             }
         })
+    })
 }
 
 

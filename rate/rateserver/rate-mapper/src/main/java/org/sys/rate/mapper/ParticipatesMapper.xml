@@ -381,4 +381,14 @@
         from student as s,participants as p
         where s.IDNumber = #{IDNumber} and s.ID = p.studentID and p.activityID = #{activityID}
     </select>
+    <update id="deleteGroupsOfParticipantsAnaAcitivity" parameterType="java.lang.Integer">
+        UPDATE participants set groupID is null
+        where participants.activityID=#{activityID}
+        UPDATE activities set groupCount = 0
+        where activities.ID=#{activityID}
+    </update>
+    <delete id="deleteGroups">
+        delete from groups
+        where activityID = #{activityID}
+    </delete>
 </mapper>

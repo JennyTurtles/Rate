@@ -135,6 +135,7 @@ import { initMenu_ex } from "./utils/menus";
 import 'font-awesome/css/font-awesome.min.css'
 import Directives from './directives/index.js'
 import ro from "element-ui/src/locale/lang/ro";
+// import {time} from "html2canvas/dist/types/css/types/time";
 Vue.use(Directives)
 Vue.prototype.postRequest = postRequest;
 Vue.prototype.postRequest1 = postRequest1;
@@ -150,6 +151,7 @@ Vue.prototype.$confirm = MessageBox.confirm
 
 const originalPush = VueRouter.prototype.push
 const originalReplace = VueRouter.prototype.replace
+//重写push和replace方法，传递回调函数，警告消失
 // push
 VueRouter.prototype.push = function push (location, onResolve, onReject) {
     if (onResolve || onReject) return originalPush.call(this, location, onResolve, onReject)
@@ -161,7 +163,9 @@ VueRouter.prototype.replace = function push (location, onResolve, onReject) {
     return originalReplace.call(this, location).catch(err => err)
 }
 // //路由跳转之前
-router.beforeEach((to, from, next) => {
+// var timer
+router.beforeEach(  (to, from, next) => {
+    // console.log(to.path)
     if (to.path == '/Admin/Login' || to.path == '/Expert/Login' || to.path == '/' ||
         to.path == '/Student/Login' || to.path == '/Teacher/Login' || to.path == '/Student') {
         if(localStorage.getItem('user') || sessionStorage.getItem('initRoutes') || sessionStorage.getItem('initRoutes_AllSameForm')){
@@ -178,21 +182,35 @@ router.beforeEach((to, from, next) => {
     //除登录外的其他路径
     else {
         if (localStorage.getItem('user')) {
+            if((from.path == ' /Admin/Login' || from.path == '/Expert/Login' || from.path == '/' ||
+                from.path == '/Student/Login' || from.path == '/Teacher/Login' || from.path == '/Student') && to.path == '/home')
+            {
+                next()
+                return;
+            }
             if(JSON.parse(localStorage.getItem('user')).role == "3"){
                 next()
                 return
             }
-            initMenu(router,store)
-            var routs = sessionStorage.getItem('initRoutes_AllSameForm')
-            // console.log(routs)
-            if(routs.indexOf(to.path) == -1){
-                Message.warning('无权限！请重新登录')
-                next('/')
-                return
-            }
-            next()
+                 initMenu(router,store).then((data)=>{
+                     console.log(to.path)
+                     if(data.indexOf(to.path) == -1){
+                         // Message.warning('无权限！请重新登录')
+                         next('/')
+                         return
+                     }else {
+                         console.log('next')
+                         next()
+                     }
+                })
+                if(sessionStorage.getItem('initRoutes_AllSameForm').indexOf(to.path) >= 0){
+                    next()
+                }else {
+                    Message.warning('无权限！请重新登录')
+                    next('/')
+                    return
+                }
         }
-        
         else if(localStorage.getItem('teacher')) {
             // next('/?redirect=' + to.path)
             next()

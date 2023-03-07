@@ -30,7 +30,7 @@
               :on-success="onSuccess"
               :on-error="onError"
               :disabled="importDataDisabled"
-              style="display: inline-flex;margin-right: 8px"
+              style="display: inline-flex;"
               action="#"
               :http-request="handleChange">
             <el-button :disabled="importDataDisabled" type="primary" :icon="importDataBtnIcon">
@@ -38,10 +38,10 @@
             </el-button>
           </el-upload>
 
-          <el-button type="primary" @click="groupsForParticipant" icon="el-icon-upload" style="margin-right: 8px">
+          <el-button type="primary" @click="groupsForParticipant" icon="el-icon-upload" style="margin-left: 15px">
             选手分组
           </el-button>
-          <el-button type="danger" icon="el-icon-delete" @click="deleteGroupsOfParticipant"  style="margin-right: 8px">
+          <el-button type="danger" icon="el-icon-delete" @click="deleteGroupsOfParticipant"  style="margin-left: 15px">
             删除分组
           </el-button>
         </div>
@@ -201,7 +201,10 @@
             </template>
           </div>
 
-          <div id="tableOfGroupNums" v-show="selectedGroupNums > 1 ? true:false" style="margin: auto;width: 100%;position: relative;text-align: center;margin-top: 8px">
+          <div id="tableOfGroupNums"
+               v-show="(this.selectedGroupInfo != '' && this.selectedSubGroupInfo.length > 0) ||
+                        (this.groupSubOfSelectedInfos.length == 0 && this.selectedGroupInfo != '') ? true:false"
+               style="margin: auto;width: 100%;position: relative;text-align: center;margin-top: 8px">
             <div v-for="item in groupNumsInput" style="margin: auto;margin-top: 6px;width: 100%">
               第{{item.idx + 1}}组：
               <input v-model="item.value" ></input>
@@ -515,7 +518,11 @@ export default {
             value:''
           })
         }
-        this.calculationGroupInputValue()
+        //信息项和子信息项都被选择，或者信息项被选择并且没有子信息项
+        // if((this.selectedGroupInfo != '' && this.selectedSubGroupInfo.length > 0) ||
+        //     (this.groupSubOfSelectedInfos.length == 0 && this.selectedGroupInfo != '')){
+        //   this.calculationGroupInputValue()
+        // }
       }
     },
     radio:{
@@ -528,7 +535,7 @@ export default {
         }
       }
     },
-    selectedGroupInfo:{//监听第一个下拉框的变化
+    selectedGroupInfo:{//监听第一个下拉框的变化 信息项
       handler(val){
         if(this.selectedSubGroupInfo.length!=0){//信息项和信息项的子选项都被选择了
           this.filterNoGroupParticipants()
@@ -546,7 +553,7 @@ export default {
         }
       }
     },
-    selectedSubGroupInfo:{//第二个下拉框的变化
+    selectedSubGroupInfo:{//第二个下拉框的变化 信息项的细分
       handler(val){
         if(this.selectedGroupInfo != ''){//信息项和信息项的子选项都被选择了
           this.filterNoGroupParticipants()
@@ -566,10 +573,37 @@ export default {
   },
   methods: {
     deleteGroupsOfParticipant(){//删除分组
+      // console.log(this.emps)
+      var flag = false//判断当前的选手列表中是否已经分过组
+      for(var item of this.emps){
+        if(item.groupID != null && item.groupID != 0){
+          flag = true
+          break;
+        }
+      }
+      if(flag){
+        this.$confirm('确定删除分组？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(()=>{
+          var url = '/participants/basic/deleteGroups?activityID=' + this.activityID
+          this.getRequest(url).then(()=>{
+            if(resp){
+              this.$message.success('删除成功')
+            }
+          })
+        })
+        .catch(()=>{
 
+        })
+      }else {
+        this.$message.warning('该活动还未分组！无法删除')
+      }
     },
     calculationGroupInputValue(){//计算选择组数和单选按钮后input框的赋值
-      var participantNums = 45//选手人数
+      console.log(this.filterNoGroupPar)
+      var participantNums = this.filterNoGroupPar.length//选手人数
       var groupNums = this.selectedGroupNums//组数
       if(this.radio == '1' && this.selectedGroupNums != null){//均分
         var baseNums = Math.floor(participantNums / groupNums);
@@ -579,16 +613,18 @@ export default {
         for(var i = 0;i<(participantNums - baseNums * groupNums);i ++){
           this.groupNumsInput[i].value ++;
         }
+      }else if(this.radio == '2'){//指定人数 groupNumsInput保存每组的指定人数
+
       }
 
     },
     closeDialogGroupOfParticipant(){//选手分组对话框关闭,清空遗留数据
       this.selectedGroupInfo = ''
       this.selectedSubGroupInfo = []
-      this.selectedGroupNums = 1
+      this.selectedGroupNums = 0
       this.filterNoGroupPar = []
     },
-    filterNoGroupParticipants(){
+    filterNoGroupParticipants(){//信息项和分为几组已经选择
       //通过2个id找infos的选手id， 通过活动id，选手id找没有分组的选手，返回信息
       if(this.selectedSubGroupInfo.length == 0 || this.selectedGroupInfo == ''){
         return
@@ -607,32 +643,49 @@ export default {
           if(this.filterNoGroupPar.length == 0){
             this.$message.warning('该信息项下已分组!')
           }
+          this.calculationGroupInputValue()
         }
       })
 
     },
-    groupsForParticipant(){//选手分组,点击按钮对话框弹出
-      //获得该活动下的所有Infoitem，其中包括content
-      this.groupSubOfSelectedInfos = []
-      var url = '/infoItem/basic/getAll/' + this.keywords
-      this.getRequest(url).then((resp)=>{
-        if(resp){
-          for(var i = 0;i < resp.obj.length;i ++){
-            if(!(resp.obj[i].name in this.groupInfoNums)){
-              this.groupInfoNums[resp.obj[i].name]=[]
-            }
-            this.groupInfoNums[resp.obj[i].name].push(resp.obj[i])//将每一个信息项改为对象形式
+    groupsForParticipant(){//选手分组,点击按钮对话框弹出 //获得该活动下的所有Infoitem，其中包括content
+      var flag = false//判断当前的选手列表中是否已经分过组
+      if(this.emps != null && this.emps.length != 0){
+        for(var item of this.emps){
+          if(item.groupID != null && item.groupID != 0){
+            flag = true
+            break;
           }
-          // console.log(this.groupInfoNums)
-          if(!this.groupNums){
-            this.groupNums = Array.from(Array(10).keys(),n=>n+1)
-          }
-          this.dialogPartipicantGroups = true
         }
-      })
-      //  怎么判断哪些信息项是有多个选项？
+      }else {
+        this.$message.warning('请先导入选手！')
+        return
+      }
+      if(!flag){
+        this.groupSubOfSelectedInfos = []
+        var url = '/infoItem/basic/getAll/' + this.keywords
+        this.getRequest(url).then((resp)=>{
+          if(resp){
+            for(var i = 0;i < resp.obj.length;i ++){
+              if(!(resp.obj[i].name in this.groupInfoNums)){
+                this.groupInfoNums[resp.obj[i].name]=[]
+              }
+              this.groupInfoNums[resp.obj[i].name].push(resp.obj[i])//将每一个信息项改为对象形式
+            }
+            // console.log(this.groupInfoNums)
+            if(!this.groupNums){
+              this.groupNums = Array.from(Array(10).keys(),n=>n+1)
+            }
+            this.dialogPartipicantGroups = true
+          }
+        })
+      }else {
+        this.$message.warning('请先删除分组！')
+      }
+
     },
     creatGroup(){//创建分组
+      //传递activityID和选手id，分为几组和每组人数
 
     },
     /** 查询角色列表 */

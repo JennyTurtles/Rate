@@ -109,6 +109,7 @@ export default {
   },
   mounted() {
     this.routes = JSON.parse(sessionStorage.getItem('initRoutes'))
+    console.log(this.routes)
     // 获取浏览器可视区域高度
     this.clientHeight = `${document.documentElement.clientHeight}`;
     this.role = JSON.parse(localStorage.getItem("user")).role
