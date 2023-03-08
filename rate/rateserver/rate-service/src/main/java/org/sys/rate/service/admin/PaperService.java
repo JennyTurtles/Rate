@@ -96,13 +96,28 @@ public class PaperService {
 
 //    老师界面调用paper
     public List<Paper> selectList(){
-        List<Paper> papers = paperMapper.selectList();
         return paperMapper.selectList();
     }
 
 //    修改论文状态
-    public int edit_state(String state, Long ID) throws MessagingException {
+    public int editState(String state, Long ID) throws MessagingException {
         mailToStuService.sendStuMail(state, ID);
+        // 管理员通过的时候需要处理2分论文的情况，还要计算student的总分
+        if (state.equals("adm_pass")){
+            Paper paper = paperMapper.selectByID(ID);
+            Long stuID = paper.getStudentID();
+            Long score = paper.getPoint();
+
+            if (score == 2){ // 2分的时候检查是否已经发表过2分的论文
+                if (paperMapper.checkScore(stuID) != null){ // 已经发表过2分论文,将该论文的no_score设置为1
+                    return paperMapper.editState2(state,ID,1);
+                }else {
+                    paperMapper.editState2(state,ID,0);
+                    return paperMapper.updateScore(stuID,score);
+                }
+            }
+            paperMapper.updateScore(stuID,score);
+        }
         return paperMapper.editState(state,ID);
     }
 }

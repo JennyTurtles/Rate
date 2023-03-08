@@ -40,6 +40,17 @@ public class Paper
     /** 积分 */
     private Long point;
 
+    // 用于判断2积分论文是否生效
+    private Integer no_score;
+
+    public Integer getNo_score() {
+        return no_score;
+    }
+
+    public void setNo_score(Integer no_score) {
+        this.no_score = no_score;
+    }
+
     /** 刊物id */
     private Long publicationID;
 
