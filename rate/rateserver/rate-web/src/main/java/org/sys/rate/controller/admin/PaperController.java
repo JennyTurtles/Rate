@@ -93,7 +93,7 @@ public class PaperController
 //    修改论文状态
     @GetMapping("/edit_state")
     public JsonResult getById(String state, Long ID) throws MessagingException {
-        return new JsonResult(paperService.edit_state(state,ID));
+        return new JsonResult(paperService.editState(state,ID));
     }
 
     @GetMapping("/List")

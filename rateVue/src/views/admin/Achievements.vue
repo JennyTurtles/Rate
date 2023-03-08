@@ -554,9 +554,13 @@ export default {
       this.oper.pubName=pubName,
       this.oper.pubID=pubID
       if(this.oper.state=="tea_pass"){
-        this.oper.operation="审核通过"
-      }else{
-        this.oper.operation="审核驳回"
+        this.oper.operation="教师审核通过"
+      }else if (this.oper.state == 'adm_pass')
+        this.oper.operation="管理员审核通过"
+      else if (this.oper.state =="tea_reject")
+        this.oper.operation="教师驳回"
+      else{
+        this.oper.operation="管理员驳回"
       }
       this.postRequest1("/paperoper/basic/add", this.oper).then(
         (resp) => {

@@ -14,6 +14,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="rank"    column="rank"    />
         <result property="total"    column="total"    />
         <result property="point"    column="point"    />
+        <result property="no_score"    column="no_score"/>
         <result property="publicationID"    column="publicationID"    />
         <result property="url"    column="url"    />
         <result property="state"    column="state"    />
@@ -41,7 +42,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectList" resultMap="PaperResult">
 -- 老师查询所有学生的论文
-        select p.ID,p.studentID,p.name,p.point,p.publicationID,p.state,p.pubPage,p.rank,p.total,p.year,p.month,p.author,p.url,
+        select p.ID,p.studentID,p.name,p.point,p.publicationID,p.state,p.pubPage,p.rank,p.total,p.year,p.month,p.author,p.url,p.no_score,
                s.name as sname,
                pub.name as pname,
                paperoper.remark,paperoper.operatorRole,paperoper.time,
@@ -63,7 +64,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectListByIds" resultMap="PaperResult" parameterType="Integer">
         select p.ID,p.studentID,p.name,p.point,p.publicationID,p.rank,p.total,p.year,p.month,p.point,p.author,p.pubPage,p.url,
-               p.state,pub.name as pname,
+               p.state,pub.name as pname,p.no_score,
                paperoper.remark,paperoper.operatorRole,paperoper.time,
                paperoper.operation
         from paper p,student s,publication pub,paper_oper paperoper
