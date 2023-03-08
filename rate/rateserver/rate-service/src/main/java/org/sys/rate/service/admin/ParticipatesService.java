@@ -198,15 +198,15 @@ public class ParticipatesService {
                     System.out.println("participants.getCode()" +participants.getCode()+ " 的信息更新成功");
                     student.setUsername(participants.getCode());
                 }
-                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+//                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
                 String encodePass;
                 if(!participants.getPassword().equals(""))
                 {//不为空
-                    encodePass = encoder.encode(participants.getPassword());
+                    encodePass = participants.getPassword();
                 }
                 else
                 {//默认密码为手机号
-                    encodePass = encoder.encode(participants.getTelephone());
+                    encodePass = participants.getTelephone();
                 }
                 student.setPassword(encodePass);
                 //如果没有就插入选手信息
