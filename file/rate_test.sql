@@ -11,7 +11,7 @@
  Target Server Version : 80023
  File Encoding         : 65001
 
- Date: 27/02/2023 18:22:12
+ Date: 08/03/2023 13:48:02
 */
 
 SET NAMES utf8mb4;
@@ -74,7 +74,7 @@ CREATE TABLE `admin`  (
   INDEX `institutionID`(`institutionID` ASC) USING BTREE,
   INDEX `ID`(`ID` ASC) USING BTREE,
   CONSTRAINT `admin_ibfk_1` FOREIGN KEY (`institutionID`) REFERENCES `institution` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 35 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 34 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of admin
@@ -203,7 +203,7 @@ CREATE TABLE `department`  (
   `enabled` tinyint(1) NULL DEFAULT 1,
   `isParent` tinyint(1) NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 105 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 104 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of department
@@ -659,7 +659,7 @@ CREATE TABLE `institution`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `company`(`company` ASC) USING BTREE,
   INDEX `id`(`id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 26 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 25 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of institution
@@ -699,7 +699,7 @@ CREATE TABLE `logs`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `oplog_ibfk_1`(`operator` ASC) USING BTREE,
   CONSTRAINT `logs_ibfk_1` FOREIGN KEY (`operator`) REFERENCES `institution` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 272 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 271 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of logs
@@ -977,6 +977,21 @@ INSERT INTO `logs` VALUES (270, '2022-07-05 19:24:55', 1, '选手管理', '导�
 INSERT INTO `logs` VALUES (271, '2022-11-16 15:18:00', 1, '活动', '更新成功');
 
 -- ----------------------------
+-- Table structure for mail
+-- ----------------------------
+DROP TABLE IF EXISTS `mail`;
+CREATE TABLE `mail`  (
+  `mailAddress` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT '邮箱地址',
+  `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT 'SMTP的验证码',
+  PRIMARY KEY (`mailAddress`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of mail
+-- ----------------------------
+INSERT INTO `mail` VALUES ('ratemail@126.com', 'IOLMDKJXAQJQUAMN');
+
+-- ----------------------------
 -- Table structure for menu
 -- ----------------------------
 DROP TABLE IF EXISTS `menu`;
@@ -1161,18 +1176,30 @@ CREATE TABLE `paper`  (
   PRIMARY KEY (`ID`) USING BTREE,
   INDEX `publication_paper`(`publicationID` ASC) USING BTREE,
   CONSTRAINT `publication_paper` FOREIGN KEY (`publicationID`) REFERENCES `publication` (`ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 6103 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 6117 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of paper
 -- ----------------------------
 INSERT INTO `paper` VALUES (6095, 2086, '1', '2022', 1, '卢三', 1, 1, 12, 1, '1-2', 'tea_pass', '');
 INSERT INTO `paper` VALUES (6096, 2086, '2', '2022', 1, '卢三;李四', 1, 2, 12, 3, '1-20', 'adm_pass', '');
-INSERT INTO `paper` VALUES (6097, 2086, '3', '2022', 2, '卢三', 1, 1, 12, 2, '1-3', 'commit', '');
+INSERT INTO `paper` VALUES (6097, 2086, '3', '2022', 2, '卢三', 1, 1, 12, 2, '1-3', 'commit', 'F:\\Rate\\upload/Pruning_Survey_MLA21.pdf');
 INSERT INTO `paper` VALUES (6098, 2086, '4', '2022', 4, '卢三', 1, 1, 12, 2, '2-3', 'tea_reject', '');
 INSERT INTO `paper` VALUES (6099, 2086, '5', '2022', 2, '卢三;zz', 1, 2, 12, 5, '2-3', 'adm_reject', '/Users/luyiru/Desktop/研究生网站开发/Rate/work2/rate/upload/测试.docx');
 INSERT INTO `paper` VALUES (6100, 2086, '6', '2022', 2, '卢三;', 1, 2, 12, 4, '2-22', 'adm_pass', '/Users/luyiru/Desktop/研究生网站开发/Rate/work2/rate/upload/知识产权作业.pdf');
-INSERT INTO `paper` VALUES (6101, 2086, '7', '2023', 1, '卢三', 1, 1, 12, 2, '1-2', 'commit', '/Users/gongrunze/Rate/upload/00丨开篇词丨这一次，让我们一起来搞懂MySQL.pdf');
+INSERT INTO `paper` VALUES (6103, 2086, '撒大苏打', '2023', 2, '卢三', 1, 1, 12, 60, '1-121', 'commit', 'F:\\Rate\\upload/6289e6dccfb7a.jpg');
+INSERT INTO `paper` VALUES (6104, 2086, '撒大苏打', '2023', 2, '卢三', 1, 1, 12, 60, '1-121', 'commit', 'F:\\Rate\\upload/shufflenet.pdf');
+INSERT INTO `paper` VALUES (6106, 2086, '撒大苏打', '2023', 2, '卢三', 1, 1, 12, 60, '1-121', 'commit', 'F:\\Rate\\upload/shufflenet.pdf');
+INSERT INTO `paper` VALUES (6107, 2086, '撒大苏打', '2023', 2, '卢三', 1, 1, 12, 60, '1-121', 'commit', 'F:\\Rate\\upload/shufflenet.pdf');
+INSERT INTO `paper` VALUES (6108, 2086, '撒大苏打', '2023', 2, '卢三', 1, 1, 12, 60, '1-121', 'commit', 'F:\\Rate\\upload/shufflenet.pdf');
+INSERT INTO `paper` VALUES (6109, 2086, '撒大苏打', '2023', 2, '卢三', 1, 1, 12, 60, '1-121', 'commit', 'F:\\Rate\\upload/shufflenet.pdf');
+INSERT INTO `paper` VALUES (6110, 2086, '撒大苏打', '2023', 2, '卢三', 1, 1, 12, 60, '1-121', 'commit', 'F:\\Rate\\upload/shufflenet.pdf');
+INSERT INTO `paper` VALUES (6111, 2086, '阿斯顿阿萨v的', '2023', 1, '卢三', 1, 1, 12, 3, '1-121', 'commit', 'F:\\Rate\\upload/2201-2222738-张亚魁.pdf');
+INSERT INTO `paper` VALUES (6112, 2086, '阿斯顿阿萨v的', '2023', 1, '卢三', 1, 1, 12, 3, '1-121', 'commit', 'F:\\Rate\\upload/2201-2222738-张亚魁.pdf');
+INSERT INTO `paper` VALUES (6113, 2086, '阿斯顿阿萨v的', '2023', 1, '卢三', 1, 1, 12, 3, '1-121', 'commit', 'F:\\Rate\\upload/2201-2222738-张亚魁.pdf');
+INSERT INTO `paper` VALUES (6114, 2086, '阿斯顿阿萨v的', '2023', 1, '卢三', 1, 1, 12, 3, '1-121', 'commit', 'F:\\Rate\\upload/2201-2222738-张亚魁.pdf');
+INSERT INTO `paper` VALUES (6115, 2086, '阿斯顿阿萨v的', '2023', 1, '卢三', 1, 1, 12, 3, '1-121', 'commit', 'F:\\Rate\\upload/2201-2222738-张亚魁.pdf');
+INSERT INTO `paper` VALUES (6116, 2086, '发电公司给', '2023', 2, '卢三', 1, 1, 12, 3, '1-121', 'commit', 'F:\\Rate\\upload/L181310122-段煜峰.pdf');
 
 -- ----------------------------
 -- Table structure for paper_oper
@@ -1192,7 +1219,7 @@ CREATE TABLE `paper_oper`  (
   `state` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '状态',
   `remark` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '备注',
   PRIMARY KEY (`ID`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 216 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 217 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of paper_oper
@@ -1216,6 +1243,7 @@ INSERT INTO `paper_oper` VALUES (212, 'student', 2098, '卢三', 6105, 'dsdsa', 
 INSERT INTO `paper_oper` VALUES (213, 'admin', 34, '龚三', 6100, '6', 4, '刊物全称1', '2022-12-26 23:14:19', '管理员审核通过', 'adm_pass', '');
 INSERT INTO `paper_oper` VALUES (214, 'student', 2086, '卢三', 6101, '7', 2, '《International Conference on Data Engineering(ICDE)》', '2023-02-17 15:18:49', '提交论文', 'commit', '');
 INSERT INTO `paper_oper` VALUES (215, 'student', 2086, '卢三', 6102, '7', 2, '《International Conference on Data Engineering(ICDE)》', '2023-02-17 15:18:51', '提交论文', 'commit', '');
+INSERT INTO `paper_oper` VALUES (216, 'student', 2086, '卢三', 6116, '发电公司给', 3, '《中共党史研究》', '2023-03-05 12:49:00', '提交论文', 'commit', '');
 
 -- ----------------------------
 -- Table structure for papercomment
@@ -1223,32 +1251,22 @@ INSERT INTO `paper_oper` VALUES (215, 'student', 2086, '卢三', 6102, '7', 2, '
 DROP TABLE IF EXISTS `papercomment`;
 CREATE TABLE `papercomment`  (
   `ID` int NOT NULL AUTO_INCREMENT,
-  `underThesisDesignID` int NULL DEFAULT NULL COMMENT '毕业论文或设计的ID',
-  `date1` datetime NULL DEFAULT NULL COMMENT '学生的提交的time',
-  `date2` datetime NULL DEFAULT NULL COMMENT '老师评价的time',
-  `thisWork` varchar(512) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '这次工作完成情况',
+  `thesisID` int NOT NULL COMMENT '毕业论文或设计的ID',
+  `dateStu` date NULL DEFAULT NULL COMMENT '学生的提交的time',
+  `dateTea` date NULL DEFAULT NULL COMMENT '老师评价的time',
+  `preSum` varchar(512) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '上个阶段工作完成情况',
   `nextPlan` varchar(512) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '下次工作安排',
   `tutorComment` varchar(512) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '导师评价',
-  `whichTime` int NULL DEFAULT NULL COMMENT '在单张表单中是第几次',
+  `num` int NOT NULL COMMENT '在单张表单中是第几次',
   PRIMARY KEY (`ID`) USING BTREE,
-  INDEX `underThesisDesignID`(`underThesisDesignID` ASC) USING BTREE,
-  CONSTRAINT `underThesisDesignID` FOREIGN KEY (`underThesisDesignID`) REFERENCES `underthesisdesign` (`ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 667 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+  INDEX `thesisID`(`thesisID` ASC) USING BTREE,
+  CONSTRAINT `thesisID` FOREIGN KEY (`thesisID`) REFERENCES `thesis` (`ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 746 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of papercomment
 -- ----------------------------
-INSERT INTO `papercomment` VALUES (1, 1, '2023-01-30 01:05:00', '2023-02-15 00:16:01', '学习vue', '学习elementUI', '好，非常好', 1);
-INSERT INTO `papercomment` VALUES (2, 6, '2023-01-28 08:48:35', '2023-02-19 17:32:49', '1hLDDOwdzW', 'IUYEJxbDTS', 'XkGZjYmv6s', NULL);
-INSERT INTO `papercomment` VALUES (3, 4, '2023-01-20 15:20:25', '2023-02-14 01:31:59', 'N7PMojwIic', 'alwsIClpwn', 'mxv9nH91Nk', NULL);
-INSERT INTO `papercomment` VALUES (4, 11, '2023-01-07 10:28:57', '2023-02-14 00:19:40', 'q8mpmi8Mht', 'lW9VEY0QvA', 'yAYZDVH8lA', NULL);
-INSERT INTO `papercomment` VALUES (5, 6, '2023-01-30 00:45:34', '2023-02-09 08:18:47', '5N50eaOQgA', 'obADKVrtSh', '7rbQDyaAbK', NULL);
-INSERT INTO `papercomment` VALUES (6, 6, '2023-01-18 06:20:09', '2023-02-20 16:55:00', 'WK26z4wj9u', 'T1JD4jPR9A', '0hy82J8DHS', NULL);
-INSERT INTO `papercomment` VALUES (7, 11, '2023-01-10 00:57:33', '2023-02-18 14:10:59', 'YsDwkWvXoh', 'GRvzODARvL', 'iUxwtc1GBQ', NULL);
-INSERT INTO `papercomment` VALUES (8, 1, '2023-01-09 12:21:10', '2023-02-14 19:35:52', '0qNMkRj4De', 'NgVMdvkp67', 'RHreHm9B4j', 2);
-INSERT INTO `papercomment` VALUES (9, 6, '2023-01-17 18:00:27', '2023-02-09 23:42:59', 'j4B67TsVY7', 'QUC6PumvNA', 'FtYOyyqCXR', NULL);
-INSERT INTO `papercomment` VALUES (10, 10, '2023-01-19 20:01:05', '2023-02-14 19:09:33', '7AjI0qjV4P', 'dLtMMJgXyw', 'xPbYxsA3J7', NULL);
-INSERT INTO `papercomment` VALUES (666, 1, '2023-02-21 14:51:11', '2023-02-22 14:51:18', '好好学习JS', '学习vue', '6', NULL);
+INSERT INTO `papercomment` VALUES (745, 1, '2023-03-08', NULL, '岁的法国地方是否', '吧v你发给更换', '', 1);
 
 -- ----------------------------
 -- Table structure for participants
@@ -1416,11 +1434,33 @@ CREATE TABLE `projecttype`  (
   PRIMARY KEY (`ID`) USING BTREE,
   INDEX `projectType_Indi`(`indicatorId` ASC) USING BTREE,
   CONSTRAINT `projectType_Indi` FOREIGN KEY (`indicatorId`) REFERENCES `indicator` (`ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of projecttype
 -- ----------------------------
+
+-- ----------------------------
+-- Table structure for properties
+-- ----------------------------
+DROP TABLE IF EXISTS `properties`;
+CREATE TABLE `properties`  (
+  `host` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `username` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `id` int NOT NULL,
+  `sendHost` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of properties
+-- ----------------------------
+INSERT INTO `properties` VALUES ('imap.126.com', 'ratemail@126.com', 'IOLMDKJXAQJQUAMN', 1, 'smtp.126.com');
+INSERT INTO `properties` VALUES ('imap.163.com', '2222738@mail.dhu.edu.cn', 'efYRe5Nf414VTAz4', 2, 'smtp.163.com');
+INSERT INTO `properties` VALUES ('imap.163.com', 'yakuizhang1111@163.com', 'MWCQFMLCWCNNPIOF', 3, 'smtp.163.com');
+INSERT INTO `properties` VALUES ('imap.163.com', 'yakuizhang1111@163.com', 'MWCQFMLCWCNNPIOF', 4, 'smtp.163.com');
+INSERT INTO `properties` VALUES ('imap.126.com', 'sw21706091085@126.com', 'CKJRUHJRNBHADFIJ', 5, 'smtp.126.com');
 
 -- ----------------------------
 -- Table structure for publication
@@ -1958,7 +1998,7 @@ CREATE TABLE `teacher`  (
 -- ----------------------------
 -- Records of teacher
 -- ----------------------------
-INSERT INTO `teacher` VALUES (1003, NULL, '张老师', '1310092', '女', '计算机学院', '310110100000000022', '13800000011', '111@dhu.edu.cn', 'teazhang', '$2a$10$uHDCc/t1wijNiOcZZucpbecsV0O61/iKk8mo95w5u43uek1Grz3za', 0, '8');
+INSERT INTO `teacher` VALUES (1003, NULL, '张三', '1310092', '女', '计算机学院', '310110100000000022', '13800000011', '3311980798@qq.com', 'teazhang', '$2a$10$uHDCc/t1wijNiOcZZucpbecsV0O61/iKk8mo95w5u43uek1Grz3za', 0, '8');
 INSERT INTO `teacher` VALUES (1022, 21, '李晓霞', '10104974', '女', '院办', '370881198112271123', '13818216367', 'lixx@dhu.edu.cn', '10104974', '$2a$10$.XnYhm/jjjOhR3O1e8Olvek7tnSjK7dM7tVvJPNL4i/u69XS1kSOu', 0, '3');
 INSERT INTO `teacher` VALUES (1023, 21, '黄利利', '10105114', '女', '院办', '310230198008140023', '13817912108', 'huangll@dhu.edu.cn', '10105114', '$2a$10$31hDCiVPSI7aL1gl23XxG.WjihO.Uf0PxN2J3ajLsB1fiYiAAWA7e', 0, '3');
 INSERT INTO `teacher` VALUES (1024, 21, '李倩', '10105172', '女', '院办', '370303198506081721', '18221223785', 'liqian@dhu.edu.cn', '10105172', '$2a$10$BiVUvhrXLDd2IazftdRZqez0.0YEx7Pm00ITcIioe/JME/AjS4SBO', 0, '3');
@@ -1985,10 +2025,10 @@ INSERT INTO `teacher` VALUES (1044, NULL, '黄三old', '131025', '男', '计算�
 INSERT INTO `teacher` VALUES (1045, NULL, '专家', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, '12');
 
 -- ----------------------------
--- Table structure for underthesisdesign
+-- Table structure for thesis
 -- ----------------------------
-DROP TABLE IF EXISTS `underthesisdesign`;
-CREATE TABLE `underthesisdesign`  (
+DROP TABLE IF EXISTS `thesis`;
+CREATE TABLE `thesis`  (
   `ID` int NOT NULL AUTO_INCREMENT COMMENT '毕业设计或论文的ID，主键',
   `studentID` int NOT NULL COMMENT '学生学号',
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NULL DEFAULT NULL COMMENT '毕业设计或论文的主题',
@@ -2000,19 +2040,10 @@ CREATE TABLE `underthesisdesign`  (
 ) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
--- Records of underthesisdesign
+-- Records of thesis
 -- ----------------------------
-INSERT INTO `underthesisdesign` VALUES (1, 2097, '这是一个本科生的毕业设计或者论文', '2022', 'http://drive.onchu6.info/ArtsHandicraftsSewing');
-INSERT INTO `underthesisdesign` VALUES (2, 2084, 'Fukuda Hana', NULL, 'http://drive.onchu6.info/ArtsHandicraftsSewing');
-INSERT INTO `underthesisdesign` VALUES (3, 2082, 'Steve Ward', NULL, 'http://image.sherrykim.us/Books');
-INSERT INTO `underthesisdesign` VALUES (4, 2084, 'April Turner', NULL, 'http://video.campblucille214.cn/CollectiblesFineArt');
-INSERT INTO `underthesisdesign` VALUES (5, 2075, 'Elizabeth Price', NULL, 'https://video.yuto414.us/ToysGames');
-INSERT INTO `underthesisdesign` VALUES (6, 2092, 'Kikuchi Momoka', NULL, 'http://drive.porternicole.us/ToolsHomeDecoration');
-INSERT INTO `underthesisdesign` VALUES (7, 2097, 'Leung Suk Yee', NULL, 'http://auth.ryotamar.xyz/ToolsHomeDecoration');
-INSERT INTO `underthesisdesign` VALUES (8, 2089, 'Lau Ka Keung', NULL, 'http://image.jonathanro825.info/CDsVinyl');
-INSERT INTO `underthesisdesign` VALUES (9, 2075, 'Maria Coleman', NULL, 'http://drive.kfchoi1002.us/ToolsHomeDecoration');
-INSERT INTO `underthesisdesign` VALUES (10, 2075, 'Shirley Vasquez', NULL, 'https://drive.zeng1947.co.jp/BeautyPersonalCare');
-INSERT INTO `underthesisdesign` VALUES (11, 2084, 'Wong Chi Ming', NULL, 'https://drive.mikimur.net/Food');
+INSERT INTO `thesis` VALUES (1, 2097, '这是一个本科生的毕业设计或者论文', '2022', 'http://drive.onchu6.info/ArtsHandicraftsSewing');
+INSERT INTO `thesis` VALUES (2, 2097, '这是他的第二份毕业设计', '2018', 'shdakshdja');
 
 -- ----------------------------
 -- Procedure structure for addDep

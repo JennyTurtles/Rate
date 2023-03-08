@@ -1,7 +1,6 @@
 package org.sys.rate.service.mail;
 
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -16,17 +15,26 @@ import org.sys.rate.service.admin.TeacherService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
 public class MailService {
-    @Value("${spring.mail.username}")
-    private String from;
+
+    @Resource
+    PropertiesService propertiesService;
+
+
+//    private String from = "akuyass";
+
+//@Value("${spring.mail.username}")
+//private String from;
 
     @Resource
     private JavaMailSender mailSender;
@@ -46,6 +54,7 @@ public class MailService {
     // createMimeMessage可以展示超文本信息
     @GetMapping("multi")
     public void sendMail(Paper paper, String uploadFileName) throws MessagingException {
+        String from = propertiesService.getUsername();
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
 
@@ -98,10 +107,13 @@ public class MailService {
         helper.addAttachment(uploadFileName + "", new File("upload/" + uploadFileName));
 //        helper.addAttachment(paper.getName()+"",new File("upload/"+filePath));
 
-
         mailSender.send(message);
 //        System.out.println("邮件已经成功发送");
+
     }
+
+
+
 
     @GetMapping("multi")
     public void sendFeedbackMail(String to, Long ID, String mailState, String replyContent) throws MessagingException {
@@ -150,7 +162,7 @@ public class MailService {
         if (matcher.find()) {
             subject = matcher.group(1);
         }
-        subject = "Re:" + subject;
+        subject = subject.equals("null")?"Re:":"Re:" + subject;
 
         String content = "";
 
@@ -200,7 +212,7 @@ public class MailService {
                 assert teacher != null;
                 content = "尊敬的老师：<br>" +
                         "您好！<br>" +
-                        "<b>错误原因：邮箱地址错误地使用了" + from + "。</b><br>" +
+                        "<b>错误原因：邮箱地址错误地使用了" + to + "。</b><br>" +
                         "<b>解决方法：请使用<span style=\"color:red;\">" + teacher.getEmail() + "</span>回复至本邮箱。</b><br><br>" +
                         infoPaper +
                         correctFormat +
@@ -330,7 +342,7 @@ public class MailService {
             default:
                 System.out.println("导师回信出现其他错误，请检查邮箱！");
         }
-
+        String from = propertiesService.getUsername();
         helper.setFrom(from);
         helper.setTo(to);
         helper.setSubject(subject);

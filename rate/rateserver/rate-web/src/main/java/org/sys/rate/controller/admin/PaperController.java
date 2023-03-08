@@ -47,11 +47,6 @@ public class PaperController
 
     private String uploadFileName;
 
-//    @GetMapping("/studentID")有页码
-//    public JsonResult<List> getById(Integer studentID,@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size){
-////        System.out.println("调用了这个。。");
-//        return new JsonResult<>(paperService.selectListById(studentID,page,size),paperService.selectListByIds(studentID).size());
-//    }
 
     @GetMapping("/studentID")//无页码要求
     public JsonResult<List> getById(Integer studentID){

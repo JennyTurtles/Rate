@@ -1,7 +1,6 @@
 package org.sys.rate.service.mail;
 
 import com.sun.mail.imap.IMAPStore;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.Paper;
 import org.sys.rate.model.PaperOper;
@@ -21,17 +20,12 @@ import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
 public class ReceiveIMAPmails {
-    @Value("${spring.mail.username}")
-    private String user;
-
-    @Value("${spring.mail.password}")
-    private String password;
-
+    @Resource
+    PropertiesService propertiesService;
 
     @Resource
     PaperService paperService;
@@ -53,22 +47,26 @@ public class ReceiveIMAPmails {
      * 完成邮件读取功能
      */
     public void readMails() throws Exception {
+        String from = propertiesService.getUsername();
+        String password = propertiesService.getPassword();
+        String host = propertiesService.getHost();
+
         // 准备连接服务器的会话信息
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imap");
-        props.setProperty("mail.imap.host", "imap.126.com");
+        props.setProperty("mail.imap.host", host);
         // IMAP收件服务器地址：imap.126.com 安全类型：SSL 端口号：993;若安全类型选择“无”，则需将端口号修改为 143
         props.setProperty("mail.imap.port", "143");
         props.setProperty("mail.imap.auth.login.disable", "true");
 
         // 解决A3 NO SELECT UNSAFE LOGIN
-        HashMap IAM = new HashMap();
         // 带上IMAP ID信息，由key和value组成，例如name，version，vendor，support-email等。
         // 其中value随便写
-        IAM.put("name", "myname");
-        IAM.put("version", "1.0.0");
-        IAM.put("vendor", "myclients");
-        IAM.put("supoort-email", "testmail@test.com");
+        HashMap<String, String> iam = new HashMap<>();
+        iam.put("name", "myname");
+        iam.put("version", "1.0.0");
+        iam.put("vendor", "myclient");
+        iam.put("support-email", "testmail@test.com");
 
         // 创建Session实例对象
         Session session = Session.getInstance(props);
@@ -76,8 +74,9 @@ public class ReceiveIMAPmails {
 //        Store store = session.getStore("imap");
         IMAPStore store = (IMAPStore) session.getStore("imap");
         // 连接邮箱服务器
-        store.connect(user, password);
-        store.id(IAM);
+        store.connect(from, password);
+        store.isConnected();
+        store.id(iam);
 
 
         // 获得收件箱
