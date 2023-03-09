@@ -6,9 +6,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.InfoItemMapper;
 import org.sys.rate.mapper.InfosMapper;
+import org.sys.rate.mapper.ScoresMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.InfoItemService;
 import org.sys.rate.service.admin.LogService;
+import org.sys.rate.service.admin.ScoreItemService;
+import org.sys.rate.service.admin.ScoresService;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -31,6 +34,8 @@ public class InfoItemController {
     LogService logService;
     @Resource
     InfoItemMapper infoItemMapper;
+    @Resource
+    ScoreItemService scoreItemService;
 
     @GetMapping("/")
     public RespPageBean getActivitiesByPage(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, InfoItem employee) {
@@ -146,9 +151,10 @@ public class InfoItemController {
     }
 
     @GetMapping("/getAll/{id}")
-    public RespBean getAll(@PathVariable("id") Integer id){
+    public Msg getAll(@PathVariable("id") Integer id){
         List<InfoItem> infoItems = infoItemService.getInforItemByActivityId(id);
-        return RespBean.ok("success",infoItems);
+        List<ScoreItem> scoreItems = scoreItemService.getAllByActicityID(id);
+        return Msg.success().add("infoItems",infoItems).add("scoreItems",scoreItems);
     }
 
 }

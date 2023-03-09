@@ -376,8 +376,8 @@
             #{ID}
         </foreach>
     </select>
-    <select id="getParticipantIDByIDNumber" resultType="java.lang.Integer">
-        select p.ID
+    <select id="getParticipantIDByIDNumber" resultMap="BaseResultMap">
+        select p.ID,s.name
         from student as s,participants as p
         where s.IDNumber = #{IDNumber} and s.ID = p.studentID and p.activityID = #{activityID}
     </select>

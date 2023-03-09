@@ -333,4 +333,8 @@
     select si.ID,si.name,s.score from scores s,scoreitem si
     where s.activityID=#{activityID} and s.scoreitemID=si.ID and s.expertID=#{expertID}  and s.participantID=#{participantID};
     </select>
+  <select id="getAllByActicityID" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select * from scoreItem
+    where activityID = #{activityID}
+  </select>
 </mapper>

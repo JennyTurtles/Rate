@@ -16,7 +16,8 @@
                       :label="item.name+':'">
           <template >
             <template v-if="!item.byParticipant">
-              <span style="color:gray">此项不可修改填写！</span>
+              <el-input v-show="item.content != '' || item.content != null" :disabled="true" style="width: 20%;" v-model="item.content"></el-input>
+              <span style="color:gray;margin-left: 9px">此项不可修改填写！</span>
             </template>
             <template v-else-if="item.contentType == 'textbox'">
               <div>
@@ -60,7 +61,7 @@
                   :disabled="!uploadListElement[index].isShow"
                   :show-file-list="false"
                   :on-change="(file,fileList)=>{handleChangeFiles(file,fileList,item,index)}"
-                  style="width:70%;margin-left:20px;height:50%"
+                  style="width:90%;margin-left:20px;height:50%"
                   :auto-upload="false"
                   :http-request="upload(item,index)"
               >
@@ -76,6 +77,10 @@
                     <span style="color:gray;font-size:11px;margin-left: 5px">只允许{{item.contentType}}类型文件&nbsp;&nbsp;不能超过{{item.sizelimit}}
                     </span>
                 </div>
+
+                <span style="font-size:11px;" v-show="uploadListElement[index].uploadState">
+                  正在上传...
+                </span>
 
                 <div v-if="fileDownloadList[item.id] && fileDownloadList[item.id].length" class="fileList">
                     <a :id="item.id" @click="downloadFileALink(item)"></a>
@@ -111,9 +116,6 @@ export default {
       isChangeTextbox:false,//判断textbox框的值是否改变
       isChangeTextarea:false,//判断textarea框的值是否改变
       currentfocusdata: "",//当前焦点数据
-      searchValue: {
-        compnayName: null,
-      },
       info:{
         id:null,
         activityid:null,
@@ -153,58 +155,6 @@ export default {
         hrs:[]
       },
       hrs: [],
-      selectedRoles: [],
-      allroles: [],
-      hr_info: {
-        id: null,
-        compnayName: null,
-        institutionID: null,
-        name: "javaboy",
-        phone: "18568128889",
-        email: "123@126.com",
-        enabled: 1,
-        username: "test123",
-        password: "123",
-        role: 1,
-        comment: null,
-      },
-      hr_info_new: {
-        id: null,
-        compnayName: null,
-        institutionID: null,
-        name: "javaboy",
-        phone: "18568128889",
-        email: "123@126.com",
-        enabled: 1,
-        username: "test123",
-        password: "123",
-        role: 1,
-        comment: null,
-      },
-      rules: {
-        compnayName: {
-          required: true,
-          message: "请输入单位名称",
-          trigger: "blur",
-        },
-        institutionID: {
-          required: true,
-          message: "请输入单位编号",
-          trigger: "blur",
-        },
-        name: {required: true, message: "请输入用户名", trigger: "blur"},
-        phone: {required: true, message: "请输入电话", trigger: "blur"},
-        role: {required: true, message: "请输入角色", trigger: "blur"},
-        email: {required: true, message: "请输入邮箱", trigger: "blur"},
-        enabled: {required: true, message: "请输入enable", trigger: "blur"},
-        username: {
-          required: true,
-          message: "请输入username",
-          trigger: "blur",
-        },
-        password: {required: true, message: "请输入密码", trigger: "blur"},
-        comment: {required: false, message: "请输入备注", trigger: "blur"},
-      },
     };
   },
   computed: {
@@ -313,9 +263,6 @@ export default {
       formData.append("activityID",data.activityID)
       formData.append("studentID",JSON.parse(localStorage.getItem("user")).id)
       formData.append("infoItemID",data.id)
-      this.$message({
-        message:'正在上传'
-      })
       axios.post("/infoItem/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
@@ -334,6 +281,11 @@ export default {
           this.fileUploadList = []//每上传一次就设置为空，所以每个upload都只有一个文件
           this.renderFileIcon(response.data,data)//渲染图标
           this.uploadListElement[index].isShow = false
+          this.uploadListElement[index].uploadState = false
+          console.log('fileDownloadList:')
+          console.log(this.fileDownloadList)
+          console.log('uploadListElement:')
+          console.log(this.uploadListElement)
           // this.reset()
         },()=>{}
       )
@@ -344,19 +296,19 @@ export default {
     judgeTextareaChange(){//判断textarea内容是否变化
       this.isChangeTextarea = true
     },
-    judgeSize(value){//判断输入内容是否超过限制大小，分中文和英文
-      var pattern = new RegExp("[A-Za-z]")
-      let length = 0;
-      for(var i=0;i<value.length;i++){
-        if(value.charCodeAt(i)>255){
-          length += 2;
-        }else if(pattern.test(value[i])){
-          length ++;
-        }
-      }
-      return length
-    },
-    saveTextUrl(edit,type){
+    // judgeSize(value){//判断输入内容是否超过限制大小，分中文和英文
+    //   var pattern = new RegExp("[A-Za-z]")
+    //   let length = 0;
+    //   for(var i=0;i<value.length;i++){
+    //     if(value.charCodeAt(i)>255){
+    //       length += 2;
+    //     }else if(pattern.test(value[i])){
+    //       length ++;
+    //     }
+    //   }
+    //   return length
+    // },
+    saveTextUrl(edit,type){//发送请求保存数据
       var url = "/info/basic/savetextarea"
       this.postRequest1(url,edit).then((response)=>{
         if(response.status == 200){
@@ -377,32 +329,30 @@ export default {
         activityID:data.activityID,
         studentID:JSON.parse(localStorage.getItem("user")).id
       }
-      var length
+      // var length
       if(type == "textbox"){
         if(this.isChangeTextbox){
           edit.content = this.infoTextboxContent
         }//内容发生了改变
         else{
-          // this.$message.warning("不能提交空白数据！")
           return
         }
-        length = this.judgeSize(this.infoTextboxContent)
+        // length = this.judgeSize(this.infoTextboxContent)
       }else if(type == "textarea"){
         if(this.isChangeTextarea){
           edit.content = this.infoTextareaContent
         }else{
-          // this.$message.warning("不能提交空白数据！")
           return
         }
-        length = this.judgeSize(this.infoTextareaContent)
+        // length = this.judgeSize(this.infoTextareaContent)
       }
-
-      if(length > data.sizelimit){
-        this.$message.warning("大小不超过" + data.sizelimit + "!")
-      }else{
+      //保留空格和换行符号
+      edit.content = edit.content.replace(/\n/g,"<br/>").replace(/\s/g," ");
+      // if(length > data.sizelimit){
+      //   this.$message.warning("大小不超过" + data.sizelimit + "!")
+      // }else{
         this.saveTextUrl(edit,type)
-      }
-
+      // }
     },
     handleDelete(data,index) {//删除选择的文件
       if(!this.fileDownloadList[data.id])
@@ -429,13 +379,11 @@ export default {
     handleChangeFiles(file,fileList,data,index){//文件列表数量改变
       console.log('file:')
       console.log(file)
-      console.log(data.sizelimit)
       this.fileUploadList=[]
       this.files=[]
       var attachmentType = data.contentType.split(",")
       var type=file.name.split('.')
       var sizelim = data.sizelimit.substr(0,data.sizelimit.length-1)
-      console.log(sizelim*1024*1024)
       if(file.size > sizelim*1024*1024){
         this.$message.error('上传文件大小不能超过'+ data.sizelimit +'大小!');
         return false
@@ -452,13 +400,7 @@ export default {
         file:file
       })
       this.files = null
-    },
-    initAllRoles() {
-      this.getRequest("/system/hr/roles").then((resp) => {
-        if (resp) {
-          this.allroles = resp;
-        }
-      });
+      this.uploadListElement[index].uploadState = true
     },
     initHrs() {//获取该活动下的所有信息项
       this.loading = true;
@@ -481,7 +423,8 @@ export default {
                 this.uploadListElement[index] = {//在所有infoitem中的索引值
                       element,
                       elementIndex:idx,//用于记录当前的upload对于所有的upload处于第几个位置,上传文件会用到
-                      isShow:true
+                      isShow:true,
+                      uploadState:false
                 }
                 idx ++;
             }

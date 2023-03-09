@@ -172,7 +172,7 @@
   </select>
 
   <select id="selectInfoItemByActivityId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select  DISTINCT s.ID,s.activityID,s.name,s.sizelimit,s.contentType,s.byParticipant,s.display,i.content
+    select  s.ID,s.activityID,s.name,s.sizelimit,s.contentType,s.byParticipant,s.display,i.content
     from infos i
     right join infoitem s on s.ID = i.infoItemID
     where s.activityID = #{activitiesID}

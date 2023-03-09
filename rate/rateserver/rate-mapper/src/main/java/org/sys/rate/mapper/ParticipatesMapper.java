@@ -112,7 +112,7 @@ public interface ParticipatesMapper {
 
     List<Participates> getParticipantByAIdAndID(Integer activityID, List<Integer> participantID);
 
-    Integer getParticipantIDByIDNumber(Integer activityID,String IDNumber);
+    Participates getParticipantIDByIDNumber(Integer activityID,String IDNumber);
 
     void deleteGroupsOfParticipantsAnaAcitivity(Integer activityID);
     void deleteGroups(Integer activityID);

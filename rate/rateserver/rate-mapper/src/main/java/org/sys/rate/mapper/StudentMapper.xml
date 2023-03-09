@@ -80,13 +80,13 @@
     </select>
 
     <insert id="insertFROMImport" parameterType="org.sys.rate.model.Student">
-        insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,tutorID
+        insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,tutorID,role
         )
         values (#{ID,jdbcType=INTEGER},
                 #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
         <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
                 #{username,jdbcType=VARCHAR},
-                #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,'1003'
+                #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,'1003','10'
                )
     </insert>
 

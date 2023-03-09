@@ -346,7 +346,7 @@ export default new Router({
       hidden: false,
       component: () => import('./views/teacher/InformationDetails'),
       meta: {
-        title: 'score详情信息',
+        title: '',
       },
     },
 

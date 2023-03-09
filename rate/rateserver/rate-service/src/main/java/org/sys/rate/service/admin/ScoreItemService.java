@@ -114,4 +114,7 @@ public class ScoreItemService {
             return true;
         return false;
     }
+    public List<ScoreItem> getAllByActicityID(Integer activityID){
+        return ScoreItemMapper.getAllByActicityID(activityID);
+    }
 }

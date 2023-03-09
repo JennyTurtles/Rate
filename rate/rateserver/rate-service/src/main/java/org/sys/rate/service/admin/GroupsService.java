@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.GroupsMapper;
+import org.sys.rate.model.Participates;
 import org.sys.rate.model.RespPageBean;
 import org.sys.rate.model.Groups;
 
@@ -114,6 +115,9 @@ public class GroupsService {
         bean.setData(data);
         bean.setTotal(total);
         return bean;
+    }
+    public void createGroups(List<Participates> participants){
+
     }
 
 }

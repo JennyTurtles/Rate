@@ -33,7 +33,6 @@ public class InfoController {
         Integer activityID = Integer.parseInt(activity.get(0));
         Integer infoItemID = Integer.parseInt(infoItem.get(0));
 
-//        public RespBean getInfoItemIdByNameAndActivityId(@RequestParam Integer activityID,@RequestParam Integer infoItemID,@RequestParam List<String> infoContent){
         List<Participates> participates = infosService.getPartipicantByActivityId(activityID,infoItemID,infoContent);
         return RespBean.ok("success",participates);
     }

@@ -42,7 +42,7 @@
             选手分组
           </el-button>
           <el-button type="danger" icon="el-icon-delete" @click="deleteGroupsOfParticipant"  style="margin-left: 15px">
-            删除分组
+            清空分组信息
           </el-button>
         </div>
         <div>
@@ -147,13 +147,13 @@
     </div>
 
 
-    <el-dialog title="选手分组" :visible.sync="dialogPartipicantGroups" width="70%" center
+    <el-dialog title="选手分组" :visible.sync="dialogPartipicantGroups" width="81%" center
                @close='closeDialogGroupOfParticipant'>
       <div>
         <div>
-          <span>请选择进行分组的信息项：</span>
+          <span>请选择分组依据：</span>
           <el-select
-              style="margin-right: 20px;width: 120px;"
+              style="margin-right: 20px;width: 150px;"
               v-model="selectedGroupInfo"
           >
             <el-option
@@ -163,60 +163,79 @@
                 :value="key">
             </el-option>
           </el-select>
-          <template>
-            <span>请选择分组个数：</span>
-            <el-select
-                style="margin-right: 20px;width: 150px;"
-                v-model="selectedGroupNums"
-            >
-              <el-option
-                  v-for="item in groupNums"
-                  :key="item"
-                  :label="item"
-                  :value="item">
-              </el-option>
-            </el-select>
-          </template>
+
           <template v-if="groupSubOfSelectedInfos.length != 0">
-            <span>请对{{selectedGroupInfo}}选择细分：</span>
+            <span>请选择{{selectedGroupInfo}}：</span>
             <el-select
-                style="margin-right: 20px;width: 150px;"
+                style="margin-right: 20px;width: 250px;"
                 v-model="selectedSubGroupInfo"
                 multiple
             >
               <el-option
                   v-for="item in groupSubOfSelectedInfos"
+                  v-if="item != 'infoItemID'"
                   :key="item"
-                  :label="item"
+                  :label="item + '（' + groupInfoNums[selectedGroupInfo][item].length +'）人'"
                   :value="item">
               </el-option>
             </el-select>
           </template>
           <br>
 
-          <div style="margin-top: 8px">
-            <template>
+          <div style="margin-top: 10px">
+            <template >
+              <span>请选择分组个数：</span>
+              <el-select
+                  style="margin-right: 20px;width: 150px;"
+                  v-model="selectedGroupNums"
+              >
+                <el-option
+                    v-for="item in groupNums"
+                    :key="item"
+                    :label="item"
+                    :value="item">
+                </el-option>
+              </el-select>
+            </template>
+
+            <template >
+              <span>请选择排序依据：</span>
+              <el-select
+                  style="margin-right: 20px;width: 150px;"
+                  v-model="sortBy"
+              >
+                <el-option
+                    v-for="item in sortByList"
+                    :key="item.id "
+                    :label="item.type + ':' + item.name"
+                    :value="item.name">
+                </el-option>
+              </el-select>
+            </template>
+
+            <template >
               <el-radio v-model="radio" label="1">均分每组人数</el-radio>
               <el-radio v-model="radio" label="2">指定每组人数</el-radio>
             </template>
           </div>
 
-          <div id="tableOfGroupNums"
-               v-show="(this.selectedGroupInfo != '' && this.selectedSubGroupInfo.length > 0) ||
-                        (this.groupSubOfSelectedInfos.length == 0 && this.selectedGroupInfo != '') ? true:false"
-               style="margin: auto;width: 100%;position: relative;text-align: center;margin-top: 8px">
-            <div v-for="item in groupNumsInput" style="margin: auto;margin-top: 6px;width: 100%">
-              第{{item.idx + 1}}组：
-              <input v-model="item.value" ></input>
-            </div>
-          </div>
-
-          <div style="margin-top: 10px;text-align: center;width: 100%">
-            <el-button @click="creatGroup">
+          <div style="margin-top: 15px;text-align: center;width: 100%" >
+            <el-button @click="creatGroup" type="primary">
               创建分组
             </el-button>
           </div>
 
+          <div id="tableOfGroupNums"
+               class="inputOfGroupsBox"
+               v-show="(((selectedGroupInfo != '' && selectedSubGroupInfo.length > 0) ||
+                        (groupSubOfSelectedInfos.length == 0 && selectedGroupInfo != '')) &&
+                        filterNoGroupPar.length >= selectedGroupNums && selectedGroupNums > 0) ? true:false"
+               >
+            <span v-for="item in groupNumsInput" style="margin: auto;width: 100%;padding-bottom: 2px">
+              第{{item.idx + 1}}组：
+              <input v-model="item.value" style="width: 60px" :disabled="item.disabled"></input>
+            </span>
+          </div>
         </div>
 <!--        对话框里显示没有分组的学生-->
 <!--        <div style="margin-top: 10px">-->
@@ -244,7 +263,6 @@
 <!--          </el-table>-->
 <!--        </div>-->
       </div>
-
     </el-dialog>
 
 
@@ -328,7 +346,6 @@
         <el-button type="primary" @click="save">确 定</el-button>
       </span>
     </el-dialog>
-
     <!--弹窗-->
     <el-dialog :title="title" :visible.sync="dialogVisible_edit" width="40%">
       <div>
@@ -439,12 +456,14 @@ export default {
   name: "SalGroup",
   data() {
     return{
+      sortBy:'',
+      sortByList:[],//排序依据 包括评分项和信息项
       groupNumsInput:[],//用于存放选择分为几组后的div和input框
       radio:'1',
       filterNoGroupPar:[],//对话框中的展示table数据
       groupSubOfSelectedInfos:[],//对子信息项再进行选择
       selectedSubGroupInfo:[],//选择的子信息项
-      selectedGroupNums:null,//选择的分组数量
+      selectedGroupNums:0,//选择的分组数量
       groupNums:null,//分数个数列表
       selectedGroupInfo:'',//被选择的信息项
       groupInfoNums: {},//所有信息项 选项
@@ -511,49 +530,55 @@ export default {
   watch:{
     selectedGroupNums:{//监听用户选择了分为几组
       handler(val){
-        this.groupNumsInput = []
-        for(var i = 0;i < val;i ++){
-          this.groupNumsInput.push({
-            idx:i,
-            value:''
-          })
-        }
         //信息项和子信息项都被选择，或者信息项被选择并且没有子信息项
-        // if((this.selectedGroupInfo != '' && this.selectedSubGroupInfo.length > 0) ||
-        //     (this.groupSubOfSelectedInfos.length == 0 && this.selectedGroupInfo != '')){
-        //   this.calculationGroupInputValue()
-        // }
+        if((this.selectedGroupInfo != '' && this.selectedSubGroupInfo.length > 0) ||
+            (this.groupSubOfSelectedInfos.length == 0 && this.selectedGroupInfo != '')){
+              this.groupNumsInput = []
+              for(var i = 0;i < val;i ++){
+                this.groupNumsInput.push({
+                  idx:i,
+                  value:'',
+                  disabled:true//默认是均分
+                })
+              }
+              if(this.radio == '2'){//如果是指定人数
+                for(var item of this.groupNumsInput){
+                  item.disabled = false
+                }
+              }
+          this.calculationGroupInputValue()
+        }
       }
     },
     radio:{
       handler(val){
         if(this.radio == '1'){//均分
-
-        }else//指定每组人数
-        {
-
+          for(var i = 0;i < this.selectedGroupNums;i ++){
+            this.groupNumsInput[i].disabled = true
+          }
+          this.calculationGroupInputValue()
+        }else if(this.radio == '2'){//指定每组人数
+          for(var i = 0;i < this.selectedGroupNums;i ++){
+            this.groupNumsInput[i].disabled = false
+          }
+          this.calculationGroupInputValue()
         }
       }
     },
     selectedGroupInfo:{//监听第一个下拉框的变化 信息项
       handler(val){
-        if(this.selectedSubGroupInfo.length!=0){//信息项和信息项的子选项都被选择了
+        //信息项和信息项的子选项都被选择了或者没有子信息项
+        if(JSON.stringify(this.groupInfoNums[val]) == '{}' || this.selectedSubGroupInfo.length > 0){
           this.filterNoGroupParticipants()
-        }else {
-          this.groupSubOfSelectedInfos = []
-          //取出选择的信息项的所有内容content
-          if(this.groupInfoNums[val].length!=0) {
-            for (var i = 0; i < this.groupInfoNums[val].length; i++) {
-              if (this.groupSubOfSelectedInfos.indexOf(this.groupInfoNums[val][i].content) == -1 &&
-                  this.groupInfoNums[val][i].content != '') {
-                this.groupSubOfSelectedInfos.push(this.groupInfoNums[val][i].content)
-              }
-            }
+        }else if(JSON.stringify(this.groupInfoNums[val]) != '{}' && this.selectedSubGroupInfo.length == 0){
+          //该信息项下的所有子信息项
+          if(JSON.stringify(this.groupInfoNums) != '{}' && JSON.stringify(this.groupInfoNums[val]) != '{}' ){
+            this.groupSubOfSelectedInfos = Object.keys(this.groupInfoNums[val])
           }
         }
       }
     },
-    selectedSubGroupInfo:{//第二个下拉框的变化 信息项的细分
+    selectedSubGroupInfo:{//第二个下拉框的变化 信息项的子信息项
       handler(val){
         if(this.selectedGroupInfo != ''){//信息项和信息项的子选项都被选择了
           this.filterNoGroupParticipants()
@@ -601,10 +626,20 @@ export default {
         this.$message.warning('该活动还未分组！无法删除')
       }
     },
-    calculationGroupInputValue(){//计算选择组数和单选按钮后input框的赋值
-      console.log(this.filterNoGroupPar)
+    calculationGroupInputValue(){//计算input框的值
+      //如果没有选择分组个数或没有待分组的选手直接返回
+      if(this.filterNoGroupPar.length == 0 || this.selectedGroupNums == 0){
+        return
+      }
+      if(this.selectedGroupNums > this.filterNoGroupPar.length){
+        this.$message.warning('分组数不能超过未分组人数！')
+        return
+      }
       var participantNums = this.filterNoGroupPar.length//选手人数
       var groupNums = this.selectedGroupNums//组数
+      // console.log(this.filterNoGroupPar)
+      // console.log(groupNums)
+
       if(this.radio == '1' && this.selectedGroupNums != null){//均分
         var baseNums = Math.floor(participantNums / groupNums);
         for(var i = 0;i<groupNums;i++){
@@ -614,30 +649,38 @@ export default {
           this.groupNumsInput[i].value ++;
         }
       }else if(this.radio == '2'){//指定人数 groupNumsInput保存每组的指定人数
-
+        for(var i = 0;i<groupNums;i++){
+          this.groupNumsInput[i].value = '';
+        }
       }
-
     },
     closeDialogGroupOfParticipant(){//选手分组对话框关闭,清空遗留数据
       this.selectedGroupInfo = ''
       this.selectedSubGroupInfo = []
       this.selectedGroupNums = 0
       this.filterNoGroupPar = []
+      this.groupSubOfSelectedInfos = []
     },
-    filterNoGroupParticipants(){//信息项和分为几组已经选择
+    filterNoGroupParticipants(){//信息项已经选择
       //通过2个id找infos的选手id， 通过活动id，选手id找没有分组的选手，返回信息
-      if(this.selectedSubGroupInfo.length == 0 || this.selectedGroupInfo == ''){
+      //有子信息项但是没有选择或者没选信息项就返回
+      if( (this.selectedSubGroupInfo.length == 0 &&
+              this.selectedGroupInfo != '' &&
+              JSON.stringify(this.groupInfoNums[this.selectedGroupInfo]) != '{}') ||
+          this.selectedGroupInfo == '' ){
         return
       }
       var data = {
         'activityID':[this.keywords.toString()],
-        'infoItemID':[this.groupInfoNums[this.selectedGroupInfo][0].id.toString()],
-        'infoContent':this.selectedSubGroupInfo
+      }
+      if(this.selectedSubGroupInfo.length > 0){//判断有没有选择信息项
+        data['infoItemID'] = [this.groupInfoNums[this.selectedGroupInfo].infoItemID]
+        data['infoContent']= this.selectedSubGroupInfo
       }
       var url = '/info/basic/getPartipicantIDByInfos'
       this.postRequest(url,data).then((res)=>{
         if(res){
-          console.log('res:')
+          console.log('没有分组的选手:')
           console.log(res.obj)
           this.filterNoGroupPar = res.obj//存放没有分好组的选手，但是不显示在页面上
           if(this.filterNoGroupPar.length == 0){
@@ -663,16 +706,39 @@ export default {
       }
       if(!flag){
         this.groupSubOfSelectedInfos = []
+        this.groupInfoNums = {}
+        this.sortByList = []
         var url = '/infoItem/basic/getAll/' + this.keywords
         this.getRequest(url).then((resp)=>{
-          if(resp){
-            for(var i = 0;i < resp.obj.length;i ++){
-              if(!(resp.obj[i].name in this.groupInfoNums)){
-                this.groupInfoNums[resp.obj[i].name]=[]
+          if(resp.code == 200){
+            //存放infoItem
+            var infoItems = resp.extend.infoItems
+            for(var i = 0;i < infoItems.length;i ++){
+              if(!(infoItems[i].name in this.groupInfoNums)){
+                this.groupInfoNums[infoItems[i].name]={'infoItemID':infoItems[i].id}//将每一个信息项改为对象形式,再加上每个信息项的id
               }
-              this.groupInfoNums[resp.obj[i].name].push(resp.obj[i])//将每一个信息项改为对象形式
+              //如果每个信息项包含多个子信息项如报考专业包括电子xxx、xx开发等，将每个子信息项改为数组
+              if(!(infoItems[i].content in this.groupInfoNums[infoItems[i].name])){
+                this.groupInfoNums[infoItems[i].name][infoItems[i].content] = []
+              }
+              this.groupInfoNums[infoItems[i].name][infoItems[i].content].push(infoItems[i])
             }
-            // console.log(this.groupInfoNums)
+            //将infoItem和scoreItem放在一起作为排序依据
+            for(var i of Object.keys(this.groupInfoNums)){
+              this.sortByList.push({
+                type:'信息项',
+                name:i,
+                id:this.groupInfoNums[i].infoItemID
+              })
+            }
+            for(var i of resp.extend.scoreItems){
+              this.sortByList.push({
+                type:'评分项',
+                name:i.name,
+                id:i.id
+              })
+            }
+            console.log(this.sortByList)
             if(!this.groupNums){
               this.groupNums = Array.from(Array(10).keys(),n=>n+1)
             }
@@ -686,6 +752,29 @@ export default {
     },
     creatGroup(){//创建分组
       //传递activityID和选手id，分为几组和每组人数
+      if(this.radio == '2'){
+        var sum = 0
+        this.groupNumsInput.map(item=>{
+          sum += item.value
+        })
+        if(sum != this.filterNoGroupPar){
+          this.$message.error('人数大于未分组的人数！')
+          return
+        }
+      }
+      var url = '/groups/basic/createGroups'
+      var data = {
+        acticityID:this.acticityID,
+        participantList:this.filterNoGroupPar,
+        infoItemID:this.groupInfoNums[this.selectedGroupInfo]['infoItemID'],//筛选没有分组的选手的信息项
+        sortByItemType:this.sortBy.type,//选择排序依据的类型和id
+        sortByItemID:this.sortBy.id,
+      }
+      this.postRequest(url,data).then((resp)=>{
+        if(resp){
+
+        }
+      })
 
     },
     /** 查询角色列表 */
@@ -740,10 +829,10 @@ export default {
             else{
               let newD=[],h=this.$createElement;
               newD.push(h('p',null,'导入数据中'));
-              for(const i in res1)
-              {
-                newD.push(h('p',null,res1[i]))
-              }
+              // for(const i in res1)
+              // {
+              //   newD.push(h('p',null,res1[i]))
+              // }
               newD.push(h('p',null,'为空，以上列数据会被置空，是否确认继续?'));
               this.$confirm(h('div',null,newD), '提示', {
                 confirmButtonText: '确定',
@@ -860,6 +949,15 @@ export default {
 </script>
 
 <style scoped>
+.inputOfGroupsBox{
+  /*word-wrap: break-word;*/
+  /*word-break: break-all;*/
+  margin: auto;
+  width: 520px;
+  position: relative;
+  text-align: center;
+  margin-top: 17px;
+}
 /* 可以设置不同的进入和离开动画 */
 /* 设置持续时间和动画函数 */
 .slide-fade-enter-active {

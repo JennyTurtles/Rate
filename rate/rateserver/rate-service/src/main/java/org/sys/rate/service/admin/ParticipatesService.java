@@ -273,10 +273,10 @@ public class ParticipatesService {
                 }
                 if(flag)
                 {//insert score
-                    if(participants.getGroupID()==-1)
-                    {
+//                    if(participants.getGroupID()==-1)
+//                    {
                         participants.setGroupID(null);
-                    }
+//                    }
                     Integer participatesID =participatesMapper.getPID(participants);
                     HashMap<Integer, String> map = participants.getScoreItemMap();
                     Set<Integer> keys = map.keySet(); // 遍历键集 得到 每一个键//键是scoreItemID值是分数
@@ -540,7 +540,7 @@ public class ParticipatesService {
     public Integer saveAvgscore(Integer participantID,Integer activityID){
         return participatesMapper.saveAvgscore(participantID,activityID);
     }
-    public Integer getParticipantIDByIDNumber(Integer activityID,String IDNumber){
+    public Participates getParticipantIDByIDNumber(Integer activityID,String IDNumber){
         return participatesMapper.getParticipantIDByIDNumber(activityID,IDNumber);
     }
     public void deleteGroups(Integer activityID){

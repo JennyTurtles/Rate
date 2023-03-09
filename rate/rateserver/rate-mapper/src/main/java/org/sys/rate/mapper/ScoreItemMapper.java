@@ -64,4 +64,5 @@ public interface ScoreItemMapper {
 
     List<ScoreItemValue> getScoreEx(@Param("activityID") Integer activityID,@Param("expertID") Integer expertID,@Param("participantID") Integer participantID);
 
+    List<ScoreItem> getAllByActicityID(Integer activityID);
 }

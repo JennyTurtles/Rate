@@ -494,6 +494,7 @@ export default {
           }
         }
       }
+      // /teacher/tperact/InformationDetails?activityID=26&IDNumber=310111111111111117
       let routeUrl = this.$router.resolve({
         path:"/teacher/tperact/InformationDetails",
         query: {
