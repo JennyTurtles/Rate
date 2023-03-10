@@ -61,8 +61,11 @@ public class PropertiesService {
 
 
     public void setMyPropertyFromDatabase() {
-        String sql = "SELECT host,username,password,sendHost FROM properties where id = ?";
-        Map<String, Object> row = jdbcTemplate.queryForMap(sql, new Object[] {4});
+//        String sql = "SELECT host,username,password,sendHost FROM properties where id = ?";
+//        Map<String, Object> row = jdbcTemplate.queryForMap(sql, new Object[] {4});
+        String sql = "SELECT host, username, password, sendHost FROM properties WHERE id = (SELECT MAX(id) FROM properties)";
+        Map<String, Object> row = jdbcTemplate.queryForMap(sql);
+
         setHost((String) row.get("host"));
         setUsername((String) row.get("username"));
         setPassword((String) row.get("password"));

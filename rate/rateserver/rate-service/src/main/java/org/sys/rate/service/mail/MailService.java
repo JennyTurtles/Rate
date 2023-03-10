@@ -30,12 +30,6 @@ public class MailService {
     @Resource
     PropertiesService propertiesService;
 
-
-//    private String from = "akuyass";
-
-//@Value("${spring.mail.username}")
-//private String from;
-
     @Resource
     private JavaMailSender mailSender;
 
@@ -111,8 +105,6 @@ public class MailService {
 //        System.out.println("邮件已经成功发送");
 
     }
-
-
 
 
     @GetMapping("multi")
@@ -352,6 +344,5 @@ public class MailService {
         mailSender.send(message);
 //        System.out.println("反馈邮件已经成功发送");
     }
-
 
 }

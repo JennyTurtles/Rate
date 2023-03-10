@@ -11,7 +11,7 @@
  Target Server Version : 80023
  File Encoding         : 65001
 
- Date: 08/03/2023 13:48:02
+ Date: 10/03/2023 16:24:05
 */
 
 SET NAMES utf8mb4;
@@ -74,7 +74,7 @@ CREATE TABLE `admin`  (
   INDEX `institutionID`(`institutionID` ASC) USING BTREE,
   INDEX `ID`(`ID` ASC) USING BTREE,
   CONSTRAINT `admin_ibfk_1` FOREIGN KEY (`institutionID`) REFERENCES `institution` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 34 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 35 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of admin
@@ -203,7 +203,7 @@ CREATE TABLE `department`  (
   `enabled` tinyint(1) NULL DEFAULT 1,
   `isParent` tinyint(1) NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 104 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 105 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of department
@@ -659,7 +659,7 @@ CREATE TABLE `institution`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `company`(`company` ASC) USING BTREE,
   INDEX `id`(`id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 25 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 26 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of institution
@@ -699,7 +699,7 @@ CREATE TABLE `logs`  (
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `oplog_ibfk_1`(`operator` ASC) USING BTREE,
   CONSTRAINT `logs_ibfk_1` FOREIGN KEY (`operator`) REFERENCES `institution` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 271 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 272 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of logs
@@ -984,7 +984,7 @@ CREATE TABLE `mail`  (
   `mailAddress` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT '邮箱地址',
   `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL COMMENT 'SMTP的验证码',
   PRIMARY KEY (`mailAddress`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of mail
@@ -1261,12 +1261,12 @@ CREATE TABLE `papercomment`  (
   PRIMARY KEY (`ID`) USING BTREE,
   INDEX `thesisID`(`thesisID` ASC) USING BTREE,
   CONSTRAINT `thesisID` FOREIGN KEY (`thesisID`) REFERENCES `thesis` (`ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 746 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of papercomment
 -- ----------------------------
-INSERT INTO `papercomment` VALUES (745, 1, '2023-03-08', NULL, '岁的法国地方是否', '吧v你发给更换', '', 1);
+INSERT INTO `papercomment` VALUES (1, 1, '2023-03-08', NULL, '岁的法国地方是否', '吧v你发给更换', '', 1);
 
 -- ----------------------------
 -- Table structure for participants
@@ -1434,7 +1434,7 @@ CREATE TABLE `projecttype`  (
   PRIMARY KEY (`ID`) USING BTREE,
   INDEX `projectType_Indi`(`indicatorId` ASC) USING BTREE,
   CONSTRAINT `projectType_Indi` FOREIGN KEY (`indicatorId`) REFERENCES `indicator` (`ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of projecttype
@@ -1451,7 +1451,7 @@ CREATE TABLE `properties`  (
   `id` int NOT NULL,
   `sendHost` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of properties
@@ -2037,7 +2037,7 @@ CREATE TABLE `thesis`  (
   PRIMARY KEY (`ID`) USING BTREE,
   INDEX `studentID`(`studentID` ASC) USING BTREE,
   CONSTRAINT `studentID` FOREIGN KEY (`studentID`) REFERENCES `student` (`ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 12 CHARACTER SET = utf8 COLLATE = utf8_unicode_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of thesis
