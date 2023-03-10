@@ -29,7 +29,7 @@
                     onmouseleave="this.style.color = 'gray'">
                     {{val.content | fileNameFilter}}</a>
             </span>
-              <span v-else>{{ val.content }}</span>
+              <el-input type="textarea" :row="3" v-else class="textarea_" v-model="val.content" :disabled="true"></el-input>
             </template>
             <template v-else>
               <span>{{ val.content }}</span>
@@ -94,6 +94,10 @@ export default {
           this.datalist = res.extend.infoitems
           this.name = res.extend.name
           document.title = this.name
+          this.datalist.map(item=>{
+            item.content = item.content.replace(/<br>/g,"\n").replace(/' '/g,"\s")
+          })
+          console.log(this.datalist)
         }
       })
     },
@@ -123,6 +127,9 @@ export default {
 </script>
 
 <style scoped>
+.textarea_{
+  width: 450px;
+}
 .Information_title{
   width: 100%;
   font-size: 30px;
@@ -131,7 +138,7 @@ export default {
 .Information_box{
   border: .5px solid #888888;
   overflow: scroll;
-  width: 90%;
+  width: 80%;
   height: 100%;
   margin: auto;
   margin-top: 20px;

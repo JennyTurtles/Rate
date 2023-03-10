@@ -336,7 +336,6 @@ export default {
     this.$store.dispatch('initsize',this.user.id).then(()=>{
       this.list = JSON.parse(sessionStorage.getItem("peract"));
       this.initdata();
-      console.log(this.list)
       this.$nextTick(() => {
         this.windowScreenHeight = window.innerHeight - 210;
       });
@@ -369,22 +368,6 @@ export default {
     }
   },
   methods: {
-    // async initActivityList(teacher) {
-    //   const result = await getRequest(
-    //       "/system/Experts/activities?expertID=" + teacher.id
-    //   );
-    //   if (result.code === 200) {
-    //     this.loading = false;
-    //     if (result.extend.count !== 0) {
-    //       // 存活动列表session
-    //       sessionStorage.setItem(
-    //           "activitiesList",
-    //           JSON.stringify(result.extend.activitiesList)
-    //       );
-    //     }
-    //   }
-    // },
-
     downloadInfoItems(data){//下载证明材料
       const fileName = data.content.split('/').reverse()[0]
       axios({
@@ -468,38 +451,11 @@ export default {
       }
     },
     showEditEmpView_show(row, index) {
-      this.dialogVisible_show = false;
-      let infoitems = this.datalist.infoItems.length;
-      let infolist = this.datalist.infosList.length;
-      this.dialogdata = {};
-      //mei每个该活动参与者的编号
-      this.dialogdata.idCode = this.datalist.participatesList[index].code;
-      this.dialogdata.name = this.datalist.participatesList[index].student.name;
-      for (var j = 0; j < infolist; j++) {
-        if (row["id"] == this.datalist.infosList[j]["participantID"]) {
-          for (var k = 0; k < infoitems; k++) {
-            if (this.datalist.infosList[j]["infoItemID"] ==
-                this.datalist.infoItems[k]["id"]) {
-              var name = this.datalist.infoItems[k]["name"];
-              var contentType = this.datalist.infoItems[k]["contentType"];
-              this.$set(
-                  this.dialogdata,
-                  "info" + name,
-                  {
-                    content:this.datalist.infosList[j]["content"],
-                    contentType:this.datalist.infoItems[k]["contentType"]
-                  }
-              );
-            }
-          }
-        }
-      }
-      // /teacher/tperact/InformationDetails?activityID=26&IDNumber=310111111111111117
       let routeUrl = this.$router.resolve({
         path:"/teacher/tperact/InformationDetails",
         query: {
-          datalist: JSON.stringify({datalist:this.datalist}),
-          dialogdata: JSON.stringify(this.dialogdata),
+          activityID: this.list.activitiesList[this.$route.query.keywords].activityID,
+          IDNumber: row.student.idnumber,
         },
       })
       window.open(routeUrl.href)
@@ -684,14 +640,7 @@ export default {
     },
      async initAct() {
       if (this.list.count != 0) {
-        // console.log(this.Adata)
         await this.$store.dispatch("initAct", this.Adata);
-        // const value =  await getRequest("/system/Experts/score?activitiesID=" + this.Adata.Aid + '&expertID=' + this.Adata.Auserid + '&groupId=' + this.Adata.AgroupId)
-        // if(value){
-        //   this.datalist = value.extend
-        //   console.log(this.datalist)
-        //   this.initState()
-        // }
       }
     },
     // 刷新

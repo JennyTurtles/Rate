@@ -30,6 +30,7 @@
         <association property="student" javaType="org.sys.rate.model.Student">
             <id column="SID" property="ID" jdbcType="INTEGER"/>
             <result column="name" property="name" jdbcType="VARCHAR"/>
+            <result column="IDNumber" property="IDNumber" jdbcType="VARCHAR"/>
         </association>
     </resultMap>
     <resultMap id="ResultMapP" type="org.sys.rate.model.Participates">
@@ -80,7 +81,7 @@
 <!--        order by p.displaySequence-->
 <!--    </select>-->
 <select id="getPartByGroupId" parameterType="java.lang.Integer" resultMap="ResultMapGroup">
-    select p.ID,p.displaySequence,p.code,s.name,p.studentID
+    select p.ID,p.displaySequence,p.code,s.name,p.studentID,s.IDNumber
             from participants p,student s
             where p.groupID=#{groupId,jdbcType=INTEGER}
               and p.activityID=#{activitiesID,jdbcType=INTEGER}

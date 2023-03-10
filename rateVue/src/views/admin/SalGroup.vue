@@ -37,7 +37,7 @@
               {{importDataBtnText}}
             </el-button>
           </el-upload>
-
+          <el-button @click="testCreate">test</el-button>
           <el-button type="primary" @click="groupsForParticipant" icon="el-icon-upload" style="margin-left: 15px">
             选手分组
           </el-button>
@@ -750,6 +750,20 @@ export default {
       }
 
     },
+    testCreate(){
+      var url = '/groups/basic/createGroups'
+      // var data = {
+      //   "arr":[20,60,57,15,15]
+      // }
+      var arr = [20,60,57,15,15]
+      // var arr = [4,4,3]
+
+      this.postRequest(url,arr).then(()=>{
+        if(resp){
+          console.log(resp)
+        }
+      })
+    },
     creatGroup(){//创建分组
       //传递activityID和选手id，分为几组和每组人数
       if(this.radio == '2'){
@@ -763,8 +777,10 @@ export default {
         }
       }
       var url = '/groups/basic/createGroups'
+      var arr = [4,4,3]
       var data = {
         acticityID:this.acticityID,
+        arr,
         participantList:this.filterNoGroupPar,
         infoItemID:this.groupInfoNums[this.selectedGroupInfo]['infoItemID'],//筛选没有分组的选手的信息项
         sortByItemType:this.sortBy.type,//选择排序依据的类型和id

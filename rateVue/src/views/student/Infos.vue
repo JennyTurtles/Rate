@@ -282,10 +282,6 @@ export default {
           this.renderFileIcon(response.data,data)//渲染图标
           this.uploadListElement[index].isShow = false
           this.uploadListElement[index].uploadState = false
-          console.log('fileDownloadList:')
-          console.log(this.fileDownloadList)
-          console.log('uploadListElement:')
-          console.log(this.uploadListElement)
           // this.reset()
         },()=>{}
       )
@@ -347,7 +343,7 @@ export default {
         // length = this.judgeSize(this.infoTextareaContent)
       }
       //保留空格和换行符号
-      edit.content = edit.content.replace(/\n/g,"<br/>").replace(/\s/g," ");
+      edit.content = edit.content.replace(/\n/g,"<br>").replace(/\s/g," ");
       // if(length > data.sizelimit){
       //   this.$message.warning("大小不超过" + data.sizelimit + "!")
       // }else{
