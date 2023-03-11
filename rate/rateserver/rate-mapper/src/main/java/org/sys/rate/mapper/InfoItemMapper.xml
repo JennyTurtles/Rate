@@ -171,11 +171,14 @@
     order by s.ID
   </select>
 
-  <select id="selectInfoItemByActivityId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+  <select id="selectInfoItemByActivityId" resultMap="BaseResultMap">
     select  s.ID,s.activityID,s.name,s.sizelimit,s.contentType,s.byParticipant,s.display,i.content
     from infos i
     right join infoitem s on s.ID = i.infoItemID
-    where s.activityID = #{activitiesID}
+    where s.activityID = #{activitiesID} and i.participantID in
+    <foreach close=")" collection="participantID" item="ID" open="(" separator=",">
+      #{ID}
+    </foreach>
     order by s.ID
   </select>
 

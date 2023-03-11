@@ -79,6 +79,19 @@
         WHERE ID = #{activityID,jdbcType=INTEGER}
     </insert>
 
+    <insert id="insertMultipleGroups" >
+        insert into groups (activityID, name, expertCount, participantCount) values
+        (#{activityID,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+        #{expertCount,jdbcType=INTEGER}, #{participantCount,jdbcType=INTEGER});
+        <selectKey keyProperty="ID" order="AFTER" resultType="java.lang.Integer">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        UPDATE activities
+        SET groupCount = groupCount + 1
+        WHERE ID = #{activityID,jdbcType=INTEGER}
+
+    </insert>
+
     <update id="insert_update" parameterType="org.sys.rate.model.Groups">
         UPDATE institution a
         SET a.activityCount = a.activityCount + 1

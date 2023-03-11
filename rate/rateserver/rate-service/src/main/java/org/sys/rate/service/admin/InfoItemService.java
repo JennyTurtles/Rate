@@ -6,11 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.InfoItemMapper;
 import org.sys.rate.mapper.InfosMapper;
+import org.sys.rate.mapper.ParticipatesMapper;
+import org.sys.rate.model.Participates;
 import org.sys.rate.model.RespPageBean;
 import org.sys.rate.model.InfoItem;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -20,6 +23,8 @@ public class InfoItemService {
     InfoItemMapper infoItemMapper;
     @Autowired
     InfosMapper infosMapper;
+    @Autowired
+    ParticipatesMapper participatesMapper;
     public final static Logger logger = LoggerFactory.getLogger(InfoItemService.class);
     SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
     SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
@@ -122,7 +127,13 @@ public class InfoItemService {
     }
 
     public List<InfoItem>  getInforItemByActivityId(Integer activitiesID){
-        List<InfoItem> infoItems = infoItemMapper.selectInfoItemByActivityId(activitiesID);
+        //根据acid和info内容和infoitemid拿到选手id
+        List<Participates> participates = participatesMapper.getParticipantByAId(activitiesID);
+        List<Integer> participantID = new ArrayList<>();
+        for(int i = 0;i < participates.size(); i++){
+            participantID.add(participates.get(i).getID());
+        }
+        List<InfoItem> infoItems = infoItemMapper.selectInfoItemByActivityId(activitiesID,participantID);
         return infoItems;
     }
     public List<InfoItem>  getInforItemByActivityIdIsShow(Integer activitiesID){

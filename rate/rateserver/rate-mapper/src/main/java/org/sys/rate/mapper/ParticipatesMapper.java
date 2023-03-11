@@ -116,5 +116,6 @@ public interface ParticipatesMapper {
 
     void deleteGroupsOfParticipantsAnaAcitivity(Integer activityID);
     void deleteGroups(Integer activityID);
-
+    void updateGroupID(Integer activityID,Integer groupID,List<Integer> parID);
+    List<Participates> getParticipantByAId(Integer activityID);
 }

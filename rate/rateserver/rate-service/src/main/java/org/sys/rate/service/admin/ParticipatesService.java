@@ -547,4 +547,8 @@ public class ParticipatesService {
         participatesMapper.deleteGroups(activityID);//删除groups表中的数据
         participatesMapper.deleteGroupsOfParticipantsAnaAcitivity(activityID);//删除选手表和活动表中的groupid
     }
+    //更新选手的分组id
+    public void updateGroupID(Integer activityID,Integer groupID,List<Integer> parID){
+        participatesMapper.updateGroupID(activityID,groupID,parID);
+    }
 }

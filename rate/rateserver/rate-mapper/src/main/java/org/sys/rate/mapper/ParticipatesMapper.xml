@@ -377,6 +377,11 @@
             #{ID}
         </foreach>
     </select>
+    <select id="getParticipantByAId" resultMap="BaseResultMap">
+        select *
+        from participants
+        where activityID = #{activityID} and ISNULL(groupID)
+    </select>
     <select id="getParticipantIDByIDNumber" resultMap="BaseResultMap">
         select p.ID,s.name
         from student as s,participants as p
@@ -392,4 +397,11 @@
         delete from groups
         where activityID = #{activityID}
     </delete>
+    <update id="updateGroupID">
+        UPDATE participants set groupID = #{groupID}
+        where activityID = #{activityID} and ISNULL(groupID) and ID in
+        <foreach close=")" collection="parID" item="ID" open="(" separator=",">
+            #{ID}
+        </foreach>
+    </update>
 </mapper>

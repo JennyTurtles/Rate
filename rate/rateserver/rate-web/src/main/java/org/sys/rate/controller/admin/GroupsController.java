@@ -1,5 +1,6 @@
 package org.sys.rate.controller.admin;
 
+import cn.hutool.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.model.*;
@@ -12,6 +13,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -119,7 +121,27 @@ public class GroupsController {
     }
 
     @PostMapping("/createGroups")
-    public void createGroups(@RequestParam List<Participates> participants) throws ParseException {
-        groupsService.createGroups(participants);
+    @ResponseBody
+    public List<Participates> createGroups(@RequestBody Map<String,Object> data) throws ParseException {
+        Integer activityID = (Integer) data.get("activityID");
+        Integer infoItemID = (Integer) data.get("infoItemID");
+        Integer sortByItemID = (Integer) data.get("sortByItemID");
+        List<Integer> arr = (List<Integer>) data.get("arr");
+        Integer exchangeNums = (Integer) data.get("exchangeNums");
+        Integer groupsNums = (Integer) data.get("groupsNums");
+        List<String> infoContent = (List<String>) data.get("infoContent");
+        //筛选出没有分组的选手
+        List<Participates> participates = infosService.getPartipicantByActivityId(activityID,infoItemID,infoContent);
+        if(data.get("sortByItemType").equals("评分项")){//数字
+            groupsService.createGroupsByScore(arr,exchangeNums,groupsNums);
+            return participates;
+        }else if(data.get("sortByItemType").equals("信息项")){//不是数字
+            //插入groups数据，返回groups，传入
+            for (int i = 0;i< arr.size();i++){//每组多少人
+                participates = groupsService.creatGroups(arr.get(i),participates,activityID,0,arr.get(i),i);
+            }
+        }
+        //返回分好组的选手信息
+        return participates;
     }
 }

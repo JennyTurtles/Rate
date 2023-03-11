@@ -75,7 +75,7 @@
             min-width="3%">
         </el-table-column>
         <el-table-column
-            prop="oldgroupname"
+            prop="groupName"
             fixed
             align="left"
             label="组名"
@@ -738,7 +738,7 @@ export default {
                 id:i.id
               })
             }
-            console.log(this.sortByList)
+            console.log(this.groupInfoNums)
             if(!this.groupNums){
               this.groupNums = Array.from(Array(10).keys(),n=>n+1)
             }
@@ -752,13 +752,13 @@ export default {
     },
     testCreate(){
       var url = '/groups/basic/createGroups'
-      // var data = {
-      //   "arr":[20,60,57,15,15]
-      // }
       var arr = [20,60,57,15,15]
-      // var arr = [4,4,3]
-
-      this.postRequest(url,arr).then(()=>{
+      var data = {
+        arr,
+        'exchangeNums':5,
+        'groupsNums':5
+      }
+      this.postRequest(url,data).then((resp)=>{
         if(resp){
           console.log(resp)
         }
@@ -777,21 +777,38 @@ export default {
         }
       }
       var url = '/groups/basic/createGroups'
-      var arr = [4,4,3]
+      //每组人数
+      var arr = this.groupNumsInput.map(item=>{
+        return item.value
+      })
       var data = {
-        acticityID:this.acticityID,
-        arr,
-        participantList:this.filterNoGroupPar,
-        infoItemID:this.groupInfoNums[this.selectedGroupInfo]['infoItemID'],//筛选没有分组的选手的信息项
-        sortByItemType:this.sortBy.type,//选择排序依据的类型和id
-        sortByItemID:this.sortBy.id,
+        'activityID':parseInt(this.keywords),
+        'arr':arr,
+        'exchangeNums':Math.ceil(this.selectedGroupNums / 2),
+        'groupsNums':this.selectedGroupNums
       }
+      if(this.sortBy != ''){
+        var obj = this.sortByList.find(item => item.name == this.sortBy)
+        data['sortByItemType'] = obj.type
+        data['sortByItemID'] = obj.id
+      }else {
+        return;
+      }
+      if(this.selectedSubGroupInfo.length > 0){//判断有没有选择信息项
+        data['infoItemID'] = this.groupInfoNums[this.selectedGroupInfo].infoItemID
+        data['infoContent']= this.selectedSubGroupInfo
+      }else {
+        return;
+      }
+      // console.log(data)
       this.postRequest(url,data).then((resp)=>{
         if(resp){
-
+          //表格展示是和emps相关的
+          this.dialogPartipicantGroups = false
+          this.closeDialogGroupOfParticipant()
+          this.initEmps()
         }
       })
-
     },
     /** 查询角色列表 */
     onError(err, file, fileList) {
@@ -905,7 +922,6 @@ export default {
       this.dialogVisible = true;
     },
     Delete(data) {
-      //console.log(data)
       data.institutionid= this.user.institutionID;
       this.$confirm('此操作将永久删除【' + data.name + '】, 是否继续?', '提示', {
         confirmButtonText: '确定',
