@@ -127,6 +127,7 @@ public class ParticipatesService {
             //信息项end
             if(participates.getGroupID()!=null)
             participates.setOldgroupname(groupsMapper.getEmployeeById(participates.getGroupID()).getName());
+//            participates.setOldGroupId(groupsMapper.getEmployeeById(participates.getGroupID()).getID());
         }
         Long total = participatesMapper.getTotalByACID(activitiesID,employee);
         RespPageBean bean = new RespPageBean();
@@ -543,9 +544,15 @@ public class ParticipatesService {
     public Participates getParticipantIDByIDNumber(Integer activityID,String IDNumber){
         return participatesMapper.getParticipantIDByIDNumber(activityID,IDNumber);
     }
-    public void deleteGroups(Integer activityID){
-        participatesMapper.deleteGroups(activityID);//删除groups表中的数据
-        participatesMapper.deleteGroupsOfParticipantsAnaAcitivity(activityID);//删除选手表和活动表中的groupid
+    public String deleteGroups(Integer activityID){
+        Integer res = groupsMapper.isGroupsExit(activityID);
+        if(res > 0){
+            participatesMapper.deleteGroups(activityID);//删除groups表中的数据
+            participatesMapper.deleteGroupsOfParticipantsAnaAcitivity(activityID);//删除选手表和活动表中的groupid
+            return "删除成功";
+        }else {
+            return "无删除数据";
+        }
     }
     //更新选手的分组id
     public void updateGroupID(Integer activityID,Integer groupID,List<Integer> parID){

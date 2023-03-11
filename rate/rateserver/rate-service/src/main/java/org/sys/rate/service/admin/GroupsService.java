@@ -147,6 +147,7 @@ public class GroupsService {
     }
     //按照数字分组
     public List<List<Double>> createGroupsByScore(List<Integer> arr,Integer exchangeNums,Integer groupsNums){
+
         List<Double> point = switchTypeOfScore();//转换数据类型
         Integer studentNums = point.size();
         createGroups cp = new createGroups();//分组
@@ -167,15 +168,23 @@ public class GroupsService {
     public List<Participates> creatGroups(Integer nums,List<Participates> participates,Integer activityID,Integer expertCount,Integer participantCount,Integer idx){
         //插入一组的数据
         String name = "第" + Integer.toString(idx + 1) + "组";
-        Integer groupID = groupsMapper.insertMultipleGroups(activityID,name,expertCount,participantCount);
+        Groups gp = new Groups();
+        gp.setActivityID(activityID);
+        gp.setExpertCount(expertCount);
+        gp.setParticipantCount(participantCount);
+        gp.setName(name);
+        //groups表插入新数据
+        Integer res = groupsMapper.insertMultipleGroups(gp);
+        //更新activi表的groupcount
         groupsMapper.updateGroupCount(activityID);
         int i = 0;
         int j = 0;
         //给每个选手给定分组
         List<Integer> parID = new ArrayList<>();//给定分组的选手id列表
+        //按照选手的顺序分组 因为不是按照分数分组
         while (i < nums){
             if(participates.get(j).getGroupID() == null || participates.get(j).getGroupID() == 0){
-                participates.get(j).setGroupID(groupID);
+                participates.get(j).setGroupID(gp.getID());
                 participates.get(j).setGroupName(name);
                 parID.add(participates.get(j).getID());
                 i ++;
@@ -183,7 +192,7 @@ public class GroupsService {
             j ++;
         }
         //更新数据库信息
-        participatesService.updateGroupID(activityID,groupID,parID);
+        participatesService.updateGroupID(activityID,gp.getID(),parID);
         return participates;
     }
 }

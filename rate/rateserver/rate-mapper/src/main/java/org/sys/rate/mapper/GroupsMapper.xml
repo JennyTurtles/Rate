@@ -79,18 +79,15 @@
         WHERE ID = #{activityID,jdbcType=INTEGER}
     </insert>
 
-    <insert id="insertMultipleGroups" >
+    <insert id="insertMultipleGroups" useGeneratedKeys="true" keyProperty="ID" parameterType="org.sys.rate.model.Groups">
         insert into groups (activityID, name, expertCount, participantCount) values
-        (#{activityID,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+        (#{activityID}, #{name,jdbcType=VARCHAR},
         #{expertCount,jdbcType=INTEGER}, #{participantCount,jdbcType=INTEGER});
-        <selectKey keyProperty="ID" order="AFTER" resultType="java.lang.Integer">
-            SELECT LAST_INSERT_ID()
-        </selectKey>
     </insert>
-    <update id="updateGroupCount" parameterType="java.lang.Integer">
+    <update id="updateGroupCount" parameterType="Integer">
         UPDATE activities
         SET groupCount = groupCount + 1
-        WHERE ID = #{activityID,jdbcType=INTEGER}
+        WHERE ID = #{activityID}
     </update>
 
     <update id="insert_update" parameterType="org.sys.rate.model.Groups">
@@ -129,5 +126,7 @@
             limit #{page},#{size}
         </if>
     </select>
-
+    <select id="isGroupsExit" resultType="Integer">
+        select COUNT(*) from groups where activityID = #{activityID}
+    </select>
 </mapper>

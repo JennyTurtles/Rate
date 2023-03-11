@@ -37,7 +37,6 @@
               {{importDataBtnText}}
             </el-button>
           </el-upload>
-          <el-button @click="testCreate">test</el-button>
           <el-button type="primary" @click="groupsForParticipant" icon="el-icon-upload" style="margin-left: 15px">
             选手分组
           </el-button>
@@ -75,7 +74,7 @@
             min-width="3%">
         </el-table-column>
         <el-table-column
-            prop="groupName"
+            prop="oldgroupname"
             fixed
             align="left"
             label="组名"
@@ -568,12 +567,14 @@ export default {
     selectedGroupInfo:{//监听第一个下拉框的变化 信息项
       handler(val){
         //信息项和信息项的子选项都被选择了或者没有子信息项
-        if(JSON.stringify(this.groupInfoNums[val]) == '{}' || this.selectedSubGroupInfo.length > 0){
-          this.filterNoGroupParticipants()
-        }else if(JSON.stringify(this.groupInfoNums[val]) != '{}' && this.selectedSubGroupInfo.length == 0){
-          //该信息项下的所有子信息项
-          if(JSON.stringify(this.groupInfoNums) != '{}' && JSON.stringify(this.groupInfoNums[val]) != '{}' ){
-            this.groupSubOfSelectedInfos = Object.keys(this.groupInfoNums[val])
+        if(val != '') {
+          if (JSON.stringify(this.groupInfoNums[val]) == '{}' || this.selectedSubGroupInfo.length > 0) {
+            this.filterNoGroupParticipants()
+          } else if (JSON.stringify(this.groupInfoNums[val]) != '{}' && this.selectedSubGroupInfo.length == 0) {
+            //该信息项下的所有子信息项
+            if (JSON.stringify(this.groupInfoNums) != '{}' && JSON.stringify(this.groupInfoNums[val]) != '{}') {
+              this.groupSubOfSelectedInfos = Object.keys(this.groupInfoNums[val])
+            }
           }
         }
       }
@@ -597,34 +598,35 @@ export default {
     this.initEmps();
   },
   methods: {
-    deleteGroupsOfParticipant(){//删除分组
+    deleteGroupsOfParticipant(){//删除分组 这个活动下的所有group
       // console.log(this.emps)
-      var flag = false//判断当前的选手列表中是否已经分过组
-      for(var item of this.emps){
-        if(item.groupID != null && item.groupID != 0){
-          flag = true
-          break;
-        }
-      }
-      if(flag){
+      // var flag = false//判断当前的选手列表中是否已经分过组
+      // for(var item of this.emps){
+      //   if(item.groupID != null && item.groupID != 0){
+      //     flag = true
+      //     break;
+      //   }
+      // }
+      // if(flag){
         this.$confirm('确定删除分组？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(()=>{
-          var url = '/participants/basic/deleteGroups?activityID=' + this.activityID
-          this.getRequest(url).then(()=>{
+          var url = '/participants/basic/deleteGroups?activityID=' + parseInt(this.keywords)
+          this.getRequest(url).then((resp)=>{
             if(resp){
-              this.$message.success('删除成功')
+              this.$message.success(resp.msg)
+              this.initEmps();
             }
           })
         })
         .catch(()=>{
 
         })
-      }else {
-        this.$message.warning('该活动还未分组！无法删除')
-      }
+      // }else {
+      //   this.$message.warning('该活动还未分组！无法删除')
+      // }
     },
     calculationGroupInputValue(){//计算input框的值
       //如果没有选择分组个数或没有待分组的选手直接返回
@@ -694,17 +696,17 @@ export default {
     groupsForParticipant(){//选手分组,点击按钮对话框弹出 //获得该活动下的所有Infoitem，其中包括content
       var flag = false//判断当前的选手列表中是否已经分过组
       if(this.emps != null && this.emps.length != 0){
-        for(var item of this.emps){
-          if(item.groupID != null && item.groupID != 0){
-            flag = true
-            break;
-          }
-        }
+        // for(var item of this.emps){
+        //   if(item.groupID != null && item.groupID != 0){
+        //     flag = true
+        //     break;
+        //   }
+        // }
       }else {
         this.$message.warning('请先导入选手！')
         return
       }
-      if(!flag){
+      // if(!flag){
         this.groupSubOfSelectedInfos = []
         this.groupInfoNums = {}
         this.sortByList = []
@@ -745,41 +747,29 @@ export default {
             this.dialogPartipicantGroups = true
           }
         })
-      }else {
-        this.$message.warning('请先删除分组！')
-      }
+      // }else {
+      //   this.$message.warning('请先删除分组！')
+      // }
 
-    },
-    testCreate(){
-      var url = '/groups/basic/createGroups'
-      var arr = [20,60,57,15,15]
-      var data = {
-        arr,
-        'exchangeNums':5,
-        'groupsNums':5
-      }
-      this.postRequest(url,data).then((resp)=>{
-        if(resp){
-          console.log(resp)
-        }
-      })
     },
     creatGroup(){//创建分组
       //传递activityID和选手id，分为几组和每组人数
+      var sum = 0
       if(this.radio == '2'){
-        var sum = 0
         this.groupNumsInput.map(item=>{
-          sum += item.value
+          sum += parseInt(item.value)
         })
-        if(sum != this.filterNoGroupPar){
-          this.$message.error('人数大于未分组的人数！')
+        // console.log(sum)
+        // console.log(this.filterNoGroupPar)
+        if(sum != this.filterNoGroupPar.length){
+          this.$message.error('人数不等于未分组的人数！')
           return
         }
       }
       var url = '/groups/basic/createGroups'
       //每组人数
       var arr = this.groupNumsInput.map(item=>{
-        return item.value
+        return parseInt(item.value)
       })
       var data = {
         'activityID':parseInt(this.keywords),
@@ -804,6 +794,7 @@ export default {
       this.postRequest(url,data).then((resp)=>{
         if(resp){
           //表格展示是和emps相关的
+          this.$message.success("分组成功")
           this.dialogPartipicantGroups = false
           this.closeDialogGroupOfParticipant()
           this.initEmps()
@@ -951,7 +942,7 @@ export default {
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
-          //console.log("aha",resp);
+          console.log("aha",resp);
           this.emps = resp.data;
           this.total = resp.total;
           //console.log("total",this.total);

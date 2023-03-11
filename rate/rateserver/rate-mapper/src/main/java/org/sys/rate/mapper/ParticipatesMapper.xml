@@ -411,8 +411,8 @@
                     t.`name`,stu.`name`) as table2
     </select>
     <update id="deleteGroupsOfParticipantsAnaAcitivity" parameterType="java.lang.Integer">
-        UPDATE participants set groupID is null
-        where participants.activityID=#{activityID}
+        UPDATE participants set groupID = null
+        where participants.activityID=#{activityID};
         UPDATE activities set groupCount = 0
         where activities.ID=#{activityID}
     </update>
@@ -427,4 +427,5 @@
             #{ID}
         </foreach>
     </update>
+
 </mapper>

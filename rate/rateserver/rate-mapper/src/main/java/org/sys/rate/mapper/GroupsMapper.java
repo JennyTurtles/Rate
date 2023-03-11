@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Groups;
 import org.sys.rate.model.ScoreDetail;
 
@@ -23,7 +24,7 @@ public interface GroupsMapper {
     Groups selectByPrimaryKey(Integer id);
 
     //导入分组
-    Integer insertMultipleGroups(Integer activityID,String name,Integer expertCount,Integer participantCount);
+    Integer insertMultipleGroups(Groups gp);
     void updateGroupCount(Integer activityID);
 
     List<Groups> getActivitiesByPage(@Param("keywords") Integer keywords,@Param("page") Integer page, @Param("size") Integer size, @Param("emp") Groups employee);
@@ -53,4 +54,6 @@ public interface GroupsMapper {
     List<Groups> getEmployeeByPageWithSalary(@Param("page") Integer page, @Param("size") Integer size);
 
     Integer updateEmployeeSalaryById(@Param("eid") Integer eid, @Param("sid") Integer sid);
+
+    Integer isGroupsExit(Integer activityID);
 }

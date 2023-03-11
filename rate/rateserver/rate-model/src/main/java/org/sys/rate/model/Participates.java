@@ -26,6 +26,7 @@ public class Participates{
     private String examscore;
     private Integer displaySequence;//p
     private String department;//p
+    private Integer oldGroupID;
     private String oldgroupname;
     private String username;
     private Student student;
@@ -131,12 +132,12 @@ public class Participates{
         this.name = name == null ? null : name.trim();
     }
 
-    public String getOldGroupId() {
-        return oldgroupname;
+    public Integer getOldGroupId() {
+        return oldGroupID;
     }
 
-    public void setOldGroupId(String oldgroupname) {
-        this.oldgroupname = oldgroupname;
+    public void setOldGroupId(Integer oldGroupID) {
+        this.oldGroupID = oldGroupID;
     }
 
     public Double getScore() {

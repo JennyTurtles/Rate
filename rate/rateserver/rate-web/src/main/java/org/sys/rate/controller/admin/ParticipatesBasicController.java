@@ -233,10 +233,14 @@ public class ParticipatesBasicController {
         List<InfoItem> infoItems = infoItemService.getInforItemAndContentByActivityIdAndPIdAndInfoId(activityID,participant.getID());
         return Msg.success().add("infoitems",infoItems).add("name",participant.getName());
     }
-    @PostMapping("/deleteGroups")
-    public Msg deleteGroups(@RequestParam Integer activityID){
-        participatesService.deleteGroups(activityID);
-        return Msg.success();
+    //删除分组
+    @GetMapping("/deleteGroups")
+    public RespBean deleteGroups(@RequestParam Integer activityID){
+        String res = participatesService.deleteGroups(activityID);
+        if(res.equals("无删除数据")){
+            return RespBean.error(res);
+        }else {
+            return RespBean.ok(res);
+        }
     }
-
 }
