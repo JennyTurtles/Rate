@@ -373,7 +373,7 @@
   </update>
   <select id="getExpertsByPage" resultMap="BaseResultMap">
     /*select * from teacher g*/
-      select t.ID, t.username, t.institutionID, t.name, t.department, t.IDNumber, t.password,t.phone, t.email from teacher t,expertactivities e where e.`teacherID`=t.`id` and e.`groupID`=#{keywords}
+    select t.ID, e.finished, t.username, t.institutionID, t.name, t.department, t.IDNumber, t.password,t.phone, t.email from teacher t,expertactivities e where e.`teacherID`=t.`id` and e.`groupID`=#{keywords}
     <if test="page !=null and size!=null">
       limit #{page},#{size}
     </if>
@@ -414,6 +414,11 @@
                      jobnumber=#{jobNumber,jdbcType=VARCHAR},
                      sex=#{sex,jdbcType=VARCHAR}
     where IDNumber=#{idnumber};
+  </update>
+
+  <update id="withdrawScore" parameterType="java.lang.Integer">
+    update Expertactivities set finished=0
+    where teacherID=#{teacherID} and activityID=#{activityID} and groupID=#{groupID};
   </update>
 
   <select id="checkUsername" resultType="java.lang.Integer">

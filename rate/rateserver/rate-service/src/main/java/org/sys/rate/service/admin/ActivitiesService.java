@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.ActivitiesMapper;
 import org.sys.rate.model.Activities;
 import org.sys.rate.model.RespPageBean;
+import org.sys.rate.model.ScoreDetail;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -99,6 +100,13 @@ public class ActivitiesService {
     public Integer getScoreItemCount(Integer activitiesId) {
         Integer count = activitiesMapper.selectScoreItemCount(activitiesId);
         return count;
+    }
+
+    public RespPageBean getActivityScore(Integer activityID){
+        List<ScoreDetail> data = activitiesMapper.getActivityScore(activityID);
+        RespPageBean bean = new RespPageBean();
+        bean.setData(data);
+        return bean;
     }
 
     public String getActivitiesName(Integer activityID) {

@@ -9,6 +9,7 @@ import org.sys.rate.model.Participates;
 import org.sys.rate.model.RespPageBean;
 import org.sys.rate.model.Groups;
 import org.sys.rate.utils.createGroups;
+import org.sys.rate.model.ScoreDetail;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -33,6 +34,18 @@ public class GroupsService {
         }
         Long total = groupsMapper.getTotal(keywords, employee);
         List<Groups> data = groupsMapper.getActivitiesByPage(keywords, page, size, employee);
+        RespPageBean bean = new RespPageBean();
+        bean.setData(data);
+        bean.setTotal(total);
+        return bean;
+    }
+
+    public RespPageBean getGroupScore(Integer keywords,Integer page,Integer size, Groups employee){
+        if (page != null && size != null) {
+            page = (page - 1) * size;
+        }
+        Long total = groupsMapper.getTotal(keywords, employee);
+        List<ScoreDetail> data = groupsMapper.getGroupScore(keywords,page,size,employee);
         RespPageBean bean = new RespPageBean();
         bean.setData(data);
         bean.setTotal(total);

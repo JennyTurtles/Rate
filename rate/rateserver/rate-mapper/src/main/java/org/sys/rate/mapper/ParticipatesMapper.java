@@ -57,6 +57,10 @@ public interface ParticipatesMapper {
 
     List<Participates> getParticipatesByPage(@Param("page") Integer page, @Param("size") Integer size, @Param("emp") Participates employee,@Param("beginDateScope") Date[] beginDateScope);
 
+    List<PEexport> getExpertScore(@Param("page") Integer page, @Param("size") Integer size,@Param("groupID") Integer groupID,@Param("activityID") Integer activityID);
+
+    Long getTotalEA(@Param("activityID") Integer activityID,@Param("groupID") Integer groupID);
+
     Long getTotal(@Param("groupID") Integer groupID,@Param("emp") Participates employee);
 
     Long getTotalByACID(@Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);

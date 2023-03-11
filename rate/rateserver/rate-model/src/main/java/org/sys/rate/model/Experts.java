@@ -38,6 +38,15 @@ public class Experts extends Account {
 
     private String oldgroupname;
 
+    private Boolean finished;
+
+    public Boolean getFinished() {
+        return finished;
+    }
+
+    public void setFinished(Boolean finished) {
+        this.finished = finished;
+    }
 
     //private String role;
     //private List<Role> roles;

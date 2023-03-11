@@ -190,6 +190,15 @@ public class ExpertService implements UserDetailsService {
 		return true;
 	}
 
+	public boolean withdrawScore(Integer activityID,Integer groupID,Experts teacher){
+		Integer id = expertsMapper.getID(teacher.getIdnumber());
+		int result = expertsMapper.withdrawScore(activityID,groupID,id);
+		if (result == 1) {
+			return true;
+		}
+		return true;
+	}
+
 	public String sh1(String password) {
 		MessageDigest digest = null;
 		try {
@@ -413,5 +422,138 @@ public class ExpertService implements UserDetailsService {
 		return hashPEexport;
 	}
 
+	public RespPageBean  getExpertGroupScore(Integer page,Integer size,Integer groupID,Integer activityID) {
+		if (page != null && size != null) {
+			page = (page - 1) * size;
+		}
+		HashPEexport hashPEexport=new HashPEexport();
+		HashMap<Integer, String> Gmap = new LinkedHashMap<>();
+		HashMap<Integer, String> Emap = new LinkedHashMap<>();
+		HashMap<Integer, String> Smap = new LinkedHashMap<>();
+		HashMap<Integer, String> SNotByEmap = new LinkedHashMap<>();
+		List<PEexport> data = participatesMapper.getExpertScore(page,size,groupID,activityID);
+		HashMap<Integer,HashMap<Integer,HashMap<Integer,Participates>>> map = new LinkedHashMap<>();//ID,map(ExpertID,map(PID,P))
+		for(PEexport experts:data)//获得expert对应的participants和他们的分数
+		{//专家给同组的选手打分的选手id//通过pid获得scoreitemMap//Pt.setSMap()
+			Participates par=new Participates();
+			par.setName(experts.getParticipantName());
+			par.setCode(experts.getCode());
+			par.setDisplaySequence(experts.getDisplaySequence());
+			ScoreItemValue scoreItemValue=new ScoreItemValue();
+			scoreItemValue.setScore(experts.getScore());
+			scoreItemValue.setName(experts.getScoreItemName());
+			scoreItemValue.setId(experts.getScoreItemID());
+			/*HashMap<Integer, ScoreItemValue> mapScore = new HashMap<>();
+			mapScore.put(experts.getScoreItemID(),scoreItemValue);
+			par.setScoremap(mapScore);*/
+			if(map.get(experts.getGroupID())==null)
+			{//getGroupID对应value-null//首次插入
+				HashMap<Integer, ScoreItemValue> mapScore = new LinkedHashMap<>();
+				mapScore.put(experts.getScoreItemID(),scoreItemValue);
+				par.setScoremap(mapScore);
+				HashMap<Integer,Participates> p= new LinkedHashMap<>();
+				p.put(experts.getParticipantID(),par);
+				HashMap<Integer,HashMap<Integer,Participates>> e= new LinkedHashMap<>();
+				e.put(experts.getExpertID(),p);
+				map.put(experts.getGroupID(),e);
+			}
+			else{//有group
+				if(map.get(experts.getGroupID()).get(experts.getExpertID())==null) {//没有getExpertID
+					//ParticipantID对应value-null
+					//getScoremap-null
+					HashMap<Integer, ScoreItemValue> mapScore = new LinkedHashMap<>();
+					mapScore.put(experts.getScoreItemID(),scoreItemValue);
+					par.setScoremap(mapScore);
+					HashMap<Integer,Participates> p= new LinkedHashMap<>();
+					p.put(experts.getParticipantID(),par);
+					map.get(experts.getGroupID()).put(experts.getExpertID(),p);
+				}
+				else{//有getExpertID
+					if(map.get(experts.getGroupID()).get(experts.getExpertID()).get(experts.getParticipantID())==null) {//没有ParticipantID
+						//getScoremap-null
+						HashMap<Integer, ScoreItemValue> mapScore = new LinkedHashMap<>();
+						mapScore.put(experts.getScoreItemID(),scoreItemValue);
+						par.setScoremap(mapScore);
+						map.get(experts.getGroupID()).get(experts.getExpertID()).put(experts.getParticipantID(),par);
+					}else {//有ParticipantID
+						if(map.get(experts.getGroupID()).get(experts.getExpertID()).get(experts.getParticipantID()).getScoremap()==null) {//getScoremap-null
+							HashMap<Integer, ScoreItemValue> mapScore = new LinkedHashMap<>();
+							mapScore.put(experts.getScoreItemID(),scoreItemValue);
+							map.get(experts.getGroupID()).get(experts.getExpertID()).get(experts.getParticipantID()).setScoremap(mapScore);
+						}
+						else {
+							map.get(experts.getGroupID()).get(experts.getExpertID()).get(experts.getParticipantID()).getScoremap().put(experts.getScoreItemID(),scoreItemValue);
+						}
+					}
+				}
+			}
+
+			Gmap.put(experts.getGroupID(),experts.getGroupName());
+			Emap.put(experts.getExpertID(),experts.getExpertName());
+			Smap.put(experts.getScoreItemID(),experts.getScoreItemName());
+		}
+		List<PEexport> data_null=null;
+		data_null=participatesMapper.getPartByGroupIdForPEexpert_nullByGID(groupID);
+		HashMap<Integer,HashMap<Integer,Participates>> null_map = new LinkedHashMap<>();//(Gid,PID(PID,P))
+		for(PEexport participant:data_null){
+			participant.getGroupID();
+			participant.getParticipantID();
+			participant.getScoreItemID();
+			Participates par=new Participates();
+			par.setName(participant.getParticipantName());
+			par.setCode(participant.getCode());
+			par.setDisplaySequence(participant.getDisplaySequence());
+			ScoreItemValue scoreItemValue=new ScoreItemValue();
+			scoreItemValue.setScore(participant.getScore());
+			scoreItemValue.setName(participant.getScoreItemName());
+			scoreItemValue.setId(participant.getScoreItemID());
+			if(null_map.get(participant.getGroupID())==null)
+			{//getGroupID对应value-null//首次插入
+				HashMap<Integer, ScoreItemValue> mapScore = new LinkedHashMap<>();
+				mapScore.put(participant.getScoreItemID(),scoreItemValue);
+				par.setScoremap(mapScore);
+				HashMap<Integer,Participates> p= new LinkedHashMap<>();
+				p.put(participant.getParticipantID(),par);
+				null_map.put(participant.getGroupID(),p);
+			}
+			else{//有group
+				if(null_map.get(participant.getGroupID()).get(participant.getParticipantID())==null) {//没有getPID
+					//ParticipantID对应value-null
+					//getScoremap-null
+					HashMap<Integer, ScoreItemValue> mapScore = new LinkedHashMap<>();
+					mapScore.put(participant.getScoreItemID(),scoreItemValue);
+					par.setScoremap(mapScore);
+					null_map.get(participant.getGroupID()).put(participant.getParticipantID(),par);
+				}
+				else{//有getPID
+					//有ParticipantID
+					if(null_map.get(participant.getGroupID()).get(participant.getParticipantID()).getScoremap()==null) {//getScoremap-null
+						HashMap<Integer, ScoreItemValue> mapScore = new LinkedHashMap<>();
+						mapScore.put(participant.getScoreItemID(),scoreItemValue);
+						null_map.get(participant.getGroupID()).get(participant.getParticipantID()).setScoremap(mapScore);
+					}
+					else {
+						null_map.get(participant.getGroupID()).get(participant.getParticipantID()).getScoremap().put(participant.getScoreItemID(),scoreItemValue);
+					}
+				}
+			}
+			SNotByEmap.put(participant.getScoreItemID(),participant.getScoreItemName());
+		}
+		Long total = participatesMapper.getTotalEA(activityID,groupID);
+
+		// select s.expertID,p.groupID,g.name as groupName,s.participantID,stu.name as participantName,p.code,p.displaySequence,s.scoreitemID,sc.name as scoreitemName,s.score from rate2.scores s,rate2.student stu,rate2.participants p,rate2.scoreitem sc,rate2.`groups` g where s.expertID is null and stu.ID=p.studentID and p.ID=s.participantID and s.scoreitemID=sc.ID and p.groupID=g.ID and s.activityID='15' and sc.byExpert=false order by g.name,p.displaySequence,s.scoreitemID;
+		hashPEexport.setMap(map);
+		hashPEexport.setEmap(Emap);
+		hashPEexport.setGmap(Gmap);
+		hashPEexport.setSmap(Smap);
+		hashPEexport.setSNotByEmap(SNotByEmap);
+		hashPEexport.setNull_map(null_map);
+		List<HashPEexport> list=new ArrayList<>();
+		list.add(hashPEexport);
+		RespPageBean bean = new RespPageBean();
+		bean.setTotal(total);
+		bean.setData(list);
+		return bean;
+	}
 
 }

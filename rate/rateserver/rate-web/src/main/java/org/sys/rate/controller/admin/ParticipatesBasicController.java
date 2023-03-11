@@ -138,6 +138,10 @@ public class ParticipatesBasicController {
         HashPEexport list = expertService.getExpertList("groupID",groupID);
         return POIUtils.employee2Excel(list);
     }
+    @GetMapping("/parscore")
+    public RespPageBean getExpertScore(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, @RequestParam Integer groupID, @RequestParam Integer activityID) {
+        return expertService.getExpertGroupScore(page, size,groupID,activityID);
+    }
     @GetMapping("/exportMo")
     public ResponseEntity<byte[]> downloadExample(HttpServletResponse response) {
         return POIUtils.writeMo();

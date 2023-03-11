@@ -387,6 +387,29 @@
         from student as s,participants as p
         where s.IDNumber = #{IDNumber} and s.ID = p.studentID and p.activityID = #{activityID}
     </select>
+    <select id="getExpertScore" resultType="org.sys.rate.model.PEexport">
+        select s.expertID,t.name as expertName,p.groupID,g.name as groupName,s.participantID,stu.name as participantName,p.code,p.displaySequence,s.scoreitemID,sc.name as scoreItemName,s.score from scores s,teacher t,student stu,participants p,scoreitem sc,`groups` g,expertactivities ea where s.expertID=t.ID and stu.ID=p.studentID and p.ID=s.participantID and s.scoreitemID=sc.ID and p.groupID=g.ID and ea.teacherID=t.ID and p.groupID=#{groupID} and p.activityID=#{activityID}
+        order by g.name,t.name,p.displaySequence,s.scoreitemID desc
+        <!--        <if test="page !=null and size!=null">-->
+        <!--            limit #{page},#{size}-->
+        <!--        </if>-->
+    </select>
+    <select id="getTotalEA" resultType="java.lang.Long">
+        SELECT count(*)
+        from(
+                SELECT
+                    expertID,
+                    participantID
+                FROM
+                    scores s,
+                    teacher t,
+                    participants p,
+                    student stu
+                WHERE
+                    s.expertID=t.ID and p.ID=s.participantID and p.studentID=stu.ID and p.activityID=#{activityID} and p.groupID=#{groupID}
+                GROUP BY
+                    t.`name`,stu.`name`) as table2
+    </select>
     <update id="deleteGroupsOfParticipantsAnaAcitivity" parameterType="java.lang.Integer">
         UPDATE participants set groupID is null
         where participants.activityID=#{activityID}

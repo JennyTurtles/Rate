@@ -72,6 +72,14 @@ public class ExpertMController {
         return "更新失败!";
     }
 
+    @PostMapping("/withdraw")
+    public String withdrawScore(@RequestParam Integer activityID,@RequestParam Integer groupID,@RequestBody Experts teacher) {
+        if(expertService.withdrawScore(activityID,groupID,teacher))
+            return "撤回成功!";
+        else
+            return "撤回失败";
+    }
+
     @PostMapping("/updateGroupId")
     public RespBean updateGroupId(@RequestParam Integer groupid,@RequestParam Integer activityid,@RequestBody Experts teacher) throws ParseException {
         if (expertService.updateExActivityTable(groupid,activityid,teacher) == 1) {
