@@ -23,7 +23,7 @@ public interface GroupsMapper {
 
     //导入分组
     Integer insertMultipleGroups(Integer activityID,String name,Integer expertCount,Integer participantCount);
-
+    void updateGroupCount(Integer activityID);
 
     List<Groups> getActivitiesByPage(@Param("keywords") Integer keywords,@Param("page") Integer page, @Param("size") Integer size, @Param("emp") Groups employee);
 

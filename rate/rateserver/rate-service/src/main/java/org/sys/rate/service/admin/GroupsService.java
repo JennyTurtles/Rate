@@ -155,6 +155,7 @@ public class GroupsService {
         //插入一组的数据
         String name = "第" + Integer.toString(idx + 1) + "组";
         Integer groupID = groupsMapper.insertMultipleGroups(activityID,name,expertCount,participantCount);
+        groupsMapper.updateGroupCount(activityID);
         int i = 0;
         int j = 0;
         //给每个选手给定分组
