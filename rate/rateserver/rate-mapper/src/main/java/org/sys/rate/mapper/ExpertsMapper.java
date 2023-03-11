@@ -48,6 +48,8 @@ public interface ExpertsMapper {
 
     Long getTotalActivities(Integer id);
 
+    int withdrawScore(@Param("activityID") Integer activityID,@Param("groupID") Integer groupID,@Param("teacherID") Integer teacherID);
+
     Integer getID(@Param("idNumber") String idNumber);
 
     @Select("SELECT COUNT(*) from expertactivities WHERE teacherID = #{teaId}")

@@ -2,9 +2,11 @@ package org.sys.rate.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.sys.rate.model.*;
+import org.sys.rate.model.Log;
+import org.sys.rate.model.RespBean;
+import org.sys.rate.model.RespPageBean;
+import org.sys.rate.model.Groups;
 import org.sys.rate.service.admin.GroupsService;
-import org.sys.rate.service.admin.InfosService;
 import org.sys.rate.service.admin.LogService;
 
 import java.sql.Timestamp;
@@ -21,16 +23,19 @@ public class GroupsController {
     GroupsService groupsService;
     @Autowired
     LogService logService;
-    @Autowired
-    InfosService infosService;
 
     @GetMapping("/")
     public RespPageBean getGroupsByPage(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, Groups employee) {
         return groupsService.getActivitiesPage(keywords, page, size, employee);
     }
 
+    @GetMapping("/score")
+    public RespPageBean getGroupScore(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, Groups employee){
+        return groupsService.getGroupScore(keywords,page,size,employee);
+    }
+
     @PostMapping("/insert")
-    public RespBean addParticipates(@RequestBody Groups employee, @RequestParam Integer institutionID) {
+    public RespBean addParticipates(@RequestBody Groups employee,@RequestParam Integer institutionID) {
 //        System.out.println("insert");
         employee.setName("输入分组名称");
         if (groupsService.addParticipates(employee) != -1) {
@@ -41,21 +46,21 @@ public class GroupsController {
     }
 
     @PostMapping("/delete")
-    public String deleteInstitution(@RequestBody Groups company, @RequestParam Integer institutionID) throws ParseException {
+    public String deleteInstitution(@RequestBody Groups company,@RequestParam Integer institutionID) throws ParseException {
         if (groupsService.deleteActivities(company) == 1) {
-            Log log = new Log();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Log log=new Log();
+            SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
             Timestamp nousedate = new Timestamp(date.getTime());
-            log.setLog(nousedate, institutionID, "分组", "删除成功");
+            log.setLog(nousedate,institutionID,"分组","删除成功");
             logService.addLogs(log);
             return "删除成功!";
         }
-        Log log = new Log();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Log log=new Log();
+        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
         Timestamp nousedate = new Timestamp(date.getTime());
-        log.setLog(nousedate, institutionID, "分组", "删除失败");
+        log.setLog(nousedate,institutionID,"分组","删除失败");
         logService.addLogs(log);
         return "删除失败!";
     }
@@ -85,41 +90,36 @@ public class GroupsController {
     }*/
 
     @PostMapping("/UpdateOrNew")
-    public String updateOrNewGroup(@RequestBody Groups group, @RequestParam Integer institutionID) throws ParseException {
+    public String updateOrNewGroup(@RequestBody Groups group,@RequestParam Integer institutionID) throws ParseException {
         Integer ID = group.getID();
 
         if (ID == null) {
             if (groupsService.insertGroup(group) == 1) {
-                Log log = new Log();
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Log log=new Log();
+                SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
                 Timestamp nousedate = new Timestamp(date.getTime());
-                log.setLog(nousedate, institutionID, "分组", "新增成功");
+                log.setLog(nousedate,institutionID,"分组","新增成功");
                 logService.addLogs(log);
                 return "新增成功!";
             }
         } else {
             if (groupsService.updateGroup(group) == 1) {
-                Log log = new Log();
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Log log=new Log();
+                SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
                 Timestamp nousedate = new Timestamp(date.getTime());
-                log.setLog(nousedate, institutionID, "分组", "更新成功");
+                log.setLog(nousedate,institutionID,"分组","更新成功");
                 logService.addLogs(log);
                 return "更新成功!";
             }
         }
-        Log log = new Log();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Log log=new Log();
+        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
         Timestamp nousedate = new Timestamp(date.getTime());
-        log.setLog(nousedate, institutionID, "分组", "更新失败");
+        log.setLog(nousedate,institutionID,"分组","更新失败");
         logService.addLogs(log);
         return "更新失败!";
-    }
-
-    @PostMapping("/createGroups")
-    public void createGroups(@RequestParam List<Participates> participants) throws ParseException {
-        groupsService.createGroups(participants);
     }
 }

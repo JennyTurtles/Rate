@@ -152,4 +152,18 @@
     <select id="selectActivity" parameterType="java.lang.Integer" resultType="org.sys.rate.model.Activities">
         select * from activities where ID = #{activityID};
     </select>
+    <select id="getActivityScore" resultType="org.sys.rate.model.ScoreDetail">
+        SELECT
+            p.activityID,
+            a.`name` activityname,
+            max(P.score) maxscore,
+            min(P.score) minscore,
+            ROUND(AVG(P.score), 2) avescore,
+            ROUND(variance(P.score), 2) varscore
+        FROM
+            participants AS p,activities AS a
+        WHERE p.activityID=#{activityID} AND p.activityID=a.ID
+        GROUP BY
+            p.activityID
+    </select>
 </mapper>

@@ -104,5 +104,16 @@
         select max(id)
         from `groups`
     </select>
+    <select id="getGroupScore" resultType="org.sys.rate.model.ScoreDetail">
+        select g.activityID activityID,g.ID groupID,g.`name` groupname,max(P.score) maxscore,min(P.score) minscore,ROUND(AVG(P.score),2) avescore,ROUND(variance(P.score),2) varscore
+        from participants as P
+        RIGHT JOIN `groups` as g
+        on P.groupID=g.ID
+        where g.activityID=#{keywords}
+        group by P.activityID,P.groupID
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
 
 </mapper>

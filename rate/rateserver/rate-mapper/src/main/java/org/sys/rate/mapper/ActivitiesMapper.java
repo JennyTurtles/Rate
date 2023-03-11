@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.sys.rate.model.Activities;
+import org.sys.rate.model.ScoreDetail;
 
 import java.util.Date;
 import java.util.List;
@@ -43,6 +44,8 @@ public interface ActivitiesMapper {
     Integer maxWorkID();
 
     List<Activities> getAllActivity_info();
+
+    List<ScoreDetail> getActivityScore(@Param("activityID") Integer activityID);
 
     Integer updateEmployeeSalaryById(@Param("eid") Integer eid, @Param("sid") Integer sid);
 

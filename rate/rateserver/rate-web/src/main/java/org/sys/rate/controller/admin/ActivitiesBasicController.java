@@ -152,7 +152,10 @@ public class ActivitiesBasicController {
     public RespPageBean searchActivities(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, @RequestParam String company, @RequestParam Integer institutionID) {
         return activitiesService.searchActivities(page, size, company, institutionID);
     }
-
+    @GetMapping("/score")
+    public RespPageBean getActivityScore(@RequestParam Integer activityID){
+        return activitiesService.getActivityScore(activityID);
+    }
     @GetMapping("/get_activity_info")
     public List<Activities> getAllActivity_info() {
         return activitiesService.getAllActivity_info();

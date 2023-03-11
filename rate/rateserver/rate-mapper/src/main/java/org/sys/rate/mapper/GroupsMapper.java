@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.sys.rate.model.Groups;
+import org.sys.rate.model.ScoreDetail;
 
 import java.util.Date;
 import java.util.List;
@@ -34,6 +35,8 @@ public interface GroupsMapper {
     Integer getTotalforactivityCount(@Param("keywords") Integer keywords);
 
     Long getTotaloutput(@Param("emp") Groups employee,@Param("beginDateScope") Date[] beginDateScope);
+
+    List<ScoreDetail> getGroupScore(@Param("keywords") Integer keywords, @Param("page") Integer page, @Param("size") Integer size, @Param("emp") Groups employee);
 
     Long getTotalByCompany(@Param("company") String company);
 
