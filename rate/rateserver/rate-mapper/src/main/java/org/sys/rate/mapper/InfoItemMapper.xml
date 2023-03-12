@@ -205,6 +205,8 @@
   <select id="getInfoItemAll" resultMap="ResultInfoItemValue">
     select si.ID,si.name from  infoitem si where si.activityID=#{activitiesID} and si.byParticipant=false;
   </select>
-
+  <select id="selectInfoItemsByActivityId" resultMap="BaseResultMap">
+    select si.* from  infoitem si where si.activityID=#{activityID};
+  </select>
 
 </mapper>

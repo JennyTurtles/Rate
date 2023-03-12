@@ -88,7 +88,7 @@ public class ExpertController {
         //获得该活动的评分项列表  byexpert是false
         List<ScoreItem> scoreitems = scoreItemService.getScoreItemByActivityId(activitiesID);
         //获得inforItem项列表
-        List<InfoItem> infoItems = infoItemService.getInforItemByActivityId(activitiesID);
+        List<InfoItem> infoItems = infoItemService.getInforItemByActivityIdAndPars(activitiesID);
 
         List<Infos> infosList = infosService.getInforsList(activitiesID,groupId);
 

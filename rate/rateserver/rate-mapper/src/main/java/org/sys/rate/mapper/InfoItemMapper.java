@@ -57,4 +57,6 @@ public interface InfoItemMapper {
 
     @Select("SELECT * FROM infoitem WHERE activityID = #{activityID}")
     List<InfoItem> getAll(Integer activityID);
+
+    List<InfoItem> selectInfoItemsByActivityId(Integer activityID);
 }

@@ -125,4 +125,5 @@ public interface ParticipatesMapper {
 
     void updateGroupID(Integer activityID,Integer groupID,List<Integer> parID);
     List<Participates> getParticipantByAId(Integer activityID);
+    List<Participates> getParticipantsByAId(Integer activityID);
 }

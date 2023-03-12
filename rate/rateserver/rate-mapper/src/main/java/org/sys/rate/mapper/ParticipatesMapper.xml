@@ -382,6 +382,11 @@
         from participants
         where activityID = #{activityID} and ISNULL(groupID)
     </select>
+    <select id="getParticipantsByAId" resultMap="BaseResultMap">
+        select *
+        from participants
+        where activityID = #{activityID}
+    </select>
     <select id="getParticipantIDByIDNumber" resultMap="BaseResultMap">
         select p.ID,s.name
         from student as s,participants as p
