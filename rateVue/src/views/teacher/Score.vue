@@ -563,7 +563,7 @@ export default {
                   this.$set(
                       this.datalist.participatesList[i],
                       "info" + name,
-                      this.datalist.infosList[s]["content"]
+                      this.datalist.infosList[s]["content"].replace(/<br>/g,"\n").replace(/' '/g,"\s")
                   );
                 }
               }
@@ -571,6 +571,7 @@ export default {
           }
         }
       }
+      console.log(this.datalist)
     },
     onInputConfirm(row, index) {
       this.$set(this.datalist.participatesList[index], "showSave", true);

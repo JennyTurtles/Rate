@@ -146,7 +146,8 @@ public class GroupsService {
         return Arrays.stream(p).boxed().collect(Collectors.toList());
     }
     //按照数字分组
-    public List<List<Double>> createGroupsByScore(List<Integer> arr,Integer exchangeNums,Integer groupsNums){
+    public List<List<Double>> createGroupsByScore(List<Integer> arr,Integer exchangeNums,Integer groupsNums,List<Participates> participates,Integer sortByItemID){
+        //根据筛选出来的infoitem得到所有没分组的选手，通过acid，parid，scoritemid得到score
 
         List<Double> point = switchTypeOfScore();//转换数据类型
         Integer studentNums = point.size();
