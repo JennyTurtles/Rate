@@ -82,7 +82,7 @@ public class InitRunner implements ApplicationRunner {
 
             config.save();
 
-            System.out.println("配置文件更新成功");
+//            System.out.println("配置文件更新成功");
         } catch (ConfigurationException e) {
             e.printStackTrace();
         }
