@@ -1,10 +1,7 @@
 package org.sys.rate.service.admin;
 
 import org.apache.poi.util.StringUtil;
-import org.sys.rate.mapper.ExpertsMapper;
-import org.sys.rate.mapper.MenuMapper;
-import org.sys.rate.mapper.MenuRoleMapper;
-import org.sys.rate.mapper.ParticipatesMapper;
+import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -13,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,6 +28,9 @@ public class MenuService {
     ExpertsMapper expertsMapper;
     @Autowired
     ParticipatesMapper participatesMapper;
+    @Resource
+    SecretaryMapper secretaryMapper;
+
 
     //获取子菜单
     public List<Menu> getChild(Integer id,List<Menu> rootMenu,Menu newMenu){
@@ -48,9 +49,9 @@ public class MenuService {
     //获取每个角色的菜单
     public List<Menu> getAllRoleMenus(Integer id, String role){
         List<Menu> res = new ArrayList<>();
-        if (role.equals(("3")))
-            System.out.println("3");
-        if(role.equals("8") || role.equals("9") || role.equals(("3"))){//8本科生老师 9研究生老师 3是专家
+        if (role.equals(("4")))
+            System.out.println("4");
+        if(role.equals("8") || role.equals("9") || role.equals(("3")) || role.equals(("4")) ){//8本科生老师 9研究生老师 3是专家 4是秘书
             res=menuMapper.getMenusByTeaId(id,Integer.parseInt(role));
         }
         else if(role.equals("10") || role.equals("11")){//10本科生 11研究生
@@ -90,6 +91,8 @@ public class MenuService {
             role = role + ";7";
         if (!role.contains("3") && expertsMapper.isExpert(id) != 0)
             role = role + ";3";
+        if (secretaryMapper.isSecretary(id) != 0)
+            role = role + ";4";
         String[] roles = role.split(";");
         List<Menu> res=new ArrayList<>();
         for (int i = 0;i < roles.length;i++){
