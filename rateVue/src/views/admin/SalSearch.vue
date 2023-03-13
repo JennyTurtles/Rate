@@ -146,6 +146,16 @@
             </el-button
             >
             <el-button
+                @click="showGroupOfPartipicant(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-s-operation"
+                type="primary"
+                plain
+            >选手分组
+            </el-button
+            >
+            <el-button
                 @click="showInsertmanagement(scope.row)"
                 style="padding: 4px"
                 size="mini"
@@ -153,6 +163,16 @@
                 type="primary"
                 plain
             >选手管理
+            </el-button
+            >
+            <el-button
+                @click="showScore(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-plus"
+                type="primary"
+                plain
+            >分数统计
             </el-button
             >
             <el-button
@@ -446,6 +466,16 @@ export default {
       this.emp = data;
       this.dialogVisible_show = true;
     },
+    showScore(data){
+      const _this = this;
+      _this.$router.push({
+        path: "/ActivitM/score",
+        query: {
+          keywords: data.id,
+          keyword_name: data.name,
+        },
+      });
+    },
     deleteEmp(data) {
       data.institutionID = this.user.institutionID;
       this.getRequest("/activities/basic/check?id=" + data.id).then(res => {
@@ -566,6 +596,16 @@ export default {
           this.emps = resp.data;
           this.total = resp.total;
         }
+      });
+    },
+    showGroupOfPartipicant(data){//选手分组
+      const _this = this;
+      _this.$router.push({
+        path: "/ActivitM/SalPartipicantGroup",
+        query: {
+          keywords: data.id,
+          keyword_name: data.name,
+        },
       });
     },
     showGroupmanagement(data) {

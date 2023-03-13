@@ -4,10 +4,10 @@
     <div style="display: flex; justify-content: left;margin-top:10px">
       <div style="margin-left: auto">
         <el-button icon="el-icon-refresh-right" type="danger" @click="revert">
-          撤回评分
+          退回评分
         </el-button>
         <el-button icon="el-icon-back" type="primary" @click="back">
-          关闭当前窗口
+          返回
         </el-button>
       </div>
     </div>
@@ -52,14 +52,14 @@
           </template>
         </el-table-column>
         <el-table-column
-                         v-for="(v, i) in this.smap"
-                         prop="v"
-                         :label="v"
-                         width="50%" align="center">
+            v-for="(v, i) in this.smap"
+            prop="v"
+            :label="v"
+            min-width="5%" align="center">
           <template slot-scope="scope">
-              <div v-for="(value,key) in scope.row.scoremap" v-if="key===i">
-                {{value.score}}
-              </div>
+            <div v-for="(value,key) in scope.row.scoremap" v-if="key===i">
+              {{value.score}}
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -223,12 +223,13 @@ export default {
             var value =resp.data[name];
             for(var v in value.map){
               var vv =value.map[v];
+              // console.log(vv);
               for(var vvv in vv){
                 this.map=vv[vvv];
               }
             }
             for(var i in this.map){
-            this.Scores.push(this.map[i]);
+              this.Scores.push(this.map[i]);
             }
             // console.log(this.Scores);
             this.smap=value.smap;
@@ -274,7 +275,6 @@ export default {
       this.Scores.push(obj);
     },
     back() {
-      window.close();
       const _this = this;
       _this.$router.push({
         path: "/ActivitM/sobcfg",
@@ -287,32 +287,37 @@ export default {
       });
     },
     revert(){
-      this.postRequest(
-          "/system/Experts/revert?activityId=" +
-          this.keywords +
-          "&expertID=" +
-          this.expertID +
-          "&groupId=" +
-          this.groupID +
-          "&institutionID=" +
-          this.institutionID +
-          "&finished=false"
-      ).then((resp) => {
-        if (resp) {
-          if(resp.msg==="处理成功"){
-            this.$message({
-              type: "success",
-              message: "撤回成功!",
+      this.$confirm("是否确定撤销打分", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+          .then(() => {
+            this.postRequest(
+                "/system/Experts/revert?activityId=" +
+                this.keywords +
+                "&expertID=" +
+                this.expertID +
+                "&groupId=" +
+                this.groupID +
+                "&institutionID=" +
+                this.institutionID +
+                "&finished=false"
+            ).then((resp) => {
+              if (resp) {
+                this.$message({
+                  type: 'success',
+                  message: '撤销成功!'
+                });
+              }
             });
-          }
-          else{
+          })
+          .catch(() => {
             this.$message({
-              type: "error",
-              message: "撤回失败!",
+              type: "info",
+              message: "已取消撤销",
             });
-          }
-        }
-      });
+          });
     },
     tableRowClassName({row, rowIndex}) {
       // 把每一行的索引放进row

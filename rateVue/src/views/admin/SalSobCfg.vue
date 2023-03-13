@@ -1,6 +1,6 @@
 <template>
   <div>
-    {{ keywords }}活动 {{ keywords_name }}组 专家名单
+    {{ ACNAME }}活动 {{ keywords_name }} 专家名单
     <div style="display: flex; justify-content: left;margin-top:10px">
       <div>
         <span style="font-weight:600;">导入新数据</span> 第一步：
@@ -82,7 +82,7 @@
             prop="idnumber"
             label="证件号码"
             align="center"
-            min-width="5%"
+            min-width="4%"
         >
           <template slot-scope="scope">
             <el-input
@@ -106,7 +106,7 @@
             prop="username"
             align="left"
             label="用户名"
-            min-width="5%"
+            min-width="3%"
         >
           <template slot-scope="scope">
             <!--            <span v-if="scope.row.index === tabClickIndex && tabClickLabel === '专家姓名'">
@@ -120,7 +120,7 @@
             prop="phone"
             align="center"
             label="电话"
-            min-width="4%"
+            min-width="3%"
         >
           <template slot-scope="scope">
             <el-input
@@ -138,7 +138,7 @@
             <span class="spanscoped" v-else>{{ scope.row.phone }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="email" label="邮箱" align="left" min-width="5%">
+        <el-table-column prop="email" label="邮箱" align="left" min-width="3%">
           <template slot-scope="scope">
             <el-input
                 v-if="
@@ -153,6 +153,17 @@
                 @blur="inputBlur"
             />
             <span class="spanscoped" v-else>{{ scope.row.email }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+            align="center"
+            min-width="3%"
+            label="已提交评分"
+            prop="finished"
+        >
+          <template slot-scope="scope">
+            <span v-if="scope.row.finished == 0" style="color:red">否</span>
+            <span v-else>是</span>
           </template>
         </el-table-column>
         <el-table-column align="center" min-width="10%" label="操作">
@@ -185,8 +196,17 @@
                 type="primary"
                 plain
             >查看专家评分
-            </el-button
-            >
+            </el-button>
+            <el-button
+                @click="changeFinished(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-refresh-right"
+                type="primary"
+                :disabled="scope.row.finished==0"
+                plain
+            >退回评分
+            </el-button>
             <el-button
                 @click="Delete_ExActivity(scope.row)"
                 style="padding: 4px"
@@ -354,6 +374,7 @@ export default {
       keywords: "",
       activitydata: [],
       keywords_name: "",
+      ACNAME:"",
       groupID: '',
       size: 10,
       total: 0,
@@ -433,12 +454,13 @@ export default {
     this.groupID = this.$route.query.groupID;
     this.ACNAME = this.$route.query.keywords_name;
     //console.log(this.keywords_name);
-    //console.log("groupID", this.groupID);
+    // console.log("groupID", this.groupID);
     this.initHrs();
-    this.initData();
+    // this.initData();
     //this.initAd();
   },
   methods: {
+
     Delete_ExActivity(si) {
       this.$confirm("此操作将永久删除【" + si.name + "】, 是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -493,7 +515,7 @@ export default {
     },
     jumperInToS(data){
       const _this = this;
-      const { href } = _this.$router.resolve({
+      _this.$router.push({
         path: "/ActivitM/situation",
         query: {
           keywords: this.keywords,
@@ -505,7 +527,6 @@ export default {
           institutionID:this.user.institutionID
         },
       });
-      window.open(href, '_blank');
     },
     advancedSearch() {
       this.getRequest(
@@ -696,6 +717,31 @@ export default {
         }
       });
     },
+    changeFinished(row){
+      this.$confirm("是否确定撤销打分", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+          .then(() => {
+            row.institutionid=this.user.institutionID;
+            this.postRequest("/systemM/Experts/withdraw?activityID=" + this.keywords + "&groupID=" + this.groupID , row).then(resp => {
+              if (resp) {
+                this.initHrs();
+                this.$message({
+                  type: 'success',
+                  message: '撤销成功!'
+                });
+              }
+            });
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消撤销",
+            });
+          });
+    }
   },
 };
 </script>

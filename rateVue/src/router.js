@@ -63,12 +63,39 @@ export default new Router({
           component: () => import('./views/admin/SalLog'),
           meta: { title: 'SalLog' },
 
+        }, {//管理员下的
+          path: '/ActivitM/score',
+          name: 'SalScore',
+          component: () => import('./views/admin/SalScore'),
+          meta: { title: 'SalScore' },
+
+        }, {
+          path: '/ActivitM/detail',
+          name: 'SalDetail',
+          component: () => import('./views/admin/SalDetail'),
+          meta: { title: 'SalDetail' },
         },
         {//管理员下的
+          path: '/ActivitM/SalPartipicantGroup',
+          name: 'SalPartipicantGroup',
+          component: () => import('./views/admin/SalPartipicantGroup'),
+          meta: { title: 'SalPartipicantGroup' },
+
+        },{//管理员下的
           path: '/ActivitM/search',
           name: 'SalSearch',
           component: () => import('./views/admin/SalSearch'),
           meta: { title: 'SalSearch' },
+        },{//管理员下的
+          path: '/ActivitM/situation',
+          name: 'SalSituation',
+          component: () => import('./views/admin/SalSituation'),
+          meta: {title: 'SalSituation' },
+        },{//管理员下的
+          path: '/ActivitM/expertScore',
+          name: 'expertScore',
+          component: () => import('./views/admin/ExpertScore.vue'),
+          meta: {title: 'expertScore'},
         },
         {
           path: '/ActivitM/subActivity',
@@ -340,7 +367,7 @@ export default new Router({
       hidden: false,
       component: () => import('./views/teacher/InformationDetails'),
       meta: {
-        title: '',
+        title: 'score详情信息',
       },
     },
 
