@@ -31,6 +31,11 @@ public class GroupsController {
         return groupsService.getActivitiesPage(keywords, page, size, employee);
     }
 
+    @GetMapping("/score")
+    public RespPageBean getGroupScore(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, Groups employee){
+        return groupsService.getGroupScore(keywords,page,size,employee);
+    }
+
     @PostMapping("/insert")
     public RespBean addParticipates(@RequestBody Groups employee, @RequestParam Integer institutionID) {
 //        System.out.println("insert");
