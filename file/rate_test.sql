@@ -11,7 +11,7 @@
  Target Server Version : 80030 (8.0.30)
  File Encoding         : 65001
 
- Date: 11/03/2023 14:16:39
+ Date: 13/03/2023 19:10:39
 */
 
 SET NAMES utf8mb4;
@@ -50,7 +50,7 @@ INSERT INTO `activities` (`ID`, `name`, `startDate`, `scoreItemCount`, `score`, 
 INSERT INTO `activities` (`ID`, `name`, `startDate`, `scoreItemCount`, `score`, `groupCount`, `expertCount`, `participantCount`, `comment`, `deleteFlag`, `institutionID`, `status`) VALUES (22, 'o', '2022-04-08 00:00:00', 3, 0.00, 0, 0, 0, '活动备注example：关于xxx的活动', 0, 21, 'close');
 INSERT INTO `activities` (`ID`, `name`, `startDate`, `scoreItemCount`, `score`, `groupCount`, `expertCount`, `participantCount`, `comment`, `deleteFlag`, `institutionID`, `status`) VALUES (24, 'fff', '2022-04-16 00:00:00', 0, 0.00, 0, 0, 0, '活动备注example：关于xxx的活动', 0, 21, 'open');
 INSERT INTO `activities` (`ID`, `name`, `startDate`, `scoreItemCount`, `score`, `groupCount`, `expertCount`, `participantCount`, `comment`, `deleteFlag`, `institutionID`, `status`) VALUES (25, 'admin测试', '2022-04-15 00:00:00', 0, 0.00, 0, 0, 0, '活动备注example：关于xxx的活动', 0, 21, 'open');
-INSERT INTO `activities` (`ID`, `name`, `startDate`, `scoreItemCount`, `score`, `groupCount`, `expertCount`, `participantCount`, `comment`, `deleteFlag`, `institutionID`, `status`) VALUES (26, '2022年D大学计算机学院硕士研究生综合面试', '2022-03-30 00:00:00', 3, 100.00, 4, 12, 9, '2022年111', 0, 1, 'open');
+INSERT INTO `activities` (`ID`, `name`, `startDate`, `scoreItemCount`, `score`, `groupCount`, `expertCount`, `participantCount`, `comment`, `deleteFlag`, `institutionID`, `status`) VALUES (26, '2022年D大学计算机学院硕士研究生综合面试', '2022-03-30 00:00:00', 3, 100.00, 3, 12, 9, '2022年111', 0, 1, 'open');
 INSERT INTO `activities` (`ID`, `name`, `startDate`, `scoreItemCount`, `score`, `groupCount`, `expertCount`, `participantCount`, `comment`, `deleteFlag`, `institutionID`, `status`) VALUES (27, '2022校园歌手大赛', '2022-04-22 00:00:00', 0, 0.00, 0, 0, 0, '关于2022校园歌手大赛的活动', 0, 1, 'open');
 INSERT INTO `activities` (`ID`, `name`, `startDate`, `scoreItemCount`, `score`, `groupCount`, `expertCount`, `participantCount`, `comment`, `deleteFlag`, `institutionID`, `status`) VALUES (28, '1', '2022-05-23 00:00:00', 0, 0.00, 0, 0, 0, '活动备注example：关于xxx的活动', 0, 1, 'open');
 COMMIT;
@@ -250,6 +250,7 @@ CREATE TABLE `expertactivities` (
   `activityID` int DEFAULT NULL,
   `groupID` int DEFAULT NULL,
   `finished` tinyint DEFAULT '0',
+  `is_secretary` int DEFAULT '0',
   PRIMARY KEY (`ID`) USING BTREE,
   KEY `expertID` (`teacherID`) USING BTREE,
   KEY `activityID_2` (`activityID`) USING BTREE,
@@ -263,33 +264,33 @@ CREATE TABLE `expertactivities` (
 -- Records of expertactivities
 -- ----------------------------
 BEGIN;
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (75, 1022, 15, 17, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (76, 1023, 15, 17, 1);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (77, 1024, 15, 17, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (78, 1025, 15, 17, 1);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (79, 1026, 15, 18, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (80, 1027, 15, 18, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (81, 1028, 15, 18, 1);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (82, 1029, 15, 18, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (83, 1030, 15, 17, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (84, 1031, 15, 17, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (85, 1031, 15, 18, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (87, NULL, 15, 17, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (91, 1033, 15, 17, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (92, 1034, 26, 24, 1);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (93, 1035, 26, 24, 1);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (94, 1036, 26, 24, 1);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (95, 1037, 26, 25, 1);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (96, 1038, 26, 25, 1);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (97, 1039, 26, 25, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (98, 1040, 26, 26, 1);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (99, 1041, 26, 26, 1);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (100, 1042, 26, 26, 1);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (101, NULL, 26, 24, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (102, NULL, 26, 24, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (103, NULL, 26, 24, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (104, 1044, 26, 26, 0);
-INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`) VALUES (105, 1043, 26, 26, 1);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (75, 1022, 15, 17, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (76, 1023, 15, 17, 1, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (77, 1024, 15, 17, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (78, 1025, 15, 17, 1, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (79, 1026, 15, 18, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (80, 1027, 15, 18, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (81, 1028, 15, 18, 1, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (82, 1029, 15, 18, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (83, 1030, 15, 17, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (84, 1031, 15, 17, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (85, 1031, 15, 18, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (87, NULL, 15, 17, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (91, 1033, 15, 17, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (92, 1034, 26, 24, 1, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (93, 1035, 26, 24, 1, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (94, 1036, 26, 24, 1, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (95, 1037, 26, 25, 1, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (96, 1038, 26, 25, 1, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (97, 1039, 26, 25, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (98, 1040, 26, 26, 1, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (99, 1041, 26, 26, 1, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (100, 1042, 26, 26, 1, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (101, NULL, 26, 24, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (102, NULL, 26, 24, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (103, NULL, 26, 24, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (104, 1044, 26, 26, 0, 0);
+INSERT INTO `expertactivities` (`ID`, `teacherID`, `activityID`, `groupID`, `finished`, `is_secretary`) VALUES (105, 1043, 26, 26, 1, 1);
 COMMIT;
 
 -- ----------------------------
@@ -731,7 +732,7 @@ CREATE TABLE `logs` (
   PRIMARY KEY (`id`) USING BTREE,
   KEY `oplog_ibfk_1` (`operator`) USING BTREE,
   CONSTRAINT `logs_ibfk_1` FOREIGN KEY (`operator`) REFERENCES `institution` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=272 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=273 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of logs
@@ -1008,6 +1009,7 @@ INSERT INTO `logs` (`id`, `addDate`, `operator`, `category`, `content`) VALUES (
 INSERT INTO `logs` (`id`, `addDate`, `operator`, `category`, `content`) VALUES (269, '2022-07-01 18:12:28', 1, '活动', '更新成功');
 INSERT INTO `logs` (`id`, `addDate`, `operator`, `category`, `content`) VALUES (270, '2022-07-05 19:24:55', 1, '选手管理', '导入完成，无姓名行已经被忽略');
 INSERT INTO `logs` (`id`, `addDate`, `operator`, `category`, `content`) VALUES (271, '2022-11-16 15:18:00', 1, '活动', '更新成功');
+INSERT INTO `logs` (`id`, `addDate`, `operator`, `category`, `content`) VALUES (272, '2023-03-12 23:21:25', 1, '分组', '删除失败');
 COMMIT;
 
 -- ----------------------------
@@ -1045,7 +1047,7 @@ CREATE TABLE `menu` (
   PRIMARY KEY (`id`) USING BTREE,
   KEY `parentId` (`parentId`) USING BTREE,
   CONSTRAINT `menu_ibfk_1` FOREIGN KEY (`parentId`) REFERENCES `menu` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=80 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=84 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of menu
@@ -1123,13 +1125,16 @@ INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAl
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (70, '/', '/home', 'Home', '成果列表', 'fa-fa-windows', NULL, 1, 43, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (71, '/', '/home', 'Home', '毕业论文评审', 'fa fa-windows', NULL, 1, 44, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (72, '/salary/search/**', '/student/PaperComment', 'PaperCommit', '毕业论文评审记录', 'fa fa-windows', NULL, 1, 71, 1);
-INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (73, '/salary/search/**', '/teacher/tperact/actList', 'ActList', '活动列表', NULL, NULL, 1, 4, 1);
+INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (73, '/salary/search/**', '/teacher/tperact/actList', 'ActList', '活动列表', NULL, NULL, 1, 81, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (74, '/salary/search/**', '/student/infos', 'Infos', '信息项设置', NULL, NULL, 1, 4, 0);
-INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (75, '/salary/search/**', '/teacher/tperact/score', 'Score', '分数', NULL, NULL, 1, 4, 0);
+INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (75, '/salary/search/**', '/teacher/tperact/score', 'Score', '分数', NULL, NULL, 1, 81, 0);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (76, '/salary/search/**', '/student/search', 'Stusearch', '活动列表', NULL, NULL, 1, 4, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (77, '/salary/score/**', '/ActivitM/score', 'SalScore', '分数统计', NULL, NULL, 1, 36, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (78, '', '/ActivitM/detail', 'SalDetail', '小组分数明细', NULL, NULL, 1, 36, 1);
 INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (79, NULL, '/ActivitM/subActivity', 'SalSubActivity', '子活动管理', NULL, NULL, NULL, 36, 1);
+INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (80, '/salary/search/**', '/secretary/tperact/actList', 'ActList', '活动列表', NULL, NULL, 1, 82, 1);
+INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (81, '/', '/home', 'Home', '专家活动管理', 'fa fa-money', NULL, 1, 1, 1);
+INSERT INTO `menu` (`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (82, '/', '/home', 'Home', '秘书活动管理', 'fa fa-money', NULL, 1, 1, 1);
 COMMIT;
 
 -- ----------------------------
@@ -1145,7 +1150,7 @@ CREATE TABLE `menu_role` (
   KEY `rid` (`rid`) USING BTREE,
   CONSTRAINT `menu_role_ibfk_1` FOREIGN KEY (`mid`) REFERENCES `menu` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `menu_role_ibfk_2` FOREIGN KEY (`rid`) REFERENCES `role` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=330 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=331 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of menu_role
@@ -1199,6 +1204,7 @@ INSERT INTO `menu_role` (`id`, `mid`, `rid`) VALUES (326, 71, 10);
 INSERT INTO `menu_role` (`id`, `mid`, `rid`) VALUES (327, 77, 1);
 INSERT INTO `menu_role` (`id`, `mid`, `rid`) VALUES (328, 78, 1);
 INSERT INTO `menu_role` (`id`, `mid`, `rid`) VALUES (329, 79, 1);
+INSERT INTO `menu_role` (`id`, `mid`, `rid`) VALUES (330, 80, 4);
 COMMIT;
 
 -- ----------------------------
@@ -1326,8 +1332,10 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `participants`;
 CREATE TABLE `participants` (
+  `ID` int NOT NULL AUTO_INCREMENT,
   `activityID` int DEFAULT NULL,
   `groupID` int DEFAULT NULL,
+  `groupID2` int DEFAULT NULL COMMENT '秘书分组后的ID',
   `studentID` int DEFAULT NULL,
   `code` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `school` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '本科学校',
@@ -1336,7 +1344,6 @@ CREATE TABLE `participants` (
   `examscore` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '初试成绩',
   `displaySequence` int DEFAULT NULL,
   `score` double(10,2) DEFAULT NULL COMMENT '可以外键scores',
-  `ID` int NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`ID`) USING BTREE,
   KEY `partidforp` (`studentID`) USING BTREE,
   KEY `activity` (`activityID`) USING BTREE,
@@ -1349,33 +1356,33 @@ CREATE TABLE `participants` (
 -- Records of participants
 -- ----------------------------
 BEGIN;
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 17, 2071, '102551210004479', NULL, NULL, NULL, NULL, 2, 12371.10, 120);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 17, 2072, '102551210002476', NULL, NULL, NULL, NULL, 4, 44.43, 121);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 17, 2073, '102551210008659', NULL, NULL, NULL, NULL, 3, 43.10, 122);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 17, 2074, '102551210002424', NULL, NULL, NULL, NULL, 5, 53.10, 123);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 17, 2075, '102551210003963', NULL, NULL, NULL, NULL, 1, 249.10, 124);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 18, 2076, '102551210008999', NULL, NULL, NULL, NULL, 1, 144.43, 125);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 18, 2077, '102551210000145', NULL, NULL, NULL, NULL, 4, 136.07, 126);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 18, 2078, '102551210009175', NULL, NULL, NULL, NULL, 3, 215.10, 127);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 18, 2079, '102551210004782', NULL, NULL, NULL, NULL, 2, 250.40, 128);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 18, 2080, '102551210008226', NULL, NULL, NULL, NULL, 1, 285.73, 129);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 17, 2081, '181310000', NULL, NULL, NULL, NULL, 1, 69879.00, 130);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 17, 2082, '181310001', NULL, NULL, NULL, NULL, 1, NULL, 131);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 18, 2083, '181310002', NULL, NULL, NULL, NULL, 1, NULL, 132);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 17, 2084, '1813100008', NULL, NULL, NULL, NULL, 8, NULL, 133);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (26, 24, 2086, '181310000', NULL, NULL, NULL, NULL, 1, 96.67, 139);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (26, 24, 2087, '181310002', NULL, NULL, NULL, NULL, 2, 88.67, 140);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (26, 24, 2088, '181310003', NULL, NULL, NULL, NULL, 3, 84.67, 141);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (26, 25, 2089, '181310004', NULL, NULL, NULL, NULL, 1, 89.00, 142);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (26, 25, 2090, '181310005', NULL, NULL, NULL, NULL, 2, 83.00, 143);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (26, 25, 2091, '181310006', NULL, NULL, NULL, NULL, 3, 78.00, 144);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (26, 26, 2092, '181310007', NULL, NULL, NULL, NULL, 1, 82.25, 145);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (26, 26, 2093, '181310008', NULL, NULL, NULL, NULL, 2, 80.33, 146);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (26, 26, 2094, '181310009', NULL, NULL, NULL, NULL, 3, 78.33, 147);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, NULL, 2086, '181310000', NULL, NULL, NULL, NULL, 1, NULL, 148);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 17, 2095, '191310000', NULL, NULL, NULL, NULL, 1, NULL, 149);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 17, 2096, '1991310000', NULL, NULL, NULL, NULL, NULL, 21.00, 150);
-INSERT INTO `participants` (`activityID`, `groupID`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`, `ID`) VALUES (15, 17, 2098, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 151);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (120, 15, 17, NULL, 2071, '102551210004479', NULL, NULL, NULL, NULL, 2, 12371.10);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (121, 15, 17, NULL, 2072, '102551210002476', NULL, NULL, NULL, NULL, 4, 44.43);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (122, 15, 17, NULL, 2073, '102551210008659', NULL, NULL, NULL, NULL, 3, 43.10);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (123, 15, 17, NULL, 2074, '102551210002424', NULL, NULL, NULL, NULL, 5, 53.10);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (124, 15, 17, NULL, 2075, '102551210003963', NULL, NULL, NULL, NULL, 1, 249.10);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (125, 15, 18, NULL, 2076, '102551210008999', NULL, NULL, NULL, NULL, 1, 144.43);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (126, 15, 18, NULL, 2077, '102551210000145', NULL, NULL, NULL, NULL, 4, 136.07);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (127, 15, 18, NULL, 2078, '102551210009175', NULL, NULL, NULL, NULL, 3, 215.10);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (128, 15, 18, NULL, 2079, '102551210004782', NULL, NULL, NULL, NULL, 2, 250.40);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (129, 15, 18, NULL, 2080, '102551210008226', NULL, NULL, NULL, NULL, 1, 285.73);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (130, 15, 17, NULL, 2081, '181310000', NULL, NULL, NULL, NULL, 1, 69879.00);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (131, 15, 17, NULL, 2082, '181310001', NULL, NULL, NULL, NULL, 1, NULL);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (132, 15, 18, NULL, 2083, '181310002', NULL, NULL, NULL, NULL, 1, NULL);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (133, 15, 17, NULL, 2084, '1813100008', NULL, NULL, NULL, NULL, 8, NULL);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (139, 26, 24, NULL, 2086, '181310000', NULL, NULL, NULL, NULL, 1, 96.67);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (140, 26, 24, NULL, 2087, '181310002', NULL, NULL, NULL, NULL, 2, 88.67);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (141, 26, 24, NULL, 2088, '181310003', NULL, NULL, NULL, NULL, 3, 84.67);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (142, 26, 25, NULL, 2089, '181310004', NULL, NULL, NULL, NULL, 1, 89.00);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (143, 26, 25, NULL, 2090, '181310005', NULL, NULL, NULL, NULL, 2, 83.00);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (144, 26, 25, NULL, 2091, '181310006', NULL, NULL, NULL, NULL, 3, 78.00);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (145, 26, 26, NULL, 2092, '181310007', NULL, NULL, NULL, NULL, 1, 82.25);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (146, 26, 26, NULL, 2093, '181310008', NULL, NULL, NULL, NULL, 2, 80.33);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (147, 26, 26, NULL, 2094, '181310009', NULL, NULL, NULL, NULL, 3, 78.33);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (148, 15, NULL, NULL, 2086, '181310000', NULL, NULL, NULL, NULL, 1, NULL);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (149, 15, 17, NULL, 2095, '191310000', NULL, NULL, NULL, NULL, 1, NULL);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (150, 15, 17, NULL, 2096, '1991310000', NULL, NULL, NULL, NULL, NULL, 21.00);
+INSERT INTO `participants` (`ID`, `activityID`, `groupID`, `groupID2`, `studentID`, `code`, `school`, `major`, `sex`, `examscore`, `displaySequence`, `score`) VALUES (151, 15, 17, NULL, 2098, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 COMMIT;
 
 -- ----------------------------
@@ -1593,7 +1600,7 @@ BEGIN;
 INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (1, 'ROLE_manager', '管理员');
 INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (2, 'ROLE_personnel', '人事专员');
 INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (3, 'ROLE_expert', '专家');
-INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (4, 'ROLE_train', '培训主管');
+INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (4, 'ROLE_secretary', '秘书');
 INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (5, 'ROLE_performance', '薪酬绩效主管');
 INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (6, 'ROLE_admin', '系统管理员');
 INSERT INTO `role` (`id`, `name`, `nameZh`) VALUES (7, 'ROLE_participants', '选手');
