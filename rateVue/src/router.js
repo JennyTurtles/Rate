@@ -267,7 +267,15 @@ export default new Router({
             title: '教师活动列表',
           },
         },
-
+        {
+          path: '/secretary/tperact/actList',
+          name: '秘书活动列表',
+          hidden: true,
+          component: () => import('./views/secretary/ActList'),
+          meta: {
+            title: '秘书活动列表',
+          },
+        },
         {
           path: '/teacher/tResearchProject',
           name: '科研项目2',

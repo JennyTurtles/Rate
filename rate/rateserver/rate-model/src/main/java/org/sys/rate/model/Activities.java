@@ -23,6 +23,16 @@ public class Activities {
     private String status;
     private Institution institution;
 
+    public Integer getGroupID() {
+        return groupID;
+    }
+
+    public void setGroupID(Integer groupID) {
+        this.groupID = groupID;
+    }
+
+    private Integer groupID;
+
     private List<ScoreItem> scoreitemList;
 
     public List<ScoreItem> getScoreitemList() {
