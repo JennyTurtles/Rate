@@ -125,10 +125,9 @@ public class InfoItemService {
     public Integer ScoreItemByActivityIdWhereNotByExpertCount(Integer activityId) {
         return infoItemMapper.ScoreItemByActivityIdWhereNotByExpertCount(activityId);
     }
-
+    //对选手进行筛选
     public List<InfoItem>  getInforItemByActivityId(Integer activitiesID){
-        //根据acid和info内容和infoitemid拿到选手id
-        List<Participates> participates = participatesMapper.getParticipantsByAId(activitiesID);
+        List<Participates> participates = participatesMapper.getParticipantByAId(activitiesID);
         List<Integer> participantID = new ArrayList<>();
         for(int i = 0;i < participates.size(); i++){
             participantID.add(participates.get(i).getID());
@@ -136,6 +135,7 @@ public class InfoItemService {
         List<InfoItem> infoItems = infoItemMapper.selectInfoItemByActivityId(activitiesID,participantID);
         return infoItems;
     }
+    //对选手不筛选，只靠acid获得
     public List<InfoItem>  getInforItemByActivityIdAndPars(Integer activitiesID){
         List<InfoItem> infoItems = infoItemMapper.selectInfoItemsByActivityId(activitiesID);
         return infoItems;

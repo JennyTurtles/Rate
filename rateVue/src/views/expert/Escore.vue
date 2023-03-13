@@ -449,49 +449,41 @@ export default {
       }
     },
     showEditEmpView_show(row, index) {
-      // this.title_show =
-      //   "学生 " +
-      //   this.datalist.participatesList[index].student.name +
-      //   " 详细信息";
-      // this.title_show = "学生详细信息";
-      this.dialogVisible_show = false;
-      let q = this.datalist.infoItems.length;
-      let w = this.datalist.infosList.length;
-      this.dialogdata = {};
-      this.dialogdata.idCode = this.datalist.participatesList[index].code;
-      this.dialogdata.name = this.datalist.participatesList[index].student.name;
-      for (var j = 0; j < w; j++) {
-        if (row["id"] == this.datalist.infosList[j]["participantID"]) {
-          for (var k = 0; k < q; k++) {
-            if (
-              this.datalist.infosList[j]["infoItemID"] ==
-              this.datalist.infoItems[k]["id"]
-            ) {
-              var name = this.datalist.infoItems[k]["name"];
-              var contentType = this.datalist.infoItems[k]["contentType"];
-              this.$set(
-                  this.dialogdata,
-                  "info" + name,
-                  {
-                    content:this.datalist.infosList[j]["content"],
-                    contentType:this.datalist.infoItems[k]["contentType"]
-                  }
-              );
-            }
-          }
-        }
-      }
-      console.log(this.datalist)
-      console.log(this.dialogdata)
-      // let routeUrl = this.$router.resolve({
-      //   path:"/admin/InformationDetails",
-      //   query: {
-      //     datalist: JSON.stringify({datalist:this.datalist}),
-      //     dialogdata: JSON.stringify(this.dialogdata),
-      //   },
-      // })
-      // window.open(routeUrl.href)
-    },
+      // this.dialogVisible_show = false;
+      // let q = this.datalist.infoItems.length;
+      // let w = this.datalist.infosList.length;
+      // this.dialogdata = {};
+      // this.dialogdata.idCode = this.datalist.participatesList[index].code;
+      // this.dialogdata.name = this.datalist.participatesList[index].student.name;
+      // for (var j = 0; j < w; j++) {
+      //   if (row["id"] == this.datalist.infosList[j]["participantID"]) {
+      //     for (var k = 0; k < q; k++) {
+      //       if (
+      //         this.datalist.infosList[j]["infoItemID"] ==
+      //         this.datalist.infoItems[k]["id"]
+      //       ) {
+      //         var name = this.datalist.infoItems[k]["name"];
+      //         var contentType = this.datalist.infoItems[k]["contentType"];
+      //         this.$set(
+      //             this.dialogdata,
+      //             "info" + name,
+      //             {
+      //               content:this.datalist.infosList[j]["content"],
+      //               contentType:this.datalist.infoItems[k]["contentType"]
+      //             }
+      //         );
+      //       }
+      //     }
+      //   }
+      // }
+      let routeUrl = this.$router.resolve({
+        path:"/teacher/tperact/InformationDetails",
+        query: {
+          activityID: this.Adata.Aid,
+          IDNumber: row.student.idnumber,
+        },
+      })
+      window.open(routeUrl.href)    },
     //表头换行
     renderheader(h, { column, $index }) {
       //先把数据以 | 拆分
@@ -593,7 +585,7 @@ export default {
                   this.$set(
                     this.datalist.participatesList[i],
                     "info" + name,
-                    this.datalist.infosList[s]["content"]
+                    this.datalist.infosList[s]["content"].replace(/<br>/g,"\n").replace(/' '/g,"\s")
                   );
                 }
               }
