@@ -619,7 +619,7 @@ export default {
       }
       else if (this.mode === "secretary"){
         _this.$router.push({
-          path: "/secretary/SecGroup",
+          path: "/secretary/SecManage",
           query: {
             actName:data.name,
             groupName:data.groupName,

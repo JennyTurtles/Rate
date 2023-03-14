@@ -283,12 +283,12 @@ export default new Router({
           },
         },
         {
-          path: '/secretary/SecGroup',
-          name: '秘书活动列表',
+          path: '/secretary/SecManage',
+          name: '秘书管理',
           hidden: true,
-          component: () => import('./views/secretary/SecGroup.vue'),
+          component: () => import('./views/secretary/SecManage.vue'),
           meta: {
-            title: '秘书活动列表',
+            title: '秘书管理',
           },
         },
         {
