@@ -22,6 +22,8 @@ public class Activities {
     //private Boolean deleteFlag;
     private String status;
     private Institution institution;
+    private Integer groupID;
+    private String groupName;
 
     public Integer getGroupID() {
         return groupID;
@@ -30,8 +32,13 @@ public class Activities {
     public void setGroupID(Integer groupID) {
         this.groupID = groupID;
     }
+    public String getGroupName() {
+        return groupName;
+    }
 
-    private Integer groupID;
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
 
     private List<ScoreItem> scoreitemList;
 
