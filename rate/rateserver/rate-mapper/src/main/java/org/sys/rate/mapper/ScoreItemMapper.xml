@@ -88,10 +88,10 @@
     select <include refid="Base_Column_List" /> from scoreitem s where s.activityID = #{activityId,jdbcType=INTEGER} and s.byExpert=false ORDER BY s.ID) a
     UNION
     select <include refid="Base_Column_List" /> from(
-    select <include refid="Base_Column_List" /> from scoreitem s where s.activityID = #{activityId,jdbcType=INTEGER} and s.name!='总分' order by s.ID) b
+    select <include refid="Base_Column_List" /> from scoreitem s where s.activityID = #{activityId,jdbcType=INTEGER} and s.name!='活动总分' order by s.ID) b
     UNION
     select <include refid="Base_Column_List" /> from(
-    select <include refid="Base_Column_List" /> from scoreitem s where s.activityID = #{activityId,jdbcType=INTEGER} and s.name='总分' order by s.ID) c
+    select <include refid="Base_Column_List" /> from scoreitem s where s.activityID = #{activityId,jdbcType=INTEGER} and s.name='活动总分' order by s.ID) c
 
   </select>
 
@@ -105,7 +105,7 @@
     select
     <include refid="Base_Column_List" />
     from scoreitem s
-    where s.activityID = #{activityId,jdbcType=INTEGER} and s.name!='总分'
+    where s.activityID = #{activityId,jdbcType=INTEGER} and s.name!='活动总分'
     order by s.byExpert ,s.ID
 
   </select>
@@ -113,7 +113,7 @@
   <select id="selectScoreItemFinal" parameterType="java.lang.Integer" resultType="INTEGER">
     select s.ID
     from scoreitem s
-    where s.activityID = #{activityId,jdbcType=INTEGER} and s.name='总分'
+    where s.activityID = #{activityId,jdbcType=INTEGER} and s.name='活动总分'
   </select>
   <select id="ScoreItemByActivityIdWhereNotByExpertCount" resultType="INTEGER">
     select count(*) from scoreitem s
@@ -121,15 +121,15 @@
   </select>
 
   <select id="getScoreItemValue" resultMap="ResultScoreItemValue">
-    select si.ID,si.name,s.score from scores s, scoreitem si where s.activityID=#{activitiesID} and s.participantID=#{participantID} and si.byExpert=false and s.scoreitemID=si.ID and si.name!='总分'
+    select si.ID,si.name,s.score from scores s, scoreitem si where s.activityID=#{activitiesID} and s.participantID=#{participantID} and si.byExpert=false and s.scoreitemID=si.ID and si.name!='活动总分'
   </select>
 
   <select id="getScoreTotalValue" resultMap="ResultScoreItemValue">
-    select si.ID,si.name,s.score from scores s, scoreitem si where s.activityID=#{activitiesID} and s.participantID=#{participantID} and s.scoreitemID=si.ID and si.name='总分' order by s.expertID
+    select si.ID,si.name,s.score from scores s, scoreitem si where s.activityID=#{activitiesID} and s.participantID=#{participantID} and s.scoreitemID=si.ID and si.name='活动总分' order by s.expertID
   </select>
 
   <select id="getScoreItemAll" resultMap="ResultScoreItemValue">
-    select si.ID,si.name from scoreitem si where si.activityID=#{activitiesID} and si.byExpert=false and si.name!='总分';
+    select si.ID,si.name from scoreitem si where si.activityID=#{activitiesID} and si.byExpert=false and si.name!='活动总分';
    </select>
 
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -277,7 +277,7 @@
   </update>
   <select id="getActivitiesByPage" resultMap="BaseResultMap">
     select e.ID,e.activityID,e.name,e.score,e.coef,e.byExpert,e.comment from scoreitem e
-    where e.name!='总分'
+    where e.name!='活动总分'
     <if test="keywords!=null">
       and e.activityID=#{keywords}
     </if>
@@ -287,7 +287,7 @@
   </select>
   <select id="getTotal" resultType="java.lang.Long">
     select count(*) from scoreitem
-    where name!='总分'
+    where name!='活动总分'
     <if test="keywords!=null">
       and activityID=#{keywords}
     </if>

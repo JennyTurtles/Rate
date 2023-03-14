@@ -148,5 +148,8 @@ public class InfoItemService {
         List<InfoItem> infoItems = infoItemMapper.selectInforItemAndContentByActivityIdAndPIdAndInfoId(activitiesID,participantID);
         return infoItems;
     }
-
+    public List<InfoItem> getAll(Integer activityID){
+        List<InfoItem> infoItems = infoItemMapper.selectInfoItemsByActivityId(activityID);
+        return infoItems;
+    }
 }

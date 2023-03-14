@@ -443,6 +443,8 @@ public class ExpertService implements UserDetailsService {
 			scoreItemValue.setScore(experts.getScore());
 			scoreItemValue.setName(experts.getScoreItemName());
 			scoreItemValue.setId(experts.getScoreItemID());
+			scoreItemValue.setExpertID(experts.getExpertID());
+			scoreItemValue.setExpertName(experts.getExpertName());
 			/*HashMap<Integer, ScoreItemValue> mapScore = new HashMap<>();
 			mapScore.put(experts.getScoreItemID(),scoreItemValue);
 			par.setScoremap(mapScore);*/
@@ -507,6 +509,11 @@ public class ExpertService implements UserDetailsService {
 			scoreItemValue.setScore(participant.getScore());
 			scoreItemValue.setName(participant.getScoreItemName());
 			scoreItemValue.setId(participant.getScoreItemID());
+			for (HashMap<Integer, Participates> object : map.get(participant.getGroupID()).values()) {
+				if (object.get(participant.getParticipantID()).getScoremap().get(participant.getParticipantID())==null){
+					object.get(participant.getParticipantID()).getScoremap().put(participant.getScoreItemID(), scoreItemValue);
+				}
+			}
 			if(null_map.get(participant.getGroupID())==null)
 			{//getGroupID对应value-null//首次插入
 				HashMap<Integer, ScoreItemValue> mapScore = new LinkedHashMap<>();

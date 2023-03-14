@@ -1,3 +1,4 @@
+vue.prototype.$logs = window.console.log;
 <template>
   <div>
     <div style="display: flex; justify-content: left">
@@ -24,7 +25,11 @@
             align="left"
             label="专家姓名"
             min-width="10%">
-
+          <template slot-scope="scope">
+            <div v-for="(value,key) in scope.row.scoremap" v-if="value.name==='活动总分'">
+              {{value.expertName}}
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
             prop="displaySequence"
@@ -59,7 +64,11 @@
             prop="v"
             :label="v"
             min-width="10%" align="center">
-
+          <template slot-scope="scope">
+            <div v-for="(value,key) in scope.row.scoremap" v-if="key===i">
+              {{value.score}}
+            </div>
+          </template>
         </el-table-column>
         <!--        <el-table-column align="left" min-width="10%" label="操作">-->
 
@@ -83,7 +92,7 @@
 import axios from 'axios'
 import {Message} from "element-ui";
 export default {
-  name: "SalPar",
+  name: "ExpertScore",
   data() {
     return{
       title: '',
@@ -147,9 +156,6 @@ export default {
                 for (var i in parexpert) {
                   this.Scores.push(parexpert[i]);//pid
                 }
-                for (var j in value.emap){
-                  this.expertmap.push(value.emap[j]);
-                }
                 for (var v2 in value.null_map) {
                   var vv2 = value.null_map[v2]; //activityid
                   //  console.log(vv2);
@@ -159,9 +165,12 @@ export default {
                 }
               }
             }
-            // console.log(this.Scores);
-            // console.log(this.expertmap);
-            // console.log(this.null_map);
+            this.expertmap = value.emap;
+            console.log(this.Scores);
+            console.log(this.expertmap);
+            // this.map=Object.value(this.expertmap)[1034];
+            // console.log(this.map);
+            console.log(this.null_map);
             this.smap = value.smap;
             this.snotByEmap = value.snotByEmap;
             this.total = resp.total;
@@ -187,6 +196,9 @@ export default {
       this.page = currentPage;
       this.initEmps("advanced");
     },
+    getExpertname(key){
+
+    }
   }
 }
 </script>

@@ -231,7 +231,7 @@
     <update id="saveAvgscore">
         update participants p set p.score=(select avg(sc.score) from scores sc
        where sc.participantID=#{participantID}
-       and sc.scoreItemID = (select si.ID from scoreitem si where si.activityID=#{activityID} and si.name="总分"))
+       and sc.scoreItemID = (select si.ID from scoreitem si where si.activityID=#{activityID} and si.name="活动总分"))
         where p.ID=#{participantID} and p.activityID=#{activityID};
     </update>
 

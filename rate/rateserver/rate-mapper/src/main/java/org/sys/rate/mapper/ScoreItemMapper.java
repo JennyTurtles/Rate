@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.InfoItemValue;
 import org.sys.rate.model.ScoreItem;
 import org.sys.rate.model.ScoreItemValue;
@@ -65,4 +66,7 @@ public interface ScoreItemMapper {
     List<ScoreItemValue> getScoreEx(@Param("activityID") Integer activityID,@Param("expertID") Integer expertID,@Param("participantID") Integer participantID);
 
     List<ScoreItem> getAllByActicityID(Integer activityID);
+
+    @Select("select name from scoreitem where id=#{id}")
+    String getNameByID(Integer id);
 }

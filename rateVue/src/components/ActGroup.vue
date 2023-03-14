@@ -136,6 +136,16 @@
             </el-button
             >
             <el-button
+                @click="showTotalItem(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-tickets"
+                type="primary"
+                plain
+            >总分项设置
+            </el-button
+            >
+            <el-button
                 @click="showGroupmanagement(scope.row)"
                 style="padding: 4px"
                 size="mini"
@@ -665,6 +675,16 @@ export default {
       const _this = this;
       _this.$router.push({
         path: "/ActivitM/infos",
+        query: {
+          keywords: data.id,
+          keyword_name: data.name,
+        },
+      });
+    },
+    showTotalItem(data) {
+      const _this = this;
+      _this.$router.push({
+        path: "/ActivitM/total",
         query: {
           keywords: data.id,
           keyword_name: data.name,

@@ -59,4 +59,7 @@ public interface InfoItemMapper {
     List<InfoItem> getAll(Integer activityID);
 
     List<InfoItem> selectInfoItemsByActivityId(Integer activityID);
+
+    @Select("select name from infoitem where id=#{id}")
+    String getNameByID(Integer id);
 }

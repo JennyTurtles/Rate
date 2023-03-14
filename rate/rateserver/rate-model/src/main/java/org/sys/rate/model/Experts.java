@@ -40,6 +40,8 @@ public class Experts extends Account {
 
     private Boolean finished;
 
+    private Integer isSecretary;
+
     public Boolean getFinished() {
         return finished;
     }

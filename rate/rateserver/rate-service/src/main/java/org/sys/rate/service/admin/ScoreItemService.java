@@ -110,7 +110,7 @@ public class ScoreItemService {
     public Boolean noRelative(Integer id) {
         List<ScoreItem> scoreItems = ScoreItemMapper.selectScoreItemByActivityId(id);
         //System.out.println(scoreItems.get(0).getName());
-        if (scoreItems.size() == 1 && scoreItems.get(0).getName().equals("总分"))
+        if (scoreItems.size() == 1 && scoreItems.get(0).getName().equals("活动总分"))
             return true;
         return false;
     }

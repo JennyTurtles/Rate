@@ -98,7 +98,7 @@ public class POIUtils {
         int count_zf=0;
         for(int i = 0; i<key.length; i++)
         {
-            if(hashPEexport.getSmap().get(key[i]).equals("总分"))
+            if(hashPEexport.getSmap().get(key[i]).equals("活动总分"))
             {
                 r0.createCell(4+hashPEexport.getSmap().size()+hashPEexport.getSNotByEmap().size()).setCellStyle(headerStyle);
                 r0.createCell(4+hashPEexport.getSmap().size()+hashPEexport.getSNotByEmap().size()).setCellValue(hashPEexport.getSmap().get(key[i]));
@@ -112,7 +112,7 @@ public class POIUtils {
         }
         /*HSSFCell c4 = r0.createCell(4+scoreItem.size());
         c4.setCellStyle(headerStyle);
-        c4.setCellValue("总分");*/
+        c4.setCellValue("活动总分");*/
         Integer count=0;
         for (Integer s : hashPEexport.getGmap().keySet()) {//这一层是groupid
             for (Integer ss : hashPEexport.getMap().get(s).keySet()) {//这一层是HashMap<Integer,HashMap<Integer,Participates>>
@@ -145,7 +145,7 @@ public class POIUtils {
                             ScoreItemValue value = map.get(key_m[it]);
                             if(value!=null&&value.getScore()!=null)
                             {
-                                if(value.getName().equals("总分"))
+                                if(value.getName().equals("活动总分"))
                                 {
                                     row.createCell(4+hashPEexport.getSmap().size()+hashPEexport.getSNotByEmap().size()).setCellValue(value.getScore());
                                     count_zongfen--;

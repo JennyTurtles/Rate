@@ -13,6 +13,8 @@ public class ScoreItemValue {
 
     private Integer expertID;
 
+    private String expertName;
+
     public Integer getId() {
         return ID;
     }

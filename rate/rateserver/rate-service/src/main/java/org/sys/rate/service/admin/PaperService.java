@@ -102,7 +102,7 @@ public class PaperService {
 //    修改论文状态
     public int editState(String state, Long ID) throws MessagingException {
         mailToStuService.sendStuMail(state, ID);
-        // 管理员通过的时候需要处理2分论文的情况，还要计算student的总分
+        // 管理员通过的时候需要处理2分论文的情况，还要计算student的活动总分
         if (state.equals("adm_pass")){
             Paper paper = paperMapper.selectByID(ID);
             Long stuID = paper.getStudentID();

@@ -156,6 +156,21 @@
           </template>
         </el-table-column>
         <el-table-column
+            prop="byParticipant"
+            label="设置为秘书"
+            align="center"
+            min-width="2%"
+        >
+          <template slot-scope="scope">
+            <el-checkbox
+                :true-label="1"
+                :false-label="0"
+                v-model.trim="scope.row.isSecretary"
+                @change="UpdateCheckbox(scope.row)"
+            ></el-checkbox>
+          </template>
+        </el-table-column>
+        <el-table-column
             align="center"
             min-width="3%"
             label="已提交评分"
@@ -527,6 +542,15 @@ export default {
           institutionID:this.user.institutionID
         },
       });
+    },
+    UpdateCheckbox(data){
+      this.getRequest("/secretary/setSecretary?teacherID=" + data.id + "&activityID=" + this.keywords + "&groupID=" + this.groupID)
+          .then((resp) => {
+            if(resp)
+            {Message.success("更新成功");}
+            else
+            {Message.error("更新失败");}
+          });
     },
     advancedSearch() {
       this.getRequest(

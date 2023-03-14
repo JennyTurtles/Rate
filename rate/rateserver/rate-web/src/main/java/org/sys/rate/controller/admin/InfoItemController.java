@@ -157,4 +157,10 @@ public class InfoItemController {
         return Msg.success().add("infoItems",infoItems).add("scoreItems",scoreItems);
     }
 
+    @GetMapping("/all")
+    public RespBean getAllByActivityID(@RequestParam Integer activityID){
+        List<InfoItem> infoItems = infoItemService.getAll(activityID);
+        return RespBean.ok("success",infoItems);
+    }
+
 }

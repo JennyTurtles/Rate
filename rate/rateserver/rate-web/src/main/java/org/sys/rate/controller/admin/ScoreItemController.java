@@ -131,4 +131,10 @@ public class ScoreItemController {
         RespBean res = new RespBean(200,null,scoreItemService.latestId());
         return res;
     }
+
+    @GetMapping("/getall")
+    public RespBean getAll(@RequestParam Integer activityID){
+        List<ScoreItem> scoreItems = scoreItemService.getScoreItemByActivityId(activityID);
+        return RespBean.ok("success",scoreItems);
+    }
 }
