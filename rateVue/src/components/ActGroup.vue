@@ -576,7 +576,6 @@ export default {
     },
     initEmps() { // 在此适配不同的组件
       this.loading = true;
-
       if (this.mode === "admin"){
         let url = "/activities/basic/?page=" + this.page + "&size=" + this.size + "&institutionID=" + this.user.institutionID;
         this.getRequest(url).then((resp) => {
@@ -596,14 +595,26 @@ export default {
 
     },
     showGroupmanagement(data) {
+      console.log(data)
       const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/table",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
+      if (this.mode === "admin"){
+        _this.$router.push({
+          path: "/ActivitM/table",
+          query: {
+            keywords: data.id,
+            keyword_name: data.name,
+          },
+        });
+      }
+      else if (this.mode === "secretary"){
+        _this.$router.push({
+          path: "/secretary/SecGroup",
+          query: {
+            keywords: data.id,
+            keyword_name: data.name,
+          },
+        });
+      }
     },
     showInsertmanagement(data) {
       const _this = this;
