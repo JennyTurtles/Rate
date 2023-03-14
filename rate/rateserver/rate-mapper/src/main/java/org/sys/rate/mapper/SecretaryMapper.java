@@ -29,7 +29,7 @@ public interface SecretaryMapper {
             "WHERE groupID = #{groupID} AND p.studentID = s.Id AND activityID = #{activityID}")
     List<Participates> getPar(Integer activityID,Integer groupID);
 
-    @Select("SELECT t.ID,name,IDNumber\n" +
+    @Select("SELECT t.ID,name,IDNumber,jobnumber\n" +
             "FROM expertactivities e,teacher t \n" +
             "WHERE groupID = #{groupID} AND e.teacherID = t.ID AND activityID = #{activityID}")
     List<Experts> getEx(Integer activityID,Integer groupID);

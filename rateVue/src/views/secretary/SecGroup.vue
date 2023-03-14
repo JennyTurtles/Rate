@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="height:600px">
     <div style="display: flex; justify-content: left">
       <div style="width: 100%;text-align: center">{{ actName }} {{groupName}} 分组管理</div>
       <div style="margin-left: auto">
@@ -8,6 +8,58 @@
         </el-button>
       </div>
     </div>
+    组内学生
+    <div style="height: 55%;width: 30%">
+      <el-table
+          height="100%"
+          stripe
+          ref="multipleTable"
+          :data="participates"
+          tooltip-effect="dark"
+          @selection-change="handleSelectionChange">
+        <el-table-column
+            type="selection"
+            width="55">
+        </el-table-column>
+        <el-table-column
+            prop="name"
+            label="姓名"
+            width="120">
+        </el-table-column>
+        <el-table-column
+            prop="code"
+            label="学号"
+            show-overflow-tooltip>
+        </el-table-column>
+      </el-table>
+    </div>
+    组内老师
+    <div style="height: 55%;width: 30%">
+      <el-table
+          stripe
+          ref="multipleTable"
+          :data="experts"
+          tooltip-effect="dark"
+          height="100%"
+          style=""
+          @selection-change="handleSelectionChange">
+        <el-table-column
+            type="selection"
+            width="55">
+        </el-table-column>
+        <el-table-column
+            prop="name"
+            label="姓名"
+            width="120">
+        </el-table-column>
+        <el-table-column
+            prop="jobNumber"
+            label="工号"
+            show-overflow-tooltip>
+        </el-table-column>
+      </el-table>
+    </div>
+
   </div>
 </template>
 
@@ -22,8 +74,9 @@ export default {
       groupName: "",
       activityID:-1,
       groupID:-1,
-      participates:"",
-      experts:"",
+      participates:[],
+      experts:[],
+      multipleSelection: []
     }
   },
   computed: {
@@ -40,9 +93,14 @@ export default {
     this.initData();
   },
   methods: {
+    // rowClass() {
+    //   return 'background:#b3d8ff;color:black;font-size:13px'
+    // },
     initData(){
       this.getRequest("/secretary/getMember?activityID="+this.activityID+"&groupID="+this.groupID).then((resp)=>{
-        console.log(resp)
+        this.experts = resp.obj[1]
+        this.participates = resp.obj[0]
+        console.log(this.experts)
       })
     },
     back() {
@@ -51,6 +109,19 @@ export default {
         path: "/secretary/actGroup",
       });
     },
+    toggleSelection(rows) {
+      if (rows) {
+        rows.forEach(row => {
+          this.$refs.multipleTable.toggleRowSelection(row);
+        });
+      } else {
+        this.$refs.multipleTable.clearSelection();
+      }
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+      console.log(val)
+    }
   },
 };
 </script>
@@ -100,4 +171,5 @@ export default {
 .tb-edit.current-row.el-input + span {
   display: none;
 }
+
 </style>
