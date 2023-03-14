@@ -20,8 +20,8 @@ public class SecretaryController {
 
     @GetMapping("/setSecretary")
     @ResponseBody
-    public RespBean setSecretary(@RequestParam Integer teacherID,@RequestParam Integer activityID,@RequestParam Integer groupID){
-        int res = secretaryMapper.setSecretary(teacherID,activityID,groupID);
+    public RespBean setSecretary(@RequestParam Integer teacherID,@RequestParam Integer activityID,@RequestParam Integer groupID,@RequestParam Integer target){
+        int res = secretaryMapper.setSecretary(teacherID,activityID,groupID,target);
         return res == 1 ? RespBean.ok("success",1) : RespBean.ok("fail",0);
     }
 

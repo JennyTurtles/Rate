@@ -13,8 +13,8 @@ public interface SecretaryMapper {
     @Select("SELECT COUNT(*) from expertactivities WHERE teacherID = #{Id} AND is_secretary = 1 Limit 1")
     int isSecretary(Integer Id);
 
-    @Update("UPDATE expertactivities SET is_secretary = 1 WHERE teacherID = #{teacherID} AND activityID = #{activityID} AND groupID = #{groupID}")
-    int setSecretary(Integer teacherID, Integer activityID, Integer groupID);
+    @Update("UPDATE expertactivities SET is_secretary = #{target} WHERE teacherID = #{teacherID} AND activityID = #{activityID} AND groupID = #{groupID}")
+    int setSecretary(Integer teacherID, Integer activityID, Integer groupID,Integer target);
 
 //    @Select("SELECT a.ID,groupID,name,startDate,scoreItemCount,score,groupCount,expertCount,participantCount,`comment` \n" +
 //            "FROM expertactivities e, activities a \n" +

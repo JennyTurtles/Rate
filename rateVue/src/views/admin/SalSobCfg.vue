@@ -544,7 +544,7 @@ export default {
       });
     },
     UpdateCheckbox(data){
-      this.getRequest("/secretary/setSecretary?teacherID=" + data.id + "&activityID=" + this.keywords + "&groupID=" + this.groupID)
+      this.getRequest("/secretary/setSecretary?teacherID=" + data.id + "&activityID=" + this.keywords + "&groupID=" + this.groupID + "&target=" + data.isSecretary)
           .then((resp) => {
             if(resp)
             {Message.success("更新成功");}
