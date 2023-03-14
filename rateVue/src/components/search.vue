@@ -595,11 +595,11 @@ export default {
       PageSize:15,
       tablePaperSample: [//论文
         {
-          '刊物全称': "东华大学学报（自然科学版）",
-          '刊物简称': "东华学报",
-          '出版社': "东华大学出版社",
-          '网址': "https://cst.dhu.edu.cn",
-          '收录级别 （收录级别1;级别2;（请用分号隔开））': "收录级别1;收录级别2",
+          '刊物全称': "Artificial Intelligence",
+          '刊物简称': "AI",
+          '出版社': "Elsevier",
+          '网址': "http://dblp.uni-trier.de/db/journals/ai/",
+          '收录级别 （收录级别1;级别2;（请用分号隔开））': "SCI;",
         },
       ],
       tableTechnicalSample: [//科技奖
