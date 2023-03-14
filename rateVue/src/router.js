@@ -268,9 +268,9 @@ export default new Router({
           },
           children: [
             {
-              path: 'actList',
-              name: 'ActList',
-              component: () => import('./components/ActList.vue'),
+              path: 'actGroup',
+              name: 'ActGroup',
+              component: () => import('./components/ActGroup.vue'),
               meta: { title: 'Search' },
             },
           ],
@@ -279,7 +279,7 @@ export default new Router({
           path: '/secretary/tperact/actList',
           name: '秘书活动列表',
           hidden: true,
-          component: () => import('./views/secretary/ActList'),
+          component: () => import('./views/secretary/ActGroup.vue'),
           meta: {
             title: '秘书活动列表',
           },

@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-import ActList from "@/components/ActList.vue"
+import ActList from "@/components/ActGroup.vue"
 export default {
   name: "AdminActList",
   components:{

@@ -584,7 +584,7 @@ export default {
       this.title = "添加活动";
       this.dialogVisible = true;
     },
-    initEmps() {
+    initEmps() { // 在此适配不同的组件
       this.loading = true;
 
       if (this.mode === "admin"){
@@ -597,7 +597,11 @@ export default {
           }
         });
       }else if (this.mode === "secretary"){
-        console.log("秘书")
+        const id = JSON.parse(localStorage.getItem("user")).id
+        this.getRequest("/secretary/getAct?teacherID="+id).then((resp)=>{
+          this.loading = false;
+          this.emps = resp.obj
+        })
       }
 
     },
