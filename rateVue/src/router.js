@@ -87,6 +87,7 @@ export default new Router({
           meta: { title: 'SalPartipicantGroup' },
 
         },{//管理员下的
+        }, {//管理员下的
           path: '/ActivitM/search',
           name: 'SalSearch',
           component: () => import('./views/admin/SalSearch'),
@@ -281,10 +282,19 @@ export default new Router({
           ],
         },
         {
-          path: '/secretary/tperact/actList',
+          path: '/secretary/actGroup',
           name: '秘书活动列表',
           hidden: true,
           component: () => import('./views/secretary/ActGroup.vue'),
+          meta: {
+            title: '秘书活动列表',
+          },
+        },
+        {
+          path: '/secretary/SecGroup',
+          name: '秘书活动列表',
+          hidden: true,
+          component: () => import('./views/secretary/SecGroup.vue'),
           meta: {
             title: '秘书活动列表',
           },

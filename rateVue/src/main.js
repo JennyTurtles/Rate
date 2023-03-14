@@ -7,6 +7,7 @@ import Vuex from "vuex";
 import * as XLSX from 'xlsx/xlsx.mjs'
 import FileSaver from 'file-saver'
 import {
+    Transfer,
     Button,
     Input,
     InputNumber,
@@ -64,6 +65,7 @@ Vue.directive('focus', {
 })
 
 Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 };
+Vue.use(Transfer)
 Vue.use(Switch);
 Vue.use(Message);
 Vue.use(CollapseItem);
