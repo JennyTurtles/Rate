@@ -74,14 +74,7 @@ export default new Router({
           name: 'SalDetail',
           component: () => import('./views/admin/SalDetail'),
           meta: { title: 'SalDetail' },
-        },
-        {//管理员下的
-          path: '/ActivitM/SalPartipicantGroup',
-          name: 'SalPartipicantGroup',
-          component: () => import('./views/admin/SalPartipicantGroup'),
-          meta: { title: 'SalPartipicantGroup' },
-
-        },{//管理员下的
+        }, {//管理员下的
           path: '/ActivitM/search',
           name: 'SalSearch',
           component: () => import('./views/admin/SalSearch'),

@@ -338,6 +338,7 @@
 
 <script>
 import {Message} from "element-ui";
+import da from "element-ui/src/locale/lang/da";
 
 export default {
   name: "SalSearch",
@@ -615,8 +616,8 @@ export default {
       });
     },
     showGroupmanagement(data) {
-      console.log(data)
       const _this = this;
+      console.log(data)
       if (this.mode === "admin"){
         _this.$router.push({
           path: "/ActivitM/table",
@@ -630,8 +631,10 @@ export default {
         _this.$router.push({
           path: "/secretary/SecGroup",
           query: {
-            keywords: data.id,
-            keyword_name: data.name,
+            actName:data.name,
+            groupName:data.groupName,
+            activityID:data.id,
+            groupID:data.groupID
           },
         });
       }
