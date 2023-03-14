@@ -146,16 +146,6 @@
             </el-button
             >
             <el-button
-                @click="showGroupOfPartipicant(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-s-operation"
-                type="primary"
-                plain
-            >选手分组
-            </el-button
-            >
-            <el-button
                 @click="showInsertmanagement(scope.row)"
                 style="padding: 4px"
                 size="mini"
@@ -604,16 +594,6 @@ export default {
         })
       }
 
-    },
-    showGroupOfPartipicant(data){//选手分组
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/SalPartipicantGroup",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
     },
     showGroupmanagement(data) {
       const _this = this;
