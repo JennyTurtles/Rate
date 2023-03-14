@@ -266,6 +266,14 @@ export default new Router({
           meta: {
             title: '教师活动列表',
           },
+          children: [
+            {
+              path: 'actList',
+              name: 'ActList',
+              component: () => import('./components/ActList.vue'),
+              meta: { title: 'Search' },
+            },
+          ],
         },
         {
           path: '/secretary/tperact/actList',
