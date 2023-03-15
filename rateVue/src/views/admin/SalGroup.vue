@@ -608,7 +608,7 @@ export default {
       //   }
       // }
       // if(flag){
-        this.$confirm('确定删除分组？', '提示', {
+        this.$confirm('是否确认清空分组信息？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -750,7 +750,6 @@ export default {
       // }else {
       //   this.$message.warning('请先删除分组！')
       // }
-
     },
     creatGroup(){//创建分组
       //传递activityID和选手id，分为几组和每组人数
