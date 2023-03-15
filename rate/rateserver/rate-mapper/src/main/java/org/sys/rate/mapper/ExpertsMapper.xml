@@ -373,7 +373,7 @@
   </update>
   <select id="getExpertsByPage" resultMap="BaseResultMap">
     /*select * from teacher g*/
-    select t.ID, e.finished, e.is_secretary as isSecretary, t.username, t.institutionID, t.name, t.department, t.IDNumber, t.password,t.phone, t.email from teacher t,expertactivities e where e.`teacherID`=t.`id` and e.`groupID`=#{keywords}
+    select t.ID, e.finished,e.role , t.username, t.institutionID, t.name, t.department, t.IDNumber, t.password,t.phone, t.email from teacher t,expertactivities e where e.`teacherID`=t.`id` and e.`groupID`=#{keywords}
     <if test="page !=null and size!=null">
       limit #{page},#{size}
     </if>
