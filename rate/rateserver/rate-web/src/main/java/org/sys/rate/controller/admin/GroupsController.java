@@ -137,10 +137,10 @@ public class GroupsController {
         List<String> infoContent = (List<String>) data.get("infoContent");
         //筛选出没有分组的选手
         List<Participates> participates = infosService.getPartipicantByActivityId(activityID,infoItemID,infoContent);
-        if(data.get("sortByItemType").equals("评分项")){//数字
+        if(data.get("sortByItemType").equals("评分项")){//先不考虑评分项
             groupsService.createGroupsByScore(arr,exchangeNums,groupsNums,participates,sortByItemID);
             return participates;
-        }else if(data.get("sortByItemType").equals("信息项")){//不是数字
+        }else if(data.get("sortByItemType").equals("信息项")){//信息项有可能是数字也有可能不是数字
             //插入groups数据，返回groups，传入
             for (int i = 0;i< arr.size();i++){//每组多少人
                 participates = groupsService.creatGroups(arr.get(i),participates,activityID,0,arr.get(i),i);

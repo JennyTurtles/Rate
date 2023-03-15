@@ -237,7 +237,7 @@ public class ParticipatesBasicController {
     @GetMapping("/deleteGroups")
     public RespBean deleteGroups(@RequestParam Integer activityID){
         String res = participatesService.deleteGroups(activityID);
-        if(res.equals("无删除数据")){
+        if(res.equals("选手无分组信息！")){
             return RespBean.error(res);
         }else {
             return RespBean.ok(res);
