@@ -14,7 +14,7 @@ public interface SecretaryMapper {
     int isSecretary(Integer Id);
 
     @Update("UPDATE expertactivities SET role = #{role} WHERE teacherID = #{teacherID} AND activityID = #{activityID} AND groupID = #{groupID}")
-    int setSecretary(Integer teacherID, Integer activityID, Integer groupID,Integer role);
+    int setSecretary(Integer teacherID, Integer activityID, Integer groupID,String role);
 
 //    @Select("SELECT a.ID,groupID,name,startDate,scoreItemCount,score,groupCount,expertCount,participantCount,`comment` \n" +
 //            "FROM expertactivities e, activities a \n" +

@@ -170,10 +170,11 @@
           label="发表刊物"
           align="center"
           width="240"
+          :formatter="checkScoreComent"
         >
         </el-table-column>
         <el-table-column
-            :formatter="checkScore"
+
           prop="point"
           label="积分"
           align="center"
@@ -882,15 +883,12 @@ export default {
       }
       this.emps=Array.from(newemps)
     },
-    checkScore(row){
-      if (row.state !== "adm_pass" && row.point === 2)
-        return "2（2分论文重复提交只计算一次）"
-      if (row.state === "adm_pass" && row.point === 2)
+    checkScoreComent(row){
+      if (row.state === "adm_pass" && row.point === 2 && row.have_score === 0)
       {
-        if (row.have_score === 0)
-          return "0（2分论文重复提交只计算一次）"
+        return (row.remark === null ? "" : row.remark+";") + "本类别论文只计算一篇，本论文积分不计入总分"
       }
-      return row.point
+      return row.remark
     },
   },
 };
