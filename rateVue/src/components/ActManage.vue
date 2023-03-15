@@ -617,7 +617,7 @@ export default {
             this.emps = resp.obj;
             for (let i = 0; i < this.emps.length; i++) {
               this.emps[i].participantCount =  this.participates.length
-
+              this.emps[i].expertCount = this.participates.length
             }
             this.total = this.emps.length
           })
