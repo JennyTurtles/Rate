@@ -696,7 +696,7 @@ export default {
       this.importDataDisabled = false;
     },
     onSuccess(res) {
-      // console.log("res", res);
+      console.log("res", res);
       if (res.msg === 'file error') {
         Message.error("文件内容或者格式有误，请不要修改表头，信息按格式填写！")
       } else if (res.msg === 'success') {
@@ -705,7 +705,7 @@ export default {
         this.err_dialogVisible_edit = true;
         this.err_msg = res.obj;
         this.err_title = "以下专家用户名重复：";
-        //Message.error("上传失败！")
+        Message.error("上传失败！",res.msg)
       }
       this.importDataBtnText = "导入数据";
       this.importDataBtnIcon = "el-icon-upload2";

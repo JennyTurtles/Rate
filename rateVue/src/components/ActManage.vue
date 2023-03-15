@@ -34,6 +34,7 @@
           <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
             添加活动
           </el-button>
+          <span style="margin-left: 20px" v-show="mode === 'secretarySub'">当前管理的是： {{actName}} {{groupName}} </span>
         </div>
       </div>
     </div>
@@ -59,17 +60,13 @@
             width="50"
         >
         </el-table-column>
-        <!-- width="70" -->
         <el-table-column
             prop="name"
             fixed
             align="left"
             label="活动名称"
-            width="200"
         >
         </el-table-column>
-        <!-- width="200" -->
-        <!-- width="200" -->
         <el-table-column
             prop="startDate"
             label="开始时间"
@@ -77,7 +74,6 @@
             width="130"
         >
         </el-table-column>
-        <!-- width="100" -->
         <el-table-column
             prop="scoreItemCount"
             label="评分项数"
@@ -93,9 +89,6 @@
             width="75"
         >
         </el-table-column>
-        <!-- width="60" -->
-        <!-- width="80" -->
-        <!-- width="550" -->
         <el-table-column align="center" width="650" label="操 作">
           <template slot-scope="scope">
             <el-button
@@ -182,6 +175,7 @@
                 icon="el-icon-plus"
                 type="primary"
                 plain
+                v-show="mode !== 'secretarySub' && mode !== 'adminSub'"
             >子活动管理
             </el-button
             >
@@ -342,9 +336,11 @@ import da from "element-ui/src/locale/lang/da";
 
 export default {
   name: "ActManage",
-  props:["mode","activityID"], //admin secretary adminSub secretarySub 四个地方复用活动组件
+  props:["mode","activityID","actName","groupName","groupID"], // 四个地方复用组件
   data() {
     return {
+      experts:'',
+      participates:'',
       labelPosition: "left",
       title: "",
       text: "",
@@ -592,7 +588,6 @@ export default {
         this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
-            console.log(resp)
             this.emps = resp.data;
             this.total = resp.total;
           }
@@ -612,32 +607,44 @@ export default {
         })
       }else if (this.mode === "secretarySub"){ // 秘书子活动管理
         this.loading = false;
+        // 获取当前组内的专家和学生
+        this.getRequest("/secretary/getMember?activityID="+this.activityID+"&groupID="+this.groupID).then((resp)=>{
+          this.experts = resp.obj[1]
+          this.participates = resp.obj[0]
+          // 获取所有的子活动
+          this.getRequest("/activities/basic/sub?activityID="+this.activityID).then((resp)=>{
+            this.loading = false;
+            this.emps = resp.obj;
+            for (let i = 0; i < this.emps.length; i++) {
+              this.emps[i].participantCount =  this.participates.length
+
+            }
+            this.total = this.emps.length
+          })
+        })
+
       }
 
     },
     showGroupmanagement(data) {
       const _this = this;
-      console.log(data)
-      if (this.mode === "admin"){
-        _this.$router.push({
-          path: "/ActivitM/table",
-          query: {
-            keywords: data.id,
-            keyword_name: data.name,
-          },
-        });
-      }
-      else if (this.mode === "secretary"){
-        _this.$router.push({
-          path: "/secretary/SecManage",
-          query: {
-            actName:data.name,
-            groupName:data.groupName,
-            activityID:data.id,
-            groupID:data.groupID
-          },
-        });
-      }
+      _this.$router.push({
+        path: "/ActivitM/table",
+        query: {
+          keywords: data.id,
+          keyword_name: data.name,
+        },
+      });
+      // console.log(data)
+      // if (this.mode === "admin"){
+      //   _this.$router.push({
+      //     path: "/ActivitM/table",
+      //     query: {
+      //       keywords: data.id,
+      //       keyword_name: data.name,
+      //     },
+      //   });
+      // }
     },
     showInsertmanagement(data) {
       const _this = this;
@@ -653,8 +660,12 @@ export default {
       const _this = this;
       if (this.mode === "admin")
         _this.$router.push({query :{id:data.id}, path: "/ActivitM/SubActManage",});
-      else if (this.mode === "secretary")
-        _this.$router.push({query :{id:data.id}, path: "/secretary/SubActManage",});
+      else if (this.mode === "secretary"){
+        _this.$router.push({
+          query :{id:data.id,actName:data.name,groupName:data.groupName,groupID:data.groupID},
+          path: "/secretary/SubActManage",});
+      }
+
     },
     showteachermanagement(data) {
       const _this = this;

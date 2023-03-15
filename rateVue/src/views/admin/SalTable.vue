@@ -199,7 +199,6 @@ export default {
       tabClickIndex: null, // 点击的单元格
       tabClickLabel: "", // 当前点击的列名
       keywords: "",
-      activitydata: [],
       keywords_name: "",
       size: 10,
       total: 0,
@@ -271,7 +270,6 @@ export default {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
     this.initHrs();
-    this.initData();
     //this.initAd();
   },
   methods: {
@@ -342,7 +340,7 @@ export default {
       ).then((resp) => {
         if (resp) {
           this.hrs = resp.data;
-          this.total = resp.total;
+          this.total = this.hrs.length;
         }
       });
     },
@@ -472,13 +470,6 @@ export default {
         }
       });
     },
-    initData() {
-      this.getRequest("/activities/basic/get_activity_info").then((resp) => {
-        if (resp) {
-          this.activitydata = resp;
-        }
-      });
-    }, //
   },
 };
 </script>
