@@ -81,9 +81,9 @@ export default new Router({
           meta: { title: 'SalTotal' },
         }, {//管理员下的
           path: '/ActivitM/search',
-          name: 'SalSearch',
-          component: () => import('./views/admin/SalSearch'),
-          meta: { title: 'SalSearch' },
+          name: 'ActManage',
+          component: () => import('./views/admin/ActManage.vue'),
+          meta: { title: 'ActManage' },
         },{//管理员下的
           path: '/ActivitM/situation',
           name: 'SalSituation',
@@ -95,11 +95,17 @@ export default new Router({
           component: () => import('./views/admin/ExpertScore.vue'),
           meta: {title: 'expertScore'},
         },
-        {
-          path: '/ActivitM/subActivity',
-          name: 'SalSubActivity',
+        { // 管理员子活动
+          path: '/ActivitM/SubActManage',
+          name: 'SubActManage',
           component: () => import('./views/admin/SubActManage.vue'),
-          meta: { title: 'SalSubActivity' },
+          meta: { title: 'SubActManage' },
+        },
+        { // 秘书子活动
+          path: '/secretary/SubActManage',
+          name: 'SecSubActManage',
+          component: () => import('./views/secretary/SubActManage.vue'),
+          meta: { title: 'SecSubActManage' },
         },
         {//管理员下的
           path: '/ActivitM/month',
@@ -264,29 +270,19 @@ export default new Router({
           meta: {
             title: '教师活动列表',
           },
-          children: [
-            {
-              path: 'actGroup',
-              name: 'ActGroup',
-              component: () => import('./components/ActManage.vue'),
-              meta: { title: 'Search' },
-            },
-          ],
         },
         {
-          path: '/secretary/actGroup',
-          name: '秘书活动列表',
+          path: 'ActManage',
+          name: 'ActManage',
           hidden: true,
-          component: () => import('./views/secretary/ActGroup.vue'),
-          meta: {
-            title: '秘书活动列表',
-          },
+          component: () => import('./components/ActManage.vue'),
+          meta: { title: 'ActManage' },
         },
         {
-          path: '/secretary/SecManage',
+          path: '/secretary/ActManage',
           name: '秘书管理',
           hidden: true,
-          component: () => import('./views/secretary/SecManage.vue'),
+          component: () => import('./views/secretary/ActManage.vue'),
           meta: {
             title: '秘书管理',
           },

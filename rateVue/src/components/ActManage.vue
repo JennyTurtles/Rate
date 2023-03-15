@@ -341,8 +341,8 @@ import {Message} from "element-ui";
 import da from "element-ui/src/locale/lang/da";
 
 export default {
-  name: "SalSearch",
-  props:["mode"], //admin secretary adminSub secretarySub 四个地方复用活动组件
+  name: "ActManage",
+  props:["mode","activityID"], //admin secretary adminSub secretarySub 四个地方复用活动组件
   data() {
     return {
       labelPosition: "left",
@@ -587,23 +587,31 @@ export default {
     },
     initEmps() { // 在此适配不同的组件
       this.loading = true;
-      if (this.mode === "admin"){
+      if (this.mode === "admin"){ // 管理员活动管理
         let url = "/activities/basic/?page=" + this.page + "&size=" + this.size + "&institutionID=" + this.user.institutionID;
         this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
+            console.log(resp)
             this.emps = resp.data;
             this.total = resp.total;
           }
         });
-      }else if (this.mode === "secretary"){
+      }else if (this.mode === "secretary"){ // 秘书活动管理
         const id = JSON.parse(localStorage.getItem("user")).id
         this.getRequest("/secretary/getAct?teacherID="+id).then((resp)=>{
           this.loading = false;
           this.emps = resp.obj
+          this.total = this.emps.length
         })
-      }else if (this.mode === "adminSub"){
-        console.log("adminSub")
+      }else if (this.mode === "adminSub"){ // 管理员子活动管理
+        this.getRequest("/activities/basic/sub?activityID="+this.activityID).then((resp)=>{
+          this.loading = false;
+          this.emps = resp.obj;
+          this.total = this.emps.length
+        })
+      }else if (this.mode === "secretarySub"){ // 秘书子活动管理
+        this.loading = false;
       }
 
     },
@@ -643,9 +651,10 @@ export default {
     },
     showSubActivity(data) {
       const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/subActivity",
-      });
+      if (this.mode === "admin")
+        _this.$router.push({query :{id:data.id}, path: "/ActivitM/SubActManage",});
+      else if (this.mode === "secretary")
+        _this.$router.push({query :{id:data.id}, path: "/secretary/SubActManage",});
     },
     showteachermanagement(data) {
       const _this = this;

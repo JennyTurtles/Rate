@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Activities;
 import org.sys.rate.model.ScoreDetail;
 
@@ -34,6 +35,9 @@ public interface ActivitiesMapper {
 
 
     List<Activities> getActivitiesByPage(@Param("page") Integer page, @Param("size") Integer size, Integer institutionID);
+
+    @Select("SELECT * FROM activities WHERE parent = #{activityID}")
+    List<Activities> getSubActivities(Integer activityID);
 
     List<Activities> getActivitiesByPageAndCompany(@Param("page") Integer page, @Param("size") Integer size, @Param("company") String company,@Param("institutionID") Integer institutionID);
 

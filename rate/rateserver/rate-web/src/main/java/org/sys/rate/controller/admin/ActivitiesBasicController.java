@@ -2,6 +2,7 @@ package org.sys.rate.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.sys.rate.mapper.ActivitiesMapper;
 import org.sys.rate.model.Activities;
 import org.sys.rate.model.Log;
 import org.sys.rate.model.RespBean;
@@ -10,6 +11,7 @@ import org.sys.rate.service.admin.ActivitiesService;
 import org.sys.rate.service.admin.LogService;
 import org.sys.rate.service.admin.ScoreItemService;
 
+import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -29,6 +31,8 @@ public class ActivitiesBasicController {
     @Autowired
     LogService logService;
 
+    @Resource
+    ActivitiesMapper activitiesMapper;
 
     @GetMapping("/")
     public RespPageBean getActivitiesByPage(@RequestParam(defaultValue = "1") Integer page,
@@ -36,6 +40,12 @@ public class ActivitiesBasicController {
                                             @RequestParam(defaultValue = "1") Integer institutionID,
                                             Activities employee) {
         return activitiesService.getActivitiesPage(page, size, employee, institutionID);
+    }
+
+    @GetMapping("/sub")
+    public RespBean getSubActivities(Integer activityID) {
+        List<Activities> res = activitiesMapper.getSubActivities(activityID);
+        return RespBean.ok("success",res);
     }
 
     @PostMapping("/insert")

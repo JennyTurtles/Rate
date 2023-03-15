@@ -12,7 +12,7 @@ export default {
   },
   data()  {
     return {
-      mode:'adminSub',
+      mode:'secretarySub',
       activityID:-1,
     }
   },

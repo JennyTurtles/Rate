@@ -10,18 +10,15 @@ import org.sys.rate.model.Participates;
 import java.util.List;
 
 public interface SecretaryMapper {
-    @Select("SELECT COUNT(*) from expertactivities WHERE teacherID = #{Id} AND (role = 1 OR role = 2) Limit 1")
+    @Select("SELECT COUNT(*) from expertactivities WHERE teacherID = #{Id} AND (role = '秘书' OR role = '组长') Limit 1")
     int isSecretary(Integer Id);
 
     @Update("UPDATE expertactivities SET role = #{role} WHERE teacherID = #{teacherID} AND activityID = #{activityID} AND groupID = #{groupID}")
     int setSecretary(Integer teacherID, Integer activityID, Integer groupID,String role);
 
-//    @Select("SELECT a.ID,groupID,name,startDate,scoreItemCount,score,groupCount,expertCount,participantCount,`comment` \n" +
-//            "FROM expertactivities e, activities a \n" +
-//            "WHERE e.activityID = a.ID AND teacherID = #{teacherID} AND is_secretary = 1")
     @Select("SELECT a.ID,groupID,a.name,startDate,scoreItemCount,score,groupCount,g.expertCount,g.participantCount,comment,g.name as groupName\n" +
             "FROM expertactivities e, activities a, `groups` g\n" +
-            "WHERE e.activityID = a.ID AND e.groupID = g.ID AND teacherID = #{teacherID} AND is_secretary = 1")
+            "WHERE e.activityID = a.ID AND e.groupID = g.ID AND teacherID = #{teacherID} AND (role = '秘书' OR role = '组长')")
     List<Activities> getAct(Integer teacherID);
 
     @Select("SELECT s.ID,name,code\n" +
