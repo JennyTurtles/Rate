@@ -41,14 +41,14 @@ public class Paper
     private Long point;
 
     // 用于判断2积分论文是否生效
-    private Integer no_score;
+    private Integer have_score;
 
-    public Integer getNo_score() {
-        return no_score;
+    public Integer getHave_score() {
+        return have_score;
     }
 
-    public void setNo_score(Integer no_score) {
-        this.no_score = no_score;
+    public void setHave_score(Integer have_score) {
+        this.have_score = have_score;
     }
 
     /** 刊物id */

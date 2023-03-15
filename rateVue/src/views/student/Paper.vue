@@ -813,21 +813,6 @@ export default {
                     this.initEmps();
                     this.$message.success('编辑成功');
                   }});
-                // if (this.emp.point == 2){ // 检查该学生是否存在审核中或已通过的2分指标点
-                //   this.getRequest("/publication/checkScore/"+this.emp.studentID).then((resp) =>{
-                //     if (resp.obj != -1 && resp.obj != this.emp.ID)
-                //     {
-                //       this.$message.error('已经存在审核中或已通过的2积分指标点，无法继续提交');
-                //       return
-                //     }
-                //     this.postRequest1("/paper/basic/edit", _this.emp).then((resp) => {
-                //       if (resp) {
-                //         this.dialogVisible = false;
-                //         this.initEmps();
-                //         this.$message.success('编辑成功');
-                //       }});
-                //   })
-                // }
               }
           });
       } else {
@@ -857,23 +842,6 @@ export default {
                   }
                 }
             );
-            // this.getRequest("/publication/checkScore/"+this.emp.studentID).then((resp)=>{
-            //   console.log(resp)
-            //   if (resp.obj == -1){
-            //     this.postRequest1("/paper/basic/add",_this.emp).then(
-            //         (resp) => {
-            //           if (resp) {
-            //             this.dialogVisible = false;
-            //             this.doAddOper("commit",this.emp.name,this.publicationName,
-            //                 this.emp.publicationID,resp.data)
-            //           }
-            //         }
-            //     );
-            //   }else{
-            //     this.$message.error('已经存在审核中或已通过的2积分指标点，无法继续提交');
-            //   }
-            // })
-
           }
         });
       }
@@ -940,8 +908,6 @@ export default {
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          console.log("论文resp:..")
-          console.log(resp);
           this.emps = resp.data;
           this.total = 11;
           // this.remarksort=this.emps.remark
@@ -1026,7 +992,15 @@ export default {
       });
     },
     checkScore(row){
-      return row.no_score == 1 ? "0（2分论文只能计算一次）" : row.point;
+      if (row.state !== "adm_pass" && row.point === 2)
+        return "2（2分论文重复提交只计算一次）"
+      if (row.state === "adm_pass" && row.point === 2)
+      {
+        if (row.have_score === 0)
+          return "0（2分论文重复提交只计算一次）"
+      }
+      return row.point
+      // return row.no_score == 1 ? "0（2分论文只能计算一次）" : row.point;
     }
   },
 };

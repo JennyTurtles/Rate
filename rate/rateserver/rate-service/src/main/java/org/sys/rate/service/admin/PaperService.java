@@ -109,10 +109,10 @@ public class PaperService {
             Long score = paper.getPoint();
 
             if (score == 2){ // 2分的时候检查是否已经发表过2分的论文
-                if (paperMapper.checkScore(stuID) != null){ // 已经发表过2分论文,将该论文的no_score设置为1
-                    return paperMapper.editState2(state,ID,1);
+                if (paperMapper.checkScore(stuID) != null){ // 已经发表过2分论文,将该论文的have_score设置为0
+                    return paperMapper.editState2(state,ID,0);
                 }else {
-                    paperMapper.editState2(state,ID,0);
+                    paperMapper.editState2(state,ID,1);
                     return paperMapper.updateScore(stuID,score);
                 }
             }

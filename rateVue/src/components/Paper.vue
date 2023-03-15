@@ -883,7 +883,14 @@ export default {
       this.emps=Array.from(newemps)
     },
     checkScore(row){
-      return row.no_score == 1 ? "0（2分论文只能计算一次）" : row.point;
+      if (row.state !== "adm_pass" && row.point === 2)
+        return "2（2分论文重复提交只计算一次）"
+      if (row.state === "adm_pass" && row.point === 2)
+      {
+        if (row.have_score === 0)
+          return "0（2分论文重复提交只计算一次）"
+      }
+      return row.point
     },
   },
 };
