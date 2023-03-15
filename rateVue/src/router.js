@@ -98,7 +98,7 @@ export default new Router({
         {
           path: '/ActivitM/subActivity',
           name: 'SalSubActivity',
-          component: () => import('./views/admin/SalSubActivity'),
+          component: () => import('./views/admin/SubActManage.vue'),
           meta: { title: 'SalSubActivity' },
         },
         {//管理员下的
@@ -268,7 +268,7 @@ export default new Router({
             {
               path: 'actGroup',
               name: 'ActGroup',
-              component: () => import('./components/ActGroup.vue'),
+              component: () => import('./components/ActManage.vue'),
               meta: { title: 'Search' },
             },
           ],

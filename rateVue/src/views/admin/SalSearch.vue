@@ -1,14 +1,14 @@
 <template>
   <div>
-    <ActList :mode="mode"></ActList>
+    <ActGroup :mode="mode"></ActGroup>
   </div>
 </template>
 <script>
-import ActList from "@/components/ActGroup.vue"
+import ActGroup from "@/components/ActManage.vue"
 export default {
-  name: "AdminActList",
+  name: "AdminActGroup",
   components:{
-    'ActList':ActList,
+    'ActGroup':ActGroup,
   },
   data() {
     return {
