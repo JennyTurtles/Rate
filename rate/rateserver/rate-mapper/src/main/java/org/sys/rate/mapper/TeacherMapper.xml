@@ -111,6 +111,11 @@
     from teacher e
     where e.username=#{expertUsername,jdbcType=VARCHAR}
   </select>
+  <select id="selectNameById" resultType="String">
+    select name
+    from teacher
+    where ID = #{expertID}
+  </select>
 
 <!--  <select id="loadUserByUsername" resultMap="BaseResultMap">-->
 <!--    select t.ID, t.username, t.institutionID, t.name, t.department, t.IDNumber, t.password,t.phone, t.email from teacher t where t.username=#{username}-->

@@ -42,13 +42,8 @@ public class ParticipatesService {
     SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
     DecimalFormat decimalFormat = new DecimalFormat("##.00");
 
-    public RespPageBean getParticipantsPage(Integer page, Integer size,Integer groupID,Integer activitiesID,Participates employee) {
-        if (page != null && size != null) {
-            page = (page - 1) * size;
-        }
-        //System.out.println("SERV"+groupID);
-        List<Participates> data = participatesMapper.getActivitiesByPage(page, size,groupID,employee);
-        for(Participates participates: data)
+    public List<Participates> setProptiesOfParticipants(List<Participates> par,Integer activitiesID){
+        for(Participates participates: par)
         {
             HashMap<Integer, ScoreItemValue> map = new HashMap<>();
             //先通过activityID放入map<ID,<ID,NAME,>>
@@ -80,7 +75,19 @@ public class ParticipatesService {
             }
             participates.setInfomap(map_info);
             //信息项end
+            if(participates.getGroupID()!=null){
+                participates.setOldgroupname(groupsMapper.getEmployeeById(participates.getGroupID()).getName());
+            }
         }
+        return par;
+    }
+
+    public RespPageBean getParticipantsPage(Integer page, Integer size,Integer groupID,Integer activitiesID,Participates employee) {
+        if (page != null && size != null) {
+            page = (page - 1) * size;
+        }
+        List<Participates> data = participatesMapper.getActivitiesByPage(page, size,groupID,employee);
+        setProptiesOfParticipants(data,activitiesID);
         Long total = participatesMapper.getTotal(groupID,employee);
         RespPageBean bean = new RespPageBean();
         bean.setData(data);
@@ -93,49 +100,75 @@ public class ParticipatesService {
             page = (page - 1) * size;
         }
         List<Participates> data = participatesMapper.getParticipantsPageByACID(page, size,activitiesID,employee);
-        for(Participates participates: data)
-        {
-            HashMap<Integer, ScoreItemValue> map = new HashMap<>();
-            //先通过activityID放入map<ID,<ID,NAME,>>
-            List<ScoreItemValue> scoreItemValue_0=scoreItemMapper.getScoreItemAll(activitiesID,participates.getID());
-            for(ScoreItemValue a:scoreItemValue_0)
-            {
-                map.put(a.getId(),a);
-            }
-            ScoreItemValue ItemValue=new ScoreItemValue();
-            List<ScoreItemValue> scoreItemValue=scoreItemMapper.getScoreItemValue(activitiesID,participates.getID(),ItemValue);
-            for(ScoreItemValue a:scoreItemValue)
-            {
-                map.put(a.getId(),a);
-            }
-            participates.setScoremap(map);
-            //信息项
-            HashMap<Integer, InfoItemValue> map_info = new HashMap<>();
-            //先通过activityID放入map<ID,<ID,NAME,>>
-            List<InfoItemValue> infoItemValue_0=infoItemMapper.getInfoItemAll(activitiesID,participates.getID());
-            for(InfoItemValue b:infoItemValue_0)
-            {
-                map_info.put(b.getId(),b);
-            }
-            InfoItemValue ItemValue_info=new InfoItemValue();
-            List<InfoItemValue> infoItemValue=infoItemMapper.getInfoItemValue(activitiesID,participates.getID(),ItemValue_info);
-            for(InfoItemValue b:infoItemValue)
-            {
-                map_info.put(b.getId(),b);
-            }
-            participates.setInfomap(map_info);
-            //信息项end
-            if(participates.getGroupID()!=null)
-            participates.setOldgroupname(groupsMapper.getEmployeeById(participates.getGroupID()).getName());
-//            participates.setOldGroupId(groupsMapper.getEmployeeById(participates.getGroupID()).getID());
-        }
+        setProptiesOfParticipants(data,activitiesID);
+//        for(Participates participates: data)
+//        {
+//            HashMap<Integer, ScoreItemValue> map = new HashMap<>();
+//            //先通过activityID放入map<ID,<ID,NAME,>>
+//            List<ScoreItemValue> scoreItemValue_0=scoreItemMapper.getScoreItemAll(activitiesID,participates.getID());
+//            for(ScoreItemValue a:scoreItemValue_0)
+//            {
+//                map.put(a.getId(),a);
+//            }
+//            ScoreItemValue ItemValue=new ScoreItemValue();
+//            List<ScoreItemValue> scoreItemValue=scoreItemMapper.getScoreItemValue(activitiesID,participates.getID(),ItemValue);
+//            for(ScoreItemValue a:scoreItemValue)
+//            {
+//                map.put(a.getId(),a);
+//            }
+//            participates.setScoremap(map);
+//            //信息项
+//            HashMap<Integer, InfoItemValue> map_info = new HashMap<>();
+//            //先通过activityID放入map<ID,<ID,NAME,>>
+//            List<InfoItemValue> infoItemValue_0=infoItemMapper.getInfoItemAll(activitiesID,participates.getID());
+//            for(InfoItemValue b:infoItemValue_0)
+//            {
+//                map_info.put(b.getId(),b);
+//            }
+//            InfoItemValue ItemValue_info=new InfoItemValue();
+//            List<InfoItemValue> infoItemValue=infoItemMapper.getInfoItemValue(activitiesID,participates.getID(),ItemValue_info);
+//            for(InfoItemValue b:infoItemValue)
+//            {
+//                map_info.put(b.getId(),b);
+//            }
+//            participates.setInfomap(map_info);
+//            //信息项end
+//            if(participates.getGroupID()!=null){
+//                participates.setOldgroupname(groupsMapper.getEmployeeById(participates.getGroupID()).getName());
+//            }
+//        }
         Long total = participatesMapper.getTotalByACID(activitiesID,employee);
         RespPageBean bean = new RespPageBean();
         bean.setData(data);
         bean.setTotal(total);
         return bean;
     }
-
+    //未分组的选手筛选
+    public RespPageBean getParticipantsPageByACIDNoGroup(Integer page, Integer size,Integer activitiesID,Participates employee){
+        if (page != null && size != null) {
+            page = (page - 1) * size;
+        }
+        List<Participates> data = participatesMapper.getParticipantsPageByACIDNoGroup(page, size,activitiesID,employee);
+        setProptiesOfParticipants(data,activitiesID);
+        Long total = participatesMapper.getTotalByACIDNogroup(activitiesID,employee);
+        RespPageBean bean = new RespPageBean();
+        bean.setData(data);
+        bean.setTotal(total);
+        return bean;
+    }
+    //分过组的选手筛选
+    public RespPageBean getParticipantsPageByACIDHaveGroup(Integer page, Integer size,Integer activitiesID,Participates employee){
+        if (page != null && size != null) {
+            page = (page - 1) * size;
+        }
+        List<Participates> data = participatesMapper.getParticipantsPageByACIDHaveGroup(page, size,activitiesID,employee);
+        setProptiesOfParticipants(data,activitiesID);
+        Long total = participatesMapper.getTotalByACIDHaveGroup(activitiesID,employee);
+        RespPageBean bean = new RespPageBean();
+        bean.setData(data);
+        bean.setTotal(total);
+        return bean;
+    }
 
     public String addParticipatess(Integer groupid,Integer activityid,List<Participates> list) {
         //先获得顺序的总数，order取top，然后循环的时候插入++插入。

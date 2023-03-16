@@ -71,7 +71,6 @@ public class InfosService {
         List<Infos> res = infosMapper.getParticipantIDtByAIdAndInfoItemID(activityID,infoItemID);
         List<Integer> participantID = new ArrayList<>();
         //根据infos的活动ID和infoitemid得到选手id
-
         for(int i = 0;i < res.size(); i++){
             if(infoContent.contains(res.get(i).getContent())){
                 participantID.add(res.get(i).getParticipantID());

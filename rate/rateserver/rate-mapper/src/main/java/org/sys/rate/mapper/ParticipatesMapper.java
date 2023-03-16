@@ -50,6 +50,8 @@ public interface ParticipatesMapper {
     List<Participates> getPByACID(@Param("page") Integer page, @Param("size") Integer size, @Param("groupID") Integer groupID,@Param("emp") Participates employee);
 
     List<Participates> getParticipantsPageByACID(@Param("page") Integer page, @Param("size") Integer size, @Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
+    List<Participates> getParticipantsPageByACIDNoGroup(@Param("page") Integer page, @Param("size") Integer size, @Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
+    List<Participates> getParticipantsPageByACIDHaveGroup(@Param("page") Integer page, @Param("size") Integer size, @Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
 
     List<Participates> getLongParticipantsByPage(@Param("page") Integer page, @Param("size") Integer size, @Param("groupID") Integer groupID, @Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
 
@@ -64,6 +66,8 @@ public interface ParticipatesMapper {
     Long getTotal(@Param("groupID") Integer groupID,@Param("emp") Participates employee);
 
     Long getTotalByACID(@Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
+    Long getTotalByACIDNogroup(@Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
+    Long getTotalByACIDHaveGroup(@Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
 
     Long getTotaloutput(@Param("emp") Participates employee,@Param("beginDateScope") Date[] beginDateScope);
 

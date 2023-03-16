@@ -209,7 +209,7 @@ export default new Router({
           },
         },
         {
-          path: '/student/Infos',
+          path: '/student/infos',
           name: '信息填写',
           hidden: true,
           component: () => import('./views/student/Infos'),

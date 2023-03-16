@@ -5,18 +5,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.GroupsMapper;
-import org.sys.rate.model.Participates;
-import org.sys.rate.model.RespPageBean;
-import org.sys.rate.model.Groups;
+import org.sys.rate.mapper.InfosMapper;
+import org.sys.rate.model.*;
 import org.sys.rate.utils.createGroups;
-import org.sys.rate.model.ScoreDetail;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -24,6 +20,10 @@ import java.util.stream.Collectors;
 public class GroupsService {
     @Autowired
     GroupsMapper groupsMapper;
+    @Autowired
+    InfosService infosService;
+    @Autowired
+    InfosMapper infosMapper;
     @Autowired
     ParticipatesService participatesService;
     public final static Logger logger = LoggerFactory.getLogger(GroupsService.class);
@@ -58,14 +58,8 @@ public class GroupsService {
     }
 
     public Integer addParticipates(Groups groups) {
-//        System.out.println("insert1");
         groupsMapper.insert(groups);
-//        System.out.println(groups);
-//        System.out.println(groupsMapper.queryMaxId());
         return groupsMapper.queryMaxId();
-//        System.out.println("insert2");
-//        if(result==1)
-//            groupsMapper.insert_update(employee);
     }
 
     public Integer getactivityCount(int id) {
@@ -108,22 +102,6 @@ public class GroupsService {
         return groupsMapper.queryMaxId();
     }
 
-    /*public RespPageBean searchActivities(Integer page, Integer size,String company) {
-        if (page != null && size != null) {
-            page = (page - 1) * size;
-        }
-        System.out.println("company2");
-        List<ScoreItem> data = scoreItemMapper.getActivitiesByPageAndCompany(page, size, company);
-        Long total = scoreItemMapper.getTotalByCompany(company);
-        RespPageBean bean = new RespPageBean();
-        bean.setData(data);
-        bean.setTotal(total);
-        return bean;
-    }*/
-    /*public Groups getEmployeeById(Integer empId) {
-        return groupsMapper.getEmployeeById(empId);
-    }*/
-
     public RespPageBean getparticipantsByPage(Integer page, Integer size, Groups employee, Date[] beginDateScope) {
         if (page != null && size != null) {
             page = (page - 1) * size;
@@ -135,6 +113,7 @@ public class GroupsService {
         bean.setTotal(total);
         return bean;
     }
+
     public List<Double> switchTypeOfScore(){
         double[] p = {401,397,391,389,389,388,387,387,386,385,384,383,383,383,
                 382,382,382,382,382,382,381,381,380,380,379,379,378,377,376,376,375,375,373,373,372,
@@ -145,28 +124,100 @@ public class GroupsService {
         };
         return Arrays.stream(p).boxed().collect(Collectors.toList());
     }
-    //按照数字分组
-    public List<List<Double>> createGroupsByScore(List<Integer> arr,Integer exchangeNums,Integer groupsNums,List<Participates> participates,Integer sortByItemID){
-        //根据筛选出来的infoitem得到所有没分组的选手，通过acid，parid，scoritemid得到score
 
-        List<Double> point = switchTypeOfScore();//转换数据类型
+    //按照数字分组
+    public List<List<double []>> createGroupsByScore(List<Integer> arr,Integer exchangeNums,Integer groupsNums,List<Double> point,List<double []> point_participant){
         Integer studentNums = point.size();
         createGroups cp = new createGroups();//分组
-        return cp.devideGroupsFixedNums(arr,point,exchangeNums,groupsNums,studentNums);//返回打印分组结果
-//        cp.createG();//交换
+        Collections.sort(point, (a, b) -> Double.compare(b, a));
+        Collections.sort(point_participant, (a, b) -> Double.compare(b[0], a[0]));
+
+        List<List<double []>> resgroup = cp.devideGroupsFixedNums(arr,point,exchangeNums,groupsNums,studentNums,point_participant);
+        System.out.println("groups:");
+        for(List<double []> x : resgroup){
+            for(double[] y : x){
+                for (double mm : y){
+                    System.out.print(mm);
+                    System.out.print(",");
+                }
+                System.out.print("||");
+            }
+            System.out.println();
+        }
+        List<List<double []>> resgroupExchange = cp.createG(point,exchangeNums,groupsNums,167);
+        System.out.println("交换后groups:");
+        for(List<double []> x : resgroupExchange){
+            for(double[] y : x){
+                for (double mm : y){
+                    System.out.print(mm);
+                    System.out.print(",");
+                }
+                System.out.print("||");
+            }
+            System.out.println();
+        }
+        return resgroupExchange;
     }
 
-    //按照不是数字的依据分组
-//    public List<List<Double>> createGroupsByString(List<Integer> arr){
-//        createGroups cp = new createGroups();
-////        int [] arr = {20,60,57,15,15};
-////        System.out.println(cp.devideGroupsFixedNums(arr));
-//    }
-//    public List<Groups> insertMultipleGroups(Integer activityID,Integer expertCount,Integer participantCount){
-////        List<String> name =
-////        groupsMapper.insertMultipleGroups(activityID,name,expertCount,participantCount);
-//    }
-    public List<Participates> creatGroups(Integer nums,List<Participates> participates,Integer activityID,Integer expertCount,Integer participantCount,Integer idx){
+    //判断分组依据是字符串还是数字
+    public void judgeNumber(Integer activityID,
+                            Integer infoItemID,List<Integer> arr,
+                            Integer exchangeNums,Integer groupsNums,List<String> infoContent){
+        List<Infos> infosList = new ArrayList<>();
+        List<Participates> participates = new ArrayList<>();
+        //没有子信息项
+        if(infoContent.size() == 0){
+            infosList = infosMapper.getParticipantIDtByAIdAndInfoItemID(activityID,infoItemID);
+        }else {
+            participates = infosService.getPartipicantByActivityId(activityID,infoItemID,infoContent);
+            List<Integer> participantID = new ArrayList<>();
+            for(int i = 0;i < participates.size(); i++){
+                participantID.add(participates.get(i).getID());
+            }
+            //拿到没分组选手的info content
+            infosList = infosMapper.getInfoitemsListByParAndAcID(activityID,participantID,infoItemID);
+        }
+        boolean flage = true;
+        for(Infos info : infosList){
+            if(!isDouble(info.getContent())){//如果有一个不是double数字，就break
+                flage = false;
+                break;
+            }
+        }
+        if(!flage){//字符串，不是全分数
+            for (int i = 0;i< arr.size();i++){//每组多少人
+                participates = creatGroupsByString(arr.get(i),participates,activityID,0,arr.get(i),i);
+            }
+        }else {//全是分数
+            List<Double> point = new ArrayList<>();
+            List<double []> point_participant = new ArrayList<>();
+            List<Double> points = switchTypeOfScore();//转换数据类型
+//            for(Infos info : infosList){
+//                double [] temp = new double[3];
+//                point.add(Double.valueOf(info.getContent()));
+//                temp[0] = Double.valueOf(info.getContent());
+//                temp[1] = Double.valueOf(info.getParticipantID());
+//                temp[2] = Double.valueOf(-1);
+//                point_participant.add(temp);
+//            }
+            for(int nn = 0;nn<167;nn++){
+                double [] temp = new double[3];
+                temp[0] = Double.valueOf(points.get(nn));
+                temp[1] = Double.valueOf(nn);
+                temp[2] = Double.valueOf(-1);
+                point_participant.add(temp);
+            }
+            //得到交换后的groups
+            List<List<double []>>res = createGroupsByScore(arr,exchangeNums,groupsNums,points,point_participant);
+        }
+    }
+    //正则判断是否含有字符串
+    public static boolean isDouble(String s) {
+        Pattern pattern = Pattern.compile("[+-]?\\d+(.\\d+)?");
+        return pattern.matcher(s).matches();
+    }
+    //不是数字的分组
+    public List<Participates> creatGroupsByString(Integer nums,List<Participates> participates,Integer activityID,Integer expertCount,Integer participantCount,Integer idx){
         //插入一组的数据
         String name = "第" + Integer.toString(idx + 1) + "组";
         Groups gp = new Groups();

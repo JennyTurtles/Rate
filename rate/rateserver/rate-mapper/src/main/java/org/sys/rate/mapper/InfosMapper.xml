@@ -100,6 +100,14 @@
         from infos
         where infos.activityID = #{activityID} and infos.infoItemID = #{infoItemID}
     </select>
+    <select id="getInfoitemsListByParAndAcID" resultMap="BaseResultMap">
+        select *
+        from infos
+        where infos.activityID = #{activityID} and infos.infoItemID = #{infoItemID} and infos.participantID in
+        <foreach collection="participantID" close=")" open="(" separator="," item="ID">
+            #{ID}
+        </foreach>
+    </select>
 
 
 </mapper>

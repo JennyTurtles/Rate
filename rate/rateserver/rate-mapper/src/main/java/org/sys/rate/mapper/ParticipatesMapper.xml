@@ -150,7 +150,24 @@
             limit #{page},#{size}
         </if>
     </select>
-
+    <select id="getParticipantsPageByACIDNoGroup" resultMap="BaseResultMap">
+        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID
+        from participants e,student s
+        where e.studentID =s.ID and e.activityID=#{activitiesID} and ISNULL(e.groupID)
+        order by e.groupID,e.displaySequence
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
+    <select id="getParticipantsPageByACIDHaveGroup" resultMap="BaseResultMap">
+        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID
+        from participants e,student s
+        where e.studentID =s.ID and e.activityID=#{activitiesID} and e.groupID is not null
+        order by e.groupID,e.displaySequence
+        <if test="page !=null and size!=null">
+            limit #{page},#{size}
+        </if>
+    </select>
     <select id="getLongParticipantsByPage" resultMap="BaseResultMap">
         select s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence from participants e,student s where e.studentID =s.ID and e.groupID=#{groupID} order by e.displaySequence
         <if test="page !=null and size!=null">
@@ -177,6 +194,14 @@
     </select>
     <select id="getTotalByACID" resultType="java.lang.Long">
         select count(*) from participants e,student s where e.studentID =s.ID and e.activityID=#{activitiesID}
+    </select>
+    <select id="getTotalByACIDNogroup" resultType="java.lang.Long">
+        select count(*) from participants e,student s
+        where e.studentID =s.ID and e.activityID=#{activitiesID} and ISNULL(e.groupID)
+    </select>
+    <select id="getTotalByACIDHaveGroup" resultType="java.lang.Long">
+    select count(*) from participants e,student s
+    where e.studentID =s.ID and e.activityID=#{activitiesID} and e.groupID is not null
     </select>
 
     <select id="getActivitiesByPageAndCompany" resultMap="BaseResultMap">
@@ -421,9 +446,8 @@
         UPDATE activities set groupCount = 0
         where activities.ID=#{activityID}
     </update>
-    <delete id="deleteGroups">
-        delete from groups
-        where activityID = #{activityID}
+    <delete id="deleteGroups" parameterType="Integer">
+        delete from `groups` where activityID = #{activityID}
     </delete>
     <update id="updateGroupID">
         UPDATE participants set groupID = #{groupID}

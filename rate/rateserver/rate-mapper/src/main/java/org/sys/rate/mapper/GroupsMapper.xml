@@ -80,7 +80,7 @@
     </insert>
 
     <insert id="insertMultipleGroups" useGeneratedKeys="true" keyProperty="ID" parameterType="org.sys.rate.model.Groups">
-        insert into groups (activityID, name, expertCount, participantCount) values
+        insert into `groups` (activityID, name, expertCount, participantCount) values
         (#{activityID}, #{name,jdbcType=VARCHAR},
         #{expertCount,jdbcType=INTEGER}, #{participantCount,jdbcType=INTEGER});
     </insert>
@@ -127,6 +127,6 @@
         </if>
     </select>
     <select id="isGroupsExit" resultType="Integer">
-        select COUNT(*) from groups where activityID = #{activityID}
+        select COUNT(*) from `groups` where activityID = #{activityID}
     </select>
 </mapper>
