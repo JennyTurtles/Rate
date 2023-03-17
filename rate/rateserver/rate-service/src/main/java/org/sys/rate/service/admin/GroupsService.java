@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.GroupsMapper;
 import org.sys.rate.mapper.InfosMapper;
+import org.sys.rate.mapper.ParticipatesMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.utils.createGroups;
 
@@ -20,6 +21,8 @@ import java.util.stream.Collectors;
 public class GroupsService {
     @Autowired
     GroupsMapper groupsMapper;
+    @Autowired
+    ParticipatesMapper participatesMapper;
     @Autowired
     InfosService infosService;
     @Autowired
@@ -168,6 +171,11 @@ public class GroupsService {
         //没有子信息项
         if(infoContent.size() == 0){
             infosList = infosMapper.getParticipantIDtByAIdAndInfoItemID(activityID,infoItemID);
+            List<Integer> participantID = new ArrayList<>();
+            for(int i = 0;i<infosList.size();i++){
+                participantID.add(infosList.get(i).getParticipantID());
+            }
+            participates = participatesMapper.getParticipantByAIdAndID(activityID,participantID);
         }else {
             participates = infosService.getPartipicantByActivityId(activityID,infoItemID,infoContent);
             List<Integer> participantID = new ArrayList<>();
@@ -178,11 +186,15 @@ public class GroupsService {
             infosList = infosMapper.getInfoitemsListByParAndAcID(activityID,participantID,infoItemID);
         }
         boolean flage = true;
-        for(Infos info : infosList){
-            if(!isDouble(info.getContent())){//如果有一个不是double数字，就break
-                flage = false;
-                break;
+        try {
+            for(Infos info : infosList){
+                if(!isDouble(info.getContent())){//如果有一个不是double数字，就break
+                    flage = false;
+                    break;
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         if(!flage){//字符串，不是全分数
             for (int i = 0;i< arr.size();i++){//每组多少人
@@ -209,6 +221,27 @@ public class GroupsService {
             }
             //得到交换后的groups
             List<List<double []>>res = createGroupsByScore(arr,exchangeNums,groupsNums,points,point_participant);
+            String name = "";
+            //对每组遍历
+            try {
+                for(int residx = 0;residx < res.size();residx ++){
+                    name = "第" + Integer.toString(residx + 1) + "组";
+                    Groups gp = new Groups();
+                    gp.setActivityID(activityID);
+                    gp.setName(name);
+                    gp.setParticipantCount(res.get(residx).size());
+                    gp.setExpertCount(0);
+                    groupsMapper.insertMultipleGroups(gp);
+                    groupsMapper.updateGroupCount(activityID);
+                    List<Integer> parID = new ArrayList<>();//给定分组的选手id列表
+                    for(int item = 0;item < res.get(residx).size(); item ++){
+                        parID.add((int) res.get(residx).get(item)[1]);
+                    }
+                    participatesService.updateGroupID(activityID,gp.getID(),parID);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
     //正则判断是否含有字符串

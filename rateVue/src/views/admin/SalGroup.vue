@@ -239,9 +239,11 @@
 
           <div id="tableOfGroupNums"
                class="inputOfGroupsBox"
-               v-show="(((selectedGroupInfo != '' && selectedSubGroupInfo.length > 0) ||
-                        (groupSubOfSelectedInfos.length == 1 && selectedGroupInfo != '')) &&
-                        filterNoGroupPar.length >= selectedGroupNums && selectedGroupNums > 0) ? true:false"
+               v-show="(selectedGroupInfo != ''
+               // && selectedSubGroupInfo.length > 0 && groupSubOfSelectedInfos.length > 1) ||
+               //          (groupSubOfSelectedInfos.length == 1 && selectedGroupInfo != ''))
+                        // &&filterNoGroupPar.length >= selectedGroupNums
+                        && selectedGroupNums > 0) ? true:false"
                >
             <span v-for="item in groupNumsInput" style="margin: auto;width: 100%;padding-bottom: 2px">
               第{{item.idx + 1}}组：
@@ -520,8 +522,10 @@ export default {
     selectedGroupNums:{//监听用户选择了分为几组
       handler(val){
         //信息项和子信息项都被选择，或者信息项被选择并且没有子信息项
-        if((this.selectedGroupInfo != '' && this.selectedSubGroupInfo.length > 0) ||
-            (this.groupSubOfSelectedInfos.length == 1 && this.selectedGroupInfo != '')){
+        if((this.selectedGroupInfo != ''
+            //     && this.selectedSubGroupInfo.length > 0) ||
+            // (this.groupSubOfSelectedInfos.length == 1 && this.selectedGroupInfo != ''
+            )){
               this.groupNumsInput = []
               for(var i = 0;i < val;i ++){
                 this.groupNumsInput.push({
@@ -558,15 +562,17 @@ export default {
       handler(val){
         //信息项和信息项的子选项都被选择了或者没有子信息项
         if(val != '') {
-          if (JSON.stringify(this.groupInfoNums[val]) == '{}' || this.selectedSubGroupInfo.length > 0) {
-            this.filterNoGroupParticipants()
-          } else if (JSON.stringify(this.groupInfoNums[val]) != '{}' && this.selectedSubGroupInfo.length == 0) {
+          // if (JSON.stringify(this.groupInfoNums[val]) == '{}' || this.selectedSubGroupInfo.length > 0) {
+          //   this.filterNoGroupParticipants()
+          // } else if (JSON.stringify(this.groupInfoNums[val]) != '{}' && this.selectedSubGroupInfo.length == 0) {
             //该信息项下的所有子信息项
             if (JSON.stringify(this.groupInfoNums) != '{}' && JSON.stringify(this.groupInfoNums[val]) != '{}') {
               this.groupSubOfSelectedInfos = Object.keys(this.groupInfoNums[val])
+              this.filterNoGroupParticipants()
             }
-          }
         }
+          // }
+        // }
       }
     },
     selectedSubGroupInfo:{//第二个下拉框的变化 信息项的子信息项
@@ -656,19 +662,22 @@ export default {
     filterNoGroupParticipants(){//信息项已经选择
       //通过2个id找infos的选手id， 通过活动id，选手id找没有分组的选手，返回信息
       //有子信息项但是没有选择或者没选信息项就返回
-      if( (this.selectedSubGroupInfo.length == 0 &&
-              this.selectedGroupInfo != '' &&
-              JSON.stringify(this.groupInfoNums[this.selectedGroupInfo]) != '{}') ||
-          this.selectedGroupInfo == '' ){
+      if(this.selectedGroupInfo == '' ){
         return
       }
+      //有子信息项但是没选择
+      // if((this.selectedSubGroupInfo.length == 0 &&
+      //     this.selectedGroupInfo != '' &&
+      //     JSON.stringify(this.groupInfoNums[this.selectedGroupInfo]) != '{}')){
+      //
+      // }
       var data = {
         'activityID':[this.keywords.toString()],
       }
-      if(this.selectedSubGroupInfo.length > 0){//判断有没有选择信息项
+      // if(this.selectedSubGroupInfo.length > 0){//判断有没有选择信息项
         data['infoItemID'] = [this.groupInfoNums[this.selectedGroupInfo].infoItemID]
         data['infoContent']= this.selectedSubGroupInfo
-      }
+      // }
       var url = '/info/basic/getPartipicantIDByInfos'
       this.postRequest(url,data).then((res)=>{
         if(res){
@@ -686,12 +695,6 @@ export default {
     groupsForParticipant(){//选手分组,点击按钮对话框弹出 //获得该活动下的所有Infoitem，其中包括content
       var flag = false//判断当前的选手列表中是否已经分过组
       if(this.emps != null && this.emps.length != 0){
-        // for(var item of this.emps){
-        //   if(item.groupID != null && item.groupID != 0){
-        //     flag = true
-        //     break;
-        //   }
-        // }
       }else {
         this.$message.warning('请先导入选手！')
         return
@@ -715,23 +718,6 @@ export default {
               }
               this.groupInfoNums[infoItems[i].name][infoItems[i].content].push(infoItems[i])
             }
-            var flage = 0
-            var reg = /^[0-9]+.?[0-9]*$/
-            for (var item in this.groupInfoNums){
-              flage = 0
-              for (var key in this.groupInfoNums[item]){
-                if(key == 'infoItemID'){
-                  continue
-                }
-                if(!reg.test(key)){//包含不是数字的
-                  flage = 1
-                }
-              }
-              if(!flage){
-                this.groupInfoNums[item] = {'infoItemID':this.groupInfoNums[item]['infoItemID']}
-              }
-            }
-
             //将infoItem和scoreItem放在一起作为排序依据
             for(var i of Object.keys(this.groupInfoNums)){
               this.sortByList.push({
@@ -754,9 +740,6 @@ export default {
             this.dialogPartipicantGroups = true
           }
         })
-      // }else {
-      //   this.$message.warning('请先删除分组！')
-      // }
     },
     testcreatGroup(){//创建分组//传递activityID和选手id，分为几组和每组人数
       var url = '/groups/basic/createGroups'

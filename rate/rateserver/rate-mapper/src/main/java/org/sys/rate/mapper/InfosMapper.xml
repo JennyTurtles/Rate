@@ -98,7 +98,7 @@
     <select id="getParticipantIDtByAIdAndInfoItemID" resultMap="BaseResultMap">
         select *
         from infos
-        where infos.activityID = #{activityID} and infos.infoItemID = #{infoItemID}
+        where activityID = #{activityID} and infoItemID = #{infoItemID}
     </select>
     <select id="getInfoitemsListByParAndAcID" resultMap="BaseResultMap">
         select *
