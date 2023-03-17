@@ -46,4 +46,6 @@ public interface InfosMapper {
     Integer selectStudent(Integer studentID,Integer activityID);
     String selectInfosContent(Integer activityID,Integer participantID,Integer infoItemID);
     List<Infos> getParticipantIDtByAIdAndInfoItemID(Integer activityID,Integer infoItemID);
+    List<Infos> getInfoitemsListByParAndAcID(Integer activityID,List<Integer> participantID,Integer infoItemID);
+
 }

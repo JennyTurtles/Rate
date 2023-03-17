@@ -5,40 +5,22 @@ import java.util.Collections;
 import java.util.List;
 
 public class createGroups {
-    public static List<List<Double>> groups = new ArrayList<List<Double>>();
-//    public static Integer studentNums = 167;
+    public static List<List<double []>> groups = new ArrayList<List<double []>>();
     public static double avg;
     public static double[][] meanValueOfGroups;
 
-    public static void devideGroups(ArrayList<ArrayList<Integer>> groups, ArrayList<Integer> point, int studentNums, int groupsNums) {
-        int index = 0;
-        for (int i = 0; i < groupsNums; i++) {
-            groups.add(new ArrayList<>());
-        }
-        for (int i = 0; i < studentNums / 2; i++) {
-            groups.get(index).add(point.get(i));
-            groups.get(index).add(point.get(point.size() - 1 - i));
-            if (index == groupsNums - 1) {
-                Collections.reverse(groups);
-            }
-            index = (index + 1) % groupsNums;
-        }
-        if (studentNums % 2 == 1) {
-            groups.get(index).add(point.get(studentNums / 2));
-        }
-        Collections.reverse(groups);
-    }
-
     public static int allGroupsNums() {
         int sum = 0;
-        for (List<Double> item : groups) {
+        for (List<double []> item : groups) {
             sum += item.size();
         }
         return sum;
     }
 
-    List<List<Double>> temparr = new ArrayList<List<Double>>();
-    public List<List<Double>> devideGroupsFixedNums(List<Integer> arr,List<Double> point,Integer exChangeNums,Integer groupsNums,Integer studentNums) {
+    List<List<double []>> temparr = new ArrayList<List<double []>>();
+    public List<List<double []>> devideGroupsFixedNums(List<Integer> arr,List<Double> point,
+                                                       Integer exChangeNums,Integer groupsNums,
+                                                       Integer studentNums,List<double []> point_participant) {
         for (int i = 0; i < groupsNums; i++) {
             temparr.add(new ArrayList<>());
         }
@@ -48,15 +30,15 @@ public class createGroups {
         while (allGroupsNums() < studentNums) {
             if (temparr.get(index).size() < arr.get(index)) {
                 if(flag){
-                    temparr.get(index).add(point.get(point.size() - 1 - i + 1));
+                    temparr.get(index).add(point_participant.get(point_participant.size() - 1 - i + 1));
                 }
                 if (temparr.get(index).size() < arr.get(index)){
-                    temparr.get(index).add(point.get(i));
+                    temparr.get(index).add(point_participant.get(i));
                 }
                 if (temparr.get(index).size() < arr.get(index)) {
                     flag = false;
                     if (i < point.size() - 1 - i) {
-                        temparr.get(index).add(point.get(point.size() - 1 - i));
+                        temparr.get(index).add(point_participant.get(point_participant.size() - 1 - i));
                     }
                 }
                 else {
@@ -65,6 +47,9 @@ public class createGroups {
             }
             else {
                 groups.add(temparr.get(index));
+                for(int lll = 0;lll < groups.get(groups.size()-1).size();lll++){
+                    groups.get(groups.size()-1).get(lll)[2] = groups.size() -1;
+                }
                 temparr.remove(index);
                 arr.remove(index);
                 index--;
@@ -88,31 +73,36 @@ public class createGroups {
         List<double[]> meanValueOfGroups = new ArrayList<>();
         for (int i = 0; i < groupsNums; i++) {
             double[] temp = new double[4];
-            temp[0] = (double)(groups.get(i).stream().reduce(Double::sum).orElse((double) 0)) / groups.get(i).size() - avg;
-            temp[1] = groups.get(i).size();
-            temp[2] = i;
-            temp[3] = (double)(groups.get(i).stream().reduce(Double::sum).orElse((double) 0)) / groups.get(i).size();
+            double sum = 0;
+            for (int k = 0; k < groups.get(i).size(); k++){
+                sum += groups.get(i).get(k)[0];
+            }
+            temp[0] = sum / groups.get(i).size() - avg;//距离理想均值的差距
+            temp[1] = groups.get(i).size();//每组长度
+            temp[2] = i;//每组下标
+            temp[3] = sum / groups.get(i).size();//每组均值
             meanValueOfGroups.add(temp);
         }
         Collections.sort(meanValueOfGroups, (a, b) -> Double.compare(b[0], a[0]));
         return meanValueOfGroups;
     }
 
-    public static ArrayList<double[]> calD_ValueBetweenGroups(List<Double> arr1, List<Double> arr2) {
+    public static ArrayList<double[]> calD_ValueBetweenGroups(List<double[]> arr1, List<double[]> arr2) {
         List<double[]> D_ValueBetweenGroups = new ArrayList<>();
         for (int j = 0; j < arr1.size(); j++) {
             for (int k = 0; k < arr2.size(); k++) {
-                D_ValueBetweenGroups.add(new double[]{arr1.get(j) - arr2.get(k), j, k});
+                D_ValueBetweenGroups.add(new double[]{arr1.get(j)[0] - arr2.get(k)[0], j, k});
             }
         }
         Collections.sort(D_ValueBetweenGroups, (a, b) -> Double.compare(b[0], a[0]));
         return (ArrayList<double[]>) D_ValueBetweenGroups;
     }
 
-    public static void exChange(List<Double> arr1, List<Double> arr2, int idx1, int idx2) {
-        Double temp = arr1.get(idx1);
+    public static void exChange(List<double[]> arr1, List<double[]> arr2, int idx1, int idx2) {
+        double[] temp = arr1.get(idx1);
         arr1.set(idx1, arr2.get(idx2));
         arr2.set(idx2,temp);
+        System.out.println("交换数字为：" + arr1.get(idx1)[0] + "and" + arr2.get(idx2)[0]);
     }
 
     public static double sqrtMean(int groupsNums, double[][] meanValueOfGroups, double avg) {
@@ -134,7 +124,8 @@ public class createGroups {
         }
     }
 
-    public void createG(List<Double> point,Integer exChangeNums,Integer groupsNums,Integer studentNums){
+    public List<List<double []>> createG(List<Double> point,Integer exChangeNums,Integer groupsNums,Integer studentNums){
+        double standMean = 0;
         int i = 0;
         for (double items : point) {
             avg += items;
@@ -145,9 +136,15 @@ public class createGroups {
         meanValueOfGroups = mean(groupsNums).toArray(new double[0][]);
         System.out.println("初始每组均值离理想均值差距meanValueOfGroups:");
         printMeanValueOfGroups(meanValueOfGroups);
+        System.out.println("标准差：");
+        standMean = sqrtMean(groupsNums,meanValueOfGroups,avg);
+        System.out.println(standMean);
+        if(standMean == 0){
+            return groups;
+        }
         for(int nums = 0; nums < exChangeNums; nums++){
-            List<Double> arr1 = groups.get((int) meanValueOfGroups[i][2]);
-            List<Double> arr2 = groups.get((int) meanValueOfGroups[groupsNums - i - 1][2]);
+            List<double[]> arr1 = groups.get((int) meanValueOfGroups[i][2]);
+            List<double[]> arr2 = groups.get((int) meanValueOfGroups[groupsNums - i - 1][2]);
             ArrayList<double[]> D_ValueBetweenGroups = calD_ValueBetweenGroups(arr1, arr2);
             for(int k = 0; k < D_ValueBetweenGroups.size(); k++){//先找一遍有没有相等的
                 if(D_ValueBetweenGroups.get(k)[0] == Math.abs(meanValueOfGroups[i][0] * meanValueOfGroups[i][1])){//能找到正好相差xx分的
@@ -185,41 +182,13 @@ public class createGroups {
             meanValueOfGroups = mean(groupsNums).toArray(new double[0][]);
             System.out.println("每组均值离理想均值差距meanValueOfGroups:");
             printMeanValueOfGroups(meanValueOfGroups);
-            double standMean = sqrtMean(groupsNums,meanValueOfGroups,avg);
+            standMean = sqrtMean(groupsNums,meanValueOfGroups,avg);
             System.out.println("标准差：");
             System.out.println(standMean);
             if(standMean == 0){
                 break;
             }
         }
-        System.out.println(groups);
+        return groups;
     }
 }
-
-
-
-
-
-
-//    public static void main(String[] args) {
-//        int[] point = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-//        ArrayList<ArrayList<Integer>> groups = new ArrayList<>();
-//        int studentNums = 11;
-//        int groupsNums = 3;
-//        ArrayList<int[]> meanValueOfGroups = new ArrayList<>(); //记录每组均值距离理想均值差值，每组长度，下标
-//        int exChangeCount = 0;
-//        ArrayList<Integer> D_ValueBetweenGroups = new ArrayList<>(); //差值数组
-//        double avg = 0.0;
-//        for (int i : point) {
-//            avg += i;
-//        }
-//        avg /= studentNums; //理想均值
-//        ArrayList<Integer> pointList = new ArrayList<>();
-//        for (int i : point) {
-//            pointList.add(i);
-//        }
-//        Collections.sort(pointList, Collections.reverseOrder());
-//
-//        devideGroups(groups, pointList, studentNums, groupsNums);
-//    }
-//}

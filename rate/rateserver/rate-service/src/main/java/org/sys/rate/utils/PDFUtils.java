@@ -171,7 +171,7 @@ public class PDFUtils {
         table.setSpacingAfter(10f);
         // 设置表格默认为无边框
 //        table.getDefaultCell().setBorder(1);
-        table.setPaddingTop(50);
+//        table.setPaddingTop(50);
         table.setHorizontalAlignment(Element.ALIGN_CENTER);
 
 //        table.setSplitLate(false);

@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 表名 -->
-    <div class="content">
+    <div class="content" v-if="datalist != ''">
       <div class="leftTitle">
         <el-form>
           <el-row>
@@ -123,9 +123,10 @@
           align="center"
         >
           <template slot-scope="scope">
-            <span v-if="((v.contentType.indexOf('pdf') >= 0 || v.contentType.indexOf('zip') >= 0
+            <span
+                v-if="((v.contentType.indexOf('pdf') >= 0 || v.contentType.indexOf('zip') >= 0
                             || v.contentType.indexOf('jpg') >= 0))">{{scope.row["info" + v.name] | fileNameFilter}}</span>
-            <span v-else>{{ scope.row["info" + v.name] }}</span>
+            <span v-else v-html="scope.row['info' + v.name]"></span>
           </template>
         </el-table-column>
         <el-table-column
@@ -315,45 +316,48 @@ export default {
     };
   },
   created() {
+
     this.dataRefreh();
+    this.initPage();
   },
   computed: {
-    list() {
-      if (sessionStorage.getItem("peract")) {
-        let list = JSON.parse(sessionStorage.getItem("peract"));
-        return list;
-      } else {
-        return this.$store.state.peract;
-      }
-    },
+    // list() {
+    //   if (sessionStorage.getItem("peract")) {
+    //     let list = JSON.parse(sessionStorage.getItem("peract"));
+    //     return list;
+    //   } else {
+    //     return this.$store.state.peract;
+    //   }
+    // },
     datal() {
       return this.$store.state.score;
     },
   },
 
   mounted() {
-    this.$nextTick(() => {
-      this.windowScreenHeight = window.innerHeight - 210;
-    });
-    this.user = JSON.parse(localStorage.getItem("teacher"));
 
-    this.initdata();
-    if (sessionStorage.getItem("score")) {
-      let initscore = JSON.parse(sessionStorage.getItem("score"));
-      this.datalist = initscore;
-    } else {
-      this.fullscreenLoading = true;
-      this.initAct();
-      setTimeout(() => {
-        this.datalist = this.datal;
-        this.initState();
-        sessionStorage.setItem("score", JSON.stringify(this.datalist));
-        if (!this.datalist.finished) {
-          this.reload();
-        }
-        this.fullscreenLoading = false;
-      }, 700);
-    }
+    // this.$nextTick(() => {
+    //   this.windowScreenHeight = window.innerHeight - 210;
+    // });
+    // this.user = JSON.parse(localStorage.getItem("teacher"));
+    //
+    // this.initdata();
+    // if (sessionStorage.getItem("score")) {
+    //   let initscore = JSON.parse(sessionStorage.getItem("score"));
+    //   this.datalist = initscore;
+    // } else {
+    //   this.fullscreenLoading = true;
+    //   this.initAct();
+    //   setTimeout(() => {
+    //     this.datalist = this.datal;
+    //     this.initState();
+    //     sessionStorage.setItem("score", JSON.stringify(this.datalist));
+    //     if (!this.datalist.finished) {
+    //       this.reload();
+    //     }
+    //     this.fullscreenLoading = false;
+    //   }, 700);
+    // }
   },
   filters:{
     fileNameFilter:function(data){//将上传的材料显示出来
@@ -366,6 +370,32 @@ export default {
     }
   },
   methods: {
+    async initPage(){
+      this.user = JSON.parse(localStorage.getItem("teacher"));
+      this.$store.dispatch('initsize',this.user.id).then(()=>{
+        this.list = JSON.parse(sessionStorage.getItem("peract"));
+        this.initdata();
+        this.$nextTick(() => {
+          this.windowScreenHeight = window.innerHeight - 210;
+        });
+        if (sessionStorage.getItem("score")) {
+          let initscore = JSON.parse(sessionStorage.getItem("score"));
+          this.datalist = initscore;
+        } else {
+          this.fullscreenLoading = true;
+          this.initAct();
+          setTimeout(() => {
+            this.datalist = this.datal;
+            this.initState();
+            sessionStorage.setItem("score", JSON.stringify(this.datalist));
+            // if (!this.datalist.finished) {
+              this.reload();
+            // }
+            this.fullscreenLoading = false;
+          }, 700);
+        }
+      })
+    },
     downloadInfoItems(data){//下载证明材料
       const fileName = data.content.split('/').reverse()[0]
       axios({
@@ -436,6 +466,7 @@ export default {
             "&groupId=" +
             this.Adata.AgroupId;
           this.loading = false;
+          // console.log(url)
           window.open(url);
         } else {
           // setRowspan(1);
@@ -514,12 +545,6 @@ export default {
       let e = this.datalist.scoresListByExpert.length;
       let q = this.datalist.infoItems.length;
       let w = this.datalist.infosList.length;
-      if (this.datalist.finished == true) {
-        this.$alert("该活动已提交评分!", {
-          type: "warning",
-          center: true,
-        });
-      }
       for (var i = 0; i < n; i++) {
         this.datalist.participatesList[i]["showSave"] = false;
         this.datalist.participatesList[i]["sum"] = 0;
@@ -527,34 +552,34 @@ export default {
         for (var j = 0; j < m; j++) {
           for (var k = 0; k < p; k++) {
             if (
-              (this.datalist.scoreitems[j]["id"] ==
-                this.datalist.scoresListNoExpert[k]["scoreItemID"]) &
-              (this.datalist.participatesList[i]["id"] ==
-                this.datalist.scoresListNoExpert[k]["participantID"]) &
-              (this.datalist.scoreitems[j]["byexpert"] == true)
+                (this.datalist.scoreitems[j]["id"] ==
+                    this.datalist.scoresListNoExpert[k]["scoreItemID"]) &
+                (this.datalist.participatesList[i]["id"] ==
+                    this.datalist.scoresListNoExpert[k]["participantID"]) &
+                (this.datalist.scoreitems[j]["byexpert"] == true)
             ) {
               this.datalist.participatesList[i]["score" + j] =
-                this.datalist.scoresListNoExpert[k]["score"];
+                  this.datalist.scoresListNoExpert[k]["score"];
             }
           }
           for (var l = 0; l < e; l++) {
             if (
-              (this.datalist.scoreitems[j]["id"] ==
-                this.datalist.scoresListByExpert[l]["scoreItemID"]) &
-              (this.datalist.participatesList[i]["id"] ==
-                this.datalist.scoresListByExpert[l]["participantID"])
+                (this.datalist.scoreitems[j]["id"] ==
+                    this.datalist.scoresListByExpert[l]["scoreItemID"]) &
+                (this.datalist.participatesList[i]["id"] ==
+                    this.datalist.scoresListByExpert[l]["participantID"])
             ) {
               if (j == m - 1) {
                 this.$set(
-                  this.datalist.participatesList[i],
-                  "sum",
-                  this.datalist.scoresListByExpert[l]["score"] - "0"
+                    this.datalist.participatesList[i],
+                    "sum",
+                    this.datalist.scoresListByExpert[l]["score"] - "0"
                 );
               } else {
                 this.$set(
-                  this.datalist.participatesList[i],
-                  "score" + j,
-                  this.datalist.scoresListByExpert[l]["score"]
+                    this.datalist.participatesList[i],
+                    "score" + j,
+                    this.datalist.scoresListByExpert[l]["score"]
                 );
               }
             }
@@ -564,34 +589,41 @@ export default {
           for (var l = 0; l < m; l++) {
             if (this.datalist.participatesList[i]["score" + l]) {
               sum +=
-                (this.datalist.participatesList[i]["score" + l] - "0") *
-                this.datalist.scoreitems[l].coef;
+                  (this.datalist.participatesList[i]["score" + l] - "0") *
+                  this.datalist.scoreitems[l].coef;
             }
           }
           this.$set(this.datalist.participatesList[i], "sum", sum);
         }
         for (var s = 0; s < w; s++) {
           if (
-            this.datalist.participatesList[i]["id"] ==
-            this.datalist.infosList[s]["participantID"]
+              this.datalist.participatesList[i]["id"] ==
+              this.datalist.infosList[s]["participantID"]
           ) {
             for (var d = 0; d < q; d++) {
               if (
-                this.datalist.infosList[s]["infoItemID"] ==
-                this.datalist.infoItems[d]["id"]
+                  this.datalist.infosList[s]["infoItemID"] ==
+                  this.datalist.infoItems[d]["id"]
               ) {
                 var name = this.datalist.infoItems[d]["name"];
                 if (this.datalist.infoItems[d]["display"] == true) {
                   this.$set(
-                    this.datalist.participatesList[i],
-                    "info" + name,
-                    this.datalist.infosList[s]["content"].replace(/<br>/g,"\n").replace(/' '/g,"\s")
+                      this.datalist.participatesList[i],
+                      "info" + name,
+                      this.datalist.infosList[s]["content"].replace(/<br>/g,"\n").replace(/' '/g,"\s")
+                          // .replace(/<br\s*\/?>/g,' ')
                   );
                 }
               }
             }
           }
         }
+      }
+      if (this.datalist.finished == true) {
+        this.$alert("该活动已提交评分!", {
+          type: "warning",
+          center: true,
+        })
       }
     },
     onInputConfirm(row, index) {

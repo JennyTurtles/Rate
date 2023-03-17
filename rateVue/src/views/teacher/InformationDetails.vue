@@ -29,7 +29,7 @@
                     onmouseleave="this.style.color = 'gray'">
                     {{val.content | fileNameFilter}}</a>
             </span>
-              <el-input type="textarea" :row="3" v-else class="textarea_" v-model="val.content" :disabled="true"></el-input>
+              <div v-else class="textarea_">{{val.content}}</div>
             </template>
             <template v-else>
               <span>{{ val.content }}</span>
@@ -127,8 +127,19 @@ export default {
 </script>
 
 <style scoped>
+*{
+  margin: 0;
+  padding: 0;
+}
 .textarea_{
   width: 450px;
+  /*height: 50px;*/
+  line-height: 20px;
+  overflow: scroll;
+  white-space: pre-wrap;
+  max-height: 90px;
+  border: 0.5px solid #333333;
+  border-radius: 3px;
 }
 .Information_title{
   width: 100%;
@@ -143,5 +154,19 @@ export default {
   margin: auto;
   margin-top: 20px;
   border-radius: 5px;
+}
+div::-webkit-scrollbar {
+  /* 隐藏默认的滚动条 */
+  -webkit-appearance: none;
+}
+div::-webkit-scrollbar:vertical {
+  /* 设置垂直滚动条宽度 */
+  width: 6px;
+}
+div::-webkit-scrollbar-thumb {
+  /* 滚动条的其他样式定制，注意，这个一定也要定制，否则就是一个透明的滚动条 */
+  border-radius: 6px;
+  border: 3px solid rgba(255,255,255,.4);
+  background-color: rgba(0, 0, 0, .5);
 }
 </style>

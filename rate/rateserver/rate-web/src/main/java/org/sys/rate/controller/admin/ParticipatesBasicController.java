@@ -55,6 +55,17 @@ public class ParticipatesBasicController {
 
         return res;
     }
+    @GetMapping("/filterByState")
+    public RespPageBean getActivitiesByPage(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, @RequestParam String groupState, @RequestParam Integer activitiesID, Participates employee) {
+        RespPageBean res;
+        if(groupState.equals("未分组"))
+        {
+            res = participatesService.getParticipantsPageByACIDNoGroup(page, size,activitiesID, employee);
+        }else{//已分组
+            res = participatesService.getParticipantsPageByACIDHaveGroup(page, size,activitiesID, employee);
+        }
+        return res;
+    }
 
     /*@PostMapping("/insert")
     public RespBean addParticipates(@RequestBody Participates employee) {

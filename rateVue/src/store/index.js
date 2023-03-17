@@ -119,12 +119,9 @@ const store = new Vuex.Store({
                     if (resp) {
                         resp = resp.extend;
                         if (sessionStorage.getItem('peract')) {
-                            console.log('存在peract')
                         } else {
                             context.commit('INIT_PERACT', resp)
                         }
-                        console.log('initsize')
-
                         resolve(resp)
                     }
                 })
@@ -132,10 +129,9 @@ const store = new Vuex.Store({
             return promise
         },
         initAct(context, AI) {
-            console.log(AI)
             var Aid = AI.Aid
             var promise = new Promise((resolve, reject) => {
-                getRequest("/system/Experts/score?activitiesID=" + 26 + '&expertID=' + 1043 + '&groupId=' + 26).then(value => {
+                getRequest("/system/Experts/score?activitiesID=" + Aid + '&expertID=' + AI.Auserid + '&groupId=' + AI.AgroupId).then(value => {
                 if (value) {
                     value = value.extend
                     let n = value.participatesList.length;
