@@ -121,7 +121,7 @@
         RIGHT JOIN `groups` as g
         on P.groupID=g.ID
         where g.activityID=#{keywords}
-        group by P.activityID,P.groupID
+        group by g.activityID,g.ID,g.`name`
         <if test="page !=null and size!=null">
             limit #{page},#{size}
         </if>

@@ -423,9 +423,6 @@ public class ExpertService implements UserDetailsService {
 	}
 
 	public RespPageBean  getExpertGroupScore(Integer page,Integer size,Integer groupID,Integer activityID) {
-		if (page != null && size != null) {
-			page = (page - 1) * size;
-		}
 		HashPEexport hashPEexport=new HashPEexport();
 		HashMap<Integer, String> Gmap = new LinkedHashMap<>();
 		HashMap<Integer, String> Emap = new LinkedHashMap<>();
