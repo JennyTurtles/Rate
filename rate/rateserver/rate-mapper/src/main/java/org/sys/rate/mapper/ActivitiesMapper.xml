@@ -100,7 +100,7 @@
         values  (#{name,jdbcType=VARCHAR}, #{startDate,jdbcType=DATE}, #{scoreItemCount,jdbcType=INTEGER},
                 #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER});
         insert into scoreitem (activityID,name,score,coef,byExpert)
-        values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'活动总分',100,1,true)
+        values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'活动得分',100,1,true)
     </insert>
 
     <update id="insert_update" parameterType="org.sys.rate.model.Activities">

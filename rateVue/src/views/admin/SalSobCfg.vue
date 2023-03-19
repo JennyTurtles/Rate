@@ -156,18 +156,26 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="byParticipant"
-            label="设置为秘书"
+            prop="role"
+            label="角色设置"
             align="center"
-            min-width="2%"
+            min-width="3%"
         >
           <template slot-scope="scope">
-            <el-checkbox
-                :true-label="1"
-                :false-label="0"
-                v-model.trim="scope.row.isSecretary"
-                @change="UpdateCheckbox(scope.row)"
-            ></el-checkbox>
+            <el-select v-model="scope.row.role"
+                       placeholder="请选择"
+                       v-focus
+                       @focus="beforehandleEdit(scope.$index,scope.row,'role')"
+                       @change="changeRole(scope.$index,scope.row)"
+                       @blur="inputBlur"
+                       >
+              <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+              </el-option>
+            </el-select>
           </template>
         </el-table-column>
         <el-table-column
@@ -376,6 +384,7 @@ export default {
     return {
       //当前焦点数据
       currentfocusdata: "",
+      currentrole:"",
       searchValue: {
         compnayName: null,
       },
@@ -399,6 +408,17 @@ export default {
       dialogVisible_edit: false,
       selectedRoles: [],
       allroles: [],
+      options: [{
+        value: '专家',
+        label: '专家'
+      }, {
+        value: '秘书',
+        label: '秘书'
+      }, {
+        value: '组长',
+        label: '组长'
+      }],
+      value: '',
       hr_info: {
         id: null,
         compnayName: null,
@@ -524,7 +544,7 @@ export default {
         if (resp) {
           this.hrs = resp;
           this.total = resp.length;
-          //console.log(this.hrs);
+         // console.log(this.hrs);
         }
       });
     },
@@ -543,14 +563,26 @@ export default {
         },
       });
     },
-    UpdateCheckbox(data){
-      this.getRequest("/secretary/setSecretary?teacherID=" + data.id + "&activityID=" + this.keywords + "&groupID=" + this.groupID + "&target=" + data.isSecretary)
-          .then((resp) => {
-            if(resp)
-            {Message.success("更新成功");}
-            else
-            {Message.error("更新失败");}
-          });
+    // UpdateCheckbox(data){
+    //   this.getRequest("/secretary/setSecretary?teacherID=" + data.id + "&activityID=" + this.keywords + "&groupID=" + this.groupID + "&target=" + data.isSecretary)
+    //       .then((resp) => {
+    //         if(resp)
+    //         {Message.success("更新成功");}
+    //         else
+    //         {Message.error("更新失败");}
+    //       });
+    // },
+
+    changeRole(index,data){
+      this.currentrole = data.role;
+     // console.log(this.currentrole);
+        this.getRequest("/secretary/setRole?teacherID=" + data.id + "&activityID=" + this.keywords + "&groupID=" + this.groupID + "&role=" + this.currentrole)
+            .then((resp) => {
+              if(resp)
+              {Message.success("更新成功");}
+              else
+              {Message.error("更新失败");}
+            });
     },
     advancedSearch() {
       this.getRequest(
@@ -650,7 +682,13 @@ export default {
       });
     },
     beforehandleEdit(index, row, label) {
-      this.currentfocusdata = row[label]
+      if(label === 'role') {
+        this.currentrole = row.role
+        console.log(this.currentrole);
+      }
+      else {
+        this.currentfocusdata = row[label]
+      }
     },
     handleEdit(index, row, label) {
       if (row[label] === '') {
@@ -665,6 +703,7 @@ export default {
       this.tabClickIndex = null;
       this.tabClickLabel = "";
       this.currentfocusdata = "";
+      this.currentrole = "";
     },
     save(si) {
       si.institutionid=this.user.institutionID;

@@ -1663,7 +1663,7 @@ INSERT INTO `scoreitem` (`ID`, `activityID`, `name`, `score`, `coef`, `comment`,
 INSERT INTO `scoreitem` (`ID`, `activityID`, `name`, `score`, `coef`, `comment`, `byExpert`) VALUES (87, 16, '123', 100.00, 1, NULL, 1);
 INSERT INTO `scoreitem` (`ID`, `activityID`, `name`, `score`, `coef`, `comment`, `byExpert`) VALUES (89, 24, '总分', 100.00, 1, NULL, 1);
 INSERT INTO `scoreitem` (`ID`, `activityID`, `name`, `score`, `coef`, `comment`, `byExpert`) VALUES (90, 25, '总分', 100.00, 1, NULL, 1);
-INSERT INTO `scoreitem` (`ID`, `activityID`, `name`, `score`, `coef`, `comment`, `byExpert`) VALUES (92, 26, '活动总分', 100.00, 1, NULL, 1);
+INSERT INTO `scoreitem` (`ID`, `activityID`, `name`, `score`, `coef`, `comment`, `byExpert`) VALUES (92, 26, '活动得分', 100.00, 1, NULL, 1);
 INSERT INTO `scoreitem` (`ID`, `activityID`, `name`, `score`, `coef`, `comment`, `byExpert`) VALUES (93, 26, '基准分数', 30.00, 1, NULL, 0);
 INSERT INTO `scoreitem` (`ID`, `activityID`, `name`, `score`, `coef`, `comment`, `byExpert`) VALUES (94, 26, '程序填空', 20.00, 1, '选第2题上限20分、选第1题上限10分', 1);
 INSERT INTO `scoreitem` (`ID`, `activityID`, `name`, `score`, `coef`, `comment`, `byExpert`) VALUES (95, 26, '个人介绍与回答问题', 50.00, 1, NULL, 1);

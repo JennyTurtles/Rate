@@ -26,7 +26,7 @@ vue.prototype.$logs = window.console.log;
             label="专家姓名"
             min-width="10%">
           <template slot-scope="scope">
-            <div v-for="(value,key) in scope.row.scoremap" v-if="value.name==='活动总分'">
+            <div v-for="(value,key) in scope.row.scoremap" v-if="value.name==='活动得分'">
               {{value.expertName}}
             </div>
           </template>
