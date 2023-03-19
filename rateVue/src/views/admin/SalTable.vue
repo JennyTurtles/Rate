@@ -191,6 +191,8 @@ export default {
     return {
       //当前焦点数据
       currentfocusdata: "",
+      mode:-1,
+      groupID:-1,
       searchValue: {
         compnayName: null,
       },
@@ -269,6 +271,8 @@ export default {
   mounted() {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
+    this.groupID = this.$route.query.groupID;
+    this.mode = this.$route.query.mode;
     this.initHrs();
     //this.initAd();
   },
@@ -330,19 +334,23 @@ export default {
       });
     },
     initHrs() {
-      this.getRequest(
-          "/groups/basic/?keywords=" +
-          this.keywords +
-          "&page=" +
-          this.page +
-          "&size=" +
-          this.size
-      ).then((resp) => {
-        if (resp) {
-          this.hrs = resp.data;
-          this.total = this.hrs.length;
-        }
-      });
+      console.log(this.mode)
+      if (this.mode === "admin"){
+        this.getRequest("/groups/basic/?keywords=" + this.keywords + "&page=" + this.page + "&size=" + this.size).then((resp) => {
+          if (resp) {
+            this.hrs = resp.data;
+            this.total = this.hrs.length;
+          }
+        });
+      }else if (this.mode === "secretary"){
+        this.getRequest("/groups/basic/sec?groupID="+this.groupID).then((resp) => {
+          if (resp) {
+            this.hrs = resp.obj;
+            this.total = 1;
+          }
+        });
+      }
+
     },
 
     advancedSearch() {
@@ -393,9 +401,16 @@ export default {
     },
     back() {
       const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/search",
-      });
+      if (this.mode === "admin"){
+        _this.$router.push({
+          path: "/ActivitM/search",
+        });
+      }else if (this.mode === "secretary"){
+        _this.$router.push({
+          path: "/secretary/ActManage",
+        });
+      }
+
     },
     tableRowClassName({row, rowIndex}) {
       // 把每一行的索引放进row
@@ -434,7 +449,8 @@ export default {
           keywords: data.activityID,
           keyword_name: data.name,
           keywords_name:this.keywords_name,
-          groupID: data.id
+          groupID: data.id,
+          mode:this.mode
         }
       })
     },
