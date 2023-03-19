@@ -52,6 +52,7 @@
           </template>
         </el-table-column>
         <el-table-column
+            sortable
             v-for="(v, i) in this.smap"
             prop="v"
             :label="v"

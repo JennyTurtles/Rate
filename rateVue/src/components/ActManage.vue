@@ -6,6 +6,7 @@
       >
         <div>
           <el-input
+              v-show="mode==='admin'"
               placeholder="请输入活动名称进行搜索，可以直接回车搜索..."
               prefix-icon="el-icon-search"
               clearable
@@ -19,19 +20,21 @@
               icon="el-icon-search"
               type="primary"
               @click="searchEmps"
+              v-show="mode==='admin'"
               :disabled="showAdvanceSearchView"
           >
             搜索
           </el-button>
           <el-button
               icon="el-icon-refresh"
+              v-show="mode==='admin'"
               type="primary"
               @click="initEmps"
               :disabled="showAdvanceSearchView"
           >
             重置
           </el-button>
-          <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
+          <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView" v-show="mode==='admin'">
             添加活动
           </el-button>
           <span style="margin-left: 20px" v-show="mode === 'secretarySub'">当前管理的是： {{actName}} {{groupName}} </span>
@@ -100,6 +103,7 @@
             >
             <el-button
                 @click="showEditEmpView(scope.row)"
+                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-edit"
@@ -110,6 +114,7 @@
             >
             <el-button
                 @click="showScoreItem(scope.row)"
+                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
@@ -120,6 +125,7 @@
             >
             <el-button
                 @click="showInfoItem(scope.row)"
+                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
@@ -130,6 +136,7 @@
             >
             <el-button
                 @click="showTotalItem(scope.row)"
+                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
@@ -150,6 +157,7 @@
             >
             <el-button
                 @click="showInsertmanagement(scope.row)"
+                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-plus"
@@ -160,6 +168,7 @@
             >
             <el-button
                 @click="showScore(scope.row)"
+                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-plus"
@@ -175,13 +184,14 @@
                 icon="el-icon-plus"
                 type="primary"
                 plain
-                v-show="mode !== 'secretarySub' && mode !== 'adminSub'"
+                v-show="mode !== 'secretarySub' && mode !== 'adminSub' && 0 "
             >子活动管理
             </el-button
             >
 
             <el-button
                 @click="exportEx(scope.row)"
+                v-show="mode==='admin'"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
@@ -193,6 +203,7 @@
             >
             <el-button
                 @click="exportAc(scope.row)"
+                v-show="mode==='admin'"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
@@ -205,6 +216,7 @@
 
             <el-button
                 @click="endEmp(scope.row)"
+                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 type="danger"
@@ -216,6 +228,7 @@
             >
             <el-button
                 @click="deleteEmp(scope.row)"
+                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 type="danger"
@@ -667,6 +680,8 @@ export default {
         query: {
           keywords: data.id,
           keyword_name: data.name,
+          groupID:this.groupID,
+          mode:this.mode,
         },
       });
     },

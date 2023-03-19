@@ -8,7 +8,7 @@
         </el-button>
       </div>
     </div>
-    <div><br/>单元格中内容双击后可编辑</div>
+    <div v-show="mode==='admin'" ><br/>单元格中内容双击后可编辑</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -87,6 +87,7 @@
           <template slot-scope="scope">
             <el-button
                 @click="UpdateOrNew(scope.row)"
+                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-collection"
@@ -107,6 +108,7 @@
             >
             <el-button
                 @click="showParticipantsM(scope.row)"
+                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-s-operation"
@@ -117,6 +119,7 @@
             >
             <el-button
                 @click="output_group(scope.row)"
+                v-show="mode==='admin'"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
@@ -128,6 +131,7 @@
             >
             <el-button
                 @click="exportTG(scope.row)"
+                v-show="mode==='admin'"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
@@ -139,6 +143,7 @@
             >
             <el-button
                 @click="Delete_Score_Item(scope.row)"
+                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 type="danger"
@@ -161,6 +166,7 @@
         <div style="margin-left: 8px">
           <el-button
               @click="handleAddDetails()"
+              v-show="mode==='admin'"
               type="primary"
               icon="el-icon-plus"
           >新增
@@ -191,7 +197,7 @@ export default {
     return {
       //当前焦点数据
       currentfocusdata: "",
-      mode:-1,
+      mode:'',
       groupID:-1,
       searchValue: {
         compnayName: null,
@@ -463,7 +469,8 @@ export default {
           keyword_name: data.name,
           keywords_name:this.keywords_name,
           groupID: data.id,
-          activityID: data.activityID
+          activityID: data.activityID,
+          mode:this.mode,
         },
       });
     },

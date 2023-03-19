@@ -445,6 +445,7 @@ export default {
   name: "SalGroup",
   data() {
     return{
+      mode:'',
       filterParticipantsByState:'',
       filterParticipantsByStateList:['全部显示','未分组','已分组'],//筛选选手下拉框
       sortBy:'',
@@ -588,6 +589,8 @@ export default {
   mounted() {
     //this.init();//先获得评分项
     this.activityID = this.$route.query.activityID;
+    this.mode = this.$route.query.mode
+    this.groupID = this.$route.query.groupID
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
     this.ACNAME=this.$route.query.keywords_name;
@@ -971,8 +974,14 @@ export default {
     },
     back(){
       const _this = this;
+      var url = ""
+      if (this.mode === 'admin'){
+        url = "/ActivitM/table"
+      }else if (this.mode === "secretary"){
+        url = "/secretary/ActManage"
+      }
       _this.$router.push({
-        path: "/ActivitM/search",
+        path: url,
       });
     },
     refreshact() {

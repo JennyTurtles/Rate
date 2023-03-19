@@ -358,6 +358,7 @@ export default {
       keyword: '',
       activityID: '',
       groupID: '',
+      mode:'',
       size: 10,
       positions: [],
       emp: {
@@ -395,6 +396,7 @@ export default {
     //this.init();//先获得评分项
     this.groupID = this.$route.query.groupID;
     this.activityID = this.$route.query.activityID;
+    this.mode = this.$route.query.mode
     this.initEmps();
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
@@ -537,9 +539,7 @@ export default {
     },
     initEmps() {
       this.loading = true;
-      //console.log(this.groupID);
       let url = '/participants/basic/?page=' + this.page + '&size=' + this.size+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
-      //console.log(url);
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
@@ -552,11 +552,20 @@ export default {
     },
     back(){
       const _this = this;
+      var url = ""
+      if (this.mode === 'admin'){
+        url = "/ActivitM/table"
+      }else if (this.mode === "secretary"){
+        url = "/secretary/ActManage"
+      }
+      console.log(url)
       _this.$router.push({
-        path: "/ActivitM/table",
+        path: url,
         query: {
           keywords: this.activityID,
-          keyword_name: this.ACNAME
+          keyword_name: this.ACNAME,
+          groupID:this.groupID,
+          mode:this.mode,
         },
       });
     },

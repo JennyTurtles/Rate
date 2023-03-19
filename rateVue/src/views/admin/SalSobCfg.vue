@@ -3,8 +3,8 @@
     {{ ACNAME }}活动 {{ keywords_name }} 专家名单
     <div style="display: flex; justify-content: left;margin-top:10px">
       <div>
-        <span style="font-weight:600;">导入新数据</span> 第一步：
-        <el-button
+        <span v-show="mode==='admin'" style="font-weight:600;">导入新数据</span> <a v-show="mode==='admin'">第一步：</a>
+        <el-button v-show="mode==='admin'"
             type="primary"
             @click="exportMo"
             icon="el-icon-upload"
@@ -12,7 +12,7 @@
         >
           下载模板
         </el-button>
-        第二步：
+        <a v-show="mode==='admin'">第二步：</a>
         <el-upload
             :show-file-list="false"
             :before-upload="beforeUpload"
@@ -21,6 +21,7 @@
             :disabled="importDataDisabled"
             style="display: inline-flex; margin-right: 8px"
             :action="UploadUrl()"
+            v-show="mode==='admin'"
         >
           <el-button
               :disabled="importDataDisabled"
@@ -30,21 +31,12 @@
             {{ importDataBtnText }}
           </el-button>
         </el-upload>
-
-      </div>
-      <div style="margin-left: auto">
-        <el-button icon="el-icon-back" type="primary" @click="back">
-
+        <el-button icon="el-icon-back" type="primary" @click="back" style="margin-right: 10px">
           返回
         </el-button>
       </div>
-      <!--      <div style="margin-left:auto;">
-        <el-button icon="el-icon-back" type="primary" @click="back">
-          返回
-        </el-button>
-      </div>-->
     </div>
-    <div><br/>专家导入后的初始用户名为手机号，密码为身份证后六位<br/>单元格中内容双击后可编辑</div>
+    <div v-show="mode==='admin'"><br/>专家导入后的初始用户名为手机号，密码为身份证后六位<br/>单元格中内容双击后可编辑</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -264,6 +256,7 @@
         </div>
         <div style="margin-left: auto">
           <el-pagination
+              v-show="mode==='admin'"
               background
               @current-change="currentChange"
               @size-change="sizeChange"
@@ -539,7 +532,7 @@ export default {
           "&page=" +
           this.page +
           "&size=" +
-          this.size
+          1000 // 避免分页
       ).then((resp) => {
         if (resp) {
           this.hrs = resp;
