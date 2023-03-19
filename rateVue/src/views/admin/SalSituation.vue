@@ -58,7 +58,7 @@
             :label="v"
             min-width="5%" align="center">
           <template slot-scope="scope">
-            <div v-for="(value,key) in scope.row.scoremap" v-if="key===i">
+            <div  v-for="(value,key) in scope.row.scoremap" v-if="key===i">
               {{value.score}}
             </div>
           </template>
