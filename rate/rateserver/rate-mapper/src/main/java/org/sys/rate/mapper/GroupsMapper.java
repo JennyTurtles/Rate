@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.sys.rate.model.Groups;
 import org.sys.rate.model.ScoreDetail;
 
@@ -56,4 +57,7 @@ public interface GroupsMapper {
     Integer updateEmployeeSalaryById(@Param("eid") Integer eid, @Param("sid") Integer sid);
 
     Integer isGroupsExit(Integer activityID);
+
+    @Select("select * from `groups` where ID = #{groupID}")
+    List<Groups> getGroup(Integer groupID);
 }

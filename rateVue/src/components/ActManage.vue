@@ -628,13 +628,27 @@ export default {
     },
     showGroupmanagement(data) {
       const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/table",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
+      if (this.mode === "admin"){
+        _this.$router.push({
+          path: "/ActivitM/table",
+          query: {
+            keywords: data.id,
+            keyword_name: data.name,
+            mode:this.mode,
+          },
+        });
+      }else if (this.mode === "secretary"){
+        _this.$router.push({
+          path: "/ActivitM/table",
+          query: {
+            keywords: data.id,
+            keyword_name: data.name,
+            groupID:data.groupID,
+            mode:this.mode,
+          },
+        });
+      }
+
       // console.log(data)
       // if (this.mode === "admin"){
       //   _this.$router.push({

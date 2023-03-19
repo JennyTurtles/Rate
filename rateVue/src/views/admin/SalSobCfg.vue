@@ -156,6 +156,7 @@
           </template>
         </el-table-column>
         <el-table-column
+            v-if="mode === 'admin'"
             prop="role"
             label="角色设置"
             align="center"
@@ -377,6 +378,7 @@
 
 <script>
 import {Message} from 'element-ui'
+import {log} from "@/utils/sockjs";
 
 export default {
   name: "SalSobCfg",
@@ -472,7 +474,8 @@ export default {
 
       err_dialogVisible_edit: false,
       err_title: '',
-      err_msg: ''
+      err_msg: '',
+      mode:"",
     };
   },
   computed: {
@@ -488,11 +491,8 @@ export default {
     this.keywords_name = this.$route.query.keyword_name;
     this.groupID = this.$route.query.groupID;
     this.ACNAME = this.$route.query.keywords_name;
-    //console.log(this.keywords_name);
-    // console.log("groupID", this.groupID);
+    this.mode = this.$route.query.mode;
     this.initHrs();
-    // this.initData();
-    //this.initAd();
   },
   methods: {
 
@@ -550,6 +550,7 @@ export default {
     },
     jumperInToS(data){
       const _this = this;
+      console.log(this.user)
       _this.$router.push({
         path: "/ActivitM/situation",
         query: {
@@ -559,7 +560,8 @@ export default {
           groupID: this.groupID,
           expertID:data.id,
           expertName:data.name,
-          institutionID:this.user.institutionID
+          institutionID:this.user.institutionID,
+          mode:this.mode,
         },
       });
     },
@@ -630,14 +632,28 @@ export default {
       this.hrs.push(obj);
     },
     back() {
+      console.log(this.mode)
       const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/table",
-        query: {
-          keywords: this.keywords,
-          keyword_name: this.ACNAME,
-        },
-      });
+      if (this.mode === "admin"){
+        _this.$router.push({
+          path: "/ActivitM/table",
+          query: {
+            keywords: this.keywords,
+            keyword_name: this.ACNAME,
+            mode:this.mode,
+          },
+        });
+      }else if (this.mode === "secretary"){
+        _this.$router.push({
+          path: "/ActivitM/table",
+          query: {
+            keywords: this.keywords,
+            keyword_name: this.ACNAME,
+            groupID:this.groupID,
+            mode:this.mode,
+          },
+        });
+      }
     },
     tableRowClassName({row, rowIndex}) {
       // 把每一行的索引放进row
@@ -684,7 +700,6 @@ export default {
     beforehandleEdit(index, row, label) {
       if(label === 'role') {
         this.currentrole = row.role
-        console.log(this.currentrole);
       }
       else {
         this.currentfocusdata = row[label]

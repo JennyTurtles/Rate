@@ -3,11 +3,13 @@ package org.sys.rate.controller.admin;
 import cn.hutool.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.sys.rate.mapper.GroupsMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.GroupsService;
 import org.sys.rate.service.admin.InfosService;
 import org.sys.rate.service.admin.LogService;
 
+import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,10 +27,18 @@ public class GroupsController {
     LogService logService;
     @Autowired
     InfosService infosService;
+    @Resource
+    GroupsMapper groupsMapper;
 
     @GetMapping("/")
     public RespPageBean getGroupsByPage(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, Groups employee) {
         return groupsService.getActivitiesPage(keywords, page, size, employee);
+    }
+
+    // 秘书获取当前活动中自己的组
+    @GetMapping("/sec")
+    public RespBean getGroupsSec(@RequestParam Integer groupID) {
+        return RespBean.ok("success", groupsMapper.getGroup(groupID));
     }
 
     @GetMapping("/score")

@@ -75,6 +75,7 @@ export default {
   name: "SalSituation",
   data() {
     return {
+      mode:"",
       //当前焦点数据
       currentfocusdata: "",
       searchValue: {
@@ -168,6 +169,7 @@ export default {
     this.ACNAME = this.$route.query.keywords_name;
     this.expertName= this.$route.query.expertName;
     this.institutionID= this.$route.query.institutionID;
+    this.mode = this.$route.query.mode;
     this.initSituation();
     this.initData();
   },
@@ -282,7 +284,8 @@ export default {
           keywords: this.keywords,
           keyword_name: this.ACNAME,
           keywords_name:this.keywords_name,
-          groupID: this.groupID
+          groupID: this.groupID,
+          mode:this.mode,
         },
       });
     },
