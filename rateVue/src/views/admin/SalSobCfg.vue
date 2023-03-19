@@ -544,7 +544,7 @@ export default {
         if (resp) {
           this.hrs = resp;
           this.total = resp.length;
-         // console.log(this.hrs);
+          console.log(this.hrs);
         }
       });
     },
@@ -561,6 +561,7 @@ export default {
           expertID:data.id,
           expertName:data.name,
           institutionID:this.user.institutionID,
+          isFinished:data.finished,
           mode:this.mode,
         },
       });
@@ -796,19 +797,18 @@ export default {
       });
     },
     changeFinished(row){
-      this.$confirm("是否确定撤销打分", "提示", {
+      this.$confirm("是否确定退回打分", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
           .then(() => {
-            row.institutionid=this.user.institutionID;
-            this.postRequest("/systemM/Experts/withdraw?activityID=" + this.keywords + "&groupID=" + this.groupID , row).then(resp => {
+            this.postRequest("/systemM/Experts/withdraw?activityID=" + this.keywords + "&groupID=" + this.groupID +"&expertID=" + row.id).then(resp => {
               if (resp) {
                 this.initHrs();
                 this.$message({
                   type: 'success',
-                  message: '撤销成功!'
+                  message: '退回成功!'
                 });
               }
             });
@@ -816,7 +816,7 @@ export default {
           .catch(() => {
             this.$message({
               type: "info",
-              message: "已取消撤销",
+              message: "已取消退回",
             });
           });
     }

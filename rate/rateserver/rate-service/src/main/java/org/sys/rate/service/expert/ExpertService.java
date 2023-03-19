@@ -190,9 +190,8 @@ public class ExpertService implements UserDetailsService {
 		return true;
 	}
 
-	public boolean withdrawScore(Integer activityID,Integer groupID,Experts teacher){
-		Integer id = expertsMapper.getID(teacher.getIdnumber());
-		int result = expertsMapper.withdrawScore(activityID,groupID,id);
+	public boolean withdrawScore(Integer activityID,Integer groupID,Integer expertID){
+		int result = expertsMapper.withdrawScore(activityID,groupID,expertID);
 		if (result == 1) {
 			return true;
 		}

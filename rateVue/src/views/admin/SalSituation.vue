@@ -3,7 +3,7 @@
     {{ keywords }}、{{ keywords_name }}活动 {{GName}} {{ expertName }}专家评分情况
     <div style="display: flex; justify-content: left;margin-top:10px">
       <div style="margin-left: auto">
-        <el-button icon="el-icon-refresh-right" type="danger" @click="revert">
+        <el-button icon="el-icon-refresh-right" type="danger" @click="revert" :disabled="isFinished==='false'">
           退回评分
         </el-button>
         <el-button icon="el-icon-back" type="primary" @click="back">
@@ -88,6 +88,7 @@ export default {
       tabClickIndex: null, // 点击的单元格
       tabClickLabel: "", // 当前点击的列名
       keywords: "",
+      isFinished: false,
       activitydata: [],
       keywords_name: "",
       groupID: '',
@@ -169,6 +170,8 @@ export default {
     this.ACNAME = this.$route.query.keywords_name;
     this.expertName= this.$route.query.expertName;
     this.institutionID= this.$route.query.institutionID;
+    this.isFinished = this.$route.query.isFinished;
+    console.log(this.isFinished);
     this.mode = this.$route.query.mode;
     this.initSituation();
     this.initData();
@@ -297,21 +300,14 @@ export default {
       })
           .then(() => {
             this.postRequest(
-                "/system/Experts/revert?activityId=" +
-                this.keywords +
-                "&expertID=" +
-                this.expertID +
-                "&groupId=" +
-                this.groupID +
-                "&institutionID=" +
-                this.institutionID +
-                "&finished=false"
+                "/systemM/Experts/withdraw?activityID=" + this.keywords + "&groupID=" + this.groupID +"&expertID=" + this.expertID
             ).then((resp) => {
               if (resp) {
                 this.$message({
                   type: 'success',
                   message: '撤销成功!'
                 });
+                this.isFinished=false;
               }
             });
           })

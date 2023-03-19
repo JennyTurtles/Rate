@@ -73,8 +73,8 @@ public class ExpertMController {
     }
 
     @PostMapping("/withdraw")
-    public String withdrawScore(@RequestParam Integer activityID,@RequestParam Integer groupID,@RequestBody Experts teacher) {
-        if(expertService.withdrawScore(activityID,groupID,teacher))
+    public String withdrawScore(@RequestParam Integer activityID,@RequestParam Integer groupID,@RequestParam Integer expertID) {
+        if(expertService.withdrawScore(activityID,groupID,expertID))
             return "撤回成功!";
         else
             return "撤回失败";
