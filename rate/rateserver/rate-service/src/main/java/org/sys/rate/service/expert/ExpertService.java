@@ -181,9 +181,9 @@ public class ExpertService implements UserDetailsService {
 	}
 
 	public boolean updatePasswd(Integer id, String password) {
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-		password = encoder.encode(password.substring(12, 18));
-		int result = expertsMapper.updatePasswd(id, password);
+//		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+//		password = encoder.encode(password.substring(12, 18));
+		int result = expertsMapper.updatePasswd(id, sh1(password));
 		if (result == 1) {
 			return true;
 		}
@@ -199,7 +199,7 @@ public class ExpertService implements UserDetailsService {
 		return true;
 	}
 
-	public String sh1(String password) {
+	public static String sh1(String password) { // 后续移到utils中
 		MessageDigest digest = null;
 		try {
 			digest = MessageDigest.getInstance("SHA-1");

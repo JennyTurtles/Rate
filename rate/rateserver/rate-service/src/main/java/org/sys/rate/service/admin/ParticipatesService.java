@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
+import org.sys.rate.service.expert.ExpertService;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -205,9 +206,8 @@ public class ParticipatesService {
                 }
                 if(!participants.getPassword().equals(""))
                 {//不为空
-                    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-                    String encodePass = encoder.encode(participants.getPassword());
-                    student.setPassword(encodePass);
+                    String encodePass = participants.getPassword();
+                    student.setPassword(ExpertService.sh1(encodePass));
                 }
                 else
                 {//如果没有密码，更新的时候会被忽略
@@ -236,11 +236,11 @@ public class ParticipatesService {
                 String encodePass;
                 if(!participants.getPassword().equals(""))
                 {//不为空
-                    encodePass = participants.getPassword();
+                    encodePass = ExpertService.sh1(participants.getPassword());
                 }
                 else
                 {//默认密码为手机号
-                    encodePass = participants.getTelephone();
+                    encodePass = ExpertService.sh1(participants.getTelephone());
                 }
                 student.setPassword(encodePass);
                 //如果没有就插入选手信息
