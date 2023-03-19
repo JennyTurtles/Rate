@@ -976,7 +976,7 @@ export default {
       const _this = this;
       var url = ""
       if (this.mode === 'admin'){
-        url = "/ActivitM/table"
+        url = "/ActivitM/search"
       }else if (this.mode === "secretary"){
         url = "/secretary/ActManage"
       }
