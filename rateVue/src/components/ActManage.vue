@@ -82,6 +82,7 @@
             label="评分项数"
             align="center"
             width="80"
+            v-if="mode==='admin'"
         >
         </el-table-column>
         <!-- width="70" -->
@@ -317,7 +318,7 @@
           ref="empForm"
           style="margin-left: 60px"
       >
-        <el-form-item label="分组数:" prop="groupCount">
+        <el-form-item label="分组数:" v-show="mode === 'admin'" prop="groupCount">
           <span>{{ emp.groupCount }}</span
           ><br/>
         </el-form-item>
@@ -602,6 +603,7 @@ export default {
           this.loading = false;
           if (resp) {
             this.emps = resp.data;
+            console.log(this.emps)
             this.total = resp.total;
           }
         });
