@@ -277,19 +277,9 @@ export default {
       },
     };
   },
-  //自动聚焦自定义组件
-  // directives: {
-  //   focus: {
-  //     // 当绑定元素插入到 DOM 中。
-  //     inserted: function (el) {
-  //       // 聚焦元素
-  //       el.focus()
-  //     }
-  //   }
-  // },
   computed: {
     user() {
-      return this.$store.state.currentHr; //object信息
+      return JSON.parse(localStorage.getItem("user")); //object信息
     },
   },
   created() {
@@ -324,22 +314,6 @@ export default {
           //   });
           // });
     },
-
-    enabledChange(hr) {
-      //delete hr.roles;
-      this.putRequest("/system/admin/", hr).then((resp) => {
-        if (resp) {
-          this.initHrs();
-        }
-      });
-    },
-    initAllRoles() {
-      this.getRequest("/system/hr/roles").then((resp) => {
-        if (resp) {
-          this.allroles = resp;
-        }
-      });
-    },
     initHrs() {
       this.loading = true;
       this.getRequest(
@@ -352,24 +326,6 @@ export default {
       ).then((resp) => {
         if (resp) {
           this.loading = false;
-          this.hrs = resp.data;
-          this.total = resp.total;
-        }
-      });
-    },
-
-    advancedSearch() {
-      this.getRequest(
-          "/scoreItem/basic/advanced/?keywords=" +
-          this.keywords +
-          "&keywords_name=" +
-          this.keywords_name +
-          "&page=" +
-          this.page +
-          "&size=" +
-          this.size
-      ).then((resp) => {
-        if (resp) {
           this.hrs = resp.data;
           this.total = resp.total;
         }
@@ -503,7 +459,6 @@ export default {
       this.initHrs();
     },
     newScoring() {
-      //console.log("creating")
       let obj = {};
       obj.activityid = this.keywords;
       obj.score = 100;
@@ -511,27 +466,7 @@ export default {
       obj.coef = 1;
       obj.byexpert = 1;
       this.hrs.push(obj);
-      /*this.postRequest("/scoreItem/basic/insert", obj)
-          .then((resp) => {
-            this.initHrs();
-          });*/
     },
-    // shiftScoring(scoreItem) {
-    //   console.log("modifying")
-    //   console.log(scoreItem);
-    //   // console.log(need);
-    //   // need:1->需要专家打分
-    //   this.currentfocusdata = scoreItem.name;
-    //   if (this.currentfocusdata == null) {
-    //     Message.error('输入内容不能为空！操作未保存！')
-    //     return
-    //   }
-    //   this.postRequest("/scoreItem/basic/modify", scoreItem)
-    //       .then(res => {
-    //         if (res.msg != "修改成功！")
-    //           scoreItem.name = this.currentfocusdata;
-    //       })
-    // }, //
     initData() {
       this.getRequest("/activities/basic/get_activity_info").then((resp) => {
         if (resp) {

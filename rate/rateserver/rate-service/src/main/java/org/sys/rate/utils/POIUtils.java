@@ -304,10 +304,11 @@ public class POIUtils {
                         }
                     }
                     if(name==null||idCard==null||name.equals("")||idCard.equals("")){
-                        System.out.println("头或者内容有问题！");
-                        RespPageBean bean=new RespPageBean();
-                        bean.setTotal((long) j);
-                        return bean;
+                        continue;
+//                        System.out.println("头或者内容有问题！");
+//                        RespPageBean bean=new RespPageBean();
+//                        bean.setTotal((long) j);
+//                        return bean;
                     }
                     p.setName(name);
                     p.setTelephone(phone);
@@ -316,6 +317,7 @@ public class POIUtils {
                     p.setCode(code);
                     p.setUsername(username);
                     p.setPassword(password);
+
                     if(displaySequence==null)
                     {
                         p.setDisplaySequence(-1);//不修改
@@ -380,6 +382,7 @@ public class POIUtils {
         }
         RespPageBean bean=new RespPageBean();
         bean.setData(list);
+        bean.setTotal((long) list.size());
         return bean;
     }
     public static ResponseEntity<byte[]> Exceltest(List<Participates> list) {
@@ -826,10 +829,11 @@ public class POIUtils {
                             jobNumber==null||
                             department==null||
                             (!isBelonging.equals("是")&&!isBelonging.equals("否"))||name==null||idCard==null){
-                        System.out.println("csv 编码或者表头或者信息有问题！！");
-                        RespPageBean bean=new RespPageBean();
-                        bean.setTotal((long) j);
-                        return bean;
+                            continue;
+//                        System.out.println("csv 编码或者表头或者信息有问题！！");
+//                        RespPageBean bean=new RespPageBean();
+//                        bean.setTotal((long) j);
+//                        return bean;
                     }
                     expert.setName(name);
                     expert.setPhone(phone);
@@ -854,6 +858,7 @@ public class POIUtils {
         }
         RespPageBean bean=new RespPageBean();
         bean.setData(list);
+        bean.setTotal((long) list.size());
         return bean;
     }
 
@@ -876,6 +881,7 @@ public class POIUtils {
                     if(sheet.getRow(0).getCell(m).getStringCellValue()!=null)
                         map.put(m,sheet.getRow(0).getCell(m).getStringCellValue());
                 }
+                //行
                 for (int j = 0; j < physicalNumberOfRows; j++) {
                     //5. 跳过标题行
                     if (j == 0) {
@@ -887,13 +893,25 @@ public class POIUtils {
                         continue;//防止数据中间有空行
                     }
                     //7. 获取列数
+                    int rowNullNums = 0;
                     for (int k = 0; k < Cells; k++) {
                         HSSFCell cell = row.getCell(k);
                         //cell.setCellType(CellType.STRING);
-                        if (cell==null||cell.equals("")) {//如果列中cell为空
-                            String tips="【"+map.get(k)+"】列中第【"+j+"】行";
-                            error.add(tips);
+                        if (cell == null) {//如果列中cell为空
+                            rowNullNums ++;
+//                            String tips="【"+map.get(k)+"】列中第【"+j+"】行";
+//                            error.add(tips);
+                        }else {
+                            cell.setCellType(CellType.STRING);
+                            String cellValue = cell.getStringCellValue();
+                            if (cellValue.equals("")) {//如果列中cell为空
+                                rowNullNums ++;
+                            }
                         }
+                    }
+                    if(rowNullNums != Cells && rowNullNums != 0){
+                        String tips="第【" + j + "】行有空数据，";
+                        error.add(tips);
                     }
                 }
             }

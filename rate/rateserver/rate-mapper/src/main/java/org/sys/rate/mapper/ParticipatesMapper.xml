@@ -456,5 +456,9 @@
             #{ID}
         </foreach>
     </update>
-
+    <select id="getParticipantsBySID" parameterType="Integer" resultMap="BaseResultMap">
+        select *
+        from participants
+        where studentID = #{studentID}
+    </select>
 </mapper>

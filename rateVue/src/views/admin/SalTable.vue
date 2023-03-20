@@ -267,7 +267,7 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.currentHr; //object信息
+      return JSON.parse(localStorage.getItem("user")); //object信息
     },
   },
   created() {

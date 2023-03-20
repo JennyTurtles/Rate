@@ -398,7 +398,7 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.currentHr;//object信息
+      return JSON.parse(localStorage.getItem('user')); //object信息
     }
   },
   created() {
@@ -457,17 +457,18 @@ export default {
                   "Content-Type": "multipart/form-data",
                 },
               }).then((res) => {
+                this.refreshact()
                 this.$message(res.msg);
               })
             }
             else{
               let newD=[],h=this.$createElement;
-              newD.push(h('p',null,'导入数据中'));
+              newD.push(h('span',null,'导入数据中'));
               for(const i in res1)
               {
-                newD.push(h('p',null,res1[i]))
+                newD.push(h('span',null,res1[i]))
               }
-              newD.push(h('p',null,'为空，以上列数据会被置空，是否确认继续?'));
+              newD.push(h('span',null,'为空，以上列数据会被置空，是否确认继续?'));
               this.$confirm(h('div',null,newD), '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',

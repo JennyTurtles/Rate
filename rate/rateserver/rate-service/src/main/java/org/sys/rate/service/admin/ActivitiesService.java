@@ -127,4 +127,11 @@ public class ActivitiesService {
         List<Activities> activities= activitiesMapper.selectActivity(activityID);
         return activities;
     }
+    public List<Activities> getActivities(Integer page, Integer size,List<Integer> activityID){
+        if (page != null && size != null) {
+            page = (page - 1) * size;
+        }
+        List<Activities> activities= activitiesMapper.selectActivities(activityID);
+        return activities;
+    }
 }

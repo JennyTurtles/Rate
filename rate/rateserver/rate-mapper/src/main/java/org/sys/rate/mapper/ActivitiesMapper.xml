@@ -166,4 +166,11 @@
         GROUP BY
             p.activityID
     </select>
+    <select id="selectActivities" resultMap="BaseResultMap">
+        select * from activities
+        where ID in
+        <foreach collection="list" item="ID" open="(" separator="," close=")">
+            #{ID}
+        </foreach>
+    </select>
 </mapper>
