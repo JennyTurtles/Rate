@@ -602,6 +602,19 @@ export default {
         this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
+            for(var i = 0;i < resp.data.length; i++){
+              var time = new Date(resp.data[i].startDate)
+              var year = time.getFullYear()
+              var month = time.getMonth() + 1
+              var date = time.getDate()
+              if(month < 10){
+                month = "0" + month
+              }
+              if(date < 10){
+                date = "0" + date
+              }
+              resp.data[i].startDate = year + "-" + month + "-" + date
+            }
             this.emps = resp.data;
             console.log(this.emps)
             this.total = resp.total;

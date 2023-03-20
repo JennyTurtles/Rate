@@ -186,6 +186,7 @@ public class ParticipatesService {
             student.setTelephone(participants.getTelephone());
             student.setIDNumber(participants.getIDNumber());
             student.setEmail(participants.getEmail());
+//            student.setRole("7");
             //如果是1，则为本单位，再设置为管理员的instituteId，否则为null
             if(participants.getInstitutionid()==1){
                 int instituteId = activitiesMapper.selectByActivityId(activityid);//通过活动号查找管理员组织号，新增的ActivitiesMapper方法
@@ -417,6 +418,7 @@ public class ParticipatesService {
 
     public Integer deleteParticipant(Integer groupID,Participates company) {
         int result = participatesMapper.delete(company);
+        studentMapper.deleteStudent(company.getStudentID());
         if(result>0)
         {
             participatesMapper.subDisplaySequence(groupID,company.getDisplaySequence(),null);
@@ -590,5 +592,8 @@ public class ParticipatesService {
     //更新选手的分组id
     public void updateGroupID(Integer activityID,Integer groupID,List<Integer> parID){
         participatesMapper.updateGroupID(activityID,groupID,parID);
+    }
+    public List<Participates> getParticipantIDByStudentID(Integer studentID){
+        return participatesMapper.getParticipantsBySID(studentID);
     }
 }

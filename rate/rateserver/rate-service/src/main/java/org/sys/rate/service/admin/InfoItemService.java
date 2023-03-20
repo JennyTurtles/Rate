@@ -128,11 +128,16 @@ public class InfoItemService {
     //对选手进行筛选
     public List<InfoItem>  getInforItemByActivityId(Integer activitiesID){
         List<Participates> participates = participatesMapper.getParticipantByAId(activitiesID);
+        List<InfoItem> infoItems = new ArrayList<>();
+        //没有不分组的选手
+        if(participates.size() == 0){
+            return infoItems;
+        }
         List<Integer> participantID = new ArrayList<>();
         for(int i = 0;i < participates.size(); i++){
             participantID.add(participates.get(i).getID());
         }
-        List<InfoItem> infoItems = infoItemMapper.selectInfoItemByActivityId(activitiesID,participantID);
+        infoItems = infoItemMapper.selectInfoItemByActivityId(activitiesID,participantID);
         return infoItems;
     }
     //对选手不筛选，只靠acid获得

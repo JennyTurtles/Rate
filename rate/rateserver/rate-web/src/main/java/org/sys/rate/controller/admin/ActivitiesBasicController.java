@@ -3,18 +3,17 @@ package org.sys.rate.controller.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.ActivitiesMapper;
-import org.sys.rate.model.Activities;
-import org.sys.rate.model.Log;
-import org.sys.rate.model.RespBean;
-import org.sys.rate.model.RespPageBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.ActivitiesService;
 import org.sys.rate.service.admin.LogService;
+import org.sys.rate.service.admin.ParticipatesService;
 import org.sys.rate.service.admin.ScoreItemService;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -25,6 +24,8 @@ public class ActivitiesBasicController {
     @Autowired
     ActivitiesService activitiesService;
 
+    @Autowired
+    ParticipatesService participatesService;
     @Autowired
     ScoreItemService scoreItemService;
 
@@ -174,6 +175,17 @@ public class ActivitiesBasicController {
     @GetMapping("/check")
     public Boolean noRelative(@RequestParam Integer id) {
         return activitiesService.noRelative(id) && scoreItemService.noRelative(id);
+    }
+    @GetMapping("/getActivityOfStudent")
+    public List<Activities> getActivityOfStudent(@RequestParam(defaultValue = "1") Integer page,
+                                        @RequestParam(defaultValue = "10") Integer size,@RequestParam Integer studentID) {
+
+        List<Participates> pars =  participatesService.getParticipantIDByStudentID(studentID);
+        List<Activities> activities = new ArrayList<>();
+        for (int i = 0;i < pars.size();i ++){
+            activities.add(activitiesService.getActivity(pars.get(i).getActivityID()).get(0));
+        }
+        return activities;
     }
 }
 

@@ -32,4 +32,5 @@ public interface StudentMapper {
 
     int updateFROMImport(Student record);
     public List<Student> selectList();
+    int deleteStudent(Integer ID);
 }

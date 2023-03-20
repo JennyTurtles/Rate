@@ -61,4 +61,6 @@ public interface ActivitiesMapper {
 
     Activities queryById(@Param("id")Integer id);
     List<Activities>  selectActivity(@Param("activityID") Integer activityID);
+    List<Activities>  selectActivities( List<Integer> activityID);
+
 }

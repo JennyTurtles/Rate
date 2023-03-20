@@ -86,7 +86,7 @@
                 #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
         <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
                 #{username,jdbcType=VARCHAR},
-                #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,'1003','10'
+                #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,0,'7'
                )
     </insert>
 
@@ -99,4 +99,7 @@
                 </set>
         where IDNumber=#{IDNumber,jdbcType=VARCHAR} and ID!='0'
     </update>
+    <delete id="deleteStudent" parameterType="Integer">
+        delete from student where ID = #{ID};
+    </delete>
 </mapper>

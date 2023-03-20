@@ -696,6 +696,7 @@ export default {
 
     },
     groupsForParticipant(){//选手分组,点击按钮对话框弹出 //获得该活动下的所有Infoitem，其中包括content
+      console.log('kk')
       var flag = false//判断当前的选手列表中是否已经分过组
       if(this.emps != null && this.emps.length != 0){
       }else {
@@ -711,6 +712,10 @@ export default {
           if(resp.code == 200){
             //存放infoItem
             var infoItems = resp.extend.infoItems
+            if(resp.extend.infoItems.length === 0){
+              this.$message.warning('该活动下没有未分组的选手！')
+              return
+            }
             for(var i = 0;i < infoItems.length;i ++){
               if(!(infoItems[i].name in this.groupInfoNums)){
                 this.groupInfoNums[infoItems[i].name]={'infoItemID':infoItems[i].id}//将每一个信息项改为对象形式,再加上每个信息项的id
@@ -729,13 +734,6 @@ export default {
                 id:this.groupInfoNums[i].infoItemID
               })
             }
-            // for(var i of resp.extend.scoreItems){
-            //   this.sortByList.push({
-            //     type:'评分项',
-            //     name:i.name,
-            //     id:i.id
-            //   })
-            // }
             console.log(this.groupInfoNums)
             if(!this.groupNums){
               this.groupNums = Array.from(Array(10).keys(),n=>n+1)
