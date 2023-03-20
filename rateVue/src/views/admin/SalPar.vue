@@ -72,7 +72,6 @@
             fixed
             align="left"
             label="序号"
-            width="200px"
             v-if="mode === 'admin'"
         >
           <template slot-scope="scope">
@@ -98,29 +97,25 @@
         <el-table-column
             prop="code"
             align="left"
-            label="编号"
-            width="200px">
+            label="编号">
         </el-table-column>
         <el-table-column
             prop="idnumber"
             align="left"
-            label="身份证号码"
-            width="200px">
+            label="身份证号码">
         </el-table-column>
         <el-table-column
             prop="name"
             align="left"
-            label="姓名"
-            width="100px">
+            label="姓名">
         </el-table-column>
         <el-table-column
             sortable
             prop="score"
             label="得分"
-            align="center"
-            width="80px">
+            align="center">
         </el-table-column>
-        <el-table-column align="left" v-if="mode==='admin'" min-width="10%" label="操作">
+        <el-table-column align="left" v-if="mode==='admin'" label="操作">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"

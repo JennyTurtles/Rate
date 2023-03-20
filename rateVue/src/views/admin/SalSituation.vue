@@ -50,6 +50,7 @@
                     prop="displaySequence"
                     align="left"
                     label="选手序号"
+                    sortable
                     min-width="5%">
                     <template slot-scope="scope">
                         <span>{{ scope.row.displaySequence }}</span>
