@@ -1,11 +1,12 @@
 <template>
   <div>
-    <div>
+    <div >
+      <a v-show="mode==='admin'">
       选手导入到本组<br/><br/>
       选手第一次导入时，可先不分组。此时可以将导入表格中的“分组名称”留空，进行导入操作。待分组后，再导入一次，从而实现分组。
       选手的信息项以及评分项，也可在选手第一次导入时留空，待第二次、第三次（或之后）导入时填入那些信息。<br/>
+      </a>
       <div style="display: flex;justify-content: space-between;">
-
         <!-- <div>
           <el-input placeholder="请输入单位名进行搜索，可以直接回车搜索..." prefix-icon="el-icon-search"
                     clearable
@@ -16,7 +17,7 @@
             搜索
           </el-button>
         </div> -->
-        <div>
+        <div v-show="mode==='admin'">
           <span style="font-weight:600;">导入新数据</span> 第一步：
 <!--          <a href="/participants/basic/exportMoPar?activityid=15">Test ResponseEntity</a>-->
           <el-button type="primary" @click="exportCheckbox" icon="el-icon-upload" style="margin-right: 8px">
@@ -71,7 +72,9 @@
             fixed
             align="left"
             label="序号"
-            width="200px">
+            width="200px"
+            v-if="mode === 'admin'"
+        >
           <template slot-scope="scope">
             <el-input-number v-model="scope.row.displaySequence" :min="1" :max="total"
                              controls-position="right"
@@ -80,10 +83,17 @@
             ></el-input-number>
             <el-button icon="" type="primary" @click="alterDisplay(scope.row)" size="mini"
                        style="padding: 4px"
-                       plain>
-              更改
+                       plain >更改
             </el-button>
           </template>
+        </el-table-column>
+        <el-table-column
+            prop="displaySequence"
+            fixed
+            align="center"
+            label="序号"
+            v-if="mode !== 'admin'"
+            >
         </el-table-column>
         <el-table-column
             prop="code"
@@ -104,12 +114,13 @@
             width="100px">
         </el-table-column>
         <el-table-column
+            sortable
             prop="score"
             label="得分"
             align="center"
             width="80px">
         </el-table-column>
-        <el-table-column align="left" min-width="10%" label="操作">
+        <el-table-column align="left" v-if="mode==='admin'" min-width="10%" label="操作">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"
@@ -132,7 +143,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div style="display: flex;justify-content: flex-end;margin:10px 0">
+      <div v-show="mode==='admin'" style="display: flex;justify-content: flex-end;margin:10px 0">
         <el-pagination
             background
             @current-change="currentChange"
@@ -539,7 +550,7 @@ export default {
     },
     initEmps() {
       this.loading = true;
-      let url = '/participants/basic/?page=' + this.page + '&size=' + this.size+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
+      let url = '/participants/basic/?page=' + this.page + '&size=' + 1000+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
@@ -552,15 +563,8 @@ export default {
     },
     back(){
       const _this = this;
-      var url = ""
-      if (this.mode === 'admin'){
-        url = "/ActivitM/table"
-      }else if (this.mode === "secretary"){
-        url = "/secretary/ActManage"
-      }
-      console.log(url)
       _this.$router.push({
-        path: url,
+        path: "/ActivitM/table",
         query: {
           keywords: this.activityID,
           keyword_name: this.ACNAME,

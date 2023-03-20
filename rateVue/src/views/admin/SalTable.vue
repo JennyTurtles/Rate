@@ -108,7 +108,6 @@
             >
             <el-button
                 @click="showParticipantsM(scope.row)"
-                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-s-operation"
