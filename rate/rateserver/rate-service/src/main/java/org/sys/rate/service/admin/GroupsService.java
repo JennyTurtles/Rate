@@ -147,7 +147,7 @@ public class GroupsService {
             }
             System.out.println();
         }
-        List<List<double []>> resgroupExchange = cp.createG(point,exchangeNums,groupsNums,167);
+        List<List<double []>> resgroupExchange = cp.createG(point,exchangeNums,groupsNums,point_participant.size());
         System.out.println("交换后groups:");
         for(List<double []> x : resgroupExchange){
             for(double[] y : x){
@@ -163,11 +163,12 @@ public class GroupsService {
     }
 
     //判断分组依据是字符串还是数字
-    public void judgeNumber(Integer activityID,
+    public String judgeNumber(Integer activityID,
                             Integer infoItemID,List<Integer> arr,
-                            Integer exchangeNums,Integer groupsNums,List<String> infoContent){
+                            Integer exchangeNums,Integer groupsNums,List<String> infoContent,Integer sortByItemID){
         List<Infos> infosList = new ArrayList<>();
         List<Participates> participates = new ArrayList<>();
+        //通过infoItemID筛选出没有分组的选手
         //没有子信息项
         if(infoContent.size() == 0){
             infosList = infosMapper.getParticipantIDtByAIdAndInfoItemID(activityID,infoItemID);
@@ -176,6 +177,9 @@ public class GroupsService {
                 participantID.add(infosList.get(i).getParticipantID());
             }
             participates = participatesMapper.getParticipantByAIdAndID(activityID,participantID);
+            if(participates.size() == 0){
+                return "没有未分组的选手";
+            }
         }else {
             participates = infosService.getPartipicantByActivityId(activityID,infoItemID,infoContent);
             List<Integer> participantID = new ArrayList<>();
@@ -185,6 +189,8 @@ public class GroupsService {
             //拿到没分组选手的info content
             infosList = infosMapper.getInfoitemsListByParAndAcID(activityID,participantID,infoItemID);
         }
+
+        //通过sortByItemID筛选出没有分组的选手
         boolean flage = true;
         try {
             for(Infos info : infosList){
@@ -195,6 +201,7 @@ public class GroupsService {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return "分组失败";
         }
         if(!flage){//字符串，不是全分数
             for (int i = 0;i< arr.size();i++){//每组多少人
@@ -203,24 +210,24 @@ public class GroupsService {
         }else {//全是分数
             List<Double> point = new ArrayList<>();
             List<double []> point_participant = new ArrayList<>();
-            List<Double> points = switchTypeOfScore();//转换数据类型
-//            for(Infos info : infosList){
+//            List<Double> points = switchTypeOfScore();//转换数据类型
+            for(Infos info : infosList){
+                double [] temp = new double[3];
+                point.add(Double.valueOf(info.getContent()));
+                temp[0] = Double.valueOf(info.getContent());//分数
+                temp[1] = Double.valueOf(info.getParticipantID());//选手id
+                temp[2] = Double.valueOf(-1);//组号标识
+                point_participant.add(temp);
+            }
+//            for(int nn = 0;nn<167;nn++){
 //                double [] temp = new double[3];
-//                point.add(Double.valueOf(info.getContent()));
-//                temp[0] = Double.valueOf(info.getContent());
-//                temp[1] = Double.valueOf(info.getParticipantID());
+//                temp[0] = Double.valueOf(points.get(nn));
+//                temp[1] = Double.valueOf(nn);
 //                temp[2] = Double.valueOf(-1);
 //                point_participant.add(temp);
 //            }
-            for(int nn = 0;nn<167;nn++){
-                double [] temp = new double[3];
-                temp[0] = Double.valueOf(points.get(nn));
-                temp[1] = Double.valueOf(nn);
-                temp[2] = Double.valueOf(-1);
-                point_participant.add(temp);
-            }
             //得到交换后的groups
-            List<List<double []>>res = createGroupsByScore(arr,exchangeNums,groupsNums,points,point_participant);
+            List<List<double []>>res = createGroupsByScore(arr,exchangeNums,groupsNums,point,point_participant);
             String name = "";
             //对每组遍历
             try {
@@ -241,8 +248,10 @@ public class GroupsService {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                return "分组失败";
             }
         }
+        return "分组成功";
     }
     //正则判断是否含有字符串
     public static boolean isDouble(String s) {

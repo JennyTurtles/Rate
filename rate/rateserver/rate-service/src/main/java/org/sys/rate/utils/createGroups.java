@@ -6,7 +6,7 @@ import java.util.List;
 
 public class createGroups {
     public static List<List<double []>> groups = new ArrayList<List<double []>>();
-    public static double avg;
+    public static double avg = 0;
     public static double[][] meanValueOfGroups;
 
     public static int allGroupsNums() {

@@ -137,7 +137,7 @@ public class GroupsController {
 
     @PostMapping("/createGroups")
     @ResponseBody
-    public void createGroups(@RequestBody Map<String,Object> data) throws ParseException {
+    public String createGroups(@RequestBody Map<String,Object> data) throws ParseException {
         Integer activityID = (Integer) data.get("activityID");
         Integer infoItemID = (Integer) data.get("infoItemID");
         Integer sortByItemID = (Integer) data.get("sortByItemID");
@@ -145,7 +145,7 @@ public class GroupsController {
         Integer exchangeNums = (Integer) data.get("exchangeNums");
         Integer groupsNums = (Integer) data.get("groupsNums");
         List<String> infoContent = (List<String>) data.get("infoContent");
-        groupsService.judgeNumber(activityID,infoItemID,arr,exchangeNums,groupsNums,infoContent);
+        return groupsService.judgeNumber(activityID,infoItemID,arr,exchangeNums,groupsNums,infoContent,sortByItemID);
         //返回分好组的选手信息
     }
 }
