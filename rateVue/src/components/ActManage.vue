@@ -579,6 +579,10 @@ export default {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
+            // this.emp.startDate = new Date(this.emp.startDate)
+            // console.log(
+            //     typeof (this.emp.startDate)
+            // )
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(
                 (resp) => {
@@ -626,7 +630,6 @@ export default {
               resp.data[i].startDate = year + "-" + month + "-" + date
             }
             this.emps = resp.data;
-            console.log(this.emps)
             this.total = resp.total;
           }
         });

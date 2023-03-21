@@ -303,12 +303,16 @@
     </if>
   </select>
   <update id="insert_update" parameterType="org.sys.rate.model.ScoreItem">
-    UPDATE activities a SET a.scoreItemCount = a.scoreItemCount+1  WHERE a.ID = #{activityid,jdbcType=INTEGER}
+    UPDATE activities a SET a.scoreItemCount = a.scoreItemCount + 1,
+                            a.score = a.score + #{coef} * #{score}
+    WHERE a.ID = #{activityid,jdbcType=INTEGER}
   </update>
 
   <update id="delete" parameterType="org.sys.rate.model.ScoreItem">
     DELETE FROM scoreitem WHERE ID = #{id,jdbcType=INTEGER};
-    UPDATE activities SET scoreItemCount = scoreItemCount-1  WHERE ID = #{activityid,jdbcType=INTEGER}
+    UPDATE activities a SET a.scoreItemCount = a.scoreItemCount-1,
+                          a.score = a.score - #{coef} * #{score}
+    WHERE a.ID = #{activityid,jdbcType=INTEGER};
   </update>
   <update id="update" parameterType="org.sys.rate.model.ScoreItem">
     UPDATE scoreitem SET activityID=#{activityid,jdbcType=INTEGER},
@@ -317,7 +321,7 @@
                          coef=#{coef,jdbcType=DOUBLE},
                          byExpert=#{byexpert,jdbcType=BOOLEAN},
                          comment = #{comment,jdbcType=VARCHAR}
-    where ID=#{id,jdbcType=INTEGER}
+    where ID=#{id,jdbcType=INTEGER};
   </update>
   <select id="getTotalforactivityCount" resultType="java.lang.Integer">
     select count(*) from scoreitem

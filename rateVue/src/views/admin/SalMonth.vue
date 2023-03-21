@@ -307,12 +307,6 @@ export default {
               }
             });
           })
-          // .catch(() => {
-          //   this.$message({
-          //     type: "info",
-          //     message: "已取消删除",
-          //   });
-          // });
     },
     initHrs() {
       this.loading = true;

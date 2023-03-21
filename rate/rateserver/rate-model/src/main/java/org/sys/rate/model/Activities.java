@@ -13,7 +13,7 @@ public class Activities {
     private Integer id;
     private Integer institutionID;
     private String name;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     private Date startDate;
     private  Double score;
     private  Integer scoreItemCount;

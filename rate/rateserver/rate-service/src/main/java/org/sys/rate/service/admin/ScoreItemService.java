@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.sys.rate.mapper.ActivitiesMapper;
 import org.sys.rate.mapper.ScoreItemMapper;
 import org.sys.rate.model.ScoreItem;
 import org.sys.rate.model.RespPageBean;
@@ -17,6 +18,8 @@ import java.util.List;
 public class ScoreItemService {
     @Autowired
     ScoreItemMapper ScoreItemMapper;
+    @Autowired
+    ActivitiesMapper activitiesMapper;
     public final static Logger logger = LoggerFactory.getLogger(ScoreItemService.class);
     SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
     SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
@@ -73,7 +76,6 @@ public class ScoreItemService {
     }
 
     public Integer updateScoreItem(ScoreItem company) {
-
         int result = ScoreItemMapper.update(company);
         if (result != 1)
             return 0;

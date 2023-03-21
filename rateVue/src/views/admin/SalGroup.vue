@@ -774,7 +774,7 @@ export default {
           sum += parseInt(item.value)
         })
         if(sum != this.filterNoGroupPar.length){
-          this.$message.error('待创建分组人数' + this.filterNoGroupPar.length + '，分组总人数未' + sum + '，人数不相等！')
+          this.$message.error('待创建分组人数为' + this.filterNoGroupPar.length + '，分组总人数为' + sum + '，人数不相等！')
           return
         }
       }
@@ -796,21 +796,24 @@ export default {
       }else {
         return;
       }
-      if(this.selectedSubGroupInfo.length > 0){//判断有没有选择信息项
+      // if(this.selectedSubGroupInfo.length > 0){//判断有没有选择信息项
         data['infoItemID'] = this.groupInfoNums[this.selectedGroupInfo].infoItemID
         data['infoContent']= this.selectedSubGroupInfo
-      }
+      // }
       // else {
       //   return;
       // }
       this.postRequest(url,data).then((resp)=>{
         if(resp){
-          //表格展示是和emps相关的
-          this.$message.success("分组成功")
+          if(resp == "分组成功" ){
+            this.$message.success(resp)
+            this.initEmps()
+          }else {
+            this.$message.error(resp)
+          }
           this.dialogPartipicantGroups = false
           this.filterParticipantsByState = ''
           this.closeDialogGroupOfParticipant()
-          this.initEmps()
         }
       })
     },
