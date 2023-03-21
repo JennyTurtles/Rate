@@ -652,7 +652,7 @@ public class POIUtils {
         {
             r0.createCell(datalist.size()+i).setCellValue("评分项:"+ScoreItem.get(i-InfoItem.size()));
         }
-        row.createCell(datalist.size()).setCellValue("请删除本行，如果student表中已有该选手的记录，则手机号、邮箱、属于本单位三列可为空，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为编号和手机号，其余必须填写");
+        row.createCell(datalist.size()).setCellValue("请删除本行，如果student表中已有该选手的记录，则手机号、邮箱、属于本单位三列可为空，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为编号和手机号，其余必须填写。如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -732,7 +732,8 @@ public class POIUtils {
         row.createCell(8).setCellValue("zhangsan");
         row.createCell(9).setCellValue("123456");
         sheet.createRow(2).createCell(0).setCellValue("请删除提示行，如果数据库中已有该专家的记录，将根据填写信息进行更新，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为手机号和身份证后六位，其余必须填写。");
-        sheet.createRow(3).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
+        sheet.createRow(3).createCell(0).setCellValue("如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
+        sheet.createRow(4).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
