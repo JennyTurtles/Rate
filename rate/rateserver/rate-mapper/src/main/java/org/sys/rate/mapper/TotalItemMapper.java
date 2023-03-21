@@ -15,4 +15,7 @@ public interface TotalItemMapper {
 
     @Select("select count(*) from totalitem where activityID=#{activityID}")
     Long getTotal(Integer activityID);
+
+    @Select("select name from totalitem where ID=#{ID}")
+    String getNameByID(Integer ID);
 }

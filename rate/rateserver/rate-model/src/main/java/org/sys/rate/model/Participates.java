@@ -37,6 +37,7 @@ public class Participates{
     private Integer institutionid;//from stu
     private HashMap<Integer, ScoreItemValue> scoremap;
     private HashMap<Integer, InfoItemValue> infomap;
+    private HashMap<Integer,TotalItemValue> finalmap;
     private String totalscorewithdot;
     /*private Date startDate;
 

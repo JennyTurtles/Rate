@@ -214,7 +214,17 @@
             >导出选手分数
             </el-button
             >
-
+            <el-button
+                @click="showFinalScore(scope.row)"
+                :loading="loading"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-plus"
+                type="primary"
+                plain
+            >查看选手成绩
+            </el-button
+            >
             <el-button
                 @click="endEmp(scope.row)"
                 v-show="mode==='admin'"
@@ -715,6 +725,16 @@ export default {
       const _this = this;
       _this.$router.push({
         path: "/ActivitM/sobcfg",
+        query: {
+          keywords: data.id,
+          keyword_name: data.name,
+        },
+      });
+    },
+    showFinalScore(data){
+      const _this = this;
+      _this.$router.push({
+        path: "/ActivitM/final",
         query: {
           keywords: data.id,
           keyword_name: data.name,

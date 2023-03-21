@@ -11,15 +11,21 @@ public class TotalItem {
 
     private String infoSumIDs;
 
-    private String infoName;
+    private Integer[] infos;
 
-    private String scoreSumIDs;
+    private String[] infoName;
 
-    private String scoreName;
+    private String calcSumIDs;
 
-    private String[] infos;
+    private Integer[] calc;
 
-    private String[] scores;
+    private String[]calcName;
+
+    private Integer displaySequence;
+
+    private  String name;
+
+    private Integer fullScore;
 
     public Integer getID() {
         return ID;

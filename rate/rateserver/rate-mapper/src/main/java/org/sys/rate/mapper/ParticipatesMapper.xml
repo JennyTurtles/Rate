@@ -428,8 +428,8 @@
         SELECT count(*)
         from(
                 SELECT
-                    expertID,
-                    participantID
+                    s.expertID,
+                    s.participantID
                 FROM
                     scores s,
                     teacher t,
@@ -438,7 +438,25 @@
                 WHERE
                     s.expertID=t.ID and p.ID=s.participantID and p.studentID=stu.ID and p.activityID=#{activityID} and p.groupID=#{groupID}
                 GROUP BY
-                    t.`name`,stu.`name`) as table2
+                    s.expertID,s.participantID) as table2
+    </select>
+    <select id="getActivityTotal" resultType="java.lang.Long">
+        select count(*) from participants e,student s where e.studentID =s.ID and e.activityID=#{activityID}
+    </select>
+    <select id="getInfoScoreByInfoID" resultType="org.sys.rate.model.FinalValue">
+        SELECT p.`code`,p.ID AS participantID,`groups`.`name` AS groupName,stu.`name` AS studentName,infoitem.`name` AS infoItemName,p.score as activityScore,infos.content
+        FROM infos,`groups`,student stu,participants p,infoitem
+        WHERE stu.ID = p.studentID AND p.ID = infos.participantID AND p.groupID = groups.ID AND infos.infoItemID = infoitem.ID AND p.activityID =#{activityID} AND infoitem.ID =#{infoItemID}
+        ORDER BY p.groupID;
+<!--        <if test="page !=null and size!=null">-->
+<!--            limit #{page},#{size}-->
+<!--        </if>-->
+    </select>
+    <select id="getAllByActivityID" resultType="org.sys.rate.model.Participates">
+        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID,g.name as groupName from participants e, student s, `groups` g where e.studentID =s.ID and e.activityID=#{activityID} and g.ID=e.groupID order by e.groupID;
+<!--        <if test="page !=null and size!=null">-->
+<!--            limit #{page},#{size}-->
+<!--        </if>-->
     </select>
     <update id="deleteGroupsOfParticipantsAnaAcitivity" parameterType="java.lang.Integer">
         UPDATE participants set groupID = null

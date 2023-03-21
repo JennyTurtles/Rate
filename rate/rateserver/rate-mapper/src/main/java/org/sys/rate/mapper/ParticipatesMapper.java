@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.sys.rate.model.FinalValue;
 import org.sys.rate.model.PEexport;
 import org.sys.rate.model.Participates;
 
@@ -50,6 +51,7 @@ public interface ParticipatesMapper {
     List<Participates> getPByACID(@Param("page") Integer page, @Param("size") Integer size, @Param("groupID") Integer groupID,@Param("emp") Participates employee);
 
     List<Participates> getParticipantsPageByACID(@Param("page") Integer page, @Param("size") Integer size, @Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
+    List<Participates> getAllByActivityID(@Param("page") Integer page,@Param("size") Integer size,@Param("activityID") Integer activityID);
     List<Participates> getParticipantsPageByACIDNoGroup(@Param("page") Integer page, @Param("size") Integer size, @Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
     List<Participates> getParticipantsPageByACIDHaveGroup(@Param("page") Integer page, @Param("size") Integer size, @Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
 
@@ -66,6 +68,7 @@ public interface ParticipatesMapper {
     Long getTotal(@Param("groupID") Integer groupID,@Param("emp") Participates employee);
 
     Long getTotalByACID(@Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
+    Long getActivityTotal(@Param("activityID") Integer activityID);
     Long getTotalByACIDNogroup(@Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
     Long getTotalByACIDHaveGroup(@Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
 
@@ -130,5 +133,7 @@ public interface ParticipatesMapper {
     void updateGroupID(Integer activityID,Integer groupID,List<Integer> parID);
     List<Participates> getParticipantByAId(Integer activityID);
     List<Participates> getParticipantsByAId(Integer activityID);
+
+    List<FinalValue> getInfoScoreByInfoID(@Param("activityID") Integer activityID, @Param("infoItemID") Integer infoItemID,@Param("page") Integer page,@Param("size") Integer size);
     List<Participates> getParticipantsBySID(Integer studentID);
 }

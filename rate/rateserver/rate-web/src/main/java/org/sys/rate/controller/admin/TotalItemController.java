@@ -19,4 +19,9 @@ public class TotalItemController {
     public RespPageBean getByActivityID(Integer activityID){
         return totalItemService.getByActivityID(activityID);
     }
+
+    @GetMapping("/getfianl")
+    public RespPageBean getFinalByPage(Integer activityID,Integer page,Integer size){
+        return totalItemService.getFinalScore(activityID,page,size);
+    }
 }

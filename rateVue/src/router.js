@@ -79,6 +79,11 @@ export default new Router({
           name: 'SalTotal',
           component: () => import('./views/admin/SalTotal'),
           meta: { title: 'SalTotal' },
+        },{
+          path: '/ActivitM/final',
+          name: 'SalFinalScore',
+          component: () => import('./views/admin/SalFinalScore'),
+          meta: { title: 'SalFinalScore' },
         }, {//管理员下的
           path: '/ActivitM/search',
           name: 'ActManage',
