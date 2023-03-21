@@ -59,6 +59,7 @@
 
                 <el-table-column
                     v-for="(v, i) in this.smap"
+                    v-if="v!=='活动得分'"
                     :prop="v"
                     :label="v"
                     :key="i"
@@ -78,6 +79,26 @@
                         </div>
                     </template>
                 </el-table-column>
+              <el-table-column
+                  v-for="(v, i) in this.smap"
+                  v-if="v==='活动得分'"
+                  :prop="v"
+                  :label="v"
+                  :key="i"
+                  :sortable="true"
+                  :sort-method="(a, b) => {
+
+    return Number(b.scoremap[i].score)- Number( a.scoremap[i].score);
+    }"
+                  :sort-orders="['descending', 'ascending']"
+                  min-width="5%"
+                  align="center">
+                <template slot-scope="scope">
+                  <div v-for="(value,key) in scope.row.scoremap" v-if="key===i">
+                    {{value.score}}
+                  </div>
+                </template>
+              </el-table-column>
 
             </el-table>
             <!--弹窗-->
@@ -108,6 +129,7 @@
                 isFinished: false,
                 activitydata: [],
                 keywords_name: "",
+                expertName:"",
                 groupID: '',
                 size: 10,
                 total: 0,
@@ -223,7 +245,7 @@
         },
         methods: {
             //排序触发事件
-           
+
 
             Delete_ExActivity(si) {
                 this
@@ -277,7 +299,7 @@
                             console.log(resp.data);
                             for (var name in resp.data) {
                                 var value = resp.data[name];
-                                
+
                                 for (var v in value.map) {
                                     var vv = value.map[v];
                                     // console.log(vv);
@@ -290,9 +312,9 @@
                                         .Scores
                                         .push(this.map[i]);
                                 }
-                                
+
                                 // console.log(value);
-                                
+
                                 this.smap = value.smap;
                                 // this.smap = this.Scores.smap
                                 console.log(this.smap);

@@ -50,7 +50,8 @@ vue.prototype.$logs = window.console.log;
             min-width="10%">
         </el-table-column>
         <el-table-column
-            v-for="(v, i) in this.smap"
+            v-for="(v, i) in this.snotByEmap"
+            prop="v"
             :label="v"
             min-width="10%" align="center">
           <template slot-scope="scope">
@@ -60,8 +61,19 @@ vue.prototype.$logs = window.console.log;
           </template>
         </el-table-column>
         <el-table-column
-            v-for="(v, i) in this.snotByEmap"
-            prop="v"
+            v-for="(v, i) in this.smap"
+            v-if="v!=='活动得分'"
+            :label="v"
+            min-width="10%" align="center">
+          <template slot-scope="scope">
+            <div v-for="(value,key) in scope.row.scoremap" v-if="key===i">
+              {{value.score}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+            v-for="(v, i) in this.smap"
+            v-if="v==='活动得分'"
             :label="v"
             min-width="10%" align="center">
           <template slot-scope="scope">
