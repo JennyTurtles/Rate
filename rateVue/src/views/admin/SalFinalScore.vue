@@ -113,42 +113,42 @@ export default {
     //this.init();//先获得评分项
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
+    this.mode = this.$route.query.mode;
+    this.groupName = this.$route.query.groupName;
     this.initEmps();
   },
   methods: {
     initEmps() {
       this.loading = true;
-      //console.log(this.groupID);
       let url = '/totalItem/basic/getfianl?activityID=' + this.keywords + '&page=' + this.page+ '&size=' + this.size;
-      //console.log(url);
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
-          console.log(resp);
           this.emps = resp.data;
           this.total = resp.total;
           for(var name in resp.data){
             var value =resp.data[name];
             this.map = value.map;
-            console.log(this.map);
             for(var i in this.map){
+              if (this.mode === "secretary" && this.map[i].groupName !== this.groupName)
+                continue
               this.score.push(this.map[i]);
             }
-             console.log(this.score);
             this.tmap=value.tmap;
-            console.log(this.tmap);
           }
         }
       });
     },
     back(){
       const _this = this;
+      var url = ""
+      if (this.mode === 'admin'){
+        url = "/ActivitM/search"
+      }else if (this.mode === "secretary"){
+        url = "/secretary/ActManage"
+      }
       _this.$router.push({
-        path: "/ActivitM/search",
-        query: {
-          keywords: this.activityID,
-          keyword_name: this.ACNAME
-        },
+        path: url,
       });
     },
     sizeChange(currentSize) {

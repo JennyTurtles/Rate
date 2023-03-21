@@ -417,7 +417,7 @@
   </update>
 
   <update id="withdrawScore" parameterType="java.lang.Integer">
-    update Expertactivities set finished=0
+    update expertactivities set finished=0
     where teacherID=#{teacherID} and activityID=#{activityID} and groupID=#{groupID};
   </update>
 

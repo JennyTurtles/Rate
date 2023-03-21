@@ -738,6 +738,8 @@ export default {
         query: {
           keywords: data.id,
           keyword_name: data.name,
+          groupName:data.groupName,
+          mode:this.mode, // 修改
         },
       });
     },
