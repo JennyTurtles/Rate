@@ -833,7 +833,7 @@ export default {
             },
           })
           .then((res1) => {
-            if(res1.length===0)
+            if(res1.length===0) // 数据完整，没有空数据
             {
               url = "/participants/basic/import?groupid=0"+"&activityid="+this.keywords+"&insititutionID="+this.user.institutionID;
               axios.post(url, fd, {
@@ -847,17 +847,23 @@ export default {
             }
             else{
               let newD=[],h=this.$createElement;
-              newD.push(h('p',null,'导入数据中'));
-              // for(const i in res1)
-              // {
-              //   newD.push(h('p',null,res1[i]))
-              // }
-              newD.push(h('p',null,'为空，以上列数据会被置空，是否确认继续?'));
+              // newD.push(h('p',null,'确认导入数据？'));
+              // newD.push(h('p',null,'导入数据中'));
+              var count = 0
+              for(const i in res1)
+              {
+                count++
+                newD.push(h('p',null,res1[i]))
+                if (count === 15) // 最多显示15行
+                  break
+              }
+              newD.push(h('p',null,'是否确认继续?'));
               this.$confirm(h('div',null,newD), '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
               }).then(() => {
+                that.loading = true
                 url = "/participants/basic/import?groupid=0"+"&activityid="+this.keywords+"&insititutionID="+this.user.institutionID;
                 axios.post(url, fd, {
                   headers: {
@@ -865,6 +871,7 @@ export default {
                     'token':that.user.token
                   },
                 }).then((res) => {
+                  that.loading = false
                   this.initEmps();
                   this.$message(res.msg);
                 })
