@@ -70,7 +70,6 @@ public class InfoItemController {
             str5.append(s).append(',');
         }
         infoItem.setContentType(str5.toString());
-        System.out.println(infoItem.getContentType());
         if (ID == null) {
             if (infoItemService.addParticipates(infoItem) == 1) {
                 Log log=new Log();
