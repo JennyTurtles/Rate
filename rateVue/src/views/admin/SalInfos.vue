@@ -380,7 +380,6 @@ export default {
           this.loading = false;
           this.hrs = resp.data;
           this.total = resp.total;
-          console.log(this.hrs)
         }
       });
     },
@@ -482,15 +481,10 @@ export default {
       });
     },
     UpdateOrNew(infoItem) {
-      // console.log("update")
-      // console.log(infoItem)
       const _this = this;
-      // console.log(scoreItem);
-      //this.$router.push({name:'/scoreItem/basic/update',params:{scoreItem:_this.hrs,total:_this.total}})
       _this
           .postRequest("/infoItem/basic/UpdateOrNew?institutionID="+this.user.institutionID, infoItem)
           .then((resp) => {
-            // console.log(resp);
             if(resp.msg==='更新成功!')
             {Message.success(resp.msg);
               this.reset();}
@@ -526,6 +520,7 @@ export default {
               }
             else if(resp.msg==='新增成功!')
             {Message.success(resp.msg);
+              this.reset();
               }
             else
             {Message.error(resp.msg);}
