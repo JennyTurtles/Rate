@@ -162,7 +162,7 @@
           v-for="(value, idx) in datalist.scoreitems"
           :key="value.id"
           v-if="value.name == '活动得分'"
-          :label="'活动得分'"
+          :label="'总评分'"
           min-width="120px"
           align="center"
         >
@@ -316,7 +316,6 @@ export default {
     };
   },
   created() {
-
     this.dataRefreh();
     this.initPage();
   },
@@ -433,12 +432,13 @@ export default {
     onSuccess(res) {
       if (res.msg === "success") {
         Message.success("数据导入成功！");
+        this.initAct();
         this.refreshact(true);
         this.initState();
       } else {
         Message.error("导入失败，请检查文件格式！");
       }
-      this.initAct();
+
     },
     Upload() {
       this.loading = true;
@@ -626,6 +626,8 @@ export default {
           center: true,
         })
       }
+      console.log('initstate')
+      console.log(this.datalist)
     },
     onInputConfirm(row, index) {
       this.$set(this.datalist.participatesList[index], "showSave", true);

@@ -330,4 +330,9 @@
                             email=#{email,jdbcType=VARCHAR}
     where rate.teacher.ID=#{id,jdbcType=INTEGER};
   </update>
+  <select id="check" resultType="INTEGER">
+    select COUNT(*)
+    from scores
+    where expertID = #{eID} and activityID = #{aID} and participantID = #{pID} and scoreItemID = #{sID}
+  </select>
 </mapper>

@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.sys.rate.mapper.ScoresMapper;
 import org.sys.rate.mapper.TeacherMapper;
 import org.sys.rate.model.*;
 
@@ -16,6 +17,8 @@ import java.util.List;
 public class TeacherService implements UserDetailsService{
     @Autowired
     TeacherMapper teacherMapper;
+    @Autowired
+    ScoresMapper scoresMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -81,7 +84,8 @@ public class TeacherService implements UserDetailsService{
             //检查专家该项评分存不存在
             if (teacherMapper.check(score.getExpertID(),score.getActivityID(),score.getParticipantID(),score.getScoreItemID()) > 0) {
                 //存在就更新分数
-                int i = teacherMapper.updateScore(score);
+                int i = scoresMapper.updateScore(score.getExpertID(),score.getActivityID(),
+                        score.getParticipantID(),score.getScoreItemID(),score.getScore());
                 if(i>0){
                     System.out.println("评分更新！条数：" + i);
                 }else{
@@ -91,7 +95,8 @@ public class TeacherService implements UserDetailsService{
                 }
             } else {
                 //没有就插入该评分
-                int insert = teacherMapper.insertScore(score);
+                int insert = scoresMapper.insertScore(score.getExpertID(),score.getActivityID(),
+                        score.getParticipantID(),score.getScoreItemID(),score.getScore());
                 if (insert > 0) {
                     System.out.println("insert->" + score + " 的信息插入成功");
                 } else {

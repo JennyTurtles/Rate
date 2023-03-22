@@ -48,7 +48,7 @@ public interface TeacherMapper {
 
     int update(Teacher record);
 
-    int check(Integer eID,Integer aID,Integer pID,Integer sID);
+    Integer check(Integer eID,Integer aID,Integer pID,Integer sID);
 
     int updateScore(Scores NewScore);
 

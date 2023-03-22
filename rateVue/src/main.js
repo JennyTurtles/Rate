@@ -67,7 +67,7 @@ Vue.directive('focus', {
 Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 };
 Vue.use(Transfer)
 Vue.use(Switch);
-Vue.use(Message);
+Vue.component(Message);
 Vue.use(CollapseItem);
 Vue.use(Radio);
 Vue.use(RadioGroup);
