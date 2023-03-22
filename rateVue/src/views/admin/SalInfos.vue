@@ -62,7 +62,7 @@
           <template slot-scope="scope">
             <el-checkbox
                 v-model.trim="scope.row.byParticipant"
-                @change="UpdateCheckbox(scope.row)"
+                @change="UpdateCheckbox(scope.row,'byParticipan')"
             ></el-checkbox>
             选手填写
           </template>
@@ -74,7 +74,7 @@
             min-width="10%"
         >
           <template slot-scope="scope">
-            <el-select v-model="scope.row.shuZuType" placeholder="请contentType类型"
+            <el-select v-model="scope.row.shuZuType" placeholder="请输入类型"
                        multiple
                        min-width="10%"
                        v-focus
@@ -128,7 +128,7 @@
           <template slot-scope="scope">
             <el-checkbox
                 v-model.trim="scope.row.display"
-                @change="UpdateCheckbox(scope.row) "
+                @change="UpdateCheckbox(scope.row,'display') "
             ></el-checkbox>
             display
           </template>
@@ -502,13 +502,20 @@ export default {
             }
           });
     },
-    UpdateCheckbox(infoItem) {
+    UpdateCheckbox(infoItem,mode) {
       const _this = this;
-      console.log("infoitem")
-      console.log(infoItem)
-      console.log(this.hrs)
+      if (mode === 'byParticipan')
+      {
+        if (infoItem.byParticipant === false){
+          infoItem.shuZuType = ['label']
+          infoItem.contentType = 'label'
+        }else
+        {
+          infoItem.shuZuType = []
+          infoItem.contentType = ''
+        }
+      }
       this.loading = true
-      //this.$router.push({name:'/scoreItem/basic/update',params:{scoreItem:_this.hrs,total:_this.total}})
       _this
           .postRequest("/infoItem/basic/UpdateOrNew?institutionID="+this.user.institutionID, infoItem)
           .then((resp) => {
