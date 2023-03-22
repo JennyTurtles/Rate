@@ -5,7 +5,7 @@
         <div class="title">教学辅助系统</div>
         <div>
           <el-dropdown class="userInfo" @command="commandHandler">
-            <span class="el-dropdown-link"> 你好，{{ user.name }}<i></i> </span>
+            <span class="el-dropdown-link"> 你好，{{ user.name }}<a v-show=" user.role.indexOf('3') !== -1 ||user.role.indexOf('4') !== -1 ||user.role.indexOf('8') !== -1 ||user.role.indexOf('9') !== -1">老师</a> </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="userinfo">个人中心</el-dropdown-item>
               <!--                            <el-dropdown-item command="setting">设置</el-dropdown-item>-->
@@ -109,7 +109,8 @@ export default {
   },
   mounted() {
     this.routes = JSON.parse(sessionStorage.getItem('initRoutes'))
-    console.log(this.routes)
+    console.log("init")
+    console.log(this.user.role.indexOf('1'))
     // 获取浏览器可视区域高度
     this.clientHeight = `${document.documentElement.clientHeight}`;
     this.role = JSON.parse(localStorage.getItem("user")).role

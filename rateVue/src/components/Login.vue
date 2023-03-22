@@ -1,6 +1,7 @@
 <template>
   <div>
-    <el-form :rules="rules"
+    <el-form @submit.native.prevent
+             :rules="rules"
              ref="loginForm"
              v-loading="loading"
              element-loading-text="正在登录..."
@@ -26,6 +27,7 @@
       <el-button size="normal"
                  type="primary"
                  style="width: 100%;"
+                 native-type="submit"
                  @click="submitLogin">登录</el-button>
     </el-form>
   </div>
@@ -89,6 +91,14 @@ export default {
         }
       });
     },
+    created() {
+      window.addEventListener("keydown", this.handkeyCode, true);
+    },
+
+    destroyed() {
+      window.onkeydown = undefined;
+    },
+
     // // // 放入公钥，构建加密器
     // encrypt(obj){
     //   let encrypt = new JsEncrypt()

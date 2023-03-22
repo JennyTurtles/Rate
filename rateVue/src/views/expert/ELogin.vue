@@ -6,6 +6,7 @@
         <h1>我们一起建设更美好的世界！</h1>
       </div>
       <el-form
+          @submit.native.prevent
         :rules="rules"
         ref="loginForm"
         v-loading="loading"
@@ -40,7 +41,7 @@
             placeholder="请输入密码"
           ></el-input>
         </el-form-item>
-        <el-button type="primary" class="loginBtn" @click="submitLogin"
+        <el-button type="primary" class="loginBtn" native-type="submit" @click="submitLogin"
           >登录</el-button
         >
       </el-form>
@@ -152,9 +153,13 @@ export default {
   //添加登录背景图片
   created() {
     document.body.classList.add("body-home");
+    window.addEventListener('keydown', this.handkeyCode, true)//开启监听键盘按下事件
   },
   beforeDestroy() {
     document.body.classList.remove("body-home");
+  },
+  destroyed() {
+    window.onkeydown = undefined;
   },
 };
 </script>
