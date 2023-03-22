@@ -334,7 +334,8 @@ export default {
   },
 
   mounted() {
-
+      this.initPage()
+    },
     // this.$nextTick(() => {
     //   this.windowScreenHeight = window.innerHeight - 210;
     // });
@@ -357,7 +358,6 @@ export default {
     //     this.fullscreenLoading = false;
     //   }, 700);
     // }
-  },
   filters:{
     fileNameFilter:function(data){//将上传的材料显示出来
       if(data == null || data == ''){
@@ -382,16 +382,16 @@ export default {
           this.datalist = initscore;
         } else {
           this.fullscreenLoading = true;
-          this.initAct();
+          this.initAct()
           setTimeout(() => {
             this.datalist = this.datal;
             this.initState();
             sessionStorage.setItem("score", JSON.stringify(this.datalist));
             // if (!this.datalist.finished) {
-              this.reload();
+            this.reload();
             // }
             this.fullscreenLoading = false;
-            console.log(this.datalist)
+            console.log(this.datalist.scoreitems)
           }, 1500);
         }
       })
@@ -429,12 +429,14 @@ export default {
       this.loading = false;
       window.open(url, "_parent");
     },
-    onSuccess(res) {
+    async onSuccess(res) {
       if (res.msg === "success") {
         Message.success("数据导入成功！");
-        this.initAct();
-        this.refreshact(true);
-        this.initState();
+        await this.refreshact(true);
+        // this.initAct()
+         this.initState();
+         // this.reload()
+         // sessionStorage.setItem("score",JSON.stringify(this.datalist))
       } else {
         Message.error("导入失败，请检查文件格式！");
       }
@@ -540,18 +542,18 @@ export default {
       return "text-align:center";
     },
     initState() {
-      let n = this.datalist.participatesList.length;
-      let m = this.datalist.scoreitems.length;
-      let p = this.datalist.scoresListNoExpert.length;
-      let e = this.datalist.scoresListByExpert.length;
-      let q = this.datalist.infoItems.length;
-      let w = this.datalist.infosList.length;
-      for (var i = 0; i < n; i++) {
+      let par = this.datalist.participatesList.length;
+      let score = this.datalist.scoreitems.length;
+      let scoreNoExpert = this.datalist.scoresListNoExpert.length;
+      let scoreByExpert = this.datalist.scoresListByExpert.length;
+      let infoitems = this.datalist.infoItems.length;
+      let infos = this.datalist.infosList.length;
+      for (var i = 0; i < par; i++) {
         this.datalist.participatesList[i]["showSave"] = false;
         this.datalist.participatesList[i]["sum"] = 0;
         var sum = 0;
-        for (var j = 0; j < m; j++) {
-          for (var k = 0; k < p; k++) {
+        for (var j = 0; j < score; j++) {
+          for (var k = 0; k < scoreNoExpert; k++) {
             if (
                 (this.datalist.scoreitems[j]["id"] ==
                     this.datalist.scoresListNoExpert[k]["scoreItemID"]) &
@@ -563,14 +565,14 @@ export default {
                   this.datalist.scoresListNoExpert[k]["score"];
             }
           }
-          for (var l = 0; l < e; l++) {
+          for (var l = 0; l < scoreByExpert; l++) {
             if (
                 (this.datalist.scoreitems[j]["id"] ==
                     this.datalist.scoresListByExpert[l]["scoreItemID"]) &
                 (this.datalist.participatesList[i]["id"] ==
                     this.datalist.scoresListByExpert[l]["participantID"])
             ) {
-              if (j == m - 1) {
+              if (j == score - 1) {
                 this.$set(
                     this.datalist.participatesList[i],
                     "sum",
@@ -586,22 +588,22 @@ export default {
             }
           }
         }
-        if (this.datalist.participatesList[i]["sum"] == 0) {
-          for (var l = 0; l < m; l++) {
+        // if (this.datalist.participatesList[i]["sum"] == 0) {
+          for (var l = 0; l < score; l++) {
             if (this.datalist.participatesList[i]["score" + l]) {
               sum +=
                   (this.datalist.participatesList[i]["score" + l] - "0") *
                   this.datalist.scoreitems[l].coef;
             }
-          }
+          // }
           this.$set(this.datalist.participatesList[i], "sum", sum);
         }
-        for (var s = 0; s < w; s++) {
+        for (var s = 0; s < infos; s++) {
           if (
               this.datalist.participatesList[i]["id"] ==
               this.datalist.infosList[s]["participantID"]
           ) {
-            for (var d = 0; d < q; d++) {
+            for (var d = 0; d < infoitems; d++) {
               if (
                   this.datalist.infosList[s]["infoItemID"] ==
                   this.datalist.infoItems[d]["id"]
@@ -684,7 +686,6 @@ export default {
       this.Adata.Auserid = this.user.id;
       let num = this.$route.query.keywords;
       let listActivityTemp = this.list.activitiesList;
-      console.log(listActivityTemp);
       this.Adata.Aid = listActivityTemp[num].activityID;
       this.Adata.AgroupId = listActivityTemp[num].groupId;
       this.Aname = listActivityTemp[num].activityLists[0].name;
