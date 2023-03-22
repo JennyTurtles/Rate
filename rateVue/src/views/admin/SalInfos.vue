@@ -61,8 +61,6 @@
         >
           <template slot-scope="scope">
             <el-checkbox
-                :true-label="1"
-                :false-label="0"
                 v-model.trim="scope.row.byParticipant"
                 @change="UpdateCheckbox(scope.row)"
             ></el-checkbox>
@@ -105,7 +103,7 @@
         >
           <template slot-scope="scope">
             <el-input
-                v-if="scope.row.index === tabClickIndex && tabClickLabel === '大小限制(字节默认为M，字为字数)'"
+                v-if="scope.row.index === tabClickIndex && tabClickLabel === '大小限制(字节默认为M，字为字数)' && scope.row.byParticipant === true "
                 v-focus
                 v-model="scope.row.sizelimit"
                 placeholder="请输入sizelimit"
@@ -129,8 +127,6 @@
         >
           <template slot-scope="scope">
             <el-checkbox
-                :true-label="1"
-                :false-label="0"
                 v-model.trim="scope.row.display"
                 @change="UpdateCheckbox(scope.row) "
             ></el-checkbox>
@@ -221,7 +217,8 @@ export default {
         {name:"textarea",famname:"字",disabled:false},
         {name:"pdf",famname:"字节",disabled:false},
         {name:"jpg",famname:"字节",disabled:false},
-        {name:"zip",famname:"字节",disabled:false}
+        {name:"zip",famname:"字节",disabled:false},
+        {name:"label",famname:"",disabled:false}
       ],
       activitydata: [],
       keywords_name: "",
@@ -305,7 +302,7 @@ export default {
         }
         return;
       }
-      if (row.shuZuType.indexOf("textbox") !== -1 || row.shuZuType.indexOf("textarea") !== -1){ // 有文本类型
+      if (row.shuZuType.indexOf("textbox") !== -1 || row.shuZuType.indexOf("textarea") !== -1 || row.shuZuType.indexOf("label") !== -1){ // 有文本类型
         for (let i = 0; i < this.shuju.length; i++) {
           this.shuju[i].disabled = true
         }
@@ -316,8 +313,18 @@ export default {
         if (row.shuZuType.length !== 0){ // 有文件类型
           this.shuju[0].disabled = true
           this.shuju[1].disabled = true
+          this.shuju[5].disabled = true
         }
       }
+      if (row.byParticipant === true){
+        this.shuju[5].disabled = true
+      }
+      else{
+        for (let i = 0; i < this.shuju.length - 1; i++) {
+          this.shuju[i].disabled = true
+        }
+      }
+      // this.shuju[5].disabled = row.byParticipant === true; // 选手填写打了个勾，label类型就要被禁止
     },
     Delete_Info_Item(si) {
       this.$confirm("此操作将永久删除【" + si.name + "】, 是否继续?", "提示", {
@@ -373,6 +380,7 @@ export default {
           this.loading = false;
           this.hrs = resp.data;
           this.total = resp.total;
+          console.log(this.hrs)
         }
       });
     },
@@ -423,7 +431,7 @@ export default {
     },
     handleEdit(index, row, label) {
       if (label === 'type'){
-        if (row.shuZuType.indexOf("textbox") !== -1 || row.shuZuType.indexOf("textarea") !== -1){ // 有文本类型
+        if (row.shuZuType.indexOf("textbox") !== -1 || row.shuZuType.indexOf("textarea") !== -1 || row.shuZuType.indexOf("label") !== -1){ // 有文本类型
           for (let i = 0; i < this.shuju.length; i++) {
             this.shuju[i].disabled = true
           }
@@ -434,6 +442,7 @@ export default {
           if (row.shuZuType.length !== 0){ // 有文件类型
             this.shuju[0].disabled = true
             this.shuju[1].disabled = true
+            this.shuju[5].disabled = true
           }
         }
       }
@@ -473,8 +482,8 @@ export default {
       });
     },
     UpdateOrNew(infoItem) {
-      console.log("update")
-      console.log(infoItem)
+      // console.log("update")
+      // console.log(infoItem)
       const _this = this;
       // console.log(scoreItem);
       //this.$router.push({name:'/scoreItem/basic/update',params:{scoreItem:_this.hrs,total:_this.total}})
@@ -497,10 +506,13 @@ export default {
       const _this = this;
       console.log("infoitem")
       console.log(infoItem)
+      console.log(this.hrs)
+      this.loading = true
       //this.$router.push({name:'/scoreItem/basic/update',params:{scoreItem:_this.hrs,total:_this.total}})
       _this
           .postRequest("/infoItem/basic/UpdateOrNew?institutionID="+this.user.institutionID, infoItem)
           .then((resp) => {
+            this.loading = false
             if(resp.msg==='更新成功!')
             {
               Message.success(resp.msg);
@@ -520,7 +532,8 @@ export default {
       //console.log("creating")
       let obj = {};
       obj.activityID = this.keywords;
-      obj.contentType = 'textarea';
+      obj.contentType = 'label';
+      obj.shuZuType = ['label']
       obj.name = '请输入信息项名称';
       obj.sizelimit='500';
       obj.display = true;
