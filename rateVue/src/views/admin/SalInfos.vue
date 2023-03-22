@@ -54,6 +54,22 @@
           </template>
         </el-table-column>
         <el-table-column
+            prop="byParticipant"
+            label="是否需要选手填写"
+            align="center"
+            width="120px"
+        >
+          <template slot-scope="scope">
+            <el-checkbox
+                :true-label="1"
+                :false-label="0"
+                v-model.trim="scope.row.byParticipant"
+                @change="UpdateCheckbox(scope.row)"
+            ></el-checkbox>
+            选手填写
+          </template>
+        </el-table-column>
+        <el-table-column
             prop="shuZuType"
             label="类型"
             align="center"
@@ -64,9 +80,10 @@
                        multiple
                        min-width="10%"
                        v-focus
-                       @focus="beforehandleEdit(scope.$index,scope.row,'name')"
-                       @change="handleEdit(scope.$index,scope.row,'name')"
+                       @focus="beforehandleEdit(scope.$index,scope.row,'type')"
+                       @change="handleEdit(scope.$index,scope.row,'type')"
                        @blur="inputBlur"
+                       @visible-change="handleVisible(scope.row)"
                        prefix-icon="el-icon-edit"
 
             >
@@ -74,7 +91,8 @@
                   v-for="x in shuju"
                   :key="x.name"
                   :label="x.name"
-                  :value="x.name">
+                  :value="x.name"
+                  :disabled="x.disabled">
               </el-option>
             </el-select>
           </template>
@@ -101,22 +119,6 @@
                 v-else
             >{{ scope.row.sizelimit }}</span
             >
-          </template>
-        </el-table-column>
-        <el-table-column
-            prop="byParticipant"
-            label="是否需要选手填写"
-            align="center"
-            width="120px"
-        >
-          <template slot-scope="scope">
-            <el-checkbox
-                :true-label="1"
-                :false-label="0"
-                v-model.trim="scope.row.byParticipant"
-                @change="UpdateCheckbox(scope.row)"
-            ></el-checkbox>
-            选手填写
           </template>
         </el-table-column>
         <el-table-column
@@ -193,6 +195,7 @@
 
 <script>
 import {Message} from 'element-ui'
+import ro from "element-ui/src/locale/lang/ro";
 
 export default {
   name: "SalInfos",
@@ -214,11 +217,11 @@ export default {
         name: null/*,*/
       },
       shuju:[
-        {name:"textbox",famname:"字"},
-        {name:"textarea",famname:"字"},
-        {name:"pdf",famname:"字节"},
-        {name:"jpg",famname:"字节"},
-        {name:"zip",famname:"字节"}
+        {name:"textbox",famname:"字",disabled:false},
+        {name:"textarea",famname:"字",disabled:false},
+        {name:"pdf",famname:"字节",disabled:false},
+        {name:"jpg",famname:"字节",disabled:false},
+        {name:"zip",famname:"字节",disabled:false}
       ],
       activitydata: [],
       keywords_name: "",
@@ -294,6 +297,28 @@ export default {
     this.initData();
   },
   methods: {
+    // 点击下拉框对显示的选项进行筛选。已选中文本类型则不允许选其他所有类型；已选中文件类型则不允许选本文类型。
+    handleVisible(row){
+      if (row.shuZuType === null){
+        for (let i = 0; i < this.shuju.length; i++) {
+          this.shuju[i].disabled = false
+        }
+        return;
+      }
+      if (row.shuZuType.indexOf("textbox") !== -1 || row.shuZuType.indexOf("textarea") !== -1){ // 有文本类型
+        for (let i = 0; i < this.shuju.length; i++) {
+          this.shuju[i].disabled = true
+        }
+      }else{
+        for (let i = 0; i < this.shuju.length; i++) {
+          this.shuju[i].disabled = false
+        }
+        if (row.shuZuType.length !== 0){ // 有文件类型
+          this.shuju[0].disabled = true
+          this.shuju[1].disabled = true
+        }
+      }
+    },
     Delete_Info_Item(si) {
       this.$confirm("此操作将永久删除【" + si.name + "】, 是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -301,6 +326,11 @@ export default {
         type: "warning",
       })
           .then(() => {
+            if (typeof si.id === "undefined")
+            {
+              this.hrs.splice(si.index, 1)
+              return
+            }
             this.postRequest("/infoItem/basic/delete?institutionID="+this.user.institutionID, si).then((resp) => {
               if (resp) {
                 this.initHrs();
@@ -384,7 +414,7 @@ export default {
       }
     },
     beforehandleEdit(index, row, label) {
-      if (label === 'name') {
+      if (label === 'name' || label === 'type') {
         this.currentfocusdata = row.name
       } else if (label === 'sizelimit') {
         this.currentfocusdata = row.sizelimit
@@ -392,9 +422,24 @@ export default {
       this.currentfocusdata = row[label]
     },
     handleEdit(index, row, label) {
+      if (label === 'type'){
+        if (row.shuZuType.indexOf("textbox") !== -1 || row.shuZuType.indexOf("textarea") !== -1){ // 有文本类型
+          for (let i = 0; i < this.shuju.length; i++) {
+            this.shuju[i].disabled = true
+          }
+        }else{
+          for (let i = 0; i < this.shuju.length; i++) {
+            this.shuju[i].disabled = false
+          }
+          if (row.shuZuType.length !== 0){ // 有文件类型
+            this.shuju[0].disabled = true
+            this.shuju[1].disabled = true
+          }
+        }
+      }
       if (row[label] == ''&&label !== 'sizelimit'&&label !== 'contentType') {
         Message.warning('输入内容不能为空!')
-        if (label === 'name') {
+        if (label === 'name' || label === 'type') {
           row.name = this.currentfocusdata
         } else if (label === 'sizelimit') {
           row.sizelimit = this.currentfocusdata
@@ -479,7 +524,7 @@ export default {
       obj.name = '请输入信息项名称';
       obj.sizelimit='500';
       obj.display = true;
-      obj.byParticipant = true;
+      obj.byParticipant = false;
       this.hrs.push(obj);
       /*this.postRequest("/scoreItem/basic/insert", obj)
           .then((resp) => {
