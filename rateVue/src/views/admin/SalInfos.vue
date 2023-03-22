@@ -298,7 +298,10 @@ export default {
     handleVisible(row){
       if (row.shuZuType === null){
         for (let i = 0; i < this.shuju.length; i++) {
-          this.shuju[i].disabled = false
+          if (row.byParticipant === true && i === 5)
+            this.shuju[i].disabled = true
+          else
+            this.shuju[i].disabled = false
         }
         return;
       }
@@ -317,6 +320,7 @@ export default {
         }
       }
       if (row.byParticipant === true){
+        console.log(111)
         this.shuju[5].disabled = true
       }
       else{
@@ -429,6 +433,7 @@ export default {
       this.currentfocusdata = row[label]
     },
     handleEdit(index, row, label) {
+      console.log(row)
       if (label === 'type'){
         if (row.shuZuType.indexOf("textbox") !== -1 || row.shuZuType.indexOf("textarea") !== -1 || row.shuZuType.indexOf("label") !== -1){ // 有文本类型
           for (let i = 0; i < this.shuju.length; i++) {
