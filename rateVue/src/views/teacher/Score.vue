@@ -353,7 +353,7 @@ export default {
             this.reload();
           }
           this.fullscreenLoading = false;
-        }, 1000);
+        }, 1500);
       }
     })
   },
