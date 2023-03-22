@@ -87,10 +87,7 @@
         >
           <template slot-scope="scope">
             <el-input
-                v-if="
-                  scope.row.index === tabClickIndex &&
-                  tabClickLabel === 'sizelimit'
-                "
+                v-if="scope.row.index === tabClickIndex && tabClickLabel === '大小限制(字节默认为M，字为字数)'"
                 v-focus
                 v-model="scope.row.sizelimit"
                 placeholder="请输入sizelimit"
@@ -102,7 +99,7 @@
             <span
                 style="width: 100%; height: 100%; display: inline-block"
                 v-else
-            >{{ scope.row.sizelimit }}字</span
+            >{{ scope.row.sizelimit }}</span
             >
           </template>
         </el-table-column>
@@ -133,7 +130,7 @@
                 :true-label="1"
                 :false-label="0"
                 v-model.trim="scope.row.display"
-                @change="UpdateCheckbox(scope.row)"
+                @change="UpdateCheckbox(scope.row) "
             ></el-checkbox>
             display
           </template>
@@ -374,7 +371,7 @@ export default {
           this.tabClickIndex = row.index;
           this.tabClickLabel = column.label;
           break;
-        case "sizelimit":
+        case "大小限制(字节默认为M，字为字数)":
           this.tabClickIndex = row.index;
           this.tabClickLabel = column.label;
           break;
@@ -431,6 +428,8 @@ export default {
       });
     },
     UpdateOrNew(infoItem) {
+      console.log("update")
+      console.log(infoItem)
       const _this = this;
       // console.log(scoreItem);
       //this.$router.push({name:'/scoreItem/basic/update',params:{scoreItem:_this.hrs,total:_this.total}})
@@ -451,12 +450,15 @@ export default {
     },
     UpdateCheckbox(infoItem) {
       const _this = this;
+      console.log("infoitem")
+      console.log(infoItem)
       //this.$router.push({name:'/scoreItem/basic/update',params:{scoreItem:_this.hrs,total:_this.total}})
       _this
           .postRequest("/infoItem/basic/UpdateOrNew?institutionID="+this.user.institutionID, infoItem)
           .then((resp) => {
             if(resp.msg==='更新成功!')
-            {Message.success(resp.msg);
+            {
+              Message.success(resp.msg);
               }
             else if(resp.msg==='新增成功!')
             {Message.success(resp.msg);
