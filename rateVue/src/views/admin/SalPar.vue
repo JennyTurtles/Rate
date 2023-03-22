@@ -546,7 +546,7 @@ export default {
     },
     initEmps() {
       this.loading = true;
-      let url = '/participants/basic/?page=' + this.page + '&size=' + 1000+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
+      let url = '/participants/basic/?page=' + this.page + '&size=' + this.size+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {

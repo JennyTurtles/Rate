@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.Activities;
 import org.sys.rate.model.ScoreDetail;
 
@@ -65,4 +66,6 @@ public interface ActivitiesMapper {
     List<Activities>  selectActivity(@Param("activityID") Integer activityID);
     List<Activities>  selectActivities( List<Integer> activityID);
 
+    @Update("update activities set score = score + #{score} where ID = #{activityID}")
+    Integer updateScore(Integer activityID, double score); // score为分差，新-旧
 }
