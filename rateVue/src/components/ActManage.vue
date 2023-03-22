@@ -490,7 +490,7 @@ export default {
     //   let routeUrl = this.$router.resolve({
     //     path:"/teacher/tperact/InformationDetails",
     //     query: {
-    //       activityID: this.list.activitiesList[this.$route.query.keywords].activityID,
+    //       activityID: this.activityID,
     //       IDNumber: row.student.idnumber,
     //     },
     //   })
