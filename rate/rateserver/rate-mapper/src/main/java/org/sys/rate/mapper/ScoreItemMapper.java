@@ -69,4 +69,7 @@ public interface ScoreItemMapper {
 
     @Select("select name from scoreitem where id=#{id}")
     String getNameByID(Integer id);
+
+    @Select("select * from scoreitem where id=#{ID}")
+    ScoreItem getAllbyId(Integer ID);
 }

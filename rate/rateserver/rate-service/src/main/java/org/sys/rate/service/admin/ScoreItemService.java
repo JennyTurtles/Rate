@@ -9,6 +9,7 @@ import org.sys.rate.mapper.ScoreItemMapper;
 import org.sys.rate.model.ScoreItem;
 import org.sys.rate.model.RespPageBean;
 
+import javax.annotation.Resource;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -76,7 +77,10 @@ public class ScoreItemService {
     }
 
     public Integer updateScoreItem(ScoreItem company) {
+        ScoreItem scoreItemOld = ScoreItemMapper.getAllbyId(company.getId());
         int result = ScoreItemMapper.update(company);
+        double score = company.getScore() * company.getCoef() - scoreItemOld.getScore()*scoreItemOld.getCoef();
+        activitiesMapper.updateScore(company.getActivityid(),score);
         if (result != 1)
             return 0;
         return 1;
