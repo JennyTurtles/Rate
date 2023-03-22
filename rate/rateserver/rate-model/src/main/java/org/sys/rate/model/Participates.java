@@ -15,6 +15,7 @@ public class Participates{
     //private Integer institutionID;
     private String name;//from stu
     private  Double score;//p
+    private Double fullScore;//activities
     private Integer groupID;//p
     private String groupName;//g
     private Integer activityID;//p

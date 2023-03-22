@@ -10,4 +10,6 @@ public class TotalItemValue {
 
     private Double score;
 
+    private Integer fullScore;
+
 }

@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 public interface TotalItemMapper {
 
-    @Select("select * from totalitem where activityID=#{activityID}")
+    @Select("select * from totalitem where activityID=#{activityID}  order by displaySequence")
     List<TotalItem> findbyActivityID(Integer activityID);
 
     @Select("select count(*) from totalitem where activityID=#{activityID}")

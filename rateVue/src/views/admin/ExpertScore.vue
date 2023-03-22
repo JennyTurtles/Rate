@@ -9,7 +9,9 @@ vue.prototype.$logs = window.console.log;
         </el-button>
       </div>
     </div>
-    <div><br/><br/></div>
+    <div><br/>
+      标红分数：小于该项分数满分的60%
+      <br/></div>
     <div style="margin-top: 10px">
       <el-table
           :data="Scores"
@@ -78,7 +80,8 @@ vue.prototype.$logs = window.console.log;
             min-width="10%" align="center">
           <template slot-scope="scope">
             <div v-for="(value,key) in scope.row.scoremap" v-if="key===i">
-              {{value.score}}
+              <span v-if="value.score<scope.row.fullScore*0.6" style="color: red">{{value.score}}</span>
+              <span v-else>{{value.score}}</span>
             </div>
           </template>
         </el-table-column>

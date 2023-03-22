@@ -9,15 +9,17 @@ public class TotalItem {
 
     private Integer activityID;
 
-    private String infoSumIDs;
+    private String infoItemIDs;
+
+    private Integer addParticipantScore;
 
     private Integer[] infos;
 
     private String[] infoName;
 
-    private String calcSumIDs;
+    private String totalItemIDs;
 
-    private Integer[] calc;
+    private Integer[] total;
 
     private String[]calcName;
 

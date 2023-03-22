@@ -48,8 +48,8 @@ public class ExpertMController {
     }
 
     @GetMapping("/show_situ")
-    public RespPageBean getExpertSituationByExpertID(@RequestParam Integer keywords, @RequestParam Integer expertID,@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
-        return expertService.getExpertSituationByExpertID(keywords,expertID,page, size);
+    public RespPageBean getExpertSituationByExpertID(@RequestParam Integer activityID,@RequestParam Integer groupID, @RequestParam Integer expertID,@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
+        return expertService.getExpertSituationByExpertID(activityID,groupID,expertID,page, size);
     }
 
     @PostMapping("/update")

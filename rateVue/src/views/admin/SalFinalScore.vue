@@ -8,7 +8,9 @@
         </el-button>
       </div>
     </div>
-    <div><br/><br/></div>
+    <div><br/>
+      标红分数：小于该项分数满分的60%
+      <br/></div>
     <div style="margin-top: 10px">
       <el-table
           :data="score"
@@ -44,11 +46,14 @@
             min-width="10%">
         </el-table-column>
         <el-table-column
-            prop="score"
             sortable
             label="活动得分"
             align="center"
             min-width="10%">
+          <template slot-scope="scope">
+            <span v-if="scope.row.score<scope.row.fullScore*0.6" style="color: red">{{scope.row.score}}</span>
+            <span v-else>{{scope.row.score}}</span>
+          </template>
         </el-table-column>
         <el-table-column
             v-for="(v, i) in this.tmap"
@@ -58,7 +63,8 @@
             min-width="10%" align="center">
           <template slot-scope="scope">
             <div v-for="(value,key) in scope.row.finalmap" v-if="key===i">
-              {{value.score}}
+              <span v-if="value.score<value.fullScore*0.6" style="color: red">{{value.score}}</span>
+              <span v-else>{{value.score}}</span>
             </div>
           </template>
         </el-table-column>
@@ -124,6 +130,7 @@ export default {
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
+          console.log(resp);
           this.emps = resp.data;
           this.total = resp.total;
           for(var name in resp.data){

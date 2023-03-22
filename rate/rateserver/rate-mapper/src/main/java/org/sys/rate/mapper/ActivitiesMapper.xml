@@ -173,4 +173,7 @@
             #{ID}
         </foreach>
     </select>
+    <select id="getFullScore" resultType="java.lang.Double">
+        select score from activities where ID=#{activityID}
+    </select>
 </mapper>

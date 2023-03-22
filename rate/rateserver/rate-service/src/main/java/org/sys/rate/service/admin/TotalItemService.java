@@ -3,10 +3,7 @@ package org.sys.rate.service.admin;
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.sys.rate.mapper.InfoItemMapper;
-import org.sys.rate.mapper.ParticipatesMapper;
-import org.sys.rate.mapper.ScoreItemMapper;
-import org.sys.rate.mapper.TotalItemMapper;
+import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
 import java.math.BigDecimal;
@@ -25,12 +22,14 @@ public class TotalItemService {
     InfoItemMapper infoItemMapper;
     @Autowired
     ParticipatesMapper participatesMapper;
+    @Autowired
+    ActivitiesMapper activitiesMapper;
 
     public RespPageBean getByActivityID(Integer activityID) {
         List<TotalItem> data = totalItemMapper.findbyActivityID(activityID);
         for (TotalItem solo : data) {
-            if (solo.getInfoSumIDs() != null) {
-                String[] info = solo.getInfoSumIDs().split(",");
+            if (solo.getInfoItemIDs() != null) {
+                String[] info = solo.getInfoItemIDs().split(",");
                 String[] name = new String[info.length];
                 Integer count = 0;
                 for (String s : info){
@@ -57,8 +56,8 @@ public class TotalItemService {
         Long total = participatesMapper.getActivityTotal(activityID);
         List<TotalItem> data = totalItemMapper.findbyActivityID(activityID);
         for (TotalItem solo : data) { //遍历总分项
-            if (solo.getInfoSumIDs() != null) {
-                String[] info = solo.getInfoSumIDs().split(",");
+            if (solo.getInfoItemIDs() != null) {
+                String[] info = solo.getInfoItemIDs().split(",");
                 Integer[] IDs = new Integer[info.length];
                 Integer count = 0;
                 for (String s : info){ //遍历信息项
@@ -71,13 +70,16 @@ public class TotalItemService {
                         par.setGroupName(single.getGroupName());
                         par.setScore(single.getActivityScore());
                         par.setID(single.getParticipantID());
+                        Double activityFullScore = activitiesMapper.getFullScore(activityID);
+                        par.setFullScore(activityFullScore);
                         Double totalParScore = Double.parseDouble(single.getContent());
                         TotalItemValue totalItemValue = new TotalItemValue();
                         totalItemValue.setName(solo.getName());
                         totalItemValue.setId(solo.getID());
-                        //没有pid或tid
+                        totalItemValue.setFullScore(solo.getFullScore());
+                        //没有pid
                         if (map.get(single.getParticipantID())==null){
-                            if (solo.getDisplaySequence()==1){ //第一项加上活动总分
+                            if (solo.getAddParticipantScore()==1){ //加上活动总分
                                 totalParScore = totalParScore + par.getScore();
                                 BigDecimal two = new BigDecimal(totalParScore);
                                 totalParScore = two.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -107,8 +109,8 @@ public class TotalItemService {
                 }
                 solo.setInfos(IDs);
             }
-            if (solo.getCalcSumIDs() != null) {
-                String[] calc = solo.getCalcSumIDs().split(",");
+            if (solo.getTotalItemIDs() != null) {
+                String[] calc = solo.getTotalItemIDs().split(",");
                 Integer[] IDs = new Integer[calc.length];
                 Integer count = 0;
                 for (String s : calc){
@@ -123,7 +125,7 @@ public class TotalItemService {
                     }
                     IDs[count++] = calID;
                 }
-                solo.setCalc(IDs);
+                solo.setTotal(IDs);
             }
             Tmap.put(solo.getID(),solo.getName());
         }

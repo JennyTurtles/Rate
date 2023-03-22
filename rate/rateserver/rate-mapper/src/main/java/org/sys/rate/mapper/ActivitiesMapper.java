@@ -47,6 +47,8 @@ public interface ActivitiesMapper {
 
     Integer maxWorkID();
 
+    Double getFullScore(@Param("activityID") Integer activityID);
+
     List<Activities> getAllActivity_info();
 
     List<ScoreDetail> getActivityScore(@Param("activityID") Integer activityID);

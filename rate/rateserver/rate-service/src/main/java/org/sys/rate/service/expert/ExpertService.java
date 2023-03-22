@@ -93,7 +93,7 @@ public class ExpertService implements UserDetailsService {
 		return data;
 	}
 
-	public RespPageBean getExpertSituationByExpertID(Integer keywords,Integer expertID, Integer page, Integer size) {
+	public RespPageBean getExpertSituationByExpertID(Integer activityID,Integer keywords,Integer expertID, Integer page, Integer size) {
 		if (page != null && size != null) {
 			page = (page - 1) * size;
 		}
@@ -110,6 +110,8 @@ public class ExpertService implements UserDetailsService {
 			par.setName(experts.getParticipantName());
 			par.setCode(experts.getCode());
 			par.setDisplaySequence(experts.getDisplaySequence());
+			Double fullScore = activitiesMapper.getFullScore(activityID);
+			par.setFullScore(fullScore);
 			ScoreItemValue scoreItemValue=new ScoreItemValue();
 			scoreItemValue.setScore(experts.getScore());
 			scoreItemValue.setName(experts.getScoreItemName());
@@ -435,6 +437,8 @@ public class ExpertService implements UserDetailsService {
 			par.setName(experts.getParticipantName());
 			par.setCode(experts.getCode());
 			par.setDisplaySequence(experts.getDisplaySequence());
+			Double fullScore = activitiesMapper.getFullScore(activityID);
+			par.setFullScore(fullScore);
 			ScoreItemValue scoreItemValue=new ScoreItemValue();
 			scoreItemValue.setScore(experts.getScore());
 			scoreItemValue.setName(experts.getScoreItemName());

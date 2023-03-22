@@ -17,6 +17,9 @@
                 </el-button>
             </div>
         </div>
+       <div><br/>
+        标红分数：小于该项分数满分的60%
+        <br/></div>
         <div style="margin-top: 10px">
             <el-table
                 ref="multipleTable"
@@ -95,7 +98,8 @@
                   align="center">
                 <template slot-scope="scope">
                   <div v-for="(value,key) in scope.row.scoremap" v-if="key===i">
-                    {{value.score}}
+                    <span v-if="value.score<scope.row.fullScore*0.6" style="color: red">{{value.score}}</span>
+                    <span v-else>{{value.score}}</span>
                   </div>
                 </template>
               </el-table-column>
@@ -291,7 +295,7 @@
             initSituation() {
                 this
                     .getRequest(
-                        "/systemM/Experts/show_situ?keywords=" + this.groupID + "&expertID=" + this.expertID +
+                        "/systemM/Experts/show_situ?activityID=" + this.keywords + "&groupID=" + this.groupID + "&expertID=" + this.expertID +
                         "&page=" + this.page + "&size=" + this.size
                     )
                     .then((resp) => {
