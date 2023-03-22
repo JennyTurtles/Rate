@@ -117,7 +117,7 @@
         <el-table-column
             v-for="(v, i) in datalist.infoItems"
             :key="v.name"
-            v-if="v.display"
+            v-if="v.display == true"
             :label="v.name"
             min-width="150px"
             align="center"

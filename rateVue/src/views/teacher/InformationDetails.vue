@@ -8,18 +8,18 @@
                 backgroundColor:white;
                 padding-bottom:20px;">
       <el-form
-          label-position="left"
-          label-width="100px"
+          :label-position="labelPosition"
+          label-width="auto"
           ref="dialogdataForm"
           style="margin-left: 20px"
       >
-
           <el-form-item
               v-for="(val, idx) in datalist"
               :key="idx"
               :label="val.name + ' :'"
+              :label-width="val.name.length * 20 + 'px'"
           >
-            <template v-if="val.contentType!='' && val.contentType!=',' && val.contentType!=null">
+            <template v-if="val.contentType!='' && val.contentType!=',' && val.contentType!=null" style="width: 100%">
               <span
                   v-if="((val.contentType.indexOf('pdf') >= 0 || val.contentType.indexOf('zip') >= 0
                             || val.contentType.indexOf('jpg') >= 0))"
@@ -48,6 +48,7 @@ export default {
   name: "InformationDetails",
   data(){
     return {
+      labelPosition:"left",
       IDNumber:'',
       activityID:null,
       datalist:{},
@@ -126,10 +127,14 @@ export default {
 </script>
 
 <style scoped>
+.el-form-item__label-wrap .el-form-item__label-wrap{
+  margin-left: 0px;
+}
 *{
   margin: 0;
   padding: 0;
 }
+
 .el-form-item{
   margin-bottom: 0px;
 }
@@ -157,18 +162,19 @@ export default {
   margin-top: 20px;
   border-radius: 5px;
 }
-div::-webkit-scrollbar {
-  /* 隐藏默认的滚动条 */
-  -webkit-appearance: none;
-}
-div::-webkit-scrollbar:vertical {
-  /* 设置垂直滚动条宽度 */
-  width: 6px;
-}
-div::-webkit-scrollbar-thumb {
-  /* 滚动条的其他样式定制，注意，这个一定也要定制，否则就是一个透明的滚动条 */
-  border-radius: 6px;
-  border: 3px solid rgba(255,255,255,.4);
-  background-color: rgba(0, 0, 0, .5);
-}
+/*div::-webkit-scrollbar {*/
+/*  !* 隐藏默认的滚动条 *!*/
+/*  -webkit-appearance: none;*/
+/*}*/
+/*div::-webkit-scrollbar:vertical {*/
+/*  !* 设置垂直滚动条宽度 *!*/
+/*  width: 6px;*/
+/*}*/
+/*div::-webkit-scrollbar-thumb {*/
+/*  !* 滚动条的其他样式定制，注意，这个一定也要定制，否则就是一个透明的滚动条 *!*/
+/*  border-radius: 6px;*/
+/*  border: 3px solid rgba(255,255,255,.4);*/
+/*  background-color: rgba(0, 0, 0, .5);*/
+/*}*/
+
 </style>

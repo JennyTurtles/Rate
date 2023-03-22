@@ -88,8 +88,11 @@ public class MenuService {
     public List<Menu> getMenusByAdminId(Integer id, String role) {
         //多个角色；分割
 //        !role.contains("10") && !role.contains("11") &&
-//        if (role.contains("7") && participatesMapper.isParticipants(id) != 0)
-//            role = role + ";7";
+        if (participatesMapper.isParticipants(id) != 0){
+            if(!role.contains("7")){
+                role = role + ";7";
+            }
+        }
 //        !role.contains("3") &&
         if (!role.contains("3") && expertsMapper.isExpert(id) != 0) // 是专家
             role = role + ";3";
