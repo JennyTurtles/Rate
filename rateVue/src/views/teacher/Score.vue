@@ -95,7 +95,7 @@
         <el-table-column
             prop="code"
             label="编号"
-            min-width="160px"
+            min-width="110px"
             align="center"
             fixed
         >
@@ -108,7 +108,8 @@
         <el-table-column
             prop="student.name"
             label="姓名"
-            min-width="150px"
+            min-width="75px"
+            :width="student.name.length + 5 + 'px'"
             align="center"
             fixed
         >
@@ -143,7 +144,7 @@
             (value.comment ? ',' + value.comment : '') +
             ')'
           "
-            min-width="150px"
+            min-width="80px"
             :render-header="renderheader"
         >
           <template slot-scope="scope">
