@@ -73,7 +73,6 @@ const store = new Vuex.Store({
         INIT_SCORE(state, data) {
             state.score = data
             sessionStorage.setItem("score", JSON.stringify(data));
-            console.log('initscore')
         },
         INIT_ScoreParticipatesList(state, data) {
             state.score = data
@@ -118,10 +117,10 @@ const store = new Vuex.Store({
                 getRequest("/system/Experts/activities?expertID=" + data).then(resp => {
                     if (resp) {
                         resp = resp.extend;
-                        if (sessionStorage.getItem('peract')) {
-                        } else {
-                            context.commit('INIT_PERACT', resp)
-                        }
+                        // if (sessionStorage.getItem('peract')) {
+                        // } else {
+                        context.commit('INIT_PERACT', resp)
+                        // }
                         resolve(resp)
                     }
                 })
@@ -286,9 +285,9 @@ const store = new Vuex.Store({
                     } else {
                         context.commit('INIT_SCORE', value)
                     }
-                    resolve()
                 }
             })
+                resolve()
             })
             return promise
         },
