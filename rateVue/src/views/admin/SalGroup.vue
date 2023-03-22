@@ -196,21 +196,6 @@
 
           <div style="margin-top: 10px">
             <template >
-              <span>请选择分组个数：</span>
-              <el-select
-                  style="margin-right: 20px;width: 150px;"
-                  v-model="selectedGroupNums"
-              >
-                <el-option
-                    v-for="item in groupNums"
-                    :key="item"
-                    :label="item"
-                    :value="item">
-                </el-option>
-              </el-select>
-            </template>
-
-            <template >
               <span>请选择排序依据：</span>
               <el-select
                   style="margin-right: 20px;width: 150px;"
@@ -226,14 +211,31 @@
             </template>
 
             <template >
-              <el-radio v-model="radio" label="1">均分每组人数</el-radio>
-              <el-radio v-model="radio" label="2">指定每组人数</el-radio>
+              <span>请选择分组个数：</span>
+              <el-select
+                  style="margin-right: 20px;width: 150px;"
+                  v-model="selectedGroupNums"
+              >
+                <el-option
+                    v-for="item in groupNums"
+                    :key="item"
+                    :label="item"
+                    :value="item">
+                </el-option>
+              </el-select>
             </template>
           </div>
 
-          <div style="margin-top: 15px;text-align: center;width: 100%" >
+          <div style="margin-top: 15px;width: 100%" >
+            <template >
+              <el-radio v-model="radio" label="1">均分每组人数</el-radio>
+              <el-radio v-model="radio" label="2">指定每组人数</el-radio>
+            </template>
             <el-button @click="creatGroup" type="primary">
               创建分组
+            </el-button>
+            <el-button @click="closeDialogGroupOfParticipant" type="primary">
+              &nbsp;关&nbsp;&nbsp;闭&nbsp;
             </el-button>
           </div>
 
@@ -656,6 +658,9 @@ export default {
       }
     },
     closeDialogGroupOfParticipant(){//选手分组对话框关闭,清空遗留数据
+      if(this.dialogPartipicantGroups){
+        this.dialogPartipicantGroups = false
+      }
       this.selectedGroupInfo = ''
       this.selectedSubGroupInfo = []
       this.selectedGroupNums = 0
@@ -696,7 +701,6 @@ export default {
 
     },
     groupsForParticipant(){//选手分组,点击按钮对话框弹出 //获得该活动下的所有Infoitem，其中包括content
-      console.log('kk')
       var flag = false//判断当前的选手列表中是否已经分过组
       if(this.emps != null && this.emps.length != 0){
       }else {
@@ -741,31 +745,6 @@ export default {
             this.dialogPartipicantGroups = true
           }
         })
-    },
-    testcreatGroup(){//创建分组//传递activityID和选手id，分为几组和每组人数
-      var url = '/groups/basic/createGroups'
-      //每组人数
-      var arr = [50,60,57]
-      var data = {
-        'activityID':parseInt(this.keywords),
-        'arr':arr,
-        'exchangeNums':9,
-        'groupsNums':3
-      }
-        var obj = this.sortByList.find(item => item.name == this.sortBy)
-        data['sortByItemID'] = 61
-        data['infoItemID'] = 61
-        data['infoContent']= []
-      this.postRequest(url,data).then((resp)=>{
-        if(resp){
-          //表格展示是和emps相关的
-          this.$message.success("分组成功")
-          this.dialogPartipicantGroups = false
-          this.filterParticipantsByState = ''
-          this.closeDialogGroupOfParticipant()
-          this.initEmps()
-        }
-      })
     },
     creatGroup(){//创建分组//传递activityID和选手id，分为几组和每组人数
       var sum = 0

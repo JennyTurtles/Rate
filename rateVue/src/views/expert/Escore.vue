@@ -133,7 +133,7 @@
           v-for="(value, idx) in datalist.scoreitems"
           ref="setTableRef"
           :key="idx"
-          v-if="value.name != '总分'"
+          v-if="value.name != '活动得分'"
           :label="
             value.name +
             '|(满分:' +
@@ -161,8 +161,8 @@
         <el-table-column
           v-for="(value, idx) in datalist.scoreitems"
           :key="value.id"
-          v-if="value.name == '总分'"
-          :label="'总分'"
+          v-if="value.name == '活动得分'"
+          :label="'活动得分'"
           min-width="120px"
           align="center"
         >
@@ -392,6 +392,7 @@ export default {
               this.reload();
             // }
             this.fullscreenLoading = false;
+            console.log(this.datalist)
           }, 700);
         }
       })
