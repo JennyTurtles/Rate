@@ -16,8 +16,8 @@
           <el-form-item
               v-for="(val, idx) in datalist"
               :key="idx"
-              :label="val.name + ' :'"
-              :label-width="val.name.length * 20 + 'px'"
+              :label="val.name + ':'"
+              :label-width="labelWidth"
           >
             <template v-if="val.contentType!='' && val.contentType!=',' && val.contentType!=null" style="width: 100%">
               <span
@@ -48,6 +48,7 @@ export default {
   name: "InformationDetails",
   data(){
     return {
+      labelWidth:'',
       labelPosition:"left",
       IDNumber:'',
       activityID:null,
@@ -95,9 +96,10 @@ export default {
           this.datalist = res.extend.infoitems
           this.name = res.extend.name
           document.title = this.name
-          // this.datalist.map(item=>{
-          //   item.content = item.content.replace(/<br>/g,"\n").replace(/' '/g,"\s")
-          // })
+          var arr = this.datalist.map(item=>{
+            return item.name.length
+          })
+          this.labelWidth = Math.max.apply(null,arr) * 17 + 'px';
         }
       })
     },
@@ -127,8 +129,9 @@ export default {
 </script>
 
 <style scoped>
-.el-form-item__label-wrap .el-form-item__label-wrap{
-  margin-left: 0px;
+.el-form-item__label-wrap{ float: left; }
+.el-form-item__label-wrap {
+  margin-left: 0px !important;
 }
 *{
   margin: 0;

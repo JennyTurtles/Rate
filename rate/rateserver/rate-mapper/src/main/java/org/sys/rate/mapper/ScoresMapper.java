@@ -25,7 +25,7 @@ public interface ScoresMapper {
 
     List<Scores> selectScoreListByAE_null(@Param("activitiesId") Integer activitiesId, @Param("expertid") Integer expertid);
 
-    void updateScore(@Param("expertID")Integer expertID,
+    Integer updateScore(@Param("expertID")Integer expertID,
                      @Param("activityID")Integer activityID,
                      @Param("participantID")Integer participantID,
                      @Param("scoreItemID")Integer scoreItemID,

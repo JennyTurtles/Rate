@@ -95,7 +95,7 @@
         <el-table-column
           prop="code"
           label="编号"
-          min-width="160px"
+          min-width="110px"
           align="center"
           fixed
         >
@@ -108,7 +108,7 @@
         <el-table-column
           prop="student.name"
           label="姓名"
-          min-width="150px"
+          min-width="75px"
           align="center"
           fixed
         >
@@ -144,7 +144,7 @@
             (value.comment ? ',' + value.comment : '') +
             ')'
           "
-          min-width="150px"
+          min-width="80px"
           :render-header="renderheader"
         >
           <template slot-scope="scope">
@@ -162,7 +162,7 @@
           v-for="(value, idx) in datalist.scoreitems"
           :key="value.id"
           v-if="value.name == '活动得分'"
-          :label="'活动得分'"
+          :label="'总评分'"
           min-width="120px"
           align="center"
         >
@@ -173,7 +173,7 @@
         <el-table-column
           label="操作"
           align="center"
-          min-width="160px"
+          min-width="150px"
           fixed="right"
         >
           <template slot-scope="scope">
@@ -316,7 +316,6 @@ export default {
     };
   },
   created() {
-
     this.dataRefreh();
     this.initPage();
   },
@@ -433,12 +432,13 @@ export default {
     onSuccess(res) {
       if (res.msg === "success") {
         Message.success("数据导入成功！");
+        this.initAct();
         this.refreshact(true);
         this.initState();
       } else {
         Message.error("导入失败，请检查文件格式！");
       }
-      this.initAct();
+
     },
     Upload() {
       this.loading = true;
@@ -626,6 +626,8 @@ export default {
           center: true,
         })
       }
+      console.log('initstate')
+      console.log(this.datalist)
     },
     onInputConfirm(row, index) {
       this.$set(this.datalist.participatesList[index], "showSave", true);
