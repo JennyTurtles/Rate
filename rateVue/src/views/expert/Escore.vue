@@ -393,7 +393,7 @@ export default {
             // }
             this.fullscreenLoading = false;
             console.log(this.datalist)
-          }, 700);
+          }, 1000);
         }
       })
     },

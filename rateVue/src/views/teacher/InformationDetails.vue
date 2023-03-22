@@ -29,10 +29,10 @@
                     onmouseleave="this.style.color = 'gray'">
                     {{val.content | fileNameFilter}}</a>
             </span>
-              <div v-else class="textarea_">{{val.content}}</div>
+              <span v-else v-html="val.content" style="line-height: 14px;font-size: 14px;width: 100%"></span>
             </template>
             <template v-else>
-              <span>{{ val.content }}</span>
+              <span v-html="val.content"></span>
             </template>
           </el-form-item>
       </el-form>
@@ -94,10 +94,9 @@ export default {
           this.datalist = res.extend.infoitems
           this.name = res.extend.name
           document.title = this.name
-          this.datalist.map(item=>{
-            item.content = item.content.replace(/<br>/g,"\n").replace(/' '/g,"\s")
-          })
-          console.log(this.datalist)
+          // this.datalist.map(item=>{
+          //   item.content = item.content.replace(/<br>/g,"\n").replace(/' '/g,"\s")
+          // })
         }
       })
     },
@@ -130,6 +129,9 @@ export default {
 *{
   margin: 0;
   padding: 0;
+}
+.el-form-item{
+  margin-bottom: 0px;
 }
 .textarea_{
   width: 450px;
