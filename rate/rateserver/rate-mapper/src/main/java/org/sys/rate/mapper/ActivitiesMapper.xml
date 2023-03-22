@@ -156,10 +156,10 @@
         SELECT
             p.activityID,
             a.`name` activityname,
-            max(P.score) maxscore,
-            min(P.score) minscore,
-            ROUND(AVG(P.score), 2) avescore,
-            ROUND(variance(P.score), 2) varscore
+            max(p.score) maxscore,
+            min(p.score) minscore,
+            ROUND(AVG(p.score), 2) avescore,
+            ROUND(variance(p.score), 2) varscore
         FROM
             participants AS p,activities AS a
         WHERE p.activityID=#{activityID} AND p.activityID=a.ID
