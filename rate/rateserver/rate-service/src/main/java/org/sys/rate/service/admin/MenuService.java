@@ -88,12 +88,12 @@ public class MenuService {
     public List<Menu> getMenusByAdminId(Integer id, String role) {
         //多个角色；分割
 //        !role.contains("10") && !role.contains("11") &&
-        if (role.contains("7") && participatesMapper.isParticipants(id) != 0)
+//        if (role.contains("7") && participatesMapper.isParticipants(id) != 0)
 //            role = role + ";7";
 //        !role.contains("3") &&
-        if (expertsMapper.isExpert(id) != 0)
+        if (expertsMapper.isExpert(id) != 0) // 是专家
             role = role + ";3";
-        if (secretaryMapper.isSecretary(id) != 0)
+        if (secretaryMapper.isSecretary(id) != 0) // 是秘书
             role = role + ";4";
         String[] roles = role.split(";");
         List<Menu> res=new ArrayList<>();
