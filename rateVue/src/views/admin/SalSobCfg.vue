@@ -254,17 +254,17 @@
           >保存</el-button
           >-->
         </div>
-        <div style="margin-left: auto">
-          <el-pagination
-              v-show="mode==='admin'"
-              background
-              @current-change="currentChange"
-              @size-change="sizeChange"
-              layout="sizes, prev, pager, next, jumper, ->, total, slot"
-              :total="total"
-          >
-          </el-pagination>
-        </div>
+<!--        <div style="margin-left: auto">-->
+<!--          <el-pagination-->
+<!--              v-show="mode==='admin'"-->
+<!--              background-->
+<!--              @current-change="currentChange"-->
+<!--              @size-change="sizeChange"-->
+<!--              layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
+<!--              :total="total"-->
+<!--          >-->
+<!--          </el-pagination>-->
+<!--        </div>-->
       </div>
 
       <el-dialog :title="err_title "  :visible.sync="err_dialogVisible_edit" width="40%" >
@@ -530,7 +530,7 @@ export default {
           "/systemM/Experts/?keywords=" +
           this.groupID +
           "&page=" +
-          this.page +
+          1 +
           "&size=" +
           1000 // 避免分页
       ).then((resp) => {
@@ -587,9 +587,9 @@ export default {
           "&keywords_name=" +
           this.keywords_name +
           "&page=" +
-          this.page +
+          1 +
           "&size=" +
-          this.size
+          1000
       ).then((resp) => {
         if (resp) {
           this.hrs = resp.data;

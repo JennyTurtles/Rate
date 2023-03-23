@@ -117,16 +117,16 @@
         <!--          </el-button-->
         <!--          >-->
         <!--        </div>-->
-        <div style="margin-left: auto">
-          <el-pagination
-              background
-              @current-change="currentChange"
-              @size-change="sizeChange"
-              layout="sizes, prev, pager, next, jumper, ->, total, slot"
-              :total="total"
-          >
-          </el-pagination>
-        </div>
+<!--        <div style="margin-left: auto">-->
+<!--          <el-pagination-->
+<!--              background-->
+<!--              @current-change="currentChange"-->
+<!--              @size-change="sizeChange"-->
+<!--              layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
+<!--              :total="total"-->
+<!--          >-->
+<!--          </el-pagination>-->
+<!--        </div>-->
       </div>
     </div>
 

@@ -138,15 +138,15 @@
           </template>
         </el-table-column>
       </el-table>
-      <div v-show="mode==='admin'" style="display: flex;justify-content: flex-end;margin:10px 0">
-        <el-pagination
-            background
-            @current-change="currentChange"
-            @size-change="sizeChange"
-            layout="sizes, prev, pager, next, jumper, ->, total, slot"
-            :total="total">
-        </el-pagination>
-      </div>
+<!--      <div v-show="mode==='admin'" style="display: flex;justify-content: flex-end;margin:10px 0">-->
+<!--        <el-pagination-->
+<!--            background-->
+<!--            @current-change="currentChange"-->
+<!--            @size-change="sizeChange"-->
+<!--            layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
+<!--            :total="total">-->
+<!--        </el-pagination>-->
+<!--      </div>-->
     </div>
 
 
@@ -463,7 +463,7 @@ export default {
               {
                 newD.push(h('span',null,res1[i]))
               }
-              newD.push(h('span',null,'为空，以上列数据会被置空，是否确认继续?'));
+              newD.push(h('span',null,'，以上列数据会被置空，是否确认继续?'));
               this.$confirm(h('div',null,newD), '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -546,7 +546,7 @@ export default {
     },
     initEmps() {
       this.loading = true;
-      let url = '/participants/basic/?page=' + this.page + '&size=' + this.size+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
+      let url = '/participants/basic/?page=' + 1 + '&size=' + 1000+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {

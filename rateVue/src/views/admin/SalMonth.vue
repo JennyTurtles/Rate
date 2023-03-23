@@ -185,16 +185,16 @@
           </el-button
           >
         </div>
-        <div style="margin-left: auto">
-          <el-pagination
-              background
-              @current-change="currentChange"
-              @size-change="sizeChange"
-              layout="sizes, prev, pager, next, jumper, ->, total, slot"
-              :total="total"
-          >
-          </el-pagination>
-        </div>
+<!--        <div style="margin-left: auto">-->
+<!--          <el-pagination-->
+<!--              background-->
+<!--              @current-change="currentChange"-->
+<!--              @size-change="sizeChange"-->
+<!--              layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
+<!--              :total="total"-->
+<!--          >-->
+<!--          </el-pagination>-->
+<!--        </div>-->
       </div>
     </div>
   </div>
@@ -314,9 +314,9 @@ export default {
           "/scoreItem/basic/?keywords=" +
           this.keywords +
           "&page=" +
-          this.page +
+          1 +
           "&size=" +
-          this.size
+          1000
       ).then((resp) => {
         if (resp) {
           this.loading = false;
