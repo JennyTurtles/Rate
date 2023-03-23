@@ -47,9 +47,6 @@ public class TotalItemService {
     }
 
     public RespPageBean getFinalScore(Integer activityID, Integer page, Integer size){
-        if (page != null && size != null) {
-            page = (page - 1) * size;
-        }
         HashFianlScore hashFianlScore = new HashFianlScore();
         HashMap<Integer, String> Tmap = new LinkedHashMap<>();
         HashMap<Integer, Participates> map = new LinkedHashMap<>();//map(PID,P)
@@ -117,11 +114,36 @@ public class TotalItemService {
                     Integer calID = Integer.valueOf(s);
                     List<Participates> participates = participatesMapper.getAllByActivityID(page,size,activityID);
                     for (Participates participant : participates){
-                        Double score = map.get(participant.getID()).getFinalmap().get(calID).getScore() +
-                                map.get(participant.getID()).getFinalmap().get(solo.getID()).getScore();
-                        BigDecimal two = new BigDecimal(score);
-                        score = two.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();
-                        map.get(participant.getID()).getFinalmap().get(solo.getID()).setScore(score);
+                        Participates par = new Participates();
+                        par.setCode(participant.getCode());
+                        par.setName(participant.getName());
+                        par.setGroupName(participant.getGroupName());
+                        par.setScore(participant.getScore());
+                        par.setID(participant.getID());
+                        Double activityFullScore = activitiesMapper.getFullScore(activityID);
+                        par.setFullScore(activityFullScore);
+                        Double totalParScore=0.0;
+                        TotalItemValue totalItemValue = new TotalItemValue();
+                        totalItemValue.setName(solo.getName());
+                        totalItemValue.setId(solo.getID());
+                        totalItemValue.setFullScore(solo.getFullScore());
+                        if (map.get(participant.getID())==null){
+                            //totalItemValue.setScore(totalParScore);
+                            HashMap<Integer,TotalItemValue> finalmap = new LinkedHashMap<>();
+                            finalmap.put(solo.getID(),totalItemValue);
+                            par.setFinalmap(finalmap);
+                            map.put(participant.getID(),par);
+                        }
+//                        else{//有pid
+                        if (map.get(participant.getID())!=null &&
+                                map.get(participant.getID()).getFinalmap().get(calID)!=null&&
+                                map.get(participant.getID()).getFinalmap().get(solo.getID())!=null) {
+                            Double score = map.get(participant.getID()).getFinalmap().get(calID).getScore() +
+                                    map.get(participant.getID()).getFinalmap().get(solo.getID()).getScore();
+                                BigDecimal two = new BigDecimal(score);
+                                score = two.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                                map.get(participant.getID()).getFinalmap().get(solo.getID()).setScore(score);
+                        }
                     }
                     IDs[count++] = calID;
                 }
