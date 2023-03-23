@@ -71,9 +71,10 @@ const store = new Vuex.Store({
             state.peract = data
         },
         INIT_SCORE(state, data) {
+            // console.log("INIT_SCORE")
+            // console.log(data)
             state.score = data
             sessionStorage.setItem("score", JSON.stringify(data));
-            console.log('initscore')
         },
         INIT_ScoreParticipatesList(state, data) {
             state.score = data
@@ -118,10 +119,10 @@ const store = new Vuex.Store({
                 getRequest("/system/Experts/activities?expertID=" + data).then(resp => {
                     if (resp) {
                         resp = resp.extend;
-                        if (sessionStorage.getItem('peract')) {
-                        } else {
-                            context.commit('INIT_PERACT', resp)
-                        }
+                        // if (sessionStorage.getItem('peract')) {
+                        // } else {
+                        context.commit('INIT_PERACT', resp)
+                        // }
                         resolve(resp)
                     }
                 })
@@ -134,44 +135,48 @@ const store = new Vuex.Store({
                 getRequest("/system/Experts/score?activitiesID=" + Aid + '&expertID=' + AI.Auserid + '&groupId=' + AI.AgroupId).then(value => {
                 if (value) {
                     value = value.extend
-                    let n = value.participatesList.length;
-                    let m = value.scoreitems.length;
-                    let p = value.scoresListNoExpert.length;
-                    let q = value.infoItems.length;
-                    let w = value.infosList.length;
-                    for (var i = 0; i < n; i++) {
-                        for (var j = 0; j < m; j++) {
-                            for (var k = 0; k < p; k++) {
+                    let parLenth = value.participatesList.length;//n
+                    let scoreitemLen = value.scoreitems.length;//m
+                    let scoresNoExpLen = value.scoresListNoExpert.length;//p
+                    let scoreByExpertLen = value.scoresListByExpert.length;
+                    let infoitemLen = value.infoItems.length;//q
+                    let infosLen = value.infosList.length;//w
+                    for (var item = 0;item < parLenth;item++){
+                        for (var j = 0; j < scoreitemLen; j++) {
+                            for (var k = 0; k < scoresNoExpLen; k++) {
                                 if ((value.scoreitems[j]["id"] == value.scoresListNoExpert[k]["scoreItemID"]) &
-                                    (value.participatesList[i]["id"] == value.scoresListNoExpert[k]["participantID"]) &
+                                    (value.participatesList[item]["id"] == value.scoresListNoExpert[k]["participantID"]) &
                                     (value.scoreitems[j]["byexpert"] == false)
                                 ) {
-                                    value.participatesList[i]["score" + j] = value.scoresListNoExpert[k]["score"];
+                                    value.participatesList[item]["score" + value.scoreitems[j]["id"]] = value.scoresListNoExpert[k]["score"];
+                                }
+                            }
+                            for (var k = 0; k < scoreByExpertLen; k++) {
+                                if ((value.scoreitems[j]["id"] == value.scoresListByExpert[k]["scoreItemID"]) &
+                                    (value.participatesList[item]["id"] == value.scoresListByExpert[k]["participantID"])
+                                ) {
+                                    value.participatesList[item]["score" + value.scoreitems[j]["id"]] = value.scoresListByExpert[k]["score"];
                                 }
                             }
                         }
-
-                        for (var s = 0; s < w; s++) {
-                            if (
-                                value.participatesList[i]["id"] ==
-                                value.infosList[s]["participantID"]
-                            ) {
-                                for (var d = 0; d < q; d++) {
+                        for (var s = 0; s < infosLen; s++) {
+                            if (value.participatesList[item]["id"] ==
+                                value.infosList[s]["participantID"]) {
+                                for (var d = 0; d < infoitemLen; d++) {
                                     if (
                                         value.infosList[s]["infoItemID"] ==
                                         value.infoItems[d]["id"]
                                     ) {
                                         var name = value.infoItems[d]["name"];
                                         if (value.infoItems[d]["display"] == true) {
-
-                                            value.participatesList[i]["info" + name] = value.infosList[s]["content"]
+                                            value.participatesList[item]["info" + name] = value.infosList[s]["content"]
                                         }
                                     }
                                 }
                             }
                         }
                     }
-
+                    console.log(value)
                     // 计算一共又多少个不可修改项
                     let count = 0; //
                     for (let temp = 0; temp < value.scoreitems.length; temp++) {
@@ -179,12 +184,12 @@ const store = new Vuex.Store({
                             count++
                         }
                     }
-                    // 如果页面存在sessionStorage
+                    // // 如果页面存在sessionStorage
                     if (sessionStorage.getItem("score")) {
                         let JSONscore = JSON.parse(sessionStorage.getItem("score"))
                         let length = value.participatesList.length
-
-
+                        // console.log(value)
+                        // console.log(JSONscore)
                         //如果新老人数不等，即表示有人员变动
                         if (JSONscore.participatesList.length !== value.participatesList.length) {
                             Message.warning('人员顺序发生变化，请注意！')
@@ -201,7 +206,7 @@ const store = new Vuex.Store({
                                     //只要遍历到有变化的地方，就可以停止遍历直接进行修改
                                     break;
                                 }
-                                //如果对应顺序相等，那么比较里面的详细信息 
+                                //如果对应顺序相等，那么比较里面的详细信息
                                 else if (JSONscore.participatesList[stuid].studentID === value.participatesList[stuid].studentID) {
                                     //先比较不可修改的分数
                                     for (let tempcount = 0; tempcount < count; tempcount++) {
@@ -213,7 +218,7 @@ const store = new Vuex.Store({
                                             break;
                                         }
                                     }
-                                    //再比较里面的学生信息
+                                   //再比较里面的学生信息
                                     if (JSONscore.participatesList[stuid].student.name !== value.participatesList[stuid].student.name) {
                                         Message.success('信息发生变化!')
                                         //发生变化changeList修改为true，进入修改操作
@@ -224,47 +229,54 @@ const store = new Vuex.Store({
                                 }
                             }
                         }
-                        //如果为真，即修改数据
-                        if (this.state.changeList) {
+                         //如果为真，即修改数据
+                    // //     // if (this.state.changeList) {
                             // 把新添加进来的
-                            for (var i = 0; i < n; i++) {
+                            for (var i = 0; i < parLenth; i++) {
                                 value.participatesList[i]["showSave"] = false;
                                 value.participatesList[i]["sum"] = 0;
-                                for (var j = 0; j < m; j++) {
-                                    for (var k = 0; k < p; k++) {
-                                        if ((value.scoreitems[j]["id"] == value.scoresListNoExpert[k]["scoreItemID"]) &
-                                            (value.participatesList[i]["id"] == value.scoresListNoExpert[k]["participantID"]) &
-                                            (value.scoreitems[j]["byexpert"] == true)
-                                        ) {
-                                            value.participatesList[i]["score" + j] = value.scoresListNoExpert[k]["score"];
-                                        }
-                                    }
-                                }
+                                // for (var j = 0; j < scoreitemLen; j++) {
+                                //     for (var k = 0; k < scoresNoExpLen; k++) {
+                                //         if ((value.scoreitems[j]["id"] == value.scoresListNoExpert[k]["scoreItemID"]) &
+                                //             (value.participatesList[item]["id"] == value.scoresListNoExpert[k]["participantID"]) &
+                                //             (value.scoreitems[j]["byexpert"] == false)
+                                //         ) {
+                                //             value.participatesList[item]["score" + value.scoreitems[j]["id"]] = value.scoresListNoExpert[k]["score"];
+                                //         }
+                                //     }
+                                //     for (var k = 0; k < scoreByExpertLen; k++) {
+                                //         if ((value.scoreitems[j]["id"] == value.scoresListByExpert[k]["scoreItemID"]) &
+                                //             (value.participatesList[item]["id"] == value.scoresListByExpert[k]["participantID"])
+                                //         ) {
+                                //             value.participatesList[item]["score" + value.scoreitems[j]["id"]] = value.scoresListByExpert[k]["score"];
+                                //         }
+                                //     }
+                                // }
                             }
-
-                            //用现有的每一个JSONscore.participatesList去匹配在value.participatesList最新的位置
+                             //用现有的每一个JSONscore.participatesList去匹配在value.participatesList最新的位置
                             for (let i = 0; i < JSONscore.participatesList.length; i++) {
                                 //遍历value.participatesList，如果studentID和目前JSONscore.participatesList的studentID一样，说明位置被修改到j
                                 for (let j = 0; j < value.participatesList.length; j++) {
                                     //首先判断studentID位置是否相等
                                     if (JSONscore.participatesList[i].studentID === value.participatesList[j].studentID) {
                                         // 如果小于count，说明还有不可修改项，不可修改项以后端为准
-                                        for (let tempcount = 0; tempcount < count; tempcount++) {
-                                            if (JSONscore.participatesList[i]['score' + tempcount] != value.participatesList[j]['score' + tempcount]) {
-                                                JSONscore.participatesList[i]['score' + tempcount] = value.participatesList[j]['score' + tempcount]
-                                            }
-                                        }
-                                        // 综合前端后端获取最新的分数,把所有的分赋值给value
-                                        for (let key = count; key < JSONscore.scoreitems.length - 1; key++) {
-                                            if (JSONscore.participatesList[i]['score' + key]) {
-                                                value.participatesList[j]['score' + key] = JSONscore.participatesList[i]['score' + key]
-                                            }
-                                        }
+                                        // for (let tempcount = 0; tempcount < count; tempcount++) {
+                                        //     if (JSONscore.participatesList[i]['score' + tempcount] != value.participatesList[j]['score' + tempcount]) {
+                                        //         JSONscore.participatesList[i]['score' + tempcount] = value.participatesList[j]['score' + tempcount]
+                                        //     }
+                                        // }
+                                        // // 综合前端后端获取最新的分数,把所有的分赋值给value
+                                        // for (let key = count; key < JSONscore.scoreitems.length - 1; key++) {
+                                        //     if (JSONscore.participatesList[i]['score' + key]) {
+                                        //         value.participatesList[j]['score' + key] = JSONscore.participatesList[i]['score' + key]
+                                        //     }
+                                        // }
                                         //计算总分
+
                                         let sum = 0
                                         for (let finishSum = 0; finishSum < value.scoreItemCount; finishSum++) {
-                                            if (value.participatesList[j]['score' + finishSum]) {
-                                                sum += value.participatesList[j]['score' + finishSum] * value.scoreitems[finishSum].coef
+                                            if (value.participatesList[j]['score' + value.scoreitems[finishSum].id]) {
+                                                sum += value.participatesList[j]['score' + value.scoreitems[finishSum].id] * value.scoreitems[finishSum].coef
                                             }
                                         }
                                         //把总分也给过去
@@ -275,20 +287,33 @@ const store = new Vuex.Store({
                                 }
 
                             }
-                            // 将value提交到vuex中，此时页面保存的是最新的value(包含当前已经评的分)，通过页面信息提示刷新，页面获得新数据
+                    // //
+                    // //         //老的和新的做对比
+                    // //         // for (var pp = 0;pp < n;pp++){
+                    // //         //     var key = count
+                    // //         //     for (var temp = 0;temp < scoreByExpert; temp++){
+                    // //         //         if(value.scoresListByExpert[temp]["participantID"] == value.participatesList[pp].id){
+                    // //         //             value.participatesList[pp]['score' + key] = value.scoresListByExpert[temp]['score']
+                    // //         //             k++
+                    // //         //         }
+                    // //         //     }
+                    // //         // }
+                    // //
+                    // //         // 将value提交到vuex中，此时页面保存的是最新的value(包含当前已经评的分)，通过页面信息提示刷新，页面获得新数据
                             context.commit('INIT_SCORE', value)
-                            //修改完毕后把changeList置为false，应该可以不写
-                            // changeList = false
-                        } else {
-                            //如果不为真，那在刷新时只要把JSONscore提交即可
-                            context.commit('INIT_SCORE', JSONscore)
-                        }
+                    // //         //修改完毕后把changeList置为false，应该可以不写
+                    // //         // changeList = false
+                    // //     // }
+                    // //     // else {
+                    // //     //     //如果不为真，那在刷新时只要把JSONscore提交即可
+                    // //     //     context.commit('INIT_SCORE', JSONscore)
+                    // //     // }
                     } else {
                         context.commit('INIT_SCORE', value)
                     }
-                    resolve()
                 }
             })
+                resolve()
             })
             return promise
         },

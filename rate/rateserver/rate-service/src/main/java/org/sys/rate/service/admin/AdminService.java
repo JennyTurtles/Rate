@@ -81,7 +81,6 @@ public class AdminService implements UserDetailsService {
         return adminMapper.updateByPrimaryKeySelective(hr);
     }
 
-    @Transactional
     public boolean updateHrRole(Integer hrid, Integer[] rids) {
         hrRoleMapper.deleteByHrid(hrid);
         return hrRoleMapper.addRole(hrid, rids) == rids.length;

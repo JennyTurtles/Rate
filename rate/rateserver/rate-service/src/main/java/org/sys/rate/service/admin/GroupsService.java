@@ -180,14 +180,23 @@ public class GroupsService {
             if(participates.size() == 0){
                 return "没有未分组的选手";
             }
+            //分组依据和排序依据不同
+            if(sortByItemID != infoItemID){
+                infosList = infosMapper.getParticipantIDtByAIdAndInfoItemID(activityID,sortByItemID);
+            }
         }else {
             participates = infosService.getPartipicantByActivityId(activityID,infoItemID,infoContent);
             List<Integer> participantID = new ArrayList<>();
             for(int i = 0;i < participates.size(); i++){
                 participantID.add(participates.get(i).getID());
             }
-            //拿到没分组选手的info content
-            infosList = infosMapper.getInfoitemsListByParAndAcID(activityID,participantID,infoItemID);
+            //分组依据和排序依据不同
+            if(sortByItemID != infoItemID){
+                infosList = infosMapper.getInfoitemsListByParAndAcID(activityID,participantID,sortByItemID);
+            }else {
+                //拿到没分组选手的info content
+                infosList = infosMapper.getInfoitemsListByParAndAcID(activityID,participantID,infoItemID);
+            }
         }
 
         //通过sortByItemID筛选出没有分组的选手

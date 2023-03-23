@@ -83,9 +83,25 @@ export default {
   },
   computed: {
     tablelist() {
-      return JSON.parse(sessionStorage.getItem("activitiesList"));
+      var temp = JSON.parse(sessionStorage.getItem("activitiesList"))
+      for(var i = 0;i < temp.length; i++){
+        var time = new Date(temp[i].activityLists[0].startDate)
+        var year = time.getFullYear()
+        var month = time.getMonth() + 1
+        var date = time.getDate()
+        if(month < 10){
+          month = "0" + month
+        }
+        if(date < 10){
+          date = "0" + date
+        }
+        temp[i].activityLists[0].startDate = year + "-" + month + "-" + date
+      }
+      return temp;
     },
+  mounted(){
 
+  }
   },
   methods: {
     //表头样式

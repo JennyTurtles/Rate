@@ -3,6 +3,7 @@ package org.sys.rate.service.admin;
 import org.sys.rate.mapper.HrMapper;
 import org.sys.rate.mapper.HrRoleMapper;
 import org.sys.rate.model.Hr;
+import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.HrUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -81,10 +82,7 @@ public class HrService  {
     }
 
     public Integer addNew(Hr hr) {
-        //hr.setEnabled(true);
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        String encodePass = encoder.encode(hr.getPassword());
-        hr.setPassword(encodePass);
+        hr.setPassword(ExpertService.sh1(hr.getPassword()));
         return hrMapper.insert(hr);
     }
 }

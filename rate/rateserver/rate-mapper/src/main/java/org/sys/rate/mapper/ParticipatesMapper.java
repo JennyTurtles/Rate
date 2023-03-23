@@ -136,4 +136,7 @@ public interface ParticipatesMapper {
 
     List<FinalValue> getInfoScoreByInfoID(@Param("activityID") Integer activityID, @Param("infoItemID") Integer infoItemID,@Param("page") Integer page,@Param("size") Integer size);
     List<Participates> getParticipantsBySID(Integer studentID);
+
+    @Select("select ID from participants where studentID = #{studentID} limit 1")
+    Integer existPar(Integer studentID);
 }

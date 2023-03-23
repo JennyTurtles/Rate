@@ -37,7 +37,7 @@ public class InfoItemService {
         List<InfoItem> data = infoItemMapper.getActivitiesByPage(keywords,page, size, employee);
         for(InfoItem solo:data)
         {
-            if(solo.getContentType()!=null)
+            if(!solo.getContentType().isEmpty())
             {String[] s = solo.getContentType().split(",");
             solo.setShuZuType(s);}
         }

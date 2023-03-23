@@ -261,18 +261,14 @@
     </update>
 
     <delete id="delete" parameterType="org.sys.rate.model.Participates">
-        delete from scores
-        where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
         delete from infos
+        where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
+        delete from scores
         where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
         delete from participants
         where ID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
         UPDATE activities set participantCount=participantCount-1 where ID=#{activityID,jdbcType=INTEGER};
         UPDATE `groups` set participantCount=participantCount-1 where ID=#{groupID,jdbcType=INTEGER};
-        update activities set expertCount=(select count(*) from expertactivities where activityID=#{activityID,jdbcType=INTEGER} and ID!='0') where ID=#{activityID,jdbcType=INTEGER};
-        update activities set participantCount=(select count(*) from participants where activityID=#{activityID,jdbcType=INTEGER} and ID!='0') where ID=#{activityID,jdbcType=INTEGER};
-        update `groups` set expertCount=(select count(*) from expertactivities where groupID=#{groupID,jdbcType=INTEGER} and ID!='0') where ID=#{groupID,jdbcType=INTEGER};
-        update `groups` set participantCount=(select count(*) from participants where groupID=#{groupID,jdbcType=INTEGER} and ID!='0') where ID=#{groupID,jdbcType=INTEGER}
     </delete>
 
     <update id="update" parameterType="org.sys.rate.model.Participates">

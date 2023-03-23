@@ -486,6 +486,16 @@ export default {
       this.emp = data;
       this.dialogVisible_show = true;
     },
+    // showEditEmpView_show(row) {
+    //   let routeUrl = this.$router.resolve({
+    //     path:"/teacher/tperact/InformationDetails",
+    //     query: {
+    //       activityID: this.activityID,
+    //       IDNumber: row.student.idnumber,
+    //     },
+    //   })
+    //   window.open(routeUrl.href)
+    // },
     showScore(data){
       const _this = this;
       _this.$router.push({
@@ -499,9 +509,7 @@ export default {
     deleteEmp(data) {
       data.institutionID = this.user.institutionID;
       this.getRequest("/activities/basic/check?id=" + data.id).then(res => {
-        //console.log(res);
         if (res == true) {
-          // console.log("this obj has no relatives")
           this.$confirm(
               "此操作将永久删除【" + data.name + "】, 是否继续?",
               "提示",
@@ -540,7 +548,6 @@ export default {
     },
     endEmp(data) {
       data.institutionID = this.user.institutionID;
-      // console.log(data);
       this.$confirm(
           "此操作将永久停止活动【" + data.name + "】, 是否继续?",
           "提示",
@@ -559,7 +566,6 @@ export default {
       });
     },
     doAddEmp() {//添加活动
-
       if (this.emp.id) {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
@@ -579,10 +585,6 @@ export default {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
-            // this.emp.startDate = new Date(this.emp.startDate)
-            // console.log(
-            //     typeof (this.emp.startDate)
-            // )
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(
                 (resp) => {
@@ -637,8 +639,23 @@ export default {
         const id = JSON.parse(localStorage.getItem("user")).id
         this.getRequest("/secretary/getAct?teacherID="+id).then((resp)=>{
           this.loading = false;
-          this.emps = resp.obj
-          this.total = this.emps.length
+          if (resp) { // 后续再包装成函数
+            for(var i = 0;i < resp.obj.length; i++){
+              var time = new Date(resp.obj[i].startDate)
+              var year = time.getFullYear()
+              var month = time.getMonth() + 1
+              var date = time.getDate()
+              if(month < 10){
+                month = "0" + month
+              }
+              if(date < 10){
+                date = "0" + date
+              }
+              resp.obj[i].startDate = year + "-" + month + "-" + date
+            }
+            this.emps = resp.obj;
+            this.total = this.emps.length;
+          }
         })
       }else if (this.mode === "adminSub"){ // 管理员子活动管理
         this.getRequest("/activities/basic/sub?activityID="+this.activityID).then((resp)=>{

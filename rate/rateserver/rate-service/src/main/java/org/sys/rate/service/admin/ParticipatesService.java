@@ -6,6 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
@@ -416,9 +417,12 @@ public class ParticipatesService {
         return "false";
     }
 
+    @Transactional
     public Integer deleteParticipant(Integer groupID,Participates company) {
         int result = participatesMapper.delete(company);
-        studentMapper.deleteStudent(company.getStudentID());
+        if (participatesMapper.existPar(company.getStudentID()) == null){   // 该选手可能有其他活动，只有在选手表内无该选手时候，才能在student表删除
+            studentMapper.deleteStudent(company.getStudentID());
+        }
         if(result>0)
         {
             participatesMapper.subDisplaySequence(groupID,company.getDisplaySequence(),null);

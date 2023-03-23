@@ -17,9 +17,9 @@
           <template >
             <template v-if="!item.byParticipant">
               <el-input v-show="item.content != '' || item.content != null" :disabled="true" style="width: 20%;" v-model="item.content"></el-input>
-              <span style="color:gray;margin-left: 9px">此项不可修改填写！</span>
+<!--              <span style="color:gray;margin-left: 9px">此项不可修改填写！</span>-->
             </template>
-            <template v-else-if="item.contentType == 'textbox'">
+            <template v-else-if="item.contentType.indexOf('textbox')>=0 && item.byParticipant">
               <div>
                 <el-input style="width:80%"
                           :maxlength="item.sizelimit"
@@ -32,7 +32,7 @@
                 </el-input>
               </div>
             </template>
-            <template v-else-if="item.contentType == 'textarea'">
+            <template v-else-if="item.contentType.indexOf('textarea') >= 0 && item.byParticipant">
               <el-input
                   :maxlength="item.sizelimit"
                   show-word-limit
@@ -47,7 +47,7 @@
               </el-input>
             </template>
             <template v-else-if="(item.contentType.indexOf('pdf') >= 0 || item.contentType.indexOf('zip') >= 0
-                            || item.contentType.indexOf('jpg') >= 0)"
+                            || item.contentType.indexOf('jpg') >= 0) && item.byParticipant"
                       style="height:100%">
               <el-upload
                   class="myupload"

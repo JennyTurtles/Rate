@@ -49,8 +49,8 @@ public class MenuService {
     //获取每个角色的菜单
     public List<Menu> getAllRoleMenus(Integer id, String role){
         List<Menu> res = new ArrayList<>();
-        if (role.equals(("4")))
-            System.out.println("4");
+//        if (role.equals(("4")))
+//            System.out.println("4");
         if(role.equals("8") || role.equals("9") || role.equals(("3")) || role.equals(("4")) ){//8本科生老师 9研究生老师 3是专家 4是秘书
             res=menuMapper.getMenusByTeaId(id,Integer.parseInt(role));
         }
@@ -62,7 +62,7 @@ public class MenuService {
             res = menuMapper.getMenusWithParticipants(Integer.parseInt(role));
         }
         else {
-            res = menuMapper.getMenusById(id);
+            res = menuMapper.getMenusById(Integer.parseInt(role));
             return res;
         }
         List<Menu> newMenu=new ArrayList<>();
@@ -88,13 +88,25 @@ public class MenuService {
     public List<Menu> getMenusByAdminId(Integer id, String role) {
         //多个角色；分割
 //        !role.contains("10") && !role.contains("11") &&
-        if (role.contains("7") && participatesMapper.isParticipants(id) != 0)
-//            role = role + ";7";
+        if (participatesMapper.isParticipants(id) != 0){
+            if(!role.contains("7")){
+                role = role + ";7";
+            }
+        }
+        if (expertsMapper.isExpert(id) != 0){
+            if(!role.contains("3")){
+                role = role + ";3";
+            }
+        }
 //        !role.contains("3") &&
-        if (expertsMapper.isExpert(id) != 0)
-            role = role + ";3";
-        if (secretaryMapper.isSecretary(id) != 0)
-            role = role + ";4";
+//        if (!role.contains("3") && expertsMapper.isExpert(id) != 0) // 是专家
+//            role = role + ";3";
+        if (secretaryMapper.isSecretary(id) != 0){
+            // 是秘书
+            if(!role.contains("4")){
+                role = role + ";4";
+            }
+        }
         String[] roles = role.split(";");
         List<Menu> res=new ArrayList<>();
         for (int i = 0;i < roles.length;i++){
