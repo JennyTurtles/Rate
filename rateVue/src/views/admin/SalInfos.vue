@@ -212,13 +212,14 @@ export default {
         institutionID:null,
         name: null/*,*/
       },
-      shuju:[
+      shuju:
+          [
         {name:"textbox",famname:"字",disabled:false},
         {name:"textarea",famname:"字",disabled:false},
         {name:"pdf",famname:"字节",disabled:false},
         {name:"jpg",famname:"字节",disabled:false},
         {name:"zip",famname:"字节",disabled:false},
-        {name:"label",famname:"",disabled:false}
+        {name:"label",famname:"",disabled:false},
       ],
       activitydata: [],
       keywords_name: "",
@@ -296,7 +297,7 @@ export default {
   methods: {
     // 点击下拉框对显示的选项进行筛选。已选中文本类型则不允许选其他所有类型；已选中文件类型则不允许选本文类型。
     handleVisible(row){
-      if (row.shuZuType === null){
+      if (row.shuZuType === null){ // 处理为空的情况
         for (let i = 0; i < this.shuju.length; i++) {
           if (row.byParticipant === true && i === 5)
             this.shuju[i].disabled = true
@@ -319,7 +320,7 @@ export default {
           this.shuju[5].disabled = true
         }
       }
-      if (row.byParticipant === true){
+      if (row.byParticipant === true){ // 选手填写打了个勾，label类型就要被禁止
         this.shuju[5].disabled = true
       }
       else{
@@ -327,7 +328,7 @@ export default {
           this.shuju[i].disabled = true
         }
       }
-      // this.shuju[5].disabled = row.byParticipant === true; // 选手填写打了个勾，label类型就要被禁止
+      // this.shuju[5].disabled = row.byParticipant === true;
     },
     Delete_Info_Item(si) {
       this.$confirm("此操作将永久删除【" + si.name + "】, 是否继续?", "提示", {

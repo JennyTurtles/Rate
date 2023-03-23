@@ -91,9 +91,6 @@ export default {
         }
       });
     },
-    created() {
-      window.addEventListener("keydown", this.handkeyCode, true);
-    },
 
     destroyed() {
       window.onkeydown = undefined;

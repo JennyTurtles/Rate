@@ -41,7 +41,7 @@
             placeholder="请输入密码"
           ></el-input>
         </el-form-item>
-        <el-button type="primary" class="loginBtn" native-type="submit" @click="submitLogin"
+        <el-button type="primary" class="loginBtn" native-type="submit" @click="submitLogin()"
           >登录</el-button
         >
       </el-form>
@@ -153,7 +153,14 @@ export default {
   //添加登录背景图片
   created() {
     document.body.classList.add("body-home");
-    window.addEventListener('keydown', this.handkeyCode, true)//开启监听键盘按下事件
+    // window.addEventListener('keydown', this.handkeyCode, true)//开启监听键盘按下事件
+    document.onkeypress = (e)=>{
+      var keycode = document.all ? event.keyCode : e.which;
+      if (keycode == 13) {
+        this.submitLogin();// 登录方法名
+        return false;
+      }
+    };
   },
   beforeDestroy() {
     document.body.classList.remove("body-home");
