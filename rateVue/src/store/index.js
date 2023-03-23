@@ -185,7 +185,7 @@ const store = new Vuex.Store({
                         }
                     }
                     // // 如果页面存在sessionStorage
-                    // // if (sessionStorage.getItem("score")) {
+                    if (sessionStorage.getItem("score")) {
                         let JSONscore = JSON.parse(sessionStorage.getItem("score"))
                         let length = value.participatesList.length
                         // console.log(value)
@@ -308,9 +308,9 @@ const store = new Vuex.Store({
                     // //     //     //如果不为真，那在刷新时只要把JSONscore提交即可
                     // //     //     context.commit('INIT_SCORE', JSONscore)
                     // //     // }
-                    // // } else {
-                    //     context.commit('INIT_SCORE', value)
-                    // }
+                    } else {
+                        context.commit('INIT_SCORE', value)
+                    }
                 }
             })
                 resolve()
