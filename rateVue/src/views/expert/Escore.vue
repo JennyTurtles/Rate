@@ -433,10 +433,11 @@ export default {
       if (res.msg === "success") {
         Message.success("数据导入成功！");
         await this.refreshact(true);
+        console.log(this.datalist)
         // this.initAct()
          this.initState();
          // this.reload()
-         // sessionStorage.setItem("score",JSON.stringify(this.datalist))
+         sessionStorage.setItem("score",JSON.stringify(this.datalist))
       } else {
         Message.error("导入失败，请检查文件格式！");
       }
@@ -483,33 +484,6 @@ export default {
       }
     },
     showEditEmpView_show(row, index) {
-      // this.dialogVisible_show = false;
-      // let q = this.datalist.infoItems.length;
-      // let w = this.datalist.infosList.length;
-      // this.dialogdata = {};
-      // this.dialogdata.idCode = this.datalist.participatesList[index].code;
-      // this.dialogdata.name = this.datalist.participatesList[index].student.name;
-      // for (var j = 0; j < w; j++) {
-      //   if (row["id"] == this.datalist.infosList[j]["participantID"]) {
-      //     for (var k = 0; k < q; k++) {
-      //       if (
-      //         this.datalist.infosList[j]["infoItemID"] ==
-      //         this.datalist.infoItems[k]["id"]
-      //       ) {
-      //         var name = this.datalist.infoItems[k]["name"];
-      //         var contentType = this.datalist.infoItems[k]["contentType"];
-      //         this.$set(
-      //             this.dialogdata,
-      //             "info" + name,
-      //             {
-      //               content:this.datalist.infosList[j]["content"],
-      //               contentType:this.datalist.infoItems[k]["contentType"]
-      //             }
-      //         );
-      //       }
-      //     }
-      //   }
-      // }
       let routeUrl = this.$router.resolve({
         path:"/teacher/tperact/InformationDetails",
         query: {
@@ -628,8 +602,6 @@ export default {
           center: true,
         })
       }
-      console.log('initstate')
-      console.log(this.datalist)
     },
     onInputConfirm(row, index) {
       this.$set(this.datalist.participatesList[index], "showSave", true);
@@ -695,6 +667,7 @@ export default {
     },
     async initAct() {
       if (this.list.count != 0) {
+        console.log("initAct")
         this.$store.dispatch("initAct", this.Adata);
         // const value =  await getRequest("/system/Experts/score?activitiesID=" + this.Adata.Aid + '&expertID=' + this.Adata.Auserid + '&groupId=' + this.Adata.AgroupId)
         // if(value){
@@ -708,12 +681,12 @@ export default {
     refreshact(auto) {
       this.initAct();
       // this.$store.dispatch("initAct", this.Adata);
-      if (this.$store.state.changeList === true) {
+      // if (this.$store.state.changeList === true) {
         this.clear();
         this.reload();
         // this.$store.state.changeList = false
         this.$store.dispatch("initchangeList");
-      }
+      // }
       if (auto === false) {
         Message.success("刷新成功！");
       }

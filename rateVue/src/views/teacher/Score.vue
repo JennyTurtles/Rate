@@ -109,7 +109,6 @@
             prop="student.name"
             label="姓名"
             min-width="75px"
-            :width="student.name.length + 5 + 'px'"
             align="center"
             fixed
         >
