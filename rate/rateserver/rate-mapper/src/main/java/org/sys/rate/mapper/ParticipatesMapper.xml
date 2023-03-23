@@ -261,9 +261,9 @@
     </update>
 
     <delete id="delete" parameterType="org.sys.rate.model.Participates">
-        delete from scores
-        where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
         delete from infos
+        where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
+        delete from scores
         where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
         delete from participants
         where ID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
