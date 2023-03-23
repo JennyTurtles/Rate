@@ -150,11 +150,11 @@
           <template slot-scope="scope">
             <el-input
               placeholder="请打分"
-              v-model.trim="scope.row['score' + idx]"
+              v-model.trim="scope.row['score' + value.id]"
               :disabled="value.byexpert == false || datalist.finished == true"
               clearable
-              @input="onInputConfirm(scope.row, scope.$index)"
-              ><span>{{ scope.row["score" + idx] }}</span>
+              @input="onInputConfirm(scope.row, scope.$index,value)"
+              ><span>{{ scope.row["score" + value.id] }}</span>
             </el-input>
           </template>
         </el-table-column>
@@ -433,7 +433,7 @@ export default {
       if (res.msg === "success") {
         Message.success("数据导入成功！");
         await this.refreshact(true);
-        console.log(this.datalist)
+        // console.log(this.datalist)
         // this.initAct()
          this.initState();
          // this.reload()
@@ -535,7 +535,7 @@ export default {
                     this.datalist.scoresListNoExpert[k]["participantID"]) &
                 (this.datalist.scoreitems[j]["byexpert"] == true)
             ) {
-              this.datalist.participatesList[i]["score" + j] =
+              this.datalist.participatesList[i]["score" + this.datalist.scoreitems[j]["id"]] =
                   this.datalist.scoresListNoExpert[k]["score"];
             }
           }
@@ -564,9 +564,9 @@ export default {
         }
         // if (this.datalist.participatesList[i]["sum"] == 0) {
           for (var l = 0; l < score; l++) {
-            if (this.datalist.participatesList[i]["score" + l]) {
+            if (this.datalist.participatesList[i]["score" + this.datalist.scoreitems[l].id]) {
               sum +=
-                  (this.datalist.participatesList[i]["score" + l] - "0") *
+                  (this.datalist.participatesList[i]["score" + this.datalist.scoreitems[l].id] - "0") *
                   this.datalist.scoreitems[l].coef;
             }
           // }
@@ -603,17 +603,54 @@ export default {
         })
       }
     },
-    onInputConfirm(row, index) {
+    onInputConfirm(row, index,value) {
       this.$set(this.datalist.participatesList[index], "showSave", true);
       let m = this.datalist.scoreitems.length;
+      var firstscore = this.datalist.scoresListByExpert.find(
+           (cur) => {
+            if(cur.participantID == row.id && cur.scoreItemID == value.id){
+              return cur.score
+            }else {
+              return 0
+            }
+      })
       var sum = 0;
-      for (var j = 0; j < m; j++) {
-        if (row["score" + j]) {
-          sum += (row["score" + j] - "0") * this.datalist.scoreitems[j].coef;
+      for (var j = 0; j < m - 1; j++) {
+        if (row["score" + this.datalist.scoreitems[j].id]) {
+          sum += (row["score" + this.datalist.scoreitems[j].id] - "0") * this.datalist.scoreitems[j].coef;
         }
       }
-      row["sum"] = sum.toFixed(2);
-      this.$store.dispatch("setScoreParticipatesList", this.datalist);
+      if(this.judgeScore(sum)){
+        row["sum"] = sum.toFixed(2);
+        this.$store.dispatch("setScoreParticipatesList", this.datalist);
+      }else {
+        this.$message.warning('分数超过满分！')
+        //如果超过满分就把之前的分数和sum重新展示在页面上
+        this.datalist.participatesList[index]['score' + value.id] = firstscore.score
+        var sumscore = this.datalist.scoreitems.reduce((pre,cur) => {
+          if(cur.name != "活动得分"){
+            return pre + row["score" + cur.id] * cur.coef
+          }else {
+            return 0 + pre
+          }
+        },0)
+        row["sum"] = sumscore.toFixed(2);
+      }
+    },
+    judgeScore(sum){//判断分数有没有超过满分
+      //计算评分项满分
+      var fullScore = this.datalist.scoreitems.reduce((pre,cur) => {
+        if(cur.name != "活动得分"){
+          return cur.score + pre
+        }else {
+          return 0 + pre
+        }
+      },0)
+      if(sum <= fullScore){
+        return true
+      }else {
+        return false
+      }
     },
     async saveScore(index, row) {
       this.$forceUpdate();
@@ -631,7 +668,7 @@ export default {
             a.push({
               activityid: this.datalist.scoreitems[i]["activityid"],
               id: this.datalist.scoreitems[i]["id"],
-              score: row["score" + i] - "0",
+              score: row["score" + this.datalist.scoreitems[i]["id"]] - "0",
             });
           }
         }
@@ -667,7 +704,6 @@ export default {
     },
     async initAct() {
       if (this.list.count != 0) {
-        console.log("initAct")
         this.$store.dispatch("initAct", this.Adata);
         // const value =  await getRequest("/system/Experts/score?activitiesID=" + this.Adata.Aid + '&expertID=' + this.Adata.Auserid + '&groupId=' + this.Adata.AgroupId)
         // if(value){
