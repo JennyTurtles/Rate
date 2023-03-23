@@ -639,8 +639,23 @@ export default {
         const id = JSON.parse(localStorage.getItem("user")).id
         this.getRequest("/secretary/getAct?teacherID="+id).then((resp)=>{
           this.loading = false;
-          this.emps = resp.obj
-          this.total = this.emps.length
+          if (resp) { // 后续再包装成函数
+            for(var i = 0;i < resp.obj.length; i++){
+              var time = new Date(resp.obj[i].startDate)
+              var year = time.getFullYear()
+              var month = time.getMonth() + 1
+              var date = time.getDate()
+              if(month < 10){
+                month = "0" + month
+              }
+              if(date < 10){
+                date = "0" + date
+              }
+              resp.obj[i].startDate = year + "-" + month + "-" + date
+            }
+            this.emps = resp.obj;
+            this.total = this.emps.length;
+          }
         })
       }else if (this.mode === "adminSub"){ // 管理员子活动管理
         this.getRequest("/activities/basic/sub?activityID="+this.activityID).then((resp)=>{
