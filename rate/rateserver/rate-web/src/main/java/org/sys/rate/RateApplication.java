@@ -12,11 +12,13 @@ import org.springframework.http.HttpStatus;
 
 
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @EnableCaching
 @MapperScan(basePackages = "org.sys.rate.mapper")
 @EnableScheduling
+@EnableTransactionManagement
 public class RateApplication {
 
     public static void main(String[] args) {
