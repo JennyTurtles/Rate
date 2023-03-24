@@ -89,15 +89,6 @@ vue.prototype.$logs = window.console.log;
 
         <!--        </el-table-column>-->
       </el-table>
-      <div style="display: flex;justify-content: flex-end;margin:10px 0">
-        <el-pagination
-            background
-            @current-change="currentChange"
-            @size-change="sizeChange"
-            layout="sizes, prev, pager, next, jumper, ->, total, slot"
-            :total="total">
-        </el-pagination>
-      </div>
     </div>
 
   </div>
@@ -148,9 +139,9 @@ export default {
     initEmps() {
       this.loading = true;
       let url =  "/participants/basic/parscore?page=" +
-          this.page +
+          1 +
           "&size=" +
-          this.size +
+          1000 +
           "&groupID=" +
           this.groupID +
           "&activityID=" +

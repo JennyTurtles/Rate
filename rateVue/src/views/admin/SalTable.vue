@@ -173,16 +173,16 @@
           </el-button
           >
         </div>
-        <div style="margin-left: auto">
-          <el-pagination
-              background
-              @current-change="currentChange"
-              @size-change="sizeChange"
-              layout="sizes, prev, pager, next, jumper, ->, total, slot"
-              :total="total"
-          >
-          </el-pagination>
-        </div>
+<!--        <div style="margin-left: auto">-->
+<!--          <el-pagination-->
+<!--              background-->
+<!--              @current-change="currentChange"-->
+<!--              @size-change="sizeChange"-->
+<!--              layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
+<!--              :total="total"-->
+<!--          >-->
+<!--          </el-pagination>-->
+<!--        </div>-->
       </div>
     </div>
   </div>
@@ -342,7 +342,7 @@ export default {
     initHrs() {
       console.log(this.mode)
       if (this.mode === "admin"){
-        this.getRequest("/groups/basic/?keywords=" + this.keywords + "&page=" + this.page + "&size=" + this.size).then((resp) => {
+        this.getRequest("/groups/basic/?keywords=" + this.keywords + "&page=" + 1 + "&size=" + 1000).then((resp) => {
           if (resp) {
             this.hrs = resp.data;
             this.total = this.hrs.length;
@@ -366,9 +366,9 @@ export default {
           "&keywords_name=" +
           this.keywords_name +
           "&page=" +
-          this.page +
+          1 +
           "&size=" +
-          this.size
+          1000
       ).then((resp) => {
         if (resp) {
           this.hrs = resp.data;

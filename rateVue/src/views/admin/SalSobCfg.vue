@@ -185,16 +185,6 @@
         <el-table-column align="center" min-width="10%" label="操作">
           <template slot-scope="scope">
             <el-button
-                @click="save(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-collection"
-                type="primary"
-                plain
-            >保存
-            </el-button
-            >
-            <el-button
                 @click="reset_password(scope.row)"
                 style="padding: 4px"
                 size="mini"
@@ -222,15 +212,6 @@
                 :disabled="scope.row.finished==0"
                 plain
             >退回评分
-            </el-button>
-            <el-button
-                @click="Delete_ExActivity(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                type="danger"
-                icon="el-icon-delete"
-                plain
-            >删除
             </el-button>
           </template>
         </el-table-column>
