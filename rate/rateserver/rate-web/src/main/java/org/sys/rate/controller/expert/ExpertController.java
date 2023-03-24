@@ -78,7 +78,7 @@ public class ExpertController {
         List<Participates> participatesL = participatesService.getParticipantsByGroupId(activitiesID,groupId);
 //        返回分数 查找的expertid是null
         List<Scores> scoresListNoBy = scoresService.getScoreListNoExpert(activitiesID,groupId);
-        //        返回分数 查找的expertid是null
+        //返回分数 查找的expertid是null
         List<Scores> scoresListByExpert = scoresService.getScoreListByExpert(expertID,activitiesID,groupId);
         //获得专家活动评分状态 是否已经完成评分
         Boolean finished = expertactivitiesService.getState(activitiesID, expertID,groupId);

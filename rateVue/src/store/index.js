@@ -72,6 +72,7 @@ const store = new Vuex.Store({
             state.peract = data
         },
         INIT_SCORE(state, data) {
+            console.log(data)
             state.score = data
             sessionStorage.setItem("score", JSON.stringify(data));
         },
@@ -127,9 +128,6 @@ const store = new Vuex.Store({
                 })
             })
             return promise
-        },
-        uploadExcelInitAct(){
-
         },
         initAct(context, AI) {
             // var promise = new Promise((resolve, reject) => {
@@ -313,7 +311,7 @@ const store = new Vuex.Store({
 
                                     }
                                     // 将value提交到vuex中，此时页面保存的是最新的value(包含当前已经评的分)，通过页面信息提示刷新，页面获得新数据
-                                    context.commit('INIT_SCORE', value)
+                                     context.commit('INIT_SCORE', value)
                                     //修改完毕后把changeList置为false，应该可以不写
                                     // changeList = false
                                 } else {
