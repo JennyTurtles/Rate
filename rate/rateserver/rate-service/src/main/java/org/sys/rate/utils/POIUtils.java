@@ -1035,7 +1035,6 @@ public class POIUtils {
             Participates emp = participatesL.get(i);
             Student stu = participatesL.get(i).getStudent();
             HSSFRow row = sheet.createRow(i + 2);
-
             //----
             row.createCell(0).setCellValue(emp.getDisplaySequence());
             row.createCell(1).setCellValue(emp.getCode());
@@ -1050,12 +1049,15 @@ public class POIUtils {
                     }
                 }
             }
+
             for(int j=0;j<scoreItems.size();j++){
                 ScoreItem sitem = scoreItems.get(j);
                 for (Scores scoreL : scoresList) {
                     if (scoreL.getScoreItemID().equals(sitem.getId()) && scoreL.getParticipantID().equals(emp.getID())) {
-                        if (scoreL.getScore()!=null) row.createCell(j + 3 + infoItemsShow.size()).setCellValue(scoreL.getScore());
-                        break;
+                        if (scoreL.getScore()!=null){
+                            row.createCell(j + 3 + infoItemsShow.size()).setCellValue(scoreL.getScore());
+                        }
+//                        break;
                     }
                 }
             }
@@ -1071,6 +1073,13 @@ public class POIUtils {
             e.printStackTrace();
         }
         return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
+
+    public static void read_(HSSFWorkbook workbook){
+        HSSFSheet sheet = workbook.getSheet("Sheet1");
+        HSSFRow row = sheet.getRow(17);//Row
+        HSSFCell cell = row.getCell(6);
+        System.out.println(cell.getNumericCellValue());
     }
 
     public static RespPageBean readExcel_rate(MultipartFile file) {

@@ -72,7 +72,6 @@ const store = new Vuex.Store({
             state.peract = data
         },
         INIT_SCORE(state, data) {
-            console.log(data)
             state.score = data
             sessionStorage.setItem("score", JSON.stringify(data));
         },

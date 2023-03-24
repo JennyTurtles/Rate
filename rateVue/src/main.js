@@ -174,8 +174,8 @@ router.beforeEach(  (to, from, next) => {
             store.commit('initRoutes',[])
             store.commit('initRoutesAllSameForm',[])
             store.commit('INIT_CURRENTHR',{})
-            localStorage.clear('initRoutes')
-            sessionStorage.clear('initRoutes_AllSameForm')
+            localStorage.removeItem('initRoutes')
+            sessionStorage.removeItem('initRoutes_AllSameForm')
         }
         next()
     }else if(to.path == '/teacher/tperact/InformationDetails'){
