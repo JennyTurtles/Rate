@@ -8,21 +8,21 @@
             <el-col :span="10">
               <el-form-item>
                 <el-button
-                  type="primary"
-                  icon="el-icon-check"
-                  :disabled="datalist.finished == true"
-                  @click="commit()"
-                  >提交评分
+                    type="primary"
+                    icon="el-icon-check"
+                    :disabled="datalist.finished == true"
+                    @click="commit()"
+                >提交评分
                 </el-button>
               </el-form-item>
             </el-col>
             <el-col :span="10" :offset="1">
               <el-form-item>
                 <el-button
-                  type="primary"
-                  icon="el-icon-plus"
-                  @click="download()"
-                  >下载评分表
+                    type="primary"
+                    icon="el-icon-plus"
+                    @click="download()"
+                >下载评分表
                 </el-button>
               </el-form-item>
             </el-col>
@@ -30,20 +30,20 @@
           <el-row>
             <el-col :span="10">
               <el-button
-                type="primary"
-                icon="el-icon-document-checked"
-                @click="isGetPdf()"
-                >导出PDF</el-button
+                  type="primary"
+                  icon="el-icon-document-checked"
+                  @click="isGetPdf()"
+              >导出PDF</el-button
               >
             </el-col>
             <el-col :span="10" :offset="1">
               <el-upload
-                :show-file-list="false"
-                :on-success="onSuccess"
-                :action="Upload()"
+                  :show-file-list="false"
+                  :on-success="onSuccess"
+                  :action="Upload()"
               >
                 <el-button type="primary" icon="el-icon-upload2"
-                  >上传评分表
+                >上传评分表
                 </el-button>
               </el-upload>
             </el-col>
@@ -62,10 +62,10 @@
            
           <div>
             <el-button
-              icon="el-icon-refresh"
-              type="primary"
-              :disabled="datalist.finished == true"
-              @click="refreshact(false)"
+                icon="el-icon-refresh"
+                type="primary"
+                :disabled="datalist.finished == true"
+                @click="refreshact(false)"
             >
               刷新</el-button
             >
@@ -76,28 +76,28 @@
     <!-- 列表 -->
     <div class="tableStyle">
       <el-table
-        :cell-style="rowStyle"
-        :header-cell-style="rowClass"
-        :data="datalist.participatesList"
-        stripe
-        :height="windowScreenHeight"
-        border
-        v-loading="fullscreenLoading"
+          :cell-style="rowStyle"
+          :header-cell-style="rowClass"
+          :data="datalist.participatesList"
+          stripe
+          :height="windowScreenHeight"
+          border
+          v-loading="fullscreenLoading"
       >
         <el-table-column
-          prop="displaySequence"
-          label="序号"
-          min-width="50px"
-          align="center"
-          fixed
+            prop="displaySequence"
+            label="序号"
+            min-width="50px"
+            align="center"
+            fixed
         >
         </el-table-column>
         <el-table-column
-          prop="code"
-          label="编号"
-          min-width="110px"
-          align="center"
-          fixed
+            prop="code"
+            label="编号"
+            min-width="110px"
+            align="center"
+            fixed
         >
           <template #default="scope">
             <div v-copy="scope.row.code" class="h-copy" title="点击即可复制">
@@ -106,21 +106,21 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="student.name"
-          label="姓名"
-          min-width="75px"
-          align="center"
-          fixed
+            prop="student.name"
+            label="姓名"
+            min-width="75px"
+            align="center"
+            fixed
         >
         </el-table-column>
 
         <el-table-column
-          v-for="(v, i) in datalist.infoItems"
-          :key="v.name"
-          v-if="v.display == true"
-          :label="v.name"
-          min-width="150px"
-          align="center"
+            v-for="(v, i) in datalist.infoItems"
+            :key="v.name"
+            v-if="v.display == true"
+            :label="v.name"
+            min-width="150px"
+            align="center"
         >
           <template slot-scope="scope">
             <span
@@ -130,11 +130,11 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-for="(value, idx) in datalist.scoreitems"
-          ref="setTableRef"
-          :key="idx"
-          v-if="value.name != '活动得分'"
-          :label="
+            v-for="(value, idx) in datalist.scoreitems"
+            ref="setTableRef"
+            :key="idx"
+            v-if="value.name != '活动得分'"
+            :label="
             value.name +
             '|(满分:' +
             value.score +
@@ -144,72 +144,72 @@
             (value.comment ? ',' + value.comment : '') +
             ')'
           "
-          min-width="80px"
-          :render-header="renderheader"
+            min-width="80px"
+            :render-header="renderheader"
         >
           <template slot-scope="scope">
             <el-input
-              placeholder="请打分"
-              v-model.trim="scope.row['score' + value.id]"
-              :disabled="value.byexpert == false || datalist.finished == true"
-              clearable
-              @input="onInputConfirm(scope.row, scope.$index,value)"
-              ><span>{{ scope.row["score" + value.id] }}</span>
+                placeholder="请打分"
+                v-model.trim="scope.row['score' + idx]"
+                :disabled="value.byexpert == false || datalist.finished == true"
+                clearable
+                @input="onInputConfirm(scope.row, scope.$index,value,idx)"
+            ><span>{{ scope.row["score" + idx] }}</span>
             </el-input>
           </template>
         </el-table-column>
         <el-table-column
-          v-for="(value, idx) in datalist.scoreitems"
-          :key="value.id"
-          v-if="value.name == '活动得分'"
-          :label="'总评分'"
-          min-width="120px"
-          align="center"
+            v-for="(value, idx) in datalist.scoreitems"
+            :key="value.id"
+            v-if="value.name == '活动得分'"
+            :label="'总评分'"
+            min-width="120px"
+            align="center"
         >
           <template slot-scope="scope">
             <span>{{ scope.row["sum"] }}</span>
           </template>
         </el-table-column>
         <el-table-column
-          label="操作"
-          align="center"
-          min-width="150px"
-          fixed="right"
+            label="操作"
+            align="center"
+            min-width="150px"
+            fixed="right"
         >
           <template slot-scope="scope">
             <el-button
-              @click="showEditEmpView_show(scope.row, scope.$index)"
-              style="padding: 4px"
-              size="mini"
-              type="primary"
-              plain
-              >详细信息
+                @click="showEditEmpView_show(scope.row, scope.$index)"
+                style="padding: 4px"
+                size="mini"
+                type="primary"
+                plain
+            >详细信息
             </el-button>
             <el-button
-              v-show="scope.row.showSave"
-              style="padding: 4px; margin: 2px"
-              size="mini"
-              type="danger"
-              icon="el-icon-mobile"
-              @click="saveScore(scope.$index, scope.row)"
-              plain
-              >保存</el-button
+                v-show="scope.row.showSave"
+                style="padding: 4px; margin: 2px"
+                size="mini"
+                type="danger"
+                icon="el-icon-mobile"
+                @click="saveScore(scope.$index, scope.row)"
+                plain
+            >保存</el-button
             >
           </template>
         </el-table-column>
       </el-table>
     </div>
     <el-dialog
-      :title="title_show"
-      :visible.sync="dialogVisible_show"
-      width="50%"
+        :title="title_show"
+        :visible.sync="dialogVisible_show"
+        width="50%"
     >
       <div class="dialog">
         <el-form
-          label-position="left"
-          label-width="120px"
-          :model="dialogdata"
-          ref="dialogdataForm"
+            label-position="left"
+            label-width="120px"
+            :model="dialogdata"
+            ref="dialogdataForm"
         >
           <template slot-scope="scope">
             <el-row>
@@ -227,31 +227,31 @@
             <el-row>
               <el-col :span="10">
                 <el-form-item
-                  v-for="(val, idx) in datalist.infoItems"
-                  :key="idx"
-                  :label="val.name + ' :'"
-                  v-if="dialogdata['info' + val.name] && val.name == '报考专业'"
+                    v-for="(val, idx) in datalist.infoItems"
+                    :key="idx"
+                    :label="val.name + ' :'"
+                    v-if="dialogdata['info' + val.name] && val.name == '报考专业'"
                 >
                   <span>{{ dialogdata["info" + val.name].content }}</span>
                 </el-form-item>
               </el-col>
               <el-col :span="10" :offset="1">
                 <el-form-item
-                  v-for="(val, idx) in datalist.infoItems"
-                  :key="idx"
-                  :label="val.name + ' :'"
-                  v-if="dialogdata['info' + val.name] && val.name == '毕业单位'"
+                    v-for="(val, idx) in datalist.infoItems"
+                    :key="idx"
+                    :label="val.name + ' :'"
+                    v-if="dialogdata['info' + val.name] && val.name == '毕业单位'"
                 >
                   <span>{{ dialogdata["info" + val.name].content }}</span>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-form-item
-              v-for="(val, idx) in datalist.infoItems"
-              :key="idx"
-              :label="val.name + ' :'"
-              width="130px"
-              v-if="
+                v-for="(val, idx) in datalist.infoItems"
+                :key="idx"
+                :label="val.name + ' :'"
+                width="130px"
+                v-if="
                 val.name != '报考专业' &&
                 val.name != '毕业单位'
               "
@@ -275,7 +275,7 @@
       <template slot="footer" class="dialog-footer">
         <div class="divider"></div>
         <el-button type="primary" @click="dialogVisible_show = false"
-          >关 闭</el-button
+        >关 闭</el-button
         >
       </template>
     </el-dialog>
@@ -291,6 +291,7 @@ export default {
   inject: ["reload"],
   data() {
     return {
+      successTimer:null,
       Aname: "",
       groupName: "",
       Adata: {
@@ -317,47 +318,69 @@ export default {
   },
   created() {
     this.dataRefreh();
-    this.initPage();
+    // this.initPage();
   },
   computed: {
-    // list() {
-    //   if (sessionStorage.getItem("peract")) {
-    //     let list = JSON.parse(sessionStorage.getItem("peract"));
-    //     return list;
-    //   } else {
-    //     return this.$store.state.peract;
-    //   }
-    // },
+    list() {
+      if (sessionStorage.getItem("peract")) {
+        let list = JSON.parse(sessionStorage.getItem("peract"));
+        return list;
+      } else {
+        return this.$store.state.peract;
+      }
+    },
     datal() {
       return this.$store.state.score;
     },
   },
-
   mounted() {
-      this.initPage()
-    },
-    // this.$nextTick(() => {
-    //   this.windowScreenHeight = window.innerHeight - 210;
-    // });
-    // this.user = JSON.parse(localStorage.getItem("teacher"));
-    //
-    // this.initdata();
-    // if (sessionStorage.getItem("score")) {
-    //   let initscore = JSON.parse(sessionStorage.getItem("score"));
-    //   this.datalist = initscore;
-    // } else {
-    //   this.fullscreenLoading = true;
-    //   this.initAct();
-    //   setTimeout(() => {
-    //     this.datalist = this.datal;
-    //     this.initState();
-    //     sessionStorage.setItem("score", JSON.stringify(this.datalist));
-    //     if (!this.datalist.finished) {
-    //       this.reload();
-    //     }
-    //     this.fullscreenLoading = false;
-    //   }, 700);
-    // }
+    this.user = JSON.parse(localStorage.getItem("teacher"));
+    this.initdata();
+    this.$nextTick(() => {
+      this.windowScreenHeight = window.innerHeight - 210;
+    });
+    if (sessionStorage.getItem("score")) {
+      let initscore = JSON.parse(sessionStorage.getItem("score"));
+      this.datalist = initscore;
+    } else {
+      this.fullscreenLoading = true;
+      this.initAct();
+      setTimeout(() => {
+        this.datalist = this.datal;
+        this.initState();
+        sessionStorage.setItem("score", JSON.stringify(this.datalist));
+        // if (!this.datalist.finished) {
+        this.reload();
+        // }
+        this.fullscreenLoading = false;
+      }, 800);
+    }
+  },
+  // mounted() {
+  //     this.initPage()
+  //   },
+  // this.$nextTick(() => {
+  //   this.windowScreenHeight = window.innerHeight - 210;
+  // });
+  // this.user = JSON.parse(localStorage.getItem("teacher"));
+  //
+  // this.initdata();
+  // if (sessionStorage.getItem("score")) {
+  //   let initscore = JSON.parse(sessionStorage.getItem("score"));
+  //   this.datalist = initscore;
+  // } else {
+  //   this.fullscreenLoading = true;
+  //   this.initAct();
+  //   setTimeout(() => {
+  //     this.datalist = this.datal;
+  //     this.initState();
+  //     sessionStorage.setItem("score", JSON.stringify(this.datalist));
+  //     if (!this.datalist.finished) {
+  //       this.reload();
+  //     }
+  //     this.fullscreenLoading = false;
+  //   }, 700);
+  // }
   filters:{
     fileNameFilter:function(data){//将上传的材料显示出来
       if(data == null || data == ''){
@@ -420,39 +443,44 @@ export default {
       this.loading = true;
       Message.success("正在导出");
       let url =
-        "/system/Experts/exportRate?activitiesID=" +
-        this.Adata.Aid +
-        "&expertID=" +
-        this.Adata.Auserid +
-        "&groupId=" +
-        this.Adata.AgroupId;
+          "/system/Experts/exportRate?activitiesID=" +
+          this.Adata.Aid +
+          "&expertID=" +
+          this.Adata.Auserid +
+          "&groupId=" +
+          this.Adata.AgroupId;
       this.loading = false;
       window.open(url, "_parent");
     },
     async onSuccess(res) {
       if (res.msg === "success") {
         Message.success("数据导入成功！");
+        sessionStorage.removeItem("score")
         await this.refreshact(true);
-        // console.log(this.datalist)
-        // this.initAct()
-         this.initState();
-         // this.reload()
-         sessionStorage.setItem("score",JSON.stringify(this.datalist))
+        // this.datalist = JSON.parse(sessionStorage.getItem("score"))
+        // this.datalist = this.datal
+        if(this.successTimer){
+          this.successTimer = null
+        }
+        this.successTimer = setTimeout(()=>{
+          this.datalist = this.datal
+          // this.initState();
+        },300)
       } else {
         Message.error("导入失败，请检查文件格式！");
       }
-
+      // this.initAct();
     },
     Upload() {
       this.loading = true;
       // Message.success("正在导入");
       let url =
-        "/system/Experts/importRate?activitiesID=" +
-        this.Adata.Aid +
-        "&expertID=" +
-        this.Adata.Auserid +
-        "&groupId=" +
-        this.Adata.AgroupId;
+          "/system/Experts/importRate?activitiesID=" +
+          this.Adata.Aid +
+          "&expertID=" +
+          this.Adata.Auserid +
+          "&groupId=" +
+          this.Adata.AgroupId;
       return url;
     },
     isGetPdf() {
@@ -463,22 +491,21 @@ export default {
           this.loading = true;
           Message.success("正在导出");
           let url =
-            "/system/Experts/exportPDF?activitiesID=" +
-            this.Adata.Aid +
-            "&expertID=" +
-            this.Adata.Auserid +
-            "&groupId=" +
-            this.Adata.AgroupId;
+              "/system/Experts/exportPDF?activitiesID=" +
+              this.Adata.Aid +
+              "&expertID=" +
+              this.Adata.Auserid +
+              "&groupId=" +
+              this.Adata.AgroupId;
           this.loading = false;
-          // console.log(url)
           window.open(url);
         } else {
           // setRowspan(1);
           this.$alert(
-            "<span style='color:red'>请先点击“提交评分”按钮，才可导出PDF。</span>",
-            {
-              dangerouslyUseHTMLString: true,
-            }
+              "<span style='color:red'>请先点击“提交评分”按钮，才可导出PDF。</span>",
+              {
+                dangerouslyUseHTMLString: true,
+              }
           );
         }
       }
@@ -535,7 +562,7 @@ export default {
                     this.datalist.scoresListNoExpert[k]["participantID"]) &
                 (this.datalist.scoreitems[j]["byexpert"] == true)
             ) {
-              this.datalist.participatesList[i]["score" + this.datalist.scoreitems[j]["id"]] =
+              this.datalist.participatesList[i]["score" + j] =
                   this.datalist.scoresListNoExpert[k]["score"];
             }
           }
@@ -562,14 +589,14 @@ export default {
             }
           }
         }
-        // if (this.datalist.participatesList[i]["sum"] == 0) {
-          for (var l = 0; l < score; l++) {
-            if (this.datalist.participatesList[i]["score" + this.datalist.scoreitems[l].id]) {
+        if (this.datalist.participatesList[i]["sum"] == 0) {
+          for (var l = 0; l < m; l++) {
+            if (this.datalist.participatesList[i]["score" + l]) {
               sum +=
-                  (this.datalist.participatesList[i]["score" + this.datalist.scoreitems[l].id] - "0") *
+                  (this.datalist.participatesList[i]["score" + l] - "0") *
                   this.datalist.scoreitems[l].coef;
             }
-          // }
+          }
           this.$set(this.datalist.participatesList[i], "sum", sum);
         }
         for (var s = 0; s < infos; s++) {
@@ -588,7 +615,6 @@ export default {
                       this.datalist.participatesList[i],
                       "info" + name,
                       this.datalist.infosList[s]["content"].replace(/<br>/g,"\n").replace(/' '/g,"\s")
-                          // .replace(/<br\s*\/?>/g,' ')
                   );
                 }
               }
@@ -603,45 +629,54 @@ export default {
         })
       }
     },
-    onInputConfirm(row, index,value) {
+    onInputConfirm(row, index,value,idx) {//idx是scoreitem中的索引，index是选手所在的索引
       this.$set(this.datalist.participatesList[index], "showSave", true);
       let m = this.datalist.scoreitems.length;
+      //找到没修改前的分数
       var firstscore = this.datalist.scoresListByExpert.find(
-           (cur) => {
+          (cur) => {
             if(cur.participantID == row.id && cur.scoreItemID == value.id){
               return cur.score
             }else {
               return 0
             }
-      })
+          })
       var sum = 0;
-      for (var j = 0; j < m - 1; j++) {
-        if (row["score" + this.datalist.scoreitems[j].id]) {
-          sum += (row["score" + this.datalist.scoreitems[j].id] - "0") * this.datalist.scoreitems[j].coef;
+      for (var j = 0; j < m; j++) {
+        if (row["score" + j] && this.datalist.scoreitems[j].name != '活动得分') {
+          sum += (row["score" + j] - "0") * this.datalist.scoreitems[j].coef;
         }
       }
-      if(this.judgeScore(sum)){
+      //判断修改的单个评分项是否超过这个评分项的满分
+      if(this.judgeScore(this.datalist.participatesList[index]['score' + idx],idx)){
         row["sum"] = sum.toFixed(2);
         this.$store.dispatch("setScoreParticipatesList", this.datalist);
       }else {
-        this.$message.warning('分数超过满分！')
         //如果超过满分就把之前的分数和sum重新展示在页面上
-        this.datalist.participatesList[index]['score' + value.id] = firstscore.score
-        var sumscore = this.datalist.scoreitems.reduce((pre,cur) => {
-          if(cur.name != "活动得分"){
-            return pre + row["score" + cur.id] * cur.coef
-          }else {
-            return 0 + pre
+        this.$message.warning('分数超过满分！')
+        this.datalist.participatesList[index]['score' + idx] = 0
+        var sumscore = 0;
+        for (var j = 0; j < m; j++) {
+          if (row["score" + j] && this.datalist.scoreitems[j].name != '活动得分') {
+            sumscore += (row["score" + j] - "0") * this.datalist.scoreitems[j].coef;
           }
-        },0)
+        }
         row["sum"] = sumscore.toFixed(2);
       }
     },
-    judgeScore(sum){//判断分数有没有超过满分
-      //计算评分项满分
+    judgeScore(score,scoreitemidx){//判断分数有没有超过满分
+      //得到每一项评分项的满分 进行判断
+      if(score <= this.datalist.scoreitems[scoreitemidx].score){
+        return true
+      }else {
+        return false
+      }
+    },
+    //计算评分项满分 包括所有评分项*系数
+    judgeFullScore(sum,scoreitemidx){
       var fullScore = this.datalist.scoreitems.reduce((pre,cur) => {
         if(cur.name != "活动得分"){
-          return cur.score + pre
+          return cur.coef * cur.score + pre
         }else {
           return 0 + pre
         }
@@ -668,7 +703,7 @@ export default {
             a.push({
               activityid: this.datalist.scoreitems[i]["activityid"],
               id: this.datalist.scoreitems[i]["id"],
-              score: row["score" + this.datalist.scoreitems[i]["id"]] - "0",
+              score: row["score" + i] - "0",
             });
           }
         }
@@ -677,8 +712,8 @@ export default {
       this.$set(this.outdata, "participantID", row["id"]);
       this.$set(this.outdata, "scoreList", a);
       await this.postRequest(
-        "/system/Experts/save",
-        JSON.stringify(this.outdata)
+          "/system/Experts/save",
+          JSON.stringify(this.outdata)
       ).then((resp) => {
         if (resp) {
           this.$message({
@@ -689,6 +724,7 @@ export default {
       });
       this.datalist.participatesList[index].showSave = false;
       this.$store.dispatch("setScoreParticipatesList", this.datalist);
+      console.log(this.datalist)
     },
     initdata() {
       this.Tname = this.user.name;
@@ -714,15 +750,15 @@ export default {
       }
     },
     // 刷新
-    refreshact(auto) {
-      this.initAct();
+    async refreshact(auto) {
+      await this.initAct();
       // this.$store.dispatch("initAct", this.Adata);
-      // if (this.$store.state.changeList === true) {
+      if (this.$store.state.changeList === true) {
         this.clear();
         this.reload();
         // this.$store.state.changeList = false
         this.$store.dispatch("initchangeList");
-      // }
+      }
       if (auto === false) {
         Message.success("刷新成功！");
       }
@@ -756,37 +792,37 @@ export default {
           type: "warning",
           center: true,
         })
-          .then(async () => {
-            this.clear();
-            this.datalist.finished = true;
-            sessionStorage.setItem("score", JSON.stringify(this.datalist));
-            this.$forceUpdate();
-            await this.postRequest(
-              "/system/Experts/ChangeState?activityId=" +
-                this.Adata.Aid +
-                "&expertID=" +
-                this.user.id +
-                "&groupId=" +
-                this.Adata.AgroupId +
-                "&finished=" +
-                this.datalist.finished
-            ).then((resp) => {
-              if (resp) {
-                this.$message({
-                  type: "success",
-                  message: "提交成功!",
-                });
-                // this.reload();
-              }
+            .then(async () => {
+              this.clear();
+              this.datalist.finished = true;
+              sessionStorage.setItem("score", JSON.stringify(this.datalist));
+              this.$forceUpdate();
+              await this.postRequest(
+                  "/system/Experts/ChangeState?activityId=" +
+                  this.Adata.Aid +
+                  "&expertID=" +
+                  this.user.id +
+                  "&groupId=" +
+                  this.Adata.AgroupId +
+                  "&finished=" +
+                  this.datalist.finished
+              ).then((resp) => {
+                if (resp) {
+                  this.$message({
+                    type: "success",
+                    message: "提交成功!",
+                  });
+                  // this.reload();
+                }
+              });
+              // this.$router.go(-1);//返回上一页
+            })
+            .catch(() => {
+              this.$message({
+                type: "info",
+                message: "已取消提交",
+              });
             });
-            // this.$router.go(-1);//返回上一页
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消提交",
-            });
-          });
       }
     },
     // 定时刷新数据函数
@@ -812,7 +848,7 @@ export default {
 };
 </script>
 
-<style lang="scss"> 
+<style lang="scss">
 .content {
   width: 100%;
   height: 80px;

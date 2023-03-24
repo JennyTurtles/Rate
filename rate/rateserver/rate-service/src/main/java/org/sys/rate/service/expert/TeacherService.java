@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.sys.rate.mapper.ScoreItemMapper;
 import org.sys.rate.mapper.ScoresMapper;
 import org.sys.rate.mapper.TeacherMapper;
 import org.sys.rate.model.*;
@@ -19,6 +20,8 @@ public class TeacherService implements UserDetailsService{
     TeacherMapper teacherMapper;
     @Autowired
     ScoresMapper scoresMapper;
+    @Autowired
+    ScoreItemMapper scoreItemMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -78,8 +81,41 @@ public class TeacherService implements UserDetailsService{
     }
 
     public List<String> addScores(Integer expertID,Integer activitiesID,List<Scores> scoresList) {
+        //先找到评分项中的总分id(活动得分)
+        Integer scoreFullScore = scoreItemMapper.selectScoreItemFinal(activitiesID);
         List<String> result = new ArrayList<>();
         StringBuilder error = null;
+        double sumTemp = 0;
+        ArrayList arr = new ArrayList();
+        ArrayList fullScoreArr = new ArrayList();
+        //对scoresList中对选手id拿出来并去重
+        for(Scores s : scoresList){
+            if(!arr.contains(s.getParticipantID())){
+                arr.add(s.getParticipantID());
+            }
+        }
+
+        //计算每个选手的活动得分
+        for(int i = 0;i < arr.size(); i++){
+            Scores fullScore = new Scores();
+            sumTemp = 0;
+            for (Scores score : scoresList){
+                if(score.getParticipantID() == arr.get(i)){
+                    sumTemp += score.getScore();
+                    if(fullScore.getActivityID() == null){
+                        fullScore.setActivityID(score.getActivityID());
+                        fullScore.setExpertID(score.getExpertID());
+                        fullScore.setScoreItemID(scoreFullScore);
+                        fullScore.setParticipantID(score.getParticipantID());
+                    }
+                }
+            }
+            fullScore.setScore(sumTemp);
+            fullScoreArr.add(fullScore);
+        }
+        //将每个选手的活动得分添加进去
+        scoresList.addAll(fullScoreArr);
+
         for (Scores score : scoresList) {
             //检查专家该项评分存不存在
             if (teacherMapper.check(score.getExpertID(),score.getActivityID(),score.getParticipantID(),score.getScoreItemID()) > 0) {

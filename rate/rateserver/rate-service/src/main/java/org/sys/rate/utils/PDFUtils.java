@@ -103,7 +103,11 @@ public class PDFUtils {
         //遍历评分项
         for(int i=0;i<scoreItems.size();i++){
             ScoreItem sitem = scoreItems.get(i);
-            tableHeadList.add(sitem.getName());
+            if(sitem.getName().equals("活动得分")){
+                tableHeadList.add("总评分");
+            }else {
+                tableHeadList.add(sitem.getName());
+            }
         }
         return tableHeadList ;
     }
