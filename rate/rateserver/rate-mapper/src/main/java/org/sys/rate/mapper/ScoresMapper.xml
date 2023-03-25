@@ -42,8 +42,8 @@
         and sc.scoreItemID in
         (select si.Id
             from scoreitem si
-            where si.activityID=#{activitiesId,jdbcType=INTEGER}
-            and si.byExpert=false)
+            where si.activityID=#{activitiesId,jdbcType=INTEGER})
+--             and si.byExpert=false)
         and sc.participantID in
             ( select p.ID
               from participants p

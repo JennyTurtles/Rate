@@ -109,8 +109,6 @@ export default {
   },
   mounted() {
     this.routes = JSON.parse(sessionStorage.getItem('initRoutes'))
-    console.log("init")
-    console.log(this.user.role.indexOf('1'))
     // 获取浏览器可视区域高度
     this.clientHeight = `${document.documentElement.clientHeight}`;
     this.role = JSON.parse(localStorage.getItem("user")).role
@@ -150,28 +148,29 @@ export default {
           cancelButtonText: "取消",
           type: "warning",
         }).then(() => {
-              var url = '/'
-              // console.log(this.role)
-              // if (this.role == '8' || this.role == '9')
-              //   url = "/Teacher/Login"
-              // else if (this.role == 1)
-              //   url = "/Admin/Login"
-              // else if (this.role == 7)
-              //   url = "/"
-              this.getRequest("/logout");
-              // window.sessionStorage.removeItem("user"); //清楚session
-              localStorage.clear('user')
-              sessionStorage.clear('initRoutes')
-              sessionStorage.clear('initRoutes_AllSameForm')
-          this.$store.commit("initRoutes", []); //清空路由
-              this.$router.replace(url);
-            })
-            .catch(() => {
-              this.$message({
-                type: "info",
-                message: "已取消操作",
-              });
-            });
+            var url = '/'
+          this.getRequest('/system/config/logout').then(()=>{
+            if(localStorage.getItem('teacher')){
+              localStorage.removeItem('teacher')
+            }
+            if(localStorage.getItem('user')){
+              localStorage.removeItem('user')
+            }
+            if(sessionStorage.removeItem('score')){
+              sessionStorage.removeItem('score')
+            }
+            sessionStorage.removeItem('initRoutes')
+            sessionStorage.removeItem('initRoutes_AllSameForm')
+            this.$store.commit("initRoutes", []); //清空路由
+            this.$store.commit("initRoutesAllSameForm", []); //清空路由
+            this.$router.replace(url);
+          })
+        }).catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消操作",
+          });
+        });
       } else if (cmd == "userinfo") {
         this.$router.push("/hrinfo");
       }

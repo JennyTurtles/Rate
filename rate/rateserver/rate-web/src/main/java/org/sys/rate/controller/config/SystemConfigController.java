@@ -44,10 +44,8 @@ public class SystemConfigController {
         res_same.add("/home");
         return Msg.success().add("res",res).add("res_same",res_same);
     }
-/*    @GetMapping("/menuex")
-    public List<Menu> getMenusByExpertId() {
-        List<Menu> res=menuService.getMenusByStuId();
-//        System.out.println("menuex结果："+res);
-        return res;
-    }*/
+
+    @GetMapping("/logout")
+    public void logout() {
+    }
 }

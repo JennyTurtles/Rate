@@ -46,8 +46,16 @@ export default {
           type: "warning",
         })
           .then(() => {
-            this.getRequest("/logout");
-            sessionStorage.clear(); //清session
+            this.getRequest('/system/config/logout').then(()=>{
+              if(localStorage.getItem('teacher')){
+                localStorage.removeItem('teacher')
+              }
+              sessionStorage.removeItem('initRoutes')
+              sessionStorage.removeItem('initRoutes_AllSameForm')
+              sessionStorage.removeItem('score')
+              this.$store.commit("initRoutes", []); //清空路由
+              this.$store.commit("initRoutesAllSameForm", []); //清空路由
+            })
             this.$router.replace("/Expert/Login");
           })
           .catch(() => {

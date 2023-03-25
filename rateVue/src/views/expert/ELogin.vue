@@ -106,11 +106,14 @@ export default {
               "teacher",
               JSON.stringify(this.loginResult.obj)
             ); //存用户session
+            this.loading = false;
+
           } else {
             this.$message({
               message: this.loginResult.msg,
               type: "error",
             });
+            this.loading = false;
           }
         }
       });
