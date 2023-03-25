@@ -136,13 +136,13 @@ public class ParticipatesBasicController {
     public ResponseEntity<byte[]> exportActivity(@RequestParam Integer activityID) {
         HashFianlScore data = totalItemService.getHashFinalScore(activityID);
 //        List<Participates> list = (List<Participates>) participatesService.getAc_participantsByPage(activityID,null, null,null).getData();
-        return POIUtils.Exceltest(data);
+        return POIUtils.ExcelExport(data);
     }
 
     @GetMapping("/export_ac_group")
     public ResponseEntity<byte[]> exportActivity_group(@RequestParam Integer activityID,@RequestParam String groupName) {
         HashFianlScore data = totalItemService.getHashFinalScoreGroup(activityID, groupName);
-        return POIUtils.Exceltest(data);
+        return POIUtils.ExcelExport(data);
     }
 
 
