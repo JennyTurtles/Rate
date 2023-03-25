@@ -211,12 +211,15 @@ public class ExpertController {
                             scoreOne = new Scores();
                             if(list.get(k)!=null) {
                                 scoreOne.setScore(new Double(list.get(k)));
-                                scoreOne.setExpertID(expertID);
-                                scoreOne.setActivityID(activitiesID);
-                                scoreOne.setScoreItemID(s.getId());
-                                scoreOne.setParticipantID(pID);
-                                scoresList.add(scoreOne);
+                            }else {
+                                //专家对这项评分项没打分,保持null值，excel需要重新覆盖所有数据
+                                scoreOne.setScore(new Double(0));
                             }
+                            scoreOne.setExpertID(expertID);
+                            scoreOne.setActivityID(activitiesID);
+                            scoreOne.setScoreItemID(s.getId());
+                            scoreOne.setParticipantID(pID);
+                            scoresList.add(scoreOne);
                         }
                     }
                 }

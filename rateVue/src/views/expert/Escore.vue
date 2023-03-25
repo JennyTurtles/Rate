@@ -41,8 +41,9 @@
                   :show-file-list="false"
                   :on-success="onSuccess"
                   :action="Upload()"
+                  ref="uploadExcel"
               >
-                <el-button type="primary" icon="el-icon-upload2"
+                <el-button type="primary" icon="el-icon-upload2" @click.stop="uploadButton"
                 >上传评分表
                 </el-button>
               </el-upload>
@@ -144,7 +145,7 @@
             (value.comment ? ',' + value.comment : '') +
             ')'
           "
-            min-width="80px"
+            min-width="84px"
             :render-header="renderheader"
         >
           <template slot-scope="scope">
@@ -412,7 +413,7 @@ export default {
           this.reload();
           // }
           this.fullscreenLoading = false;
-        }, 1800);
+        }, 1500);
       }
       // this.user = JSON.parse(localStorage.getItem("teacher"));
       // this.$store.dispatch('initsize',this.user.id).then(()=>{
@@ -473,11 +474,21 @@ export default {
       this.loading = false;
       window.open(url, "_parent");
     },
+    uploadButton(){
+      this.$confirm('系统将使用excel里的数据覆盖浏览器界面上的数据，而不会融合两者的数据。请确保excel文件里包含所有评分',{
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        center: true,
+      }).then(()=>{
+        this.$refs['uploadExcel'].$refs['upload-inner'].handleClick()
+      }).catch(()=>{})
+    },
     async onSuccess(res) {
       if (res.msg === "success") {
         Message.success("数据导入成功！");
         sessionStorage.removeItem("score")
-        await this.refreshact(true);
+        this.initAct()
         // this.datalist = JSON.parse(sessionStorage.getItem("score"))
         // this.datalist = this.datal
         if(this.successTimer){
@@ -492,6 +503,7 @@ export default {
       }
       // this.initAct();
     },
+
     Upload() {
       this.loading = true;
       // Message.success("正在导入");
@@ -772,12 +784,15 @@ export default {
       }
     },
     // 刷新
-    async refreshact(auto) {
-      await this.initAct();
+    refreshact(auto) {
+      this.initAct();
       // this.$store.dispatch("initAct", this.Adata);
+      // console.log(this.$store.state.changeList)
       if (this.$store.state.changeList === true) {
         this.clear();
-        this.reload();
+        this.datalist = this.datal
+        // this.reload();
+        // this.$store.commit('INIT_initchangeList',false)
         // this.$store.state.changeList = false
         this.$store.dispatch("initchangeList");
       }
@@ -791,13 +806,6 @@ export default {
       for (var i = 0; i < n; i++) {
         if (this.datalist.participatesList[i].showSave == true) {
           flag = 1;
-          // this.$alert(
-          //   "<span style='color:red'>有评分未保存，请先保存!</span>",
-          //   {
-          //     dangerouslyUseHTMLString: true,
-          //   }
-          // );
-
           this.$message({
             type: "error",
             duration: 0,
@@ -871,6 +879,10 @@ export default {
 </script>
 
 <style lang="scss">
+*{
+  margin: 0;
+  padding: 0;
+}
 .content {
   width: 100%;
   height: 80px;

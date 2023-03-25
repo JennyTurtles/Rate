@@ -94,7 +94,6 @@ public class TeacherService implements UserDetailsService{
                 arr.add(s.getParticipantID());
             }
         }
-
         //计算每个选手的活动得分
         for(int i = 0;i < arr.size(); i++){
             Scores fullScore = new Scores();

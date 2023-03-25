@@ -19,9 +19,12 @@
                    #{score,jdbcType=DOUBLE})
     </insert>
     <update id="updateScore" >
-        update scores s
-        set s.score=#{score,jdbcType=DOUBLE}
-        where s.expertID=#{expertID,jdbcType=INTEGER} and s.activityID=#{activityID,jdbcType=INTEGER} and s.participantID=#{participantID,jdbcType=INTEGER} and s.scoreItemID=#{scoreItemID,jdbcType=INTEGER}
+        update scores
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="score == 0">score = null,</if>
+            <if test="score != 0">score = #{score},</if>
+        </trim>
+        where expertID=#{expertID,jdbcType=INTEGER} and activityID=#{activityID,jdbcType=INTEGER} and participantID=#{participantID,jdbcType=INTEGER} and scoreItemID=#{scoreItemID,jdbcType=INTEGER}
     </update>
     <insert id="insertScore1" parameterType="org.sys.rate.model.Scores">
 

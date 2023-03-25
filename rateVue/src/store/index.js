@@ -81,6 +81,7 @@ const store = new Vuex.Store({
         },
         INIT_initchangeList(state) {
             state.changeList = false
+            console.log(state.changeList)
         }
     },
     actions: { //异步执行mutations方法
@@ -231,7 +232,7 @@ const store = new Vuex.Store({
                                             //先比较不可修改的分数
                                             for (let tempcount = 0; tempcount < count; tempcount++) {
                                                 if (JSONscore.participatesList[stuid]['score' + tempcount] !== value.participatesList[stuid]['score' + tempcount]) {
-                                                    Message.success('信息发生变化!')
+                                                    Message.success(value.participatesList[stuid].student.name+'的信息发生变化!')
                                                     //发生变化changeList修改为true，进入修改操作
                                                     this.state.changeList = true
                                                     //只要遍历到有变化的地方，就可以停止遍历直接进行修改
@@ -239,15 +240,15 @@ const store = new Vuex.Store({
                                                 }
                                             }
                                             //比较可修改分数
-                                            for (let tempcount = count; tempcount < byExpertCount + count; tempcount++) {
-                                                if (JSONscore.participatesList[stuid]['score' + tempcount] !== value.participatesList[stuid]['score' + tempcount]) {
-                                                    // Message.success('信息发生变化!')
-                                                    //发生变化changeList修改为true，进入修改操作
-                                                    this.state.changeList = true
-                                                    //只要遍历到有变化的地方，就可以停止遍历直接进行修改
-                                                    break;
-                                                }
-                                            }
+                                            // for (let tempcount = count; tempcount < byExpertCount + count; tempcount++) {
+                                            //     if (JSONscore.participatesList[stuid]['score' + tempcount] !== value.participatesList[stuid]['score' + tempcount]) {
+                                            //         Message.success('信息发生变化!')
+                                            //         //发生变化changeList修改为true，进入修改操作
+                                            //         this.state.changeList = true
+                                            //         //只要遍历到有变化的地方，就可以停止遍历直接进行修改
+                                            //         break;
+                                            //     }
+                                            // }
                                             //再比较里面的学生信息
                                             if (JSONscore.participatesList[stuid].student.name !== value.participatesList[stuid].student.name) {
                                                 Message.success('信息发生变化!')
@@ -312,7 +313,7 @@ const store = new Vuex.Store({
                                     // 将value提交到vuex中，此时页面保存的是最新的value(包含当前已经评的分)，通过页面信息提示刷新，页面获得新数据
                                      context.commit('INIT_SCORE', value)
                                     //修改完毕后把changeList置为false，应该可以不写
-                                    // changeList = false
+                                    // this.state.changeList = false
                                 } else {
                                     //如果不为真，那在刷新时只要把JSONscore提交即可
                                     context.commit('INIT_SCORE', JSONscore)
