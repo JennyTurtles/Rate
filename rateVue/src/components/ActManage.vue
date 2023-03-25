@@ -216,6 +216,7 @@
 <!--            >-->
             <el-button
                 @click="showFinalScore(scope.row)"
+                v-show="mode==='admin'"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
