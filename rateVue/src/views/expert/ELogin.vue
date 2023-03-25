@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="body-home">
     <div class="expertLogin">
       <div class="expertLoginTxt">
         <img src="../../assets/dzlogo.png" alt="东华大学" class="imageLogo" />
@@ -80,6 +80,8 @@ export default {
       this.$refs.loginForm.validate(async (valid) => {
         if (valid) {
           this.loading = true;
+          sessionStorage.clear();
+          localStorage.clear()
           this.loginForm.password = sha1(this.loginForm.password)
           postRequest("/doLogin", this.loginForm).then((response)=>{
             if (response.status === 200) {

@@ -109,8 +109,7 @@ export default {
       return "background:#b3d8ff;color:black;font-size:10px;text-align:center";
     },
     showEnterView(data, index) {
-      // sessionStorage.removeItem('score')
-
+      sessionStorage.removeItem('score')
       this.$router.push({
         path: "/Expert/peract/score",
         query: {
