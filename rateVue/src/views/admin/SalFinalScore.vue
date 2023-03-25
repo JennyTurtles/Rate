@@ -69,15 +69,15 @@
           </template>
         </el-table-column>
       </el-table>
-      <div style="display: flex;justify-content: flex-end;margin:10px 0">
-        <el-pagination
-            background
-            @current-change="currentChange"
-            @size-change="sizeChange"
-            layout="sizes, prev, pager, next, jumper, ->, total, slot"
-            :total="total">
-        </el-pagination>
-      </div>
+<!--      <div style="display: flex;justify-content: flex-end;margin:10px 0">-->
+<!--        <el-pagination-->
+<!--            background-->
+<!--            @current-change="currentChange"-->
+<!--            @size-change="sizeChange"-->
+<!--            layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
+<!--            :total="total">-->
+<!--        </el-pagination>-->
+<!--      </div>-->
     </div>
 
   </div>
@@ -126,7 +126,7 @@ export default {
   methods: {
     initEmps() {
       this.loading = true;
-      let url = '/totalItem/basic/getfianl?activityID=' + this.keywords + '&page=' + this.page+ '&size=' + this.size;
+      let url = '/totalItem/basic/getfianl?activityID=' + this.keywords + '&page=' + 1+ '&size=' + 1000;
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
