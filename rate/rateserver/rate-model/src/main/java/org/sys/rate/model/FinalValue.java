@@ -21,4 +21,6 @@ public class FinalValue {
     private Double activityScore;
 
     private String content;
+
+    private Integer displaySequence; // 暂且放在这
 }

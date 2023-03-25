@@ -138,7 +138,7 @@
     </select>
 
     <select id="getPByACID" resultMap="BaseResultMap">
-        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID,g.name as groupName from participants e, student s, `groups` g where e.studentID =s.ID and e.activityID=#{groupID} and g.ID=e.groupID order by e.score desc,e.displaySequence
+        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID,g.name as groupName from participants e, student s, `groups` g where e.studentID =s.ID and e.activityID=#{activityID} and g.ID=e.groupID order by e.score desc,e.displaySequence
         <if test="page !=null and size!=null">
             limit #{page},#{size}
         </if>
@@ -440,7 +440,7 @@
         select count(*) from participants e,student s where e.studentID =s.ID and e.activityID=#{activityID}
     </select>
     <select id="getInfoScoreByInfoID" resultType="org.sys.rate.model.FinalValue">
-        SELECT p.`code`,p.ID AS participantID,`groups`.`name` AS groupName,stu.`name` AS studentName,infoitem.`name` AS infoItemName,p.score as activityScore,infos.content
+        SELECT p.`code`,p.ID AS participantID,`groups`.`name` AS groupName,stu.`name` AS studentName,infoitem.`name` AS infoItemName,p.score as activityScore,infos.content,displaySequence
         FROM infos,`groups`,student stu,participants p,infoitem
         WHERE stu.ID = p.studentID AND p.ID = infos.participantID AND p.groupID = groups.ID AND infos.infoItemID = infoitem.ID AND p.activityID =#{activityID} AND infoitem.ID =#{infoItemID}
         ORDER BY p.groupID;

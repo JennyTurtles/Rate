@@ -117,16 +117,27 @@
             >选手管理
             </el-button
             >
+<!--            <el-button-->
+<!--                @click="output_group(scope.row)"-->
+<!--                v-show="mode==='admin'"-->
+<!--                :loading="loading"-->
+<!--                style="padding: 4px"-->
+<!--                size="mini"-->
+<!--                icon="el-icon-plus"-->
+<!--                type="primary"-->
+<!--                plain-->
+<!--            >导出本组选手分数-->
+<!--            </el-button-->
+<!--            >-->
             <el-button
-                @click="output_group(scope.row)"
-                v-show="mode==='admin'"
+                @click="showFinalScore(scope.row)"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-plus"
                 type="primary"
                 plain
-            >导出本组选手分数
+            >查看选手成绩
             </el-button
             >
             <el-button
@@ -190,6 +201,7 @@
 
 <script>
 import {Message} from 'element-ui'
+import da from "element-ui/src/locale/lang/da";
 
 export default {
   name: "SalTable",
@@ -356,9 +368,21 @@ export default {
           }
         });
       }
-
     },
-
+    showFinalScore(data){
+      console.log("data")
+      console.log(data)
+      const _this = this;
+      _this.$router.push({
+        path: "/ActivitM/final",
+        query: {
+          keywords: data.activityID,
+          keyword_name: this.keywords_name,
+          groupName:data.name,
+          mode:this.mode,
+        },
+      });
+    },
     advancedSearch() {
       this.getRequest(
           "/groups/basic/advanced/?keywords=" +

@@ -22,7 +22,7 @@ public interface ScoreItemMapper {
 
     List<ScoreItemValue> getScoreItemValue(@Param("activitiesID") Integer activitiesID,@Param("participantID") Integer participantID,@Param("emp") ScoreItemValue scoreItemValue);
 
-    List<ScoreItemValue> getScoreTotalValue(@Param("activitiesID") Integer activitiesID,@Param("participantID") Integer participantID,@Param("emp") ScoreItemValue scoreItemValue);
+    List<ScoreItemValue> getScoreTotalValue(@Param("activitiesID") Integer activitiesID,@Param("participantID") Integer participantID);
 
     ScoreItem selectByPrimaryKey(Integer id);
 

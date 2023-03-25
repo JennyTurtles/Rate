@@ -20,8 +20,13 @@ public class TotalItemController {
         return totalItemService.getByActivityID(activityID);
     }
 
-    @GetMapping("/getfianl")
+    @GetMapping("/getFianl")
     public RespPageBean getFinalByPage(Integer activityID,Integer page,Integer size){
         return totalItemService.getFinalScore(activityID,page,size);
+    }
+
+    @GetMapping("/getFianlGroup")
+    public RespPageBean getFinalByPage(Integer activityID,Integer page,Integer size,String groupName){
+        return totalItemService.getFinalScoreGroup(activityID,page,size,groupName);
     }
 }

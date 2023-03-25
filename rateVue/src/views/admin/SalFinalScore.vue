@@ -1,8 +1,12 @@
 <template>
   <div>
     <div style="display: flex; justify-content: left">
-      {{ keywords_name }}活动 选手总成绩
+      {{ keywords_name }}活动 {{groupName}} 选手总成绩
+
       <div style="margin-left: auto">
+        <el-button icon="el-icon-download" type="primary" @click="exportScore">
+          导出选手评分
+        </el-button>
         <el-button icon="el-icon-back" type="primary" @click="back">
           返回
         </el-button>
@@ -43,6 +47,12 @@
             prop="name"
             align="left"
             label="姓名"
+            min-width="10%">
+        </el-table-column>
+        <el-table-column
+            prop="totalscorewithdot"
+            align="center"
+            label="专家评分"
             min-width="10%">
         </el-table-column>
         <el-table-column
@@ -90,6 +100,7 @@ export default {
   name: "SalFinalScore",
   data() {
     return{
+      groupName: '',
       title: '',
       labelPosition: "left",
       showAdvanceSearchView: false,
@@ -103,7 +114,7 @@ export default {
       tmap:[],
       map:[],
       emps:[],
-      keywords: '',
+      keywords: '', // 活动id
       keyword: '',
       size: 10,
     }
@@ -126,11 +137,14 @@ export default {
   methods: {
     initEmps() {
       this.loading = true;
-      let url = '/totalItem/basic/getfianl?activityID=' + this.keywords + '&page=' + 1+ '&size=' + 1000;
+      var url = ''
+      if (typeof this.groupName === 'undefined')
+        url = '/totalItem/basic/getFianl?activityID=' + this.keywords + '&page=' + 1 + '&size=' + 1000;
+      else
+        url = '/totalItem/basic/getFianlGroup?activityID=' + this.keywords + '&page=' + 1+ '&size=' + 1000 + '&groupName=' + this.groupName;
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
-          console.log(resp);
           this.emps = resp.data;
           this.total = resp.total;
           for(var name in resp.data){
@@ -141,21 +155,34 @@ export default {
                 continue
               this.score.push(this.map[i]);
             }
-            this.tmap=value.tmap;
           }
+          this.tmap=value.tmap;
         }
       });
     },
     back(){
       const _this = this;
       var url = ""
+      var query = ""
       if (this.mode === 'admin'){
-        url = "/ActivitM/search"
+        {
+          if (typeof this.groupName === "undefined"){ // 此时是从活动管理进入的
+            url = "/ActivitM/search"
+          }else{ // 此时是从分组管理中进入的
+            url = "/ActivitM/table"
+            query = {
+              keywords: this.keywords,
+              keyword_name: this.keywords_name,
+              mode: this.mode,
+            }
+          }
+        }
       }else if (this.mode === "secretary"){
         url = "/secretary/ActManage"
       }
       _this.$router.push({
         path: url,
+        query:query,
       });
     },
     sizeChange(currentSize) {
@@ -165,6 +192,19 @@ export default {
     currentChange(currentPage) {
       this.page = currentPage;
       this.initHrs("advanced");
+    },
+    exportScore(){
+      this.loading=true;
+      Message.success("正在导出");
+      console.log(this.groupName)
+      var url = ''
+      if (typeof this.groupName === 'undefined')
+        url = '/participants/basic/export_ac?activityID=' + this.keywords;
+      else
+        url = '/participants/basic/export_ac_group?activityID=' + this.keywords + '&groupName=' + this.groupName;
+      // let url = '/participants/basic/export_ac?activityID=' + this.keywords;
+      window.open(url, "_parent");
+      this.loading=false;
     },
   }
 }

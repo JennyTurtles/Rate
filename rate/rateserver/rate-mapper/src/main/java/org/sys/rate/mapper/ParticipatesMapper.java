@@ -48,7 +48,7 @@ public interface ParticipatesMapper {
 
     List<Participates> getPByGID(@Param("page") Integer page, @Param("size") Integer size, @Param("groupID") Integer groupID,@Param("emp") Participates employee);
 
-    List<Participates> getPByACID(@Param("page") Integer page, @Param("size") Integer size, @Param("groupID") Integer groupID,@Param("emp") Participates employee);
+    List<Participates> getPByACID(@Param("page") Integer page, @Param("size") Integer size, @Param("activityID") Integer activityID);
 
     List<Participates> getParticipantsPageByACID(@Param("page") Integer page, @Param("size") Integer size, @Param("activitiesID") Integer activitiesID,@Param("emp") Participates employee);
     List<Participates> getAllByActivityID(@Param("page") Integer page,@Param("size") Integer size,@Param("activityID") Integer activityID);

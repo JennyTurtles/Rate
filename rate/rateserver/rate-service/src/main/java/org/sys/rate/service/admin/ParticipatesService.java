@@ -515,8 +515,7 @@ public class ParticipatesService {
         //Long total = participatesMapper.getTotaloutput(employee, beginDateScope);
         for(Participates participates:data)
         {
-            ScoreItemValue ItemValue=new ScoreItemValue();
-            List<ScoreItemValue> scoreItemValueList=scoreItemMapper.getScoreTotalValue(participates.getActivityID(),participates.getID(),ItemValue);
+            List<ScoreItemValue> scoreItemValueList=scoreItemMapper.getScoreTotalValue(participates.getActivityID(),participates.getID());
             String totalscorewithdot= new String();
             for(ScoreItemValue scoreItemValue:scoreItemValueList)
             {
@@ -535,21 +534,25 @@ public class ParticipatesService {
         return bean;
     }
 
-    public RespPageBean getAc_participantsByPage(Integer acID,Integer page, Integer size, Participates employee, Date[] beginDateScope) {
-        List<Participates> data = participatesMapper.getPByACID(page, size,acID, employee);
+    public String getTotalscorewithdot(Integer activityID,Integer participateID)  {
+        List<ScoreItemValue> scoreItemValueList=scoreItemMapper.getScoreTotalValue(activityID,participateID);
+        String totalscorewithdot= new String();
+        for(ScoreItemValue scoreItemValue:scoreItemValueList)
+        {
+            if(scoreItemValue.getScore()!=null)
+            {
+                DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
+                totalscorewithdot=totalscorewithdot+decimalFormat.format(scoreItemValue.getScore())+";";
+            }
+        }
+        return totalscorewithdot;
+    }
+
+    public RespPageBean getAc_participantsByPage(Integer acID,Integer page, Integer size, Date[] beginDateScope) {
+        List<Participates> data = participatesMapper.getPByACID(page, size,acID);
         for(Participates participates:data)
         {
-            ScoreItemValue ItemValue=new ScoreItemValue();
-            List<ScoreItemValue> scoreItemValueList=scoreItemMapper.getScoreTotalValue(participates.getActivityID(),participates.getID(),ItemValue);
-            String totalscorewithdot= new String();
-            for(ScoreItemValue scoreItemValue:scoreItemValueList)
-            {
-                if(scoreItemValue.getScore()!=null)
-                {
-                    DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
-                    totalscorewithdot=totalscorewithdot+decimalFormat.format(scoreItemValue.getScore())+";";
-                }
-            }
+            String totalscorewithdot=getTotalscorewithdot(participates.getActivityID(),participates.getID());
             participates.setTotalscorewithdot(totalscorewithdot);
         }
         RespPageBean bean = new RespPageBean();

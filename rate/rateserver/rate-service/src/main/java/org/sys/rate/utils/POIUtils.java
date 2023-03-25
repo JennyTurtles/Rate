@@ -1,6 +1,7 @@
 package org.sys.rate.utils;
 
 import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
+import org.apache.poi.hpsf.Array;
 import org.apache.poi.hpsf.DocumentSummaryInformation;
 import org.apache.poi.hpsf.SummaryInformation;
 import org.apache.poi.hssf.usermodel.*;
@@ -385,7 +386,8 @@ public class POIUtils {
         bean.setTotal((long) list.size());
         return bean;
     }
-    public static ResponseEntity<byte[]> Exceltest(List<Participates> list) {
+
+    public static ResponseEntity<byte[]> Exceltest2(List<Participates> list) {
         //1. 创建一个 Excel 文档
         HSSFWorkbook workbook = new HSSFWorkbook();
         //2. 创建文档摘要
@@ -448,7 +450,7 @@ public class POIUtils {
             //row.createCell(0).setCellValue(emp.getIDvarchar());
             row.createCell(2).setCellValue(emp.getName());
             if(emp.getTotalscorewithdot()!=null)
-            row.createCell(3).setCellValue(emp.getTotalscorewithdot());
+                row.createCell(3).setCellValue(emp.getTotalscorewithdot());
             if(emp.getScore()!=null)
             {row.createCell(4).setCellValue(emp.getScore());}
             if(emp.getDisplaySequence()!=null)
@@ -459,6 +461,89 @@ public class POIUtils {
             {row.createCell(5).setCellValue(emp.getGroupName());}
         }
 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setContentDispositionFormData("attachment", new String("学生维度的分数.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
+
+    // 表格由两部分组成：固定信息+附加信息。固定信息是序号、编号、组名、姓名、专家评分、活动得分。附加信息为总分项。
+    public static ResponseEntity<byte[]> Exceltest(HashFianlScore hashFianlScore) {
+        // 0.基础配置
+        HSSFWorkbook workbook = new HSSFWorkbook(); // 创建一个 Excel 文档
+        workbook.createInformationProperties();// 创建文档摘要
+        // 获取并配置文档信息
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
+        docInfo.setCategory("组分数");// 文档类别
+        docInfo.setManager("rate"); // 文档管理员
+        docInfo.setCompany("东华大学"); // 设置公司信息
+        // 获取文档摘要信息
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        summInfo.setTitle("以后是groupname"); // 文档标题
+        summInfo.setAuthor("东华大学计算机学院"); // 文档作者
+        summInfo.setComments("本文档由东华大学计算机学院提供"); // 文档备注
+        // 创建样式
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        HSSFCellStyle dateCellStyle = workbook.createCellStyle();
+        dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+        HSSFSheet sheet = workbook.createSheet("学生维度分数");
+
+        // 1.获取数据
+        List<Participates> list = new ArrayList<>(hashFianlScore.getMap().values());
+        List<Integer> itemKey = new ArrayList<>(hashFianlScore.getTmap().keySet()); // 附加信息的key
+
+        // 2.设置列宽
+        List<String> columnsBase = Arrays.asList("序号", "编号", "组名", "姓名", "专家评分", "活动得分");
+        List<String> columnsAdd = new ArrayList<>(hashFianlScore.getTmap().values());
+        for (int i = 0; i < columnsBase.size()+columnsAdd.size(); i++)
+            sheet.setColumnWidth(i, 10 * 256);
+        sheet.setColumnWidth(1, 18 * 256); // 编号需要更宽
+        // 3. 创建标题行
+        HSSFRow r0 = sheet.createRow(0);
+        // 固定信息
+        for (int i = 0; i < columnsBase.size(); i++) {
+            HSSFCell cell = r0.createCell(i);
+            cell.setCellValue(columnsBase.get(i));
+            cell.setCellStyle(headerStyle);
+        }
+        // 附加信息
+        for (int i = columnsBase.size();i < columnsBase.size()+columnsAdd.size(); i++) {
+            HSSFCell cell = r0.createCell(i);
+            cell.setCellValue(columnsAdd.get(i-columnsBase.size()));
+            cell.setCellStyle(headerStyle);
+        }
+
+        //4. 填充数据
+        for (int i = 0; i < list.size(); i++) {
+            Participates emp = list.get(i);
+            HSSFRow row = sheet.createRow(i + 1);
+            if (emp.getDisplaySequence() != null)
+                row.createCell(0).setCellValue(emp.getDisplaySequence());
+            if (emp.getCode() != null)
+                row.createCell(1).setCellValue(emp.getCode());
+            if (emp.getGroupName() != null)
+                row.createCell(2).setCellValue(emp.getGroupName());
+            if (emp.getName() != null)
+                row.createCell(3).setCellValue(emp.getName());
+            if (emp.getTotalscorewithdot() != null)
+                row.createCell(4).setCellValue(emp.getTotalscorewithdot());
+            if (emp.getScore() != null)
+                row.createCell(5).setCellValue(emp.getScore());
+            for (int j = 0; j < itemKey.size(); j++) {
+                if (emp.getFinalmap().get(itemKey.get(j)) != null)
+                    row.createCell(columnsBase.size()+j).setCellValue(emp.getFinalmap().get(itemKey.get(j)).getScore());
+            }
+        }
+
+        // 5.输出
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {

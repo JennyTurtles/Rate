@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
 import com.csvreader.CsvWriter;
@@ -41,6 +42,8 @@ public class ParticipatesBasicController {
     ExpertService expertService;
     @Autowired
     LogService logService;
+    @Resource
+    TotalItemService totalItemService;
 
     @GetMapping("/")
     public RespPageBean getActivitiesByPage(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, @RequestParam Integer groupID, @RequestParam Integer activitiesID, Participates employee) {
@@ -124,16 +127,24 @@ public class ParticipatesBasicController {
     public RespPageBean searchActivities(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, @RequestParam String company) {
         return participatesService.searchActivities(page, size, company);
     }
-    @GetMapping("/export_group")
-    public ResponseEntity<byte[]> exportGroup(@RequestParam Integer groupID) {
-        List<Participates> list = (List<Participates>) participatesService.getparticipantsByPage(groupID,null, null, new Participates(),null).getData();
-        return POIUtils.Exceltest(list);
-    }
+//    @GetMapping("/export_group")
+//    public ResponseEntity<byte[]> exportGroup(@RequestParam Integer groupID) {
+//        List<Participates> list = (List<Participates>) participatesService.getparticipantsByPage(groupID,null, null, new Participates(),null).getData();
+//        return POIUtils.Exceltest(list);
+//    }
     @GetMapping("/export_ac")
     public ResponseEntity<byte[]> exportActivity(@RequestParam Integer activityID) {
-        List<Participates> list = (List<Participates>) participatesService.getAc_participantsByPage(activityID,null, null, new Participates(),null).getData();
-        return POIUtils.Exceltest(list);
+        HashFianlScore data = totalItemService.getHashFinalScore(activityID);
+//        List<Participates> list = (List<Participates>) participatesService.getAc_participantsByPage(activityID,null, null,null).getData();
+        return POIUtils.Exceltest(data);
     }
+
+    @GetMapping("/export_ac_group")
+    public ResponseEntity<byte[]> exportActivity_group(@RequestParam Integer activityID,@RequestParam String groupName) {
+        HashFianlScore data = totalItemService.getHashFinalScoreGroup(activityID, groupName);
+        return POIUtils.Exceltest(data);
+    }
+
 
     @GetMapping("/export")
     public ResponseEntity<byte[]> exportData(@RequestParam Integer activityID) {

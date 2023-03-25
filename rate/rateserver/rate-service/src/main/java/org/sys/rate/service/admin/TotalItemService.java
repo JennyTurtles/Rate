@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
+import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +26,8 @@ public class TotalItemService {
     ParticipatesMapper participatesMapper;
     @Autowired
     ActivitiesMapper activitiesMapper;
+    @Resource
+    ParticipatesService participatesService;
 
     public RespPageBean getByActivityID(Integer activityID) {
         List<TotalItem> data = totalItemMapper.findbyActivityID(activityID);
@@ -85,6 +89,7 @@ public class TotalItemService {
                             HashMap<Integer,TotalItemValue> finalmap = new LinkedHashMap<>();
                             finalmap.put(solo.getID(),totalItemValue);
                             par.setFinalmap(finalmap);
+                            par.setDisplaySequence(single.getDisplaySequence());
                             map.put(single.getParticipantID(),par);
                         }
                         else{//有pid
@@ -120,6 +125,7 @@ public class TotalItemService {
                         par.setGroupName(participant.getGroupName());
                         par.setScore(participant.getScore());
                         par.setID(participant.getID());
+                        par.setDisplaySequence(participant.getDisplaySequence());
                         Double activityFullScore = activitiesMapper.getFullScore(activityID);
                         par.setFullScore(activityFullScore);
                         Double totalParScore=0.0;
@@ -151,6 +157,10 @@ public class TotalItemService {
             }
             Tmap.put(solo.getID(),solo.getName());
         }
+        for (Participates participates : map.values()){
+            participates.setTotalscorewithdot(participatesService.getTotalscorewithdot(activityID,participates.getID()));
+        }
+
         hashFianlScore.setMap(map);
         hashFianlScore.setTmap(Tmap);
         List<HashFianlScore> list=new ArrayList<>();
@@ -160,4 +170,35 @@ public class TotalItemService {
         bean.setData(list);
         return bean;
     }
+
+    // 用于导出excel
+    public HashFianlScore getHashFinalScore(Integer activityID){
+        return (HashFianlScore)getFinalScore(activityID,1,1000).getData().get(0);
+    }
+
+    // 暂时不考虑性能问题
+    public RespPageBean getFinalScoreGroup(Integer activityID, Integer page, Integer size, String groupName){
+        HashFianlScore hashFianlScore = getHashFinalScore(activityID);
+        // 遍历hashFianlScore的map，将value中的groupName为groupName的取出来
+        HashMap<Integer,Participates> map = hashFianlScore.getMap();
+        HashMap<Integer,Participates> newmap = new LinkedHashMap<>();
+        for (Participates participates : map.values()){
+            if (participates.getGroupName().equals(groupName)){
+                newmap.put(participates.getID(),participates);
+            }
+        }
+        hashFianlScore.setMap(newmap);
+
+        RespPageBean bean = new RespPageBean();
+        List<HashFianlScore> list=new ArrayList<>();
+        list.add(hashFianlScore);
+        bean.setData(list);
+        bean.setTotal((long)newmap.size());
+        return bean;
+    }
+
+    public HashFianlScore getHashFinalScoreGroup(Integer activityID, String groupName){
+        return (HashFianlScore)getFinalScoreGroup(activityID,1,1000,groupName).getData().get(0);
+    }
+
 }
