@@ -42,8 +42,9 @@
                   :on-success="onSuccess"
                   :action="Upload()"
                   ref="uploadExcel"
+                  :disabled="datalist.finished == true"
               >
-                <el-button type="primary" icon="el-icon-upload2" @click.stop="uploadButton"
+                <el-button type="primary" icon="el-icon-upload2" @click.stop="uploadButton" :disabled="datalist.finished == true"
                 >上传评分表
                 </el-button>
               </el-upload>
@@ -498,12 +499,13 @@ export default {
           this.datalist = this.datal
           // this.initState();
         },300)
+      }else if(res.obj == '有分数超过满分！'){
+        Message.error(`${res.obj}请重新上传！`);
       } else {
         Message.error("导入失败，请检查文件格式！");
       }
       // this.initAct();
     },
-
     Upload() {
       this.loading = true;
       // Message.success("正在导入");
@@ -683,7 +685,11 @@ export default {
       }
       //判断修改的单个评分项是否超过这个评分项的满分
       if(this.judgeScore(this.datalist.participatesList[index]['score' + idx],idx)){
-        row["sum"] = sum.toFixed(2);
+        if(JSON.stringify(sum).indexOf('.') >= 0){
+          row["sum"] = sum.toFixed(2);
+        }else {
+          row["sum"] = sum
+        }
         this.$store.dispatch("setScoreParticipatesList", this.datalist);
       }else {
         //如果超过满分就把之前的分数和sum重新展示在页面上
@@ -695,7 +701,11 @@ export default {
             sumscore += (row["score" + j] - "0") * this.datalist.scoreitems[j].coef;
           }
         }
-        row["sum"] = sumscore.toFixed(2);
+        if(JSON.stringify(sumscore).indexOf('.') >= 0){
+          row["sum"] = sumscore.toFixed(2);
+        }else {
+          row["sum"] = sumscore
+        }
       }
     },
     judgeScore(score,scoreitemidx){//判断分数有没有超过满分
@@ -758,7 +768,6 @@ export default {
       });
       this.datalist.participatesList[index].showSave = false;
       this.$store.dispatch("setScoreParticipatesList", this.datalist);
-      console.log(this.datalist)
     },
     initdata() {
       this.Tname = this.user.name;
@@ -775,12 +784,6 @@ export default {
     async initAct() {
       if (this.list.count != 0) {
         this.$store.dispatch("initAct", this.Adata);
-        // const value =  await getRequest("/system/Experts/score?activitiesID=" + this.Adata.Aid + '&expertID=' + this.Adata.Auserid + '&groupId=' + this.Adata.AgroupId)
-        // if(value){
-        //   this.datalist = value.extend
-        //   console.log(this.datalist)
-        //   this.initState()
-        // }
       }
     },
     // 刷新
@@ -823,7 +826,7 @@ export default {
           center: true,
         })
             .then(async () => {
-              this.clear();
+              // this.clear();
               this.datalist.finished = true;
               sessionStorage.setItem("score", JSON.stringify(this.datalist));
               this.$forceUpdate();
@@ -855,6 +858,17 @@ export default {
             });
       }
     },
+    async watchFinished(){
+      this.getRequest("/system/Experts/getState?activitiesID=" +this.Adata.Aid + '&expertID=' + this.user.id + '&groupId=' + this.Adata.AgroupId).then((resp)=>{
+        if(resp.code == 200){
+          if (resp.extend.success === false){//被退回
+            this.$message.warning("评分被退回，页面将刷新")
+            sessionStorage.removeItem('score')
+            this.reload()
+          }
+        }
+      })
+    },
     // 定时刷新数据函数
     dataRefreh() {
       // 计时器正在进行中，退出函数
@@ -864,6 +878,9 @@ export default {
       // 计时器为空，操作
       this.intervalId = setInterval(() => {
         this.refreshact(true);
+        if(this.datalist.finished){//提交了
+          this.watchFinished()
+        }
       }, 120000);
     },
     // 停止定时器

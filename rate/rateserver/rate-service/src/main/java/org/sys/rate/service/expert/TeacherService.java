@@ -10,18 +10,26 @@ import org.sys.rate.mapper.ScoreItemMapper;
 import org.sys.rate.mapper.ScoresMapper;
 import org.sys.rate.mapper.TeacherMapper;
 import org.sys.rate.model.*;
+import org.sys.rate.service.admin.ParticipatesService;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service("TeacherService")
 public class TeacherService implements UserDetailsService{
+    private static Lock reentrantLock = new ReentrantLock();// 锁对象
+
     @Autowired
     TeacherMapper teacherMapper;
     @Autowired
     ScoresMapper scoresMapper;
     @Autowired
     ScoreItemMapper scoreItemMapper;
+    @Autowired
+    ParticipatesService participatesService;
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -99,7 +107,7 @@ public class TeacherService implements UserDetailsService{
             Scores fullScore = new Scores();
             sumTemp = 0;
             for (Scores score : scoresList){
-                if(score.getParticipantID() == arr.get(i)){
+                if(score.getParticipantID() == arr.get(i) && score.getScoreItemID() != scoreFullScore){
                     sumTemp += score.getScore();
                     if(fullScore.getActivityID() == null){
                         fullScore.setActivityID(score.getActivityID());
@@ -114,7 +122,6 @@ public class TeacherService implements UserDetailsService{
         }
         //将每个选手的活动得分添加进去
         scoresList.addAll(fullScoreArr);
-
         for (Scores score : scoresList) {
             //检查专家该项评分存不存在
             if (teacherMapper.check(score.getExpertID(),score.getActivityID(),score.getParticipantID(),score.getScoreItemID()) > 0) {
@@ -128,6 +135,7 @@ public class TeacherService implements UserDetailsService{
                     error.append("评分更新失败");
                     result.add(error.toString());
                 }
+
             } else {
                 //没有就插入该评分
                 int insert = scoresMapper.insertScore(score.getExpertID(),score.getActivityID(),
@@ -141,7 +149,20 @@ public class TeacherService implements UserDetailsService{
                     System.out.println("insert->" + score + " 的信息插入失败");
                 }
             }
+
         }
+
+        reentrantLock.lock();
+        for (int i = 0;i < arr.size();i ++){
+            try {//开始算
+                Integer resp =participatesService.saveAvgscore((Integer) arr.get(i), activitiesID);
+                if(resp==0){result.add("平均分保存失败");}
+            }
+            catch(Exception e) {
+                System.out.println(e);
+            }
+        }
+        reentrantLock.unlock();
         if (result.size() != 0) {
             result.add("请将以上用户名重复的专家更正后再导入,其他专家已经导入成功！");
         }

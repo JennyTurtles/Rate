@@ -68,7 +68,18 @@ public class ExpertController {
         }
         return Msg.success().add("activitiesList",ac).add("count",ac.size());
     }
-
+    @GetMapping("/getState")
+    public Msg getState(@RequestParam(value = "activitiesID") Integer activitiesID,
+                              @RequestParam(value = "expertID") Integer expertID,
+                              @RequestParam(value = "groupId") Integer groupId){
+        Boolean finished = false;
+        try {
+            finished = expertactivitiesService.getState(activitiesID, expertID,groupId);
+        }catch (Exception e){
+            return Msg.fail().add("error",e);
+        }
+        return Msg.success().add("success",finished);
+    }
     @ResponseBody
     @GetMapping("/score")
     public Msg getParticiants(@RequestParam(value = "activitiesID") Integer activitiesID,
@@ -210,7 +221,12 @@ public class ExpertController {
                         if(s.getName().equals(k)){
                             scoreOne = new Scores();
                             if(list.get(k)!=null) {
-                                scoreOne.setScore(new Double(list.get(k)));
+                                //判断某个单元格是否超过该评分项的满分
+                                if(new Double(list.get(k)) > s.getScore()){
+                                    return RespBean.error("fail","有分数超过满分！");
+                                }else {
+                                    scoreOne.setScore(new Double(list.get(k)));
+                                }
                             }else {
                                 //专家对这项评分项没打分,保持null值，excel需要重新覆盖所有数据
                                 scoreOne.setScore(new Double(0));
@@ -225,6 +241,7 @@ public class ExpertController {
                 }
             }
             List<String> res = teacherService.addScores(expertID,activitiesID,scoresList);
+
             if (res.size()==0) {
                 System.out.println("导入成功");
                 return RespBean.ok("success");

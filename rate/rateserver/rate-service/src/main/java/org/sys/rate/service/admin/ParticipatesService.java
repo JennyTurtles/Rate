@@ -19,6 +19,7 @@ import java.util.*;
 
 @Service
 public class ParticipatesService {
+
     @Autowired
     ParticipatesMapper participatesMapper;
     @Autowired

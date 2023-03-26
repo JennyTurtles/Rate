@@ -7,7 +7,6 @@ import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
