@@ -419,7 +419,8 @@ public class POIUtils {
         List<String> columnsAdd = new ArrayList<>(hashFianlScore.getTmap().values());
         for (int i = 0; i < columnsBase.size()+columnsAdd.size(); i++)
             sheet.setColumnWidth(i, 10 * 256);
-        sheet.setColumnWidth(1, 18 * 256); // 编号需要更宽
+        sheet.setColumnWidth(1, 18 * 256); // "编号"需要更宽
+
         // 3. 创建标题行
         HSSFRow r0 = sheet.createRow(0);
         // 固定信息

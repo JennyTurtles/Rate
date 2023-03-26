@@ -68,7 +68,7 @@ public class TotalItemService {
                         par.setCode(single.getCode());
                         par.setName(single.getStudentName());
                         par.setGroupName(single.getGroupName());
-                        par.setScore(single.getActivityScore());
+                        par.setScore(single.getActivityScore() == null ? 0 : single.getActivityScore()); // 活动得分
                         par.setID(single.getParticipantID());
                         Double activityFullScore = activitiesMapper.getFullScore(activityID);
                         par.setFullScore(activityFullScore);
@@ -159,6 +159,38 @@ public class TotalItemService {
         for (Participates participates : map.values()){
             participates.setTotalscorewithdot(participatesService.getTotalscorewithdot(activityID,participates.getID()));
         }
+        // 缝缝补补
+        // 对所有选手遍历一次，保证他们有所有的总分项，没有的话就赋初值，addParticipantScore=1的话，加上活动总分，同时检查检查其他的总分项目需不需要加上增加的分数;=0的话，不加。
+        map.forEach((k,v)->{
+            for (TotalItem totalItem : data){
+                if (v.getFinalmap().get(totalItem.getID())==null){
+                    TotalItemValue totalItemValue = new TotalItemValue();
+                    totalItemValue.setName(totalItem.getName());
+                    totalItemValue.setId(totalItem.getID());
+                    totalItemValue.setFullScore(totalItem.getFullScore());
+                    if (totalItem.getAddParticipantScore()==1){
+                        totalItemValue.setScore(v.getScore());
+                        Integer ID = totalItem.getID();
+                        // 遍历data，如果totalItemIDs里面包含ID，就把这个ID的分数加上
+                        for (TotalItem totalItem1 : data){
+                            if (totalItem1.getTotalItemIDs()!=null){
+                                String[] calc = totalItem1.getTotalItemIDs().split(",");
+                                for (String s : calc){
+                                    Integer calID = Integer.valueOf(s);
+                                    if (calID.equals(ID)){
+                                        v.getFinalmap().get(totalItem1.getID()).setScore(totalItemValue.getScore()+v.getFinalmap().get(totalItem1.getID()).getScore());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        totalItemValue.setScore(0.0);
+                    }
+                    v.getFinalmap().put(totalItem.getID(),totalItemValue);
+                }
+            }
+        });
 
         hashFianlScore.setMap(map);
         hashFianlScore.setTmap(Tmap);
