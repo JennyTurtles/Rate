@@ -5,7 +5,7 @@
         <div class="title">教学辅助系统</div>
         <div>
           <el-dropdown class="userInfo" @command="commandHandler">
-            <span class="el-dropdown-link"> 你好，{{ user.name }}<a v-show=" user.role.indexOf('3') !== -1 ||user.role.indexOf('4') !== -1 ||user.role.indexOf('8') !== -1 ||user.role.indexOf('9') !== -1">老师</a> </span>
+            <span class="el-dropdown-link"> 您好，{{ user.name }}<a v-show=" user.role.indexOf('3') !== -1 ||user.role.indexOf('4') !== -1 ||user.role.indexOf('8') !== -1 ||user.role.indexOf('9') !== -1">老师</a> </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="userinfo">个人中心</el-dropdown-item>
               <!--                            <el-dropdown-item command="setting">设置</el-dropdown-item>-->

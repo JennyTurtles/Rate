@@ -165,7 +165,7 @@
             :key="value.id"
             v-if="value.name == '活动得分'"
             :label="'总评分'"
-            min-width="120px"
+            min-width="80px"
             align="center"
         >
           <template slot-scope="scope">
