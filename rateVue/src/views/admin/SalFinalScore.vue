@@ -59,7 +59,10 @@
             sortable
             label="活动得分"
             align="center"
-            min-width="10%">
+            min-width="10%"
+            :sort-method="(a, b) => {
+                      return Number(b.score)- Number( a.score);}"
+            :sort-orders="['descending', 'ascending']">
           <template slot-scope="scope">
             <span v-if="scope.row.score<scope.row.fullScore*0.6" style="color: red">{{scope.row.score}}</span>
             <span v-else>{{scope.row.score}}</span>
@@ -69,8 +72,12 @@
             v-for="(v, i) in this.tmap"
             prop="v"
             :label="v"
+            :key="i"
             sortable
-            min-width="10%" align="center">
+            min-width="10%" align="center"
+            :sort-method="(a, b) => {
+                      return Number(b.finalmap[i].score)- Number( a.finalmap[i].score);}"
+            :sort-orders="['descending', 'ascending']">
           <template slot-scope="scope">
             <div v-for="(value,key) in scope.row.finalmap" v-if="key===i">
               <span v-if="value.score<value.fullScore*0.6" style="color: red">{{value.score}}</span>
@@ -157,6 +164,8 @@ export default {
             }
           }
           this.tmap=value.tmap;
+          console.log(this.tmap)
+          console.log(this.score)
         }
       });
     },

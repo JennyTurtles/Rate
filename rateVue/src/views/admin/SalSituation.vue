@@ -68,11 +68,7 @@
                     :key="i"
                     :sortable="true"
                     :sort-method="(a, b) => {
-        // Sort by descending order of score
-        // return Number(b[v])- Number( a[v]);
-
-    return Number(b.scoremap[i].score)- Number( a.scoremap[i].score);
-    }"
+                      return Number(b.scoremap[i].score)- Number( a.scoremap[i].score);}"
                     :sort-orders="['descending', 'ascending']"
                     min-width="5%"
                     align="center">
