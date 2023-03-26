@@ -148,7 +148,14 @@ export default {
           cancelButtonText: "取消",
           type: "warning",
         }).then(() => {
+          let role = JSON.parse(localStorage.getItem('user')).role
             var url = '/'
+            if (this.role == '8' || this.role == '9' || this.role == '3' || this.role == '4')
+              url = "/Teacher/Login"
+            else if (this.role == '1')
+              url = "/Admin/Login"
+            else
+              url = "/"
           this.getRequest('/system/config/logout').then(()=>{
             if(localStorage.getItem('teacher')){
               localStorage.removeItem('teacher')

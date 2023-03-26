@@ -61,7 +61,7 @@
             align="center"
             min-width="10%"
             :sort-method="(a, b) => {
-                      return Number(b.score)- Number( a.score);}"
+                      return Number(a.score)- Number(b.score);}"
             :sort-orders="['descending', 'ascending']">
           <template slot-scope="scope">
             <span v-if="scope.row.score<scope.row.fullScore*0.6" style="color: red">{{scope.row.score}}</span>
@@ -69,14 +69,14 @@
           </template>
         </el-table-column>
         <el-table-column
-            v-for="(v, i) in this.tmap"
-            prop="v"
+            v-for="(v, i) in tmap"
+            :prop="v"
             :label="v"
             :key="i"
             sortable
             min-width="10%" align="center"
             :sort-method="(a, b) => {
-                      return Number(b.finalmap[i].score)- Number( a.finalmap[i].score);}"
+                      return Number(a.finalmap[i].score)- Number( b.finalmap[i].score);}"
             :sort-orders="['descending', 'ascending']">
           <template slot-scope="scope">
             <div v-for="(value,key) in scope.row.finalmap" v-if="key===i">
@@ -152,6 +152,7 @@ export default {
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
+          console.log(resp)
           this.emps = resp.data;
           this.total = resp.total;
           for(var name in resp.data){
@@ -164,8 +165,15 @@ export default {
             }
           }
           this.tmap=value.tmap;
-          console.log(this.tmap)
-          console.log(this.score)
+          // 按照考试总分降序排列
+          var key = '';
+          for (var j in this.score[0].finalmap){
+            if (this.score[0].finalmap[j].name === "考试总分")
+              key = j;
+          }
+          this.score.sort(function(a,b){
+            return b.finalmap[key].score-a.finalmap[key].score;
+          });
         }
       });
     },
