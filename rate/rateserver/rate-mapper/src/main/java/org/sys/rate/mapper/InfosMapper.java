@@ -1,6 +1,7 @@
 package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Infos;
 import org.sys.rate.model.Participates;
 
@@ -48,4 +49,6 @@ public interface InfosMapper {
     List<Infos> getParticipantIDtByAIdAndInfoItemID(Integer activityID,Integer infoItemID);
     List<Infos> getInfoitemsListByParAndAcID(Integer activityID,List<Integer> participantID,Integer infoItemID);
 
+    @Select("SELECT content FROM infos WHERE participantID = #{participatesID} AND activityID = #{activityID} AND infoItemID = #{infoItemID} ")
+    String getContentByParticipatesIDAndActivityIDAndInfoItemID(int participatesID, Integer activityID, Integer infoItemID);
 }

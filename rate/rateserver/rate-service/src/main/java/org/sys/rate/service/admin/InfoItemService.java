@@ -127,7 +127,7 @@ public class InfoItemService {
     }
     //对选手进行筛选
     public List<InfoItem>  getInforItemByActivityId(Integer activitiesID){
-        List<Participates> participates = participatesMapper.getParticipantByAId(activitiesID);
+        List<Participates> participates = participatesMapper.getParticipantByAId(activitiesID); // 得到所有未分组的选手
         List<InfoItem> infoItems = new ArrayList<>();
         //没有不分组的选手
         if(participates.size() == 0){

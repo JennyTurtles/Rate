@@ -202,11 +202,6 @@ public class TotalItemService {
         return bean;
     }
 
-    // 用于导出excel
-    public HashFianlScore getHashFinalScore(Integer activityID){
-        return (HashFianlScore)getFinalScore(activityID,1,1000).getData().get(0);
-    }
-
     // 暂时不考虑性能问题
     public RespPageBean getFinalScoreGroup(Integer activityID, Integer page, Integer size, String groupName){
         HashFianlScore hashFianlScore = getHashFinalScore(activityID);
@@ -226,6 +221,11 @@ public class TotalItemService {
         bean.setData(list);
         bean.setTotal((long)newmap.size());
         return bean;
+    }
+
+    // 用于导出excel
+    public HashFianlScore getHashFinalScore(Integer activityID){
+        return (HashFianlScore)getFinalScore(activityID,1,1000).getData().get(0);
     }
 
     public HashFianlScore getHashFinalScoreGroup(Integer activityID, String groupName){

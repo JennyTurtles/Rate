@@ -4,7 +4,7 @@
       {{ keywords_name }}活动 {{groupName}} 选手总成绩
 
       <div style="margin-left: auto">
-        <el-button icon="el-icon-download" type="primary" @click="exportScore">
+        <el-button icon="el-icon-download" type="primary" @click="exportExcel">
           导出选手评分
         </el-button>
         <el-button icon="el-icon-back" type="primary" @click="back">
@@ -12,15 +12,47 @@
         </el-button>
       </div>
     </div>
-    <div><br/>
-      标红分数：小于该项分数满分的60%
-      <br/></div>
+    <div>标红分数：小于该项分数满分的60%</div>
+    <div style="margin-top: 15px">
+      <span>请选择筛选依据：  </span>
+      <el-select
+          style="margin-right: 20px;width: 150px;"
+          v-model="selectedGroupInfo"
+      >
+        <el-option
+            v-for="(item,key,index) in groupInfoNums"
+            :key="key"
+            :label="key"
+            :value="key">
+        </el-option>
+      </el-select>
+      <template v-if="true">
+        <span>请选择筛选值：</span>
+        <el-select
+            style="margin-right: 20px;width: 250px;"
+            v-model="selectedSubGroupInfo"
+            multiple
+        >
+          <el-option
+              v-for="item in groupSubOfSelectedInfos"
+              v-if="item != 'infoItemID'"
+              :key="item"
+              :label="item + '（' + groupInfoNums[selectedGroupInfo][item].length +'）人'"
+              :value="item">
+          </el-option>
+        </el-select>
+      </template>
+      <el-button type="primary" @click="filterPar()">筛选</el-button>
+      <el-button type="primary" @click="reset()">重置</el-button>
+    </div>
     <div style="margin-top: 10px">
       <el-table
+          ref = "excelTable"
           :data="score"
           :model="score"
           stripe
           border
+          id='outTable'
           v-loading="loading"
           element-loading-text="正在加载..."
           element-loading-spinner="el-icon-loading"
@@ -103,10 +135,16 @@
 <script>
 import axios from 'axios'
 import {Message} from "element-ui";
+import FileSaver from "file-saver";
+import * as XLSX from 'xlsx'
 export default {
   name: "SalFinalScore",
   data() {
     return{
+      selectedGroupInfo: '',
+      groupInfoNums: {},
+      groupSubOfSelectedInfos: [],
+      selectedSubGroupInfo: [],
       flag:0,
       groupName: '',
       title: '',
@@ -134,6 +172,24 @@ export default {
   },
   created() {
   },
+  watch:{
+    selectedGroupInfo:{//监听第一个下拉框的变化 信息项
+      handler(val){
+        //信息项和信息项的子选项都被选择了或者没有子信息项
+        if(val != '') {
+          //该信息项下的所有子信息项
+          if (typeof this.groupInfoNums != 'undefined' && JSON.stringify(this.groupInfoNums) != '{}' && JSON.stringify(this.groupInfoNums[val]) != '{}') {
+
+            this.groupSubOfSelectedInfos = Object.keys(this.groupInfoNums[val])
+          }
+        }
+      }
+    },
+    selectedSubGroupInfo:{//第二个下拉框的变化 信息项的子信息项
+      handler(val){
+      }
+    }
+  },
   mounted() {
     //this.init();//先获得评分项
     this.keywords = this.$route.query.keywords;
@@ -141,7 +197,9 @@ export default {
     this.mode = this.$route.query.mode;
     this.groupName = this.$route.query.groupName;
     this.flag = this.$route.query.flag;
+    this.groupID = this.$route.query.groupID;
     this.initEmps();
+    this.initFitler();
   },
   methods: {
     initEmps() {
@@ -154,6 +212,7 @@ export default {
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
+          this.score = [];
           this.emps = resp.data;
           this.total = resp.total;
           for(var name in resp.data){
@@ -177,6 +236,70 @@ export default {
           });
         }
       });
+    },
+    initFitler(){
+      this.selectedGroupInfo= ''
+      this.groupInfoNums= {}
+      this.groupSubOfSelectedInfos=[]
+      this.selectedSubGroupInfo=[]
+      let url = '/infoItem/basic/getAllInf?ID=' + this.keywords + '&groupID=' + (this.groupID == null ? 0 : this.groupID);
+      this.getRequest(url).then((resp)=>{
+        if(resp.code == 200){
+          //存放infoItem
+          var infoItems = resp.extend.infoItems
+          if(resp.extend.infoItems.length === 0){
+            this.$message.warning('该活动下没有未分组的选手！')
+            return
+          }
+          for(var i = 0;i < infoItems.length;i ++){
+            if(!(infoItems[i].name in this.groupInfoNums)){
+              this.groupInfoNums[infoItems[i].name]={'infoItemID':infoItems[i].id}//将每一个信息项改为对象形式,再加上每个信息项的id
+            }
+            //如果每个信息项包含多个子信息项如报考专业包括电子xxx、xx开发等，将每个子信息项改为数组
+            if(!(infoItems[i].content in this.groupInfoNums[infoItems[i].name])){
+              this.groupInfoNums[infoItems[i].name][infoItems[i].content] = []
+            }
+            this.groupInfoNums[infoItems[i].name][infoItems[i].content].push(infoItems[i])
+          }
+          if(!this.groupNums){
+            this.groupNums = Array.from(Array(10).keys(),n=>n+1)
+          }
+          this.dialogPartipicantGroups = true
+        }
+      })
+    },
+    filterPar(){
+      let url = '/infoItem/basic/getFilteredFianlGroup?infoItemName=' + this.selectedGroupInfo + '&infoItemContent=' + this.selectedSubGroupInfo + '&activityID=' + this.keywords;
+      this.getRequest(url).then((resp)=>{
+        if (resp){
+          this.emps = resp.data;
+          this.total = resp.total;
+          this.score= [];
+          for(var name in resp.data){
+            var value =resp.data[name];
+            this.map = value.map;
+            console.log(this.map)
+            for(var i in this.map){
+              if (typeof this.groupName !== 'undefined' && this.map[i].groupName !== this.groupName)
+                continue
+              this.score.push(this.map[i]);
+            }
+          }
+          this.tmap=value.tmap;
+          var key = '';
+          for (var j in this.score[0].finalmap){
+            if (this.score[0].finalmap[j].name === "考试总分")
+              key = j;
+          }
+          this.score.sort(function(a,b){
+            return b.finalmap[key].score-a.finalmap[key].score;
+          });
+        }
+      })
+    },
+    reset(){
+      this.initEmps()
+      this.initFitler();
     },
     back(){
       const _this = this;
@@ -222,6 +345,15 @@ export default {
       // let url = '/participants/basic/export_ac?activityID=' + this.keywords;
       window.open(url, "_parent");
       this.loading=false;
+    },
+    exportExcel () {
+      let xlsxParam = { raw: true }
+      var wb = XLSX.utils.table_to_book(document.querySelector('#outTable'),xlsxParam)
+      var wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
+      try {
+        FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), '选手积分表.xlsx')
+      } catch (e) { if (typeof console !== 'undefined') console.log(e, wbout) }
+      return wbout
     },
   }
 }

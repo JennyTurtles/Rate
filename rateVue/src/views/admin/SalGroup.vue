@@ -715,6 +715,7 @@ export default {
         this.getRequest(url).then((resp)=>{
           if(resp.code == 200){
             //存放infoItem
+            console.log(resp)
             var infoItems = resp.extend.infoItems
             if(resp.extend.infoItems.length === 0){
               this.$message.warning('该活动下没有未分组的选手！')
@@ -730,6 +731,8 @@ export default {
               }
               this.groupInfoNums[infoItems[i].name][infoItems[i].content].push(infoItems[i])
             }
+            console.log("groupInfoNums:")
+            console.log(this.groupInfoNums)
             //将infoItem和scoreItem放在一起作为排序依据
             for(var i of Object.keys(this.groupInfoNums)){
               this.sortByList.push({

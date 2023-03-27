@@ -6,12 +6,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.InfoItemMapper;
 import org.sys.rate.mapper.InfosMapper;
+import org.sys.rate.mapper.ParticipatesMapper;
 import org.sys.rate.mapper.ScoresMapper;
 import org.sys.rate.model.*;
-import org.sys.rate.service.admin.InfoItemService;
-import org.sys.rate.service.admin.LogService;
-import org.sys.rate.service.admin.ScoreItemService;
-import org.sys.rate.service.admin.ScoresService;
+import org.sys.rate.service.admin.*;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -19,8 +17,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @RestController
@@ -36,6 +33,10 @@ public class InfoItemController {
     InfoItemMapper infoItemMapper;
     @Resource
     ScoreItemService scoreItemService;
+    @Resource
+    ParticipatesMapper participatesMapper;
+    @Resource
+    TotalItemService totalItemService;
 
     @GetMapping("/")
     public RespPageBean getActivitiesByPage(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, InfoItem employee) {
@@ -149,6 +150,7 @@ public class InfoItemController {
         return infoItemService.getActivitiesByStudent(keywords, page, size, studentID,employee);
     }
 
+    // 获得未分组选手所有的信息项
     @GetMapping("/getAll/{id}")
     public Msg getAll(@PathVariable("id") Integer id){
         List<InfoItem> infoItems = infoItemService.getInforItemByActivityId(id);
@@ -162,4 +164,37 @@ public class InfoItemController {
         return RespBean.ok("success",infoItems);
     }
 
+    // 用于选手分数页面的筛选，基于信息项
+    @GetMapping("/getAllInf")
+    public Msg getAllInf(@RequestParam("ID") Integer ID,@RequestParam("groupID") Integer groupID){
+        List<Integer> participatesID;
+        if (groupID == 0) // 所有选手
+            participatesID = participatesMapper.getParticipantsIDByAId(ID);
+        else // 某个分组的选手
+            participatesID = participatesMapper.getParticipantsIDByAIdAndGId(ID,groupID);
+        List<InfoItem> infoItems = infoItemMapper.selectInfoItemByActivityId(ID,participatesID);
+        return Msg.success().add("infoItems",infoItems);
+    }
+
+    // 通过：信息项类型，信息项值对finalGroup筛选
+    @GetMapping("/getFilteredFianlGroup")
+    public RespPageBean getFilteredFianlGroup(@RequestParam("infoItemName") String infoItemName,
+                                              @RequestParam("infoItemContent") List<String> infoItemValue,
+                                              @RequestParam("activityID") Integer activityID){
+        RespPageBean all = totalItemService.getFinalScore(activityID,1,1000);
+        Integer infoItemID = infoItemMapper.getIDByNameAndActivityID(infoItemName,activityID);
+        HashFianlScore hashFianlScore = (HashFianlScore) all.getData().get(0);
+        HashMap<Integer,Participates> newHash = new HashMap<>();
+        hashFianlScore.getMap().forEach((k,v)->{
+           int participatesID = v.getID();
+           // 通过participatesID，activityID，infoItemID在infos表中查询content
+            String content = infosMapper.getContentByParticipatesIDAndActivityIDAndInfoItemID(participatesID,activityID,infoItemID);
+            if (infoItemValue.contains(content)){
+                newHash.put(k,v);
+            }
+        });
+        hashFianlScore.setMap(newHash);
+        all.setTotal(Long.valueOf((Integer)newHash.size()));
+        return all;
+    }
 }

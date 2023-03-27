@@ -370,13 +370,12 @@ export default {
       }
     },
     showFinalScore(data){
-      console.log("data")
-      console.log(data)
       const _this = this;
       _this.$router.push({
         path: "/ActivitM/final",
         query: {
           keywords: data.activityID,
+          groupID:data.id,
           keyword_name: this.keywords_name,
           groupName:data.name,
           mode:this.mode,

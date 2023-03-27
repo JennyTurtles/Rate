@@ -342,6 +342,7 @@ export default {
         query: {
           keywords: data.activityID,
           keyword_name: this.keywords_name,
+          groupID: data.groupID,
           mode:this.mode,
           groupName: data.groupname,
           flag:1, // 1表示从"分数统计进入"。同一个界面被多处引用，逻辑不够清晰。以后再优化。

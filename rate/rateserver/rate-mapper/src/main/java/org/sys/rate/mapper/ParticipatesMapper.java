@@ -139,4 +139,11 @@ public interface ParticipatesMapper {
 
     @Select("select ID from participants where studentID = #{studentID} limit 1")
     Integer existPar(Integer studentID);
+
+
+    @Select("select ID from participants where activityID = #{activityID} and groupID = #{groupID}")
+    List<Integer> getParticipantsIDByAIdAndGId(Integer activityID, Integer groupID);
+
+    @Select("select ID from participants where activityID = #{activityID}")
+    List<Integer> getParticipantsIDByAId(Integer id);
 }
