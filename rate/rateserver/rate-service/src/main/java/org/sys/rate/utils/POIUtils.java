@@ -949,8 +949,9 @@ public class POIUtils {
         //垂直居中，水平居中
         titleStyle.setAlignment(HorizontalAlignment.CENTER);   // 设置左右居中
         titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);    // 设置水平居中
+        titleStyle.setFillForegroundColor((short) 1);
         titleStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        titleStyle.setBorderRight(BorderStyle.THICK); //设置右边框
+        titleStyle.setBorderRight(BorderStyle.THICK); //设1置右边框
 //        headerStyle.setWrapText(true);  // 自动换行
         // 字体
         HSSFFont font = workbook.createFont();
@@ -992,13 +993,13 @@ public class POIUtils {
         c0.setCellValue(title);
         c0.setCellStyle(titleStyle);
         // 合并单元格，参数依次为起始行，结束行，起始列，结束列 （索引0开始）
-        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 1 + infoItemsShow.size()+scoreItems.size()));//标题合并单元格操作，6为总列数
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 2 + infoItemsShow.size()+scoreItems.size()));//标题合并单元格操作，6为总列数
         //创建表头的样式
         HSSFCellStyle headerStyle = workbook.createCellStyle();
         //垂直居中，水平居中
         headerStyle.setAlignment(HorizontalAlignment.CENTER);   // 设置左右居中
         headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);    // 设置水平居中
-        headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.index);
+        headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.index);//设置背景颜色
         headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         HSSFFont font1 = workbook.createFont();
         font1.setFontName("宋体");
@@ -1124,7 +1125,7 @@ public class POIUtils {
                         if(tableNameMap.get(k).equals("总评分")){
                             //活动得分为空并且别的评分项也有空值,不存数据库
                             if(cell == null && scoreFlage){
-                                nullRow.add(j);
+                                nullRow.add(row.getCell(0).getStringCellValue());
                                 fullScoreFlage = true;
                                 break;
                                 //j是行数
@@ -1152,6 +1153,7 @@ public class POIUtils {
                     }
                     rateList.add(rowList);
                 }
+
             }
 
         } catch (IOException e) {
