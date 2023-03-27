@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import store from '../store/index.js'
+import store from '../store'
 import router from '../router.js'
 import sha1 from "sha1";
 import { initMenu } from "../utils/menus.js";
@@ -69,6 +69,8 @@ export default {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {//判断是否符合prop要求
           this.loading = true;
+          sessionStorage.clear();
+          localStorage.clear()
           // 发送加密后的密码
           var that = this
           var loginFormPost = {username: this.loginForm.username, password: sha1(this.loginForm.password),role: this.loginForm.role}
