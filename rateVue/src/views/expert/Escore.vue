@@ -499,7 +499,7 @@ export default {
       }else if(res.msg === 'nullRow'){
         var nullarr = res.obj.split(',')
         this.$confirm(`部分学生由于无完整的分数，系统认为未评分，请确认。如果有误，请将分数填写完整重新上传。
-            第${nullarr}行,共计${nullarr.length - 1}个学生未评分，请确认。`,{
+            序号为${nullarr}的共计${nullarr.length - 1}个学生未评分，请确认。`,{
           confirmButtonClass:'确认',
           showCancelButton: false
         })
