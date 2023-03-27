@@ -1,9 +1,10 @@
 <template>
     <div>
-        {{ keywords }}、{{ keywords_name }}活动
-        {{GName}}
-        {{ expertName }}专家评分情况
+
         <div style="display: flex; justify-content: left;margin-top:10px">
+          {{ keywords }}、{{ keywords_name }}活动
+          {{GName}}
+          {{ expertName }}专家评分情况
             <div style="margin-left: auto">
                 <el-button
                     icon="el-icon-refresh-right"
