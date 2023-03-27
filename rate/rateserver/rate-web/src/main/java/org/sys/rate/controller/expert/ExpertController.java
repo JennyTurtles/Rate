@@ -203,8 +203,9 @@ public class ExpertController {
 
         List<Scores> scoresList = new ArrayList<>();
         Scores scoreOne;
-        RespPageBean bean= POIUtils.readExcel_rate(file);
-        List<Map<String, String>> rateList = (List<Map<String, String>>) bean.getData();
+        Msg ecxelres= POIUtils.readExcel_rate(file,scoreItemsByE);
+        List<Map<String, String>> rateList = (List<Map<String, String>>) ecxelres.getExtend().get("rateList");
+        ArrayList nullRow = (ArrayList) ecxelres.getExtend().get("nullRow");
         if(rateList == null){
             return RespBean.error("未读取到有效导入数据！");
         }else {
@@ -220,6 +221,7 @@ public class ExpertController {
                     for(ScoreItem s:scoreItemsByE){
                         if(s.getName().equals(k)){
                             scoreOne = new Scores();
+                            //在处理excel时，没有打分的统一设置为了null,某个选手有某一项分数，其余设置为0
                             if(list.get(k)!=null) {
                                 //判断某个单元格是否超过该评分项的满分
                                 if(new Double(list.get(k)) > s.getScore()){
@@ -229,7 +231,7 @@ public class ExpertController {
                                 }
                             }else {
                                 //专家对这项评分项没打分,保持null值，excel需要重新覆盖所有数据
-                                scoreOne.setScore(new Double(0));
+                                scoreOne.setScore(null);
                             }
                             scoreOne.setExpertID(expertID);
                             scoreOne.setActivityID(activitiesID);
@@ -241,10 +243,17 @@ public class ExpertController {
                 }
             }
             List<String> res = teacherService.addScores(expertID,activitiesID,scoresList);
-
             if (res.size()==0) {
-                System.out.println("导入成功");
-                return RespBean.ok("success");
+                //没有评分为空的行
+                if(nullRow.size() == 0){
+                    return RespBean.ok("success");
+                }else {
+                    String nullr = "";
+                    for(Object item : nullRow){
+                        nullr += item + ",";
+                    }
+                    return RespBean.ok("nullRow",nullr);
+                }
             }
             return RespBean.error("fail",res);
         }

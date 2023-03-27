@@ -6,7 +6,7 @@
         <div>
           <el-dropdown class="userInfo" @command="commandHandler">
             <span class="el-dropdown-link"
-              >你好，{{ teacher.name }}专家<i></i
+              >您好，{{ teacher.name }}专家<i></i
             ></span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="userinfo">个人中心</el-dropdown-item>

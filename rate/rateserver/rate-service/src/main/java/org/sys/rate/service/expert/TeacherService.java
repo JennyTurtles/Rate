@@ -102,26 +102,54 @@ public class TeacherService implements UserDetailsService{
                 arr.add(s.getParticipantID());
             }
         }
+        boolean sumScoreFlage;
         //计算每个选手的活动得分
         for(int i = 0;i < arr.size(); i++){
+            sumScoreFlage = false;
             Scores fullScore = new Scores();
             sumTemp = 0;
             for (Scores score : scoresList){
                 if(score.getParticipantID() == arr.get(i) && score.getScoreItemID() != scoreFullScore){
-                    sumTemp += score.getScore();
-                    if(fullScore.getActivityID() == null){
-                        fullScore.setActivityID(score.getActivityID());
-                        fullScore.setExpertID(score.getExpertID());
-                        fullScore.setScoreItemID(scoreFullScore);
-                        fullScore.setParticipantID(score.getParticipantID());
+                    //有可能为空值
+                    if(score.getScore() != null){
+                        sumTemp += score.getScore();
                     }
                 }
+                //里面有总分对象
+                if(score.getParticipantID() == arr.get(i) && score.getScoreItemID() == scoreFullScore){
+                    sumScoreFlage = true;
+                }
+                if(fullScore.getActivityID() == null){
+                    fullScore.setActivityID(score.getActivityID());
+                    fullScore.setExpertID(score.getExpertID());
+                    fullScore.setScoreItemID(scoreFullScore);
+                }
             }
-            fullScore.setScore(sumTemp);
-            fullScoreArr.add(fullScore);
+            if(sumScoreFlage){//有总分这个对象,就对分数进行修改
+                for (Scores score : scoresList){
+                    if(score.getParticipantID() == arr.get(i) && score.getScoreItemID() == scoreFullScore){
+                        if(sumTemp == 0){//默认这个选手没有打分，所有都是null，和就是0
+                            score.setScore(null);
+                        }else {
+                            score.setScore(sumTemp);
+                        }
+                    }
+                }
+            }else {//没有这个对象就添加
+                if(sumTemp == 0){
+                    fullScore.setScore(null);
+                }else {
+                    fullScore.setScore(sumTemp);
+                }
+                fullScore.setParticipantID((Integer) arr.get(i));
+                fullScoreArr.add(fullScore);
+            }
+
         }
         //将每个选手的活动得分添加进去
-        scoresList.addAll(fullScoreArr);
+        if(fullScoreArr.size() > 0){
+            scoresList.addAll(fullScoreArr);
+        }
         for (Scores score : scoresList) {
             //检查专家该项评分存不存在
             if (teacherMapper.check(score.getExpertID(),score.getActivityID(),score.getParticipantID(),score.getScoreItemID()) > 0) {
@@ -137,6 +165,10 @@ public class TeacherService implements UserDetailsService{
                 }
 
             } else {
+                //为空就不插入
+                if(score.getScore() == null){
+                    continue;
+                }
                 //没有就插入该评分
                 int insert = scoresMapper.insertScore(score.getExpertID(),score.getActivityID(),
                         score.getParticipantID(),score.getScoreItemID(),score.getScore());
@@ -151,7 +183,6 @@ public class TeacherService implements UserDetailsService{
             }
 
         }
-
         reentrantLock.lock();
         for (int i = 0;i < arr.size();i ++){
             try {//开始算

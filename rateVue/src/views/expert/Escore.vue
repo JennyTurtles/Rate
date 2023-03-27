@@ -66,7 +66,6 @@
             <el-button
                 icon="el-icon-refresh"
                 type="primary"
-                :disabled="datalist.finished == true"
                 @click="refreshact(false)"
             >
               刷新</el-button
@@ -476,7 +475,7 @@ export default {
       window.open(url, "_parent");
     },
     uploadButton(){
-      this.$confirm('系统将使用excel里的数据覆盖浏览器界面上的数据，而不会融合两者的数据。请确保excel文件里包含所有评分',{
+      this.$confirm('请注意计算好学生的总评分再导入，无总评分的行将被认为未评分。系统将使用excel里的数据覆盖浏览器界面上的数据，而不会融合两者的数据。请确保excel文件里包含所有评分。',{
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
@@ -487,24 +486,33 @@ export default {
     },
     async onSuccess(res) {
       if (res.msg === "success") {
-        Message.success("数据导入成功！");
-        sessionStorage.removeItem("score")
-        this.initAct()
-        // this.datalist = JSON.parse(sessionStorage.getItem("score"))
-        // this.datalist = this.datal
-        if(this.successTimer){
-          this.successTimer = null
-        }
-        this.successTimer = setTimeout(()=>{
-          this.datalist = this.datal
-          // this.initState();
-        },300)
+        this.$confirm('您的评分已保存到数据库，为确保无误，请核对网页上显示的分数以及导出的pdf文件中的分数与上传的excel文件中分数是否一致，谢谢！',{
+          confirmButtonClass:'确认',
+          showCancelButton: false
+        })
       }else if(res.obj == '有分数超过满分！'){
         Message.error(`${res.obj}请重新上传！`);
-      } else {
+        return;
+      } else if(res.msg === "fail"){
         Message.error("导入失败，请检查文件格式！");
+        return;
+      }else if(res.msg === 'nullRow'){
+        var nullarr = res.obj.split(',')
+        this.$confirm(`部分学生由于无完整的分数，系统认为未评分，请确认。如果有误，请将分数填写完整重新上传。
+            第${nullarr}行,共计${nullarr.length - 1}个学生未评分，请确认。`,{
+          confirmButtonClass:'确认',
+          showCancelButton: false
+        })
       }
-      // this.initAct();
+      sessionStorage.removeItem("score")
+      this.initAct()
+      if(this.successTimer){
+        this.successTimer = null
+      }
+      this.successTimer = setTimeout(()=>{
+        this.datalist = this.datal
+        // this.initState();
+      },300)
     },
     Upload() {
       this.loading = true;
@@ -798,6 +806,9 @@ export default {
         // this.$store.commit('INIT_initchangeList',false)
         // this.$store.state.changeList = false
         this.$store.dispatch("initchangeList");
+      }
+      if(this.datalist.finished){//提交了
+        this.watchFinished()
       }
       if (auto === false) {
         Message.success("刷新成功！");
