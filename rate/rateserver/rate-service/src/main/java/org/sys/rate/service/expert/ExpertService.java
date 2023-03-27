@@ -183,8 +183,7 @@ public class ExpertService implements UserDetailsService {
 	}
 
 	public boolean updatePasswd(Integer id, String password) {
-//		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-//		password = encoder.encode(password.substring(12, 18));
+		password = password.substring(12, 18);
 		int result = expertsMapper.updatePasswd(id, sh1(password));
 		if (result == 1) {
 			return true;

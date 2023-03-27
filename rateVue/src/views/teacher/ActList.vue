@@ -93,19 +93,6 @@ export default {
     // new Promise((resolve, reject) => {
     this.$store.dispatch('initsize',this.user.id).then(()=>{
       this.tablelist = JSON.parse(sessionStorage.getItem("peract")).activitiesList
-      for(var i = 0;i < this.tablelist.length; i++){
-        var time = new Date(this.tablelist[i].activityLists[0].startDate)
-        var year = time.getFullYear()
-        var month = time.getMonth() + 1
-        var date = time.getDate()
-        if(month < 10){
-          month = "0" + month
-        }
-        if(date < 10){
-          date = "0" + date
-        }
-        this.tablelist[i].activityLists[0].startDate = year + "-" + month + "-" + date
-      }
     })
   },
   methods: {
