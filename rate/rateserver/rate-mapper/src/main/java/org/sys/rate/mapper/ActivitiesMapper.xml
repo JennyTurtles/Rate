@@ -4,7 +4,7 @@
     <resultMap id="BaseResultMap" type="org.sys.rate.model.Activities">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="ACname" property="name" jdbcType="VARCHAR"/>
-        <result column="startDate" property="startDate" jdbcType="DATE"/>
+        <result column="startDate" property="startDate" jdbcType="TIMESTAMP"/>
         <result column="scoreItemCount" property="scoreItemCount" jdbcType="INTEGER"/>
         <result column="score" property="score" jdbcType="DOUBLE"/>
         <result column="groupCount" property="groupCount" jdbcType="INTEGER"/>
@@ -97,7 +97,7 @@
     <insert id="insert" parameterType="org.sys.rate.model.Activities">
         insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID
         )
-        values  (#{name,jdbcType=VARCHAR}, #{startDate,jdbcType=DATE}, #{scoreItemCount,jdbcType=INTEGER},
+        values  (#{name,jdbcType=VARCHAR}, #{startDate,jdbcType=TIMESTAMP}, #{scoreItemCount,jdbcType=INTEGER},
                 #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER});
         insert into scoreitem (activityID,name,score,coef,byExpert)
         values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'活动得分',100,1,true)
