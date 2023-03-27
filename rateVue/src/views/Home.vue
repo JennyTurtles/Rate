@@ -7,7 +7,7 @@
           <el-dropdown class="userInfo" @command="commandHandler">
             <span class="el-dropdown-link"> 您好，{{ user.name }}<a v-show=" user.role.indexOf('3') !== -1 ||user.role.indexOf('4') !== -1 ||user.role.indexOf('8') !== -1 ||user.role.indexOf('9') !== -1">老师</a> </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="userinfo">个人中心</el-dropdown-item>
+              <el-dropdown-item command="userinfo">修改密码</el-dropdown-item>
               <!--                            <el-dropdown-item command="setting">设置</el-dropdown-item>-->
               <el-dropdown-item command="logout" divided
               >注销登录</el-dropdown-item
@@ -90,6 +90,7 @@
 
 <script>
 import {Message} from "element-ui";
+import sha1 from "sha1";
 
 export default {
   name: "Home",
@@ -179,7 +180,36 @@ export default {
           });
         });
       } else if (cmd == "userinfo") {
-        this.$router.push("/hrinfo");
+        // this.$router.push("/hrinfo"); // 个人中心还没做
+        let user = JSON.parse(localStorage.getItem("user"));
+        console.log(user);
+        // 弹出一个框用于修改密码
+        this.$prompt("请输入新密码", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+        })
+            .then(({ value }) => {
+              this.$confirm("将密码修改为："+value, "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning",
+              }).then(() => {
+                this.postRequest("/system/config/updatePassword?ID="+user.id+"&password="+sha1(value)).then((res) => {
+                  if (res) {
+                    this.$message({
+                      type: "success",
+                      message: "修改成功!",
+                    });
+                  }
+                });
+              })
+            })
+            .catch(() => {
+              this.$message({
+                type: "info",
+                message: "已取消操作",
+              });
+            });
       }
     },
   },

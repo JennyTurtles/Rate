@@ -220,6 +220,15 @@
                 plain
             >退回评分
             </el-button>
+            <el-button
+                @click="Delete_ExActivity(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-refresh-right"
+                type="danger"
+                plain
+            >删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -480,6 +489,15 @@ export default {
   methods: {
 
     Delete_ExActivity(si) {
+      console.log(si)
+      if (si.finished)
+      {
+        this.$message({
+          type: "info",
+          message: "无法删除评分已提交的专家",
+        });
+        return;
+      }
       this.$confirm("此操作将永久删除【" + si.name + "】, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",

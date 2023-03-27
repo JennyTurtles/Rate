@@ -12,8 +12,6 @@ import cn.hutool.core.bean.BeanUtil;
 public class LoginService {
     @Autowired
     private LoginMapper loginMapper;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     public LoginInf login(LoginInf loginInf)
     {
@@ -48,5 +46,9 @@ public class LoginService {
     private boolean check(String targetPassword, String truePassword){
 //        return passwordEncoder.matches(targetPassword,truePassword); // 后端不再进行加密
         return targetPassword.equals(truePassword);
+    }
+
+    public int updatePassword(Integer ID, String password) {
+        return loginMapper.updatePassword(ID,password);
     }
 }

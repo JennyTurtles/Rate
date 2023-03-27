@@ -1,15 +1,16 @@
 package org.sys.rate.controller.config;
 
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
 import org.sys.rate.model.Account;
 import org.sys.rate.model.Menu;
 import org.sys.rate.model.Msg;
+import org.sys.rate.model.RespBean;
+import org.sys.rate.service.LoginService;
 import org.sys.rate.service.admin.MenuService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,9 @@ import java.util.List;
 public class SystemConfigController {
     @Autowired
     MenuService menuService;
+    @Resource
+    LoginService loginService;
+
     @GetMapping("/menu")
     public Msg getMenusByAdminId(Integer id, String role) {
         List<Menu> res=menuService.getMenusByAdminId(id,role);
@@ -47,5 +51,11 @@ public class SystemConfigController {
 
     @GetMapping("/logout")
     public void logout() {
+    }
+
+    // 接受前端POST的密码，修改密码
+    @PostMapping("/updatePassword")
+    public RespBean updatePassword(@RequestParam Integer ID,@RequestParam String password) {
+        return RespBean.ok("修改成功",loginService.updatePassword(ID,password));
     }
 }
