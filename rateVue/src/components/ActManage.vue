@@ -633,19 +633,6 @@ export default {
           console.log(resp.data[4].startDate)
           this.loading = false;
           if (resp) {
-            for(var i = 0;i < resp.data.length; i++){
-              var time = new Date(resp.data[i].startDate)
-              var year = time.getFullYear()
-              var month = time.getMonth() + 1
-              var date = time.getDate()
-              if(month < 10){
-                month = "0" + month
-              }
-              if(date < 10){
-                date = "0" + date
-              }
-              resp.data[i].startDate = year + "-" + month + "-" + date
-            }
             this.emps = resp.data;
             this.total = resp.total;
           }
@@ -655,19 +642,6 @@ export default {
         this.getRequest("/secretary/getAct?teacherID="+id).then((resp)=>{
           this.loading = false;
           if (resp) { // 后续再包装成函数
-            for(var i = 0;i < resp.obj.length; i++){
-              var time = new Date(resp.obj[i].startDate)
-              var year = time.getFullYear()
-              var month = time.getMonth() + 1
-              var date = time.getDate()
-              if(month < 10){
-                month = "0" + month
-              }
-              if(date < 10){
-                date = "0" + date
-              }
-              resp.obj[i].startDate = year + "-" + month + "-" + date
-            }
             this.emps = resp.obj;
             this.total = this.emps.length;
           }
