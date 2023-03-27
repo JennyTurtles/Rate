@@ -399,7 +399,7 @@ export default {
         id: null,
         institutionID: null,
         name: null,
-        startDate: "2022/02/02",
+        startDate: "",
         scoreItemCount: "0",
         score: "100",
         groupCount: "0",
@@ -630,8 +630,7 @@ export default {
       if (this.mode === "admin"){ // 管理员活动管理
         let url = "/activities/basic/?page=" + this.page + "&size=" + this.size + "&institutionID=" + this.user.institutionID;
         this.getRequest(url).then((resp) => {
-          console.log("Res")
-          console.log(resp)
+          console.log(resp.data[4].startDate)
           this.loading = false;
           if (resp) {
             for(var i = 0;i < resp.data.length; i++){
