@@ -126,7 +126,7 @@
 
     <update id="update" parameterType="org.sys.rate.model.Activities">
         UPDATE activities SET name=#{name,jdbcType=VARCHAR},
-                              startDate=#{startDate,jdbcType=DATE},
+                              startDate=#{startDate,jdbcType=TIMESTAMP},
                               scoreItemCount=#{scoreItemCount,jdbcType=INTEGER},
                                comment=#{comment,jdbcType=VARCHAR}
         where id=#{id,jdbcType=INTEGER}

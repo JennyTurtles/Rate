@@ -282,16 +282,6 @@
               placeholder="请输入单位名称"
           ></el-input>
         </el-form-item>
-<!--        <el-form-item label="开始日期:" prop="startDate">-->
-<!--          <el-input-->
-<!--              size="mini"-->
-<!--              style="width: 200px"-->
-<!--              prefix-icon="el-icon-edit"-->
-<!--              v-model="emp.startDate"-->
-<!--              type="date"-->
-<!--              placeholder="开始日期"-->
-<!--          ></el-input>-->
-<!--        </el-form-item>-->
         <el-form-item label="开始时间:" prop="startDate">
           <div class="block">
             <el-date-picker
@@ -595,7 +585,6 @@ export default {
           }
         });
       } else { //添加活动
-        console.log(this.emp)
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
@@ -630,7 +619,6 @@ export default {
       if (this.mode === "admin"){ // 管理员活动管理
         let url = "/activities/basic/?page=" + this.page + "&size=" + this.size + "&institutionID=" + this.user.institutionID;
         this.getRequest(url).then((resp) => {
-          console.log(resp.data[4].startDate)
           this.loading = false;
           if (resp) {
             this.emps = resp.data;
@@ -669,7 +657,6 @@ export default {
             this.total = this.emps.length
           })
         })
-
       }
 
     },
