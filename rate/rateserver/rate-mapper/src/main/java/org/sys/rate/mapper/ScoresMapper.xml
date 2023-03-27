@@ -21,8 +21,8 @@
     <update id="updateScore" >
         update scores
         <trim prefix="SET" suffixOverrides=",">
-            <if test="score == 0">score = null,</if>
-            <if test="score != 0">score = #{score},</if>
+            <if test="score == null">score = null,</if>
+            <if test="score != null">score = #{score},</if>
         </trim>
         where expertID=#{expertID,jdbcType=INTEGER} and activityID=#{activityID,jdbcType=INTEGER} and participantID=#{participantID,jdbcType=INTEGER} and scoreItemID=#{scoreItemID,jdbcType=INTEGER}
     </update>

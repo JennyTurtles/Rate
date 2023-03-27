@@ -1029,7 +1029,11 @@ public class POIUtils {
             ScoreItem sitem = scoreItems.get(i);
             HSSFCell col = r1.createCell(i+3+infoItemsShow.size());
             col.setCellStyle(headerStyle);
-            col.setCellValue(sitem.getName());
+            if(sitem.getName().equals("活动得分")){
+                col.setCellValue("总评分");
+            }else {
+                col.setCellValue(sitem.getName());
+            }
         }
         for (int i = 0; i < participatesL.size(); i++) {
             Participates emp = participatesL.get(i);
@@ -1082,8 +1086,9 @@ public class POIUtils {
         System.out.println(cell.getNumericCellValue());
     }
 
-    public static RespPageBean readExcel_rate(MultipartFile file) {
+    public static Msg readExcel_rate(MultipartFile file,List<ScoreItem> scoreItemsByE) {
         List<Map<String, String>> rateList = new ArrayList<>();
+        ArrayList nullRow = new ArrayList();
         try {//1. 创建一个 workbook 对象
             HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
             //2. 获取 workbook 中表单的数量
@@ -1091,14 +1096,20 @@ public class POIUtils {
             for (int i = 0; i < numberOfSheets; i++) {//3. 获取表单
                 HSSFSheet sheet = workbook.getSheetAt(i);//4. 获取表单中的行数
                 int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
-                int Cells = sheet.getRow(1).getPhysicalNumberOfCells();
+                int Cells = sheet.getRow(1).getPhysicalNumberOfCells();//获取列数
                 HashMap<Integer, String> tableNameMap = new HashMap<>();
                 for(int m = 0; m < Cells; m++)
                 {
                     if(sheet.getRow(1).getCell(m).getStringCellValue()!=null)
                         tableNameMap.put(m,sheet.getRow(1).getCell(m).getStringCellValue());
                 }
+                //总分是否为空的标志
+                boolean fullScoreFlage;
+                //除了总分之外是否为空的标志
+                boolean scoreFlage;
                 for (int j = 0; j < physicalNumberOfRows; j++) {//5. 跳过标题行
+                    fullScoreFlage = false;
+                    scoreFlage = false;
                     Map<String,String> rowList = new HashMap<>();
                     if (j == 0 || j==1) {
                         continue;//跳过标题行//获得表头，为后续对应位置
@@ -1108,27 +1119,44 @@ public class POIUtils {
                         continue;//防止数据中间有空行
                     }//7. 获取列数
 //                    int physicalNumberOfCells = row.getPhysicalNumberOfCells();
-
-                    for (int k = 0; k < Cells; k++) {
+                    for (int k = 0; k <Cells; k ++) {
                         HSSFCell cell = row.getCell(k);
+                        if(tableNameMap.get(k).equals("总评分")){
+                            //活动得分为空并且别的评分项也有空值,不存数据库
+                            if(cell == null && scoreFlage){
+                                nullRow.add(j);
+                                fullScoreFlage = true;
+                                break;
+                                //j是行数
+                            }else if(cell == null && !scoreFlage){//专家疏忽，仍然需要存进去
+                                rowList.put(tableNameMap.get(k), "0");
+                                continue;
+                            }
+                        }
                         if (cell!=null) {
                             cell.setCellType(CellType.STRING);
                             String cellValue = cell.getStringCellValue();
                             rowList.put(tableNameMap.get(k), cellValue);
                         }else{
-                            rowList.put(tableNameMap.get(k), null);
+                            if(!tableNameMap.get(k).equals("总评分")){
+                                scoreFlage = true;
+                                rowList.put(tableNameMap.get(k), "0");
+                            }
+                        }
+                    }
+                    //专家对这个选手没打分,设置为null
+                    if(fullScoreFlage){
+                        for (int k = 0; k < scoreItemsByE.size(); k++) {
+                            rowList.put(scoreItemsByE.get(k).getName(), null);
                         }
                     }
                     rateList.add(rowList);
                 }
-                System.out.println(rateList);
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        RespPageBean bean=new RespPageBean();
-        bean.setData(rateList);
-        return bean;
+        return Msg.success().add("rateList",rateList).add("nullRow",nullRow);
     }
 }

@@ -135,7 +135,11 @@ public class PDFUtils {
                 for (Scores scoreL : scoresList) {
                     if (scoreL.getScoreItemID().equals(sitem.getId()) && scoreL.getParticipantID().equals(emp.getID())) {
                         if (scoreL.getScore()!=null) {
-                            tableData[3+infoItemsShow.size()+j] = scoreL.getScore() + "";
+                            if(scoreL.getExpertID() != null){
+                                tableData[3+infoItemsShow.size()+j] = scoreL.getScore() + "";
+                            }else {
+                                tableData[3+infoItemsShow.size()+j] = "";
+                            }
                         }
 //                        break;
                     }
