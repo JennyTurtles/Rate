@@ -202,18 +202,18 @@
             >{{text}}导出专家打分
             </el-button
             >
-<!--            <el-button-->
-<!--                @click="exportAc(scope.row)"-->
-<!--                v-show="mode==='admin'"-->
-<!--                :loading="loading"-->
-<!--                style="padding: 4px"-->
-<!--                size="mini"-->
-<!--                icon="el-icon-plus"-->
-<!--                type="primary"-->
-<!--                plain-->
-<!--            >导出选手分数-->
-<!--            </el-button-->
-<!--            >-->
+            <!--            <el-button-->
+            <!--                @click="exportAc(scope.row)"-->
+            <!--                v-show="mode==='admin'"-->
+            <!--                :loading="loading"-->
+            <!--                style="padding: 4px"-->
+            <!--                size="mini"-->
+            <!--                icon="el-icon-plus"-->
+            <!--                type="primary"-->
+            <!--                plain-->
+            <!--            >导出选手分数-->
+            <!--            </el-button-->
+            <!--            >-->
             <el-button
                 @click="showFinalScore(scope.row)"
                 v-show="mode==='admin'"
