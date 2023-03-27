@@ -498,8 +498,30 @@ export default {
         return;
       }else if(res.msg === 'nullRow'){
         var nullarr = res.obj.split(',')
+        nullarr.pop()
+        nullarr = nullarr.map(item=>{
+          if(item != ','){
+            return parseInt(item)
+          }
+        })
+        nullarr.push(-1)
+        var preFlag = 0
+        var str = ''
+        var addFlag = 0
+        for(var i = 0;i < nullarr.length - 1;i ++){
+          if(nullarr[i + 1] - nullarr[i] === 1 && addFlag == 0){
+            preFlag = i
+            addFlag = 1
+          }else if(addFlag == 1 && nullarr[i + 1] - nullarr[i] !== 1){//可以添加进去了
+            str += nullarr[preFlag] + '-' + nullarr[i] + ','
+            addFlag = 0
+          }else if(addFlag == 0 && nullarr[i + 1] - nullarr[i] !== 1){
+            str += nullarr[i] + ','
+          }
+        }
+        str = str.substr(0,str.length - 1)
         this.$confirm(`部分学生由于无完整的分数，系统认为未评分，请确认。如果有误，请将分数填写完整重新上传。
-            序号为${nullarr}的共计${nullarr.length - 1}个学生未评分，请确认。`,{
+            序号为${str}的共计${nullarr.length - 1}个学生未评分，请确认。`,{
           confirmButtonClass:'确认',
           showCancelButton: false
         })
