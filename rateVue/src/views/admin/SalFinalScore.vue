@@ -107,6 +107,7 @@ export default {
   name: "SalFinalScore",
   data() {
     return{
+      flag:0,
       groupName: '',
       title: '',
       labelPosition: "left",
@@ -139,6 +140,7 @@ export default {
     this.keywords_name = this.$route.query.keyword_name;
     this.mode = this.$route.query.mode;
     this.groupName = this.$route.query.groupName;
+    this.flag = this.$route.query.flag;
     this.initEmps();
   },
   methods: {
@@ -152,7 +154,6 @@ export default {
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
-          console.log(resp)
           this.emps = resp.data;
           this.total = resp.total;
           for(var name in resp.data){
@@ -186,7 +187,7 @@ export default {
           if (typeof this.groupName === "undefined"){ // 此时是从活动管理进入的
             url = "/ActivitM/search"
           }else{ // 此时是从分组管理中进入的
-            url = "/ActivitM/table"
+            url = this.flag ? "/ActivitM/score" : "/ActivitM/table" // flag为1时是从评分进入的
             query = {
               keywords: this.keywords,
               keyword_name: this.keywords_name,
@@ -213,7 +214,6 @@ export default {
     exportScore(){
       this.loading=true;
       Message.success("正在导出");
-      console.log(this.groupName)
       var url = ''
       if (typeof this.groupName === 'undefined')
         url = '/participants/basic/export_ac?activityID=' + this.keywords;

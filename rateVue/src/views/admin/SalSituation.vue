@@ -127,6 +127,7 @@
                 tabClickLabel: "", // 当前点击的列名
                 keywords: "",
                 isFinished: false,
+                flag: 0,
                 activitydata: [],
                 keywords_name: "",
                 expertName:"",
@@ -238,7 +239,7 @@
             this.expertName = this.$route.query.expertName;
             this.institutionID = this.$route.query.institutionID;
             this.isFinished = this.$route.query.isFinished;
-            console.log(this.isFinished);
+            this.flag = this.$route.query.flag;
             this.mode = this.$route.query.mode;
             this.initSituation();
             this.initData();
@@ -370,7 +371,8 @@
                             keyword_name: this.ACNAME,
                             keywords_name: this.keywords_name,
                             groupID: this.groupID,
-                            mode: this.mode
+                            mode: this.mode,
+                            flag: this.flag,
                         }
                     });
             },

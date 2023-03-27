@@ -504,6 +504,7 @@ export default {
         query: {
           keywords: data.id,
           keyword_name: data.name,
+          mode:this.mode
         },
       });
     },
@@ -759,7 +760,7 @@ export default {
         query: {
           keywords: data.id,
           keyword_name: data.name,
-          mode:this.mode, // 修改
+          mode:this.mode,
         },
       });
     },

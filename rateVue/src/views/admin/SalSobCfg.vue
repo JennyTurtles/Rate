@@ -1,8 +1,15 @@
 <template>
   <div>
-    {{ ACNAME }}活动 {{ keywords_name }} 专家名单
+    <div style="display: flex; justify-content: left">
+    {{ ACNAME }}活动 {{ keywords_name }} <a v-show="flag===0">专家名单</a> <a v-show="flag==1">专家打分</a>
+      <div style="margin-left: auto">
+        <el-button icon="el-icon-back" type="primary" @click="back">
+          返回
+        </el-button>
+      </div>
+    </div>
     <div style="display: flex; justify-content: left;margin-top:10px">
-      <div>
+      <div v-if="flag==0">
         <span v-show="mode==='admin'" style="font-weight:600;">导入新数据</span> <a v-show="mode==='admin'">第一步：</a>
         <el-button v-show="mode==='admin'"
             type="primary"
@@ -31,12 +38,10 @@
             {{ importDataBtnText }}
           </el-button>
         </el-upload>
-        <el-button icon="el-icon-back" type="primary" @click="back" style="margin-right: 10px">
-          返回
-        </el-button>
       </div>
+
     </div>
-    <div v-show="mode==='admin'"><br/>专家导入后的初始用户名为手机号，密码为身份证后六位<br/>单元格中内容双击后可编辑</div>
+    <div v-show="mode==='admin' && flag == 0"><br/>专家导入后的初始用户名为手机号，密码为身份证后六位<br/>单元格中内容双击后可编辑</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -56,7 +61,7 @@
             <el-input
                 v-if="
                   scope.row.index === tabClickIndex &&
-                  tabClickLabel === '专家姓名'
+                  tabClickLabel === '专家姓名' && flag==0
                 "
                 v-focus
                 v-model.trim="scope.row.name"
@@ -71,6 +76,7 @@
           </template>
         </el-table-column>
         <el-table-column
+            v-if="flag==0"
             prop="idnumber"
             label="证件号码"
             align="center"
@@ -117,7 +123,7 @@
           <template slot-scope="scope">
             <el-input
                 v-if="
-                  scope.row.index === tabClickIndex && tabClickLabel === '电话'
+                  scope.row.index === tabClickIndex && tabClickLabel === '电话' && flag==0
                 "
                 v-focus
                 v-model.trim="scope.row.phone"
@@ -134,7 +140,7 @@
           <template slot-scope="scope">
             <el-input
                 v-if="
-                  scope.row.index === tabClickIndex && tabClickLabel === '邮箱'
+                  scope.row.index === tabClickIndex && tabClickLabel === '邮箱' && flag==0
                 "
                 v-focus
                 v-model.trim="scope.row.email"
@@ -148,7 +154,7 @@
           </template>
         </el-table-column>
         <el-table-column
-            v-if="mode === 'admin'"
+            v-if="mode === 'admin' && flag == 0"
             prop="role"
             label="角色设置"
             align="center"
@@ -185,6 +191,7 @@
         <el-table-column align="center" min-width="10%" label="操作">
           <template slot-scope="scope">
             <el-button
+                v-if="flag==0"
                 @click="reset_password(scope.row)"
                 style="padding: 4px"
                 size="mini"
@@ -358,6 +365,7 @@ export default {
   name: "SalSobCfg",
   data() {
     return {
+      flag:0,
       //当前焦点数据
       currentfocusdata: "",
       currentrole:"",
@@ -466,6 +474,7 @@ export default {
     this.groupID = this.$route.query.groupID;
     this.ACNAME = this.$route.query.keywords_name;
     this.mode = this.$route.query.mode;
+    this.flag = this.$route.query.flag == 1 ? 1 : 0;
     this.initHrs();
   },
   methods: {
@@ -537,6 +546,7 @@ export default {
           institutionID:this.user.institutionID,
           isFinished:data.finished,
           mode:this.mode,
+          flag:this.flag,
         },
       });
     },
@@ -607,11 +617,10 @@ export default {
       this.hrs.push(obj);
     },
     back() {
-      console.log(this.mode)
       const _this = this;
       if (this.mode === "admin"){
         _this.$router.push({
-          path: "/ActivitM/table",
+          path: this.flag ? "/ActivitM/score" : "/ActivitM/table",
           query: {
             keywords: this.keywords,
             keyword_name: this.ACNAME,
