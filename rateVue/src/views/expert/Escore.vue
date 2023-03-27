@@ -608,7 +608,6 @@ export default {
       return "text-align:center";
     },
     initState() {
-      console.log(this.datalist)
       let par = this.datalist.participatesList.length;
       let score = this.datalist.scoreitems.length;
       let scoreNoExpert = this.datalist.scoresListNoExpert.length;

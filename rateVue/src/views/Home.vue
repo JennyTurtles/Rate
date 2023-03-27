@@ -278,7 +278,7 @@ export default {
   color: #333;
   border-radius: 10px;
   margin-left: 0.25%;
-  box-shadow: 15px 0 15px -15px rgb(119, 117, 117),
+  /*box-shadow: 15px 0 15px -15px rgb(119, 117, 117)*/
   /* 0px 15px 15px -15px rgb(119, 117, 117), */
   /* 0px 15px 15px -15px rgb(119, 117, 117); */
 }
