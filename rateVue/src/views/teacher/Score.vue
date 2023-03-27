@@ -293,8 +293,7 @@ export default {
   inject: ["reload"],
   data() {
     return {
-      // list:{},
-      // datal:'',
+      successTimer:null,
       Aname: "",
       groupName: "",
       Adata: {
@@ -738,13 +737,10 @@ export default {
     refreshact(auto) {
       this.initAct();
       // this.$store.dispatch("initAct", this.Adata);
-      // console.log(this.$store.state.changeList)
       if (this.$store.state.changeList === true) {
-        this.clear();
+        // this.clear();
         this.datalist = this.datal
         // this.reload();
-        // this.$store.commit('INIT_initchangeList',false)
-        // this.$store.state.changeList = false
         this.$store.dispatch("initchangeList");
       }
       if(this.datalist.finished){//提交了
@@ -832,7 +828,7 @@ export default {
         if(this.datalist.finished){//提交了
           this.watchFinished()
         }
-      }, 120000);
+      }, 2000);
     },
     // 停止定时器
     clear() {
