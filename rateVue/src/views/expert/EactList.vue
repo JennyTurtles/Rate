@@ -24,36 +24,36 @@
         >
         </el-table-column>
         <el-table-column align="center" min-width="150px" label="操作">
-          <template slot-scope="scope">
-            <el-button
-              @click="showEnterView(scope.row, scope.$index)"
-              style="padding: 4px"
-              type="primary"
-              icon="el-icon-edit"
-              v-if="scope.row.activityLists[0].status == 'open' && (scope.row.seconds <= 30 * 60)"
+          <template slot-scope="scope" >
+              <el-button
+                  @click="showEnterView(scope.row, scope.$index)"
+                  style="padding: 4px"
+                  type="primary"
+                  icon="el-icon-edit"
+                  v-if="scope.row.activityLists[0].status == 'open' && (scope.row.seconds <= 30 * 60)"
               >进入</el-button
-            >
-            <template v-else-if="scope.row.activityLists[0].status == 'open' &&
+              >
+              <template v-else-if="scope.row.activityLists[0].status == 'open' &&
                                 (scope.row.seconds > 30 * 60) && (scope.row.seconds <= 60 * 60)">
-              <span>还剩{{scope.row.remainder}}</span>
-              <el-button
-                  style="padding: 4px;margin-left: 6px"
-                  type="primary"
-                  icon="el-icon-edit"
-                  :disabled="true"
-              >进入</el-button
-              >
-            </template>
-            <template v-else-if="scope.row.activityLists[0].status != 'open'">
-              <el-button
-                  style="padding: 4px;"
-                  type="primary"
-                  icon="el-icon-edit"
-                  disabled
-                  title="该活动未在进行时间范围内"
-              >进入</el-button
-              >
-            </template>
+                <span>还剩{{scope.row.remainder}}</span>
+                <el-button
+                    style="padding: 4px;margin-left: 6px"
+                    type="primary"
+                    icon="el-icon-edit"
+                    :disabled="scope.row.isShow"
+                >进入</el-button
+                >
+              </template>
+              <template v-else-if="scope.row.activityLists[0].status != 'open'">
+                <el-button
+                    style="padding: 4px;"
+                    type="primary"
+                    icon="el-icon-edit"
+                    disabled
+                    title="该活动未在进行时间范围内"
+                >进入</el-button
+                >
+              </template>
           </template>
         </el-table-column>
       </el-table>
@@ -99,7 +99,7 @@ export default {
   },
   created() {
     this.$store.dispatch('initsize',JSON.parse(localStorage.getItem('user')).id).then(()=>{
-      this.tablelist = this.tableDataHandle();
+      this.tablelist = this.tableDataHandle()
     })
   },
   computed: {
@@ -112,7 +112,7 @@ export default {
     if(this.timer == null){
       this.timer = setInterval(()=>{
         that.nowTime = new Date()
-        that.tablelist = that.tableData
+        that.tablelist = this.tableData
       },1000)
     }
   },
@@ -124,18 +124,18 @@ export default {
   methods: {
     tableDataHandle(){
       var temp = JSON.parse(sessionStorage.getItem("peract")).activitiesList
-      let flage = []
       for(var i = 0;i < temp.length; i++){
         var time = new Date(temp[i].activityLists[0].startDate)
         let time1 = time.getTime()
         let time2 = this.nowTime.getTime()
+        temp[i].isShow = true
         if((time1 - time2) / (1000) < 0){//已经开始了
           temp[i].seconds = 0
           temp[i].remainder = ''
           continue;
         }
         if((time1 - time2) / (60 * 60 * 1000) > 1){//大于一个小时
-          flage.push(i)
+          temp[i].isShow = false
           continue;
         }
         temp[i].remainder = ''
@@ -155,10 +155,13 @@ export default {
         }
         temp[i].seconds = Math.floor((time1 - time2) / 1000)
       }
-      for (let i = 0;i< flage.length;i++){
-        temp.splice(flage[i],1)
+      let newTemp = []
+      for(let j = 0;j < temp.length;j++){
+        if(temp[j].isShow){
+          newTemp.push(temp[j])
+        }
       }
-      return temp;
+      return newTemp;
     },
     //表头样式
     rowClass() {

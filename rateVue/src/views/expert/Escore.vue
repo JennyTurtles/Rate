@@ -367,7 +367,7 @@ export default {
           this.reload();
           // }
           this.fullscreenLoading = false;
-        }, 1500);
+        }, 1400);
       }
     },
     downloadInfoItems(data){//下载证明材料
@@ -841,7 +841,7 @@ export default {
         if(this.datalist.finished){//提交了
           this.watchFinished()
         }
-      }, 2000);
+      }, 120000);
     },
     // 停止定时器
     clear() {

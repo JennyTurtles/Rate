@@ -167,14 +167,13 @@ VueRouter.prototype.replace = function push (location, onResolve, onReject) {
 // //路由跳转之前
 // var timer
 router.beforeEach(  (to, from, next) => {
-    // console.log(to.path)
     if (to.path == '/Admin/Login' || to.path == '/Expert/Login' || to.path == '/' ||
         to.path == '/Student/Login' || to.path == '/Teacher/Login' || to.path == '/Student') {
         if(localStorage.getItem('user') || sessionStorage.getItem('initRoutes') || sessionStorage.getItem('initRoutes_AllSameForm')){
             store.commit('initRoutes',[])
             store.commit('initRoutesAllSameForm',[])
             store.commit('INIT_CURRENTHR',{})
-            localStorage.removeItem('initRoutes')
+            sessionStorage.removeItem('initRoutes')
             sessionStorage.removeItem('initRoutes_AllSameForm')
         }
         next()
@@ -195,13 +194,11 @@ router.beforeEach(  (to, from, next) => {
                 return
             }
                  initMenu(router,store).then((data)=>{
-                     console.log(to.path)
                      if(data.indexOf(to.path) == -1){
                          // Message.warning('无权限！请重新登录')
                          next('/')
                          return
                      }else {
-                         console.log('next')
                          next()
                      }
                 })
