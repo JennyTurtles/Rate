@@ -30,6 +30,7 @@
                   style="padding: 4px"
                   type="primary"
                   icon="el-icon-edit"
+                  :disabled="false"
                   v-if="scope.row.activityLists[0].status == 'open' && (scope.row.seconds <= 30 * 60)"
               >进入</el-button
               >
@@ -40,7 +41,7 @@
                     style="padding: 4px;margin-left: 6px"
                     type="primary"
                     icon="el-icon-edit"
-                    :disabled="scope.row.isShow"
+                    disabled
                 >进入</el-button
                 >
               </template>
@@ -112,8 +113,8 @@ export default {
     if(this.timer == null){
       this.timer = setInterval(()=>{
         that.nowTime = new Date()
-        that.tablelist = this.tableData
-      },1000)
+        that.tablelist = that.tableData
+      },3000)
     }
   },
   beforeDestroy(){
@@ -161,6 +162,7 @@ export default {
           newTemp.push(temp[j])
         }
       }
+      console.log(newTemp)
       return newTemp;
     },
     //表头样式
