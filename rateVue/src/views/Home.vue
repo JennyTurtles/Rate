@@ -164,9 +164,7 @@ export default {
             else
               url = "/"
           this.getRequest('/system/config/logout').then(()=>{
-            if(localStorage.getItem('teacher')){
-              localStorage.removeItem('teacher')
-            }
+
             if(localStorage.getItem('user')){
               localStorage.removeItem('user')
             }

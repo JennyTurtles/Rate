@@ -161,9 +161,6 @@
                         this.putRequest("/admin/pass", this.ruleForm).then(resp => {
                             if (resp) {
                               this.getRequest('/system/config/logout').then(()=>{
-                                if(localStorage.getItem('teacher')){
-                                  localStorage.removeItem('teacher')
-                                }
                                 if(localStorage.getItem('user')){
                                   localStorage.removeItem('user')
                                 }
