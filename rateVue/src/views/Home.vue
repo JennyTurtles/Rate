@@ -126,7 +126,6 @@ export default {
   },
   methods: {
     handleOpen(subItem) {
-      console.log("sss")
       if (this.role != JSON.parse(localStorage.getItem("user")).role || this.name != JSON.parse(localStorage.getItem("user")).name) {
         var url
         Message.warning('无权限！请重新登录')
@@ -138,13 +137,11 @@ export default {
           url = "/"
         this.$router.replace(url);
       }
-      if(subItem.name == '活动列表'){
-        // if(event.$route.path == '/teacher/tperact/actList'){
+      if(subItem.name == '活动列表' && subItem.path == '/teacher/tperact/actList'){
           let routeUrl = this.$router.resolve({
             path: "/Expert/peract/actList",
           })
           window.open(routeUrl.href)
-        // }
       }
     },
     changeFixed(clientHeight) {
