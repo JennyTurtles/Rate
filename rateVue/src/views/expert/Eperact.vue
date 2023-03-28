@@ -33,7 +33,7 @@ export default {
     }
   },
   created() {
-    this.teacher = JSON.parse(localStorage.getItem('teacher'))
+    this.teacher = JSON.parse(localStorage.getItem('user'))
   },
   mounted(){
   },
@@ -47,8 +47,8 @@ export default {
         })
           .then(() => {
             this.getRequest('/system/config/logout').then(()=>{
-              if(localStorage.getItem('teacher')){
-                localStorage.removeItem('teacher')
+              if(localStorage.getItem('user')){
+                localStorage.removeItem('user')
               }
               sessionStorage.removeItem('initRoutes')
               sessionStorage.removeItem('initRoutes_AllSameForm')

@@ -319,7 +319,6 @@ export default {
   },
   created() {
     this.dataRefreh();
-    // this.initPage();
   },
   computed: {
     list() {
@@ -334,54 +333,9 @@ export default {
       return this.$store.state.score;
     },
   },
-  // mounted() {
-  //   this.user = JSON.parse(localStorage.getItem("teacher"));
-  //   this.initdata();
-  //   this.$nextTick(() => {
-  //     this.windowScreenHeight = window.innerHeight - 210;
-  //   });
-  //   if (sessionStorage.getItem("score")) {
-  //     let initscore = JSON.parse(sessionStorage.getItem("score"));
-  //     this.datalist = initscore;
-  //   } else {
-  //     this.fullscreenLoading = true;
-  //     this.initAct();
-  //     setTimeout(() => {
-  //       this.datalist = this.datal;
-  //       this.initState();
-  //       sessionStorage.setItem("score", JSON.stringify(this.datalist));
-  //       // if (!this.datalist.finished) {
-  //       this.reload();
-  //       // }
-  //       this.fullscreenLoading = false;
-  //     }, 1500);
-  //   }
-  // },
   mounted() {
       this.initPage()
     },
-  // this.$nextTick(() => {
-  //   this.windowScreenHeight = window.innerHeight - 210;
-  // });
-  // this.user = JSON.parse(localStorage.getItem("teacher"));
-  //
-  // this.initdata();
-  // if (sessionStorage.getItem("score")) {
-  //   let initscore = JSON.parse(sessionStorage.getItem("score"));
-  //   this.datalist = initscore;
-  // } else {
-  //   this.fullscreenLoading = true;
-  //   this.initAct();
-  //   setTimeout(() => {
-  //     this.datalist = this.datal;
-  //     this.initState();
-  //     sessionStorage.setItem("score", JSON.stringify(this.datalist));
-  //     if (!this.datalist.finished) {
-  //       this.reload();
-  //     }
-  //     this.fullscreenLoading = false;
-  //   }, 700);
-  // }
   filters:{
     fileNameFilter:function(data){//将上传的材料显示出来
       if(data == null || data == ''){
@@ -394,7 +348,7 @@ export default {
   },
   methods: {
     async initPage(){
-      this.user = JSON.parse(localStorage.getItem("teacher"));
+      this.user = JSON.parse(localStorage.getItem("user"));
       this.initdata();
       this.$nextTick(() => {
         this.windowScreenHeight = window.innerHeight - 210;
@@ -415,31 +369,6 @@ export default {
           this.fullscreenLoading = false;
         }, 1500);
       }
-      // this.user = JSON.parse(localStorage.getItem("teacher"));
-      // this.$store.dispatch('initsize',this.user.id).then(()=>{
-      //   this.list = JSON.parse(sessionStorage.getItem("peract"));
-      //   this.initdata();
-      //   this.$nextTick(() => {
-      //     this.windowScreenHeight = window.innerHeight - 210;
-      //   });
-      //   if (sessionStorage.getItem("score")) {
-      //     let initscore = JSON.parse(sessionStorage.getItem("score"));
-      //     this.datalist = initscore;
-      //   } else {
-      //     this.fullscreenLoading = true;
-      //     this.initAct()
-      //     setTimeout(() => {
-      //       this.datalist = this.datal;
-      //       this.initState();
-      //       sessionStorage.setItem("score", JSON.stringify(this.datalist));
-      //       // if (!this.datalist.finished) {
-      //       this.reload();
-      //       // }
-      //       this.fullscreenLoading = false;
-      //       console.log(this.datalist.scoreitems)
-      //     }, 1500);
-      //   }
-      // })
     },
     downloadInfoItems(data){//下载证明材料
       const fileName = data.content.split('/').reverse()[0]

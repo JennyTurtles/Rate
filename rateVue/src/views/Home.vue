@@ -35,7 +35,7 @@
                   <!-- 第二层 -->
                   <template v-for="(subItem,indexSub) in item.children" v-if="subItem.enabled">
                     <!-- 如果第二层有子菜单，则继续循环 -->
-                    <el-menu-item :index="subItem.path" v-if="!subItem.children && subItem.enabled" :key="indexSub" class="submenu" @click="handleOpen">
+                    <el-menu-item :index="subItem.path" v-if="!subItem.children && subItem.enabled" :key="indexSub" class="submenu" @click="handleOpen(subItem)">
                       {{subItem.name}}
                     </el-menu-item>
                     <template v-else-if="subItem.enabled && subItem.children">
@@ -125,7 +125,8 @@ export default {
     },
   },
   methods: {
-    handleOpen() {
+    handleOpen(subItem) {
+      console.log("sss")
       if (this.role != JSON.parse(localStorage.getItem("user")).role || this.name != JSON.parse(localStorage.getItem("user")).name) {
         var url
         Message.warning('无权限！请重新登录')
@@ -136,6 +137,14 @@ export default {
         else
           url = "/"
         this.$router.replace(url);
+      }
+      if(subItem.name == '活动列表'){
+        // if(event.$route.path == '/teacher/tperact/actList'){
+          let routeUrl = this.$router.resolve({
+            path: "/Expert/peract/actList",
+          })
+          window.open(routeUrl.href)
+        // }
       }
     },
     changeFixed(clientHeight) {

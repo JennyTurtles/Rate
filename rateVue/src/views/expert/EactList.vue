@@ -62,10 +62,13 @@
 </template>
 
 <script>
+import {getRequest} from "@/utils/api";
+
 export default {
   name: "actList",
   data() {
     return {
+      tablelist:[],
       timer:null,
       nowTime:new Date(),
       title: "",
@@ -94,9 +97,33 @@ export default {
       ],
     };
   },
+  created() {
+    this.$store.dispatch('initsize',JSON.parse(localStorage.getItem('user')).id).then(()=>{
+      this.tablelist = this.tableDataHandle();
+    })
+  },
   computed: {
-    tablelist() {
-      var temp = JSON.parse(sessionStorage.getItem("activitiesList"))
+    tableData() {
+      return this.tableDataHandle()
+    },
+  },
+  mounted(){
+    let that = this
+    if(this.timer == null){
+      this.timer = setInterval(()=>{
+        that.nowTime = new Date()
+        that.tablelist = that.tableData
+      },1000)
+    }
+  },
+  beforeDestroy(){
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  },
+  methods: {
+    tableDataHandle(){
+      var temp = JSON.parse(sessionStorage.getItem("peract")).activitiesList
       let flage = []
       for(var i = 0;i < temp.length; i++){
         var time = new Date(temp[i].activityLists[0].startDate)
@@ -106,8 +133,7 @@ export default {
           temp[i].seconds = 0
           temp[i].remainder = ''
           continue;
-        }//6282
-        // console.log(time1 - time2)
+        }
         if((time1 - time2) / (60 * 60 * 1000) > 1){//大于一个小时
           flage.push(i)
           continue;
@@ -132,32 +158,7 @@ export default {
       for (let i = 0;i< flage.length;i++){
         temp.splice(flage[i],1)
       }
-      // console.log(temp)
       return temp;
-    },
-  },
-  mounted(){
-    let that = this
-    if(this.timer == null){
-      this.timer = setInterval(()=>{
-        that.nowTime = new Date()
-      },1000)
-    }
-  },
-  beforeDestroy(){
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-  },
-  methods: {
-    dataFormat(value){
-      var year = value.getFullYear();
-      var month = value.getMonth() + 1 < 10 ? "0" + (value.getMonth() + 1) : value.getMonth() + 1;
-      var day = value.getDate() < 10 ? "0" + value.getDate() : value.getDate();
-      var hours = value.getHours() < 10 ? "0" + value.getHours() : value.getHours();
-      var minutes = value.getMinutes() < 10 ? "0" + value.getMinutes() : value.getMinutes();
-      var seconds = value.getSeconds() < 10 ? "0" + value.getSeconds() : value.getSeconds();
-      return [year,month,day,hours,minutes,seconds];
     },
     //表头样式
     rowClass() {

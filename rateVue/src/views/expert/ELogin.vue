@@ -89,7 +89,7 @@ export default {
               this.initActivityList(response.obj);
               this.$store.commit("INIT_CURRENTHR",response.obj); //需要去掉
               localStorage.setItem(
-                  "teacher",
+                  "user",
                   JSON.stringify(response.obj)
               ); //存用户session
             }
