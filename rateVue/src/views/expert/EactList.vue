@@ -114,7 +114,7 @@ export default {
       this.timer = setInterval(()=>{
         that.nowTime = new Date()
         that.tablelist = that.tableData
-      },3000)
+      },1000)
     }
   },
   beforeDestroy(){
@@ -162,7 +162,6 @@ export default {
           newTemp.push(temp[j])
         }
       }
-      console.log(newTemp)
       return newTemp;
     },
     //表头样式
@@ -177,7 +176,6 @@ export default {
           keywords: index,
         },
       });
-      
     },
   },
 };
