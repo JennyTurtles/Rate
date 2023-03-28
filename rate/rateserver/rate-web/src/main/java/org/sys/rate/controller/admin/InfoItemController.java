@@ -172,11 +172,13 @@ public class InfoItemController {
             participatesID = participatesMapper.getParticipantsIDByAId(ID);
         else // 某个分组的选手
             participatesID = participatesMapper.getParticipantsIDByAIdAndGId(ID,groupID);
+        if (participatesID.size() == 0)
+            return Msg.success();
         List<InfoItem> infoItems = infoItemMapper.selectInfoItemByActivityId(ID,participatesID);
         return Msg.success().add("infoItems",infoItems);
     }
 
-    // 通过：信息项类型，信息项值对finalGroup筛选
+    // 通过信息项类型和信息项值对finalGroup筛选
     @GetMapping("/getFilteredFianlGroup")
     public RespPageBean getFilteredFianlGroup(@RequestParam("infoItemName") String infoItemName,
                                               @RequestParam("infoItemContent") List<String> infoItemValue,
