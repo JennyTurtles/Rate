@@ -85,6 +85,21 @@
         </el-main>
       </el-container>
     </el-container>
+<!--    一个对话框，让用户输入密码，并确认密码，输入的内容用*表示，"新密码"和"确认密码"靠左对齐-->
+    <el-dialog title="修改密码" :visible.sync="showPassword" width="30%">
+      <el-form :model="password" label-width="80px" >
+        <el-form-item label="新密码" >
+          <el-input type="password" v-model="password" placeholder="请输入新密码"></el-input>
+        </el-form-item>
+        <el-form-item label="确认密码">
+          <el-input type="password" v-model="password_confirm" placeholder="请再次输入新密码"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="showPassword = false">取 消</el-button>
+        <el-button type="primary" @click="submitPassword">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -101,6 +116,9 @@ export default {
       name:"",
       //获取页面高度
       clientHeight: "",
+      showPassword: false,
+      password: "",
+      password_confirm: "",
     };
   },
   computed: {
@@ -185,36 +203,61 @@ export default {
         });
       } else if (cmd == "userinfo") {
         // this.$router.push("/hrinfo"); // 个人中心还没做
-        let user = JSON.parse(localStorage.getItem("user"));
-        console.log(user);
-        // 弹出一个框用于修改密码
-        this.$prompt("请输入新密码", "提示", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-        })
-            .then(({ value }) => {
-              this.$confirm("将密码修改为："+value, "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning",
-              }).then(() => {
-                this.postRequest("/system/config/updatePassword?ID="+user.id+"&password="+sha1(value)).then((res) => {
-                  if (res) {
-                    this.$message({
-                      type: "success",
-                      message: "修改成功!",
-                    });
-                  }
-                });
-              })
-            })
-            .catch(() => {
-              this.$message({
-                type: "info",
-                message: "已取消操作",
-              });
-            });
+        // this.role = JSON.parse(localStorage.getItem("user")).role
+        this.showPassword = true
+        // this.$prompt("请输入新密码", "提示", {
+        //   confirmButtonText: "确定",
+        //   cancelButtonText: "取消",
+        // })
+        //     .then(({ value }) => {
+        //       this.$confirm("将密码修改为："+value, "提示", {
+        //         confirmButtonText: "确定",
+        //         cancelButtonText: "取消",
+        //         type: "warning",
+        //       }).then(() => {
+        //         this.postRequest("/system/config/updatePassword?ID="+user.id+"&password="+sha1(value)).then((res) => {
+        //           if (res) {
+        //             this.$message({
+        //               type: "success",
+        //               message: "修改成功!",
+        //             });
+        //           }
+        //         });
+        //       })
+        //     })
+        //     .catch(() => {
+        //       this.$message({
+        //         type: "info",
+        //         message: "已取消操作",
+        //       });
+        //     });
       }
+    },
+    submitPassword(){
+      if(this.password == '' || this.password_confirm == ''){
+        this.$message({
+          type: "warning",
+          message: "密码不能为空!",
+        });
+        return
+      }
+      if(this.password !== this.password_confirm){
+        this.$message({
+          type: "warning",
+          message: "两次密码不一致!",
+        });
+        return
+      }
+      this.postRequest("/system/config/updatePassword?ID="+this.user.id+"&password="+sha1(this.password)).then((res) => {
+        if (res) {
+          this.$message({
+            type: "success",
+            message: "修改成功!",
+          });
+          this.showPassword = false
+        }
+      });
+
     },
   },
 };
@@ -252,6 +295,9 @@ export default {
 
 .homeHeader .userInfo {
   cursor: pointer;
+}
+.el-form-item__label-wrap {
+  margin-left: 0px !important;
 }
 
 .homeContainer .aside {
