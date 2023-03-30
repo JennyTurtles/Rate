@@ -60,46 +60,46 @@
               </el-checkbox-group>
             </div>
           </el-popover>
-      <el-button type="primary" @click="showDialog = true" style="float: right;margin-right: 10px">求加权和</el-button>
-      <el-dialog
-          title="求加权和"
-          :visible.sync="showDialog"
-          width="40%">
-        <el-form :model="form" label-width="80px">
-<!--          新增一个文本框：新列名称-->
-          <div>
-          新列名：<el-input v-model="form.newColumnName" placeholder="请输入新列名称" style="width: 350px;margin-bottom: 10px"></el-input>
-          </div>
-          <div>
-          求和项：<el-select v-model="form.sumItem" placeholder="请选择" style="margin-right: 10px">
-            <el-option
-                v-for="(item,key,index) in groupInfoNums"
-                :key="key"
-                :label="key"
-                :value="key">
-            </el-option>
-          </el-select>
-          系数：<el-input v-model="form.newColumnName" placeholder="系数" style="width: 80px;margin-bottom: 10px"></el-input>
-          </div>
-          <div>
-            求和项：<el-select v-model="form.sumItem" placeholder="请选择" style="margin-right: 10px">
-            <el-option
-                v-for="(item,key,index) in groupInfoNums"
-                :key="key"
-                :label="key"
-                :value="key">
-            </el-option>
-          </el-select>
-            系数：<el-input v-model="form.newColumnName" placeholder="系数" style="width: 80px;margin-bottom: 10px"></el-input>
-          </div>
-<!--          添加一个按钮：新增求和项，绿色按钮-->
-          <el-button type="success">新增求和项</el-button>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="showDialog = false">取 消</el-button>
-          <el-button type="primary" @click="submitWeightedSum">确 定</el-button>
-        </span>
-      </el-dialog>
+<!--      <el-button type="primary" @click="showDialog = true" style="float: right;margin-right: 10px">求加权和</el-button>-->
+<!--      <el-dialog-->
+<!--          title="求加权和"-->
+<!--          :visible.sync="showDialog"-->
+<!--          width="40%">-->
+<!--        <el-form :model="form" label-width="80px">-->
+<!--&lt;!&ndash;          新增一个文本框：新列名称&ndash;&gt;-->
+<!--          <div>-->
+<!--          新列名：<el-input v-model="form.newColumnName" placeholder="请输入新列名称" style="width: 350px;margin-bottom: 10px"></el-input>-->
+<!--          </div>-->
+<!--          <div>-->
+<!--          求和项：<el-select v-model="form.sumItem" placeholder="请选择" style="margin-right: 10px">-->
+<!--            <el-option-->
+<!--                v-for="(item,key,index) in groupInfoNums"-->
+<!--                :key="key"-->
+<!--                :label="key"-->
+<!--                :value="key">-->
+<!--            </el-option>-->
+<!--          </el-select>-->
+<!--          系数：<el-input v-model="form.newColumnName" placeholder="系数" style="width: 80px;margin-bottom: 10px"></el-input>-->
+<!--          </div>-->
+<!--          <div>-->
+<!--            求和项：<el-select v-model="form.sumItem" placeholder="请选择" style="margin-right: 10px">-->
+<!--            <el-option-->
+<!--                v-for="(item,key,index) in groupInfoNums"-->
+<!--                :key="key"-->
+<!--                :label="key"-->
+<!--                :value="key">-->
+<!--            </el-option>-->
+<!--          </el-select>-->
+<!--            系数：<el-input v-model="form.newColumnName" placeholder="系数" style="width: 80px;margin-bottom: 10px"></el-input>-->
+<!--          </div>-->
+<!--&lt;!&ndash;          添加一个按钮：新增求和项，绿色按钮&ndash;&gt;-->
+<!--          <el-button type="success">新增求和项</el-button>-->
+<!--        </el-form>-->
+<!--        <span slot="footer" class="dialog-footer">-->
+<!--          <el-button @click="showDialog = false">取 消</el-button>-->
+<!--          <el-button type="primary" @click="submitWeightedSum">确 定</el-button>-->
+<!--        </span>-->
+<!--      </el-dialog>-->
 
     </div>
     <div style="margin-top: 10px">
