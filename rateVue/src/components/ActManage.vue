@@ -202,18 +202,6 @@
             >{{text}}导出专家打分
             </el-button
             >
-            <!--            <el-button-->
-            <!--                @click="exportAc(scope.row)"-->
-            <!--                v-show="mode==='admin'"-->
-            <!--                :loading="loading"-->
-            <!--                style="padding: 4px"-->
-            <!--                size="mini"-->
-            <!--                icon="el-icon-plus"-->
-            <!--                type="primary"-->
-            <!--                plain-->
-            <!--            >导出选手分数-->
-            <!--            </el-button-->
-            <!--            >-->
             <el-button
                 @click="showFinalScore(scope.row)"
                 v-show="mode==='admin'"
@@ -470,13 +458,6 @@ export default {
       window.open(url, "_parent");
       this.loading=false;
       this.text='';
-    },
-    exportAc(data){
-      this.loading=true;
-      Message.success("正在导出");
-      let url = '/participants/basic/export_ac?activityID=' + data.id;
-      window.open(url, "_parent");
-      this.loading=false;
     },
     showEditEmpView(data) {
       this.title = "编辑单位信息";

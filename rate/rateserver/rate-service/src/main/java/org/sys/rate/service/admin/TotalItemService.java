@@ -49,6 +49,14 @@ public class TotalItemService {
         return bean;
     }
 
+    // 重构版的getFinalScore
+    // 需要包含1.基本信息（序号，编号，组名，姓名）2.信息项 3.专家评分totalscorewithdot 4.活动得分 5.总分项
+    // 每列以键值对的形式存储，key:列名，value:列值及附加信息（总分，数据类型等）
+//    public RespBean getFinalScore(Integer activityID, Integer groupID){
+//        // 0.获取该活动中所有的选手
+//        List<Participates> participates = participatesMapper.getParticipatesByActivityID(activityID);
+//    }
+
     public RespPageBean getFinalScore(Integer activityID, Integer page, Integer size){
         HashFianlScore hashFianlScore = new HashFianlScore();
         HashMap<Integer, String> Tmap = new LinkedHashMap<>();
@@ -223,7 +231,7 @@ public class TotalItemService {
         return bean;
     }
 
-    // 用于导出excel
+    // 用于导出excel，计划重构
     public HashFianlScore getHashFinalScore(Integer activityID){
         return (HashFianlScore)getFinalScore(activityID,1,1000).getData().get(0);
     }

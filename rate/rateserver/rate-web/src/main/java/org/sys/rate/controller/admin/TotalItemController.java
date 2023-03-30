@@ -20,6 +20,7 @@ public class TotalItemController {
         return totalItemService.getByActivityID(activityID);
     }
 
+    // 计划重构
     @GetMapping("/getFianl")
     public RespPageBean getFinalByPage(Integer activityID,Integer page,Integer size){
         return totalItemService.getFinalScore(activityID,page,size);

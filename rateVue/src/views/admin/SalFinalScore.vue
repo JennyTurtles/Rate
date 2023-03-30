@@ -44,6 +44,63 @@
       </template>
       <el-button type="primary" @click="filterPar()">筛选</el-button>
       <el-button type="primary" @click="reset()">重置</el-button>
+      <el-popover placement="bottom" style="float: right">
+            <el-button slot="reference" type="success">
+              显示列设置
+            </el-button>
+            <div class="column-display">
+              <el-checkbox-group v-model="checkedTableColumns">
+                <el-checkbox
+                    v-for="column in columns"
+                    :key="column.label"
+                    :label="column.prop"
+                >
+                  {{ column.label }}
+                </el-checkbox>
+              </el-checkbox-group>
+            </div>
+          </el-popover>
+      <el-button type="primary" @click="showDialog = true" style="float: right;margin-right: 10px">求加权和</el-button>
+      <el-dialog
+          title="求加权和"
+          :visible.sync="showDialog"
+          width="40%">
+        <el-form :model="form" label-width="80px">
+<!--          新增一个文本框：新列名称-->
+          <div>
+          新列名：<el-input v-model="form.newColumnName" placeholder="请输入新列名称" style="width: 350px;margin-bottom: 10px"></el-input>
+          </div>
+          <div>
+          求和项：<el-select v-model="form.sumItem" placeholder="请选择" style="margin-right: 10px">
+            <el-option
+                v-for="(item,key,index) in groupInfoNums"
+                :key="key"
+                :label="key"
+                :value="key">
+            </el-option>
+          </el-select>
+          系数：<el-input v-model="form.newColumnName" placeholder="系数" style="width: 80px;margin-bottom: 10px"></el-input>
+          </div>
+          <div>
+            求和项：<el-select v-model="form.sumItem" placeholder="请选择" style="margin-right: 10px">
+            <el-option
+                v-for="(item,key,index) in groupInfoNums"
+                :key="key"
+                :label="key"
+                :value="key">
+            </el-option>
+          </el-select>
+            系数：<el-input v-model="form.newColumnName" placeholder="系数" style="width: 80px;margin-bottom: 10px"></el-input>
+          </div>
+<!--          添加一个按钮：新增求和项，绿色按钮-->
+          <el-button type="success">新增求和项</el-button>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="showDialog = false">取 消</el-button>
+          <el-button type="primary" @click="submitWeightedSum">确 定</el-button>
+        </span>
+      </el-dialog>
+
     </div>
     <div style="margin-top: 10px">
       <el-table
@@ -118,15 +175,6 @@
           </template>
         </el-table-column>
       </el-table>
-<!--      <div style="display: flex;justify-content: flex-end;margin:10px 0">-->
-<!--        <el-pagination-->
-<!--            background-->
-<!--            @current-change="currentChange"-->
-<!--            @size-change="sizeChange"-->
-<!--            layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
-<!--            :total="total">-->
-<!--        </el-pagination>-->
-<!--      </div>-->
     </div>
 
   </div>
@@ -137,10 +185,16 @@ import axios from 'axios'
 import {Message} from "element-ui";
 import FileSaver from "file-saver";
 import * as XLSX from 'xlsx'
+import score from "@/views/teacher/Score.vue";
+import optionGroup from "element-ui/packages/option-group";
 export default {
   name: "SalFinalScore",
   data() {
     return{
+      form: {
+        weightedSum: '',
+      },
+      showDialog: false,
       selectedGroupInfo: '',
       groupInfoNums: {},
       groupSubOfSelectedInfos: [],
@@ -163,9 +217,15 @@ export default {
       keywords: '', // 活动id
       keyword: '',
       size: 10,
+      columns: [{ label: "性别", prop: "name", width: 100, show: true },
+        { label: "民族", prop: "sex", width: 150, show: true },
+        { label: "政治面貌", prop: "age", width: 100, show: true }],
     }
   },
   computed: {
+    optionGroup() {
+      return optionGroup
+    },
     user() {
       return this.$store.state.currentHr;//object信息
     }
@@ -202,6 +262,7 @@ export default {
     this.initFitler();
   },
   methods: {
+
     initEmps() {
       this.loading = true;
       var url = ''
@@ -225,6 +286,7 @@ export default {
             }
           }
           this.tmap=value.tmap;
+          console.log(this.score)
           // 按照考试总分降序排列
           var key = '';
           for (var j in this.score[0].finalmap){
@@ -334,18 +396,18 @@ export default {
       this.page = currentPage;
       this.initHrs("advanced");
     },
-    exportScore(){
-      this.loading=true;
-      Message.success("正在导出");
-      var url = ''
-      if (typeof this.groupName === 'undefined')
-        url = '/participants/basic/export_ac?activityID=' + this.keywords;
-      else
-        url = '/participants/basic/export_ac_group?activityID=' + this.keywords + '&groupName=' + this.groupName;
-      // let url = '/participants/basic/export_ac?activityID=' + this.keywords;
-      window.open(url, "_parent");
-      this.loading=false;
-    },
+    // exportScore(){ // 基于后端的导出
+    //   this.loading=true;
+    //   Message.success("正在导出");
+    //   var url = ''
+    //   if (typeof this.groupName === 'undefined')
+    //     url = '/participants/basic/export_ac?activityID=' + this.keywords;
+    //   else
+    //     url = '/participants/basic/export_ac_group?activityID=' + this.keywords + '&groupName=' + this.groupName;
+    //   // let url = '/participants/basic/export_ac?activityID=' + this.keywords;
+    //   window.open(url, "_parent");
+    //   this.loading=false;
+    // },
     exportExcel () {
       let xlsxParam = { raw: true }
       var wb = XLSX.utils.table_to_book(document.querySelector('#outTable'),xlsxParam)
@@ -375,6 +437,9 @@ export default {
 {
   transform: translateX(10px);
   opacity: 0;
+}
+.column-display {
+  width: 180px;
 }
 </style>
 

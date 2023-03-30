@@ -178,6 +178,7 @@ public class InfoItemController {
         return Msg.success().add("infoItems",infoItems);
     }
 
+    // 待修改，计划在前端直接筛选
     // 通过信息项类型和信息项值对finalGroup筛选
     @GetMapping("/getFilteredFianlGroup")
     public RespPageBean getFilteredFianlGroup(@RequestParam("infoItemName") String infoItemName,

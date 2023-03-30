@@ -132,18 +132,21 @@ public class ParticipatesBasicController {
 //        List<Participates> list = (List<Participates>) participatesService.getparticipantsByPage(groupID,null, null, new Participates(),null).getData();
 //        return POIUtils.Exceltest(list);
 //    }
-    @GetMapping("/export_ac")
-    public ResponseEntity<byte[]> exportActivity(@RequestParam Integer activityID) {
-        HashFianlScore data = totalItemService.getHashFinalScore(activityID);
-//        List<Participates> list = (List<Participates>) participatesService.getAc_participantsByPage(activityID,null, null,null).getData();
-        return POIUtils.ExcelExport(data);
-    }
 
-    @GetMapping("/export_ac_group")
-    public ResponseEntity<byte[]> exportActivity_group(@RequestParam Integer activityID,@RequestParam String groupName) {
-        HashFianlScore data = totalItemService.getHashFinalScoreGroup(activityID, groupName);
-        return POIUtils.ExcelExport(data);
-    }
+    // 不使用基于后端的导出
+//    @GetMapping("/export_ac")
+//    public ResponseEntity<byte[]> exportActivity(@RequestParam Integer activityID) {
+//        HashFianlScore data = totalItemService.getHashFinalScore(activityID);
+////        List<Participates> list = (List<Participates>) participatesService.getAc_participantsByPage(activityID,null, null,null).getData();
+//        return POIUtils.ExcelExport(data);
+//    }
+//
+//    // 不使用基于后端的导出
+//    @GetMapping("/export_ac_group")
+//    public ResponseEntity<byte[]> exportActivity_group(@RequestParam Integer activityID,@RequestParam String groupName) {
+//        HashFianlScore data = totalItemService.getHashFinalScoreGroup(activityID, groupName);
+//        return POIUtils.ExcelExport(data);
+//    }
 
 
     @GetMapping("/export")
