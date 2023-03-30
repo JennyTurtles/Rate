@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.FinalValue;
 import org.sys.rate.model.PEexport;
+import org.sys.rate.model.ParticipantsDisplay;
 import org.sys.rate.model.Participates;
 
 import java.util.Date;
@@ -146,4 +147,16 @@ public interface ParticipatesMapper {
 
     @Select("select ID from participants where activityID = #{activityID}")
     List<Integer> getParticipantsIDByAId(Integer id);
+
+
+    // 通过活动ID获得ParticipantsDisplay的ID,name,code,score,groupName。连接participants表、groups表、student
+    @Select("select p.ID as ID,s.name as name,p.code,p.score,g.name as groupName\n" +
+            "from participants p,`groups` g,student s \n" +
+            "where p.activityID = #{activityID} and p.groupID = g.ID and p.studentID = s.ID")
+    List<ParticipantsDisplay> getParticipantsDisplay(Integer activityID);
+
+    @Select("select p.ID as ID,s.name as name,p.code,p.score,g.name as groupName\n" +
+            "from participants p,`groups` g,student s \n" +
+            "where p.activityID = #{activityID} and p.groupID = #{groupID} and p.groupID = g.ID and p.studentID = s.ID")
+    List<ParticipantsDisplay> getParticipantsDisplayByGroup(Integer activityID, Integer groupID);
 }
