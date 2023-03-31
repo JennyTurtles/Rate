@@ -437,7 +437,6 @@ export default {
       this.dialogVisible_show = true;
     },
     deleteEmp(data) {
-      console.log(data);
       this.$confirm(
         "此操作将永久删除【" + data.company + "】, 是否继续?",
         "提示",
@@ -457,7 +456,6 @@ export default {
     },
     doAddEmp() {
       if (this.emp.id) {
-        console.log(this.emp);
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             const _this = this;
@@ -475,8 +473,6 @@ export default {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.emp.institutionID = this.user.id;
-            console.log(this.emp);
-            console.log(this.user.id);
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(
               (resp) => {
@@ -513,11 +509,7 @@ export default {
     initEmps() {
       this.loading = true;
       let url = "/projects/basic/List";
-      console.log(url);
-      console.log(this.user.companyName);
-      console.log(this.user.id);
       this.getRequest(url).then((resp) => {
-        console.log(resp)
         // this.loading = false;
         // if (resp) {
         //   console.log(resp);
@@ -568,7 +560,6 @@ export default {
     },
     searchEmps() {
       this.loading = true;
-      console.log('---------',this.keyword);
       const _this = this;
       //let url =
       this.getRequest(

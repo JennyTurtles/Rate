@@ -196,7 +196,7 @@ public class ExpertController {
     public RespBean importData(@RequestParam Integer groupId,
                                @RequestParam Integer expertID,
                                @RequestParam Integer activitiesID, MultipartFile file) throws IOException, ParseException {
-        System.out.println("POIUtils.check(file)");
+//        System.out.println("POIUtils.check(file)");
         //获得该活动的评分项列表
         List<ScoreItem> scoreItemsByE = scoreItemService.getScoreItemByEActivityId(activitiesID);
         List<Participates> participatesL = participatesService.getParticipantsByGroupId(activitiesID,groupId);

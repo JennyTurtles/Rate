@@ -36,8 +36,6 @@ public class PublicationService {
 
     //模糊查询 返回pub
     public List<Publication> selectPublicationListByName(@Param("publicationName") String publicationName){
-        System.out.println("调用了PublicationService");
-        System.out.println(publicationName);
         List<Publication> res=publicationMapper.selectListByPubName(publicationName);
 //        List<String> res=paperMapper.selectListByPubName(publicationName);
 //        System.out.println("res:");

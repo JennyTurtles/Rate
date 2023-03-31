@@ -900,7 +900,6 @@
                 } else {
                     url += "&name=" + this.keyword;
                 }
-              console.log(url);
                 this.getRequest(url).then(resp => {
                     this.loading = false;
                     if (resp) {

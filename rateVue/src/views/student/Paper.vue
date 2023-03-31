@@ -455,7 +455,7 @@ export default {
   methods: {
     delayInputTimer(val){//期刊输入框，根据name查找全称 每隔300ms发送请求
       if(this.timer){
-        clearInterval(this.timer)
+        clearTimeout(this.timer)
       }
       if(!val){
         return
@@ -463,9 +463,8 @@ export default {
       var publication={}
       publication.year = this.emp.year
       publication.name = this.publicationName
-      this.timer = setInterval(()=>{
+      this.timer = setTimeout(()=>{
         let url = "/publication/getInfByNameYear"
-        console.log("id")
         this.postRequest(url,publication).then((resp) => {
           this.loading = false;
           if (resp) {
@@ -480,14 +479,12 @@ export default {
                     }
                 )
               }
-              console.log(this.select_pubName)
             }else{
               this.$message.error(`请检查期刊名称的拼写`);
             }
           }
-          clearInterval(this.timer)
         });
-      },300)
+      },400)
     },
     inputPubFocus(){//input获取焦点判断是否有下拉框，是否可输入
       if(this.emp.year){

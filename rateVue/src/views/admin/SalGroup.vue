@@ -195,7 +195,7 @@
           <br>
 
           <div style="margin-top: 10px">
-            <template >
+            <template v-if="selectedGroupInfo != ''">
               <span>请选择排序依据：</span>
               <el-select
                   style="margin-right: 20px;width: 150px;"
@@ -210,7 +210,7 @@
               </el-select>
             </template>
 
-            <template >
+            <template v-if="sortBy != ''">
               <span>请选择分组个数：</span>
               <el-select
                   style="margin-right: 20px;width: 150px;"
@@ -524,11 +524,8 @@ export default {
   watch:{
     selectedGroupNums:{//监听用户选择了分为几组
       handler(val){
-        //信息项和子信息项都被选择，或者信息项被选择并且没有子信息项
-        if((this.selectedGroupInfo != ''
-            //     && this.selectedSubGroupInfo.length > 0) ||
-            // (this.groupSubOfSelectedInfos.length == 1 && this.selectedGroupInfo != ''
-            )){
+        //信息项被选择
+        if(this.selectedGroupInfo != ''){
               this.groupNumsInput = []
               for(var i = 0;i < val;i ++){
                 this.groupNumsInput.push({
@@ -552,30 +549,24 @@ export default {
           for(var i = 0;i < this.selectedGroupNums;i ++){
             this.groupNumsInput[i].disabled = true
           }
-          this.calculationGroupInputValue()
         }else if(this.radio == '2'){//指定每组人数
           for(var i = 0;i < this.selectedGroupNums;i ++){
             this.groupNumsInput[i].disabled = false
           }
-          this.calculationGroupInputValue()
         }
+        this.calculationGroupInputValue()
       }
     },
     selectedGroupInfo:{//监听第一个下拉框的变化 信息项
       handler(val){
         //信息项和信息项的子选项都被选择了或者没有子信息项
         if(val != '') {
-          // if (JSON.stringify(this.groupInfoNums[val]) == '{}' || this.selectedSubGroupInfo.length > 0) {
-          //   this.filterNoGroupParticipants()
-          // } else if (JSON.stringify(this.groupInfoNums[val]) != '{}' && this.selectedSubGroupInfo.length == 0) {
             //该信息项下的所有子信息项
             if (JSON.stringify(this.groupInfoNums) != '{}' && JSON.stringify(this.groupInfoNums[val]) != '{}') {
               this.groupSubOfSelectedInfos = Object.keys(this.groupInfoNums[val])
               this.filterNoGroupParticipants()
             }
         }
-          // }
-        // }
       }
     },
     selectedSubGroupInfo:{//第二个下拉框的变化 信息项的子信息项
@@ -589,7 +580,6 @@ export default {
   created() {
   },
   mounted() {
-    //this.init();//先获得评分项
     this.activityID = this.$route.query.activityID;
     this.mode = this.$route.query.mode
     this.groupID = this.$route.query.groupID
@@ -701,53 +691,48 @@ export default {
 
     },
     groupsForParticipant(){//选手分组,点击按钮对话框弹出 //获得该活动下的所有Infoitem，其中包括content
-      var flag = false//判断当前的选手列表中是否已经分过组
-      if(this.emps != null && this.emps.length != 0){
-      }else {
+      if(this.emps == null || this.emps.length == 0){
         this.$message.warning('请先导入选手！')
         return
       }
-      // if(!flag){
-        this.groupSubOfSelectedInfos = []
-        this.groupInfoNums = {}
-        this.sortByList = []
-        var url = '/infoItem/basic/getAll/' + this.keywords
-        this.getRequest(url).then((resp)=>{
-          if(resp.code == 200){
-            //存放infoItem
-            console.log(resp)
-            var infoItems = resp.extend.infoItems
-            if(resp.extend.infoItems.length === 0){
-              this.$message.warning('该活动下没有未分组的选手！')
-              return
-            }
-            for(var i = 0;i < infoItems.length;i ++){
-              if(!(infoItems[i].name in this.groupInfoNums)){
-                this.groupInfoNums[infoItems[i].name]={'infoItemID':infoItems[i].id}//将每一个信息项改为对象形式,再加上每个信息项的id
-              }
-              //如果每个信息项包含多个子信息项如报考专业包括电子xxx、xx开发等，将每个子信息项改为数组
-              if(!(infoItems[i].content in this.groupInfoNums[infoItems[i].name])){
-                this.groupInfoNums[infoItems[i].name][infoItems[i].content] = []
-              }
-              this.groupInfoNums[infoItems[i].name][infoItems[i].content].push(infoItems[i])
-            }
-            console.log("groupInfoNums:")
-            console.log(this.groupInfoNums)
-            //将infoItem和scoreItem放在一起作为排序依据
-            for(var i of Object.keys(this.groupInfoNums)){
-              this.sortByList.push({
-                type:'信息项',
-                name:i,
-                id:this.groupInfoNums[i].infoItemID
-              })
-            }
-            console.log(this.groupInfoNums)
-            if(!this.groupNums){
-              this.groupNums = Array.from(Array(10).keys(),n=>n+1)
-            }
-            this.dialogPartipicantGroups = true
+      this.groupSubOfSelectedInfos = []
+      this.groupInfoNums = {}
+      this.sortByList = []
+      var url = '/infoItem/basic/getAll/' + this.keywords
+      this.getRequest(url).then((resp)=>{
+        if(resp.code == 200){
+          //存放infoItem
+          console.log(resp)
+          var infoItems = resp.extend.infoItems
+          if(infoItems.length === 0){
+            this.$message.warning('该活动下没有未分组的选手！')
+            return
           }
-        })
+          //数据处理应该由后端处理的。。。
+          for(var i = 0;i < infoItems.length;i ++){
+            if(!(infoItems[i].name in this.groupInfoNums)){
+              this.groupInfoNums[infoItems[i].name]={'infoItemID':infoItems[i].id}//将每一个信息项改为对象形式,再加上每个信息项的id
+            }
+            //如果每个信息项包含多个子信息项如报考专业包括电子xxx、xx开发等，将每个子信息项改为数组
+            if(!(infoItems[i].content in this.groupInfoNums[infoItems[i].name])){
+              this.groupInfoNums[infoItems[i].name][infoItems[i].content] = []
+            }
+            this.groupInfoNums[infoItems[i].name][infoItems[i].content].push(infoItems[i])
+          }
+          //将infoItem作为排序依据
+          for(var i of Object.keys(this.groupInfoNums)){
+            this.sortByList.push({
+              type:'信息项',
+              name:i,
+              id:this.groupInfoNums[i].infoItemID
+            })
+          }
+          if(!this.groupNums){
+            this.groupNums = Array.from(Array(10).keys(),n=>n+1)
+          }
+          this.dialogPartipicantGroups = true
+        }
+      })
     },
     creatGroup(){//创建分组//传递activityID和选手id，分为几组和每组人数
       var sum = 0
@@ -778,13 +763,8 @@ export default {
       }else {
         return;
       }
-      // if(this.selectedSubGroupInfo.length > 0){//判断有没有选择信息项
-        data['infoItemID'] = this.groupInfoNums[this.selectedGroupInfo].infoItemID
-        data['infoContent']= this.selectedSubGroupInfo
-      // }
-      // else {
-      //   return;
-      // }
+      data['infoItemID'] = this.groupInfoNums[this.selectedGroupInfo].infoItemID
+      data['infoContent']= this.selectedSubGroupInfo
       this.postRequest(url,data).then((resp)=>{
         if(resp){
           if(resp == "分组成功" ){
