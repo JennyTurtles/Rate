@@ -65,4 +65,10 @@ public interface InfoItemMapper {
 
     @Select("select ID from infoitem where name=#{name} and activityID=#{activityID}")
     Integer getIDByNameAndActivityID(@Param("name") String name,@Param("activityID") Integer activityID);
+
+    @Select("select infoitem.ID,infoitem.name,infos.content \n" +
+            "from infoitem\n" +
+            "LEFT JOIN infos ON infoitem.ID=infos.infoitemID\n" +
+            "AND infos.participantID=#{participantID} AND infoitem.activityID = #{activityID}")
+    List<InfoItem> getAllByParticipantID(Integer activityID,Integer participantID);
 }

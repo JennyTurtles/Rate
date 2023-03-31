@@ -18,10 +18,22 @@ public class DisplayItem implements Comparable<DisplayItem> {
     private String sourceName;
     private Integer displaySequence;
     private Integer fullScore;
+    private String content;
 
     public DisplayItem(String sourceName, String source) {
         this.sourceName = sourceName;
         this.source = source;
+    }
+
+    public DisplayItem(DisplayItem displayItem) {
+        this.ID = displayItem.getID();
+        this.activityID = displayItem.getActivityID();
+        this.name = displayItem.getName();
+        this.source = displayItem.getSource();
+        this.sourceName = displayItem.getSourceName();
+        this.displaySequence = displayItem.getDisplaySequence();
+        this.fullScore = displayItem.getFullScore();
+        this.content = displayItem.getContent();
     }
 
     @Override
