@@ -57,12 +57,6 @@ public class DisplayItemService {
         for (DisplayItem displayItem : displayItems)
             displayItemMap.put(displayItem.getID(),displayItem);
 
-//        // 获取该活动所有的信息项，存储为map，key:id，value:infoitem
-//        List<InfoItem> infoItems = infoItemMapper.getAll(activityID); // 所有选手都有content
-//        Map<Integer,InfoItem> infoItemMap = new HashMap<>();
-//        for (InfoItem infoItem : infoItems)
-//            infoItemMap.put(infoItem.getID(),infoItem);
-
         // 为每个选手添加展示项
         for (ParticipantsDisplay participantsDisplay : res){
             participantsDisplay.setDisplayItemName(new ArrayList<>());
@@ -72,7 +66,7 @@ public class DisplayItemService {
             Map<Integer,InfoItem> infoItemMap = new HashMap<>();
             for (InfoItem infoItem : infoItemPar)
                 infoItemMap.put(infoItem.getID(),infoItem);
-
+            // 为该选手添加展示项
             for (DisplayItem displayItem:displayItems){
                 if (displayItem.getSource() == null)
                     continue;
@@ -82,7 +76,6 @@ public class DisplayItemService {
                 DisplayItem displayItemNew = new DisplayItem(displayItem); // 复制一份displayItem
                 if (!source.contains("*")){ // 如果displayItem的source不包含"*"则为第一类
                     String displayContent = getDisplayContent(source,participantsDisplay,infoItemMap,displayItemMap,activityID);
-                    // 将content设置为displayContent
                     displayItemNew.setContent(formatDouble(displayContent));
                     participantsDisplay.getMap().put(displayItem.getName(),displayItemNew);
                 }else // 第二类需要计算其总分
@@ -93,7 +86,6 @@ public class DisplayItemService {
                         String displayContent = getDisplayContent(s,participantsDisplay,infoItemMap,displayItemMap,activityID);
                         if (displayContent == null)
                             continue;
-                        // 将展示内容转换为double，累加到score中
                         score += Double.parseDouble(displayContent);
                     }
                     displayItemNew.setContent(formatDouble(score + ""));

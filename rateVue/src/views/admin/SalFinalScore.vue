@@ -44,69 +44,29 @@
       </template>
       <el-button type="primary" @click="filterPar()">筛选</el-button>
       <el-button type="primary" @click="reset()">重置</el-button>
-      <el-popover placement="bottom" style="float: right">
-            <el-button slot="reference" type="success">
-              显示列设置
-            </el-button>
-            <div class="column-display">
-              <el-checkbox-group v-model="checkedTableColumns">
-                <el-checkbox
-                    v-for="column in columns"
-                    :key="column.label"
-                    :label="column.prop"
-                >
-                  {{ column.label }}
-                </el-checkbox>
-              </el-checkbox-group>
-            </div>
-          </el-popover>
-<!--      <el-button type="primary" @click="showDialog = true" style="float: right;margin-right: 10px">求加权和</el-button>-->
-<!--      <el-dialog-->
-<!--          title="求加权和"-->
-<!--          :visible.sync="showDialog"-->
-<!--          width="40%">-->
-<!--        <el-form :model="form" label-width="80px">-->
-<!--&lt;!&ndash;          新增一个文本框：新列名称&ndash;&gt;-->
-<!--          <div>-->
-<!--          新列名：<el-input v-model="form.newColumnName" placeholder="请输入新列名称" style="width: 350px;margin-bottom: 10px"></el-input>-->
-<!--          </div>-->
-<!--          <div>-->
-<!--          求和项：<el-select v-model="form.sumItem" placeholder="请选择" style="margin-right: 10px">-->
-<!--            <el-option-->
-<!--                v-for="(item,key,index) in groupInfoNums"-->
-<!--                :key="key"-->
-<!--                :label="key"-->
-<!--                :value="key">-->
-<!--            </el-option>-->
-<!--          </el-select>-->
-<!--          系数：<el-input v-model="form.newColumnName" placeholder="系数" style="width: 80px;margin-bottom: 10px"></el-input>-->
-<!--          </div>-->
-<!--          <div>-->
-<!--            求和项：<el-select v-model="form.sumItem" placeholder="请选择" style="margin-right: 10px">-->
-<!--            <el-option-->
-<!--                v-for="(item,key,index) in groupInfoNums"-->
-<!--                :key="key"-->
-<!--                :label="key"-->
-<!--                :value="key">-->
-<!--            </el-option>-->
-<!--          </el-select>-->
-<!--            系数：<el-input v-model="form.newColumnName" placeholder="系数" style="width: 80px;margin-bottom: 10px"></el-input>-->
-<!--          </div>-->
-<!--&lt;!&ndash;          添加一个按钮：新增求和项，绿色按钮&ndash;&gt;-->
-<!--          <el-button type="success">新增求和项</el-button>-->
-<!--        </el-form>-->
-<!--        <span slot="footer" class="dialog-footer">-->
-<!--          <el-button @click="showDialog = false">取 消</el-button>-->
-<!--          <el-button type="primary" @click="submitWeightedSum">确 定</el-button>-->
-<!--        </span>-->
-<!--      </el-dialog>-->
+<!--      <el-popover placement="bottom" style="float: right">-->
+<!--            <el-button slot="reference" type="success">-->
+<!--              显示列设置-->
+<!--            </el-button>-->
+<!--            <div class="column-display">-->
+<!--              <el-checkbox-group v-model="checkedTableColumns">-->
+<!--                <el-checkbox-->
+<!--                    v-for="column in columns"-->
+<!--                    :key="column.label"-->
+<!--                    :label="column.prop"-->
+<!--                >-->
+<!--                  {{ column.label }}-->
+<!--                </el-checkbox>-->
+<!--              </el-checkbox-group>-->
+<!--            </div>-->
+<!--          </el-popover>-->
 
     </div>
     <div style="margin-top: 10px">
       <el-table
           ref = "excelTable"
-          :data="score"
-          :model="score"
+          :data="displayItemPar"
+          :model="displayItemPar"
           stripe
           border
           id='outTable'
@@ -121,56 +81,43 @@
             min-width="10%">
         </el-table-column>
         <el-table-column
-            prop="code"
-            align="left"
-            label="编号"
-            min-width="10%">
-        </el-table-column>
-        <el-table-column
-            prop="groupName"
-            align="left"
-            label="组名"
-            min-width="10%">
-        </el-table-column>
-        <el-table-column
             prop="name"
             align="left"
             label="姓名"
             min-width="10%">
         </el-table-column>
         <el-table-column
-            prop="totalscorewithdot"
-            align="center"
-            label="专家评分"
-            min-width="10%">
-        </el-table-column>
-        <el-table-column
-            sortable
-            label="活动得分"
-            align="center"
-            min-width="10%"
-            :sort-method="(a, b) => {
-                      return Number(a.score)- Number(b.score);}"
-            :sort-orders="['descending', 'ascending']">
-          <template slot-scope="scope">
-            <span v-if="scope.row.score<scope.row.fullScore*0.6" style="color: red">{{scope.row.score}}</span>
-            <span v-else>{{scope.row.score}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-            v-for="(v, i) in tmap"
+            v-for="(v, i) in displayItemName"
             :prop="v"
             :label="v"
             :key="i"
             sortable
             min-width="10%" align="center"
             :sort-method="(a, b) => {
-                      return Number(a.finalmap[i].score)- Number( b.finalmap[i].score);}"
+                      return Number(a.map[v].content)- Number( b.map[v].content)}"
             :sort-orders="['descending', 'ascending']">
+          <template v-slot:header='scope' v-if="displayItemPar[0].map[v].source.indexOf('*') !== -1">
+            <span>
+              	  <el-tooltip
+                      :aa="scope"
+                      class="item"
+                      effect="dark"
+                      placement="top-start"
+                  >
+               <i class="el-icon-question"> </i>
+               <div style="width: 200px" slot="content">
+                {{displayItemPar[0].map[v].source}}
+               </div>
+	                </el-tooltip>
+              {{scope.column.label}}
+	          </span>
+          </template>
           <template slot-scope="scope">
-            <div v-for="(value,key) in scope.row.finalmap" v-if="key===i">
-              <span v-if="value.score<value.fullScore*0.6" style="color: red">{{value.score}}</span>
-              <span v-else>{{value.score}}</span>
+            <div>
+              <span v-if="typeof scope.row.map[v].fullScore !== 'undefined' && scope.row.map[v].content < scope.row.map[v].fullScore * 0.6"
+                    style="color: red">{{scope.row.map[v].content}}</span>
+              <span v-else>{{scope.row.map[v].content}}</span>
+
             </div>
           </template>
         </el-table-column>
@@ -194,6 +141,9 @@ export default {
       form: {
         weightedSum: '',
       },
+      displayItemName: [],
+      displayItemMap: {},
+      displayItemPar: [],
       showDialog: false,
       selectedGroupInfo: '',
       groupInfoNums: {},
@@ -259,109 +209,86 @@ export default {
     this.flag = this.$route.query.flag;
     this.groupID = this.$route.query.groupID;
     this.initEmps();
-    this.initFitler();
   },
   methods: {
-
     initEmps() {
       this.loading = true;
-      var url = ''
-      if (typeof this.groupName === 'undefined')
-        url = '/totalItem/basic/getFianl?activityID=' + this.keywords + '&page=' + 1 + '&size=' + 1000;
-      else
-        url = '/totalItem/basic/getFianlGroup?activityID=' + this.keywords + '&page=' + 1+ '&size=' + 1000 + '&groupName=' + this.groupName;
+      var url = '/displayItem/allPar?activityID=' + this.keywords
+      if (typeof this.groupID !== 'undefined')
+        url += '&groupID=' + this.groupID
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
-          this.score = [];
-          this.emps = resp.data;
-          this.total = resp.total;
-          for(var name in resp.data){
-            var value =resp.data[name];
-            this.map = value.map;
-            for(var i in this.map){
-              if (this.mode === "secretary" && this.map[i].groupName !== this.groupName)
-                continue
-              this.score.push(this.map[i]);
-            }
-          }
-          this.tmap=value.tmap;
-          console.log(this.score)
-          // 按照考试总分降序排列
-          var key = '';
-          for (var j in this.score[0].finalmap){
-            if (this.score[0].finalmap[j].name === "考试总分")
-              key = j;
-          }
-          this.score.sort(function(a,b){
-            return b.finalmap[key].score-a.finalmap[key].score;
-          });
+          this.displayItemPar = resp.obj;
+          this.displayItemName = this.displayItemPar[0].displayItemName // 这里有优化空间
+          this.initFitler()
         }
       });
     },
+    // initFitler(){
+    //   this.selectedGroupInfo= ''
+    //   this.groupInfoNums= {}
+    //   this.groupSubOfSelectedInfos=[]
+    //   this.selectedSubGroupInfo=[]
+    //   let url = '/infoItem/basic/getAllInf?ID=' + this.keywords + '&groupID=' + (this.groupID == null ? 0 : this.groupID);
+    //   this.getRequest(url).then((resp)=>{
+    //     if(resp.code == 200){
+    //       console.log(resp)
+    //       //存放infoItem
+    //       var infoItems = resp.extend.infoItems
+    //       for(var i = 0;i < infoItems.length;i ++){
+    //         if(!(infoItems[i].name in this.groupInfoNums)){
+    //           this.groupInfoNums[infoItems[i].name]={'infoItemID':infoItems[i].id}//将每一个信息项改为对象形式,再加上每个信息项的id
+    //         }
+    //         //如果每个信息项包含多个子信息项如报考专业包括电子xxx、xx开发等，将每个子信息项改为数组
+    //         if(!(infoItems[i].content in this.groupInfoNums[infoItems[i].name])){
+    //           this.groupInfoNums[infoItems[i].name][infoItems[i].content] = []
+    //         }
+    //         this.groupInfoNums[infoItems[i].name][infoItems[i].content].push(infoItems[i])
+    //       }
+    //       if(!this.groupNums){
+    //         this.groupNums = Array.from(Array(10).keys(),n=>n+1)
+    //       }
+    //     }
+    //     // console.log(this.groupInfoNums)
+    //   })
+    // },
     initFitler(){
       this.selectedGroupInfo= ''
       this.groupInfoNums= {}
       this.groupSubOfSelectedInfos=[]
       this.selectedSubGroupInfo=[]
-      let url = '/infoItem/basic/getAllInf?ID=' + this.keywords + '&groupID=' + (this.groupID == null ? 0 : this.groupID);
-      this.getRequest(url).then((resp)=>{
-        if(resp.code == 200){
-          //存放infoItem
-          var infoItems = resp.extend.infoItems
-          if(resp.extend.infoItems.length === 0){
-            this.$message.warning('该活动下没有未分组的选手！')
-            return
-          }
-          for(var i = 0;i < infoItems.length;i ++){
-            if(!(infoItems[i].name in this.groupInfoNums)){
+      var infoItems = []
+      // 只需要id,name,content
+      for (var par in this.displayItemPar) {
+        for (var key in this.displayItemPar[par].map) {
+          infoItems.push(this.displayItemPar[par].map[key])
+        }
+      }
+      for(var i = 0;i < infoItems.length;i ++){
+        if(!(infoItems[i].name in this.groupInfoNums)){
               this.groupInfoNums[infoItems[i].name]={'infoItemID':infoItems[i].id}//将每一个信息项改为对象形式,再加上每个信息项的id
             }
-            //如果每个信息项包含多个子信息项如报考专业包括电子xxx、xx开发等，将每个子信息项改为数组
-            if(!(infoItems[i].content in this.groupInfoNums[infoItems[i].name])){
+        //如果每个信息项包含多个子信息项如报考专业包括电子xxx、xx开发等，将每个子信息项改为数组
+        if(!(infoItems[i].content in this.groupInfoNums[infoItems[i].name])){
               this.groupInfoNums[infoItems[i].name][infoItems[i].content] = []
             }
-            this.groupInfoNums[infoItems[i].name][infoItems[i].content].push(infoItems[i])
-          }
-          if(!this.groupNums){
-            this.groupNums = Array.from(Array(10).keys(),n=>n+1)
-          }
-          this.dialogPartipicantGroups = true
+          this.groupInfoNums[infoItems[i].name][infoItems[i].content].push(infoItems[i])
         }
-      })
+      if(!this.groupNums){
+        this.groupNums = Array.from(Array(10).keys(),n=>n+1)
+        }
     },
     filterPar(){
-      let url = '/infoItem/basic/getFilteredFianlGroup?infoItemName=' + this.selectedGroupInfo + '&infoItemContent=' + this.selectedSubGroupInfo + '&activityID=' + this.keywords;
-      this.getRequest(url).then((resp)=>{
-        if (resp){
-          this.emps = resp.data;
-          this.total = resp.total;
-          this.score= [];
-          for(var name in resp.data){
-            var value =resp.data[name];
-            this.map = value.map;
-            console.log(this.map)
-            for(var i in this.map){
-              if (typeof this.groupName !== 'undefined' && this.map[i].groupName !== this.groupName)
-                continue
-              this.score.push(this.map[i]);
-            }
-          }
-          this.tmap=value.tmap;
-          var key = '';
-          for (var j in this.score[0].finalmap){
-            if (this.score[0].finalmap[j].name === "考试总分")
-              key = j;
-          }
-          this.score.sort(function(a,b){
-            return b.finalmap[key].score-a.finalmap[key].score;
-          });
-        }
-      })
+      var newPar = []
+      for (var i in this.displayItemPar) {
+        if (this.selectedSubGroupInfo.indexOf(this.displayItemPar[i].map[this.selectedGroupInfo].content) !== -1)
+          newPar.push(this.displayItemPar[i])
+      }
+      this.displayItemPar = newPar
     },
     reset(){
       this.initEmps()
-      this.initFitler();
     },
     back(){
       const _this = this;
@@ -396,21 +323,10 @@ export default {
       this.page = currentPage;
       this.initHrs("advanced");
     },
-    // exportScore(){ // 基于后端的导出
-    //   this.loading=true;
-    //   Message.success("正在导出");
-    //   var url = ''
-    //   if (typeof this.groupName === 'undefined')
-    //     url = '/participants/basic/export_ac?activityID=' + this.keywords;
-    //   else
-    //     url = '/participants/basic/export_ac_group?activityID=' + this.keywords + '&groupName=' + this.groupName;
-    //   // let url = '/participants/basic/export_ac?activityID=' + this.keywords;
-    //   window.open(url, "_parent");
-    //   this.loading=false;
-    // },
     exportExcel () {
       let xlsxParam = { raw: true }
       var wb = XLSX.utils.table_to_book(document.querySelector('#outTable'),xlsxParam)
+      console.log(wb)
       var wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
       try {
         FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), '选手积分表.xlsx')
