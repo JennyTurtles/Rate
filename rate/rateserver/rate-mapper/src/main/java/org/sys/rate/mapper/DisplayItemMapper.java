@@ -19,4 +19,7 @@ public interface DisplayItemMapper {
 
     @Delete("delete from displayitem where ID = #{ID}")
     int delete(Integer id);
+
+    @Select("select name from displayitem where ID = #{ID}")
+    String getNameByID(Integer id);
 }

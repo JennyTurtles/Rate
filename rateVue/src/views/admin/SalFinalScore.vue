@@ -78,6 +78,7 @@
         <el-table-column
             type="index"
             label="序号"
+            align="center"
             min-width="10%">
         </el-table-column>
         <el-table-column
@@ -106,7 +107,7 @@
                   >
                <i class="el-icon-question"> </i>
                <div style="width: 200px" slot="content">
-                {{displayItemPar[0].map[v].source}}
+                {{displayItemPar[0].map[v].sourceName}}
                </div>
 	                </el-tooltip>
               {{scope.column.label}}

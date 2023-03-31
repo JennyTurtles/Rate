@@ -27,6 +27,8 @@ public class DisplayItemController {
     @GetMapping("/all")
     public RespBean getAllDisplayItem(@RequestParam Integer activityID) {
         List<DisplayItem> res = displayItemMapper.getAllDisplayItem(activityID);
+        for (DisplayItem displayItem : res)
+            displayItem.setSourceName(displayItemService.getSourceName(displayItem.getSource()));
         return RespBean.ok("success",res);
     }
 
