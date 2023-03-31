@@ -11,6 +11,7 @@ import org.sys.rate.model.ParticipantsDisplay;
 
 import javax.annotation.Resource;
 import javax.persistence.criteria.CriteriaBuilder;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +74,8 @@ public class DisplayItemService {
                 infoItemMap.put(infoItem.getID(),infoItem);
 
             for (DisplayItem displayItem:displayItems){
+                if (displayItem.getSource() == null)
+                    continue;
                 participantsDisplay.getDisplayItemName().add(displayItem.getName());
                 // 判断展示项是第一类还是第二类，分别处理
                 String source = displayItem.getSource();
@@ -88,19 +91,13 @@ public class DisplayItemService {
                     double score = 0;
                     for (String s : split){
                         String displayContent = getDisplayContent(s,participantsDisplay,infoItemMap,displayItemMap,activityID);
-                        if (displayContent == null){
-                            displayItemNew.setContent(displayContent);
-                            participantsDisplay.getMap().put(displayItem.getName(),displayItemNew);
-                            score = -1;
-                            break;
-                        }
+                        if (displayContent == null)
+                            continue;
                         // 将展示内容转换为double，累加到score中
                         score += Double.parseDouble(displayContent);
                     }
-                    if (score != -1){
-                        displayItemNew.setContent(formatDouble(score + ""));
-                        participantsDisplay.getMap().put(displayItem.getName(),displayItemNew);
-                    }
+                    displayItemNew.setContent(formatDouble(score + ""));
+                    participantsDisplay.getMap().put(displayItem.getName(),displayItemNew);
                 }
             }
         }
@@ -158,15 +155,12 @@ public class DisplayItemService {
 
     // 输入一个字符串，判断是否为小数，如果是则将其保留2位小数并去除末尾的0，然后返回新字符串
     private String formatDouble(String str) {
+        if (str != null && str.length() >= 15)
+            return str;
         try {
             double d = Double.parseDouble(str);
-            String res = String.format("%.2f", d);
-            // 去除末尾所有的0
-            while (res.endsWith("0") || res.endsWith("."))
-                res = res.substring(0, res.length() - 1);
-            if (res.endsWith("."))
-                res = res.substring(0, res.length() - 1);
-            return res;
+            DecimalFormat decimalFormat = new DecimalFormat("###################.##");
+            return decimalFormat.format(d);
         } catch (Exception e) {
             return str;
         }
