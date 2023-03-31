@@ -226,34 +226,6 @@ export default {
         }
       });
     },
-    // initFitler(){
-    //   this.selectedGroupInfo= ''
-    //   this.groupInfoNums= {}
-    //   this.groupSubOfSelectedInfos=[]
-    //   this.selectedSubGroupInfo=[]
-    //   let url = '/infoItem/basic/getAllInf?ID=' + this.keywords + '&groupID=' + (this.groupID == null ? 0 : this.groupID);
-    //   this.getRequest(url).then((resp)=>{
-    //     if(resp.code == 200){
-    //       console.log(resp)
-    //       //存放infoItem
-    //       var infoItems = resp.extend.infoItems
-    //       for(var i = 0;i < infoItems.length;i ++){
-    //         if(!(infoItems[i].name in this.groupInfoNums)){
-    //           this.groupInfoNums[infoItems[i].name]={'infoItemID':infoItems[i].id}//将每一个信息项改为对象形式,再加上每个信息项的id
-    //         }
-    //         //如果每个信息项包含多个子信息项如报考专业包括电子xxx、xx开发等，将每个子信息项改为数组
-    //         if(!(infoItems[i].content in this.groupInfoNums[infoItems[i].name])){
-    //           this.groupInfoNums[infoItems[i].name][infoItems[i].content] = []
-    //         }
-    //         this.groupInfoNums[infoItems[i].name][infoItems[i].content].push(infoItems[i])
-    //       }
-    //       if(!this.groupNums){
-    //         this.groupNums = Array.from(Array(10).keys(),n=>n+1)
-    //       }
-    //     }
-    //     // console.log(this.groupInfoNums)
-    //   })
-    // },
     initFitler(){
       this.selectedGroupInfo= ''
       this.groupInfoNums= {}
