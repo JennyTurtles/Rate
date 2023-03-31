@@ -347,7 +347,7 @@ public class POIUtils {
                             }
                             else{
                                 p.setGroupID(null);
-                                System.out.println("组名出错"); //输出信息
+//                                System.out.println("组名出错"); //输出信息
                             }
                         }
                     }
@@ -1084,7 +1084,6 @@ public class POIUtils {
         HSSFSheet sheet = workbook.getSheet("Sheet1");
         HSSFRow row = sheet.getRow(17);//Row
         HSSFCell cell = row.getCell(6);
-        System.out.println(cell.getNumericCellValue());
     }
 
     public static Msg readExcel_rate(MultipartFile file,List<ScoreItem> scoreItemsByE) {

@@ -94,7 +94,7 @@ export default {
               ); //存用户session
             }
           }).catch((error)=>{
-            console.log(error)
+            // console.log(error)
           })
           .finally(()=>{
             this.loading = false;

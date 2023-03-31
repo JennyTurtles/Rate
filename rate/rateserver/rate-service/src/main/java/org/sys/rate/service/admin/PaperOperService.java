@@ -16,7 +16,6 @@ public class PaperOperService {
 
     public int insertPaperOper(PaperOper paperoper){
 
-        System.out.println(paperoper.getPaperName());
         return paperoperMapper.insertPaperoper(paperoper);
     }
     public List<PaperOper> selectList(Long ID){

@@ -429,7 +429,6 @@ export default {
       this.dialogVisible_show = true;
     },
     deleteEmp(data) {
-      console.log(data);
       this.$confirm(
         "此操作将永久删除【" + data.company + "】, 是否继续?",
         "提示",
@@ -449,7 +448,6 @@ export default {
     },
     doAddEmp() {
       if (this.emp.id) {
-        console.log(this.emp);
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             const _this = this;

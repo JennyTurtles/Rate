@@ -179,7 +179,6 @@ public class ParticipatesBasicController {
 
     @PostMapping("/import")
     public RespBean importData(@RequestParam Integer groupid,@RequestParam Integer activityid,@RequestParam Integer insititutionID,MultipartFile file) throws IOException, ParseException {
-        System.out.println("POIUtils.check(file)");
         List<Groups> groups = groupsService.getActivitiesName(activityid);
         Map<String,Integer>map=new HashMap<>();
         for(Groups g:groups)

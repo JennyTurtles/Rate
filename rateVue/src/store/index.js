@@ -81,7 +81,6 @@ const store = new Vuex.Store({
         },
         INIT_initchangeList(state) {
             state.changeList = false
-            console.log(state.changeList)
         }
     },
     actions: { //异步执行mutations方法
@@ -205,7 +204,6 @@ const store = new Vuex.Store({
                                 //把总分也给过去
                                 value.participatesList[j].sum = sumscore
                             }
-                            // console.log(value)
                             // 如果页面存在sessionStorage
                             if (sessionStorage.getItem("score")) {
                                 let JSONscore = JSON.parse(sessionStorage.getItem("score"))

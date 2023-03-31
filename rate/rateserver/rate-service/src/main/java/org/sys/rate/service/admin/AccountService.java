@@ -31,7 +31,6 @@ public class AccountService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println(username);
         String[] split = username.split(":",2);
         String username1=split[1];
         String role1=split[0];
@@ -40,7 +39,6 @@ public class AccountService implements UserDetailsService {
         } else if (role1.equals("teacher")) {
             return teachersService.loadUserByUsername(username1);
         }else if (role1.equals("student")) {
-            System.out.println("student..");
             return studentService.loadUserByUsername(username1);
         }
         else

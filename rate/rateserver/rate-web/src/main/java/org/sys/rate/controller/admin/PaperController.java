@@ -142,7 +142,6 @@ public class PaperController
 //    添加论文 搜索期刊类别
     @GetMapping("/publicationList")
     public JsonResult<List> getPublicationList(String publicationName){
-        System.out.println("调用了publicationList");
         return new JsonResult<>(publicationService.selectPublicationListByName(publicationName));
 //        return new JsonResult<>(paperService.selectPublicationList(publicationName));
     }
@@ -167,9 +166,6 @@ public class PaperController
     @ResponseBody
     public JsonResult addSave(Paper paper) throws MessagingException {
         Integer res=paperService.insertPaper(paper);
-        System.out.println("新增的paper id:");
-        System.out.println(paper.getID());
-
         mailService.sendMail(paper, uploadFileName);
         return new JsonResult(paper.getID());
 //        return new JsonResult();
@@ -181,8 +177,6 @@ public class PaperController
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Paper paper) throws MessagingException {
-        System.out.println(paper.getName());
-        System.out.println(paper.getID());
         mailService.sendMail(paper, uploadFileName);
         return new JsonResult(paperService.updatePaper(paper));
     }
@@ -194,7 +188,6 @@ public class PaperController
 //    @ResponseBody
     public JsonResult remove(@PathVariable Long ID)
     {
-        System.out.println(ID);
         Integer res=paperService.deletePaperById(ID);
 //        if(res< 300 && res >= 200){
 //            return RespBean.ok("success");

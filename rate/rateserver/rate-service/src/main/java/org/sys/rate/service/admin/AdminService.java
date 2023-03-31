@@ -39,7 +39,6 @@ public class AdminService implements UserDetailsService {
             throw new UsernameNotFoundException("用户名不存在!");
         }
         admin.setRoles(adminMapper.getAdminRolesById(admin.getId()));
-        //System.out.println("loadUserByUsername");
         return admin;
     }
 

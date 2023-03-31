@@ -54,8 +54,6 @@ public class PaperService {
         if (page != null && size != null) {
             page = (page - 1) * size;
         }
-//        System.out.println(studentID);
-//        System.out.println("...");
         List<Paper> p=paperMapper.selectListById(studentID,page,size);
 //        System.out.println(p);
         return p;
