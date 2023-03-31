@@ -16,6 +16,7 @@ public class ParticipantsDisplay {
     private String code;
     private Double score;
     private String groupName;
-    private List<String> displayItemName; // 顺序放置展示项名称
-    private Map<String,DisplayItem> map; // 展示项名称到展示项的映射
+    private List<String> displayItemName; // 顺序放置展示项的别名
+//    private Map<String,String> nameMap; // 别名到真名的映射
+    private Map<String,DisplayItem> map; // 真名到展示项的映射
 }
