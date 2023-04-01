@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class InfoItem {
     private Integer ID;
-
+    private Integer participantID;
     private Integer activityID;
 
     private String name;
@@ -23,6 +23,14 @@ public class InfoItem {
 
     public String getContent() {
         return content;
+    }
+
+    public Integer getParticipantID() {
+        return participantID;
+    }
+
+    public void setParticipantID(Integer participantID) {
+        this.participantID = participantID;
     }
 
     public void setContent(String content) {

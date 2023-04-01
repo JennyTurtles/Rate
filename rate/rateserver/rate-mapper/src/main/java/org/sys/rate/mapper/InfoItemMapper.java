@@ -71,4 +71,11 @@ public interface InfoItemMapper {
             "LEFT JOIN infos ON infoitem.ID=infos.infoitemID\n" +
             "AND infos.participantID=#{participantID} AND infoitem.activityID = #{activityID}")
     List<InfoItem> getAllByParticipantID(Integer activityID,Integer participantID);
+
+    @Select("select * from infoitem where activityID=#{activityID}")
+    List<InfoItem> getInfoItemByActivityID(Integer activityID);
+
+    @Select("select infos.participantID,infoitem.ID,infos.content from infoitem LEFT JOIN infos ON infoitem.ID=infos.infoitemID\n" +
+            "AND infoitem.activityID = #{activityID}")
+    List<InfoItem> getInfoItemParByActivityID(Integer activityID);
 }

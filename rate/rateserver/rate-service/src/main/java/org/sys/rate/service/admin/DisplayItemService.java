@@ -1,16 +1,18 @@
 package org.sys.rate.service.admin;
 
+import ch.qos.logback.core.joran.util.beans.BeanDescriptionFactory;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.sys.rate.mapper.DisplayItemMapper;
 import org.sys.rate.mapper.InfoItemMapper;
 import org.sys.rate.mapper.ParticipatesMapper;
 import org.sys.rate.model.DisplayItem;
 import org.sys.rate.model.InfoItem;
 import org.sys.rate.model.ParticipantsDisplay;
+import org.sys.rate.model.Participates;
 
 import javax.annotation.Resource;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,40 +48,35 @@ public class DisplayItemService {
     // 获取所有成员和他们所有的展示项
     public List<ParticipantsDisplay> getParticipantsDisplay(Integer activityID, Integer groupID) {
         List<ParticipantsDisplay> res;
-        // 首先获取基础信息
+        // 获取所有角色以及他们的基础信息
         if (groupID == -1)
             res = participatesMapper.getParticipantsDisplay(activityID);
         else
             res = participatesMapper.getParticipantsDisplayByGroup(activityID, groupID);
 
-        // 获取该活动的展示项，，存储为map，key:id，value:displayItem
+        // 信息项：建立table，(pID,iID):content
+        Table<Integer, Integer,String> tableInfoItem = getInfoContentTable(activityID,res);
+
+        // 展示项：建立map，ID:displayItem
         List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItem(activityID); // 所有选手都无content，因为需要依次计算
         Map<Integer, DisplayItem> displayItemMap = new HashMap<>();
         for (DisplayItem displayItem : displayItems){
-            displayItem.setSourceName(getSourceName(displayItem.getSource()));
+            displayItem.setSourceName(getSourceName(displayItem.getSource())); // 解析sourceName
             displayItemMap.put(displayItem.getID(), displayItem);
         }
 
-
         // 为每个选手添加展示项
         for (ParticipantsDisplay participantsDisplay : res) {
-            participantsDisplay.setDisplayItemName(new ArrayList<>());
-            participantsDisplay.setMap(new HashMap<>());
-            // 获取该选手的所有信息项
-            List<InfoItem> infoItemPar = infoItemMapper.getAllByParticipantID(activityID, participantsDisplay.getID());
-            Map<Integer, InfoItem> infoItemMap = new HashMap<>();
-            for (InfoItem infoItem : infoItemPar)
-                infoItemMap.put(infoItem.getID(), infoItem);
+            participantsDisplay.setDisplayItemName(new ArrayList<>()); // 待优化
+            participantsDisplay.setMap(new HashMap<>()); // 待优化
             // 为该选手添加展示项
             for (DisplayItem displayItem : displayItems) {
-                if (displayItem.getSource() == null)
-                    continue;
                 participantsDisplay.getDisplayItemName().add(displayItem.getName());
-                // 判断展示项是第一类还是第二类，分别处理
                 String source = displayItem.getSource();
                 DisplayItem displayItemNew = new DisplayItem(displayItem); // 复制一份displayItem
+                // 判断展示项是第一类还是第二类，分别处理
                 if (!source.contains("*")) { // 如果displayItem的source不包含"*"则为第一类
-                    String displayContent = getDisplayContentPart(source, participantsDisplay, infoItemMap, displayItemMap, activityID);
+                    String displayContent = getDisplayContentPart(source, participantsDisplay, tableInfoItem, displayItemMap, activityID);
                     displayItemNew.setContent(formatDouble(displayContent));
                     participantsDisplay.getMap().put(displayItem.getName(), displayItemNew);
                 } else // 第二类需要计算其总分
@@ -88,7 +85,7 @@ public class DisplayItemService {
                     double score = 0;
                     int error = 0;
                     for (String s : split) {
-                        String displayContent = getDisplayContentPart(s, participantsDisplay, infoItemMap, displayItemMap, activityID);
+                        String displayContent = getDisplayContentPart(s, participantsDisplay, tableInfoItem, displayItemMap, activityID);
                         if (displayContent == null)
                             continue;
                         if (displayContent.equals("error")){
@@ -106,7 +103,7 @@ public class DisplayItemService {
     }
 
     // 用于解析字符串，传入系数*项名 或 项名，返回该展示项的值，同时适用于第一类和第二类展示项
-    private String getDisplayContentPart(String str, ParticipantsDisplay participantsDisplay, Map<Integer, InfoItem> infoItemMap, Map<Integer, DisplayItem> displayItemMap, Integer activityID) {
+    private String getDisplayContentPart(String str, ParticipantsDisplay participantsDisplay, Table<Integer,Integer,String> tableInfoItem, Map<Integer, DisplayItem> displayItemMap, Integer activityID) {
         String[] split = str.split("\\*");
         String target = split.length == 1 ? split[0] : split[1]; // 区分第一类和第二类展示项
         double coefficient = split.length == 1 ? 1 : Double.parseDouble(split[0]);
@@ -131,10 +128,9 @@ public class DisplayItemService {
         Integer ID = Integer.parseInt(split2[1]);
         // 处理infoitem表
         if (tableName.equals("infoitem")) {
-            InfoItem infoItem = infoItemMap.get(ID);
-            if (infoItem == null)
+            if (!tableInfoItem.contains(participantsDisplay.getID(), ID)) // source中填写的id有问题
                 return "error";
-            String content = infoItem.getContent();
+            String content = tableInfoItem.get(participantsDisplay.getID(), ID); // 在已有的分数上继续计算
             try {
                 score = Double.parseDouble(content); // content如果不为小数，对于第一类展示项，直接返回，对于第二类展示项，返回null
             } catch (Exception e) {
@@ -217,5 +213,27 @@ public class DisplayItemService {
             return "";
         return coefficient.equals("") ? name : coefficient + "*" + name;
     }
-}
 
+    // 信息项table (pID,iID):content，使用multi-key，获取所有角色的信息项的内容，优化数据库访问次数。
+    // 此处infoItem的name不重要，因此value为content而不需要是infoItem。
+    public Table<Integer,Integer,String> getInfoContentTable(Integer activityID,List<ParticipantsDisplay> pars) {
+        List<InfoItem> infoItems = infoItemMapper.getInfoItemByActivityID(activityID);
+        List<InfoItem> infoItemPars = infoItemMapper.getInfoItemParByActivityID(activityID); // 包含所有选手的content
+        Table<Integer,Integer,String> table = HashBasedTable.create();
+        // 建立table
+        for (InfoItem infoItem : infoItemPars){
+            if (infoItem.getParticipantID() == null)
+                continue;
+            table.put(infoItem.getParticipantID(), infoItem.getID(), infoItem.getContent());
+        }
+        // 查漏补缺
+        for (InfoItem infoItem : infoItems){
+            for (ParticipantsDisplay par : pars){
+                if (!table.contains(par.getID(),infoItem.getID())){
+                    table.put(par.getID(), infoItem.getID(), "");
+                }
+            }
+        }
+        return table;
+    }
+}
