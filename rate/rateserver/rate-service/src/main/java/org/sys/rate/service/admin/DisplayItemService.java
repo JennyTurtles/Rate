@@ -1,16 +1,13 @@
 package org.sys.rate.service.admin;
 
-import ch.qos.logback.core.joran.util.beans.BeanDescriptionFactory;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.DisplayItemMapper;
 import org.sys.rate.mapper.InfoItemMapper;
 import org.sys.rate.mapper.ParticipatesMapper;
-import org.sys.rate.model.DisplayItem;
-import org.sys.rate.model.InfoItem;
-import org.sys.rate.model.ParticipantsDisplay;
-import org.sys.rate.model.Participates;
+import org.sys.rate.mapper.ScoreItemMapper;
+import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
@@ -29,6 +26,8 @@ public class DisplayItemService {
     ParticipatesService participatesService;
     @Resource
     DisplayItemMapper displayItemMapper;
+    @Resource
+    ScoreItemMapper scoreItemMapper;
 
     // 获得所有第一类展示项，包括：基础信息、信息项目
     public List<DisplayItem> getFirstDisplayItem(Integer activityID) {
@@ -37,11 +36,14 @@ public class DisplayItemService {
         res.add(new DisplayItem("编号", "code"));
         res.add(new DisplayItem("组名", "group"));
         res.add(new DisplayItem("专家打分", "scores"));
-        res.add(new DisplayItem("活动得分", "score"));
         // 获取信息项
         List<InfoItem> infoItems = infoItemMapper.getAll(activityID);
         for (InfoItem infoItem : infoItems)
             res.add(new DisplayItem(infoItem.getName(), "infoitem." + infoItem.getID()));
+        // 获取评分项
+        List<ScoreItem> scoreItems = scoreItemMapper.getByActivityID(activityID);
+        for (ScoreItem scoreItem : scoreItems)
+            res.add(new DisplayItem(scoreItem.getName(), "scoreitem." + scoreItem.getId()));
         return res;
     }
 
@@ -56,6 +58,9 @@ public class DisplayItemService {
 
         // 信息项：建立table，(pID,iID):content
         Table<Integer, Integer,String> tableInfoItem = getInfoContentTable(activityID,pars);
+
+        // 评分项：建立table，(pID,sID):score
+        Table<Integer, Integer,Double> tableScoreItem = getScoreAverageTable(activityID,pars);
 
         // 展示项：建立map，ID:displayItem
         List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItem(activityID); // 获取所有列信息
@@ -72,7 +77,7 @@ public class DisplayItemService {
             // 为该选手添加展示项
             for (DisplayItem displayItem : displayItems) {
                 if (!displayItem.getSource().contains("*")) {  // 如果displayItem的source不包含"*"则为第一类
-                    String displayContent = getDisplayContentPart(displayItem.getSource(), par, tableInfoItem, displayItemMap, activityID);
+                    String displayContent = getDisplayContentPart(displayItem.getSource(), par, tableInfoItem, tableScoreItem, displayItemMap, activityID);
                     par.getMap().put(displayItem.getName(), formatDouble(displayContent));
                 } else // 第二类需要计算
                 {
@@ -80,7 +85,7 @@ public class DisplayItemService {
                     double score = 0;
                     int error = 0;
                     for (String s : split) {
-                        String displayContent = getDisplayContentPart(s, par, tableInfoItem, displayItemMap, activityID);
+                        String displayContent = getDisplayContentPart(s, par, tableInfoItem, tableScoreItem, displayItemMap, activityID);
                         if (displayContent == null)
                             continue;
                         if (displayContent.equals("error")){
@@ -96,6 +101,7 @@ public class DisplayItemService {
         return pars;
     }
 
+
     public List<DisplayItem> getDisplayItem(Integer activityID) {
         List<DisplayItem> res =  displayItemMapper.getAllDisplayItem(activityID);
         for (DisplayItem displayItem : res)
@@ -104,7 +110,8 @@ public class DisplayItemService {
     }
 
     // 用于解析字符串，传入系数*项名 或 项名，返回该展示项的值，同时适用于第一类和第二类展示项
-    private String getDisplayContentPart(String str, ParticipantsDisplay par, Table<Integer,Integer,String> tableInfoItem, Map<Integer, DisplayItem> displayItemMap, Integer activityID) {
+    private String getDisplayContentPart(String str, ParticipantsDisplay par, Table<Integer,Integer,String> tableInfoItem,
+                                         Table<Integer, Integer,Double> tableScoreItem, Map<Integer, DisplayItem> displayItemMap, Integer activityID) {
         String[] split = str.split("\\*");
         String target = split.length == 1 ? split[0] : split[1]; // 区分第一类和第二类展示项
         double coefficient = split.length == 1 ? 1 : Double.parseDouble(split[0]);
@@ -116,15 +123,11 @@ public class DisplayItemService {
                 return split.length == 1 ? par.getGroupName() : null;
             case "scores":
                 return split.length == 1 ? participatesService.getTotalscorewithdot(activityID, par.getID()) : null;
-            case "score":
-                if (par.getScore() == null)
-                    return null;
-                return split.length == 1 ? par.getScore().toString() : par.getScore() * coefficient + "";
         }
         // 表名.ID
         String[] split2 = target.split("\\.");
         String tableName = split2[0];
-        if (split.length == 1 && !tableName.equals("infoitem") && !tableName.equals("displayitem"))
+        if (!tableName.equals("infoitem") && !tableName.equals("displayitem") && !tableName.equals("scoreitem"))
             return "error";
         Integer ID = Integer.parseInt(split2[1]);
         // 处理infoitem表
@@ -137,7 +140,7 @@ public class DisplayItemService {
             } catch (Exception e) {
                 return split.length == 1 ? content : null;
             }
-        } else if (split.length == 2 && tableName.equals("displayitem")) { // 第一类展示项中不包含总分项
+        } else if (tableName.equals("displayitem")) { // 第一类展示项中不包含总分项
             DisplayItem displayItem = displayItemMap.get(ID);
             if (displayItem == null)
                 return "error";
@@ -147,7 +150,12 @@ public class DisplayItemService {
             } catch (Exception e) {
                 return null;
             }
-        } else
+        } else if (tableName.equals("scoreitem")) {
+            if (!tableScoreItem.contains(par.getID(), ID))
+                return "error";
+            score = tableScoreItem.get(par.getID(), ID); // 必定为double类型
+        }
+        else
             return "error";
         return score * coefficient + "";
     }
@@ -195,23 +203,23 @@ public class DisplayItemService {
             case "scores":
                 name = "专家打分";
                 break;
-            case "score":
-                name = "活动得分";
-                break;
         }
         if (!name.equals(""))
             return coefficient.equals("") ? name : coefficient + "*" + name;
         String[] split2 = target.split("\\.");
         String tableName = split2[0];
-        if (split.length == 1 && !tableName.equals("infoitem") && !tableName.equals("displayitem"))
+        if (!tableName.equals("infoitem") && !tableName.equals("displayitem") && !tableName.equals("scoreitem"))
             return "error";
         Integer ID = Integer.parseInt(split2[1]);
         if (tableName.equals("infoitem")) {
             name = infoItemMapper.getNameByID(ID);
         } else if (tableName.equals("displayitem")) {
             name = displayItemMapper.getNameByID(ID);
-        }else
-            return "";
+        }else if (tableName.equals("scoreitem")) {
+            name = scoreItemMapper.getNameByID(ID);
+        }
+        else
+            return "error";
         return coefficient.equals("") ? name : coefficient + "*" + name;
     }
 
@@ -237,4 +245,27 @@ public class DisplayItemService {
         }
         return table;
     }
+
+    // 对于评分项，还需要额外乘以系数
+    private Table<Integer, Integer, Double> getScoreAverageTable(Integer activityID, List<ParticipantsDisplay> pars) {
+        List<ScoreItem> scoreItems = scoreItemMapper.getByActivityID(activityID);
+        List<ScoreAverage> scoreAverages = scoreItemMapper.getScoreAverageByActivityID(activityID);
+        Table<Integer, Integer, Double> table = HashBasedTable.create();
+        // 建立table
+        for (ScoreAverage scoreAverage : scoreAverages) {
+            if (scoreAverage.getParticipantID() == null)
+                continue;
+            table.put(scoreAverage.getParticipantID(), scoreAverage.getScoreItemID(), scoreAverage.getScore()*scoreAverage.getCoef());
+        }
+        // 查漏补缺
+        for (ScoreItem scoreItem : scoreItems) {
+            for (ParticipantsDisplay par : pars) {
+                if (!table.contains(par.getID(), scoreItem.getId())) {
+                    table.put(par.getID(), scoreItem.getId(), 0.0);
+                }
+            }
+        }
+        return table;
+    }
+
 }

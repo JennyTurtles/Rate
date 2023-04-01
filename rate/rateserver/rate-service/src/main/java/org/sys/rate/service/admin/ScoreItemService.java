@@ -77,7 +77,7 @@ public class ScoreItemService {
     }
 
     public Integer updateScoreItem(ScoreItem company) {
-        ScoreItem scoreItemOld = ScoreItemMapper.getAllbyId(company.getId());
+        ScoreItem scoreItemOld = ScoreItemMapper.getById(company.getId());
         int result = ScoreItemMapper.update(company);
         double score = company.getScore() * company.getCoef() - scoreItemOld.getScore()*scoreItemOld.getCoef();
         activitiesMapper.updateScore(company.getActivityid(),score);

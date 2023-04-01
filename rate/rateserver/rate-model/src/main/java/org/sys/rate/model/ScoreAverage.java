@@ -12,4 +12,5 @@ public class ScoreAverage {
     private Integer participantID;
     private Integer scoreItemID;
     private Double score;
+    private Double coef;
 }

@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.InfoItemValue;
+import org.sys.rate.model.ScoreAverage;
 import org.sys.rate.model.ScoreItem;
 import org.sys.rate.model.ScoreItemValue;
 
@@ -71,5 +72,14 @@ public interface ScoreItemMapper {
     String getNameByID(Integer id);
 
     @Select("select * from scoreitem where id=#{ID}")
-    ScoreItem getAllbyId(Integer ID);
+    ScoreItem getById(Integer ID);
+
+    @Select("select * from scoreitem where activityID=#{activityID}")
+    List<ScoreItem> getByActivityID(Integer activityID);
+
+
+    @Select("select score_average.participantID,scoreitem.ID as scoreItemID,score_average.score,scoreitem.coef \n" +
+            "from scoreitem LEFT JOIN score_average ON scoreitem.ID=score_average.scoreItemID\n" +
+            "WHERE scoreitem.activityID = #{activityID}")
+    List<ScoreAverage> getScoreAverageByActivityID(Integer activityID);
 }

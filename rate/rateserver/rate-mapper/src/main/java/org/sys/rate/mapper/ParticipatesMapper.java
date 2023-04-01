@@ -162,9 +162,9 @@ public interface ParticipatesMapper {
     List<ParticipantsDisplay> getParticipantsDisplayByGroup(Integer activityID, Integer groupID);
 
     @Insert("INSERT INTO score_average \n" +
-            "(SELECT NULL,si.activityID,scores.participantID,si.ID as scoreItemID,AVG(scores.score) as score \n" +
+            "(SELECT NULL,scores.participantID,si.ID as scoreItemID,AVG(scores.score) as score \n" +
             "from scoreitem si, scores \n" +
-            "WHERE si.ID = scores.scoreItemID AND si.activityID = 34 AND participantID = 485\n" +
+            "WHERE si.ID = scores.scoreItemID AND si.activityID = #{activityID} AND participantID = #{participantID}\n" +
             "GROUP BY si.ID)\n" +
             "on duplicate key update score = VALUES(score)")
     Integer saveAvgScores(Integer participantID, Integer activityID);

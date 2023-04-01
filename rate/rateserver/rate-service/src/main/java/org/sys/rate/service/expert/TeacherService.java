@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.sys.rate.mapper.ScoreItemMapper;
 import org.sys.rate.mapper.ScoresMapper;
 import org.sys.rate.mapper.TeacherMapper;
@@ -88,6 +89,7 @@ public class TeacherService implements UserDetailsService{
        return id;
     }
 
+    @Transactional
     public List<String> addScores(Integer expertID,Integer activitiesID,List<Scores> scoresList) {
         //先找到评分项中的总分id(活动得分)
         Integer scoreFullScore = scoreItemMapper.selectScoreItemFinal(activitiesID);

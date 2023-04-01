@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableCaching
 @MapperScan(basePackages = "org.sys.rate.mapper")
 @EnableScheduling
-@EnableTransactionManagement
+@EnableTransactionManagement(proxyTargetClass = true)
 public class RateApplication {
 
     public static void main(String[] args) {

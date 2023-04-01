@@ -32,14 +32,14 @@ public class DisplayItemController {
         return RespBean.ok("success",res);
     }
 
-    @GetMapping("/first") // 获取所有第一类展示项
+    @GetMapping("/first") // 获取所有第一类展示项，第一类指的是数据库中原先有的项，包括基本信息，评分项，信息项
     public RespBean getFirst(@RequestParam Integer activityID) {
         List<DisplayItem> res = displayItemService.getFirstDisplayItem(activityID);
-        Collections.sort(res); // 按照sourceName排序
+        Collections.sort(res); // 按照sourceName排序，方便前端查看
         return RespBean.ok("success",res);
     }
 
-    @GetMapping("/second") // 获取所有第一类和第二类展示项
+    @GetMapping("/second") // 获取所有展示项，在第一类的基础上加上了第二类展示项，第二类指的是displayitem表中涉及计算操作的项
     public RespBean getSecond(@RequestParam Integer activityID) {
         List<DisplayItem> res = displayItemService.getFirstDisplayItem(activityID);
         List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItem(activityID);
