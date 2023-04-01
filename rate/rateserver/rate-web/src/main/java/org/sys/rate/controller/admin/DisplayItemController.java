@@ -70,7 +70,11 @@ public class DisplayItemController {
     // 用于"查看选手评分"，获取所有选手的展示项
     @GetMapping("/allPar")
     public RespBean getAllPar(@RequestParam Integer activityID,@RequestParam(defaultValue = "-1") Integer groupID) {
-        List<ParticipantsDisplay> res = displayItemService.getParticipantsDisplay(activityID,groupID);
+        List<ParticipantsDisplay> pars = displayItemService.getParticipantsDisplay(activityID,groupID);
+        List<DisplayItem> displayItems = displayItemService.getDisplayItem(activityID);
+        List<Object> res = new ArrayList<>();
+        res.add(pars);
+        res.add(displayItems);
         return RespBean.ok("success",res);
     }
 }

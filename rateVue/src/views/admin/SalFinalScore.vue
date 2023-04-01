@@ -65,8 +65,8 @@
     <div style="margin-top: 10px">
       <el-table
           ref = "excelTable"
-          :data="displayItemPar"
-          :model="displayItemPar"
+          :data="displayPars"
+          :model="displayPars"
           stripe
           border
           id='outTable'
@@ -88,16 +88,16 @@
             min-width="10%">
         </el-table-column>
         <el-table-column
-            v-for="(v, i) in displayItemName"
-            :prop="v"
-            :label="v"
+            v-for="(v, i) in displayItem"
+            :prop="v.name"
+            :label="v.name"
             :key="i"
             sortable
             min-width="10%" align="center"
             :sort-method="(a, b) => {
-                      return Number(a.map[v].content)- Number( b.map[v].content)}"
+                      return Number(a.map[v.name])- Number(b.map[v.name])}"
             :sort-orders="['descending', 'ascending']">
-          <template v-slot:header='scope' v-if="displayItemPar[0].map[v].source.indexOf('*') !== -1">
+          <template v-slot:header='scope' v-if="displayItem[i].source.indexOf('*') !== -1">
             <span>
               	  <el-tooltip
                       :aa="scope"
@@ -105,9 +105,9 @@
                       effect="dark"
                       placement="top-start"
                   >
-               <i class="el-icon-question"> </i>
+               <i class="el-icon-info" style="color: #4b8ffe"> </i>
                <div style="width: 200px" slot="content">
-                {{displayItemPar[0].map[v].sourceName}}
+                {{displayItem[i].sourceName}}
                </div>
 	                </el-tooltip>
               {{scope.column.label}}
@@ -115,10 +115,9 @@
           </template>
           <template slot-scope="scope">
             <div>
-              <span v-if="typeof scope.row.map[v].fullScore !== 'undefined' && scope.row.map[v].content < scope.row.map[v].fullScore * 0.6"
-                    style="color: red">{{scope.row.map[v].content}}</span>
-              <span v-else>{{scope.row.map[v].content}}</span>
-
+              <span v-if="typeof displayItem[i].fullScore !== 'undefined' && scope.row.map[v.name] < displayItem[i].fullScore * 0.6"
+                    style="color: red">{{scope.row.map[v.name]}}</span>
+              <span v-else>{{scope.row.map[v.name]}}</span>
             </div>
           </template>
         </el-table-column>
@@ -142,9 +141,8 @@ export default {
       form: {
         weightedSum: '',
       },
-      displayItemName: [],
-      displayItemMap: {},
-      displayItemPar: [],
+      displayItem: [],
+      displayPars: [],
       showDialog: false,
       selectedGroupInfo: '',
       groupInfoNums: {},
@@ -220,8 +218,10 @@ export default {
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
-          this.displayItemPar = resp.obj;
-          this.displayItemName = this.displayItemPar[0].displayItemName // 这里有优化空间
+          this.displayPars = resp.obj[0];
+          this.displayItem = resp.obj[1];
+          // console.log(this.displayPars) // 行信息
+          // console.log(this.displayItem) // 列信息
           this.initFitler()
         }
       });

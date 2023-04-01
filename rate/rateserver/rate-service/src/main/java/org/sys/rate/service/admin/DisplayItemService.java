@@ -47,18 +47,18 @@ public class DisplayItemService {
 
     // 获取所有成员和他们所有的展示项
     public List<ParticipantsDisplay> getParticipantsDisplay(Integer activityID, Integer groupID) {
-        List<ParticipantsDisplay> res;
         // 获取所有角色以及他们的基础信息
+        List<ParticipantsDisplay> pars;
         if (groupID == -1)
-            res = participatesMapper.getParticipantsDisplay(activityID);
+            pars = participatesMapper.getParticipantsDisplay(activityID);
         else
-            res = participatesMapper.getParticipantsDisplayByGroup(activityID, groupID);
+            pars = participatesMapper.getParticipantsDisplayByGroup(activityID, groupID);
 
         // 信息项：建立table，(pID,iID):content
-        Table<Integer, Integer,String> tableInfoItem = getInfoContentTable(activityID,res);
+        Table<Integer, Integer,String> tableInfoItem = getInfoContentTable(activityID,pars);
 
         // 展示项：建立map，ID:displayItem
-        List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItem(activityID); // 所有选手都无content，因为需要依次计算
+        List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItem(activityID); // 获取所有列信息
         Map<Integer, DisplayItem> displayItemMap = new HashMap<>();
         for (DisplayItem displayItem : displayItems){
             displayItem.setSourceName(getSourceName(displayItem.getSource())); // 解析sourceName
@@ -66,26 +66,21 @@ public class DisplayItemService {
         }
 
         // 为每个选手添加展示项
-        for (ParticipantsDisplay participantsDisplay : res) {
-            participantsDisplay.setDisplayItemName(new ArrayList<>()); // 待优化
-            participantsDisplay.setMap(new HashMap<>()); // 待优化
+        for (ParticipantsDisplay par : pars) {
+            par.setMap(new HashMap<>());
+
             // 为该选手添加展示项
             for (DisplayItem displayItem : displayItems) {
-                participantsDisplay.getDisplayItemName().add(displayItem.getName());
-                String source = displayItem.getSource();
-                DisplayItem displayItemNew = new DisplayItem(displayItem); // 复制一份displayItem
-                // 判断展示项是第一类还是第二类，分别处理
-                if (!source.contains("*")) { // 如果displayItem的source不包含"*"则为第一类
-                    String displayContent = getDisplayContentPart(source, participantsDisplay, tableInfoItem, displayItemMap, activityID);
-                    displayItemNew.setContent(formatDouble(displayContent));
-                    participantsDisplay.getMap().put(displayItem.getName(), displayItemNew);
-                } else // 第二类需要计算其总分
+                if (!displayItem.getSource().contains("*")) {  // 如果displayItem的source不包含"*"则为第一类
+                    String displayContent = getDisplayContentPart(displayItem.getSource(), par, tableInfoItem, displayItemMap, activityID);
+                    par.getMap().put(displayItem.getName(), formatDouble(displayContent));
+                } else // 第二类需要计算
                 {
-                    String[] split = source.split("\\+");
+                    String[] split = displayItem.getSource().split("\\+");
                     double score = 0;
                     int error = 0;
                     for (String s : split) {
-                        String displayContent = getDisplayContentPart(s, participantsDisplay, tableInfoItem, displayItemMap, activityID);
+                        String displayContent = getDisplayContentPart(s, par, tableInfoItem, displayItemMap, activityID);
                         if (displayContent == null)
                             continue;
                         if (displayContent.equals("error")){
@@ -94,31 +89,37 @@ public class DisplayItemService {
                         }
                         score += Double.parseDouble(displayContent);
                     }
-                    displayItemNew.setContent(error == 0 ? formatDouble(score + "") : "error");
-                    participantsDisplay.getMap().put(displayItem.getName(), displayItemNew);
+                    par.getMap().put(displayItem.getName(), error == 0 ? formatDouble(score + "") : "error");
                 }
             }
         }
+        return pars;
+    }
+
+    public List<DisplayItem> getDisplayItem(Integer activityID) {
+        List<DisplayItem> res =  displayItemMapper.getAllDisplayItem(activityID);
+        for (DisplayItem displayItem : res)
+            displayItem.setSourceName(getSourceName(displayItem.getSource()));
         return res;
     }
 
     // 用于解析字符串，传入系数*项名 或 项名，返回该展示项的值，同时适用于第一类和第二类展示项
-    private String getDisplayContentPart(String str, ParticipantsDisplay participantsDisplay, Table<Integer,Integer,String> tableInfoItem, Map<Integer, DisplayItem> displayItemMap, Integer activityID) {
+    private String getDisplayContentPart(String str, ParticipantsDisplay par, Table<Integer,Integer,String> tableInfoItem, Map<Integer, DisplayItem> displayItemMap, Integer activityID) {
         String[] split = str.split("\\*");
         String target = split.length == 1 ? split[0] : split[1]; // 区分第一类和第二类展示项
         double coefficient = split.length == 1 ? 1 : Double.parseDouble(split[0]);
         double score;
         switch (target) {
             case "code":
-                return split.length == 1 ? participantsDisplay.getCode() : null;
+                return split.length == 1 ? par.getCode() : null;
             case "group":
-                return split.length == 1 ? participantsDisplay.getGroupName() : null;
+                return split.length == 1 ? par.getGroupName() : null;
             case "scores":
-                return split.length == 1 ? participatesService.getTotalscorewithdot(activityID, participantsDisplay.getID()) : null;
+                return split.length == 1 ? participatesService.getTotalscorewithdot(activityID, par.getID()) : null;
             case "score":
-                if (participantsDisplay.getScore() == null)
+                if (par.getScore() == null)
                     return null;
-                return split.length == 1 ? participantsDisplay.getScore().toString() : participantsDisplay.getScore() * coefficient + "";
+                return split.length == 1 ? par.getScore().toString() : par.getScore() * coefficient + "";
         }
         // 表名.ID
         String[] split2 = target.split("\\.");
@@ -128,9 +129,9 @@ public class DisplayItemService {
         Integer ID = Integer.parseInt(split2[1]);
         // 处理infoitem表
         if (tableName.equals("infoitem")) {
-            if (!tableInfoItem.contains(participantsDisplay.getID(), ID)) // source中填写的id有问题
+            if (!tableInfoItem.contains(par.getID(), ID)) // source中填写的id有问题
                 return "error";
-            String content = tableInfoItem.get(participantsDisplay.getID(), ID); // 在已有的分数上继续计算
+            String content = tableInfoItem.get(par.getID(), ID); // 在已有的分数上继续计算
             try {
                 score = Double.parseDouble(content); // content如果不为小数，对于第一类展示项，直接返回，对于第二类展示项，返回null
             } catch (Exception e) {
@@ -140,7 +141,7 @@ public class DisplayItemService {
             DisplayItem displayItem = displayItemMap.get(ID);
             if (displayItem == null)
                 return "error";
-            String content = participantsDisplay.getMap().get(displayItem.getName()).getContent(); // 在已有的分数上继续计算
+            String content = par.getMap().get(displayItem.getName()); // 在已有的分数上继续计算
             try {
                 score = Double.parseDouble(content);
             } catch (Exception e) {

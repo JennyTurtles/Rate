@@ -10,7 +10,7 @@ import java.util.Comparator;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DisplayItem implements Comparable<DisplayItem> {
+public class DisplayItem implements Comparable<DisplayItem> { // 列的信息
     private Integer ID;
     private Integer activityID;
     private String name;
@@ -18,7 +18,6 @@ public class DisplayItem implements Comparable<DisplayItem> {
     private String sourceName;
     private Integer displaySequence;
     private Integer fullScore;
-    private String content;
 
     public DisplayItem(String sourceName, String source) {
         this.sourceName = sourceName;
@@ -33,7 +32,6 @@ public class DisplayItem implements Comparable<DisplayItem> {
         this.sourceName = displayItem.getSourceName();
         this.displaySequence = displayItem.getDisplaySequence();
         this.fullScore = displayItem.getFullScore();
-        this.content = displayItem.getContent();
     }
 
     @Override
