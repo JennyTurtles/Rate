@@ -233,9 +233,9 @@ export default {
       this.selectedSubGroupInfo=[]
       var infoItems = []
       // 只需要id,name,content
-      for (var par in this.displayItemPar) {
-        for (var key in this.displayItemPar[par].map) {
-          infoItems.push(this.displayItemPar[par].map[key])
+      for (var i in this.displayPars) {
+        for (var key in this.displayPars[i].map) {
+          infoItems.push({id: this.displayPars[i].id, name: key, content: this.displayPars[i].map[key]})
         }
       }
       for(var i = 0;i < infoItems.length;i ++){
@@ -254,11 +254,12 @@ export default {
     },
     filterPar(){
       var newPar = []
-      for (var i in this.displayItemPar) {
-        if (this.selectedSubGroupInfo.indexOf(this.displayItemPar[i].map[this.selectedGroupInfo].content) !== -1)
-          newPar.push(this.displayItemPar[i])
+      for (var i in this.displayPars) {
+        if (this.selectedSubGroupInfo.indexOf(this.displayPars[i].map[this.selectedGroupInfo]) !== -1){
+            newPar.push(this.displayPars[i])
+        }
       }
-      this.displayItemPar = newPar
+        this.displayPars = newPar
     },
     reset(){
       this.initEmps()
