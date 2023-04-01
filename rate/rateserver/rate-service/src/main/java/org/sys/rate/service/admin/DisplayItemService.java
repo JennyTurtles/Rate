@@ -135,10 +135,12 @@ public class DisplayItemService {
             if (!tableInfoItem.contains(par.getID(), ID)) // source中填写的id有问题
                 return "error";
             String content = tableInfoItem.get(par.getID(), ID); // 在已有的分数上继续计算
+            if (content.equals(""))
+                return null;
             try {
                 score = Double.parseDouble(content); // content如果不为小数，对于第一类展示项，直接返回，对于第二类展示项，返回null
-            } catch (Exception e) {
-                return split.length == 1 ? content : null;
+            } catch (Exception e) { // 解析到了脏东西
+                return split.length == 1 ? content : "error";
             }
         } else if (tableName.equals("displayitem")) { // 第一类展示项中不包含总分项
             DisplayItem displayItem = displayItemMap.get(ID);
