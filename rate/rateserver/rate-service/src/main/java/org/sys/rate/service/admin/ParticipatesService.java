@@ -584,6 +584,9 @@ public class ParticipatesService {
     public Integer saveAvgscore(Integer participantID,Integer activityID){
         return participatesMapper.saveAvgscore(participantID,activityID);
     }
+    public Integer saveAvgScores(Integer participantID,Integer activityID){
+        return participatesMapper.saveAvgScores(participantID,activityID);
+    }
     public Participates getParticipantIDByIDNumber(Integer activityID,String IDNumber){
         return participatesMapper.getParticipantIDByIDNumber(activityID,IDNumber);
     }

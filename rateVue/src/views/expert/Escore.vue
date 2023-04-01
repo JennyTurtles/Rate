@@ -718,6 +718,8 @@ export default {
           JSON.stringify(this.outdata)
       ).then((resp) => {
         if (resp) {
+            console.log("score")
+            console.log(JSON.stringify(this.outdata))
           this.$message({
             type: "success",
             message: "保存成功!",

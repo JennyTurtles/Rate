@@ -187,7 +187,8 @@ public class TeacherService implements UserDetailsService{
         for (int i = 0;i < arr.size();i ++){
             try {//开始算
                 Integer resp =participatesService.saveAvgscore((Integer) arr.get(i), activitiesID);
-                if(resp==0){result.add("平均分保存失败");}
+                Integer j = participatesService.saveAvgScores((Integer) arr.get(i), activitiesID);
+                if(resp==0 || j == 0){result.add("平均分保存失败");}
             }
             catch(Exception e) {
                 System.out.println(e);

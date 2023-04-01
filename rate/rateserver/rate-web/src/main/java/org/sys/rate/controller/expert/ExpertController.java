@@ -2,6 +2,7 @@ package org.sys.rate.controller.expert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
@@ -15,6 +16,7 @@ import org.sys.rate.utils.POIUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.beans.Transient;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -109,6 +111,7 @@ public class ExpertController {
     }
 
     @ResponseBody
+    @Transactional
     @PostMapping("/save")
     public Msg saveScore(@RequestBody ScoreWithEP scoreWithEP) {
         Integer expertID = scoreWithEP.getExpertID();
@@ -122,7 +125,6 @@ public class ExpertController {
             Double score = s.getScore();
             //判断是否有该项，有就更新，没有就插入
             Integer t = scoresService.getScoreByP(expertID, activityID, participantID, scoreItemID);
-//            System.out.println(t);
             if (t == 0) {
                 Integer i = scoresService.saveScore(expertID, activityID, participantID, scoreItemID, score);
                 if (i == 0) {
@@ -132,17 +134,18 @@ public class ExpertController {
                 scoresService.updateScore(expertID, activityID, participantID, scoreItemID, score);
             }
         }
-        reentrantLock.lock();
-        try {//开始算
-            Integer i =participatesService.saveAvgscore(participantID, AID);
-            if(i==0){return Msg.fail().add("msg", "保存失败");}
+        reentrantLock.lock(); // 不清楚为什么要加锁，别人写的，暂时留着吧 by grz
+        try {
+            Integer i =participatesService.saveAvgscore(participantID, AID); // 找到所有的“活动得分”，更新选手表里的平均分
+            // 所有评分项都需要计算平均分，保存在score_average表。若存在则更新，不存在则插入
+            Integer j = participatesService.saveAvgScores(participantID, AID);
+            if(i == 0 || j == 0){return Msg.fail().add("msg", "保存失败");}
         }
         catch(Exception e) {
             return Msg.fail().add("msg", "保存失败");
         }
         finally {
             reentrantLock.unlock();
-            // "解锁了！！！！！！！！！！！！！！！！！！！！！" + Calendar.getInstance().getTime());
         }
         return Msg.success().add("msg", "保存成功");
     }

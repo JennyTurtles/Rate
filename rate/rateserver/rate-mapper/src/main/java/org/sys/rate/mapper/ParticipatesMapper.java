@@ -1,5 +1,6 @@
 package org.sys.rate.mapper;
 
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -159,4 +160,12 @@ public interface ParticipatesMapper {
             "from participants p,`groups` g,student s \n" +
             "where p.activityID = #{activityID} and p.groupID = #{groupID} and p.groupID = g.ID and p.studentID = s.ID")
     List<ParticipantsDisplay> getParticipantsDisplayByGroup(Integer activityID, Integer groupID);
+
+    @Insert("INSERT INTO score_average \n" +
+            "(SELECT NULL,si.activityID,scores.participantID,si.ID as scoreItemID,AVG(scores.score) as score \n" +
+            "from scoreitem si, scores \n" +
+            "WHERE si.ID = scores.scoreItemID AND si.activityID = 34 AND participantID = 485\n" +
+            "GROUP BY si.ID)\n" +
+            "on duplicate key update score = VALUES(score)")
+    Integer saveAvgScores(Integer participantID, Integer activityID);
 }
