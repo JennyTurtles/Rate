@@ -373,6 +373,33 @@ export default new Router({
             title: '待审核列表',
           },
         },
+        {
+          path: '/admin/TeacherM',
+          name: '教师管理',
+          hidden: true,
+          component: () => import('./views/admin/SalTeacherM'),
+          meta: {
+            title: '教师管理',
+          },
+        },
+        {
+          path: '/admin/GraduateM',
+          name: '研究生管理',
+          hidden: true,
+          component: () => import('./views/admin/SalGraduateM'),
+          meta: {
+            title: '研究生管理',
+          },
+        },
+        {
+          path: '/admin/UnderGraduateM',
+          name: '本科生管理',
+          hidden: true,
+          component: () => import('./views/admin/SalUnderGraduateM'),
+          meta: {
+            title: '本科生管理',
+          },
+        },
       ],
     },
       //新打开一个页面

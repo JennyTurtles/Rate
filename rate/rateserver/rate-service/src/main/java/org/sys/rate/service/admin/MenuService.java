@@ -30,6 +30,10 @@ public class MenuService {
     ParticipatesMapper participatesMapper;
     @Resource
     SecretaryMapper secretaryMapper;
+    @Autowired
+    GraduateStudentMapper graduateStudentMapper;
+    @Autowired
+    UnderGraduateMapper underGraduateMapper;
 
 
     //获取子菜单
@@ -86,11 +90,19 @@ public class MenuService {
     }
 
     public List<Menu> getMenusByAdminId(Integer id, String role) {
-        //多个角色；分割
-//        !role.contains("10") && !role.contains("11") &&
-        if (participatesMapper.isParticipants(id) != 0){
+        if (participatesMapper.isParticipants(id) != 0){//选手
             if(!role.contains("7")){
                 role = role + ";7";
+            }
+        }
+        if (underGraduateMapper.isUndergraduate(id) != 0){//本科生
+            if(!role.contains("10")){
+                role = role + ";10";
+            }
+        }
+        if (graduateStudentMapper.isGraduateStudent(id) != 0){//研究生
+            if(!role.contains("11")){
+                role = role + ";11";
             }
         }
         if (expertsMapper.isExpert(id) != 0){
@@ -98,9 +110,6 @@ public class MenuService {
                 role = role + ";3";
             }
         }
-//        !role.contains("3") &&
-//        if (!role.contains("3") && expertsMapper.isExpert(id) != 0) // 是专家
-//            role = role + ";3";
         if (secretaryMapper.isSecretary(id) != 0){
             // 是秘书
             if(!role.contains("4")){

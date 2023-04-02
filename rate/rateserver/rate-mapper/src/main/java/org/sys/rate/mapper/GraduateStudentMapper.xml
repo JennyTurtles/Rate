@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.sys.rate.mapper.GraduateStudentMapper">
+    <resultMap id="BaseResultMap" type="org.sys.rate.model.GraduateStudent">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <id column="studentID" property="studentID" jdbcType="INTEGER"/>
+        <result column="institutionID" jdbcType="INTEGER" property="institutionID" />
+        <result column="stuNumber" property="stuNumber" jdbcType="VARCHAR"/>
+        <result column="year" property="year" jdbcType="VARCHAR"/>
+        <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID, studentID,institutionID,stuNumber, year, tutorID
+    </sql>
+
+    <insert id="insert" parameterType="org.sys.rate.model.Student">
+        insert into rate.student (name, studentnumber, telephone, email
+        )
+        values  (#{name,jdbcType=VARCHAR}, #{studentnumber,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR},
+                 #{email,jdbcType=VARCHAR});
+    </insert>
+
+    <update id="update" parameterType="org.sys.rate.model.Student">
+        UPDATE rate.student SET name=#{name,jdbcType=VARCHAR},
+                                studentnumber=#{studentnumber,jdbcType=VARCHAR},
+                                telephone=#{telephone,jdbcType=VARCHAR},
+                                email=#{email,jdbcType=VARCHAR}
+        where ID=#{ID,jdbcType=INTEGER};
+    </update>
+
+<!--    <select id="check" resultType="java.lang.Integer">-->
+<!--        select exists (select * from student where IDNumber=#{IDNumber})-->
+<!--    </select>-->
+
+    <insert id="insertFROMImport" parameterType="org.sys.rate.model.UnderGraduate">
+        insert into undergraduate(ID,studentID,institutionID,stuNumber,year,tutorID) values
+        <foreach collection="list" separator="," item="under">
+               (#{under.ID,jdbcType=INTEGER},
+                #{under.studentID,jdbcType=INTEGER},
+                #{under.institutionID,jdbcType=INTEGER},
+                #{under.stuNumber,jdbcType=VARCHAR},
+                #{under.year,jdbcType=VARCHAR}, #{under.tutorID,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+
+    <update id="updateFROMImport" parameterType="org.sys.rate.model.UnderGraduate">
+        <foreach collection="list" item="item" open="" close="" separator=";">
+            update undergraduate
+            <set>
+                institutionID=#{item.institutionID},
+                stuNumber = #{item.stuNumber},
+                year = #{item.year},
+                tutorID = #{item.tutorID}
+            </set>
+            where studentID = #{item.studentID}
+        </foreach>
+    </update>
+    <select id="check" resultType="java.lang.Integer">
+        select studentID
+        from graduatestudent
+        where studentID in
+        <foreach collection="list" close=")" open="(" item="item">
+            #{item.studentID}
+        </foreach>
+    </select>
+</mapper>
