@@ -24,7 +24,8 @@ public class UnderGraduateService {
         boolean underflag = false;
 //怎么判断学生表里是否有这个学生了？凭一个身份证判断可能会有多种角色，选手本科生研究生
         for (Student stu : stuList) {
-            if (studentMapper.check(stu.getIDNumber())!=0) {
+            Student ss = studentMapper.checkAndReturnID(stu.getIDNumber());
+            if (ss != null) {//存在这条数据
                 if(stu.getUsername().equals("") || stu.getUsername() == null)
                 {//不为空
                     stu.setUsername(null);
@@ -43,6 +44,7 @@ public class UnderGraduateService {
                 int insert0=studentMapper.updateFROMImport(stu);
                 if(insert0 > 0){
                     stufalg = true;
+                    stu.setID(ss.getID());
                 }
             } else {
                 if(stu.getUsername() == null || stu.getUsername().equals(""))

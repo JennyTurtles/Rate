@@ -58,6 +58,10 @@
     <select id="check" resultType="java.lang.Integer">
         select exists (select * from student where IDNumber=#{IDNumber})
     </select>
+
+    <select id="checkAndReturnID" resultMap="BaseResultMap">
+        select * from student where IDNumber=#{IDNumber}
+    </select>
 <!--    <select id="getAdminRolesById" resultType="org.sys.rate.model.Role">-->
 <!--&#45;&#45;         select r.* from role r,student a where a.`role`=r.`id` and a.`id`=#{id}-->
 <!--            select * from student where ID=#{ID}-->
@@ -96,7 +100,7 @@
         #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
         <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
         #{username,jdbcType=VARCHAR},
-        #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,0,'10'
+        #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,0,''
         )
     </insert>
 

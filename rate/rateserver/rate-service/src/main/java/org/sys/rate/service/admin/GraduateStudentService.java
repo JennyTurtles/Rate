@@ -25,7 +25,8 @@ public class GraduateStudentService {
         boolean stufalg = false;
         boolean graduateflag = false;
         for (Student stu : stuList) {
-            if (studentMapper.check(stu.getIDNumber())!=0) {
+            Student ss = studentMapper.checkAndReturnID(stu.getIDNumber());
+            if (ss != null) {//存在这条数据
                 if(stu.getUsername() == null || stu.getUsername().equals(""))
                 {//不为空
                     stu.setUsername(null);
@@ -42,6 +43,7 @@ public class GraduateStudentService {
                 int insert0=studentMapper.updateFROMImport(stu);
                 if(insert0 > 0){
                     stufalg = true;
+                    stu.setID(ss.getID());
                 }
             } else {
                 if(stu.getUsername() == null || stu.getUsername().equals(""))
@@ -70,7 +72,7 @@ public class GraduateStudentService {
         List<Integer> updateInter = graduateStudentMapper.check(graduateList);
         List<GraduateStudent> updateGraduates = new ArrayList<>();
         List<GraduateStudent> insertGraduates = new ArrayList<>();
-        //有已经存在的本科生了
+        //有已经存在的研究生了
         if(updateInter.size() != 0){
             for(int i = 0;i < graduateList.size();i++){
                 //不在更新列表中，说明本科生表里没有这个数据

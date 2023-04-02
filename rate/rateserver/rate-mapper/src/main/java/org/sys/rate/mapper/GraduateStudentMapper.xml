@@ -8,45 +8,34 @@
         <result column="stuNumber" property="stuNumber" jdbcType="VARCHAR"/>
         <result column="year" property="year" jdbcType="VARCHAR"/>
         <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
+        <result column="studentType" property="studentType" jdbcType="VARCHAR"/>
+        <result column="point" property="point" jdbcType="VARCHAR"/>
+
     </resultMap>
 
     <sql id="Base_Column_List">
-        ID, studentID,institutionID,stuNumber, year, tutorID
+        ID, studentID,institutionID,stuNumber, year, tutorID,studentType,point
     </sql>
-
-    <insert id="insert" parameterType="org.sys.rate.model.Student">
-        insert into rate.student (name, studentnumber, telephone, email
-        )
-        values  (#{name,jdbcType=VARCHAR}, #{studentnumber,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR},
-                 #{email,jdbcType=VARCHAR});
-    </insert>
-
-    <update id="update" parameterType="org.sys.rate.model.Student">
-        UPDATE rate.student SET name=#{name,jdbcType=VARCHAR},
-                                studentnumber=#{studentnumber,jdbcType=VARCHAR},
-                                telephone=#{telephone,jdbcType=VARCHAR},
-                                email=#{email,jdbcType=VARCHAR}
-        where ID=#{ID,jdbcType=INTEGER};
-    </update>
 
 <!--    <select id="check" resultType="java.lang.Integer">-->
 <!--        select exists (select * from student where IDNumber=#{IDNumber})-->
 <!--    </select>-->
 
-    <insert id="insertFROMImport" parameterType="org.sys.rate.model.UnderGraduate">
-        insert into undergraduate(ID,studentID,institutionID,stuNumber,year,tutorID) values
-        <foreach collection="list" separator="," item="under">
-               (#{under.ID,jdbcType=INTEGER},
-                #{under.studentID,jdbcType=INTEGER},
-                #{under.institutionID,jdbcType=INTEGER},
-                #{under.stuNumber,jdbcType=VARCHAR},
-                #{under.year,jdbcType=VARCHAR}, #{under.tutorID,jdbcType=INTEGER})
+    <insert id="insertFROMImport" parameterType="org.sys.rate.model.GraduateStudent">
+        insert into graduatestudent(ID,studentID,institutionID,stuNumber,year,tutorID,studentType,point) values
+        <foreach collection="list" separator="," item="graduate">
+               (#{graduate.ID,jdbcType=INTEGER},
+                #{graduate.studentID,jdbcType=INTEGER},
+                #{graduate.institutionID,jdbcType=INTEGER},
+                #{graduate.stuNumber,jdbcType=VARCHAR},
+                #{graduate.year,jdbcType=VARCHAR}, #{graduate.tutorID,jdbcType=INTEGER},
+                #{graduate.studentType,jdbcType=VARCHAR},#{graduate.point,jdbcType=VARCHAR})
         </foreach>
     </insert>
 
-    <update id="updateFROMImport" parameterType="org.sys.rate.model.UnderGraduate">
+    <update id="updateFROMImport" parameterType="org.sys.rate.model.GraduateStudent">
         <foreach collection="list" item="item" open="" close="" separator=";">
-            update undergraduate
+            update graduatestudent
             <set>
                 institutionID=#{item.institutionID},
                 stuNumber = #{item.stuNumber},

@@ -945,14 +945,14 @@ public class POIUtils {
         //设置列的宽度
         sheet.setColumnWidth(0, 10 * 256);
         sheet.setColumnWidth(1, 10 * 256);
-        sheet.setColumnWidth(2, 15 * 256);
+        sheet.setColumnWidth(2, 20 * 256);
         sheet.setColumnWidth(3, 15 * 256);
         sheet.setColumnWidth(4, 20 * 256);
         sheet.setColumnWidth(5, 15 * 256);
         sheet.setColumnWidth(6, 15 * 256);
         sheet.setColumnWidth(7, 10 * 256);
-//        sheet.setColumnWidth(8, 20 * 256);
-//        sheet.setColumnWidth(9, 20 * 256);
+        sheet.setColumnWidth(8, 15 * 256);
+        sheet.setColumnWidth(9, 15 * 256);
         //6. 创建标题行
         HSSFRow r0 = sheet.createRow(0);
         HSSFCell c0 = r0.createCell(0);
@@ -972,7 +972,9 @@ public class POIUtils {
         HSSFCell c7 = r0.createCell(7);
         c7.setCellValue("入学年份");
         HSSFCell c8 = r0.createCell(8);
-        c8.setCellValue("学生类型");
+        c8.setCellValue("学生类别");
+        HSSFCell c9 = r0.createCell(9);
+        c9.setCellValue("积分");
         HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("张三");
         row.createCell(1).setCellValue("1111");
@@ -981,6 +983,8 @@ public class POIUtils {
         row.createCell(4).setCellValue("123@dhu.edu.cn");
         row.createCell(7).setCellValue("2018");
         row.createCell(8).setCellValue("专硕/学硕");
+        row.createCell(9).setCellValue("12");
+
 
         sheet.createRow(2).createCell(0).setCellValue("请删除提示行。用户名密码可以不填写，若不填写第一次导入将默认为手机号，其余必须填写。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();

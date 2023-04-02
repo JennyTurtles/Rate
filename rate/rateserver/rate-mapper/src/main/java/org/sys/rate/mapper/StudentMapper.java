@@ -27,6 +27,7 @@ public interface StudentMapper {
     int update(Student record);
 
     int check(@Param("IDNumber") String record);
+    Student checkAndReturnID(@Param("IDNumber") String record);
 
     int insertFROMImport(Student record);
     int insertStuFromExcel(Student record);
