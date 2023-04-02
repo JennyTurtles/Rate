@@ -13,7 +13,19 @@
       </el-upload>
     </div>
     <div style="margin-top: 10px">
-      <el-table></el-table>
+      <el-table
+          :data="graduateStudents">
+        <el-table-column prop="name" label="姓名" align="center"></el-table-column>
+        <el-table-column prop="stuNumber" label="学号" align="center"></el-table-column>
+        <el-table-column prop="telephone" label="电话" align="center"></el-table-column>
+        <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
+        <el-table-column prop="year" label="入学年份" align="center"></el-table-column>
+        <el-table-column prop="studentType" label="学生类别" align="center"></el-table-column>
+        <el-table-column prop="point" label="积分" align="center"></el-table-column>
+        <el-table-column  label="操作" align="center">
+          <el-button size="mini" type="danger" icon="el-icon-delete" plain>删除</el-button>
+        </el-table-column>
+      </el-table>
     </div>
   </div>
 </template>
@@ -23,8 +35,11 @@ export default {
   name: "SalGraduateM",
   data(){
     return{
-
+      graduateStudents:[]
     }
+  },
+  mounted() {
+    this.initGraduateStudents()
   },
   methods:{
     onSuccess(res){
@@ -45,6 +60,13 @@ export default {
       let url = '/graduatestudentM/basic/exportGraduate'
       this.$message.success('正在下载')
       window.open(url,'_parent')
+    },
+    initGraduateStudents(){
+      this.getRequest('/graduatestudentM/basic/getGraduateStudents').then((response)=>{
+        if(response.code == 200){
+          this.graduateStudents = response.extend.res
+        }
+      })
     }
   }
 }

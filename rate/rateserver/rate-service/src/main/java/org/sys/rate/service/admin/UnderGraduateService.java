@@ -95,4 +95,14 @@ public class UnderGraduateService {
         }
         return RespBean.error("error");
     }
+
+    public Msg getUnderStudent(){
+        List<UnderGraduate> res = new ArrayList<>();
+        try {
+             res = underGraduateMapper.getUnderStudent();
+        }catch (Exception e){
+            return Msg.fail();
+        }
+        return Msg.success().add("res",res);
+    }
 }

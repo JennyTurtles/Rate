@@ -902,7 +902,7 @@ public class POIUtils {
                     student.setUsername(username);
                     student.setPassword(password);
                     underGraduate.setStuNumber(stuNumber);
-                    underGraduate.setYear(year);
+                    underGraduate.setYear(Integer.parseInt(year));
                     underGraduate.setInstitutionID(1);
                     studentList.add(student);
                     underList.add(underGraduate);
@@ -1091,7 +1091,7 @@ public class POIUtils {
                     student.setUsername(username);
                     student.setPassword(password);
                     graduateStudent.setStuNumber(stuNumber);
-                    graduateStudent.setYear(year);
+                    graduateStudent.setYear(Integer.parseInt(year));
                     graduateStudent.setInstitutionID(1);
                     graduateStudent.setStudentType(studentType);
                     graduateStudent.setPoint(point);
