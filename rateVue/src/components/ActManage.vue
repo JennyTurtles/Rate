@@ -699,11 +699,12 @@ export default {
               path: "/ActivitM/table",
               query: {
                   keywords: data.id,
-                  keyword_name: this.actName,
-                  groupID: this.groupID,
+                  keyword_name: data.name,
+                  groupID: this.groupID, // 用于读取主活动的组内的选手
                   groupName: this.groupName,
                   mode: this.mode,
                   backID: this.activityID,
+                  backActName: this.actName,
               },
           });
       }
@@ -785,6 +786,7 @@ export default {
                   mode:this.mode,
                   backGroupID:this.groupID,
                   backActID:this.activityID,
+                  backActName:this.actName,
               },
           });
       }

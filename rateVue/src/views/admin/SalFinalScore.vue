@@ -284,14 +284,28 @@ export default {
       }else if (this.mode === "secretary"){
         url = "/secretary/ActManage"
       }else if (this.mode === "secretarySub"){
-          url = "/secretary/SubActManage"
-          query = {
-            id: this.$route.query.backActID,
-            actName: this.keywords_name,
-            mode: this.mode,
-            groupID:  this.$route.query.backGroupID,
-            groupName: this.groupName,
+          if (typeof this.groupName === "undefined"){ // 此时查看的是整个子活动的选手分数
+              url = "/secretary/SubActManage"
+              query = {
+                  id: this.$route.query.backActID,
+                  actName: this.$route.query.backActName,
+                  mode: this.mode,
+                  groupID:  this.$route.query.backGroupID,
+                  groupName: this.groupName,
+              }
+          }else{
+              url = "/ActivitM/table"
+              query = {
+                  keywords: this.keywords,
+                  keyword_name: this.keywords_name,
+                  mode: this.mode,
+                  groupName: this.$route.query.backGroupName,
+                  groupID: this.$route.query.backGroupID,
+                  backID: this.$route.query.backBackID,
+                  backActName: this.$route.query.backActName,
+              }
           }
+
       }
       _this.$router.push({
         path: url,

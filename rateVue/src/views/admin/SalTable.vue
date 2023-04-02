@@ -8,7 +8,7 @@
         </el-button>
       </div>
     </div>
-    <div v-show="mode==='admin'" ><br/>单元格中内容双击后可编辑</div>
+    <div ><br/>单元格中内容双击后可编辑</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -87,7 +87,6 @@
           <template slot-scope="scope">
             <el-button
                 @click="UpdateOrNew(scope.row)"
-                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-collection"
@@ -108,7 +107,6 @@
             >
             <el-button
                 @click="showParticipantsM(scope.row)"
-                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-s-operation"
@@ -142,7 +140,6 @@
             >
             <el-button
                 @click="exportTG(scope.row)"
-                v-show="mode==='admin'"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
@@ -154,7 +151,6 @@
             >
             <el-button
                 @click="Delete_Score_Item(scope.row)"
-                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 type="danger"
@@ -177,7 +173,6 @@
         <div style="margin-left: 8px">
           <el-button
               @click="handleAddDetails()"
-              v-show="mode==='admin'"
               type="primary"
               icon="el-icon-plus"
           >新增
@@ -297,6 +292,8 @@ export default {
   },
   methods: {
     Delete_Score_Item(si) {
+        // console.log("si")
+        // console.log(si)
       this.$confirm("此操作将永久删除【" + si.name + "】, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -353,22 +350,28 @@ export default {
       });
     },
     initHrs() {
-      console.log(this.mode)
-      if (this.mode === "admin"){
         this.getRequest("/groups/basic/?keywords=" + this.keywords + "&page=" + 1 + "&size=" + 1000).then((resp) => {
-          if (resp) {
-            this.hrs = resp.data;
-            this.total = this.hrs.length;
-          }
+            if (resp) {
+                this.hrs = resp.data;
+                this.total = this.hrs.length;
+            }
         });
-      }else if (this.mode === "secretary"){
-        this.getRequest("/groups/basic/sec?groupID="+this.groupID).then((resp) => {
-          if (resp) {
-            this.hrs = resp.obj;
-            this.total = 1;
-          }
-        });
-      }
+      // if (this.mode === "admin") {
+      //     this.getRequest("/groups/basic/?keywords=" + this.keywords + "&page=" + 1 + "&size=" + 1000).then((resp) => {
+      //         if (resp) {
+      //             this.hrs = resp.data;
+      //             this.total = this.hrs.length;
+      //         }
+      //     });
+      // }
+      // else if (this.mode === "secretarySub"){
+      //   this.getRequest("/groups/basic/sec?groupID="+this.groupID).then((resp) => {
+      //     if (resp) {
+      //       this.hrs = resp.obj;
+      //       this.total = this.hrs.length;
+      //     }
+      //   });
+      // }
     },
     showFinalScore(data){
       const _this = this;
@@ -380,6 +383,10 @@ export default {
           keyword_name: this.keywords_name,
           groupName:data.name,
           mode:this.mode,
+          backGroupName:this.$route.query.groupName,
+          backGroupID:this.$route.query.groupID,
+          backBackID:this.$route.query.backID,
+          backActName:this.$route.query.backActName,
         },
       });
     },
@@ -453,7 +460,7 @@ export default {
           query:{
             id: this.$route.query.backID,
             mode: this.$route.query.mode,
-            actName: this.$route.query.keyword_name,
+            actName: this.$route.query.backActName,
             groupName: this.$route.query.groupName,
             groupID: this.$route.query.groupID,
           }
