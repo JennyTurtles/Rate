@@ -129,8 +129,8 @@
                               startDate=#{startDate,jdbcType=TIMESTAMP},
                               scoreItemCount=#{scoreItemCount,jdbcType=INTEGER},
                                comment=#{comment,jdbcType=VARCHAR},
-                               parentID=#{parentID,jdbcType=INTEGER},
-        where id=#{id,jdbcType=INTEGER}
+                               parentID=#{parentID,jdbcType=INTEGER}
+        where ID=#{id,jdbcType=INTEGER}
     </update>
 
     <select id="selectActivitiesName" parameterType="java.lang.Integer" resultType="java.lang.String" >

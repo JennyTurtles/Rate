@@ -949,9 +949,15 @@ export default {
         url = "/ActivitM/search"
       }else if (this.mode === "secretary"){
         url = "/secretary/ActManage"
+      }else if (this.mode === "adminSub"){
+        url = "/ActivitM/SubActManage"
       }
       _this.$router.push({
         path: url,
+        query: {
+          id: _this.$route.query.backID,
+          mode: _this.mode,
+        }
       });
     },
     refreshact() {

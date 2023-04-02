@@ -438,6 +438,14 @@ export default {
         _this.$router.push({
           path: "/secretary/ActManage",
         });
+      }else if (this.mode === "adminSub"){
+        _this.$router.push({
+          path: "/ActivitM/SubActManage",
+          query:{
+              id: this.$route.query.backID,
+              mode: this.$route.query.mode,
+          }
+        });
       }
 
     },

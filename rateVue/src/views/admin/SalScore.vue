@@ -315,9 +315,19 @@ export default {
     },
     back() {
       const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/search",
-      });
+      if (this.mode === 'admin'){
+        _this.$router.push({
+          path: "/ActivitM/search",
+        });
+    }else if (this.mode ==='adminSub'){
+          _this.$router.push({
+              path: '/ActivitM/SubActManage',
+              query: {
+                  id: _this.$route.query.backID,
+                  mode: _this.mode,
+              }
+          })
+      }
     },
     tableRowClassName({row, rowIndex}) {
       // 把每一行的索引放进row

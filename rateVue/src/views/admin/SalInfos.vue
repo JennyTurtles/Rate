@@ -279,6 +279,7 @@ export default {
         password: {required: true, message: "请输入密码", trigger: "blur"},
         comment: {required: false, message: "请输入备注", trigger: "blur"},
       },
+        mode:'',
     };
   },
   computed: {
@@ -291,6 +292,7 @@ export default {
   mounted() {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
+    this.mode = this.$route.query.mode;
     this.initHrs();
     this.initData();
   },
@@ -397,8 +399,16 @@ export default {
     },
     back() {
       const _this = this;
+      var url;
+      if (this.mode === "admin")
+          url = "/ActivitM/search"
+      else if (this.mode === "adminSub")
+          url = "/ActivitM/SubActManage"
       _this.$router.push({
-        path: "/ActivitM/search",
+        path: url,
+        query: {
+          id: this.$route.query.backID,
+        },
       });
     },
     tableRowClassName({row, rowIndex}) {

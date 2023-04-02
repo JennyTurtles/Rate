@@ -111,7 +111,6 @@
             >
             <el-button
                 @click="showEditEmpView(scope.row)"
-                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-edit"
@@ -133,7 +132,7 @@
             >
             <el-button
                 @click="showInfoItem(scope.row)"
-                v-show="mode==='admin'"
+                v-show="mode==='admin' || mode==='adminSub'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
@@ -144,7 +143,7 @@
             >
             <el-button
                 @click="showTotalItem(scope.row)"
-                v-show="mode==='admin'"
+                v-show="mode==='admin' || mode==='adminSub'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
@@ -165,7 +164,7 @@
             >
             <el-button
                 @click="showInsertmanagement(scope.row)"
-                v-show="mode==='admin'"
+                v-show="mode==='admin' || mode==='adminSub'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-plus"
@@ -176,7 +175,7 @@
             >
             <el-button
                 @click="showScore(scope.row)"
-                v-show="mode==='admin'"
+                v-show="mode==='admin' || mode==='adminSub'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-plus"
@@ -199,7 +198,7 @@
 
             <el-button
                 @click="exportEx(scope.row)"
-                v-show="mode==='admin'"
+                v-show="mode==='admin' || mode==='adminSub'"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
@@ -211,7 +210,7 @@
             >
             <el-button
                 @click="showFinalScore(scope.row)"
-                v-show="mode==='admin'"
+                v-show="mode==='admin' || mode==='adminSub'"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
@@ -223,7 +222,7 @@
             >
             <el-button
                 @click="endEmp(scope.row)"
-                v-show="mode==='admin'"
+                v-show="mode==='admin'|| mode==='adminSub'"
                 style="padding: 4px"
                 size="mini"
                 type="danger"
@@ -235,7 +234,7 @@
             >
             <el-button
                 @click="deleteEmp(scope.row)"
-                v-show="mode==='admin'"
+                v-show="mode==='admin' || mode==='adminSub'"
                 style="padding: 4px"
                 size="mini"
                 type="danger"
@@ -494,7 +493,8 @@ export default {
         query: {
           keywords: data.id,
           keyword_name: data.name,
-          mode:this.mode
+          mode:this.mode,
+          backID:this.activityID,
         },
       });
     },
@@ -672,6 +672,17 @@ export default {
             mode:this.mode,
           },
         });
+      }else if (this.mode === "adminSub") {
+          _this.$router.push({
+              path: "/ActivitM/table",
+              query: {
+                  keywords: data.id,
+                  keyword_name: data.name,
+                  groupID: this.groupID,
+                  mode: this.mode,
+                  backID: this.activityID,
+              },
+          });
       }
 
       // console.log(data)
@@ -694,6 +705,7 @@ export default {
           keyword_name: data.name,
           groupID:this.groupID,
           mode:this.mode,
+          backID:this.activityID,
         },
       });
     },
@@ -746,6 +758,8 @@ export default {
         query: {
           keywords: data.id,
           keyword_name: data.name,
+          mode:this.mode,
+          backID:this.activityID,
         },
       });
     },
@@ -756,6 +770,8 @@ export default {
         query: {
           keywords: data.id,
           keyword_name: data.name,
+          backID:this.activityID,
+          mode:this.mode,
         },
       });
     },
