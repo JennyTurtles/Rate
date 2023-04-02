@@ -20,8 +20,22 @@ export default {
     }
   },
   methods:{
+    onSuccess(res){
+      if(res.status == 200){
+        this.$message.success("导入成功")
+      }else {
+        this.$message.error("导入失败")
+      }
+    },
+    beforeUpload() {
+      this.$message.success("正在导入")
+    },
+    UploadUrl(){
+      let url = '/teacher/basic/importTeachers?role=' + toString(10)
+      return url;
+    },
     downloadExcel(){
-      let url = ''
+      let url = '/teacher/basic/exportTeachersByAdmin'
       this.$message.success('正在下载')
       window.open(url,'_parent')
     }

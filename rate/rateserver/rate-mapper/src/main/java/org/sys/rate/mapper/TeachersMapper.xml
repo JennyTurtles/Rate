@@ -316,98 +316,42 @@
                                 email=#{email,jdbcType=VARCHAR}
         where rate.teacher.ID=#{id,jdbcType=INTEGER};
     </update>
+
+    <select id="check" resultMap="BaseResultMap">
+        select *
+        from teacher
+        where IDNumber in
+        <foreach collection="list" close=")" open="(" item="item">
+            #{item.IDNumber}
+        </foreach>
+    </select>
+<!--    管理员导入教师excel，进行更新信息-->
+    <update id="updateFROMImport" parameterType="org.sys.rate.model.Teachers">
+        <foreach collection="list" item="teachers" open="" close="" separator=";">
+            update teacher
+            <set>
+                institutionID=#{teachers.institutionID},
+                name = #{teachers.name},
+                jobnumber = #{teachers.jobnumber},
+                sex = #{teachers.sex},
+                department = #{teachers.department},
+                phone = #{teachers.phone},
+                email = #{teachers.email}
+            </set>
+            where IDNumber = #{teachers.IDNumber}
+        </foreach>
+    </update>
+    <insert id="insertFROMImport" parameterType="org.sys.rate.model.Teachers">
+        insert into teacher(ID,name,institutionID,jobnumber,sex,department,IDNumber,phone,email,username,password,deleteflag,role) values
+        <foreach collection="list" separator="," item="teachers">
+            (#{teachers.ID,jdbcType=INTEGER},
+            #{teachers.name,jdbcType=VARCHAR},
+            #{teachers.institutionID,jdbcType=INTEGER},
+            #{teachers.jobnumber,jdbcType=VARCHAR},
+            #{teachers.sex,jdbcType=VARCHAR},#{teachers.department,jdbcType=VARCHAR},
+            #{teachers.IDNumber,jdbcType=VARCHAR},#{teachers.phone,jdbcType=VARCHAR},
+            #{teachers.email,jdbcType=VARCHAR},#{teachers.username,jdbcType=VARCHAR},
+            #{teachers.password,jdbcType=VARCHAR},0,#{teachers.role,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
 </mapper>
-
-        <!--<?xml version="1.0" encoding="UTF-8" ?>-->
-<!--<!DOCTYPE mapper-->
-<!--PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"-->
-<!--"http://mybatis.org/dtd/mybatis-3-mapper.dtd">-->
-<!--<mapper namespace="org.sys.rate.mapper.TeachersMapper">-->
-<!--    -->
-<!--    <resultMap type="org.sys.rate.model.Teachers" id="TeachersResult">-->
-<!--        <result property="ID"    column="ID"    />-->
-<!--        <result property="teacher"    column="teacher"    />-->
-<!--        <result property="jobnumber"    column="jobnumber"    />-->
-<!--        <result property="telephone"    column="telephone"    />-->
-<!--        <result property="email"    column="email"    />-->
-<!--        <result property="username"    column="username"    />-->
-<!--        <result property="password"    column="password"    />-->
-<!--        <result property="deleteflag"    column="deleteflag"    />-->
-<!--    </resultMap>-->
-
-<!--    <sql id="selectTeachersVo">-->
-<!--        select ID, teacher, jobnumber, telephone, email, username, password, deleteflag from teachers-->
-<!--    </sql>-->
-
-
-<!--    <select id="selectList" resultMap="TeachersResult">-->
-<!--        <include refid="selectTeachersVo"></include>-->
-<!--    </select>-->
-
-<!--    <select id="selectTeachersList" parameterType="org.sys.rate.model.Teachers" resultMap="TeachersResult">-->
-<!--        <include refid="selectTeachersVo"/>-->
-<!--        <where>-->
-<!--            <if test="ID !=null and ID !=''">and ID =#{ID}</if>-->
-<!--            <if test="teacher != null  and teacher != ''"> and teacher = #{teacher}</if>-->
-<!--            <if test="jobnumber != null  and jobnumber != ''"> and jobnumber = #{jobnumber}</if>-->
-<!--            <if test="telephone != null  and telephone != ''"> and telephone = #{telephone}</if>-->
-<!--            <if test="email != null  and email != ''"> and email = #{email}</if>-->
-<!--            <if test="username != null  and username != ''"> and username like concat('%', #{username}, '%')</if>-->
-<!--            <if test="password != null  and password != ''"> and password = #{password}</if>-->
-<!--            <if test="deleteflag != null "> and deleteflag = #{deleteflag}</if>-->
-<!--        </where>-->
-<!--    </select>-->
-<!--    -->
-<!--    <select id="selectTeachersById" parameterType="Long" resultMap="TeachersResult">-->
-<!--        <include refid="selectTeachersVo"/>-->
-<!--        where ID = #{ID}-->
-<!--    </select>-->
-<!--        -->
-<!--    <insert id="insertTeachers" parameterType="org.sys.rate.model.Teachers" useGeneratedKeys="true" keyProperty="ID">-->
-<!--        insert into teachers-->
-<!--        <trim prefix="(" suffix=")" suffixOverrides=",">-->
-<!--            <if test="teacher != null">teacher,</if>-->
-<!--            <if test="jobnumber != null">jobnumber,</if>-->
-<!--            <if test="telephone != null">telephone,</if>-->
-<!--            <if test="email != null">email,</if>-->
-<!--            <if test="username != null">username,</if>-->
-<!--            <if test="password != null">password,</if>-->
-<!--            <if test="deleteflag != null">deleteflag,</if>-->
-<!--         </trim>-->
-<!--        <trim prefix="values (" suffix=")" suffixOverrides=",">-->
-<!--            <if test="teacher != null">#{teacher},</if>-->
-<!--            <if test="jobnumber != null">#{jobnumber},</if>-->
-<!--            <if test="telephone != null">#{telephone},</if>-->
-<!--            <if test="email != null">#{email},</if>-->
-<!--            <if test="username != null">#{username},</if>-->
-<!--            <if test="password != null">#{password},</if>-->
-<!--            <if test="deleteflag != null">#{deleteflag},</if>-->
-<!--         </trim>-->
-<!--    </insert>-->
-
-<!--    <update id="updateTeachers" parameterType="org.sys.rate.model.Teachers">-->
-<!--        update teachers-->
-<!--        <trim prefix="SET" suffixOverrides=",">-->
-<!--            <if test="teacher != null">teacher = #{teacher},</if>-->
-<!--            <if test="jobnumber != null">jobnumber = #{jobnumber},</if>-->
-<!--            <if test="telephone != null">telephone = #{telephone},</if>-->
-<!--            <if test="email != null">email = #{email},</if>-->
-<!--            <if test="username != null">username = #{username},</if>-->
-<!--            <if test="password != null">password = #{password},</if>-->
-<!--            <if test="deleteflag != null">deleteflag = #{deleteflag},</if>-->
-<!--        </trim>-->
-<!--        where ID = #{ID}-->
-<!--    </update>-->
-
-<!--    <delete id="deleteTeachersById" parameterType="Long">-->
-<!--        delete from teachers where ID = #{ID}-->
-<!--    </delete>-->
-
-<!--    <delete id="deleteTeachersByIds" parameterType="String">-->
-<!--        delete from teachers where ID in -->
-<!--        <foreach item="ID" collection="array" open="(" separator="," close=")">-->
-<!--            #{ID}-->
-<!--        </foreach>-->
-<!--    </delete>-->
-
-<!--</mapper>-->

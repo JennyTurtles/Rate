@@ -1109,6 +1109,196 @@ public class POIUtils {
         return mm;
     }
 
+    //管理员下载教师模版excel
+    public static ResponseEntity<byte[]> writeTeachers() {
+        //1. 创建一个 Excel 文档
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        //2. 创建文档摘要
+        workbook.createInformationProperties();
+        //3. 获取并配置文档信息
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
+        //4. 获取文档摘要信息
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        //文档标题
+        summInfo.setTitle("teachers");
+        //文档作者
+        summInfo.setAuthor("东华大学");
+        // 文档备注
+        summInfo.setComments("本文档由东华大学计算机学院提供");
+        //5. 创建样式
+        //创建标题行的样式
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        HSSFCellStyle dateCellStyle = workbook.createCellStyle();
+        dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+        HSSFSheet sheet = workbook.createSheet("teachers");
+        //设置列的宽度
+        sheet.setColumnWidth(0, 15 * 256);
+        sheet.setColumnWidth(1, 10 * 256);
+        sheet.setColumnWidth(2, 10 * 256);
+        sheet.setColumnWidth(3, 6 * 256);
+        sheet.setColumnWidth(4, 20 * 256);
+        sheet.setColumnWidth(5, 15 * 256);
+        sheet.setColumnWidth(6, 15 * 256);
+        sheet.setColumnWidth(7, 10 * 256);
+        sheet.setColumnWidth(8, 20 * 256);
+        sheet.setColumnWidth(9, 20 * 256);
+        //6. 创建标题行
+        HSSFRow r0 = sheet.createRow(0);
+        HSSFCell c0 = r0.createCell(0);
+        c0.setCellValue("工号");
+        HSSFCell c1 = r0.createCell(1);
+        c1.setCellValue("姓名");
+        HSSFCell c2 = r0.createCell(2);
+        c2.setCellValue("部门");
+        HSSFCell c3 = r0.createCell(3);
+        c3.setCellValue("性别");
+        HSSFCell c4 = r0.createCell(4);
+        c4.setCellValue("身份证号码");
+        HSSFCell c5 = r0.createCell(5);
+        c5.setCellValue("手机号");
+        HSSFCell c6 = r0.createCell(6);
+        c6.setCellValue("邮箱");
+        HSSFCell c7 = r0.createCell(7);
+        c7.setCellValue("属于本单位");
+        HSSFCell c8 = r0.createCell(8);
+        c8.setCellValue("用户名");
+        HSSFCell c9 = r0.createCell(9);
+        c9.setCellValue("密码");
+        HSSFRow row = sheet.createRow(1);
+        row.createCell(0).setCellValue("20131000");
+        row.createCell(1).setCellValue("张三");
+        row.createCell(2).setCellValue("计算机学院");
+        row.createCell(3).setCellValue("男");
+        row.createCell(4).setCellValue("123456789123456789");
+        row.createCell(5).setCellValue("13812341234");
+        row.createCell(6).setCellValue("123@dhu.edu.cn");
+        row.createCell(7).setCellValue("否");
+        row.createCell(8).setCellValue("zhangsan");
+        row.createCell(9).setCellValue("123456");
+        sheet.createRow(2).createCell(0).setCellValue("请删除提示行，如果数据库中已有该老师的记录，将根据填写信息进行更新，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为手机号和身份证后六位，其余必须填写。");
+        sheet.createRow(3).createCell(0).setCellValue("如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
+        sheet.createRow(4).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setContentDispositionFormData("attachment", new String("teachers模板.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
+
+    //管理员上传教师模版excel
+    public static List<Teachers> readExcel_teachers(MultipartFile file) {
+        //tutorid目前没有处理
+        List<Teachers> teachersList = new ArrayList<>();
+        Teachers teachers=new Teachers();
+        try {//1. 创建一个 workbook 对象
+            HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
+            //2. 获取 workbook 中表单的数量
+            int numberOfSheets = workbook.getNumberOfSheets();
+            for (int i = 0; i < numberOfSheets; i++) {//3. 获取表单
+                HSSFSheet sheet = workbook.getSheetAt(i);//4. 获取表单中的行数
+                int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
+                int Cells = sheet.getRow(0).getPhysicalNumberOfCells();
+                HashMap<Integer, String> map = new HashMap<>();
+                for(int m = 0; m < Cells; m++)
+                {
+                    if(sheet.getRow(0).getCell(m).getStringCellValue()!=null)
+                        map.put(m,sheet.getRow(0).getCell(m).getStringCellValue());
+                }
+                for (int j = 0; j < physicalNumberOfRows; j++) {//5. 跳过标题行
+                    if (j == 0) {
+                        continue;//跳过标题行//获得表头，为后续对应位置
+                    }//6. 获取行
+                    HSSFRow row = sheet.getRow(j);
+                    if (row == null) {
+                        continue;//防止数据中间有空行
+                    }//7. 获取列数
+                    int physicalNumberOfCells = row.getPhysicalNumberOfCells();
+                    teachers = new Teachers();
+                    String jobNumber=null;//工号
+                    String name=null;//姓名
+                    String department=null;//部门
+                    String phone=null;//手机号
+                    String idCard=null;//身份证号，主键
+                    String email=null;//邮箱
+                    String sex=null;//性别
+                    String isBelonging=null;//是否是本单位
+                    String username=null;
+                    String password=null;
+                    for (int k = 0; k < Cells; k++) {
+                        HSSFCell cell = row.getCell(k);
+                        if (cell!=null) {
+                            cell.setCellType(CellType.STRING);
+                            String cellValue = cell.getStringCellValue();
+                            switch (map.get(k)) {
+                                case "姓名":
+                                    name=cellValue;
+                                    break;
+                                case "手机号":
+                                    phone=cellValue;
+                                    break;
+                                case "身份证号码":
+                                    idCard=cellValue;
+                                    break;
+                                case "邮箱":
+                                    email=cellValue;
+                                    break;
+                                case "部门":
+                                    department=cellValue;
+                                    break;
+                                case "属于本单位":
+                                    isBelonging=cellValue;
+                                    break;
+                                case "用户名":
+                                    username=cellValue;
+                                    break;
+                                case "密码":
+                                    password=cellValue;
+                                    break;
+                                case "性别":
+                                    sex=cellValue;
+                                    break;
+                                case "工号":
+                                    jobNumber=cellValue;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    if(phone==null|| jobNumber==null|| department==null|| (!isBelonging.equals("是")&&!isBelonging.equals("否"))||name==null||idCard==null){
+                        continue;
+                    }
+                    teachers.setName(name);
+                    teachers.setPhone(phone);
+                    teachers.setIDNumber(idCard);
+                    teachers.setEmail(email);
+                    teachers.setUsername(username);
+                    teachers.setPassword(password);
+                    teachers.setDepartment(department);
+                    teachers.setSex(sex);
+                    teachers.setJobnumber(jobNumber);
+                    if(isBelonging.equals("是")){
+                        teachers.setInstitutionid(1);
+                    }else {
+                        teachers.setInstitutionid(0);
+                    }
+                    teachersList.add(teachers);
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return teachersList;
+    }
+
     public static RespPageBean readExcel_expert(MultipartFile file) {
         List<Experts> list = new ArrayList<>();
         Experts expert=new Experts();

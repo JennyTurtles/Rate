@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import org.sys.rate.model.Award;
 import org.sys.rate.model.Teacher;
 import org.sys.rate.model.Teachers;
+import org.sys.rate.model.UnderGraduate;
 
 import java.util.List;
 
@@ -47,6 +48,8 @@ public interface TeachersMapper
      */
     public int updateTeachers(Teachers teachers);
 
+    List<Teachers> check(List<Teachers> teachersList);
+
     /**
      * 删除老师
      * 
@@ -64,4 +67,9 @@ public interface TeachersMapper
     public int deleteTeachersByIds(String[] IDs);
 
     public List<Teachers> selectList();
+
+    int updateFROMImport(List<Teachers> record);
+    int insertFROMImport(List<Teachers> record);
+
+
 }
