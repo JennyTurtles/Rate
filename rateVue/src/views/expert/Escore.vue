@@ -77,6 +77,7 @@
     <!-- 列表 -->
     <div class="tableStyle">
       <el-table
+          ref="table"
           :cell-style="rowStyle"
           :header-cell-style="rowClass"
           :data="datalist.participatesList"
@@ -84,6 +85,7 @@
           :height="windowScreenHeight"
           border
           v-loading="fullscreenLoading"
+          @header-dragend="changeColWidth"
       >
         <el-table-column
             prop="displaySequence"
@@ -347,6 +349,14 @@ export default {
     }
   },
   methods: {
+    //拖拽调整列宽触发的事件
+    changeColWidth(){
+      let that = this
+      this.$nextTick(()=>{
+        console.log('changeColWidth')
+        that.$refs.table.doLayout()
+      })
+    },
     async initPage(){
       this.user = JSON.parse(localStorage.getItem("user"));
       this.initdata();
