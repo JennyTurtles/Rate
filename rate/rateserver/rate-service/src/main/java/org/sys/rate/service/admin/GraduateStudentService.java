@@ -5,10 +5,7 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.GraduateStudentMapper;
 import org.sys.rate.mapper.StudentMapper;
 import org.sys.rate.mapper.UnderGraduateMapper;
-import org.sys.rate.model.GraduateStudent;
-import org.sys.rate.model.RespBean;
-import org.sys.rate.model.Student;
-import org.sys.rate.model.UnderGraduate;
+import org.sys.rate.model.*;
 import org.sys.rate.service.expert.ExpertService;
 
 import java.util.ArrayList;
@@ -93,5 +90,15 @@ public class GraduateStudentService {
             return RespBean.ok("ok");
         }
         return RespBean.error("error");
+    }
+
+    public Msg getGraduatesStudent(){
+        List<GraduateStudent> res = new ArrayList<>();
+        try {
+            res = graduateStudentMapper.getGraduateStudent();
+        }catch (Exception e){
+            return Msg.fail();
+        }
+        return Msg.success().add("res",res);
     }
 }

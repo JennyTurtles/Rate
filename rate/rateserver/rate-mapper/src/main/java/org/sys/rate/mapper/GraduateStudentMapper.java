@@ -10,6 +10,7 @@ import java.util.List;
 
 @Mapper
 public interface GraduateStudentMapper {
+    List<GraduateStudent> getGraduateStudent();
 
     List<Integer> check(List<GraduateStudent> graduate);
     int insertFROMImport(List<GraduateStudent> record);

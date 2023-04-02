@@ -26,7 +26,7 @@ public class UnderGraduateMController {
     UnderGraduateService underGraduateService;
 
     @GetMapping("/exportUnderGraduate")
-    public ResponseEntity<byte[]> downloadExample_Participants_exportMoPar_Group(HttpServletResponse response){
+    public ResponseEntity<byte[]> downloadExample_UnderGraduateStudents(HttpServletResponse response){
         return POIUtils.writeUnderGraduate();
     }
     @PostMapping("/importUnderGraduate")
@@ -40,5 +40,9 @@ public class UnderGraduateMController {
         }
         RespBean res = underGraduateService.addUnderGraduate(under,stu);
         return res;
+    }
+    @GetMapping("/getUnderGraduateStudents")
+    public Msg getUnderStudent(){
+        return underGraduateService.getUnderStudent();
     }
 }

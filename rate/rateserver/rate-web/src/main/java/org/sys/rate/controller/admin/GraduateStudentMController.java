@@ -8,10 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.mapper.GraduateStudentMapper;
-import org.sys.rate.model.GraduateStudent;
-import org.sys.rate.model.RespBean;
-import org.sys.rate.model.Student;
-import org.sys.rate.model.UnderGraduate;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.GraduateStudentService;
 import org.sys.rate.service.admin.LogService;
 import org.sys.rate.service.admin.UnderGraduateService;
@@ -45,5 +42,9 @@ public class GraduateStudentMController {
         }
         RespBean res = graduateStudentService.addGraduate(graduate,stu);
         return res;
+    }
+    @GetMapping("/getGraduateStudents")
+    public Msg getUnderStudent(){
+        return graduateStudentService.getGraduatesStudent();
     }
 }

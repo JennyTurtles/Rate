@@ -1,11 +1,11 @@
 package org.sys.rate.model;
 
-public class GraduateStudent extends Account{
+public class GraduateStudent extends Student{
     private Integer ID;
     private Integer institutionID;
     private String stuNumber;
     private Integer studentID;
-    private String year;
+    private Integer year;
     private Integer tutorID;
     private String studentType;
     private String point;
@@ -47,11 +47,11 @@ public class GraduateStudent extends Account{
         this.stuNumber = stuNumber;
     }
 
-    public String getYear() {
+    public Integer getYear() {
         return year;
     }
 
-    public void setYear(String year) {
+    public void setYear(Integer year) {
         this.year = year;
     }
 

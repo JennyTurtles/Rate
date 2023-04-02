@@ -6,7 +6,7 @@
         <id column="studentID" property="studentID" jdbcType="INTEGER"/>
         <result column="institutionID" jdbcType="INTEGER" property="institutionID" />
         <result column="stuNumber" property="stuNumber" jdbcType="VARCHAR"/>
-        <result column="year" property="year" jdbcType="VARCHAR"/>
+        <result column="year" property="year" jdbcType="INTEGER"/>
         <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
         <result column="studentType" property="studentType" jdbcType="VARCHAR"/>
         <result column="point" property="point" jdbcType="VARCHAR"/>
@@ -52,5 +52,10 @@
         <foreach collection="list" close=")" open="(" item="item">
             #{item.studentID}
         </foreach>
+    </select>
+    <select id="getGraduateStudent" resultMap="BaseResultMap">
+        select u.*,s.name,s.telephone,s.email
+        from graduatestudent u,student s
+        where s.ID = u.studentID
     </select>
 </mapper>
