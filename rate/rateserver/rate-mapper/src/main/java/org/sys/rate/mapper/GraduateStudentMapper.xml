@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.sys.rate.mapper.GraduateStudentMapper">
+    <resultMap id="BaseResultMap" type="org.sys.rate.model.GraduateStudent">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <id column="studentID" property="studentID" jdbcType="INTEGER"/>
+        <result column="institutionID" jdbcType="INTEGER" property="institutionID" />
+        <result column="stuNumber" property="stuNumber" jdbcType="VARCHAR"/>
+        <result column="year" property="year" jdbcType="VARCHAR"/>
+        <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
+        <result column="studentType" property="studentType" jdbcType="VARCHAR"/>
+        <result column="point" property="point" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ID, studentID,institutionID,stuNumber, year, tutorID,studentType,point
+    </sql>
+
+<!--    <select id="check" resultType="java.lang.Integer">-->
+<!--        select exists (select * from student where IDNumber=#{IDNumber})-->
+<!--    </select>-->
+
+    <insert id="insertFROMImport" parameterType="org.sys.rate.model.GraduateStudent">
+        insert into graduatestudent(ID,studentID,institutionID,stuNumber,year,tutorID,studentType,point) values
+        <foreach collection="list" separator="," item="graduate">
+               (#{graduate.ID,jdbcType=INTEGER},
+                #{graduate.studentID,jdbcType=INTEGER},
+                #{graduate.institutionID,jdbcType=INTEGER},
+                #{graduate.stuNumber,jdbcType=VARCHAR},
+                #{graduate.year,jdbcType=VARCHAR}, #{graduate.tutorID,jdbcType=INTEGER},
+                #{graduate.studentType,jdbcType=VARCHAR},#{graduate.point,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <update id="updateFROMImport" parameterType="org.sys.rate.model.GraduateStudent">
+        <foreach collection="list" item="item" open="" close="" separator=";">
+            update graduatestudent
+            <set>
+                institutionID=#{item.institutionID},
+                stuNumber = #{item.stuNumber},
+                year = #{item.year},
+                tutorID = #{item.tutorID}
+            </set>
+            where studentID = #{item.studentID}
+        </foreach>
+    </update>
+    <select id="check" resultType="java.lang.Integer">
+        select studentID
+        from graduatestudent
+        where studentID in
+        <foreach collection="list" close=")" open="(" item="item">
+            #{item.studentID}
+        </foreach>
+    </select>
+</mapper>

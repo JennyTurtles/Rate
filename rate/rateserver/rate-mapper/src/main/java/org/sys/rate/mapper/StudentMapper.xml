@@ -58,6 +58,10 @@
     <select id="check" resultType="java.lang.Integer">
         select exists (select * from student where IDNumber=#{IDNumber})
     </select>
+
+    <select id="checkAndReturnID" resultMap="BaseResultMap">
+        select * from student where IDNumber=#{IDNumber}
+    </select>
 <!--    <select id="getAdminRolesById" resultType="org.sys.rate.model.Role">-->
 <!--&#45;&#45;         select r.* from role r,student a where a.`role`=r.`id` and a.`id`=#{id}-->
 <!--            select * from student where ID=#{ID}-->
@@ -89,6 +93,17 @@
                 #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,0,'7'
                )
     </insert>
+    <insert id="insertStuFromExcel" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
+        insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,tutorID,role
+        )
+        values (#{ID,jdbcType=INTEGER},
+        #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
+        <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
+        #{username,jdbcType=VARCHAR},
+        #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,0,''
+        )
+    </insert>
+
 
     <update id="updateFROMImport" parameterType="org.sys.rate.model.Student">
         update student  <set>

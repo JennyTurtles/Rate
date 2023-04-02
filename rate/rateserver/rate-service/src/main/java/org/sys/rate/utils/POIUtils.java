@@ -746,6 +746,369 @@ public class POIUtils {
         return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
     }
 
+    //管理员下载本科生模版excel
+    public static ResponseEntity<byte[]> writeUnderGraduate() {
+        //1. 创建一个 Excel 文档
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        //2. 创建文档摘要
+        workbook.createInformationProperties();
+        //3. 获取并配置文档信息
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
+        //4. 获取文档摘要信息
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        //文档标题
+        summInfo.setTitle("undergraduate");
+        //文档作者
+        summInfo.setAuthor("东华大学");
+        // 文档备注
+        summInfo.setComments("本文档由东华大学计算机学院提供");
+        //5. 创建样式
+        //创建标题行的样式
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        HSSFCellStyle dateCellStyle = workbook.createCellStyle();
+        dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+        HSSFSheet sheet = workbook.createSheet("undergraduate");
+        //设置列的宽度
+        sheet.setColumnWidth(0, 15 * 256);
+        sheet.setColumnWidth(1, 10 * 256);
+        sheet.setColumnWidth(2, 10 * 256);
+        sheet.setColumnWidth(3, 6 * 256);
+        sheet.setColumnWidth(4, 20 * 256);
+        sheet.setColumnWidth(5, 15 * 256);
+        sheet.setColumnWidth(6, 15 * 256);
+        sheet.setColumnWidth(7, 10 * 256);
+//        sheet.setColumnWidth(8, 20 * 256);
+//        sheet.setColumnWidth(9, 20 * 256);
+        //6. 创建标题行
+        HSSFRow r0 = sheet.createRow(0);
+        HSSFCell c0 = r0.createCell(0);
+        c0.setCellValue("姓名");
+        HSSFCell c1 = r0.createCell(1);
+        c1.setCellValue("学号");
+        HSSFCell c2 = r0.createCell(2);
+        c2.setCellValue("身份证号码");
+        HSSFCell c3 = r0.createCell(3);
+        c3.setCellValue("手机号");
+        HSSFCell c4 = r0.createCell(4);
+        c4.setCellValue("邮箱");
+        HSSFCell c5 = r0.createCell(5);
+        c5.setCellValue("用户名");
+        HSSFCell c6 = r0.createCell(6);
+        c6.setCellValue("密码");
+        HSSFCell c7 = r0.createCell(7);
+        c7.setCellValue("入学年份");
+        HSSFRow row = sheet.createRow(1);
+        row.createCell(0).setCellValue("张三");
+        row.createCell(1).setCellValue("1111");
+        row.createCell(2).setCellValue("123456789123456789");
+        row.createCell(3).setCellValue("13812341234");
+        row.createCell(4).setCellValue("123@dhu.edu.cn");
+        row.createCell(7).setCellValue("2018");
+        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。用户名密码可以不填写，若不填写第一次导入将默认为手机号，其余必须填写。");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setContentDispositionFormData("attachment", new String("本科生模板.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
+
+    //管理员上传本科生模版excel
+    public static Map<String,List> readExcel_undergraduate(MultipartFile file) {
+        List<UnderGraduate> underList = new ArrayList<>();
+        UnderGraduate underGraduate=new UnderGraduate();
+        List<Student> studentList = new ArrayList<>();
+        Student student=new Student();
+        try {//1. 创建一个 workbook 对象
+            HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
+            //2. 获取 workbook 中表单的数量
+            int numberOfSheets = workbook.getNumberOfSheets();
+            for (int i = 0; i < numberOfSheets; i++) {//3. 获取表单
+                HSSFSheet sheet = workbook.getSheetAt(i);//4. 获取表单中的行数
+                int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
+                int Cells = sheet.getRow(0).getPhysicalNumberOfCells();
+                HashMap<Integer, String> map = new HashMap<>();
+                for(int m = 0; m < Cells; m++)
+                {
+                    if(sheet.getRow(0).getCell(m).getStringCellValue()!=null)
+                        map.put(m,sheet.getRow(0).getCell(m).getStringCellValue());
+                }
+                for (int j = 0; j < physicalNumberOfRows; j++) {//5. 跳过标题行
+                    if (j == 0) {
+                        continue;//跳过标题行//获得表头，为后续对应位置
+                    }//6. 获取行
+                    HSSFRow row = sheet.getRow(j);
+                    if (row == null) {
+                        continue;//防止数据中间有空行
+                    }//7. 获取列数
+                    int physicalNumberOfCells = row.getPhysicalNumberOfCells();
+                    underGraduate = new UnderGraduate();
+                    String stuNumber=null;//学号
+                    String name=null;//姓名
+                    String phone=null;//手机号
+                    String idCard=null;//身份证号
+                    String email=null;//邮箱
+                    String username=null;
+                    String password=null;
+                    String year=null;
+                    for (int k = 0; k < Cells; k++) {
+                        HSSFCell cell = row.getCell(k);
+                        if (cell!=null) {
+                            cell.setCellType(CellType.STRING);
+                            String cellValue = cell.getStringCellValue();
+                            switch (map.get(k)) {
+                                case "姓名":
+                                    name=cellValue;
+                                    break;
+                                case "学号":
+                                    stuNumber=cellValue;
+                                    break;
+                                case "手机号":
+                                    phone=cellValue;
+                                    break;
+                                case "身份证号码":
+                                    idCard=cellValue;
+                                    break;
+                                case "邮箱":
+                                    email=cellValue;
+                                    break;
+                                case "用户名":
+                                    username=cellValue;
+                                    break;
+                                case "密码":
+                                    password=cellValue;
+                                    break;
+                                case "入学年份":
+                                    year=cellValue;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null){
+                        continue;
+                    }
+                    student.setName(name);
+                    student.setTelephone(phone);
+                    student.setIDNumber(idCard);
+                    student.setEmail(email);
+                    student.setUsername(username);
+                    student.setPassword(password);
+                    underGraduate.setStuNumber(stuNumber);
+                    underGraduate.setYear(year);
+                    underGraduate.setInstitutionID(1);
+                    studentList.add(student);
+                    underList.add(underGraduate);
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Map<String,List> mm = new HashMap<>();
+        mm.put("studentlist",studentList);
+        mm.put("underlist",underList);
+        return mm;
+    }
+
+    //管理员下载研究生模版excel
+    public static ResponseEntity<byte[]> writeGraduateStudent() {
+        //1. 创建一个 Excel 文档
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        //2. 创建文档摘要
+        workbook.createInformationProperties();
+        //3. 获取并配置文档信息
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
+        //4. 获取文档摘要信息
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        //文档标题
+        summInfo.setTitle("graduatestudent");
+        //文档作者
+        summInfo.setAuthor("东华大学");
+        // 文档备注
+        summInfo.setComments("本文档由东华大学计算机学院提供");
+        //5. 创建样式
+        //创建标题行的样式
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        HSSFCellStyle dateCellStyle = workbook.createCellStyle();
+        dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+        HSSFSheet sheet = workbook.createSheet("graduatestudent");
+        //设置列的宽度
+        sheet.setColumnWidth(0, 10 * 256);
+        sheet.setColumnWidth(1, 10 * 256);
+        sheet.setColumnWidth(2, 20 * 256);
+        sheet.setColumnWidth(3, 15 * 256);
+        sheet.setColumnWidth(4, 20 * 256);
+        sheet.setColumnWidth(5, 15 * 256);
+        sheet.setColumnWidth(6, 15 * 256);
+        sheet.setColumnWidth(7, 10 * 256);
+        sheet.setColumnWidth(8, 15 * 256);
+        sheet.setColumnWidth(9, 15 * 256);
+        //6. 创建标题行
+        HSSFRow r0 = sheet.createRow(0);
+        HSSFCell c0 = r0.createCell(0);
+        c0.setCellValue("姓名");
+        HSSFCell c1 = r0.createCell(1);
+        c1.setCellValue("学号");
+        HSSFCell c2 = r0.createCell(2);
+        c2.setCellValue("身份证号码");
+        HSSFCell c3 = r0.createCell(3);
+        c3.setCellValue("手机号");
+        HSSFCell c4 = r0.createCell(4);
+        c4.setCellValue("邮箱");
+        HSSFCell c5 = r0.createCell(5);
+        c5.setCellValue("用户名");
+        HSSFCell c6 = r0.createCell(6);
+        c6.setCellValue("密码");
+        HSSFCell c7 = r0.createCell(7);
+        c7.setCellValue("入学年份");
+        HSSFCell c8 = r0.createCell(8);
+        c8.setCellValue("学生类别");
+        HSSFCell c9 = r0.createCell(9);
+        c9.setCellValue("积分");
+        HSSFRow row = sheet.createRow(1);
+        row.createCell(0).setCellValue("张三");
+        row.createCell(1).setCellValue("1111");
+        row.createCell(2).setCellValue("123456789123456789");
+        row.createCell(3).setCellValue("13812341234");
+        row.createCell(4).setCellValue("123@dhu.edu.cn");
+        row.createCell(7).setCellValue("2018");
+        row.createCell(8).setCellValue("专硕/学硕");
+        row.createCell(9).setCellValue("12");
+
+
+        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。用户名密码可以不填写，若不填写第一次导入将默认为手机号，其余必须填写。");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setContentDispositionFormData("attachment", new String("研究生模板.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
+
+    //管理员上传研究生模版excel
+    public static Map<String,List> readExcel_graduatestudent(MultipartFile file) {
+        //tutorid目前没有处理
+        List<GraduateStudent> graduateList = new ArrayList<>();
+        GraduateStudent graduateStudent=new GraduateStudent();
+        List<Student> studentList = new ArrayList<>();
+        Student student=new Student();
+        try {//1. 创建一个 workbook 对象
+            HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
+            //2. 获取 workbook 中表单的数量
+            int numberOfSheets = workbook.getNumberOfSheets();
+            for (int i = 0; i < numberOfSheets; i++) {//3. 获取表单
+                HSSFSheet sheet = workbook.getSheetAt(i);//4. 获取表单中的行数
+                int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
+                int Cells = sheet.getRow(0).getPhysicalNumberOfCells();
+                HashMap<Integer, String> map = new HashMap<>();
+                for(int m = 0; m < Cells; m++)
+                {
+                    if(sheet.getRow(0).getCell(m).getStringCellValue()!=null)
+                        map.put(m,sheet.getRow(0).getCell(m).getStringCellValue());
+                }
+                for (int j = 0; j < physicalNumberOfRows; j++) {//5. 跳过标题行
+                    if (j == 0) {
+                        continue;//跳过标题行//获得表头，为后续对应位置
+                    }//6. 获取行
+                    HSSFRow row = sheet.getRow(j);
+                    if (row == null) {
+                        continue;//防止数据中间有空行
+                    }//7. 获取列数
+                    int physicalNumberOfCells = row.getPhysicalNumberOfCells();
+                    graduateStudent = new GraduateStudent();
+                    String stuNumber=null;//学号
+                    String name=null;//姓名
+                    String phone=null;//手机号
+                    String idCard=null;//身份证号
+                    String email=null;//邮箱
+                    String username=null;
+                    String password=null;
+                    String year=null;
+                    String studentType=null;
+                    String point=null;
+                    for (int k = 0; k < Cells; k++) {
+                        HSSFCell cell = row.getCell(k);
+                        if (cell!=null) {
+                            cell.setCellType(CellType.STRING);
+                            String cellValue = cell.getStringCellValue();
+                            switch (map.get(k)) {
+                                case "姓名":
+                                    name=cellValue;
+                                    break;
+                                case "学号":
+                                    stuNumber=cellValue;
+                                    break;
+                                case "手机号":
+                                    phone=cellValue;
+                                    break;
+                                case "身份证号码":
+                                    idCard=cellValue;
+                                    break;
+                                case "邮箱":
+                                    email=cellValue;
+                                    break;
+                                case "用户名":
+                                    username=cellValue;
+                                    break;
+                                case "密码":
+                                    password=cellValue;
+                                    break;
+                                case "入学年份":
+                                    year=cellValue;
+                                    break;
+                                case "学生类别":
+                                    studentType=cellValue;
+                                    break;
+                                case "积分":
+                                    point=cellValue;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null || studentType == null || point == null){
+                        continue;
+                    }
+                    student.setName(name);
+                    student.setTelephone(phone);
+                    student.setIDNumber(idCard);
+                    student.setEmail(email);
+                    student.setUsername(username);
+                    student.setPassword(password);
+                    graduateStudent.setStuNumber(stuNumber);
+                    graduateStudent.setYear(year);
+                    graduateStudent.setInstitutionID(1);
+                    graduateStudent.setStudentType(studentType);
+                    graduateStudent.setPoint(point);
+                    studentList.add(student);
+                    graduateList.add(graduateStudent);
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Map<String,List> mm = new HashMap<>();
+        mm.put("studentlist",studentList);
+        mm.put("graduatelist",graduateList);
+        return mm;
+    }
+
     public static RespPageBean readExcel_expert(MultipartFile file) {
         List<Experts> list = new ArrayList<>();
         Experts expert=new Experts();
