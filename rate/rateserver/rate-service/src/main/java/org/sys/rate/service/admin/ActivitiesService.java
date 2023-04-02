@@ -30,12 +30,13 @@ public class ActivitiesService {
     SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
     DecimalFormat decimalFormat = new DecimalFormat("##.00");
 
+    // 获得主活动
     public RespPageBean getActivitiesPage(Integer page, Integer size, Activities employee, Integer institutionID) {
         if (page != null && size != null) {
             page = (page - 1) * size;
         }
         List<Activities> data = activitiesMapper.getActivitiesByPage(page, size, institutionID);
-        Long total = activitiesMapper.getTotal(employee, institutionID);
+        Long total = (long) data.size();
         RespPageBean bean = new RespPageBean();
         bean.setData(data);
         bean.setTotal(total);

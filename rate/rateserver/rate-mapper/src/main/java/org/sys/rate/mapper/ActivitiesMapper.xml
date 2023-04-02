@@ -35,7 +35,7 @@
         from activities e
         where e.deleteFlag = '0'
         and e.institutionID = #{institutionID}
-        and e.deleteFlag != 1
+        and e.parentID is null
         <if test="page !=null and size!=null">
             limit #{page},#{size}
         </if>
@@ -95,10 +95,10 @@
         </where>
     </select>
     <insert id="insert" parameterType="org.sys.rate.model.Activities">
-        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID
+        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID,parentID
         )
         values  (#{name,jdbcType=VARCHAR}, #{startDate,jdbcType=TIMESTAMP}, #{scoreItemCount,jdbcType=INTEGER},
-                #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER});
+                #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER},#{parentID,jdbcType=INTEGER});
         insert into scoreitem (activityID,name,score,coef,byExpert)
         values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'活动得分',100,1,true)
     </insert>
@@ -128,7 +128,8 @@
         UPDATE activities SET name=#{name,jdbcType=VARCHAR},
                               startDate=#{startDate,jdbcType=TIMESTAMP},
                               scoreItemCount=#{scoreItemCount,jdbcType=INTEGER},
-                               comment=#{comment,jdbcType=VARCHAR}
+                               comment=#{comment,jdbcType=VARCHAR},
+                               parentID=#{parentID,jdbcType=INTEGER},
         where id=#{id,jdbcType=INTEGER}
     </update>
 

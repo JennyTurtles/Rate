@@ -28,7 +28,7 @@ public class Activities {
     private Institution institution;
     private Integer groupID;
     private String groupName;
-
+    private Integer parentID;
     public Integer getGroupID() {
         return groupID;
     }

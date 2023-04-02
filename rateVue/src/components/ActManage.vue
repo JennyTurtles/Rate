@@ -6,7 +6,6 @@
       >
         <div>
           <el-input
-              v-show="mode==='admin'"
               placeholder="请输入活动名称进行搜索，可以直接回车搜索..."
               prefix-icon="el-icon-search"
               clearable
@@ -20,24 +19,32 @@
               icon="el-icon-search"
               type="primary"
               @click="searchEmps"
-              v-show="mode==='admin'"
               :disabled="showAdvanceSearchView"
           >
             搜索
           </el-button>
           <el-button
               icon="el-icon-refresh"
-              v-show="mode==='admin'"
               type="primary"
               @click="initEmps"
               :disabled="showAdvanceSearchView"
           >
             重置
           </el-button>
-          <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView" v-show="mode==='admin'">
+          <el-button type="primary" icon="el-icon-plus" @click='showAddEmpView'>
             添加活动
           </el-button>
+
           <span style="margin-left: 20px" v-show="mode === 'secretarySub'">当前管理的是： {{actName}} {{groupName}} </span>
+        </div>
+        <div style="margin-left: auto">
+          <el-button
+              v-show="mode !== 'admin'"
+              type="primary"
+              icon="el-icon-arrow-left"
+              @click="back">
+            返回
+          </el-button>
         </div>
       </div>
     </div>
@@ -185,7 +192,7 @@
                 icon="el-icon-plus"
                 type="primary"
                 plain
-                v-show="mode !== 'secretarySub' && mode !== 'adminSub' && 0 "
+                v-show="mode !== 'secretarySub' && mode !== 'adminSub'"
             >子活动管理
             </el-button
             >
@@ -384,6 +391,7 @@ export default {
         expertCount: "0",
         participantCount: "0",
         comment: "javaboy",
+          parentId: null,
       },
       defaultProps: {
         children: "children",
@@ -550,6 +558,8 @@ export default {
       });
     },
     doAddEmp() {
+        if(this.mode === 'adminSub')
+            this.emp.parentID = this.activityID;
       if (this.emp.id) {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
@@ -769,6 +779,21 @@ export default {
         }
       });
     },
+      back(){
+          const _this = this;
+          var url = ""
+          var query = ""
+          if (this.mode === 'adminSub'){
+            {
+                url = "/ActivitM/search"
+            }
+          }else if (this.mode === "secretarySub"){
+              // url = "/secretary/ActManage"
+          }
+          _this.$router.push({
+              path: url,
+          });
+      },
   },
 };
 </script>

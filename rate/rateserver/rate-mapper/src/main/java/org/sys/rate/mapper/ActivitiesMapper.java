@@ -37,7 +37,7 @@ public interface ActivitiesMapper {
 
     List<Activities> getActivitiesByPage(@Param("page") Integer page, @Param("size") Integer size, Integer institutionID);
 
-    @Select("SELECT * FROM activities WHERE parent = #{activityID}")
+    @Select("SELECT * FROM activities WHERE parentID = #{activityID}")
     List<Activities> getSubActivities(Integer activityID);
 
     List<Activities> getActivitiesByPageAndCompany(@Param("page") Integer page, @Param("size") Integer size, @Param("company") String company,@Param("institutionID") Integer institutionID);
