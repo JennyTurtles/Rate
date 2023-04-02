@@ -283,6 +283,15 @@ export default {
         }
       }else if (this.mode === "secretary"){
         url = "/secretary/ActManage"
+      }else if (this.mode === "secretarySub"){
+          url = "/secretary/SubActManage"
+          query = {
+            id: this.$route.query.backActID,
+            actName: this.keywords_name,
+            mode: this.mode,
+            groupID:  this.$route.query.backGroupID,
+            groupName: this.groupName,
+          }
       }
       _this.$router.push({
         path: url,

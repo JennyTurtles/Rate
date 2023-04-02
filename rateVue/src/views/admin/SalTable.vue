@@ -202,6 +202,7 @@
 <script>
 import {Message} from 'element-ui'
 import da from "element-ui/src/locale/lang/da";
+import el from "element-ui/src/locale/lang/el";
 
 export default {
   name: "SalTable",
@@ -444,6 +445,17 @@ export default {
           query:{
               id: this.$route.query.backID,
               mode: this.$route.query.mode,
+          }
+        });
+      }else if (this.mode === "secretarySub"){
+        _this.$router.push({
+          path: "/secretary/SubActManage",
+          query:{
+            id: this.$route.query.backID,
+            mode: this.$route.query.mode,
+            actName: this.$route.query.keyword_name,
+            groupName: this.$route.query.groupName,
+            groupID: this.$route.query.groupID,
           }
         });
       }

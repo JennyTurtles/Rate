@@ -951,6 +951,8 @@ export default {
         url = "/secretary/ActManage"
       }else if (this.mode === "adminSub"){
         url = "/ActivitM/SubActManage"
+      }else if (this.mode === "secretarySub"){
+        url = "/secretary/SubActManage"
       }
       _this.$router.push({
         path: url,

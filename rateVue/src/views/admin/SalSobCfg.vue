@@ -647,7 +647,7 @@ export default {
         });
       }else if (this.mode === "secretary"){
         _this.$router.push({
-          path: "/ActivitM/table",
+          path: '/secretary/ActManage',
           query: {
             keywords: this.keywords,
             keyword_name: this.ACNAME,

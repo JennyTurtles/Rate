@@ -31,7 +31,7 @@
           >
             重置
           </el-button>
-          <el-button type="primary" icon="el-icon-plus" @click='showAddEmpView'>
+          <el-button type="primary" icon="el-icon-plus" @click='showAddEmpView' v-show="mode === 'admin' || mode === 'adminSub'">
             添加活动
           </el-button>
 
@@ -39,7 +39,7 @@
         </div>
         <div style="margin-left: auto">
           <el-button
-              v-show="mode !== 'admin'"
+              v-show="mode === 'adminSub' || mode === 'secretarySub'"
               type="primary"
               icon="el-icon-arrow-left"
               @click="back">
@@ -111,6 +111,7 @@
             >
             <el-button
                 @click="showEditEmpView(scope.row)"
+                v-show="mode==='admin' || mode==='adminSub'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-edit"
@@ -154,6 +155,7 @@
             >
             <el-button
                 @click="showGroupmanagement(scope.row)"
+                v-show="mode !== 'secretary' "
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-s-operation"
@@ -173,6 +175,17 @@
             >选手管理
             </el-button
             >
+              <el-button
+                      v-show="mode === 'secretary'"
+                      @click="showGroups(scope.row)"
+                      style="padding: 4px"
+                      size="mini"
+                      icon="el-icon-tickets"
+                      type="primary"
+                      plain
+              >专家管理
+              </el-button
+              >
             <el-button
                 @click="showScore(scope.row)"
                 v-show="mode==='admin' || mode==='adminSub'"
@@ -184,18 +197,6 @@
             >分数统计
             </el-button
             >
-            <el-button
-                @click="showSubActivity(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-plus"
-                type="primary"
-                plain
-                v-show="mode !== 'secretarySub' && mode !== 'adminSub'"
-            >子活动管理
-            </el-button
-            >
-
             <el-button
                 @click="exportEx(scope.row)"
                 v-show="mode==='admin' || mode==='adminSub'"
@@ -210,7 +211,6 @@
             >
             <el-button
                 @click="showFinalScore(scope.row)"
-                v-show="mode==='admin' || mode==='adminSub'"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
@@ -220,6 +220,17 @@
             >查看选手成绩
             </el-button
             >
+              <el-button
+                      @click="showSubActivity(scope.row)"
+                      style="padding: 4px"
+                      size="mini"
+                      icon="el-icon-plus"
+                      type="primary"
+                      plain
+                      v-show="mode !== 'secretarySub' && mode !== 'adminSub'"
+              >子活动管理
+              </el-button
+              >
             <el-button
                 @click="endEmp(scope.row)"
                 v-show="mode==='admin'|| mode==='adminSub'"
@@ -683,6 +694,18 @@ export default {
                   backID: this.activityID,
               },
           });
+      }else if (this.mode === "secretarySub") {
+          _this.$router.push({
+              path: "/ActivitM/table",
+              query: {
+                  keywords: data.id,
+                  keyword_name: this.actName,
+                  groupID: this.groupID,
+                  groupName: this.groupName,
+                  mode: this.mode,
+                  backID: this.activityID,
+              },
+          });
       }
 
       // console.log(data)
@@ -732,14 +755,40 @@ export default {
     },
     showFinalScore(data){
       const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/final",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-          mode:this.mode,
-        },
-      });
+        console.log(data)
+      if (this.mode === "admin" || this.mode === "adminSub"){
+          _this.$router.push({
+              path: "/ActivitM/final",
+              query: {
+                  keywords: data.id,
+                  keyword_name: data.name,
+                  mode:this.mode,
+              },
+          });
+      }else if (this.mode === "secretary"){
+          _this.$router.push({
+              path: "/ActivitM/final",
+              query: {
+                  keywords: data.id,
+                  keyword_name: data.name,
+                  mode:this.mode,
+                  groupName:data.groupName,
+                  groupID:data.groupID,
+              },
+          });
+      }else if (this.mode === "secretarySub") {
+          _this.$router.push({
+              path: "/ActivitM/final",
+              query: {
+                  keywords: data.id,
+                  keyword_name: data.name,
+                  mode:this.mode,
+                  backGroupID:this.groupID,
+                  backActID:this.activityID,
+              },
+          });
+      }
+
     },
     showScoreItem(data) {
       const _this = this;
@@ -804,11 +853,24 @@ export default {
                 url = "/ActivitM/search"
             }
           }else if (this.mode === "secretarySub"){
-              // url = "/secretary/ActManage"
+              url = "/secretary/ActManage"
           }
           _this.$router.push({
               path: url,
           });
+      },
+      showGroups(data) {
+          const _this = this;
+          _this.$router.push({
+              path: "/ActivitM/sobcfg",
+              query: {
+                  keywords: data.id,
+                  keyword_name: data.name,
+                  keywords_name:this.keywords_name,
+                  groupID: data.groupID,
+                  mode:this.mode
+              }
+          })
       },
   },
 };
