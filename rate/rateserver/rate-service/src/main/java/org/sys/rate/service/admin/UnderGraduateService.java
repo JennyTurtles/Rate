@@ -83,17 +83,20 @@ public class UnderGraduateService {
                     updateUnders.add(underList.get(i));
                 }
             }
-            underGraduateMapper.updateFROMImport(updateUnders);
         }else {
             insertUnder = underList;
         }
-        if(underGraduateMapper.insertFROMImport(insertUnder) > 0){
-            underflag = true;
+        try {
+            if(updateUnders.size() > 0){
+                underGraduateMapper.updateFROMImport(updateUnders);
+            }
+            if(insertUnder.size() > 0){
+                underGraduateMapper.insertFROMImport(insertUnder);
+            }
+        }catch (Exception e){
+            return RespBean.error("error");
         }
-        if(underflag && stufalg){
             return RespBean.ok("ok");
-        }
-        return RespBean.error("error");
     }
 
     public Msg getUnderStudent(){

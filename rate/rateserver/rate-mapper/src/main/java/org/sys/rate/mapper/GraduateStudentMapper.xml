@@ -40,7 +40,9 @@
                 institutionID=#{item.institutionID},
                 stuNumber = #{item.stuNumber},
                 year = #{item.year},
-                tutorID = #{item.tutorID}
+                tutorID = #{item.tutorID},
+                point = #{item.point},
+                studentType = #{item.studentType}
             </set>
             where studentID = #{item.studentID}
         </foreach>

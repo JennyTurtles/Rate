@@ -79,17 +79,20 @@ public class GraduateStudentService {
                     updateGraduates.add(graduateList.get(i));
                 }
             }
-            graduateStudentMapper.updateFROMImport(updateGraduates);
         }else {
             insertGraduates = graduateList;
         }
-        if(graduateStudentMapper.insertFROMImport(insertGraduates) > 0){
-            graduateflag = true;
+        try {
+            if(updateGraduates.size() > 0){
+                graduateStudentMapper.updateFROMImport(updateGraduates);
+            }
+            if(insertGraduates.size() > 0){
+                graduateStudentMapper.insertFROMImport(insertGraduates);
+            }
+        }catch (Exception e){
+            return RespBean.error("error");
         }
-        if(graduateflag && stufalg){
-            return RespBean.ok("ok");
-        }
-        return RespBean.error("error");
+        return RespBean.ok("ok");
     }
 
     public Msg getGraduatesStudent(){
