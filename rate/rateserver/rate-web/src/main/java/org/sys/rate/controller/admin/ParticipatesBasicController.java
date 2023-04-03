@@ -11,9 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 import com.csvreader.CsvWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.CSVReader;
+import org.sys.rate.mapper.GroupsMapper;
+import org.sys.rate.mapper.ParticipatesMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.*;
 import org.sys.rate.service.expert.ExpertService;
@@ -43,7 +46,9 @@ public class ParticipatesBasicController {
     @Autowired
     LogService logService;
     @Resource
-    TotalItemService totalItemService;
+    ParticipatesMapper participatesMapper;
+    @Resource
+    GroupsMapper groupsMapper;
 
     @GetMapping("/")
     public RespPageBean getActivitiesByPage(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, @RequestParam Integer groupID, @RequestParam Integer activitiesID, Participates employee) {
@@ -265,6 +270,18 @@ public class ParticipatesBasicController {
             return RespBean.error(res);
         }else {
             return RespBean.ok(res);
+        }
+    }
+
+    @Transactional
+    @PostMapping("/addPars")
+    public RespBean addPars(@RequestBody List<Participates> participatesList){
+        Integer res = participatesMapper.addPars(participatesList);
+        Integer res2 = groupsMapper.updateParCount(participatesList.get(0).getActivityID(),participatesList.get(0).getGroupID());
+        if(res > 0 && res2 > 0){
+            return RespBean.ok("添加成功");
+        }else {
+            return RespBean.error("添加失败");
         }
     }
 }

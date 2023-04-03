@@ -3,8 +3,10 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.sys.rate.model.Groups;
+import org.sys.rate.model.Participates;
 import org.sys.rate.model.ScoreDetail;
 
 import java.util.Date;
@@ -60,4 +62,13 @@ public interface GroupsMapper {
 
     @Select("select * from `groups` where ID = #{groupID}")
     List<Groups> getGroup(Integer groupID);
+
+    @Select("SELECT name,IDNumber,code,activityID,groupID,studentID FROM student s,participants p\n" +
+            "WHERE s.ID = p.studentID AND groupID = #{groupID}")
+    List<Participates> getGroupPars(Integer groupID);
+
+    @Update("UPDATE `groups` SET participantCount = (\n" +
+            "SELECT count(*) FROM participants WHERE activityID = #{activityID} and groupID = #{groupID})\n" +
+            "WHERE activityID = #{activityID} AND ID = #{groupID}")
+    Integer updateParCount(Integer activityID, Integer groupID);
 }

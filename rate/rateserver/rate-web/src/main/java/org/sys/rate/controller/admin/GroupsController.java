@@ -148,4 +148,9 @@ public class GroupsController {
         return groupsService.judgeNumber(activityID,infoItemID,arr,exchangeNums,groupsNums,infoContent,sortByItemID);
         //返回分好组的选手信息
     }
+
+    @GetMapping("/pars")
+    public RespBean getGroupPars(@RequestParam Integer groupID) {
+        return RespBean.ok("success", groupsMapper.getGroupPars(groupID));
+    }
 }

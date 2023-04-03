@@ -295,6 +295,16 @@
         </foreach>
     </insert>
 
+    <insert id="addPars">
+        insert into participants (activityID, groupID, studentID, code)
+        values
+        <foreach collection="list" separator="," item="item" index="index">
+            (#{item.activityID,jdbcType=INTEGER}, #{item.groupID,jdbcType=INTEGER},
+            #{item.studentID,jdbcType=INTEGER}, #{item.code,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
     <select id="getPID" resultType="java.lang.Integer">
         select ID from participants where studentID=#{studentID,jdbcType=INTEGER} and activityID=#{activityID,jdbcType=INTEGER}
                                       <if test="groupID!=null"> and groupID=#{groupID,jdbcType=INTEGER}</if>

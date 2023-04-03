@@ -1,9 +1,6 @@
 package org.sys.rate.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.FinalValue;
 import org.sys.rate.model.PEexport;
 import org.sys.rate.model.ParticipantsDisplay;
@@ -168,4 +165,7 @@ public interface ParticipatesMapper {
             "GROUP BY si.ID)\n" +
             "on duplicate key update score = VALUES(score)")
     Integer saveAvgScores(Integer participantID, Integer activityID);
+
+    Integer addPars(List<Participates> list);
+
 }
