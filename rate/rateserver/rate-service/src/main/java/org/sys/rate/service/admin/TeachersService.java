@@ -89,20 +89,20 @@ public class TeachersService implements UserDetailsService {
             for(int i = 0;i < teachers.size();i++){
                 //不在更新列表中，说明表里没有这个数据
                 if(checkIDNumbers.indexOf(teachers.get(i).getIDNumber()) == -1){
-                    if(teachers.get(i).getUsername() == null || teachers.get(i).getUsername().equals(""))
-                    {//为空
-                        teachers.get(i).setUsername(teachers.get(i).getPhone());
-                    }
-                    String encodePass;
-                    if(teachers.get(i).getPassword() == null || teachers.get(i).getPassword().equals(""))
-                    {//为空
-                        encodePass = ExpertService.sh1(teachers.get(i).getPhone());
-                    }
-                    else
-                    {//默认密码为手机号
-                        encodePass = ExpertService.sh1(teachers.get(i).getPassword());
-                    }
-                    teachers.get(i).setPassword(encodePass);
+//                    if(teachers.get(i).getUsername() == null || teachers.get(i).getUsername().equals(""))
+//                    {//为空
+//                        teachers.get(i).setUsername(teachers.get(i).getPhone());
+//                    }
+//                    String encodePass;
+//                    if(teachers.get(i).getPassword() == null || teachers.get(i).getPassword().equals(""))
+//                    {//为空
+//                        encodePass = ExpertService.sh1(teachers.get(i).getPhone());
+//                    }
+//                    else
+//                    {//默认密码为手机号
+//                        encodePass = ExpertService.sh1(teachers.get(i).getPassword());
+//                    }
+//                    teachers.get(i).setPassword(encodePass);
                     insertTeas.add(teachers.get(i));
                 }else {
                     //如果teacher表中有这个数据，用户名和密码还是用之前的
@@ -116,22 +116,34 @@ public class TeachersService implements UserDetailsService {
         }else {
             insertTeas = teachers;
         }
-        //设置角色
+        //设置角色和密码
         for(Teachers i : insertTeas){
+            if(i.getUsername() == null || i.getUsername().equals(""))
+            {//为空
+                i.setUsername(i.getPhone());
+            }
+            String encodePass;
+            if(i.getPassword() == null || i.getPassword().equals(""))
+            {//为空
+                encodePass = ExpertService.sh1(i.getPhone());
+            }
+            else
+            {//默认密码为手机号
+                encodePass = ExpertService.sh1(i.getPassword());
+            }
+            i.setPassword(encodePass);
             i.setRole(role);
         }
-        int resInsert = 0;
         try{
             if(checkTeachers.size() != 0) {
                 teachersMapper.updateFROMImport(updateTeas);
             }
-            resInsert = teachersMapper.insertFROMImport(insertTeas);
+            if(insertTeas.size() > 0){
+                teachersMapper.insertFROMImport(insertTeas);
+            }
         }catch (Exception e) {
             return RespBean.error("error");
         }
-        if(resInsert > 0){
-            return RespBean.ok("ok");
-        }
-        return RespBean.error("error");
+        return RespBean.ok("ok");
     }
 }

@@ -2,7 +2,15 @@
   <div>
     <div>
       <el-button type="primary" @click="downloadExcel">下载模版</el-button>
-      <el-button type="primary">上传excel</el-button>
+      <el-upload
+          :show-file-list="false"
+          :before-upload="beforeUpload"
+          :on-success="onSuccess"
+          style="display: inline-flex; margin-left: 8px"
+          :action="UploadUrl()"
+      >
+        <el-button type="primary">上传教师excel</el-button>
+      </el-upload>
     </div>
     <div style="margin-top: 10px">
       <el-table>
@@ -31,7 +39,7 @@ export default {
       this.$message.success("正在导入")
     },
     UploadUrl(){
-      let url = '/teacher/basic/importTeachers?role=' + toString(10)
+      let url = '/teacher/basic/importTeachers?role=' + '10'
       return url;
     },
     downloadExcel(){
