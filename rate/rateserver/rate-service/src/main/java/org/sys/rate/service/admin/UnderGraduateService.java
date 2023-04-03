@@ -108,4 +108,11 @@ public class UnderGraduateService {
         }
         return Msg.success().add("res",res);
     }
+    public Msg deleteUnderStudent(UnderGraduate under){
+        try {
+            underGraduateMapper.deleteUnderStudent(under);
+        }catch (Exception e){
+            return Msg.fail();
+        }return Msg.success();
+    }
 }

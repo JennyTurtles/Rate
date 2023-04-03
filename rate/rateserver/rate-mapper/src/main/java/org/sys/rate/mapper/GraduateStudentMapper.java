@@ -11,6 +11,7 @@ import java.util.List;
 @Mapper
 public interface GraduateStudentMapper {
     List<GraduateStudent> getGraduateStudent();
+    int deleteGraduateStudent(GraduateStudent grad);
 
     List<Integer> check(List<GraduateStudent> graduate);
     int insertFROMImport(List<GraduateStudent> record);

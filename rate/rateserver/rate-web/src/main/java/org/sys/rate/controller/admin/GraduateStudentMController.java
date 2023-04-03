@@ -2,10 +2,7 @@ package org.sys.rate.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.mapper.GraduateStudentMapper;
 import org.sys.rate.model.*;
@@ -46,5 +43,9 @@ public class GraduateStudentMController {
     @GetMapping("/getGraduateStudents")
     public Msg getUnderStudent(){
         return graduateStudentService.getGraduatesStudent();
+    }
+    @PostMapping("/deleteGraduateStudent")
+    public Msg deleteGraduateStudent(@RequestBody GraduateStudent grad){
+        return graduateStudentService.deleteGraduateStudent(grad);
     }
 }

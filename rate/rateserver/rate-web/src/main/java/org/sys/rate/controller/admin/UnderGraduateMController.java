@@ -45,4 +45,8 @@ public class UnderGraduateMController {
     public Msg getUnderStudent(){
         return underGraduateService.getUnderStudent();
     }
+    @PostMapping("/deleteUnderGraduateStudent")
+    public Msg deleteUnderStudent(@RequestBody UnderGraduate under){
+        return underGraduateService.deleteUnderStudent(under);
+    }
 }

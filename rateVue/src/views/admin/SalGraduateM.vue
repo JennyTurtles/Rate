@@ -23,7 +23,9 @@
         <el-table-column prop="studentType" label="学生类别" align="center"></el-table-column>
         <el-table-column prop="point" label="积分" align="center"></el-table-column>
         <el-table-column  label="操作" align="center">
-          <el-button size="mini" type="danger" icon="el-icon-delete" plain>删除</el-button>
+          <template slot-scope="scope">
+            <el-button size="mini" type="danger" icon="el-icon-delete" plain @click="deleteUnder(scope.row)">删除</el-button>
+          </template>
         </el-table-column>
       </el-table>
     </div>
@@ -42,6 +44,14 @@ export default {
     this.initGraduateStudents()
   },
   methods:{
+    deleteUnder(data){//删除本科生
+      this.postRequest('/graduatestudentM/basic/deleteGraduateStudent',data).then((resp)=>{
+        if(resp.code == 200){
+          this.$message.success('删除成功')
+          this.initGraduateStudents()
+        }
+      })
+    },
     onSuccess(res){
       if(res.status == 200){
         this.$message.success("导入成功")

@@ -21,7 +21,9 @@
         <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
         <el-table-column prop="year" label="入学年份" align="center"></el-table-column>
         <el-table-column  label="操作" align="center">
-          <el-button size="mini" type="danger" icon="el-icon-delete" plain>删除</el-button>
+          <template slot-scope="scope">
+            <el-button size="mini" type="danger" icon="el-icon-delete" plain @click="deleteUnder(scope.row)">删除</el-button>
+          </template>
         </el-table-column>
       </el-table>
     </div>
@@ -41,6 +43,14 @@ export default {
     this.initUnderGraduateStudents()
   },
   methods:{
+    deleteUnder(data){//删除本科生
+      this.postRequest('/undergraduateM/basic/deleteUnderGraduateStudent',data).then((resp)=>{
+        if(resp.code == 200){
+          this.$message.success('删除成功')
+          this.initUnderGraduateStudents()
+        }
+      })
+    },
     onSuccess(res){
       if(res.status == 200){
         this.$message.success("导入成功")

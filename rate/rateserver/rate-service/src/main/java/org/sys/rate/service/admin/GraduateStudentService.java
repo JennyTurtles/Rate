@@ -104,4 +104,11 @@ public class GraduateStudentService {
         }
         return Msg.success().add("res",res);
     }
+    public Msg deleteGraduateStudent(GraduateStudent grad){
+        try {
+            graduateStudentMapper.deleteGraduateStudent(grad);
+        }catch (Exception e){
+            return Msg.fail();
+        }return Msg.success();
+    }
 }

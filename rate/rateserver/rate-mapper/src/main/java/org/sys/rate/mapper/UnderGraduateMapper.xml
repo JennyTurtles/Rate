@@ -69,4 +69,7 @@
         from undergraduate u,student s
         where s.ID = u.studentID
     </select>
+    <delete id="deleteUnderStudent" parameterType="org.sys.rate.model.UnderGraduate">
+        delete from undergraduate where ID = #{ID}
+    </delete>
 </mapper>
