@@ -68,4 +68,7 @@ public interface ActivitiesMapper {
 
     @Update("update activities set score = score + #{score} where ID = #{activityID}")
     Integer updateScore(Integer activityID, double score); // score为分差，新-旧
+
+    @Update("update activities set requireGroup = #{requireGroup} where ID = #{activityID}")
+    int changeRequireGroup(Integer activityID, Integer requireGroup);
 }

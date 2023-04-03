@@ -49,6 +49,16 @@ public class ActivitiesBasicController {
         return RespBean.ok("success",res);
     }
 
+    @PostMapping("/changeRequireGroup")
+    public RespBean changeRequireGroup(@RequestParam Integer activityID, @RequestParam Integer requireGroup) {
+        int res = activitiesMapper.changeRequireGroup(activityID, requireGroup);
+        if (res == 1) {
+            return RespBean.ok("success");
+        }
+        return RespBean.error("error");
+    }
+
+
     @PostMapping("/insert")
     public RespBean addActivities(@RequestBody Activities activities) throws ParseException {
         int result=activitiesService.addActivities(activities);

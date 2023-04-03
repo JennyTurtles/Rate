@@ -29,6 +29,7 @@ public class Activities {
     private Integer groupID;
     private String groupName;
     private Integer parentID;
+    private Integer requireGroup;
     public Integer getGroupID() {
         return groupID;
     }

@@ -95,8 +95,20 @@
             >保存
             </el-button
             >
+              <el-button
+                      @click="assignPE(scope.row)"
+                      v-show="mode === 'secretarySub'"
+                      style="padding: 4px"
+                      size="mini"
+                      icon="el-icon-tickets"
+                      type="primary"
+                      plain
+              >分配选手和专家
+              </el-button
+              >
             <el-button
                 @click="showGroups(scope.row)"
+                v-show="mode !== 'secretarySub'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
@@ -107,6 +119,7 @@
             >
             <el-button
                 @click="showParticipantsM(scope.row)"
+                v-show="mode !== 'secretarySub'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-s-operation"
@@ -510,6 +523,19 @@ export default {
         }
       })
     },
+      assignPE(data) {
+          const _this = this;
+          _this.$router.push({
+              path: "/Expert/EassignPE",
+              query: {
+                  activityIDParent: this.$route.query.backID,
+                  activityID: data.activityID,
+                  groupIDParent: this.$route.query.groupID,
+                  groupID: data.id,
+                  mode:this.mode
+              }
+          })
+      },
     showParticipantsM(data) {
       const _this = this;
       _this.$router.push({

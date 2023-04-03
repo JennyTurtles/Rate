@@ -26,6 +26,13 @@ export default new Router({
       },
       children: [
         {
+          path: '/Expert/EassignPE', //路由跳转路径
+          name: '分配人员', //路由名称
+          hidden: true,
+          component: () => import('./views/expert/EassignPE.vue'),
+          meta: { title: '分配人员' },
+        },
+        {
           path: '/hrinfo',
           name: '个人中心1',
           hidden: true,
@@ -501,7 +508,9 @@ export default new Router({
           meta: { title: '评分列表' },
         },
       ],
+
     },
+
 
     // {
     //   path: '/test',

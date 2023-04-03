@@ -155,7 +155,7 @@
             >
             <el-button
                 @click="showGroupmanagement(scope.row)"
-                v-show="mode !== 'secretary' "
+                v-show="mode !== 'secretary' && mode !== 'secretarySub' || scope.row.requireGroup === true"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-s-operation"
@@ -256,6 +256,31 @@
             >
           </template>
         </el-table-column>
+        <el-table-column
+            v-if="mode === 'adminSub'"
+            prop="group"
+            label="是否分组"
+            align="center"
+            width="75"
+        >
+            <template slot-scope="scope">
+                <el-checkbox v-model="scope.row.requireGroup"
+                             @change="changeCheckGroup(scope.row)"></el-checkbox>
+            </template>
+        </el-table-column>
+          <el-table-column
+                  v-if="mode === 'secretarySub'"
+                  prop="group"
+                  label="是否分组"
+                  align="center"
+                  width="75"
+          >
+              <template slot-scope="scope">
+                  <el-checkbox v-model="scope.row.requireGroup"
+                               disabled
+                               @change="changeCheckGroup(scope.row)"></el-checkbox>
+              </template>
+          </el-table-column>
       </el-table>
 
       <div style="display: flex; justify-content: flex-end; margin: 10px 0">
@@ -363,6 +388,7 @@
 <script>
 import {Message} from "element-ui";
 import da from "element-ui/src/locale/lang/da";
+import fa from "element-ui/src/locale/lang/fa";
 
 export default {
   name: "ActManage",
@@ -402,6 +428,7 @@ export default {
         participantCount: "0",
         comment: "javaboy",
           parentId: null,
+          requireGroup: true,
       },
       defaultProps: {
         children: "children",
@@ -426,6 +453,9 @@ export default {
     };
   },
   computed: {
+      fa() {
+          return fa
+      },
     user() {
       return JSON.parse(localStorage.getItem('user')); //object信息
     },
@@ -436,6 +466,21 @@ export default {
     this.initEmps();
   },
   methods: {
+    changeCheckGroup(row){
+        this.postRequest("/activities/basic/changeRequireGroup?activityID="+row.id+"&requireGroup="+(row.requireGroup?1:0)).then(res=>{
+            if(res.status === 200){
+                this.$message({
+                    type: 'success',
+                    message: '修改成功!'
+                });
+            }else{
+                this.$message({
+                    type: 'error',
+                    message: '修改失败!'
+                });
+            }
+        })
+    },
     rowClass() {
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
@@ -640,6 +685,9 @@ export default {
         this.getRequest("/activities/basic/sub?activityID="+this.activityID).then((resp)=>{
           this.loading = false;
           this.emps = resp.obj;
+          for (let i = 0; i < this.emps.length; i++) {
+              this.emps[i].requireGroup = this.emps[i].requireGroup === 1
+          }
           this.total = this.emps.length
         })
       }else if (this.mode === "secretarySub"){ // 秘书子活动管理
@@ -652,6 +700,9 @@ export default {
           this.getRequest("/activities/basic/sub?activityID="+this.activityID).then((resp)=>{
             this.loading = false;
             this.emps = resp.obj;
+              for (let i = 0; i < this.emps.length; i++) {
+                  this.emps[i].requireGroup = this.emps[i].requireGroup === 1
+              }
             for (let i = 0; i < this.emps.length; i++) {
               this.emps[i].participantCount =  this.participates.length
               this.emps[i].expertCount = this.participates.length
