@@ -20,55 +20,63 @@ public class UnderGraduateService {
     UnderGraduateMapper underGraduateMapper;
     //管理员导入本科生
     public RespBean addUnderGraduate( List<UnderGraduate> underList,List<Student> stuList) {
-        boolean stufalg = false;
-        boolean underflag = false;
-//怎么判断学生表里是否有这个学生了？凭一个身份证判断可能会有多种角色，选手本科生研究生
-        for (Student stu : stuList) {
-            Student ss = studentMapper.checkAndReturnID(stu.getIDNumber());
-            if (ss != null) {//存在这条数据
-                if(stu.getUsername().equals("") || stu.getUsername() == null)
+        //怎么判断学生表里是否有这个学生了？凭一个身份证判断可能会有多种角色，选手本科生研究生
+        List<Student> checkStudents = studentMapper.checkAndReturnID(stuList);
+        List<String> checkIDNumbers = new ArrayList<>();
+        List<Student> updateStus = new ArrayList<>();
+        List<Student> insertStus = new ArrayList<>();
+        if(checkStudents.size() != 0){
+            for(Student i : checkStudents){//拿到已经存在的student的idnumber
+                checkIDNumbers.add(i.getIDNumber());
+            }
+            for(int i = 0;i < stuList.size();i++){
+                //不在更新列表中，说明表里没有这个数据
+                if(checkIDNumbers.indexOf(stuList.get(i).getIDNumber()) == -1){
+                    insertStus.add(stuList.get(i));
+                }
+            }
+        }else {
+            insertStus = stuList;
+        }
+        if(insertStus.size() > 0){
+            for(Student i : insertStus){
+                if(i.getUsername() == null || i.getUsername().equals(""))
                 {//为空
-                    stu.setUsername(null);
-                }
-                if(!stu.getPassword().equals(""))
-                {//不为空
-                    String encodePass = stu.getPassword();
-                    stu.setPassword(ExpertService.sh1(encodePass));
-                }
-                else
-                {//如果没有密码，更新的时候会被忽略
-                    stu.setPassword(null);
-                }
-                System.out.println("student表中已经有该选手信息。");
-                //更新name和instituteId，如果不是null,新增username和password
-                int insert0=studentMapper.updateFROMImport(stu);
-                if(insert0 > 0){
-                    stufalg = true;
-                    stu.setID(ss.getID());
-                }
-            } else {
-                if(stu.getUsername() == null || stu.getUsername().equals(""))
-                {//为空
-                    stu.setUsername(stu.getTelephone());
+                    i.setUsername(i.getTelephone());
                 }
                 String encodePass;
-                if(stu.getPassword() == null || stu.getPassword().equals(""))
+                if(i.getPassword() == null || i.getPassword().equals(""))
                 {//为空
-                    encodePass = ExpertService.sh1(stu.getTelephone());
+                    encodePass = ExpertService.sh1(i.getTelephone());
                 }
                 else
                 {//默认密码为手机号
-                    encodePass = ExpertService.sh1(stu.getPassword());
+                    encodePass = ExpertService.sh1(i.getPassword());
                 }
-                stu.setPassword(encodePass);
-                //如果没有就插入选手信息
-                int insert0 = studentMapper.insertStuFromExcel(stu);
-                stufalg = true;
+                i.setPassword(encodePass);
             }
+        }
+        List<Student> newStuList = new ArrayList<>();
+        try{
+            if(checkStudents.size() != 0) {
+                studentMapper.updateFromAdminExcel(stuList);
+                newStuList.addAll(checkStudents);
+            }
+            if(insertStus.size() > 0){
+                studentMapper.insertFromAdminExcel(insertStus);
+                newStuList.addAll(insertStus);
+            }
+        }catch (Exception e) {
+            return RespBean.error("error");
         }
         //对本科生循环 设置stuid
         for(int i = 0;i < underList.size();i++){
-            underList.get(i).setStudentID(stuList.get(i).getID());
+            for(int j = 0;j < newStuList.size();j++){
+                if(underList.get(i).getIDNumber().equals(newStuList.get(j).getIDNumber())){
+                    underList.get(i).setStudentID(newStuList.get(j).getID());
+                    break;
+                }
+            }
         }
         List<Integer> updateInter = underGraduateMapper.check(underList);
         List<UnderGraduate> updateUnders = new ArrayList<>();

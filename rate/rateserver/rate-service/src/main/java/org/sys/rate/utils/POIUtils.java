@@ -849,6 +849,7 @@ public class POIUtils {
                     }//7. 获取列数
                     int physicalNumberOfCells = row.getPhysicalNumberOfCells();
                     underGraduate = new UnderGraduate();
+                    student = new Student();
                     String stuNumber=null;//学号
                     String name=null;//姓名
                     String phone=null;//手机号
@@ -904,6 +905,7 @@ public class POIUtils {
                     underGraduate.setStuNumber(stuNumber);
                     underGraduate.setYear(Integer.parseInt(year));
                     underGraduate.setInstitutionID(1);
+                    underGraduate.setIDNumber(idCard);
                     studentList.add(student);
                     underList.add(underGraduate);
                 }
@@ -1030,6 +1032,7 @@ public class POIUtils {
                     }//7. 获取列数
                     int physicalNumberOfCells = row.getPhysicalNumberOfCells();
                     graduateStudent = new GraduateStudent();
+                    student = new Student();
                     String stuNumber=null;//学号
                     String name=null;//姓名
                     String phone=null;//手机号
@@ -1093,6 +1096,7 @@ public class POIUtils {
                     graduateStudent.setStuNumber(stuNumber);
                     graduateStudent.setYear(Integer.parseInt(year));
                     graduateStudent.setInstitutionID(1);
+                    graduateStudent.setIDNumber(idCard);
                     graduateStudent.setStudentType(studentType);
                     graduateStudent.setPoint(point);
                     studentList.add(student);

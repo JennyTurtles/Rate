@@ -4,10 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import org.apache.ibatis.annotations.Select;
-import org.sys.rate.model.Admin;
-import org.sys.rate.model.Experts;
-import org.sys.rate.model.Role;
-import org.sys.rate.model.Student;
+import org.sys.rate.model.*;
 
 import java.util.List;
 
@@ -27,11 +24,16 @@ public interface StudentMapper {
     int update(Student record);
 
     int check(@Param("IDNumber") String record);
-    Student checkAndReturnID(@Param("IDNumber") String record);
+    List<Student> checkAndReturnID(List<Student> stuList);
 
     int insertFROMImport(Student record);
     int insertStuFromExcel(Student record);
     int updateFROMImport(Student record);
     public List<Student> selectList();
     int deleteStudent(Integer ID);
+
+    int insertFromAdminExcel(List<Student> record);
+    int updateFromAdminExcel(List<Student> record);
+
+
 }
