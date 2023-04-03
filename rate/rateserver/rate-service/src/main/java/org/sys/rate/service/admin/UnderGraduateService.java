@@ -27,7 +27,7 @@ public class UnderGraduateService {
             Student ss = studentMapper.checkAndReturnID(stu.getIDNumber());
             if (ss != null) {//存在这条数据
                 if(stu.getUsername().equals("") || stu.getUsername() == null)
-                {//不为空
+                {//为空
                     stu.setUsername(null);
                 }
                 if(!stu.getPassword().equals(""))

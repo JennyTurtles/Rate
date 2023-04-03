@@ -120,10 +120,12 @@ public class MenuService {
         List<Menu> res=new ArrayList<>();
         for (int i = 0;i < roles.length;i++){
             //获取每个角色的菜单
-            List<Menu> list = getAllRoleMenus(id,roles[i]);
-            for(Menu li:list){
-                //最终菜单
-                res.add(li);
+            if(!roles[i].equals("")){
+                List<Menu> list = getAllRoleMenus(id,roles[i]);
+                for(Menu li:list){
+                    //最终菜单
+                    res.add(li);
+                }
             }
         }
         return res;

@@ -772,9 +772,9 @@ public class POIUtils {
         HSSFSheet sheet = workbook.createSheet("undergraduate");
         //设置列的宽度
         sheet.setColumnWidth(0, 15 * 256);
-        sheet.setColumnWidth(1, 10 * 256);
-        sheet.setColumnWidth(2, 10 * 256);
-        sheet.setColumnWidth(3, 6 * 256);
+        sheet.setColumnWidth(1, 20 * 256);
+        sheet.setColumnWidth(2, 20 * 256);
+        sheet.setColumnWidth(3, 20 * 256);
         sheet.setColumnWidth(4, 20 * 256);
         sheet.setColumnWidth(5, 15 * 256);
         sheet.setColumnWidth(6, 15 * 256);
