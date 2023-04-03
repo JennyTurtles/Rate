@@ -51,7 +51,7 @@
         select studentID
         from graduatestudent
         where studentID in
-        <foreach collection="list" close=")" open="(" item="item">
+        <foreach collection="list" close=")" open="(" item="item" separator=",">
             #{item.studentID}
         </foreach>
     </select>

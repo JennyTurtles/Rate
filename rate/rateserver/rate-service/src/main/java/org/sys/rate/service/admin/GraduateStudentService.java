@@ -19,52 +19,62 @@ public class GraduateStudentService {
     GraduateStudentMapper graduateStudentMapper;
     //管理员导入研究生
     public RespBean addGraduate(List<GraduateStudent> graduateList, List<Student> stuList) {
-        boolean stufalg = false;
-        boolean graduateflag = false;
-        for (Student stu : stuList) {
-            Student ss = studentMapper.checkAndReturnID(stu.getIDNumber());
-            if (ss != null) {//存在这条数据
-                if(stu.getUsername() == null || stu.getUsername().equals(""))
-                {//不为空
-                    stu.setUsername(null);
+        List<Student> checkStudents = studentMapper.checkAndReturnID(stuList);
+        List<String> checkIDNumbers = new ArrayList<>();
+        List<Student> updateStus = new ArrayList<>();
+        List<Student> insertStus = new ArrayList<>();
+        if(checkStudents.size() != 0){
+            for(Student i : checkStudents){//拿到已经存在的student的idnumber
+                checkIDNumbers.add(i.getIDNumber());
+            }
+            for(int i = 0;i < stuList.size();i++){
+                //不在更新列表中，说明表里没有这个数据
+                if(checkIDNumbers.indexOf(stuList.get(i).getIDNumber()) == -1){
+                    insertStus.add(stuList.get(i));
                 }
-                if(stu.getPassword() == null || stu.getPassword().equals(""))
-                {//如果没有密码，更新的时候会被忽略
-                    stu.setPassword(null);
-                }else {
-                    String encodePass = stu.getPassword();
-                    stu.setPassword(ExpertService.sh1(encodePass));
-                }
-                System.out.println("student表中已经有该选手信息。");
-                //更新name和instituteId，如果不是null,新增username和password
-                int insert0=studentMapper.updateFROMImport(stu);
-                if(insert0 > 0){
-                    stufalg = true;
-                    stu.setID(ss.getID());
-                }
-            } else {
-                if(stu.getUsername() == null || stu.getUsername().equals(""))
+            }
+        }else {
+            insertStus = stuList;
+        }
+        if(insertStus.size() > 0){
+            for(Student i : insertStus){
+                if(i.getUsername() == null || i.getUsername().equals(""))
                 {//为空
-                    stu.setUsername(stu.getTelephone());
+                    i.setUsername(i.getTelephone());
                 }
                 String encodePass;
-                if(stu.getPassword() == null || stu.getPassword().equals(""))
+                if(i.getPassword() == null || i.getPassword().equals(""))
                 {//为空
-                    encodePass = ExpertService.sh1(stu.getTelephone());
+                    encodePass = ExpertService.sh1(i.getTelephone());
                 }
                 else
                 {//默认密码为手机号
-                    encodePass = ExpertService.sh1(stu.getPassword());
+                    encodePass = ExpertService.sh1(i.getPassword());
                 }
-                stu.setPassword(encodePass);
-                //如果没有就插入选手信息
-                int insert0 = studentMapper.insertStuFromExcel(stu);
-                stufalg = true;
+                i.setPassword(encodePass);
             }
         }
-        //对本科生循环 设置stuid
+        List<Student> newStuList = new ArrayList<>();
+        try{
+            if(checkStudents.size() != 0) {
+                studentMapper.updateFromAdminExcel(stuList);
+                newStuList.addAll(checkStudents);
+            }
+            if(insertStus.size() > 0){
+                studentMapper.insertFromAdminExcel(insertStus);
+                newStuList.addAll(insertStus);
+            }
+        }catch (Exception e) {
+            return RespBean.error("error");
+        }
+        //对研究生循环 设置stuid
         for(int i = 0;i < graduateList.size();i++){
-            graduateList.get(i).setStudentID(stuList.get(i).getID());
+            for(int j = 0;j < newStuList.size();j++){
+                if(graduateList.get(i).getIDNumber().equals(newStuList.get(j).getIDNumber())){
+                    graduateList.get(i).setStudentID(newStuList.get(j).getID());
+                    break;
+                }
+            }
         }
         List<Integer> updateInter = graduateStudentMapper.check(graduateList);
         List<GraduateStudent> updateGraduates = new ArrayList<>();
@@ -72,7 +82,7 @@ public class GraduateStudentService {
         //有已经存在的研究生了
         if(updateInter.size() != 0){
             for(int i = 0;i < graduateList.size();i++){
-                //不在更新列表中，说明本科生表里没有这个数据
+                //不在更新列表中，说明表里没有这个数据
                 if(updateInter.indexOf(graduateList.get(i).getStudentID()) == -1){
                     insertGraduates.add(graduateList.get(i));
                 }else {
