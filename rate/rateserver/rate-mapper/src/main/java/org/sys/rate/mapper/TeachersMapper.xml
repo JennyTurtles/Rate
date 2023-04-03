@@ -317,11 +317,11 @@
         where rate.teacher.ID=#{id,jdbcType=INTEGER};
     </update>
 
-    <select id="check" resultMap="BaseResultMap">
+    <select id="check" resultMap="BaseResultMap" parameterType="org.sys.rate.model.Teachers">
         select *
         from teacher
         where IDNumber in
-        <foreach collection="list" close=")" open="(" item="item">
+        <foreach collection="list" close=")" open="(" item="item" separator=",">
             #{item.IDNumber}
         </foreach>
     </select>
