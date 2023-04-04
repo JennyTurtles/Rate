@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
-import java.util.Objects;
 
 public class Student extends Account {
     private Integer ID;
@@ -23,6 +22,15 @@ public class Student extends Account {
     private Teachers teachers;//老师对象
     private Integer deleteflag;
     private Integer role;
+    private Thesis thesis;
+
+    public Thesis getThesis() {
+        return thesis;
+    }
+
+    public void setThesis(Thesis thesis) {
+        this.thesis = thesis;
+    }
 
     public Teachers getTeachers(){
         return teachers;
@@ -39,6 +47,10 @@ public class Student extends Account {
 
     public Integer getID() {
         return ID;
+    }
+
+    public Student() {
+
     }
 //
     public void setID(Integer ID) {

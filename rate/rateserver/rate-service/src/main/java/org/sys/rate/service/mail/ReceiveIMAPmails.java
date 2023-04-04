@@ -427,8 +427,6 @@ public class ReceiveIMAPmails {
                 // 修改论文的状态
                 paperService.editState(state, ID);
 //                System.out.println("·····修改论文状态成功！·····");
-
-
             }
 
 

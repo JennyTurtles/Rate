@@ -345,6 +345,24 @@ export default new Router({
           },
         },
         {
+          path: '/teacher/tPaperComment',
+          name: '教师毕业论文评审记录',
+          hidden: true,
+          component: () => import('./views/teacher/PaperComment'),
+          meta: {
+            title: '教师毕业论文评审记录',
+          },
+        },
+        {
+          path: '/teacher/stuPaperComment',
+          name: '教师毕业论文评审记录详情界面',
+          hidden: true,
+          component: () => import('./views/teacher/stuPaperComment'),
+          meta: {
+            title: '教师毕业论文评审记录',
+          },
+        },
+        {
           path: '/teacher/tAchievements',
           name: '学生所有成果',
           hidden: true,

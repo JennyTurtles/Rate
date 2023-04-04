@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="org.sys.rate.mapper.PaperCommentMapper">
+    <resultMap type="org.sys.rate.model.Thesis" id="ThesisResult">
+        <id property="ID" column="tID" jdbcType="INTEGER"/>
+        <result property="name" column="tName"/>
+        <result column="comment_pass" jdbcType="INTEGER" property="comment_pass"/>
+        <result column="comment_deny" jdbcType="INTEGER" property="comment_deny"/>
+        <result column="comment_total" jdbcType="INTEGER" property="comment_total"/>
+
+    </resultMap>
+
+
+    <resultMap type="org.sys.rate.model.Student" id="PaperCommentResult">
+        <id property="ID" column="ID" jdbcType="INTEGER"/>
+        <result property="sname" column="name"/>
+
+        <association property="thesis" resultMap="ThesisResult">
+
+        </association>
+
+    </resultMap>
+
+
+    <select id="getStuThesis" resultMap="PaperCommentResult">
+        -- 老师查询其下所有学生的毕业设计
+        SELECT s.ID, t.ID as tID, s.name, t.name as tName,
+               sum( CASE p.isPass WHEN 'tea_pass' THEN 1 ELSE 0 END ) AS comment_pass,
+               sum( CASE isPass WHEN 'tea_deny' THEN 1 ELSE 0 END ) AS comment_deny,
+               MAX(num) AS comment_total
+
+        FROM student s
+                 JOIN thesis t ON s.ID = t.studentID
+                 JOIN papercomment p ON p.thesisID = t.ID
+        WHERE s.tutorID = #{teaID}
+          AND NOT EXISTS(
+                SELECT 1
+                FROM thesis t2
+                WHERE t.studentID = t2.studentID
+                  AND ((t.year &lt; t2.year) OR (t.year = t2.year AND t.month &lt; t2.month))
+            )
+        GROUP BY tID
+        ORDER BY s.id ASC;
+    </select>
+
+
+
+
+</mapper>

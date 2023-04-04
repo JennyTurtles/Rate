@@ -3,6 +3,7 @@ package org.sys.rate.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 
@@ -11,9 +12,6 @@ public class PaperComment {
      * 毕业论文或设计评论的ID
      */
     private int ID;
-
-
-
     /**
      * 毕业论文或设计的ID
      */
@@ -29,7 +27,8 @@ public class PaperComment {
      * 导师评价上传的时间
      */
 
-    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern="yyyy-MM-dd", timezone = "GMT+8")
     private Date dateTea;
     /**
      * 本期工作
@@ -49,10 +48,25 @@ public class PaperComment {
      */
     private Thesis thesis;
 
+    private Student student;
+
     /**
      * 第几次评论
      */
     private int num;
+
+    /**
+     * 是否通过
+     */
+    private String isPass;
+
+    public String getIsPass() {
+        return isPass;
+    }
+
+    public void setIsPass(String isPass) {
+        this.isPass = isPass;
+    }
 
     public int getID() {
         return ID;
@@ -70,16 +84,23 @@ public class PaperComment {
         this.thesisID = thesisID;
     }
 
-    public Date getDateStu() {
-        return dateStu;
+    public String getDateStu() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(dateStu);
     }
 
     public void setDateStu(Date dateStu) {
         this.dateStu = dateStu;
     }
 
-    public Date getDateTea() {
-        return dateTea;
+    public String getDateTea() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        if(dateTea!=null) {
+            return sdf.format(dateTea);
+        }
+        else{
+            return "";
+        }
     }
 
     public void setDateTea(Date dateTea) {
