@@ -95,12 +95,7 @@ public class PaperComment {
 
     public String getDateTea() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        if(dateTea!=null) {
-            return sdf.format(dateTea);
-        }
-        else{
-            return "";
-        }
+        return dateTea!=null?sdf.format(dateTea):null;
     }
 
     public void setDateTea(Date dateTea) {
