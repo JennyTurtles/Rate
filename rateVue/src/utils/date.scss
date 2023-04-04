@@ -1,0 +1,102 @@
+// 设置日期选择器的宽度
+.el-date-picker {
+    width: 350px;
+}
+
+// 设置日期选择器的字体大小和颜色
+.el-date-picker__editor-wrap input {
+    font-size: 14px;
+    color: black;
+    font-weight: solid bold;
+}
+
+// 设置日期选择器的下拉箭头的颜色
+.el-date-picker__icon {
+    color: #999;
+}
+
+// 设置日期选择器的弹出框样式
+.el-picker-panel {
+    background-color: #fff;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+// 设置日期选择器的日期单元格样式
+.el-date-table td.today::before {
+    display: block;
+    line-height: 1;
+    font-size: 12px;
+    margin-top: 0;
+    margin-bottom: -30px;
+    color: red;
+}
+
+.el-date-table td.today.is-selected::before,
+.el-date-table td.today:focus::before,
+.el-date-table td.today:hover::before {
+    content: "今天";
+    font-size: 12px;
+    color: red;
+}
+
+.el-date-table td:not(.disabled) {
+    &.today span {
+        color: red;
+    }
+    &.current span {
+        color: #fff;
+        background-color: lightsalmon;
+    }
+    &.available:hover {
+        color: red;
+    }
+    color: lightcoral;
+}
+
+.el-date-table td.disabled span {
+    color: lightgray;
+}
+
+// .el-date-table td.available:hover,
+// .el-date-table td.current {
+//     // background-color: #409eff;~
+//     color: red;
+//     border-radius: 0;
+//     // background-color: aqua;
+// }
+// .el-date-table td.current span {
+//     border-radius: 0;
+//     background-color: red;
+// }
+
+// .el-date-table td.today span {
+//     position: relative;
+//     font-size: 0px;
+//     // color: red;
+//     /* Set the parent element to relative position */
+//   }
+
+// .el-date-table td.today::before {
+//     // line-height: 1;
+//     content: "今天";
+//     display: block;
+//     line-height: 1;
+//     font-size: 12px;
+//     margin-top: 0;
+//     margin-bottom: -30px;
+//     color: red;  
+// }
+
+.toptip.el-tooltip__popper[x-placement^="top"] .popper__arrow {
+    border-top-color: #fff;//三角的边框颜色
+}
+.toptip.el-tooltip__popper[x-placement^="top"] .popper__arrow:after {
+    border-top-color: #fff;//三角的背景颜色
+}
+.toptip.el-tooltip__popper.is-dark {
+    color: lightskyblue;//提示文字的颜色
+}
+.toptip {
+    background: #fff !important;//提示框的背景颜色
+    box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.2);//提示框的边框阴影
+}
