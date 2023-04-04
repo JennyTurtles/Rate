@@ -420,7 +420,8 @@ public class ParticipatesService {
 
     @Transactional
     public Integer deleteParticipant(Integer groupID,Participates company) {
-        int result = participatesMapper.delete(company);
+        participatesMapper.delete(company);
+        int result = participatesMapper.deletePar(company.getID(),company.getActivityID());
         if (participatesMapper.existPar(company.getStudentID()) == null){   // 该选手可能有其他活动，只有在选手表内无该选手时候，才能在student表删除
             studentMapper.deleteStudent(company.getStudentID());
         }

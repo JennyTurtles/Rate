@@ -71,9 +71,9 @@
         </where>
     </select>
     <insert id="insert" parameterType="org.sys.rate.model.Groups">
-        insert into `groups` (ID, activityID, name, expertCount, participantCount)
+        insert into `groups` (ID, activityID, name, expertCount, participantCount, parentID)
         values (#{ID,jdbcType=INTEGER}, #{activityID,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
-                #{expertCount,jdbcType=INTEGER}, #{participantCount,jdbcType=INTEGER});
+                #{expertCount,jdbcType=INTEGER}, #{participantCount,jdbcType=INTEGER}, #{parentID,jdbcType=INTEGER});
         UPDATE activities
         SET groupCount = groupCount + 1
         WHERE ID = #{activityID,jdbcType=INTEGER}

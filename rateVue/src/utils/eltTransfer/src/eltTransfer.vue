@@ -323,20 +323,22 @@
           }
         }
         this.$emit('input', this.rightTableData)
-        this.$parent.add(addList)
+        this.$parent.simpleAdd(addList)
       },
       addToLeft() {
+        var delList = []
         this.rightSelection.forEach(item => {
           const index = this.rightTableData.findIndex(rightRow => this.checkObjectIsEqual(rightRow, item))
           if (index !== -1) {
             this.rightTableData.splice(index, 1)
-
+            delList.push(item)
             const leftRow = this.leftTableData.find(leftRow => this.checkObjectIsEqual(leftRow, item))
             if(leftRow) {
               this.$refs.leftTable.toggleRowSelection(leftRow, false)
             }
           }
         })
+        this.$parent.delete(delList)
         this.$emit('input', this.rightTableData)
       },
       onLeftQuerySubmit() {

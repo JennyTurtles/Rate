@@ -153,4 +153,9 @@ public class GroupsController {
     public RespBean getGroupPars(@RequestParam Integer groupID) {
         return RespBean.ok("success", groupsMapper.getGroupPars(groupID));
     }
+
+    @GetMapping("/subGroups")
+    public RespBean getSubGroups(@RequestParam Integer activityID,@RequestParam Integer groupID) {
+        return RespBean.ok("success", groupsMapper.getSubGroups(activityID,groupID));
+    }
 }

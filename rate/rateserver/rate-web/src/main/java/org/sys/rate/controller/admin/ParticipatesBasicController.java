@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.CSVReader;
+import org.sys.rate.mapper.ActivitiesMapper;
 import org.sys.rate.mapper.GroupsMapper;
 import org.sys.rate.mapper.ParticipatesMapper;
 import org.sys.rate.model.*;
@@ -49,6 +50,8 @@ public class ParticipatesBasicController {
     ParticipatesMapper participatesMapper;
     @Resource
     GroupsMapper groupsMapper;
+    @Resource
+    ActivitiesMapper activitiesMapper;
 
     @GetMapping("/")
     public RespPageBean getActivitiesByPage(@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, @RequestParam Integer groupID, @RequestParam Integer activitiesID, Participates employee) {
@@ -282,6 +285,23 @@ public class ParticipatesBasicController {
             return RespBean.ok("添加成功");
         }else {
             return RespBean.error("添加失败");
+        }
+    }
+
+    @Transactional
+    @PostMapping("/deletePars")
+    public RespBean deletePars(@RequestBody List<Participates> participatesList) throws ParseException {
+        for (Participates participates : participatesList) {
+            RespBean respBean = deleteParticipant(participates.getGroupID(),participates); // 可以同时删除该选手的评分项和信息项
+            if (respBean.getStatus() == 500){
+                return RespBean.error("删除失败");
+            }
+        }
+        Integer res = groupsMapper.updateParCount(participatesList.get(0).getActivityID(),participatesList.get(0).getGroupID());
+        if(res > 0){
+            return RespBean.ok("删除成功");
+        }else {
+            return RespBean.error("删除失败");
         }
     }
 }

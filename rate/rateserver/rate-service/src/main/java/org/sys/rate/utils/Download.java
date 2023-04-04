@@ -30,7 +30,7 @@ public class Download {
             // 文件名应该编码成UTF-8
         } else { // 纯下载方式
             response.setContentType("application/x-msdownload");
-            response.setHeader("Content-Disposition", "attachment; filename=" + java.net.URLEncoder.encode(filename, "UTF-8"));
+            response.setHeader("Content-Disposition", "attachment; filename=" + java.net.URLEncoder.encode(filename, "unicode"));
         }
         OutputStream out = response.getOutputStream();
         while ((len = br.read(buf)) > 0)

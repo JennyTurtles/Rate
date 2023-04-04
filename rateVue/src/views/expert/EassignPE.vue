@@ -107,6 +107,7 @@
 import eltTransfer from '../../utils/eltTransfer'
 import {Message} from "element-ui";
 import axios from "axios";
+import de from "element-ui/src/locale/lang/de";
 export default {
     name: 'app',
     computed: {
@@ -157,7 +158,27 @@ export default {
         'elt-transfer': eltTransfer
     },
     methods: {
-        add(addList){
+        fixCount(parID,subID){ // 确保子活动的选手数和和专家数和父活动一致
+          this.postRequest("/activities/basic/fixCount?parID="+parID+"&subID="+subID).then(res=>{
+              if(res.status!==200){
+                  this.$message.fail('计数更新失败')
+              }
+          })
+        },
+        delete(delList){
+            this.postRequest("/participants/basic/deletePars",delList).then(res=>{
+                if(res.status==200){
+                    this.$message.success('删除成功')
+                    this.fixCount(this.activityIDParent,this.activityID)
+                    this.init();
+                }else
+                {
+                    this.$message.fail('删除失败')
+                    this.fixCount(this.activityIDParent,this.activityID)
+                }
+            })
+        },
+        simpleAdd(addList){ // 将大组选手添加到当前小组，在子组件内调用的
             for (let i = 0; i < addList.length; i++) {
                 addList[i].activityID=this.activityID;
                 addList[i].groupID=this.groupID;
@@ -260,6 +281,7 @@ export default {
                                 "Content-Type": "multipart/form-data",
                             },
                         }).then((res) => {
+                            this.fixCount(this.activityIDParent,this.activityID)
                             this.init()
                             this.$message(res.msg);
                         })
@@ -284,6 +306,7 @@ export default {
                                 },
                             }).then((res) => {
                                 this.onSuccess(res);
+                                this.fixCount(this.activityIDParent,this.activityID)
                                 this.init();
                                 this.$message(res.msg);
                             })

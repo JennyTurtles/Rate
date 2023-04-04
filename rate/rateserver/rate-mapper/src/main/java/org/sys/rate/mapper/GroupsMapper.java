@@ -63,7 +63,7 @@ public interface GroupsMapper {
     @Select("select * from `groups` where ID = #{groupID}")
     List<Groups> getGroup(Integer groupID);
 
-    @Select("SELECT name,IDNumber,code,activityID,groupID,studentID FROM student s,participants p\n" +
+    @Select("SELECT p.ID,name,IDNumber,code,activityID,groupID,studentID,s.institutionID FROM student s,participants p\n" +
             "WHERE s.ID = p.studentID AND groupID = #{groupID}")
     List<Participates> getGroupPars(Integer groupID);
 
@@ -71,4 +71,7 @@ public interface GroupsMapper {
             "SELECT count(*) FROM participants WHERE activityID = #{activityID} and groupID = #{groupID})\n" +
             "WHERE activityID = #{activityID} AND ID = #{groupID}")
     Integer updateParCount(Integer activityID, Integer groupID);
+
+    @Select("select * from `groups` where parentID = #{groupID} and activityID = #{activityID}")
+    List<Groups> getSubGroups(Integer activityID,Integer groupID);
 }

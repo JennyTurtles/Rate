@@ -265,8 +265,6 @@
         where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
         delete from scores
         where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
-        delete from participants
-        where ID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
         UPDATE activities set participantCount=participantCount-1 where ID=#{activityID,jdbcType=INTEGER};
         UPDATE `groups` set participantCount=participantCount-1 where ID=#{groupID,jdbcType=INTEGER};
     </delete>
@@ -304,6 +302,13 @@
             )
         </foreach>
     </insert>
+    
+    <delete id="deletePars">
+        delete from participants where ID in
+        (<foreach collection="list" separator="," item="item" index="index">
+        #{item.ID,jdbcType=INTEGER}
+    </foreach>)
+    </delete>
 
     <select id="getPID" resultType="java.lang.Integer">
         select ID from participants where studentID=#{studentID,jdbcType=INTEGER} and activityID=#{activityID,jdbcType=INTEGER}

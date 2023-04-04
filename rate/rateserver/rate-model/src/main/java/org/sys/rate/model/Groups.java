@@ -7,6 +7,7 @@ public class Groups {
     private Integer activityID;
     private Integer ID;
     private String name;
+    private Integer parentID;
 
     @Override
     public String toString() {
@@ -20,8 +21,13 @@ public class Groups {
     }
 
 
+    public Integer getParentID() {
+        return parentID;
+    }
 
-
+    public void setParentID(Integer parentID) {
+        this.parentID = parentID;
+    }
 
     public Integer getExpertCount() {
         return expertCount;

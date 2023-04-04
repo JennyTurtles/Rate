@@ -71,4 +71,26 @@ public interface ActivitiesMapper {
 
     @Update("update activities set requireGroup = #{requireGroup} where ID = #{activityID}")
     int changeRequireGroup(Integer activityID, Integer requireGroup);
+
+    @Update("UPDATE activities\n" +
+            "SET expertCount = (\n" +
+            "    SELECT tmp.expertCount \n" +
+            "    FROM (\n" +
+            "        SELECT expertCount \n" +
+            "        FROM activities \n" +
+            "        WHERE id = #{parID}\n" +
+            "    ) AS tmp\n" +
+            ") WHERE id = #{subID};")
+    Integer fixExpertCount(Integer parID, Integer subID);
+
+    @Update("UPDATE activities\n" +
+            "SET participantCount = (\n" +
+            "    SELECT tmp.participantCount \n" +
+            "    FROM (\n" +
+            "        SELECT participantCount \n" +
+            "        FROM activities \n" +
+            "        WHERE id = #{parID}\n" +
+            "    ) AS tmp\n" +
+            ") WHERE id = #{subID};")
+    Integer fixParCount(Integer parID, Integer subID);
 }

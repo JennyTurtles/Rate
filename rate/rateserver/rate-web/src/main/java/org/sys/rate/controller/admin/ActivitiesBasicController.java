@@ -197,5 +197,15 @@ public class ActivitiesBasicController {
         }
         return activities;
     }
+
+    @PostMapping("/fixCount")
+    public RespBean fixCount(@RequestParam Integer parID,@RequestParam Integer subID){
+        Integer res1 = activitiesMapper.fixExpertCount(parID,subID);
+        Integer res2 = activitiesMapper.fixParCount(parID,subID);
+        if (res1 > 0 && res2 > 0){
+            return RespBean.ok("成功!");
+        }else
+            return RespBean.error("失败!");
+    }
 }
 

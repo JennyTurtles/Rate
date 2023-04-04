@@ -37,6 +37,9 @@ public interface ParticipatesMapper {
 
     int delete(Participates record);
 
+    @Delete("delete from participants where ID = #{ID} and activityID = #{activityID}")
+    int deletePar(Integer ID, Integer activityID);
+
     int update(Participates record);
 
     int insertSelective(Participates record);
@@ -168,4 +171,5 @@ public interface ParticipatesMapper {
 
     Integer addPars(List<Participates> list);
 
+    Integer deletePars(List<Participates> list);
 }

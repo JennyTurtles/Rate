@@ -363,12 +363,22 @@ export default {
       });
     },
     initHrs() {
-        this.getRequest("/groups/basic/?keywords=" + this.keywords + "&page=" + 1 + "&size=" + 1000).then((resp) => {
-            if (resp) {
-                this.hrs = resp.data;
-                this.total = this.hrs.length;
-            }
-        });
+        if (this.mode !== "secretarySub"){
+            this.getRequest("/groups/basic/?keywords=" + this.keywords + "&page=" + 1 + "&size=" + 1000).then((resp) => {
+                if (resp) {
+                    this.hrs = resp.data;
+                    this.total = this.hrs.length;
+                }
+            });
+        }else
+        {
+            this.getRequest("/groups/basic/subGroups?activityID="+this.$route.query.keywords+"&groupID="+this.groupID).then((resp) => {
+                if (resp) {
+                    this.hrs = resp.obj;
+                }
+            });
+        }
+
       // if (this.mode === "admin") {
       //     this.getRequest("/groups/basic/?keywords=" + this.keywords + "&page=" + 1 + "&size=" + 1000).then((resp) => {
       //         if (resp) {
@@ -555,6 +565,10 @@ export default {
     },
     UpdateOrNew(groups) {
       const _this = this;
+
+      if (this.mode === "secretarySub"){
+          groups.parentID = this.$route.query.groupID;
+      }
       this.postRequest("/groups/basic/UpdateOrNew?institutionID="+this.user.institutionID, groups).then((resp) => {
         if(resp==='更新成功!')
         {Message.success(resp);
