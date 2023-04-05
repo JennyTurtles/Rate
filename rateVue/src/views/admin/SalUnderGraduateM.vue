@@ -24,12 +24,37 @@
         <el-table-column prop="teachers.name" label="导师姓名" align="center"></el-table-column>
         <el-table-column  label="操作" align="center">
           <template slot-scope="scope">
-            <el-button size="mini"  icon="el-icon-edit" plain @click="deleteUnder(scope.row)" type="primary">编辑</el-button>
+            <el-button size="mini"  icon="el-icon-edit" plain @click="editDialogShow(scope.row)" type="primary">编辑</el-button>
             <el-button size="mini" type="danger" icon="el-icon-delete" plain @click="deleteUnder(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
+    <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px">
+      <template>
+        <el-form :model="currentUnderStudentOfEdit">
+          <el-form-item label="导师姓名">
+            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.teachers.name"></el-input>
+          </el-form-item>
+          <el-form-item label="导师工号">
+            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.teachers.jobnumber"></el-input>
+          </el-form-item>
+          <el-form-item label="学生姓名">
+            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.name"></el-input>
+          </el-form-item>
+          <el-form-item label="学生手机号">
+            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.telephone"></el-input>
+          </el-form-item>
+          <el-form-item label="学生邮箱">
+            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.email"></el-input>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="editUnder" type="primary">确定</el-button>
+          <el-button @click="closeDialogEdit">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -39,6 +64,19 @@ export default {
   name: "SalStudentM",
   data(){
     return {
+      currentUnderStudentOfEdit:{
+        ID:null,
+        name:'',
+        teachers:{
+          name:'',
+          jobnumber:''
+        },
+        studentID:null,
+        tutorID:null,
+        telephone:'',
+        email:''
+      },
+      dialogEdit:false,
       user:{},
       undergraduateStudents:[]
     }
@@ -48,6 +86,32 @@ export default {
     this.initUnderGraduateStudents()
   },
   methods:{
+    closeDialogEdit(){//关闭对话框
+      this.dialogEdit = false
+      this.currentUnderStudentOfEdit = {}
+    },
+    editDialogShow(data){
+      this.dialogEdit = true
+      this.currentUnderStudentOfEdit = data
+    },
+    editUnder(){//点击编辑中的确定按钮
+      if(this.currentUnderStudentOfEdit.teachers.name == '' || this.currentUnderStudentOfEdit.teachers.jobnumber == ''){
+        this.$message.warning('请填写老师姓名和工号！')
+        return
+      }
+      let data = this.currentUnderStudentOfEdit
+      this.postRequest('/undergraduateM/basic/editUnderGraduateStudent',data).then((resp)=>{
+        if(resp){
+          if(resp.status == 200){
+            this.dialogEdit = false
+            this.$message.success(resp.msg)
+            this.initUnderGraduateStudents()
+          }else {
+            this.$message.error(resp)
+          }
+        }
+      })
+    },
     deleteUnder(data){//删除本科生
       this.postRequest('/undergraduateM/basic/deleteUnderGraduateStudent',data).then((resp)=>{
         if(resp.code == 200){
@@ -79,7 +143,6 @@ export default {
     initUnderGraduateStudents(){
       this.getRequest('/undergraduateM/basic/getUnderGraduateStudents').then((response)=>{
         if(response.code == 200){
-          console.log(response.extend.res)
           this.undergraduateStudents = response.extend.res
         }
       })

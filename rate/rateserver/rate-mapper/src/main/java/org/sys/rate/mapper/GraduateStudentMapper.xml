@@ -10,11 +10,20 @@
         <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
         <result column="studentType" property="studentType" jdbcType="VARCHAR"/>
         <result column="point" property="point" jdbcType="VARCHAR"/>
-
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <result property="IDNumber" column="IDNumber" jdbcType="VARCHAR"/>
+        <association property="teachers" javaType="org.sys.rate.model.Teachers">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="name" column="tname"/>
+            <result property="jobnumber" column="tjobnumber"/>
+        </association>
     </resultMap>
 
     <sql id="Base_Column_List">
-        ID, studentID,institutionID,stuNumber, year, tutorID,studentType,point
+        select  ID, studentID,institutionID,stuNumber, year, tutorID,studentType,point,s.name,s.email,s.telephone,s.IDNumber,t.tname,t.tjobnumber
+        from graduatestudent u,student s,teacher t
     </sql>
 
 <!--    <select id="check" resultType="java.lang.Integer">-->
@@ -56,9 +65,15 @@
         </foreach>
     </select>
     <select id="getGraduateStudent" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email
-        from graduatestudent u,student s
-        where s.ID = u.studentID
+        select u.*,s.name,s.telephone,s.email,s.IDNumber,t.name as tname,t.jobnumber as tjobnumber
+        from graduatestudent u
+        left join teacher t
+        on u.tutorID=t.ID
+        left join student s
+        on u.studentID=s.ID
+--         where s.ID = u.studentID
+<!--        <if test="tutorID != null"> and u.tutorID = t.ID</if>-->
+--         and u.tutorID = t.ID
     </select>
     <delete id="deleteGraduateStudent" parameterType="org.sys.rate.model.GraduateStudent">
         delete from graduatestudent where ID = #{ID}
