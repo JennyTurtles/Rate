@@ -1,16 +1,168 @@
 package org.sys.rate.utils;
 
 
-import com.itextpdf.text.pdf.PdfCopy;
-import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.pdf.*;
 import org.springframework.stereotype.Service;
+import org.sys.rate.model.PaperComment;
+import org.sys.rate.model.Student;
+import org.sys.rate.model.Teacher;
+import org.sys.rate.model.Thesis;
+import org.sys.rate.service.admin.StudentService;
+import org.sys.rate.service.admin.TeacherService;
+import org.sys.rate.service.underFunction.PaperCommentService;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+/**
+ * @Return null
+ * @author zyk
+ * @description 完成下载功能
+ * @date 2023/4/4 16:50
+ */
 @Service
 public class Download {
+    @Resource
+    StudentService studentService;
+
+    @Resource
+    TeacherService teacherService;
+
+    @Resource
+    PaperCommentService paperCommentService;
+
+    public void preDownload(HttpServletResponse response, Integer thesisID){
+        // 获取thesis的信息
+        Thesis thesis = paperCommentService.getThesisByTID(thesisID);
+        // 获取学生的信息
+        Student student = studentService.getById(thesis.getStudentID());
+        // 获取老师的信息
+        Teacher teacher = teacherService.getById(student.getTutorID());
+        // 获取其余页的信息，是来自papercomment中的信息
+        List<PaperComment> paperComments = paperCommentService.selectCommentListStu(thesisID);
+
+        // 与pdf有关的信息
+        OutputStream os = null;
+        PdfStamper ps = null;
+        PdfReader reader = null;
+        PdfStamper stamper = null;
+
+        // 定义模板文件的路径
+        String TEMP = "";
+        if (paperComments.size() <= 10) {
+            TEMP = "upload/templete/templete_10.pdf";
+        } else {
+            TEMP = "upload/templete/templete_20.pdf";
+        }
+        // 定义输出文件的路径
+        String DEST = "upload/paperComment/";
+        // 定义字体的路径
+        final String FONT_PATH_Hei = "upload/templete/hei.ttf";
+        final String FONT_PATH_Song = "upload/templete/song.ttf";
+
+//        final String FONT_PATH_Kai = "upload/templete/GB2312.ttf";
+
+        // 填充表格中的信息
+        Map<String, Object> model = new HashMap<>();
+        model.put("thesis", thesis);
+        model.put("student", student);
+        model.put("teacher", teacher);
+        model.put("paparcomment", paperComments);
+
+        String fileName = student.getName() + "毕业设计(论文)记录本" + ".pdf";
+        DEST = DEST + fileName;
+        try {
+            os = new FileOutputStream(new File(DEST));
+            // 2 读入pdf表单
+            reader = new PdfReader(TEMP);
+            // 3 根据表单生成一个新的pdf,os是本地， response.getOutputStream()是网络
+            ps = new PdfStamper(reader, os);
+            ps.setFullCompression();
+            // 4 获取pdf表单
+            AcroFields form = ps.getAcroFields();
+            // 5 给表单添加中文字体
+//            BaseFont FontKai = BaseFont.createFont(FONT_PATH_Kai, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
+//            BaseFont FontSong = BaseFont.createFont("STSongStd-Light",  "UniGB-UCS2-H",BaseFont.NOT_EMBEDDED);
+            BaseFont FontSong = BaseFont.createFont(FONT_PATH_Song, BaseFont.IDENTITY_H, false);
+            BaseFont FontHei = BaseFont.createFont(FONT_PATH_Hei, BaseFont.IDENTITY_H, false);
+
+            FontHei.setSubset(true);
+//            FontKai.setSubset(true);
+            FontSong.setSubset(true);
+
+            // 6查询数据================================================
+            // 6.1 封面
+            Map<String, Object> data = new HashMap<String, Object>();
+            data.put("stuNameFirst", student.getName());
+            data.put("stuName", student.getName());
+            data.put("stuID", student.getID());
+            data.put("tutorName", teacher.getName());
+
+            // 用于控制显示的行数！！！
+            final int PRESUMROWS = 18;
+            final int NEXTPLANROWS = 20;
+
+            // 6.2 余页
+            for (int i = 0; i < paperComments.size(); i++) {
+                data.put("num" + (i + 1), paperComments.get(i).getNum());
+                data.put("preSum" + (i + 1), adaptRows(paperComments.get(i).getPreSum(), PRESUMROWS));
+                data.put("nextPlan" + (i + 1), adaptRows(paperComments.get(i).getNextPlan(), NEXTPLANROWS));
+                data.put("tutorComment" + (i + 1), paperComments.get(i).getTutorComment() == null || paperComments.get(i).getTutorComment().isEmpty() ? " " : paperComments.get(i).getTutorComment());
+                data.put("DateStu" + (i + 1), paperComments.get(i).getDateStu());
+                data.put("DateTea" + (i + 1), paperComments.get(i).getDateTea() == null || paperComments.get(i).getDateTea().isEmpty() ? "" : paperComments.get(i).getDateTea());
+            }
+
+
+            // 7遍历data 给pdf表单表格赋值
+            for (String key : data.keySet()) {
+                // 进行key判断
+                if (key.equals("stuNameFirst") || key.equals("stuID") || key.equals("tutorName")) {
+                    form.setFieldProperty(key, "textfont", FontSong, null);
+                    form.setFieldProperty(key, "textsize", 16f, null);
+                    form.setFieldProperty(key, "alignment", Element.ALIGN_CENTER, null);
+                    form.setField(key, data.get(key).toString());
+                } else if (key.equals("stuName") || key.equals("num")) {
+                    form.setFieldProperty(key, "textfont", FontSong, null);
+                    form.setFieldProperty(key, "textsize", 12f, null);
+                    form.setField(key, data.get(key).toString());
+                } else {
+                    form.setFieldProperty(key, "textfont", FontSong, null);
+                    form.setFieldProperty(key, "textsize", 10.5f, null);
+                    form.setField(key, data.get(key).toString());
+                }
+
+            }
+            ps.setFormFlattening(true);
+            System.out.println("===============PDF导出成功=============");
+
+        } catch (Exception e) {
+            System.out.println("===============PDF导出失败=============");
+            e.printStackTrace();
+        } finally {
+            try {
+                ps.close();
+                reader.close();
+                os.close();
+                String DEST2 = "upload/paperComment/";
+                if (paperComments.size() != 10) {
+                    String fileNewName = student.getName() + "毕业设计(论文)记录本 " + ".pdf";
+                    removePageFromPDF(DEST, DEST2 + fileNewName, paperComments.size() + 1);
+                    getDownload(response, DEST2 + fileNewName, false);
+                } else {
+                    getDownload(response, DEST2 + fileName, false);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public void getDownload(HttpServletResponse response, String filePath, boolean isOnLine) throws Exception {
         File f = new File(filePath);
         if (!f.exists()) {
@@ -23,18 +175,21 @@ public class Download {
 
         response.reset(); // 非常重要
         String filename = f.getName().replace(" ","");
-        if (isOnLine) { // 在线打开方式
+        if (isOnLine) {
+            // 在线打开方式
             URL u = new URL("file:///" + filePath);
             response.setContentType(u.openConnection().getContentType());
             response.setHeader("Content-Disposition", "inline; filename=" + java.net.URLEncoder.encode(filename, "UTF-8"));
             // 文件名应该编码成UTF-8
-        } else { // 纯下载方式
+        } else {
+            // 纯下载方式
             response.setContentType("application/x-msdownload");
             response.setHeader("Content-Disposition", "attachment; filename=" + java.net.URLEncoder.encode(filename, "unicode"));
         }
         OutputStream out = response.getOutputStream();
-        while ((len = br.read(buf)) > 0)
+        while ((len = br.read(buf)) > 0) {
             out.write(buf, 0, len);
+        }
         br.close();
         out.close();
         deleteAllFiles("upload/paperComment");
