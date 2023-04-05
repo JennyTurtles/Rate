@@ -173,6 +173,13 @@ public class ParticipatesService {
         return bean;
     }
 
+    // 写得实在太差了，洋洋洒洒写了200多行，写的人完全没有考虑后期维护和扩展性的问题，这是一种极其不负责任的态度，看得我血压高！💢 by grz
+    // 问题1：代码啰嗦，创建student对象，先是new，然后疯狂set，不知道用构造函数的吗？
+    // 问题2：命名混乱，ID、Id、id三种写法一种意思。方法名，一会儿驼峰命名一会儿下划线命名一会儿insertFROMImport。选手名叫employee，连名字都懒得改一下是吧？
+    // 问题3：逻辑混乱，200多行几乎都是if-else，注释写了跟没写一样也是nb。
+    // 举例：checkByIDandActivityID通过活动ID和选手ID查找，后面checkGroupIDExists又用同样的方式查找了一遍，注释写的是：真的不存在。请问还有假的不存在吗？？
+    // 举例：前面已经通过if-else确保了选手表里没有记录，写的sql为什么用ON DUPLICATE KEY UPDATE呢？
+    // 建议：将此代码布置为JAVA程序设计课的课后作业，让同学们改BUG，作为反面教材引以为鉴
     public String addParticipatess(Integer groupid,Integer activityid,List<Participates> list) {
         //先获得顺序的总数，order取top，然后循环的时候插入++插入。
         Integer last=participatesMapper.getlastDisplaySequence(groupid);
@@ -291,6 +298,7 @@ public class ParticipatesService {
                     int insert=0;
                     if(participatesMapper.checkGroupIDExists(studentID, activityid)==0)//真的不存在
                     {
+                        participants.setID(null); // mark：如果其他地方的导入选手出bug，先检查此处
                         insert= participatesMapper.insert_relationship(participants);
                         last++;
                     }
@@ -315,7 +323,7 @@ public class ParticipatesService {
                         participants.setGroupID(null);
 //                    }
                     Integer participatesID =participatesMapper.getPID(participants);
-                    HashMap<Integer, String> map = participants.getScoreItemMap();
+                    HashMap<Integer, String> map = participants.getScoreItemMap() == null ? new HashMap<>() : participants.getScoreItemMap();
                     Set<Integer> keys = map.keySet(); // 遍历键集 得到 每一个键//键是scoreItemID值是分数
                     for (Integer key : keys) {
                         //key 就是键 //获取对应值
@@ -346,7 +354,7 @@ public class ParticipatesService {
                     }
                     //insert content
                     //Integer participatesID =participatesMapper.getPID(participants);
-                    HashMap<Integer, String> mapinfo = participants.getInfoItemMap();
+                    HashMap<Integer, String> mapinfo = participants.getInfoItemMap() == null ? new HashMap<>() : participants.getInfoItemMap();
                     Set<Integer> keys_info = mapinfo.keySet(); // 遍历键集 得到 每一个键//键是infoItemID值是content
                     for (Integer key_info : keys_info) {
                         //key 就是键 //获取对应值
