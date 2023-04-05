@@ -52,7 +52,7 @@
                             type="primary"
                             plain="plain">导出PDF
                         </el-button >
-                        
+
                     </template>
                 </el-table-column>
             </el-table>
@@ -263,7 +263,6 @@
 </script>
 
 <style>
-
     .el-tooltip__popper {
         max-width: 750px;
     }
