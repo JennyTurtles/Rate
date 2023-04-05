@@ -53,4 +53,9 @@ public class UnderGraduateMController {
     public RespBean editUnderStudent(@RequestBody UnderGraduate under){
         return underGraduateService.editUnderStudent(under);
     }
+    //根据页面的筛选框进行查找本科生信息
+    @GetMapping("/getUnderStudentsBySelect")
+    public RespBean getUnderStudentsBySelect(String teaName){
+        return underGraduateService.getUnderStudentsBySelect(teaName);
+    }
 }
