@@ -24,6 +24,7 @@
         <el-table-column prop="point" label="积分" align="center"></el-table-column>
         <el-table-column  label="操作" align="center">
           <template slot-scope="scope">
+            <el-button size="mini"  icon="el-icon-edit" plain @click="deleteUnder(scope.row)" type="primary">编辑</el-button>
             <el-button size="mini" type="danger" icon="el-icon-delete" plain @click="deleteUnder(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -37,10 +38,12 @@ export default {
   name: "SalGraduateM",
   data(){
     return{
+      user:{},
       graduateStudents:[]
     }
   },
   mounted() {
+    this.user = JSON.parse(localStorage.getItem('user'))
     this.initGraduateStudents()
   },
   methods:{
@@ -64,7 +67,7 @@ export default {
       this.$message.success("正在导入")
     },
     UploadUrl(){
-      let url = '/graduatestudentM/basic/importGraduate'
+      let url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID
       return url;
     },
     downloadExcel(){

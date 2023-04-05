@@ -776,7 +776,7 @@ public class POIUtils {
         sheet.setColumnWidth(2, 20 * 256);
         sheet.setColumnWidth(3, 20 * 256);
         sheet.setColumnWidth(4, 20 * 256);
-        sheet.setColumnWidth(5, 15 * 256);
+        sheet.setColumnWidth(5, 20 * 256);
         sheet.setColumnWidth(6, 15 * 256);
         sheet.setColumnWidth(7, 10 * 256);
 //        sheet.setColumnWidth(8, 20 * 256);
@@ -794,9 +794,9 @@ public class POIUtils {
         HSSFCell c4 = r0.createCell(4);
         c4.setCellValue("邮箱");
         HSSFCell c5 = r0.createCell(5);
-        c5.setCellValue("用户名");
+        c5.setCellValue("导师工号");
         HSSFCell c6 = r0.createCell(6);
-        c6.setCellValue("密码");
+        c6.setCellValue("导师姓名");
         HSSFCell c7 = r0.createCell(7);
         c7.setCellValue("入学年份");
         HSSFRow row = sheet.createRow(1);
@@ -805,8 +805,10 @@ public class POIUtils {
         row.createCell(2).setCellValue("123456789123456789");
         row.createCell(3).setCellValue("13812341234");
         row.createCell(4).setCellValue("123@dhu.edu.cn");
+        row.createCell(5).setCellValue("1111");
+        row.createCell(6).setCellValue("李华");
         row.createCell(7).setCellValue("2018");
-        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。用户名密码可以不填写，若不填写第一次导入将默认为手机号，其余必须填写。");
+        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。导师工号和导师姓名如果不填写，则默认没有导师，如果两者都填写，按照导师工号查询。两者可填可不填");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -820,9 +822,10 @@ public class POIUtils {
     }
 
     //管理员上传本科生模版excel
-    public static Map<String,List> readExcel_undergraduate(MultipartFile file) {
+    public static Map<String,List> readExcel_undergraduate(Integer institutionID,MultipartFile file) {
         List<UnderGraduate> underList = new ArrayList<>();
         UnderGraduate underGraduate=new UnderGraduate();
+        Teachers tea = new Teachers();
         List<Student> studentList = new ArrayList<>();
         Student student=new Student();
         try {//1. 创建一个 workbook 对象
@@ -850,13 +853,14 @@ public class POIUtils {
                     int physicalNumberOfCells = row.getPhysicalNumberOfCells();
                     underGraduate = new UnderGraduate();
                     student = new Student();
+                    tea = new Teachers();
                     String stuNumber=null;//学号
                     String name=null;//姓名
                     String phone=null;//手机号
                     String idCard=null;//身份证号
                     String email=null;//邮箱
-                    String username=null;
-                    String password=null;
+                    String teaJobNumber=null;
+                    String teaName=null;
                     String year=null;
                     for (int k = 0; k < Cells; k++) {
                         HSSFCell cell = row.getCell(k);
@@ -879,11 +883,11 @@ public class POIUtils {
                                 case "邮箱":
                                     email=cellValue;
                                     break;
-                                case "用户名":
-                                    username=cellValue;
+                                case "导师工号":
+                                    teaJobNumber=cellValue;
                                     break;
-                                case "密码":
-                                    password=cellValue;
+                                case "导师姓名":
+                                    teaName=cellValue;
                                     break;
                                 case "入学年份":
                                     year=cellValue;
@@ -893,18 +897,19 @@ public class POIUtils {
                             }
                         }
                     }
-                    if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null){
+                    if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null || year == null){
                         continue;
                     }
                     student.setName(name);
                     student.setTelephone(phone);
                     student.setIDNumber(idCard);
                     student.setEmail(email);
-                    student.setUsername(username);
-                    student.setPassword(password);
+                    tea.setJobnumber(teaJobNumber);
+                    tea.setName(teaName);
+                    underGraduate.setTeachers(tea);
                     underGraduate.setStuNumber(stuNumber);
                     underGraduate.setYear(Integer.parseInt(year));
-                    underGraduate.setInstitutionID(1);
+                    underGraduate.setInstitutionID(institutionID);
                     underGraduate.setIDNumber(idCard);
                     studentList.add(student);
                     underList.add(underGraduate);
@@ -950,11 +955,10 @@ public class POIUtils {
         sheet.setColumnWidth(2, 20 * 256);
         sheet.setColumnWidth(3, 15 * 256);
         sheet.setColumnWidth(4, 20 * 256);
-        sheet.setColumnWidth(5, 15 * 256);
+        sheet.setColumnWidth(5, 20 * 256);
         sheet.setColumnWidth(6, 15 * 256);
         sheet.setColumnWidth(7, 10 * 256);
         sheet.setColumnWidth(8, 15 * 256);
-        sheet.setColumnWidth(9, 15 * 256);
         //6. 创建标题行
         HSSFRow r0 = sheet.createRow(0);
         HSSFCell c0 = r0.createCell(0);
@@ -968,27 +972,25 @@ public class POIUtils {
         HSSFCell c4 = r0.createCell(4);
         c4.setCellValue("邮箱");
         HSSFCell c5 = r0.createCell(5);
-        c5.setCellValue("用户名");
+        c5.setCellValue("导师工号");
         HSSFCell c6 = r0.createCell(6);
-        c6.setCellValue("密码");
+        c6.setCellValue("导师姓名");
         HSSFCell c7 = r0.createCell(7);
         c7.setCellValue("入学年份");
         HSSFCell c8 = r0.createCell(8);
         c8.setCellValue("学生类别");
-        HSSFCell c9 = r0.createCell(9);
-        c9.setCellValue("积分");
         HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("张三");
         row.createCell(1).setCellValue("1111");
         row.createCell(2).setCellValue("123456789123456789");
         row.createCell(3).setCellValue("13812341234");
         row.createCell(4).setCellValue("123@dhu.edu.cn");
+        row.createCell(5).setCellValue("1111");
+        row.createCell(6).setCellValue("李华");
         row.createCell(7).setCellValue("2018");
         row.createCell(8).setCellValue("专硕/学硕");
-        row.createCell(9).setCellValue("12");
 
-
-        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。用户名密码可以不填写，若不填写第一次导入将默认为手机号，其余必须填写。");
+        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。导师工号和导师姓名如果不填写，则默认没有导师，如果两者都填写，按照导师工号查询。两者可填可不填");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -1002,10 +1004,11 @@ public class POIUtils {
     }
 
     //管理员上传研究生模版excel
-    public static Map<String,List> readExcel_graduatestudent(MultipartFile file) {
+    public static Map<String,List> readExcel_graduatestudent(Integer institutionID,MultipartFile file) {
         //tutorid目前没有处理
         List<GraduateStudent> graduateList = new ArrayList<>();
         GraduateStudent graduateStudent=new GraduateStudent();
+        Teachers tea = new Teachers();
         List<Student> studentList = new ArrayList<>();
         Student student=new Student();
         try {//1. 创建一个 workbook 对象
@@ -1033,16 +1036,16 @@ public class POIUtils {
                     int physicalNumberOfCells = row.getPhysicalNumberOfCells();
                     graduateStudent = new GraduateStudent();
                     student = new Student();
+                    tea = new Teachers();
                     String stuNumber=null;//学号
                     String name=null;//姓名
                     String phone=null;//手机号
                     String idCard=null;//身份证号
                     String email=null;//邮箱
-                    String username=null;
-                    String password=null;
+                    String teaJobNumber=null;
+                    String teaName=null;
                     String year=null;
                     String studentType=null;
-                    String point=null;
                     for (int k = 0; k < Cells; k++) {
                         HSSFCell cell = row.getCell(k);
                         if (cell!=null) {
@@ -1064,11 +1067,11 @@ public class POIUtils {
                                 case "邮箱":
                                     email=cellValue;
                                     break;
-                                case "用户名":
-                                    username=cellValue;
+                                case "导师工号":
+                                    teaJobNumber=cellValue;
                                     break;
-                                case "密码":
-                                    password=cellValue;
+                                case "导师姓名":
+                                    teaName=cellValue;
                                     break;
                                 case "入学年份":
                                     year=cellValue;
@@ -1076,29 +1079,26 @@ public class POIUtils {
                                 case "学生类别":
                                     studentType=cellValue;
                                     break;
-                                case "积分":
-                                    point=cellValue;
-                                    break;
                                 default:
                                     break;
                             }
                         }
                     }
-                    if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null || studentType == null || point == null){
+                    if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null || studentType == null){
                         continue;
                     }
                     student.setName(name);
                     student.setTelephone(phone);
                     student.setIDNumber(idCard);
                     student.setEmail(email);
-                    student.setUsername(username);
-                    student.setPassword(password);
+                    tea.setJobnumber(teaJobNumber);
+                    tea.setName(teaName);
+                    graduateStudent.setTeachers(tea);
                     graduateStudent.setStuNumber(stuNumber);
                     graduateStudent.setYear(Integer.parseInt(year));
-                    graduateStudent.setInstitutionID(1);
+                    graduateStudent.setInstitutionID(institutionID);
                     graduateStudent.setIDNumber(idCard);
                     graduateStudent.setStudentType(studentType);
-                    graduateStudent.setPoint(point);
                     studentList.add(student);
                     graduateList.add(graduateStudent);
                 }
@@ -1145,9 +1145,6 @@ public class POIUtils {
         sheet.setColumnWidth(4, 20 * 256);
         sheet.setColumnWidth(5, 15 * 256);
         sheet.setColumnWidth(6, 15 * 256);
-        sheet.setColumnWidth(7, 10 * 256);
-        sheet.setColumnWidth(8, 20 * 256);
-        sheet.setColumnWidth(9, 20 * 256);
         //6. 创建标题行
         HSSFRow r0 = sheet.createRow(0);
         HSSFCell c0 = r0.createCell(0);
@@ -1164,12 +1161,6 @@ public class POIUtils {
         c5.setCellValue("手机号");
         HSSFCell c6 = r0.createCell(6);
         c6.setCellValue("邮箱");
-        HSSFCell c7 = r0.createCell(7);
-        c7.setCellValue("属于本单位");
-        HSSFCell c8 = r0.createCell(8);
-        c8.setCellValue("用户名");
-        HSSFCell c9 = r0.createCell(9);
-        c9.setCellValue("密码");
         HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("20131000");
         row.createCell(1).setCellValue("张三");
@@ -1178,12 +1169,8 @@ public class POIUtils {
         row.createCell(4).setCellValue("123456789123456789");
         row.createCell(5).setCellValue("13812341234");
         row.createCell(6).setCellValue("123@dhu.edu.cn");
-        row.createCell(7).setCellValue("否");
-        row.createCell(8).setCellValue("zhangsan");
-        row.createCell(9).setCellValue("123456");
         sheet.createRow(2).createCell(0).setCellValue("请删除提示行，如果数据库中已有该老师的记录，将根据填写信息进行更新，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为手机号和身份证后六位，其余必须填写。");
-        sheet.createRow(3).createCell(0).setCellValue("如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
-        sheet.createRow(4).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
+        sheet.createRow(3).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
