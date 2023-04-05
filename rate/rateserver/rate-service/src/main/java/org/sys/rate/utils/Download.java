@@ -1,6 +1,7 @@
 package org.sys.rate.utils;
 
 
+import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.*;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.PaperComment;
@@ -18,6 +19,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * @Return null
@@ -74,7 +76,7 @@ public class Download {
         model.put("teacher", teacher);
         model.put("paparcomment", paperComments);
 
-        String fileName = student.getName() + "-" +String.valueOf(System.currentTimeMillis()/1000) + ".pdf";
+        String fileName = student.getName() + "-" + UUID.randomUUID().toString() + ".pdf";
 
         try {
             os = new FileOutputStream(new File(DEST + fileName));
@@ -136,13 +138,14 @@ public class Download {
                 ps.close();
                 reader.close();
                 os.close();
-                if (paperComments.size() != 10) {
-                    String fileNewName = student.getName() + "-" +String.valueOf(System.currentTimeMillis()/1000) + ".pdf";
-                    removePageFromPDF(DEST, DEST + fileNewName, paperComments.size() + 1);
+                if (paperComments.size() != 10 && paperComments.size()!=20) {
+                    String fileNewName = student.getName() + "-" + UUID.randomUUID().toString() + ".pdf";
+                    removePageFromPDF(DEST+fileName, DEST + fileNewName, paperComments.size() + 1);
                     getDownload(response, DEST + fileNewName, false);
                 } else {
                     getDownload(response, DEST + fileName, false);
                 }
+                deleteAllFiles("upload/paperComment");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -179,7 +182,6 @@ public class Download {
         }
         br.close();
         out.close();
-        deleteAllFiles("upload/paperComment");
     }
 
     public void deleteAllFiles(String path){
@@ -196,7 +198,7 @@ public class Download {
         PdfReader reader = new PdfReader(path);
         File tmpNewFile = new File(tempPath);
         FileOutputStream fos = new FileOutputStream(tmpNewFile);
-        com.itextpdf.text.Document d = new com.itextpdf.text.Document();
+        Document d = new Document();
         PdfCopy copy = new PdfCopy(d, fos);
         d.open();
         for (int i = 1; i <= page; ++i) {

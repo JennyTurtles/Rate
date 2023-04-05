@@ -140,22 +140,22 @@
                 }
             };
         },
-        watch: {
-            publicationName: {
-                handler(val) {
-                    //函数抖动
-                    this.delayInputTimer(val);
-                }
-            },
-            data_picker: {
-                //清除时间input设置为不可输入
-                handler(val) {
-                    if (!val) {
-                        this.disabledInput = true;
-                    }
-                }
-            }
+      watch: {
+        publicationName: {
+          handler(val) {
+            //函数抖动
+            this.delayInputTimer(val);
+          }
         },
+        data_picker: {
+          //清除时间input设置为不可输入
+          handler(val) {
+            if (!val) {
+              this.disabledInput = true;
+            }
+          }
+        }
+      },
         computed: {
             user() {
                 return this.$store.state.currentHr; //object信息
@@ -171,20 +171,10 @@
             this.initEmps();
             // 获取已通过、已驳回、未评价三个数据
             setTimeout(() => {
-                // 这里就写你要执行的语句即可，先让数据库的数据加载进去数组中你在从数组中取值就好了
-                console.log(this.emps);
-                var i = 0;
-                // Initialize commentNums and set  for (var i = 0; i < this.emps.length; i++) {
-                // const _this = this;     console.log(_this.emps[i].thesis);     let url =
-                // "/paperComment/basic/getCommentNum?thesisID=" + this         .emps[i] .thesis
-                // .id;     this         .getRequest(url)         .then((resp)
-                // => {             this.loading = false;             console.log(i);
-                // console.log(resp);             if (resp) { _this.commentNums[i] = resp.data;
-                // if (resp.data != null) {} else {}                 this
-                // .$set(_this.commentNums[i], 'tea_total', resp.data.tea_total) console
-                // .log(_this.commentNums[i]);             }         }); }
-            }, 800)
-
+            // 这里就写你要执行的语句即可，先让数据库的数据加载进去数组中你在从数组中取值就好了
+            console.log(this.emps);
+            var i = 0;
+          }, 800)
         },
         filters: {},
         methods: {
