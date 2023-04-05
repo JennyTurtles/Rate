@@ -17,7 +17,7 @@ public interface UnderGraduateMapper {
     int deleteUnderStudent(UnderGraduate under);
     int editUnderStudent(UnderGraduate under);
 
-
+    List<String> getUnderStudentsBySelect(String teaName);
     List<Integer> check(List<UnderGraduate> under);
 
     int insertFROMImport(List<UnderGraduate> record);

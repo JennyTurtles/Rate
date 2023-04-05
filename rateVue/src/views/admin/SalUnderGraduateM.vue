@@ -13,6 +13,39 @@
       </el-upload>
     </div>
     <div style="margin-top: 10px">
+      <span>
+        请选择条件进行搜索：
+      </span>
+      <div class="select_div_input">
+        <input
+            autocomplete="off"
+            style="width:95%;line-height:28px;
+                              border:1px solid lightgrey;padding:0 10px 1px 15px;
+                              border-radius:4px;color:gray"
+            placeholder="请输入老师姓名"
+            v-model="selectTeacerName"
+            @focus="inputSelectTeacerNameFocus"
+            @blur="isSelectShow = isSelectFlag"/>
+        <div class="select_div"
+             v-show="isSelectShow && selectTeacerName ? true:false"
+             :style="'height:${menuHeight}'"
+             @mouseover="isSelectFlag = true"
+             @mouseleave="isSelectFlag = false"
+        >
+          <div
+              class="select_div_div"
+              v-for="val in select_teachers"
+              :key="val"
+              :value="val"
+              @click="filter_teas(val)"
+          >
+            {{ val }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 10px">
       <el-table
         :data="undergraduateStudents">
         <el-table-column prop="name" label="姓名" align="center"></el-table-column>
@@ -64,6 +97,12 @@ export default {
   name: "SalStudentM",
   data(){
     return {
+      isSelectFlag:false,
+      isSelectShow:false,//搜索老师名字的搜索框
+      timer:null,
+      select_teachers:[],
+      selectTeacerName:'',
+      selectYear:'',
       currentUnderStudentOfEdit:{
         ID:null,
         name:'',
@@ -81,11 +120,59 @@ export default {
       undergraduateStudents:[]
     }
   },
+  watch:{
+    selectTeacerName:{
+      handler(val){
+        this.delayInputTimer(val)
+      }
+    }
+  },
+  computed:{
+    menuHeight() {
+      return this.selectTeacerName.length * 50 > 150
+          ? 150 + 'px'
+          : `${this.selectTeacerName.length * 50}px`
+    },
+  },
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
     this.initUnderGraduateStudents()
   },
   methods:{
+    filter_teas(val){//点击某个筛选出来的名字
+      this.selectTeacerName = val
+      this.isSelectShow=false
+      this.isSelectFlag=false
+    },
+    delayInputTimer(val){
+      if(this.timer){
+        clearTimeout(this.timer)
+      }
+      if(!val){
+        return
+      }
+      if(this.selectYear == ''){
+        this.selectYear = 0
+      }
+      let that = this
+      this.timer = setTimeout(()=>{
+        let url = '/undergraduateM/basic/getUnderStudentsBySelect?teaName=' + this.selectTeacerName
+        that.getRequest(url).then((resp)=>{
+          that.select_teachers = []
+          if(resp){
+            if(resp.status == 200){
+              for(var i=0;i<resp.obj.length;i++){
+                that.select_teachers.push(resp.obj[i])
+              }
+              that.select_teachers = Array.from(new Set(that.select_teachers));
+            }
+          }
+        })
+      },300);
+    },
+    inputSelectTeacerNameFocus(){//input获取焦点判断是否有下拉框，是否可输入
+      this.isSelectShow = true//控制下拉框是否显示
+    },
     closeDialogEdit(){//关闭对话框
       this.dialogEdit = false
       this.currentUnderStudentOfEdit = {}
@@ -152,5 +239,32 @@ export default {
 </script>
 
 <style scoped>
-
+.select_div_input{
+  /*margin-left:3px;*/
+  width:30%;
+  height:32px;
+  position:relative;
+  display:inline-block
+}
+.select_div{
+  border: .5px solid lightgray;
+  border-radius: 3px;
+  margin-top: 5px;
+  font-size: 14px;
+  position: absolute;
+  background-color: #fff;
+  z-index: 999;
+  overflow: hidden;
+  width: 90%;
+  cursor: pointer;
+}
+.select_div_div:hover{
+  background-color: lightgray;
+}
+.select_div_div{
+  padding-bottom: 2px;
+  /*padding-top: 7px;*/
+  padding-left: 12px;
+  width: 100%;
+}
 </style>

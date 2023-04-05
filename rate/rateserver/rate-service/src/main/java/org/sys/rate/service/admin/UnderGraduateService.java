@@ -196,4 +196,13 @@ public class UnderGraduateService {
             return RespBean.error("处理失败");
         }return RespBean.ok("更新成功");
     }
+    public RespBean getUnderStudentsBySelect(String teaName){
+        List<String> res;
+        try {
+            res = underGraduateMapper.getUnderStudentsBySelect(teaName);
+        }catch (Exception e){
+            return RespBean.error("error");
+        }
+        return RespBean.ok("ok",res);
+    }
 }

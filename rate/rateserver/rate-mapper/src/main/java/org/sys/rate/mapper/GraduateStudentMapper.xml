@@ -71,9 +71,6 @@
         on u.tutorID=t.ID
         left join student s
         on u.studentID=s.ID
---         where s.ID = u.studentID
-<!--        <if test="tutorID != null"> and u.tutorID = t.ID</if>-->
---         and u.tutorID = t.ID
     </select>
     <delete id="deleteGraduateStudent" parameterType="org.sys.rate.model.GraduateStudent">
         delete from graduatestudent where ID = #{ID}
@@ -89,4 +86,13 @@
             point = #{point}
         where ID=#{ID,jdbcType=INTEGER};
     </update>
+    <select id="getGraduateStudentsBySelect" resultType="java.lang.String">
+        select t.name
+        from graduatestudent g,teacher t
+        <where>
+            <if test="year != null and year != 0">and year = #{year}</if>
+            <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
+            and g.tutorID = t.ID
+        </where>
+    </select>
 </mapper>
