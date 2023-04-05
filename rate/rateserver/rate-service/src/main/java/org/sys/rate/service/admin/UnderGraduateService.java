@@ -3,6 +3,7 @@ package org.sys.rate.service.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.StudentMapper;
+import org.sys.rate.mapper.TeachersMapper;
 import org.sys.rate.mapper.UnderGraduateMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.expert.ExpertService;
@@ -17,10 +18,12 @@ public class UnderGraduateService {
     @Autowired
     StudentMapper studentMapper;
     @Autowired
+    TeachersMapper teachersMapper;
+    @Autowired
     UnderGraduateMapper underGraduateMapper;
-    //管理员导入本科生
+    //管理员导入本科生，只添加，即使已经存在了该条数据也不更新
     public RespBean addUnderGraduate( List<UnderGraduate> underList,List<Student> stuList) {
-        //怎么判断学生表里是否有这个学生了？凭一个身份证判断可能会有多种角色，选手本科生研究生
+        //根据身份证号得到已经存在的student
         List<Student> checkStudents = studentMapper.checkAndReturnID(stuList);
         List<String> checkIDNumbers = new ArrayList<>();
         List<Student> updateStus = new ArrayList<>();
@@ -38,28 +41,29 @@ public class UnderGraduateService {
         }else {
             insertStus = stuList;
         }
-        if(insertStus.size() > 0){
-            for(Student i : insertStus){
-                if(i.getUsername() == null || i.getUsername().equals(""))
-                {//为空
-                    i.setUsername(i.getTelephone());
-                }
-                String encodePass;
-                if(i.getPassword() == null || i.getPassword().equals(""))
-                {//为空
-                    encodePass = ExpertService.sh1(i.getTelephone());
-                }
-                else
-                {//默认密码为手机号
-                    encodePass = ExpertService.sh1(i.getPassword());
-                }
-                i.setPassword(encodePass);
-            }
-        }
+//        if(insertStus.size() > 0){
+//            for(Student i : insertStus){
+//                if(i.getUsername() == null || i.getUsername().equals(""))
+//                {//为空
+//                    i.setUsername(i.getTelephone());
+//                }
+//                String encodePass;
+//                if(i.getPassword() == null || i.getPassword().equals(""))
+//                {//为空
+//                    encodePass = ExpertService.sh1(i.getTelephone());
+//                }
+//                else
+//                {//默认密码为手机号
+//                    encodePass = ExpertService.sh1(i.getPassword());
+//                }
+//                i.setPassword(encodePass);
+//            }
+//        }
+        //因为不确定java的List数据类型是不是无序，所以确保准确性，用双重循环赋值studentID
         List<Student> newStuList = new ArrayList<>();
         try{
-            if(checkStudents.size() != 0) {
-                studentMapper.updateFromAdminExcel(stuList);
+            if(checkStudents.size() != 0) {//有已经存在的
+//                studentMapper.updateFromAdminExcel(stuList);
                 newStuList.addAll(checkStudents);
             }
             if(insertStus.size() > 0){
@@ -69,7 +73,10 @@ public class UnderGraduateService {
         }catch (Exception e) {
             return RespBean.error("error");
         }
-        //对本科生循环 设置stuid
+
+        //对本科生循环 设置stuid和tutorid
+        List<String> jobTeas = new ArrayList<>();
+        List<String> nameTeas = new ArrayList<>();
         for(int i = 0;i < underList.size();i++){
             for(int j = 0;j < newStuList.size();j++){
                 if(underList.get(i).getIDNumber().equals(newStuList.get(j).getIDNumber())){
@@ -77,7 +84,51 @@ public class UnderGraduateService {
                     break;
                 }
             }
+            //工号和姓名都有按照工号来，都没有tutorid为空，只有姓名就按照姓名查找
+            if(underList.get(i).getTeachers().getJobnumber() == null && underList.get(i).getTeachers().getName() == null){
+                underList.get(i).setTutorID(null);
+            }
+            if(underList.get(i).getTeachers().getJobnumber() != null){
+                jobTeas.add(underList.get(i).getTeachers().getJobnumber());
+            }
+            if(underList.get(i).getTeachers().getJobnumber() == null && underList.get(i).getTeachers().getName() != null){
+                nameTeas.add(underList.get(i).getTeachers().getName());
+            }
         }
+        List<Teachers> jobTeachers = new ArrayList<>();
+        List<Teachers> nameTeachers = new ArrayList<>();
+        if(jobTeas.size() > 0){
+            jobTeachers = teachersMapper.selectTeasByJobnumber(jobTeas);
+            for(int i = 0;i < underList.size();i++) {
+                if(underList.get(i).getTeachers().getJobnumber() == null || underList.get(i).getTeachers().getJobnumber().equals("")){
+                    continue;
+                }
+                for (int j = 0; j < jobTeachers.size(); j++) {
+                    if (underList.get(i).getTeachers().getJobnumber().equals(jobTeachers.get(j).getJobnumber())) {
+                        underList.get(i).setTeachers(jobTeachers.get(j));
+                        underList.get(i).setTutorID(jobTeachers.get(j).getID());
+                        break;
+                    }
+                }
+            }
+        }
+        if(nameTeas.size() > 0){
+            nameTeachers = teachersMapper.selectTeasByName(nameTeas);
+            for(int i = 0;i < underList.size();i++) {
+                if(underList.get(i).getTeachers().getName() == null || underList.get(i).getTeachers().getName().equals("")){
+                    continue;
+                }
+                for (int j = 0; j < nameTeachers.size(); j++) {
+                    if (underList.get(i).getTeachers().getName().equals(nameTeachers.get(j).getName())) {
+                        underList.get(i).setTeachers(nameTeachers.get(j));
+                        underList.get(i).setTutorID(nameTeachers.get(j).getID());
+                        break;
+                    }
+                }
+            }
+        }
+
+        //拿到已经存在的本科生列表的studentid
         List<Integer> updateInter = underGraduateMapper.check(underList);
         List<UnderGraduate> updateUnders = new ArrayList<>();
         List<UnderGraduate> insertUnder = new ArrayList<>();
@@ -95,16 +146,16 @@ public class UnderGraduateService {
             insertUnder = underList;
         }
         try {
-            if(updateUnders.size() > 0){
-                underGraduateMapper.updateFROMImport(updateUnders);
-            }
+//            if(updateUnders.size() > 0){
+//                underGraduateMapper.updateFROMImport(updateUnders);
+//            }
             if(insertUnder.size() > 0){
                 underGraduateMapper.insertFROMImport(insertUnder);
             }
         }catch (Exception e){
             return RespBean.error("error");
         }
-            return RespBean.ok("ok");
+        return RespBean.ok("ok");
     }
 
     public Msg getUnderStudent(){

@@ -900,6 +900,13 @@ public class POIUtils {
                     if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null || year == null){
                         continue;
                     }
+                    //工号和姓名都有按照工号来，都没有tutorid为空，只有姓名就按照姓名查找
+                    if(teaJobNumber == null || teaJobNumber.equals("")){
+                        teaJobNumber = null;
+                    }
+                    if(teaName == null || teaName.equals("")){
+                        teaName = null;
+                    }
                     student.setName(name);
                     student.setTelephone(phone);
                     student.setIDNumber(idCard);

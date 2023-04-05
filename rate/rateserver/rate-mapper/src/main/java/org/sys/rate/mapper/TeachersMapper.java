@@ -2,8 +2,11 @@ package org.sys.rate.mapper;
 
 import org.sys.rate.model.Award;
 import org.sys.rate.model.Teacher;
+
 import org.sys.rate.model.Teachers;
+import org.sys.rate.model.Student;
 import org.sys.rate.model.UnderGraduate;
+
 
 import java.util.List;
 
@@ -71,5 +74,7 @@ public interface TeachersMapper
     int updateFROMImport(List<Teachers> record);
     int insertFROMImport(List<Teachers> record);
 
+    public List<Teachers> selectTeasByJobnumber(List<String> list);
+    public List<Teachers> selectTeasByName(List<String> list);
 
 }

@@ -354,4 +354,20 @@
             #{teachers.password,jdbcType=VARCHAR},0,#{teachers.role,jdbcType=VARCHAR})
         </foreach>
     </insert>
+    <select id="selectTeasByJobnumber" resultMap="BaseResultMap">
+        select *
+        from teacher
+        where jobnumber in
+        <foreach collection="list" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
+    <select id="selectTeasByName" resultMap="BaseResultMap">
+        select *
+        from teacher
+        where name in
+        <foreach collection="list" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
 </mapper>
