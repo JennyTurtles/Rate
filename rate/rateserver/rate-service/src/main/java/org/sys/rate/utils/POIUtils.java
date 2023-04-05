@@ -822,9 +822,10 @@ public class POIUtils {
     }
 
     //管理员上传本科生模版excel
-    public static Map<String,List> readExcel_undergraduate(MultipartFile file) {
+    public static Map<String,List> readExcel_undergraduate(Integer institutionID,MultipartFile file) {
         List<UnderGraduate> underList = new ArrayList<>();
         UnderGraduate underGraduate=new UnderGraduate();
+        Teachers tea = new Teachers();
         List<Student> studentList = new ArrayList<>();
         Student student=new Student();
         try {//1. 创建一个 workbook 对象
@@ -852,13 +853,14 @@ public class POIUtils {
                     int physicalNumberOfCells = row.getPhysicalNumberOfCells();
                     underGraduate = new UnderGraduate();
                     student = new Student();
+                    tea = new Teachers();
                     String stuNumber=null;//学号
                     String name=null;//姓名
                     String phone=null;//手机号
                     String idCard=null;//身份证号
                     String email=null;//邮箱
-                    String username=null;
-                    String password=null;
+                    String teaJobNumber=null;
+                    String teaName=null;
                     String year=null;
                     for (int k = 0; k < Cells; k++) {
                         HSSFCell cell = row.getCell(k);
@@ -881,11 +883,11 @@ public class POIUtils {
                                 case "邮箱":
                                     email=cellValue;
                                     break;
-                                case "用户名":
-                                    username=cellValue;
+                                case "导师工号":
+                                    teaJobNumber=cellValue;
                                     break;
-                                case "密码":
-                                    password=cellValue;
+                                case "导师姓名":
+                                    teaName=cellValue;
                                     break;
                                 case "入学年份":
                                     year=cellValue;
@@ -895,18 +897,19 @@ public class POIUtils {
                             }
                         }
                     }
-                    if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null){
+                    if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null || year == null){
                         continue;
                     }
                     student.setName(name);
                     student.setTelephone(phone);
                     student.setIDNumber(idCard);
                     student.setEmail(email);
-                    student.setUsername(username);
-                    student.setPassword(password);
+                    tea.setJobnumber(teaJobNumber);
+                    tea.setName(teaName);
+                    underGraduate.setTeachers(tea);
                     underGraduate.setStuNumber(stuNumber);
                     underGraduate.setYear(Integer.parseInt(year));
-                    underGraduate.setInstitutionID(1);
+                    underGraduate.setInstitutionID(institutionID);
                     underGraduate.setIDNumber(idCard);
                     studentList.add(student);
                     underList.add(underGraduate);
@@ -1001,10 +1004,11 @@ public class POIUtils {
     }
 
     //管理员上传研究生模版excel
-    public static Map<String,List> readExcel_graduatestudent(MultipartFile file) {
+    public static Map<String,List> readExcel_graduatestudent(Integer institutionID,MultipartFile file) {
         //tutorid目前没有处理
         List<GraduateStudent> graduateList = new ArrayList<>();
         GraduateStudent graduateStudent=new GraduateStudent();
+        Teachers tea = new Teachers();
         List<Student> studentList = new ArrayList<>();
         Student student=new Student();
         try {//1. 创建一个 workbook 对象
@@ -1032,16 +1036,16 @@ public class POIUtils {
                     int physicalNumberOfCells = row.getPhysicalNumberOfCells();
                     graduateStudent = new GraduateStudent();
                     student = new Student();
+                    tea = new Teachers();
                     String stuNumber=null;//学号
                     String name=null;//姓名
                     String phone=null;//手机号
                     String idCard=null;//身份证号
                     String email=null;//邮箱
-                    String username=null;
-                    String password=null;
+                    String teaJobNumber=null;
+                    String teaName=null;
                     String year=null;
                     String studentType=null;
-                    String point=null;
                     for (int k = 0; k < Cells; k++) {
                         HSSFCell cell = row.getCell(k);
                         if (cell!=null) {
@@ -1063,11 +1067,11 @@ public class POIUtils {
                                 case "邮箱":
                                     email=cellValue;
                                     break;
-                                case "用户名":
-                                    username=cellValue;
+                                case "导师工号":
+                                    teaJobNumber=cellValue;
                                     break;
-                                case "密码":
-                                    password=cellValue;
+                                case "导师姓名":
+                                    teaName=cellValue;
                                     break;
                                 case "入学年份":
                                     year=cellValue;
@@ -1075,29 +1079,26 @@ public class POIUtils {
                                 case "学生类别":
                                     studentType=cellValue;
                                     break;
-                                case "积分":
-                                    point=cellValue;
-                                    break;
                                 default:
                                     break;
                             }
                         }
                     }
-                    if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null || studentType == null || point == null){
+                    if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null || studentType == null){
                         continue;
                     }
                     student.setName(name);
                     student.setTelephone(phone);
                     student.setIDNumber(idCard);
                     student.setEmail(email);
-                    student.setUsername(username);
-                    student.setPassword(password);
+                    tea.setJobnumber(teaJobNumber);
+                    tea.setName(teaName);
+                    graduateStudent.setTeachers(tea);
                     graduateStudent.setStuNumber(stuNumber);
                     graduateStudent.setYear(Integer.parseInt(year));
-                    graduateStudent.setInstitutionID(1);
+                    graduateStudent.setInstitutionID(institutionID);
                     graduateStudent.setIDNumber(idCard);
                     graduateStudent.setStudentType(studentType);
-                    graduateStudent.setPoint(point);
                     studentList.add(student);
                     graduateList.add(graduateStudent);
                 }

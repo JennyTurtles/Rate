@@ -29,8 +29,8 @@ public class GraduateStudentMController {
         return POIUtils.writeGraduateStudent();
     }
     @PostMapping("/importGraduate")
-    public RespBean importUnderGraduate(MultipartFile file) throws ParseException {
-        Map<String,List> mm = POIUtils.readExcel_graduatestudent(file);
+    public RespBean importUnderGraduate(Integer institutionID,MultipartFile file) throws ParseException {
+        Map<String,List> mm = POIUtils.readExcel_graduatestudent(institutionID,file);
         List<GraduateStudent> graduate = mm.get("graduatelist");
         List<Student> stu = mm.get("studentlist");
         if(graduate.size() == 0 || stu.size() == 0 || graduate.size() != stu.size())
