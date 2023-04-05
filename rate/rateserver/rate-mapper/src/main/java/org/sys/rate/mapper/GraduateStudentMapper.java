@@ -21,4 +21,5 @@ public interface GraduateStudentMapper {
 
     @Select("SELECT COUNT(*) from graduatestudent WHERE studentID = #{stuId}")
     int isGraduateStudent(Integer stuId);
+    List<String> getGraduateStudentsBySelect(String teaName,Integer year);
 }

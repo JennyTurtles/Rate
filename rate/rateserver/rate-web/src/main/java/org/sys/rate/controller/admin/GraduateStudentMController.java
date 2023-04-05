@@ -41,7 +41,7 @@ public class GraduateStudentMController {
         return res;
     }
     @GetMapping("/getGraduateStudents")
-    public Msg getUnderStudent(){
+    public Msg getGraduateStudents(){
         return graduateStudentService.getGraduatesStudent();
     }
     @PostMapping("/deleteGraduateStudent")
@@ -51,5 +51,10 @@ public class GraduateStudentMController {
     @PostMapping("/editGraduateStudent")
     public RespBean editGraduateStudent(@RequestBody GraduateStudent graduate){
         return graduateStudentService.editgraduateStudent(graduate);
+    }
+    //根据页面的筛选框进行查找研究生信息
+    @GetMapping("/getGraduateStudentsBySelect")
+    public RespBean getGraduateStudentsBySelect(Integer year, String teaName){
+        return graduateStudentService.getGraduateStudentsBySelect(year,teaName);
     }
 }
