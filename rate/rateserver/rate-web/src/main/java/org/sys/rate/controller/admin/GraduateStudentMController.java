@@ -48,4 +48,8 @@ public class GraduateStudentMController {
     public Msg deleteGraduateStudent(@RequestBody GraduateStudent grad){
         return graduateStudentService.deleteGraduateStudent(grad);
     }
+    @PostMapping("/editGraduateStudent")
+    public RespBean editGraduateStudent(@RequestBody GraduateStudent graduate){
+        return graduateStudentService.editgraduateStudent(graduate);
+    }
 }

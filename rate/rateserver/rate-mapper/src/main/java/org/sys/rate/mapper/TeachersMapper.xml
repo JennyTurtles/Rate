@@ -370,4 +370,9 @@
             #{item}
         </foreach>
     </select>
+    <select id="selectTeaByJobnumber" resultMap="BaseResultMap">
+        select *
+        from teacher
+        where jobnumber = #{jobnumber}
+    </select>
 </mapper>

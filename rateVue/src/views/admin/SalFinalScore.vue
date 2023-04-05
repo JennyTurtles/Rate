@@ -82,12 +82,6 @@
             min-width="10%">
         </el-table-column>
         <el-table-column
-            prop="name"
-            align="left"
-            label="姓名"
-            min-width="10%">
-        </el-table-column>
-        <el-table-column
             v-for="(v, i) in displayItem"
             :prop="v.name"
             :label="v.name"

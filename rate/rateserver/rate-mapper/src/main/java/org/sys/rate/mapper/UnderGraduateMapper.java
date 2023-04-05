@@ -15,6 +15,8 @@ public interface UnderGraduateMapper {
     int insert(UnderGraduate record);
     int update(Student record);
     int deleteUnderStudent(UnderGraduate under);
+    int editUnderStudent(UnderGraduate under);
+
 
     List<Integer> check(List<UnderGraduate> under);
 

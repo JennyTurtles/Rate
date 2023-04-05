@@ -45,10 +45,10 @@ public class IndicatorInfController {
     @GetMapping("/publicationByYear")
     public RespBean getPublicationByIndicatorAndYear(@RequestParam("indicatorID")Integer indicatorID,@RequestParam("year")Integer year,
                                                      @RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
-        Page page = PageHelper.startPage(pageNum, pageSize);
+        Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
         List<IndicatorPublication> res = indicatorInfMapper.getPublicationByIndicatorAndYear(indicatorID,year);
         PageInfo info = new PageInfo<>(page.getResult());
-        Object[] a = {res,info.getTotal()};
+        Object[] a = {res,info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return RespBean.ok("success", a);
     }
 

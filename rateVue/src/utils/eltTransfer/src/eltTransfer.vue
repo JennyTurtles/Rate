@@ -77,7 +77,7 @@
       <p class="transfer-panel-header">
           <span>{{rightSelection.length}}/{{rightTableData.length}}</span>
         <span>{{titleTexts && titleTexts[1]}}</span>
-          <el-button type="danger" style="position: absolute ;right: 70px;margin-top: 5px" @click="$parent.clearTransfer()">清空</el-button>
+<!--          <el-button type="danger" style="position: absolute ;right: 70px;margin-top: 5px" @click="$parent.clearTransfer()">清空</el-button>-->
           <el-button type="success" style="position: absolute ;right: 5px;margin-top: 5px" @click="$parent.import()">导入</el-button>
       </p>
       <div v-if="showQuery">
@@ -124,6 +124,8 @@
 </template>
 
 <script>
+  import fa from "element-ui/src/locale/lang/fa";
+
   export default {
     name: 'EltTransfer',
     props: {
@@ -211,6 +213,8 @@
     },
     data() {
       return {
+        // groupID:-1,
+        // checkList : [],
         leftTableData: [],
         rightTableData: this.value || [],
         pageIndex: 1,
@@ -302,15 +306,25 @@
         if (this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, row))) {
           return 'success-row'
         }
+        // for (const item in this.checkList) {
+        //   if (this.checkList[item].id == row.id && this.checkList[item].groupID != this.groupID){
+        //     return 'warning-row'
+        //   }
+        // }
         return ''
       },
         handleRowStyleForRight({row}) {
-            if (this.leftTableData.some(leftRow => this.checkObjectIsEqual(leftRow, row))) {
-                return 'success-row'
-            }
+            // if (this.leftTableData.some(leftRow => this.checkObjectIsEqual(leftRow, row))) {
+            //     return 'success-row'
+            // }
             return ''
         },
       handleSelectable(row) {
+          // for (const item in this.checkList) {
+          //     if (this.checkList[item].id == row.id && this.checkList[item].groupID != this.groupID){
+          //         return false
+          //     }
+          // }
         return !this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, row))
       },
       addToRight() {

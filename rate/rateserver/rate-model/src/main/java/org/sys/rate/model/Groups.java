@@ -70,5 +70,14 @@ public class Groups {
         this.ID = ID;
     }
 
+    public Groups() {
+    }
 
+    public Groups(Integer activityID, Integer parentID, String name) {
+        this.participantCount = 0;
+        this.expertCount = 0;
+        this.activityID = activityID;
+        this.name = name;
+        this.parentID = parentID;
+    }
 }
