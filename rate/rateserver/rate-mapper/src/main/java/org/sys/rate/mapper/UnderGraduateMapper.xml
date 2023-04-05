@@ -75,8 +75,12 @@
     </select>
     <select id="getUnderStudent" resultMap="BaseResultMap">
         select u.*,s.name,s.telephone,s.email,s.IDNumber,t.name as tname,t.jobnumber as tjobnumber
-        from undergraduate u,student s,teacher t
-        where s.ID = u.studentID and u.tutorID = t.ID
+        from undergraduate u
+        left join teacher t
+        on u.tutorID=t.ID
+        left join student s
+        on u.studentID=s.ID
+--         where s.ID = u.studentID and u.tutorID = t.ID
     </select>
     <delete id="deleteUnderStudent" parameterType="org.sys.rate.model.UnderGraduate">
         delete from undergraduate where ID = #{ID}

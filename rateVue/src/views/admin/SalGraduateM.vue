@@ -22,6 +22,8 @@
         <el-table-column prop="year" label="入学年份" align="center"></el-table-column>
         <el-table-column prop="studentType" label="学生类别" align="center"></el-table-column>
         <el-table-column prop="point" label="积分" align="center"></el-table-column>
+        <el-table-column prop="idnumber" label="身份证号" align="center"></el-table-column>
+        <el-table-column prop="teachers.name" label="导师姓名" align="center"></el-table-column>
         <el-table-column  label="操作" align="center">
           <template slot-scope="scope">
             <el-button size="mini"  icon="el-icon-edit" plain @click="deleteUnder(scope.row)" type="primary">编辑</el-button>
@@ -78,6 +80,7 @@ export default {
     initGraduateStudents(){
       this.getRequest('/graduatestudentM/basic/getGraduateStudents').then((response)=>{
         if(response.code == 200){
+          console.log(response.extend.res)
           this.graduateStudents = response.extend.res
         }
       })

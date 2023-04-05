@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.GraduateStudentMapper;
 import org.sys.rate.mapper.StudentMapper;
+import org.sys.rate.mapper.TeachersMapper;
 import org.sys.rate.mapper.UnderGraduateMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.expert.ExpertService;
@@ -16,9 +17,12 @@ public class GraduateStudentService {
     @Autowired
     StudentMapper studentMapper;
     @Autowired
+    TeachersMapper teachersMapper;
+    @Autowired
     GraduateStudentMapper graduateStudentMapper;
-    //管理员导入研究生
+    //管理员导入研究生，只添加，即使已经存在了该条数据也不更新
     public RespBean addGraduate(List<GraduateStudent> graduateList, List<Student> stuList) {
+        //根据身份证号得到已经存在的student
         List<Student> checkStudents = studentMapper.checkAndReturnID(stuList);
         List<String> checkIDNumbers = new ArrayList<>();
         List<Student> updateStus = new ArrayList<>();
@@ -36,28 +40,9 @@ public class GraduateStudentService {
         }else {
             insertStus = stuList;
         }
-        if(insertStus.size() > 0){
-            for(Student i : insertStus){
-                if(i.getUsername() == null || i.getUsername().equals(""))
-                {//为空
-                    i.setUsername(i.getTelephone());
-                }
-                String encodePass;
-                if(i.getPassword() == null || i.getPassword().equals(""))
-                {//为空
-                    encodePass = ExpertService.sh1(i.getTelephone());
-                }
-                else
-                {//默认密码为手机号
-                    encodePass = ExpertService.sh1(i.getPassword());
-                }
-                i.setPassword(encodePass);
-            }
-        }
         List<Student> newStuList = new ArrayList<>();
         try{
             if(checkStudents.size() != 0) {
-                studentMapper.updateFromAdminExcel(stuList);
                 newStuList.addAll(checkStudents);
             }
             if(insertStus.size() > 0){
@@ -68,11 +53,55 @@ public class GraduateStudentService {
             return RespBean.error("error");
         }
         //对研究生循环 设置stuid
+        List<String> jobTeas = new ArrayList<>();
+        List<String> nameTeas = new ArrayList<>();
         for(int i = 0;i < graduateList.size();i++){
-            for(int j = 0;j < newStuList.size();j++){
+            for(int j = 0;j < newStuList.size();j++){//按照身份证号进行对比，赋值stuid
                 if(graduateList.get(i).getIDNumber().equals(newStuList.get(j).getIDNumber())){
                     graduateList.get(i).setStudentID(newStuList.get(j).getID());
                     break;
+                }
+            }
+            //工号和姓名都有按照工号来，都没有tutorid为空，只有姓名就按照姓名查找
+            if(graduateList.get(i).getTeachers().getJobnumber() == null && graduateList.get(i).getTeachers().getName() == null){
+                graduateList.get(i).setTutorID(null);
+            }
+            if(graduateList.get(i).getTeachers().getJobnumber() != null){
+                jobTeas.add(graduateList.get(i).getTeachers().getJobnumber());
+            }
+            if(graduateList.get(i).getTeachers().getJobnumber() == null && graduateList.get(i).getTeachers().getName() != null){
+                nameTeas.add(graduateList.get(i).getTeachers().getName());
+            }
+        }
+        List<Teachers> jobTeachers = new ArrayList<>();
+        List<Teachers> nameTeachers = new ArrayList<>();
+        if(jobTeas.size() > 0){
+            jobTeachers = teachersMapper.selectTeasByJobnumber(jobTeas);
+            for(int i = 0;i < graduateList.size();i++) {
+                if(graduateList.get(i).getTeachers().getJobnumber() == null || graduateList.get(i).getTeachers().getJobnumber().equals("")){
+                    continue;
+                }
+                for (int j = 0; j < jobTeachers.size(); j++) {
+                    if (graduateList.get(i).getTeachers().getJobnumber().equals(jobTeachers.get(j).getJobnumber())) {
+                        graduateList.get(i).setTeachers(jobTeachers.get(j));
+                        graduateList.get(i).setTutorID(jobTeachers.get(j).getID());
+                        break;
+                    }
+                }
+            }
+        }
+        if(nameTeas.size() > 0){
+            nameTeachers = teachersMapper.selectTeasByName(nameTeas);
+            for(int i = 0;i < graduateList.size();i++) {
+                if(graduateList.get(i).getTeachers().getName() == null || graduateList.get(i).getTeachers().getName().equals("")){
+                    continue;
+                }
+                for (int j = 0; j < nameTeachers.size(); j++) {
+                    if (graduateList.get(i).getTeachers().getName().equals(nameTeachers.get(j).getName())) {
+                        graduateList.get(i).setTeachers(nameTeachers.get(j));
+                        graduateList.get(i).setTutorID(nameTeachers.get(j).getID());
+                        break;
+                    }
                 }
             }
         }
@@ -93,9 +122,6 @@ public class GraduateStudentService {
             insertGraduates = graduateList;
         }
         try {
-            if(updateGraduates.size() > 0){
-                graduateStudentMapper.updateFROMImport(updateGraduates);
-            }
             if(insertGraduates.size() > 0){
                 graduateStudentMapper.insertFROMImport(insertGraduates);
             }
