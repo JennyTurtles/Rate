@@ -1,7 +1,6 @@
 package org.sys.rate.utils;
 
 
-import com.itextpdf.text.Element;
 import com.itextpdf.text.pdf.*;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.PaperComment;
@@ -75,10 +74,10 @@ public class Download {
         model.put("teacher", teacher);
         model.put("paparcomment", paperComments);
 
-        String fileName = student.getName() + "毕业设计(论文)记录本" + ".pdf";
-        DEST = DEST + fileName;
+        String fileName = student.getName() + "-" +String.valueOf(System.currentTimeMillis()/1000) + ".pdf";
+
         try {
-            os = new FileOutputStream(new File(DEST));
+            os = new FileOutputStream(new File(DEST + fileName));
             // 2 读入pdf表单
             reader = new PdfReader(TEMP);
             // 3 根据表单生成一个新的pdf,os是本地， response.getOutputStream()是网络
@@ -87,13 +86,7 @@ public class Download {
             // 4 获取pdf表单
             AcroFields form = ps.getAcroFields();
             // 5 给表单添加中文字体
-//            BaseFont FontKai = BaseFont.createFont(FONT_PATH_Kai, BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
-//            BaseFont FontSong = BaseFont.createFont("STSongStd-Light",  "UniGB-UCS2-H",BaseFont.NOT_EMBEDDED);
             BaseFont FontSong = BaseFont.createFont(FONT_PATH_Song, BaseFont.IDENTITY_H, false);
-            BaseFont FontHei = BaseFont.createFont(FONT_PATH_Hei, BaseFont.IDENTITY_H, false);
-
-            FontHei.setSubset(true);
-//            FontKai.setSubset(true);
             FontSong.setSubset(true);
 
             // 6查询数据================================================
@@ -106,7 +99,7 @@ public class Download {
 
             // 用于控制显示的行数！！！
             final int PRESUMROWS = 18;
-            final int NEXTPLANROWS = 20;
+            final int NEXTPLANROWS = 22;
 
             // 6.2 余页
             for (int i = 0; i < paperComments.size(); i++) {
@@ -122,21 +115,15 @@ public class Download {
             // 7遍历data 给pdf表单表格赋值
             for (String key : data.keySet()) {
                 // 进行key判断
+                form.setFieldProperty(key, "textfont", FontSong, null);
                 if (key.equals("stuNameFirst") || key.equals("stuID") || key.equals("tutorName")) {
-                    form.setFieldProperty(key, "textfont", FontSong, null);
                     form.setFieldProperty(key, "textsize", 16f, null);
-                    form.setFieldProperty(key, "alignment", Element.ALIGN_CENTER, null);
-                    form.setField(key, data.get(key).toString());
                 } else if (key.equals("stuName") || key.equals("num")) {
-                    form.setFieldProperty(key, "textfont", FontSong, null);
                     form.setFieldProperty(key, "textsize", 12f, null);
-                    form.setField(key, data.get(key).toString());
                 } else {
-                    form.setFieldProperty(key, "textfont", FontSong, null);
                     form.setFieldProperty(key, "textsize", 10.5f, null);
-                    form.setField(key, data.get(key).toString());
                 }
-
+                form.setField(key, data.get(key).toString());
             }
             ps.setFormFlattening(true);
             System.out.println("===============PDF导出成功=============");
@@ -149,13 +136,12 @@ public class Download {
                 ps.close();
                 reader.close();
                 os.close();
-                String DEST2 = "upload/paperComment/";
                 if (paperComments.size() != 10) {
-                    String fileNewName = student.getName() + "毕业设计(论文)记录本 " + ".pdf";
-                    removePageFromPDF(DEST, DEST2 + fileNewName, paperComments.size() + 1);
-                    getDownload(response, DEST2 + fileNewName, false);
+                    String fileNewName = student.getName() + "-" +String.valueOf(System.currentTimeMillis()/1000) + ".pdf";
+                    removePageFromPDF(DEST, DEST + fileNewName, paperComments.size() + 1);
+                    getDownload(response, DEST + fileNewName, false);
                 } else {
-                    getDownload(response, DEST2 + fileName, false);
+                    getDownload(response, DEST + fileName, false);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -174,7 +160,8 @@ public class Download {
         int len = 0;
 
         response.reset(); // 非常重要
-        String filename = f.getName().replace(" ","");
+        int index = f.getName().indexOf("-");
+        String filename = f.getName().substring(0,index) + "毕业设计(论文)记录本";
         if (isOnLine) {
             // 在线打开方式
             URL u = new URL("file:///" + filePath);
@@ -183,8 +170,8 @@ public class Download {
             // 文件名应该编码成UTF-8
         } else {
             // 纯下载方式
-            response.setContentType("application/x-msdownload");
-            response.setHeader("Content-Disposition", "attachment; filename=" + java.net.URLEncoder.encode(filename, "unicode"));
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=" + java.net.URLEncoder.encode(filename, "UTF-8"));
         }
         OutputStream out = response.getOutputStream();
         while ((len = br.read(buf)) > 0) {
