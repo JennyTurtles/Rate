@@ -334,6 +334,24 @@
         update `groups` set participantCount=(select count(*) from participants where groupID=#{groupID,jdbcType=INTEGER} and ID!='0') where ID=#{groupID,jdbcType=INTEGER}
     </update>
 
+    <insert id="addParent">
+        INSERT INTO participants (`activityID`, `groupID`, `studentID`, `code`,`displaySequence`)
+        values
+        <foreach collection="list" item="item" separator=",">
+        (#{item.activityID}, #{item.groupID}, #{item.studentID}, #{item.code},#{item.displaySequence})
+    </foreach>
+        ON DUPLICATE KEY UPDATE studentID = values(studentID);
+    </insert>
+
+<!--    <insert id="addParent" parameterType="org.sys.rate.model.Participates">-->
+<!--        INSERT INTO participants (`activityID`, `groupID`, `studentID`, `code`,`displaySequence`)-->
+<!--        values-->
+<!--        <foreach close=")" open="(" collection="list" item="item" separator=",">-->
+<!--            #{item.activityID}, #{item.groupID}, #{item.studentID}, #{item.code},#{item.displaySequence}-->
+<!--        </foreach>-->
+<!--        ON DUPLICATE KEY UPDATE studentID = values(studentID);-->
+<!--    </insert>-->
+
     <update id="update_relationship" parameterType="org.sys.rate.model.Participates">
         UPDATE participants  set <if test="groupID!= -1">groupID=#{groupID,jdbcType=INTEGER},</if>
         <if test="displaySequence!= -1">

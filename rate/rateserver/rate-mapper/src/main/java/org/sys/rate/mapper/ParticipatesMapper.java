@@ -172,4 +172,13 @@ public interface ParticipatesMapper {
     Integer addPars(List<Participates> list);
 
     Integer deletePars(List<Participates> list);
+
+    @Select("SELECT p.ID,name,pp.groupID as groupID FROM participants pp RIGHT JOIN \n" +
+            "(SELECT p.ID,name,IDNumber,code,activityID,groupID,studentID,s.institutionID FROM student s,participants p \n" +
+            "WHERE s.ID = p.studentID AND p.groupID = #{groupID}) as p\n" +
+            "on pp.studentID = p.studentID WHERE pp.groupID != #{groupID}")
+    List<Participates> checkInOtherGroup(Integer groupID);
+
+    void addParent(List<Participates> list); // 活动ID，小组ID，学生ID设置为唯一索引，如果重复则不添加
+
 }

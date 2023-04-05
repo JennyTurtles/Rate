@@ -117,6 +117,7 @@ export default {
     },
     data() {
         return {
+            checkList: [],
             labelPosition: "left",
             importDataDisabled: false,
             importDataBtnIcon: 'el-icon-plus',
@@ -182,6 +183,7 @@ export default {
             for (let i = 0; i < addList.length; i++) {
                 addList[i].activityID=this.activityID;
                 addList[i].groupID=this.groupID;
+                addList[i].institutionid=this.user.institutionID;
             }
             this.postRequest("/participants/basic/addPars",addList).then(res=>{
                 if(res.status==200){
@@ -197,14 +199,30 @@ export default {
            this.getRequest("/groups/basic/pars?groupID="+this.groupIDParent).then(res=>{ // 获取大组内的选手
                this.pars = res.obj;
                this.clearTransfer();
-               this.getRequest("/groups/basic/pars?groupID="+this.groupID).then(res=>{ // 获取当前组内的选手
-                   this.tableData = res.obj;
-                   for (let i = 0; i < this.tableData.length; i++) {
-                       this.$refs.eltTransfer.rightTableData.push(this.tableData[i])
-                   }
-               })
-           })
+               if (this.groupID === null) { // 处理不进行分组的情况，将分组的时机选在秘书点进来的时候，而不是管理员创建子活动的时候，类似于COW的思路
+                   this.getRequest("/groups/basic/parsForUniqueGroupSubActivity?activityID="+this.activityID+"&groupIDParent="+this.groupIDParent).then(res=>{ // 获取当前组内的选手
+                       this.groupID = res.obj[0];
+                       this.tableData = res.obj[1];
+                       for (let i = 0; i < this.tableData.length; i++) {
+                           this.$refs.eltTransfer.rightTableData.push(this.tableData[i])
+                       }
+                   })
+               }else{
+                   this.getRequest("/groups/basic/pars?groupID="+this.groupID).then(res=>{ // 获取当前组内的选手
+                       this.tableData = res.obj;
+                       for (let i = 0; i < this.tableData.length; i++) {
+                           this.$refs.eltTransfer.rightTableData.push(this.tableData[i])
+                       }
+                   })
+               }
 
+           })
+        },
+        checkInOtherGroup(){
+            this.getRequest("/participants/basic/checkInOtherGroup?groupID="+this.groupIDParent).then(res=>{
+                this.$refs.eltTransfer.checkList = res.obj;
+                this.$refs.eltTransfer.groupID = this.groupID;
+            })
         },
         paginationCallBackPar(obj) {
             let d = this.pars.filter((item, index) => {
@@ -275,7 +293,7 @@ export default {
                 .then((res1) => {
                     if(res1.length===0)
                     {
-                        url = "/participants/basic/import?groupid="+this.groupID+"&activityid="+this.activityID+"&insititutionID="+this.user.institutionID;
+                        url = "/participants/basic/subImport?groupid="+this.groupID+"&activityid="+this.activityID+"&insititutionID="+this.user.institutionID+"&actIDParent="+this.activityIDParent+"&groupIDParent="+this.groupIDParent;
                         axios.post(url, fd, {
                             headers: {
                                 "Content-Type": "multipart/form-data",
@@ -299,7 +317,7 @@ export default {
                             cancelButtonText: '取消',
                             type: 'warning'
                         }).then(() => {
-                            url = "/participants/basic/import?groupid="+this.groupID+"&activityid="+this.activityID+"&insititutionID="+this.user.institutionID;
+                            url = "/participants/basic/subImport?groupid="+this.groupID+"&activityid="+this.activityID+"&insititutionID="+this.user.institutionID+"&actIDParent="+this.activityIDParent+"&groupIDParent="+this.groupIDParent;
                             axios.post(url, fd, {
                                 headers: {
                                     "Content-Type": "multipart/form-data",

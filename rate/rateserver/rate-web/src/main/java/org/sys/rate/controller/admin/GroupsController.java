@@ -2,6 +2,7 @@ package org.sys.rate.controller.admin;
 
 import cn.hutool.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.GroupsMapper;
 import org.sys.rate.model.*;
@@ -13,9 +14,7 @@ import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @RestController
@@ -157,5 +156,20 @@ public class GroupsController {
     @GetMapping("/subGroups")
     public RespBean getSubGroups(@RequestParam Integer activityID,@RequestParam Integer groupID) {
         return RespBean.ok("success", groupsMapper.getSubGroups(activityID,groupID));
+    }
+
+    // 处理不进行分组的子活动小组，该类型子活动只会存在一个小组。
+    // 如果存在则返回组内的选手信息，不存在则创建一个小组并返回空列表。
+    // 返回形式：[小组ID，小组内选手信息]
+    @Transactional
+    @GetMapping("/parsForUniqueGroupSubActivity")
+    public RespBean getSubGroup(@RequestParam Integer activityID,@RequestParam Integer groupIDParent) {
+        Integer groupID = groupsMapper.getSubGroupID(activityID,groupIDParent);
+        if (groupID == null) { // 创建子活动分组
+            Groups group = new Groups(activityID,groupIDParent,"默认子活动小组");
+            groupsMapper.insertGroup(group); // 插入并返回ID
+            return RespBean.ok("success", new ArrayList<>(Arrays.asList(group.getID(),new ArrayList<>())));
+        }
+        return RespBean.ok("success", new ArrayList<>(Arrays.asList(groupID,groupsMapper.getGroupPars(groupID))));
     }
 }
