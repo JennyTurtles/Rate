@@ -30,14 +30,6 @@
                  #{email,jdbcType=VARCHAR});
     </insert>
 
-    <update id="update" parameterType="org.sys.rate.model.Student">
-        UPDATE rate.student SET name=#{name,jdbcType=VARCHAR},
-                                studentnumber=#{studentnumber,jdbcType=VARCHAR},
-                                telephone=#{telephone,jdbcType=VARCHAR},
-                                email=#{email,jdbcType=VARCHAR}
-        where ID=#{ID,jdbcType=INTEGER};
-    </update>
-
 <!--    <select id="check" resultType="java.lang.Integer">-->
 <!--        select exists (select * from student where IDNumber=#{IDNumber})-->
 <!--    </select>-->
@@ -85,4 +77,13 @@
     <delete id="deleteUnderStudent" parameterType="org.sys.rate.model.UnderGraduate">
         delete from undergraduate where ID = #{ID}
     </delete>
+    <update id="editUnderStudent" parameterType="org.sys.rate.model.UnderGraduate">
+        UPDATE student SET name=#{name,jdbcType=VARCHAR},
+                                telephone=#{telephone,jdbcType=VARCHAR},
+                                email=#{email,jdbcType=VARCHAR}
+        where ID=#{studentID,jdbcType=INTEGER};
+        UPDATE undergraduate
+        SET tutorID = #{tutorID}
+        where ID=#{ID,jdbcType=INTEGER};
+    </update>
 </mapper>

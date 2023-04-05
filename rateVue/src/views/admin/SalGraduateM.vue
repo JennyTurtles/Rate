@@ -32,6 +32,32 @@
         </el-table-column>
       </el-table>
     </div>
+    <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px">
+      <template>
+        <el-form :model="currentGraduateStudentOfEdit">
+          <el-form-item label="导师姓名">
+            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.teachers.name"></el-input>
+          </el-form-item>
+          <el-form-item label="导师工号">
+            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.teachers.jobnumber"></el-input>
+          </el-form-item>
+          <el-form-item label="学生姓名">
+            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.name"></el-input>
+          </el-form-item>
+          <el-form-item label="学生手机号">
+            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.telephone"></el-input>
+          </el-form-item>
+          <el-form-item label="学生邮箱">
+            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.email"></el-input>
+          </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="editGraduate" type="primary">确定</el-button>
+          <el-button @click="closeDialogEdit">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -40,8 +66,21 @@ export default {
   name: "SalGraduateM",
   data(){
     return{
+      dialogEdit:false,
       user:{},
-      graduateStudents:[]
+      graduateStudents:[],
+      currentGraduateStudentOfEdit:{
+        ID:null,
+        name:'',
+        teachers:{
+          name:'',
+          jobnumber:''
+        },
+        studentID:null,
+        tutorID:null,
+        telephone:'',
+        email:''
+      },
     }
   },
   mounted() {
@@ -49,6 +88,32 @@ export default {
     this.initGraduateStudents()
   },
   methods:{
+    closeDialogEdit(){//关闭对话框
+      this.dialogEdit = false
+      this.currentGraduateStudentOfEdit = {}
+    },
+    editDialogShow(data){
+      this.dialogEdit = true
+      this.currentGraduateStudentOfEdit = data
+    },
+    editGraduate(){//点击编辑中的确定按钮
+      if(this.currentGraduateStudentOfEdit.teachers.name == '' || this.currentGraduateStudentOfEdit.teachers.jobnumber == ''){
+        this.$message.warning('请填写老师姓名和工号！')
+        return
+      }
+      let data = this.currentGraduateStudentOfEdit
+      this.postRequest('/undergraduateM/basic/editUnderGraduateStudent',data).then((resp)=>{
+        if(resp){
+          if(resp.status == 200){
+            this.dialogEdit = false
+            this.$message.success(resp.msg)
+            this.initUnderGraduateStudents()
+          }else {
+            this.$message.error(resp)
+          }
+        }
+      })
+    },
     deleteUnder(data){//删除本科生
       this.postRequest('/graduatestudentM/basic/deleteGraduateStudent',data).then((resp)=>{
         if(resp.code == 200){
