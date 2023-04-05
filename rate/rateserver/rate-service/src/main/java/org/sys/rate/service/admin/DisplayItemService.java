@@ -36,6 +36,7 @@ public class DisplayItemService {
         res.add(new DisplayItem("编号", "code"));
         res.add(new DisplayItem("组名", "group"));
         res.add(new DisplayItem("专家打分", "scores"));
+        res.add(new DisplayItem("姓名", "scores"));
         // 获取信息项
         List<InfoItem> infoItems = infoItemMapper.getAll(activityID);
         for (InfoItem infoItem : infoItems)
@@ -76,10 +77,10 @@ public class DisplayItemService {
 
             // 为该选手添加展示项
             for (DisplayItem displayItem : displayItems) {
-                if (!displayItem.getSource().contains("*")) {  // 如果displayItem的source不包含"*"则为第一类
+                if (!displayItem.getSource().contains("*")) {  // 第一类：displayItem的source不包含"*"
                     String displayContent = getDisplayContentPart(displayItem.getSource(), par, tableInfoItem, tableScoreItem, displayItemMap, activityID);
                     par.getMap().put(displayItem.getName(), formatDouble(displayContent));
-                } else // 第二类需要计算
+                } else // 第二类，需要计算
                 {
                     String[] split = displayItem.getSource().split("\\+");
                     double score = 0;
@@ -123,6 +124,8 @@ public class DisplayItemService {
                 return split.length == 1 ? par.getGroupName() : null;
             case "scores":
                 return split.length == 1 ? participatesService.getTotalscorewithdot(activityID, par.getID()) : null;
+            case "name":
+                return split.length == 1 ? par.getName() : null;
         }
         // 表名.ID
         String[] split2 = target.split("\\.");
@@ -204,6 +207,9 @@ public class DisplayItemService {
                 break;
             case "scores":
                 name = "专家打分";
+                break;
+            case "name":
+                name = "姓名";
                 break;
         }
         if (!name.equals(""))
