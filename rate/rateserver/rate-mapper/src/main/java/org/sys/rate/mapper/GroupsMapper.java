@@ -1,9 +1,6 @@
 package org.sys.rate.mapper;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.sys.rate.model.Groups;
 import org.sys.rate.model.Participates;
@@ -63,7 +60,7 @@ public interface GroupsMapper {
     @Select("select * from `groups` where ID = #{groupID}")
     List<Groups> getGroup(Integer groupID);
 
-    @Select("SELECT p.ID,name,IDNumber,code,activityID,groupID,studentID,s.institutionID FROM student s,participants p\n" +
+    @Select("SELECT p.ID,name,IDNumber,code,activityID,groupID,studentID,s.institutionID,telephone,username,email,password FROM student s,participants p\n" +
             "WHERE s.ID = p.studentID AND groupID = #{groupID}")
     List<Participates> getGroupPars(Integer groupID);
 
@@ -74,4 +71,12 @@ public interface GroupsMapper {
 
     @Select("select * from `groups` where parentID = #{groupID} and activityID = #{activityID}")
     List<Groups> getSubGroups(Integer activityID,Integer groupID);
+
+    @Select("select ID from `groups` where parentID = #{groupIDParent} and activityID = #{activityID} limit 1")
+    Integer getSubGroupID(Integer activityID,Integer groupIDParent);
+
+    @Insert("INSERT INTO `groups` (activityID, name, expertCount, participantCount, parentID)\n" +
+            "VALUES (#{activityID},#{name},#{expertCount},#{participantCount},#{parentID})")
+    @Options(useGeneratedKeys=true, keyProperty="ID", keyColumn="ID")
+    void insertGroup(Groups group);
 }

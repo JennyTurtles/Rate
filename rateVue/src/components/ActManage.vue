@@ -197,9 +197,19 @@
             >分数统计
             </el-button
             >
+              <el-button
+                      @click="assignPE(scope.row)"
+                      v-show="mode === 'secretarySub' &&scope.row.requireGroup === false"
+                      style="padding: 4px"
+                      size="mini"
+                      icon="el-icon-tickets"
+                      type="primary"
+                      plain
+              >分配选手和专家
+              </el-button
+              >
             <el-button
                 @click="exportEx(scope.row)"
-                v-show="mode==='admin' || mode==='adminSub'"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
@@ -268,19 +278,19 @@
                              @change="changeCheckGroup(scope.row)"></el-checkbox>
             </template>
         </el-table-column>
-          <el-table-column
-                  v-if="mode === 'secretarySub'"
-                  prop="group"
-                  label="是否分组"
-                  align="center"
-                  width="75"
-          >
-              <template slot-scope="scope">
-                  <el-checkbox v-model="scope.row.requireGroup"
-                               disabled
-                               @change="changeCheckGroup(scope.row)"></el-checkbox>
-              </template>
-          </el-table-column>
+<!--          <el-table-column-->
+<!--                  v-if="mode === 'secretarySub'"-->
+<!--                  prop="group"-->
+<!--                  label="是否分组"-->
+<!--                  align="center"-->
+<!--                  width="75"-->
+<!--          >-->
+<!--              <template slot-scope="scope">-->
+<!--                  <el-checkbox v-model="scope.row.requireGroup"-->
+<!--                               disabled-->
+<!--                               @change="changeCheckGroup(scope.row)"></el-checkbox>-->
+<!--              </template>-->
+<!--          </el-table-column>-->
       </el-table>
 
       <div style="display: flex; justify-content: flex-end; margin: 10px 0">
@@ -466,6 +476,20 @@ export default {
     this.initEmps();
   },
   methods: {
+      assignPE(data) {
+          console.log(data)
+          const _this = this;
+          _this.$router.push({
+              path: "/Expert/EassignPE",
+              query: {
+                  activityIDParent: this.$route.query.id,
+                  activityID: data.id,
+                  groupIDParent: this.$route.query.groupID, // 这里有问题
+                  groupID: data.groupID,
+                  mode:this.mode
+              }
+          })
+      },
     changeCheckGroup(row){
         this.postRequest("/activities/basic/changeRequireGroup?activityID="+row.id+"&requireGroup="+(row.requireGroup?1:0)).then(res=>{
             if(res.status === 200){
@@ -692,7 +716,7 @@ export default {
         })
       }else if (this.mode === "secretarySub"){ // 秘书子活动管理
         this.loading = false;
-        // 获取当前组内的专家和学生
+        // 获取当前组内的专家和学生，待修改
         this.getRequest("/secretary/getMember?activityID="+this.activityID+"&groupID="+this.groupID).then((resp)=>{
           this.experts = resp.obj[1]
           this.participates = resp.obj[0]
@@ -705,7 +729,7 @@ export default {
               }
             for (let i = 0; i < this.emps.length; i++) {
               this.emps[i].participantCount =  this.participates.length
-              this.emps[i].expertCount = this.participates.length
+              this.emps[i].expertCount = this.experts.length
             }
             this.total = this.emps.length
           })

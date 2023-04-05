@@ -185,16 +185,18 @@ public class ParticipatesBasicController {
         return POIUtils.writeExcel_group(dymatic_list,scoreitem,infoitem);
     }
 
-    @PostMapping("/import")
-    public RespBean importData(@RequestParam Integer groupid,@RequestParam Integer activityid,@RequestParam Integer insititutionID,MultipartFile file) throws IOException, ParseException {
+    private RespPageBean excel2p(Integer groupid,Integer activityid,MultipartFile file){
         List<Groups> groups = groupsService.getActivitiesName(activityid);
         Map<String,Integer>map=new HashMap<>();
         for(Groups g:groups)
         {
             map.put(g.getName(),g.getID());
         }
-        //infoItemService.selectInfoItemByActivityIdWhereNotByExpert(activityid);
         RespPageBean bean=POIUtils.excel2p(groupid,map,file,scoreItemService.selectScoreItemByActivityIdWhereNotByExpert(activityid), infoItemService.selectInfoItemByActivityIdWhereNotByExpert(activityid));
+        return bean;
+    }
+
+    private RespBean importPars(@RequestParam Integer groupid,@RequestParam Integer activityid,@RequestParam Integer insititutionID,RespPageBean bean) throws ParseException {
         List<Participates> list= (List<Participates>) bean.getData();
         if(list==null)
         {
@@ -224,6 +226,13 @@ public class ParticipatesBasicController {
         logService.addLogs(log);
         return RespBean.error("上传失败");
     }
+
+    @PostMapping("/import")
+    public RespBean importData(@RequestParam Integer groupid,@RequestParam Integer activityid,@RequestParam Integer insititutionID,MultipartFile file) throws IOException, ParseException {
+        RespPageBean bean=excel2p(groupid,activityid,file);
+        return importPars(groupid,activityid,insititutionID,bean);
+    }
+
     //alterDisplay
     @PostMapping("/alterDisplay")
     public RespBean alterDisplay(@RequestParam Integer total,@RequestParam Integer groupID,@RequestBody Participates company) throws ParseException {
@@ -276,16 +285,23 @@ public class ParticipatesBasicController {
         }
     }
 
+    // 点击添加按钮添加的选手，无信息项和评分项
     @Transactional
     @PostMapping("/addPars")
-    public RespBean addPars(@RequestBody List<Participates> participatesList){
-        Integer res = participatesMapper.addPars(participatesList);
-        Integer res2 = groupsMapper.updateParCount(participatesList.get(0).getActivityID(),participatesList.get(0).getGroupID());
-        if(res > 0 && res2 > 0){
-            return RespBean.ok("添加成功");
-        }else {
-            return RespBean.error("添加失败");
+    public RespBean addPars(@RequestBody List<Participates> list) throws ParseException {
+        Integer activityID = list.get(0).getActivityID();
+        Integer groupID = list.get(0).getGroupID();
+        RespPageBean bean=new RespPageBean();
+        bean.setData(list);
+        bean.setTotal((long) list.size());
+        RespBean res1 = importPars(groupID,activityID,list.get(0).getInstitutionid(),bean);
+        if(res1.getStatus() == 200) {
+            Integer res2 = groupsMapper.updateParCount(activityID, groupID);
+            if (res2 > 0)
+                return RespBean.ok(res1.getMsg());
+            return RespBean.error("更新选手数量失败");
         }
+        return RespBean.error(res1.getMsg());
     }
 
     @Transactional
@@ -303,5 +319,31 @@ public class ParticipatesBasicController {
         }else {
             return RespBean.error("删除失败");
         }
+    }
+
+    // 用于检测当前组内的首先是否已经被别的秘书分到其他组了
+    @GetMapping("checkInOtherGroup")
+    public RespBean checkInOtherGroup(@RequestParam Integer groupID){
+        List<Participates> participatesList = participatesMapper.checkInOtherGroup(groupID);
+        return RespBean.ok("查询成功",participatesList);
+    }
+
+    @Transactional
+    @PostMapping("/subImport")
+    public RespBean importSubData(@RequestParam Integer groupid,@RequestParam Integer activityid,
+                                  @RequestParam Integer insititutionID,@RequestParam Integer actIDParent,@RequestParam Integer groupIDParent,
+                                  MultipartFile file) throws IOException, ParseException {
+        RespPageBean bean=excel2p(groupid,activityid,file);
+        RespBean respBean = importPars(groupid,activityid,insititutionID,bean); // 为了复用才返回respBean
+        if (respBean.getStatus() != 200){ // 检查当前选手是否在主活动中存在
+            RespBean.error(respBean.getMsg());
+        }
+        List<Participates> list= (List<Participates>) bean.getData();
+        for (Participates participates : list) { // 填上主活动的id和大组id
+            participates.setActivityID(actIDParent);
+            participates.setGroupID(groupIDParent);
+        }
+        participatesMapper.addParent(list); // 如果存在父活动则不新增，不存在则新增
+        return RespBean.ok(respBean.getMsg());
     }
 }
