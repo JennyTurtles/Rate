@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.sys.rate.model.Experts;
 import org.sys.rate.model.Groups;
 import org.sys.rate.model.Participates;
 import org.sys.rate.model.ScoreDetail;
@@ -79,4 +80,14 @@ public interface GroupsMapper {
             "VALUES (#{activityID},#{name},#{expertCount},#{participantCount},#{parentID})")
     @Options(useGeneratedKeys=true, keyProperty="ID", keyColumn="ID")
     void insertGroup(Groups group);
+
+    @Select("SELECT e.ID,teacherID,name,jobnumber,institutionID,sex,department,IDNumber,phone,email,e.role,activityID,groupID\n" +
+            "FROM expertactivities e, teacher t\n" +
+            "WHERE e.teacherID = t.ID AND deleteFlag = 0 AND groupID = #{groupID}")
+    List<Experts> getGroupExperts(Integer groupID);
+
+    @Update("UPDATE `groups` SET expertCount = (\n" +
+            "SELECT count(*) FROM expertactivities WHERE activityID = #{activityID} and groupID = #{groupID})\n" +
+            "WHERE activityID = #{activityID} AND ID = #{groupID}")
+    Integer updateExpertCount(Integer activityID, Integer groupID);
 }

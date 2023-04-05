@@ -153,6 +153,11 @@ public class GroupsController {
         return RespBean.ok("success", groupsMapper.getGroupPars(groupID));
     }
 
+    @GetMapping("/experts")
+    public RespBean getGroupExperts(@RequestParam Integer groupID) {
+        return RespBean.ok("success", groupsMapper.getGroupExperts(groupID));
+    }
+
     @GetMapping("/subGroups")
     public RespBean getSubGroups(@RequestParam Integer activityID,@RequestParam Integer groupID) {
         return RespBean.ok("success", groupsMapper.getSubGroups(activityID,groupID));
@@ -163,7 +168,7 @@ public class GroupsController {
     // 返回形式：[小组ID，小组内选手信息]
     @Transactional
     @GetMapping("/parsForUniqueGroupSubActivity")
-    public RespBean getSubGroup(@RequestParam Integer activityID,@RequestParam Integer groupIDParent) {
+    public RespBean getParsForUniqueGroupSubActivity(@RequestParam Integer activityID,@RequestParam Integer groupIDParent) {
         Integer groupID = groupsMapper.getSubGroupID(activityID,groupIDParent);
         if (groupID == null) { // 创建子活动分组
             Groups group = new Groups(activityID,groupIDParent,"默认子活动小组");
@@ -171,5 +176,17 @@ public class GroupsController {
             return RespBean.ok("success", new ArrayList<>(Arrays.asList(group.getID(),new ArrayList<>())));
         }
         return RespBean.ok("success", new ArrayList<>(Arrays.asList(groupID,groupsMapper.getGroupPars(groupID))));
+    }
+
+    @Transactional
+    @GetMapping("/expertsForUniqueGroupSubActivity")
+    public RespBean getExpertsForUniqueGroupSubActivity(@RequestParam Integer activityID,@RequestParam Integer groupIDParent) {
+        Integer groupID = groupsMapper.getSubGroupID(activityID,groupIDParent);
+        if (groupID == null) { // 创建子活动分组
+            Groups group = new Groups(activityID,groupIDParent,"默认子活动小组");
+            groupsMapper.insertGroup(group); // 插入并返回ID
+            return RespBean.ok("success", new ArrayList<>(Arrays.asList(group.getID(),new ArrayList<>())));
+        }
+        return RespBean.ok("success", new ArrayList<>(Arrays.asList(groupID,groupsMapper.getGroupExperts(groupID))));
     }
 }

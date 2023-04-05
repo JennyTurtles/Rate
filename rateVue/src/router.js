@@ -528,13 +528,11 @@ export default new Router({
       ],
 
     },
-
-
-    // {
-    //   path: '/test',
-    //   name: 'test',
-    //   component: () => import('./views/test'),
-    //   meta: { title: 'test' },
-    // },
+    {
+      path: '/EassignE',
+      name: '分配专家',
+      component: () => import('./views/expert/EassignE'),
+      meta: { title: '分配专家' },
+    },
   ],
 })

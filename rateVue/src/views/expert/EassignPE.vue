@@ -21,26 +21,26 @@
             v-model="tableData"
         >
             <!-- 可以使用插槽获取到列信息和行信息，从而进行数据的处理 -->
-            <template v-slot:default="{scope}">
-                <div>
-<!--                    <span>{{scope.row}}</span>-->
-                    <span v-if="scope.col.id === 'gender'">{{scope.row.gender === '男' ? '男生' : '女生'}}</span>
-                    <span v-else>{{scope.row[scope.col.id]}}</span>
-                </div>
-            </template>
-            <template v-slot:leftCondition="{scope}">
-                <el-form-item label="姓名">
-                    <el-input v-model="scope.name" placeholder="姓名"></el-input>
-                </el-form-item>
-                <el-form-item label="年龄">
-                    <el-input v-model="scope.age" placeholder="年龄"></el-input>
-                </el-form-item>
-            </template>
-            <template v-slot:rightCondition="{scope}">
-                <el-form-item label="名称">
-                    <el-input v-model="scope.name" placeholder="名称"></el-input>
-                </el-form-item>
-            </template>
+<!--            <template v-slot:default="{scope}">-->
+<!--                <div>-->
+<!--&lt;!&ndash;                    <span>{{scope.row}}</span>&ndash;&gt;-->
+<!--&lt;!&ndash;                    <span v-if="scope.col.id === 'gender'">{{scope.row.gender === '男' ? '男生' : '女生'}}</span>&ndash;&gt;-->
+<!--                    <span>{{scope.row[scope.col.id]}}</span>-->
+<!--                </div>-->
+<!--            </template>-->
+<!--            <template v-slot:leftCondition="{scope}">-->
+<!--                <el-form-item label="姓名">-->
+<!--                    <el-input v-model="scope.name" placeholder="姓名"></el-input>-->
+<!--                </el-form-item>-->
+<!--                <el-form-item label="年龄">-->
+<!--                    <el-input v-model="scope.age" placeholder="年龄"></el-input>-->
+<!--                </el-form-item>-->
+<!--            </template>-->
+<!--            <template v-slot:rightCondition="{scope}">-->
+<!--                <el-form-item label="名称">-->
+<!--                    <el-input v-model="scope.name" placeholder="名称"></el-input>-->
+<!--                </el-form-item>-->
+<!--            </template>-->
         </elt-transfer>
 
         <el-dialog
@@ -99,7 +99,7 @@
           <el-button @click="dialogVisible_checkbox = false">关闭</el-button>
         </span>
         </el-dialog>
-
+        <eassignE></eassignE>
     </div>
 </template>
 
@@ -107,6 +107,7 @@
 import eltTransfer from '../../utils/eltTransfer'
 import {Message} from "element-ui";
 import axios from "axios";
+import eassignE from "@/views/expert/EassignE.vue";
 import de from "element-ui/src/locale/lang/de";
 export default {
     name: 'app',
@@ -156,7 +157,8 @@ export default {
         this.init();
     },
     components: {
-        'elt-transfer': eltTransfer
+        'elt-transfer': eltTransfer,
+        eassignE
     },
     methods: {
         fixCount(parID,subID){ // 确保子活动的选手数和和专家数和父活动一致

@@ -41,9 +41,27 @@ public class Experts extends Account {
     private Boolean finished;
 
     private Integer isSecretary;
+    private Integer groupID;
+    private Integer activityID;
 
     public Boolean getFinished() {
         return finished;
+    }
+
+    public Integer getGroupID() {
+        return groupID;
+    }
+
+    public void setGroupID(Integer groupID) {
+        this.groupID = groupID;
+    }
+
+    public Integer getActivityID() {
+        return activityID;
+    }
+
+    public void setActivityID(Integer activityID) {
+        this.activityID = activityID;
     }
 
     public void setFinished(Boolean finished) {

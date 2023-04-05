@@ -54,4 +54,6 @@ public interface ExpertsMapper {
 
     @Select("SELECT COUNT(*) from expertactivities WHERE teacherID = #{teaId}")
     int isExpert(Integer teaId);
+
+    void addParent(List<Experts> list);
 }

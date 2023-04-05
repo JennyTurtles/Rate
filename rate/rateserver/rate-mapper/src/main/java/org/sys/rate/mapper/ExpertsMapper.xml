@@ -151,6 +151,15 @@
 
 <!--  </select>-->
 
+  <insert id="addParent">
+    INSERT INTO expertactivities (`teacherID`,`activityID`, `groupID`,  `finished`,`role`)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id}, #{item.activityID}, #{item.groupID}, #{item.finished},#{item.role})
+    </foreach>
+    ON DUPLICATE KEY UPDATE groupID = values(groupID);
+  </insert>
+
   <select id="selectActivitiesById" parameterType="Integer" resultMap="ResultMapWithA">
       select
       <include refid="Column_ListWithActivities" />

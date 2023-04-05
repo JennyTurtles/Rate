@@ -294,14 +294,14 @@ public class ParticipatesBasicController {
         RespPageBean bean=new RespPageBean();
         bean.setData(list);
         bean.setTotal((long) list.size());
-        RespBean res1 = importPars(groupID,activityID,list.get(0).getInstitutionid(),bean);
-        if(res1.getStatus() == 200) {
+        RespBean res = importPars(groupID,activityID,list.get(0).getInstitutionid(),bean);
+        if(res.getStatus() == 200) {
             Integer res2 = groupsMapper.updateParCount(activityID, groupID);
             if (res2 > 0)
-                return RespBean.ok(res1.getMsg());
+                return RespBean.ok(res.getMsg());
             return RespBean.error("更新选手数量失败");
         }
-        return RespBean.error(res1.getMsg());
+        return RespBean.error(res.getMsg());
     }
 
     @Transactional
@@ -328,6 +328,7 @@ public class ParticipatesBasicController {
         return RespBean.ok("查询成功",participatesList);
     }
 
+    // 为了检查选手是否在主活动存在，在import方法外面套了一层
     @Transactional
     @PostMapping("/subImport")
     public RespBean importSubData(@RequestParam Integer groupid,@RequestParam Integer activityid,

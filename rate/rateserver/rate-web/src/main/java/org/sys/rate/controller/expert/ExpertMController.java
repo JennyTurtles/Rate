@@ -1,9 +1,12 @@
 package org.sys.rate.controller.expert;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.CSVReader;
+import org.sys.rate.mapper.ExpertsMapper;
+import org.sys.rate.mapper.GroupsMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.*;
 import org.sys.rate.service.expert.ExpertService;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.sys.rate.utils.POIUtils;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -38,6 +42,10 @@ public class ExpertMController {
     ScoresService scoresService;
     @Autowired
     LogService logService;
+    @Resource
+    GroupsMapper groupsMapper;
+    @Resource
+    ExpertsMapper expertsMapper;
 
     @GetMapping("/")
     @ResponseBody
@@ -99,10 +107,8 @@ public class ExpertMController {
         logService.addLogs(log);
         return RespBean.error("更新失败!");
     }
-    //3.22 对导入功能的改进和完善
-    @PostMapping("/import")
-    public RespBean importData(@RequestParam Integer groupid,@RequestParam Integer activityid,@RequestParam Integer insititutionID,MultipartFile file) throws IOException, ParseException {
-        RespPageBean bean= POIUtils.readExcel_expert(file);
+
+    private RespBean importExperts(Integer groupid,Integer activityid,Integer insititutionID,RespPageBean bean) throws ParseException {
         List<Experts> list= (List<Experts>) bean.getData();
         if(list==null){
             Log log=new Log();
@@ -131,6 +137,13 @@ public class ExpertMController {
             logService.addLogs(log);
             return RespBean.error("fail",res);
         }
+    }
+
+    //3.22 对导入功能的改进和完善
+    @PostMapping("/import")
+    public RespBean importData(@RequestParam Integer groupid,@RequestParam Integer activityid,@RequestParam Integer insititutionID,MultipartFile file) throws IOException, ParseException {
+        RespPageBean bean= POIUtils.readExcel_expert(file);
+        return importExperts(groupid,activityid,insititutionID,bean);
     }
 
     @PutMapping("/pass")
@@ -174,6 +187,24 @@ public class ExpertMController {
         logService.addLogs(log);
         return RespBean.error("删除失败!");
     }
+
+    @Transactional
+    @PostMapping("/deleteExperts")
+    public RespBean deletePars(@RequestBody List<Experts> expertsList) throws ParseException {
+        for (Experts experts : expertsList) {
+            RespBean respBean = delete(experts.getGroupID(),experts.getActivityID(),experts); // 可以同时删除该选手的评分项和信息项
+            if (respBean.getStatus() == 500){
+                return RespBean.error("删除失败");
+            }
+        }
+        Integer res = groupsMapper.updateExpertCount(expertsList.get(0).getActivityID(),expertsList.get(0).getGroupID());
+        if(res > 0){
+            return RespBean.ok("删除成功");
+        }else {
+            return RespBean.error("删除失败");
+        }
+    }
+
     @ResponseBody
     @GetMapping("/score")
     public Msg getParticiants(@RequestParam(value = "activitiesId")Integer activitiesId){
@@ -190,5 +221,44 @@ public class ExpertMController {
                 .add("scoresList",scoresList);
     }
 
+    @Transactional
+    @PostMapping("/addExperts")
+    public RespBean addPars(@RequestBody List<Experts> list) throws ParseException {
+        Integer activityID = list.get(0).getActivityID();
+        Integer groupID = list.get(0).getGroupID();
+        RespPageBean bean=new RespPageBean();
+        bean.setData(list);
+        bean.setTotal((long) list.size());
+        RespBean res1 = importExperts(groupID,activityID,list.get(0).getInstitutionid(),bean);
+        if(res1.getStatus() == 200) {
+            Integer res2 = groupsMapper.updateExpertCount(activityID, groupID);
+            if (res2 > 0)
+                return RespBean.ok(res1.getMsg());
+            return RespBean.error("更新专家数量失败");
+        }
+        return RespBean.error(res1.getMsg());
+    }
 
+    // 为了检查选手是否在主活动存在，在import方法外面套了一层
+    @Transactional
+    @PostMapping("/subImport")
+    public RespBean importSubData(@RequestParam Integer groupid,@RequestParam Integer activityid,
+                                  @RequestParam Integer insititutionID,@RequestParam Integer actIDParent,@RequestParam Integer groupIDParent,
+                                  MultipartFile file) throws IOException, ParseException {
+        RespPageBean bean =  POIUtils.readExcel_expert(file);
+        RespBean respBean = importExperts(groupid,activityid,insititutionID,bean); // 为了复用才返回respBean
+        if (respBean.getStatus() != 200){ // 检查当前选手是否在主活动中存在
+            RespBean.error(respBean.getMsg());
+        }
+        List<Experts> list= (List<Experts>) bean.getData();
+        for (Experts experts : list) { // 填上主活动的id和大组id
+            experts.setActivityID(actIDParent);
+            experts.setGroupID(groupIDParent);
+            experts.setId(expertsMapper.getID(experts.getIdnumber())); // 懒得考虑性能了
+            experts.setFinished(false);
+            experts.setRole("专家");
+        }
+        expertsMapper.addParent(list); // 如果存在父活动则不新增，不存在则新增
+        return RespBean.ok(respBean.getMsg());
+    }
 }
