@@ -147,4 +147,27 @@ public class GraduateStudentService {
             return Msg.fail();
         }return Msg.success();
     }
+    public RespBean editgraduateStudent(GraduateStudent graduate){
+        //目的不在于更改老师表中的信息
+        //直接限定老师名字和工号必须填写了
+        try {
+            Teachers tea = null;
+            //先判断有没有这个导师的存在
+            if(graduate.getTeachers().getJobnumber() != null && !graduate.getTeachers().getJobnumber().equals("")){
+                tea = teachersMapper.selectTeaByJobnumber(graduate.getTeachers().getJobnumber());
+                if(tea == null){//有工号，但是没有查到，说明工号错误
+                    return RespBean.error("未查询到该老师");
+                }
+                //如果根据工号查到了这个老师，但是数据库的老师名字和前端传来的老师名字不同，说明信息填写错误
+                if(graduate.getTeachers().getName()!= null && !graduate.getTeachers().getName().equals("") && !tea.getName().equals(graduate.getTeachers().getName())){
+                    return RespBean.error("该老师工号和姓名不符，请仔细检查信息");
+                }
+                graduate.setTutorID(tea.getID());//重新设置导师id
+                graduateStudentMapper.editGraduateStudent(graduate);
+            }
+        }catch (Exception e){
+            return RespBean.error("处理失败");
+        }return RespBean.ok("更新成功");
+    }
+
 }

@@ -26,7 +26,7 @@
         <el-table-column prop="teachers.name" label="导师姓名" align="center"></el-table-column>
         <el-table-column  label="操作" align="center">
           <template slot-scope="scope">
-            <el-button size="mini"  icon="el-icon-edit" plain @click="deleteUnder(scope.row)" type="primary">编辑</el-button>
+            <el-button size="mini"  icon="el-icon-edit" plain @click="editDialogShow(scope.row)" type="primary">编辑</el-button>
             <el-button size="mini" type="danger" icon="el-icon-delete" plain @click="deleteUnder(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -44,11 +44,17 @@
           <el-form-item label="学生姓名">
             <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.name"></el-input>
           </el-form-item>
-          <el-form-item label="学生手机号">
+          <el-form-item label="学生电话">
             <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.telephone"></el-input>
           </el-form-item>
           <el-form-item label="学生邮箱">
             <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.email"></el-input>
+          </el-form-item>
+          <el-form-item label="学生类别">
+            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.studentType"></el-input>
+          </el-form-item>
+          <el-form-item label="学生积分">
+            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.point"></el-input>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
@@ -79,7 +85,9 @@ export default {
         studentID:null,
         tutorID:null,
         telephone:'',
-        email:''
+        email:'',
+        studentType:'',
+        point:''
       },
     }
   },
@@ -97,24 +105,25 @@ export default {
       this.currentGraduateStudentOfEdit = data
     },
     editGraduate(){//点击编辑中的确定按钮
-      if(this.currentGraduateStudentOfEdit.teachers.name == '' || this.currentGraduateStudentOfEdit.teachers.jobnumber == ''){
+      if(this.currentGraduateStudentOfEdit.teachers.name == '' || this.currentGraduateStudentOfEdit.teachers.jobnumber == '' ||
+          this.currentGraduateStudentOfEdit.teachers.name == null || this.currentGraduateStudentOfEdit.teachers.jobnumber == null){
         this.$message.warning('请填写老师姓名和工号！')
         return
       }
       let data = this.currentGraduateStudentOfEdit
-      this.postRequest('/undergraduateM/basic/editUnderGraduateStudent',data).then((resp)=>{
+      this.postRequest('/graduatestudentM/basic/editGraduateStudent',data).then((resp)=>{
         if(resp){
           if(resp.status == 200){
             this.dialogEdit = false
             this.$message.success(resp.msg)
-            this.initUnderGraduateStudents()
+            this.initGraduateStudents()
           }else {
             this.$message.error(resp)
           }
         }
       })
     },
-    deleteUnder(data){//删除本科生
+    deleteUnder(data){//删除研究生
       this.postRequest('/graduatestudentM/basic/deleteGraduateStudent',data).then((resp)=>{
         if(resp.code == 200){
           this.$message.success('删除成功')

@@ -78,4 +78,15 @@
     <delete id="deleteGraduateStudent" parameterType="org.sys.rate.model.GraduateStudent">
         delete from graduatestudent where ID = #{ID}
     </delete>
+    <update id="editGraduateStudent" parameterType="org.sys.rate.model.GraduateStudent">
+        UPDATE student SET name=#{name,jdbcType=VARCHAR},
+                           telephone=#{telephone,jdbcType=VARCHAR},
+                           email=#{email,jdbcType=VARCHAR}
+        where ID=#{studentID,jdbcType=INTEGER};
+        UPDATE graduatestudent
+        SET tutorID = #{tutorID},
+            studentType = #{studentType},
+            point = #{point}
+        where ID=#{ID,jdbcType=INTEGER};
+    </update>
 </mapper>
