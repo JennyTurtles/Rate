@@ -389,4 +389,13 @@
             <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
         </where>
     </select>
+    <update id="updateRoleOfTeachers" parameterType="org.sys.rate.model.Teachers">
+        <foreach collection="list" item="teachers" open="" close="" separator=";">
+            update teacher
+            <set>
+                role = #{teachers.role}
+            </set>
+            where ID = #{teachers.ID}
+        </foreach>
+    </update>
 </mapper>

@@ -97,6 +97,7 @@ public class UnderGraduateService {
         }
         List<Teachers> jobTeachers = new ArrayList<>();
         List<Teachers> nameTeachers = new ArrayList<>();
+        List<Teachers> updateTeachers = new ArrayList<>();
         if(jobTeas.size() > 0){
             jobTeachers = teachersMapper.selectTeasByJobnumber(jobTeas);
             for(int i = 0;i < underList.size();i++) {
@@ -105,6 +106,12 @@ public class UnderGraduateService {
                 }
                 for (int j = 0; j < jobTeachers.size(); j++) {
                     if (underList.get(i).getTeachers().getJobnumber().equals(jobTeachers.get(j).getJobnumber())) {
+                        String tearole = jobTeachers.get(j).getRole();
+                        if(!tearole.contains("10")){
+                            tearole += ";10";
+                            jobTeachers.get(j).setRole(tearole);
+                            updateTeachers.add(jobTeachers.get(j));
+                        }
                         underList.get(i).setTeachers(jobTeachers.get(j));
                         underList.get(i).setTutorID(jobTeachers.get(j).getID());
                         break;
@@ -120,6 +127,12 @@ public class UnderGraduateService {
                 }
                 for (int j = 0; j < nameTeachers.size(); j++) {
                     if (underList.get(i).getTeachers().getName().equals(nameTeachers.get(j).getName())) {
+                        String tearole = nameTeachers.get(j).getRole();
+                        if(!tearole.contains("10")){
+                            tearole += ";10";
+                            nameTeachers.get(j).setRole(tearole);
+                            updateTeachers.add(nameTeachers.get(j));
+                        }
                         underList.get(i).setTeachers(nameTeachers.get(j));
                         underList.get(i).setTutorID(nameTeachers.get(j).getID());
                         break;
@@ -151,6 +164,9 @@ public class UnderGraduateService {
 //            }
             if(insertUnder.size() > 0){
                 underGraduateMapper.insertFROMImport(insertUnder);
+            }
+            if(updateTeachers.size() > 0){//需要对老师的role字段进行更新
+                teachersMapper.updateRoleOfTeachers(updateTeachers);
             }
         }catch (Exception e){
             return RespBean.error("error");

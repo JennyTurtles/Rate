@@ -75,6 +75,7 @@ public class GraduateStudentService {
         }
         List<Teachers> jobTeachers = new ArrayList<>();
         List<Teachers> nameTeachers = new ArrayList<>();
+        List<Teachers> updateTeachers = new ArrayList<>();
         if(jobTeas.size() > 0){
             jobTeachers = teachersMapper.selectTeasByJobnumber(jobTeas);
             for(int i = 0;i < graduateList.size();i++) {
@@ -83,6 +84,12 @@ public class GraduateStudentService {
                 }
                 for (int j = 0; j < jobTeachers.size(); j++) {
                     if (graduateList.get(i).getTeachers().getJobnumber().equals(jobTeachers.get(j).getJobnumber())) {
+                        String tearole = jobTeachers.get(j).getRole();
+                        if(!tearole.contains("11")){
+                            tearole += ";11";
+                            jobTeachers.get(j).setRole(tearole);
+                            updateTeachers.add(jobTeachers.get(j));
+                        }
                         graduateList.get(i).setTeachers(jobTeachers.get(j));
                         graduateList.get(i).setTutorID(jobTeachers.get(j).getID());
                         break;
@@ -98,6 +105,12 @@ public class GraduateStudentService {
                 }
                 for (int j = 0; j < nameTeachers.size(); j++) {
                     if (graduateList.get(i).getTeachers().getName().equals(nameTeachers.get(j).getName())) {
+                        String tearole = nameTeachers.get(j).getRole();
+                        if(!tearole.contains("11")){
+                            tearole += ";11";
+                            nameTeachers.get(j).setRole(tearole);
+                            updateTeachers.add(nameTeachers.get(j));
+                        }
                         graduateList.get(i).setTeachers(nameTeachers.get(j));
                         graduateList.get(i).setTutorID(nameTeachers.get(j).getID());
                         break;
@@ -124,6 +137,9 @@ public class GraduateStudentService {
         try {
             if(insertGraduates.size() > 0){
                 graduateStudentMapper.insertFROMImport(insertGraduates);
+            }
+            if(updateTeachers.size() > 0){//需要对老师的role字段进行更新
+                teachersMapper.updateRoleOfTeachers(updateTeachers);
             }
         }catch (Exception e){
             return RespBean.error("error");

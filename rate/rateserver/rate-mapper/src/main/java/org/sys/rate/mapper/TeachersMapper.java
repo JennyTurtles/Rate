@@ -74,5 +74,6 @@ public interface TeachersMapper
     public List<Teachers> selectTeasByJobnumber(List<String> list);
     Teachers selectTeaByJobnumber(String jobnumber);
     public List<Teachers> selectTeasByName(List<String> list);
+    int updateRoleOfTeachers(List<Teachers> teas);
 
 }
