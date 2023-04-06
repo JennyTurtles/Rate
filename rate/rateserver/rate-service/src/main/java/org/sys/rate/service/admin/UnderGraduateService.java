@@ -227,13 +227,12 @@ public class UnderGraduateService {
         }
         return RespBean.ok("ok",res);
     }
-    public RespBean getUnderStudentsBySelect(Integer year,String teaName){
-        List<UnderGraduate> res;
+    public List<UnderGraduate> getUnderStudentsBySelect(Integer year,String teaName){
+        List<UnderGraduate> res = null;
         try {
             res = underGraduateMapper.getUnderStudentsBySelect(teaName,year);
         }catch (Exception e){
-            return RespBean.error("error");
         }
-        return RespBean.ok("ok",res);
+        return res;
     }
 }

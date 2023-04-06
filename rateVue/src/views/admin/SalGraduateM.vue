@@ -142,10 +142,10 @@ export default {
   name: "SalGraduateM",
   data(){
     return{
-      pageSizes:[20,20,20,20,30],
+      pageSizes:[10,20,20,20,30],
       totalCount:0,
       currentPage:1,
-      pageSize:20,
+      pageSize:10,
       isSelectYearFlag:false,
       isSelectYearShow:false,
       selectYearsList:[],
@@ -206,11 +206,13 @@ export default {
       if(this.selectYear == ''){
         tempYear = 0
       }
-      let url = '/graduatestudentM/basic/getGraduateStudentsBySelect?year=' + parseInt(tempYear) + '&teaName=' + this.selectTeacerName
+      let url = '/graduatestudentM/basic/getGraduateStudentsBySelect?year=' + parseInt(tempYear) + '&teaName=' + this.selectTeacerName +
+          '&pageNum=' + this.currentPage + '&pageSize=' + this.pageSize
       this.getRequest(url).then((resp)=>{
         if(resp){
           if(resp.status == 200){
-            this.graduateStudents = resp.obj
+            this.graduateStudents = resp.obj[0]
+            this.totalCount = resp.obj[1]
           }
         }
       })
@@ -314,13 +316,22 @@ export default {
       this.pageSize=val
       // 注意：在改变每页显示的条数时，要将页码显示到第一页
       this.currentPage=1
-      this.initGraduateStudents(this.currentPage,this.pageSize)
+      //没有筛选条件
+      if((this.selectYear == '' || this.selectYear == null) && (this.selectTeacerName == '' || this.selectTeacerName == null)){
+        this.initGraduateStudents(this.currentPage,this.pageSize)
+      }else {//筛选条件不为空
+        this.filterBtn()
+      }
     },
     // 显示第几页
     handleCurrentChange(val) {
       // 改变默认的页数
       this.currentPage=val;
-      this.initGraduateStudents(this.currentPage,this.pageSize)
+      if((this.selectYear == '' || this.selectYear == null) && (this.selectTeacerName == '' || this.selectTeacerName == null)){
+        this.initGraduateStudents(this.currentPage,this.pageSize)
+      }else {//筛选条件不为空
+        this.filterBtn()
+      }
     },
     initSelectYearsList(){
       let timeDate = new Date()

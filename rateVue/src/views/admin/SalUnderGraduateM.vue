@@ -199,11 +199,13 @@ export default {
       if(this.selectYear == ''){
         tempYear = 0
       }
-      let url = '/undergraduateM/basic/getUnderStudentsBySelect?year=' + parseInt(tempYear) + '&teaName=' + this.selectTeacerName
+      let url = '/undergraduateM/basic/getUnderStudentsBySelect?year=' + parseInt(tempYear) + '&teaName=' + this.selectTeacerName +
+          '&pageNum=' + this.currentPage + '&pageSize=' + this.pageSize
       this.getRequest(url).then((resp)=>{
         if(resp){
           if(resp.status == 200){
-            this.undergraduateStudents = resp.obj
+            this.undergraduateStudents = resp.obj[0]
+            this.totalCount = resp.obj[1]
           }
         }
       })
@@ -318,13 +320,21 @@ export default {
       this.pageSize=val
       // 注意：在改变每页显示的条数时，要将页码显示到第一页
       this.currentPage=1
-      this.initUnderGraduateStudents(this.currentPage,this.pageSize)
+      if((this.selectYear == '' || this.selectYear == null) && (this.selectTeacerName == '' || this.selectTeacerName == null)){
+        this.initUnderGraduateStudents(this.currentPage,this.pageSize)
+      }else {//筛选条件不为空
+        this.filterBtn()
+      }
     },
     // 显示第几页
     handleCurrentChange(val) {
       // 改变默认的页数
       this.currentPage=val;
-      this.initUnderGraduateStudents(this.currentPage,this.pageSize)
+      if((this.selectYear == '' || this.selectYear == null) && (this.selectTeacerName == '' || this.selectTeacerName == null)){
+        this.initUnderGraduateStudents(this.currentPage,this.pageSize)
+      }else {//筛选条件不为空
+        this.filterBtn()
+      }
     },
     initUnderGraduateStudents(curr,pagesize){//初始化本科生
       //因为很多不同情况下都要初始化数据，所以不能只依靠data中都两个参数

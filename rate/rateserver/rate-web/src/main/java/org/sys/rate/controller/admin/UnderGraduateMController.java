@@ -66,7 +66,11 @@ public class UnderGraduateMController {
         return underGraduateService.getTeaNamesBySelect(teaName);
     }
     @GetMapping("/getUnderStudentsBySelect")
-    public RespBean getUnderStudentsBySelect(Integer year, String teaName){
-        return underGraduateService.getUnderStudentsBySelect(year,teaName);
+    public RespBean getUnderStudentsBySelect(@RequestParam("year")Integer year,@RequestParam("teaName")String teaName,@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
+        Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
+        List<UnderGraduate> t = underGraduateService.getUnderStudentsBySelect(year,teaName);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {t,info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return RespBean.ok("ok",res);
     }
 }

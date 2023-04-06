@@ -200,13 +200,12 @@ public class GraduateStudentService {
         }
         return RespBean.ok("ok",res);
     }
-    public RespBean getGraduateStudentsBySelect(Integer year, String teaName){
-        List<GraduateStudent> res;
+    public List<GraduateStudent> getGraduateStudentsBySelect(Integer year, String teaName){
+        List<GraduateStudent> res = null;
         try {
             res = graduateStudentMapper.getGraduateStudentsBySelect(teaName,year);
         }catch (Exception e){
-            return RespBean.error("error");
         }
-        return RespBean.ok("ok",res);
+        return res;
     }
 }

@@ -65,7 +65,11 @@ public class GraduateStudentMController {
         return graduateStudentService.getTeaNamesBySelect(teaName);
     }
     @GetMapping("/getGraduateStudentsBySelect")
-    public RespBean getGraduateStudentsBySelect(Integer year, String teaName){
-        return graduateStudentService.getGraduateStudentsBySelect(year,teaName);
+    public RespBean getGraduateStudentsBySelect(@RequestParam("year")Integer year,@RequestParam("teaName")String teaName,@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
+        Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
+        List<GraduateStudent> t = graduateStudentService.getGraduateStudentsBySelect(year,teaName);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {t,info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return RespBean.ok("ok",res);
     }
 }
