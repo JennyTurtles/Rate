@@ -169,8 +169,17 @@ public class GraduateStudentService {
             return RespBean.error("处理失败");
         }return RespBean.ok("更新成功");
     }
-    public RespBean getGraduateStudentsBySelect(Integer year, String teaName){
+    public RespBean getTeaNamesBySelect(String teaName){
         List<String> res;
+        try {
+            res = graduateStudentMapper.getTeaNamesBySelect(teaName);
+        }catch (Exception e){
+            return RespBean.error("error");
+        }
+        return RespBean.ok("ok",res);
+    }
+    public RespBean getGraduateStudentsBySelect(Integer year, String teaName){
+        List<GraduateStudent> res;
         try {
             res = graduateStudentMapper.getGraduateStudentsBySelect(teaName,year);
         }catch (Exception e){

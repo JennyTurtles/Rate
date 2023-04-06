@@ -196,10 +196,19 @@ public class UnderGraduateService {
             return RespBean.error("处理失败");
         }return RespBean.ok("更新成功");
     }
-    public RespBean getUnderStudentsBySelect(String teaName){
+    public RespBean getTeaNamesBySelect(String teaName){
         List<String> res;
         try {
-            res = underGraduateMapper.getUnderStudentsBySelect(teaName);
+            res = underGraduateMapper.getTeaNamesBySelect(teaName);
+        }catch (Exception e){
+            return RespBean.error("error");
+        }
+        return RespBean.ok("ok",res);
+    }
+    public RespBean getUnderStudentsBySelect(Integer year,String teaName){
+        List<UnderGraduate> res;
+        try {
+            res = underGraduateMapper.getUnderStudentsBySelect(teaName,year);
         }catch (Exception e){
             return RespBean.error("error");
         }

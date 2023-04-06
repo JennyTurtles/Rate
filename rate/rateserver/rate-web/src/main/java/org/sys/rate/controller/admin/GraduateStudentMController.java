@@ -52,7 +52,11 @@ public class GraduateStudentMController {
     public RespBean editGraduateStudent(@RequestBody GraduateStudent graduate){
         return graduateStudentService.editgraduateStudent(graduate);
     }
-    //根据页面的筛选框进行查找研究生信息（year没用到，先保留着吧）
+    //根据页面的筛选框进行查找老师姓名
+    @GetMapping("/getTeaNamesBySelect")
+    public RespBean getTeaNamesBySelect(String teaName){
+        return graduateStudentService.getTeaNamesBySelect(teaName);
+    }
     @GetMapping("/getGraduateStudentsBySelect")
     public RespBean getGraduateStudentsBySelect(Integer year, String teaName){
         return graduateStudentService.getGraduateStudentsBySelect(year,teaName);

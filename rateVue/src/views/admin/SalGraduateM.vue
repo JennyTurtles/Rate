@@ -43,6 +43,18 @@
           </div>
         </div>
       </div>
+      <el-select
+            style="margin-left: 30px"
+            placeholder="请选择入学年份"
+            v-model="selectYear">
+          <el-option
+              v-for="val in selectYearsList"
+              :key="val"
+              :label="val"
+              :value="val">
+          </el-option>
+      </el-select>
+      <el-button @click="filterBtn" style="margin-left: 30px;" type="primary" size="mini">筛选</el-button>
     </div>
     <div style="margin-top: 10px">
       <el-table
@@ -103,6 +115,7 @@ export default {
   name: "SalGraduateM",
   data(){
     return{
+      selectYearsList:[],
       isSelectFlag:false,
       isSelectShow:false,//搜索老师名字的搜索框
       timer:null,
@@ -144,9 +157,23 @@ export default {
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
+    this.initSelectYearsList()
     this.initGraduateStudents()
   },
   methods:{
+    filterBtn(){//点击筛选按钮
+      if(this.selectYear == ''){
+        this.selectYear = 0
+      }
+      let url = '/graduatestudentM/basic/getGraduateStudentsBySelect?year=' + parseInt(this.selectYear) + '&teaName=' + this.selectTeacerName
+      this.getRequest(url).then((resp)=>{
+        if(resp){
+          if(resp.status == 200){
+            this.graduateStudents = resp.obj
+          }
+        }
+      })
+    },
     filter_teas(val){//点击某个筛选出来的名字
       this.selectTeacerName = val
       this.isSelectShow=false
@@ -159,12 +186,9 @@ export default {
       if(!val){
         return
       }
-      if(this.selectYear == ''){
-        this.selectYear = 0
-      }
       let that = this
       this.timer = setTimeout(()=>{
-        let url = '/graduatestudentM/basic/getGraduateStudentsBySelect?year=' + parseInt(this.selectYear) + '&teaName=' + this.selectTeacerName
+        let url = '/graduatestudentM/basic/getTeaNamesBySelect?teaName=' + this.selectTeacerName
         that.getRequest(url).then((resp)=>{
           that.select_teachers = []
           if(resp){
@@ -236,6 +260,12 @@ export default {
       this.$message.success('正在下载')
       window.open(url,'_parent')
     },
+    initSelectYearsList(){
+      let timeDate = new Date()
+      let temp1 = Array.from(Array(timeDate.getFullYear() - 20).keys(), n=>n+1)
+      let temp2 = Array.from(Array(timeDate.getFullYear()).keys(), n=>n+1)
+      this.selectYearsList = temp2.filter(item1 => !temp1.some(item2 => item2 === item1))//去掉两者相同的，留下不同的
+    },
     initGraduateStudents(){
       this.getRequest('/graduatestudentM/basic/getGraduateStudents').then((response)=>{
         if(response.code == 200){
@@ -249,11 +279,11 @@ export default {
 
 <style scoped>
 .select_div_input{
-  /*margin-left:3px;*/
   width:30%;
   height:32px;
   position:relative;
   display:inline-block
+
 }
 .select_div{
   border: .5px solid lightgray;

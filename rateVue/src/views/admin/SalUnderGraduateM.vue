@@ -43,6 +43,53 @@
           </div>
         </div>
       </div>
+      <div class="select_div_input">
+        <input
+            autocomplete="off"
+            style="width:95%;line-height:28px;
+                              border:1px solid lightgrey;padding:0 10px 1px 15px;
+                              border-radius:4px;color:gray"
+            placeholder="请输入入学年份"
+            v-model="selectYear"
+            @focus="inputSelectYearFocus"
+            @blur="isSelectYearShow = isSelectYearFlag"/>
+        <div class="select_div"
+             id="select_div_options"
+             v-show="isSelectYearShow"
+             :style="'height:${menuHeight}'"
+             @mouseover="isSelectYearFlag = true"
+             @mouseleave="isSelectYearFlag = false"
+        >
+          <div
+              class="select_div_div"
+              v-for="val in selectYearsList"
+              :key="val"
+              :value="val"
+              @click="filter_teas(val)"
+          >
+            {{ val }}
+          </div>
+        </div>
+      </div>
+
+      <!--      <el-select-->
+<!--          allow-create-->
+<!--          filterable-->
+<!--          clearable-->
+<!--          style="margin-left: 30px"-->
+<!--          default-first-option-->
+<!--          @change="onTypeBlur"-->
+<!--          placeholder="请选择入学年份"-->
+<!--          ref="yearSel"-->
+<!--          v-model="selectYear">-->
+<!--        <el-option-->
+<!--            v-for="val in selectYearsList"-->
+<!--            :key="val"-->
+<!--            :label="val"-->
+<!--            :value="val">-->
+<!--        </el-option>-->
+<!--      </el-select>-->
+      <el-button @click="filterBtn" style="margin-left: 30px;" type="primary" size="mini">筛选</el-button>
     </div>
 
     <div style="margin-top: 10px">
@@ -97,8 +144,12 @@ export default {
   name: "SalStudentM",
   data(){
     return {
+      isSelectYearFlag:false,
+      isSelectYearShow:false,
+      selectYearsList:[],
       isSelectFlag:false,
       isSelectShow:false,//搜索老师名字的搜索框
+      yearTimer:null,
       timer:null,
       select_teachers:[],
       selectTeacerName:'',
@@ -136,9 +187,34 @@ export default {
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
+    this.initSelectYearsList()
+    let scrollEle = document.addEventListener('scroll',this.scrollingYear())
     this.initUnderGraduateStudents()
   },
   methods:{
+    scrollingYear(){
+      if(this.yearTimer){
+        clearTimeout(this.yearTimer)
+      }
+      this.yearTimer
+    },
+    inputSelectYearFocus(){
+      this.isSelectYearShow = true
+    },
+    filterBtn(){//点击筛选按钮
+      let tempYear = this.selectYear
+      if(this.selectYear == ''){
+        tempYear = 0
+      }
+      let url = '/undergraduateM/basic/getUnderStudentsBySelect?year=' + parseInt(tempYear) + '&teaName=' + this.selectTeacerName
+      this.getRequest(url).then((resp)=>{
+        if(resp){
+          if(resp.status == 200){
+            this.undergraduateStudents = resp.obj
+          }
+        }
+      })
+    },
     filter_teas(val){//点击某个筛选出来的名字
       this.selectTeacerName = val
       this.isSelectShow=false
@@ -156,7 +232,7 @@ export default {
       }
       let that = this
       this.timer = setTimeout(()=>{
-        let url = '/undergraduateM/basic/getUnderStudentsBySelect?teaName=' + this.selectTeacerName
+        let url = '/undergraduateM/basic/getTeaNamesBySelect?teaName=' + this.selectTeacerName
         that.getRequest(url).then((resp)=>{
           that.select_teachers = []
           if(resp){
@@ -227,6 +303,12 @@ export default {
       this.$message.success('正在下载')
       window.open(url,'_parent')
     },
+    initSelectYearsList(){
+      let timeDate = new Date()
+      let temp1 = Array.from(Array(timeDate.getFullYear() - 20).keys(), n=>n+1)
+      let temp2 = Array.from(Array(timeDate.getFullYear()).keys(), n=>n+1)
+      this.selectYearsList = temp2.filter(item1 => !temp1.some(item2 => item2 === item1))//去掉两者相同的，留下不同的
+    },
     initUnderGraduateStudents(){
       this.getRequest('/undergraduateM/basic/getUnderGraduateStudents').then((response)=>{
         if(response.code == 200){
@@ -254,7 +336,7 @@ export default {
   position: absolute;
   background-color: #fff;
   z-index: 999;
-  overflow: hidden;
+  overflow: scroll;
   width: 90%;
   cursor: pointer;
 }

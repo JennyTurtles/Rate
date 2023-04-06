@@ -86,13 +86,24 @@
             point = #{point}
         where ID=#{ID,jdbcType=INTEGER};
     </update>
-    <select id="getGraduateStudentsBySelect" resultType="java.lang.String">
+    <select id="getTeaNamesBySelect" resultType="java.lang.String">
         select t.name
         from graduatestudent g,teacher t
         <where>
-            <if test="year != null and year != 0">and year = #{year}</if>
             <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
             and g.tutorID = t.ID
+        </where>
+    </select>
+    <select id="getGraduateStudentsBySelect" resultMap="BaseResultMap">
+        select u.*,s.name,s.telephone,s.email,s.IDNumber,t.name as tname,t.jobnumber as tjobnumber
+        from graduatestudent u
+        left join teacher t
+        on u.tutorID=t.ID
+        left join student s
+        on u.studentID=s.ID
+        <where>
+            <if test="year != null and year != 0">and u.year = #{year}</if>
+            <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
         </where>
     </select>
 </mapper>

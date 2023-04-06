@@ -54,8 +54,12 @@ public class UnderGraduateMController {
         return underGraduateService.editUnderStudent(under);
     }
     //根据页面的筛选框进行查找本科生信息
+    @GetMapping("/getTeaNamesBySelect")
+    public RespBean getTeaNamesBySelect(String teaName){
+        return underGraduateService.getTeaNamesBySelect(teaName);
+    }
     @GetMapping("/getUnderStudentsBySelect")
-    public RespBean getUnderStudentsBySelect(String teaName){
-        return underGraduateService.getUnderStudentsBySelect(teaName);
+    public RespBean getUnderStudentsBySelect(Integer year, String teaName){
+        return underGraduateService.getUnderStudentsBySelect(year,teaName);
     }
 }
