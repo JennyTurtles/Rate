@@ -113,9 +113,6 @@ public class PaperCommentController {
         return new JsonResult<>(Stu);
     }
 
-
-
-
     /**
      * 通过thesisID返回需要打印的pdf文件
      */

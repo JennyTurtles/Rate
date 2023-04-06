@@ -2,6 +2,7 @@ package org.sys.rate.utils;
 
 
 import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.*;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.PaperComment;
@@ -16,14 +17,19 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URL;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * @Return null
  * @author zyk
+ * @Return null
  * @description 完成下载功能
  * @date 2023/4/4 16:50
  */
@@ -38,7 +44,7 @@ public class Download {
     @Resource
     PaperCommentService paperCommentService;
 
-    public void preDownload(HttpServletResponse response, Integer thesisID){
+    public void preDownload(HttpServletResponse response, Integer thesisID) {
         // 获取thesis的信息
         Thesis thesis = paperCommentService.getThesisByTID(thesisID);
         // 获取学生的信息
@@ -64,10 +70,7 @@ public class Download {
         // 定义输出文件的路径
         String DEST = "upload/paperComment/";
         // 定义字体的路径
-        final String FONT_PATH_Hei = "upload/templete/hei.ttf";
         final String FONT_PATH_Song = "upload/templete/song.ttf";
-
-//        final String FONT_PATH_Kai = "upload/templete/GB2312.ttf";
 
         // 填充表格中的信息
         Map<String, Object> model = new HashMap<>();
@@ -76,15 +79,16 @@ public class Download {
         model.put("teacher", teacher);
         model.put("paparcomment", paperComments);
 
+//        String fileName = student.getName() + "-" + "" + ".pdf";
+//        String fileName = student.getName() + "-" + System.currentTimeMillis()/1000 + ".pdf";
         String fileName = student.getName() + "-" + UUID.randomUUID().toString() + ".pdf";
 
         try {
             os = new FileOutputStream(new File(DEST + fileName));
             // 2 读入pdf表单
             reader = new PdfReader(TEMP);
-            // 3 根据表单生成一个新的pdf,os是本地， response.getOutputStream()是网络
+            // 3 根据表单生成一个新的pdf
             ps = new PdfStamper(reader, os);
-            ps.setFullCompression();
             // 4 获取pdf表单
             AcroFields form = ps.getAcroFields();
             // 5 给表单添加中文字体
@@ -113,15 +117,14 @@ public class Download {
                 data.put("DateTea" + (i + 1), paperComments.get(i).getDateTea() == null || paperComments.get(i).getDateTea().isEmpty() ? "" : paperComments.get(i).getDateTea());
             }
 
-
             // 7遍历data 给pdf表单表格赋值
             for (String key : data.keySet()) {
                 // 进行key判断
                 form.setFieldProperty(key, "textfont", FontSong, null);
-                if (key.equals("stuNameFirst") || key.equals("stuID") || key.equals("tutorName")) {
-                    form.setFieldProperty(key, "textsize", 16f, null);
-                } else if (key.equals("stuName") || key.equals("num")) {
+                if (key.equals("stuName") || key.equals("num")) {
                     form.setFieldProperty(key, "textsize", 12f, null);
+                } else if (key.equals("stuNameFirst") || key.equals("stuID") || key.equals("tutorName")) {
+                    form.setFieldProperty(key, "textsize", 16f, null);
                 } else {
                     form.setFieldProperty(key, "textsize", 10.5f, null);
                 }
@@ -129,7 +132,6 @@ public class Download {
             }
             ps.setFormFlattening(true);
             System.out.println("===============PDF导出成功=============");
-
         } catch (Exception e) {
             System.out.println("===============PDF导出失败=============");
             e.printStackTrace();
@@ -138,14 +140,16 @@ public class Download {
                 ps.close();
                 reader.close();
                 os.close();
-                if (paperComments.size() != 10 && paperComments.size()!=20) {
+                if (paperComments.size() != 10 && paperComments.size() != 20) {
+//                    String fileNewName = student.getName() + "-" + System.currentTimeMillis()/1000 + ".pdf";
+//                    String fileNewName = student.getName() + "-" + "1" + ".pdf";
                     String fileNewName = student.getName() + "-" + UUID.randomUUID().toString() + ".pdf";
-                    removePageFromPDF(DEST+fileName, DEST + fileNewName, paperComments.size() + 1);
+                    removePageFromPDF(DEST + fileName, DEST + fileNewName, paperComments.size() + 1);
                     getDownload(response, DEST + fileNewName, false);
                 } else {
                     getDownload(response, DEST + fileName, false);
                 }
-                deleteAllFiles("upload/paperComment");
+                deleteAllFiles(DEST);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -164,7 +168,7 @@ public class Download {
 
         response.reset(); // 非常重要
         int index = f.getName().indexOf("-");
-        String filename = f.getName().substring(0,index) + "毕业设计(论文)记录本";
+        String filename = f.getName().substring(0, index) + "毕业设计(论文)记录本.pdf";
         if (isOnLine) {
             // 在线打开方式
             URL u = new URL("file:///" + filePath);
@@ -173,7 +177,7 @@ public class Download {
             // 文件名应该编码成UTF-8
         } else {
             // 纯下载方式
-            response.setContentType("application/pdf");
+            response.setContentType("application/pdf;charset=utf-8");
             response.setHeader("Content-Disposition", "attachment; filename=" + java.net.URLEncoder.encode(filename, "UTF-8"));
         }
         OutputStream out = response.getOutputStream();
@@ -184,30 +188,62 @@ public class Download {
         out.close();
     }
 
-    public void deleteAllFiles(String path){
+    public synchronized void deleteAllFiles(String path) {
+        Logger logger = Logger.getLogger("upload/DeleteErrLog");
         File directory = new File(path);
         File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
-                file.delete();
+                try (FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.WRITE)) {
+                    // Acquire an exclusive lock on the file
+                    FileLock lock = channel.lock();
+                    try {
+                        // Delete the file
+                        file.delete();
+                    } catch (SecurityException e) {
+                        // handle the exception here
+                        logger.log(Level.WARNING, "Unable to delete file: " + file.getName(), e);
+                    } finally {
+                        // Release the lock on the file
+                        lock.release();
+                    }
+                } catch (IOException e) {
+                    // handle the exception here
+                    logger.log(Level.WARNING, "Unable to acquire lock on file: " + file.getName(), e);
+                }
             }
         }
     }
 
-    public void removePageFromPDF(String path, String tempPath, int page) throws Exception {
-        PdfReader reader = new PdfReader(path);
-        File tmpNewFile = new File(tempPath);
-        FileOutputStream fos = new FileOutputStream(tmpNewFile);
-        Document d = new Document();
-        PdfCopy copy = new PdfCopy(d, fos);
-        d.open();
-        for (int i = 1; i <= page; ++i) {
-            copy.addPage(copy.getImportedPage(reader, i));
+
+
+    public void removePageFromPDF(String path, String tempPath, int page) throws Exception,DocumentException,IOException {
+        PdfReader reader = null;
+        FileOutputStream fos = null;
+        try {
+            reader = new PdfReader(path);
+            File tmpNewFile = new File(tempPath);
+            fos = new FileOutputStream(tmpNewFile);
+            Document d = new Document();
+            PdfCopy copy = new PdfCopy(d, fos);
+            d.open();
+            for (int i = 1; i <= page; ++i) {
+                copy.addPage(copy.getImportedPage(reader, i));
+            }
+            copy.freeReader(reader);
+            reader.close();
+            d.close();
+        } catch (FileNotFoundException e1) {
+            e1.printStackTrace();
+        } catch (DocumentException e1) {
+            e1.printStackTrace();
+        } catch (IOException e2) {
+            e2.printStackTrace();
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
         }
-        copy.freeReader(reader);
-        reader.close();
-        d.close();
-        fos.close();
     }
 
     public String adaptRows(String origin, int ROWSLIMIT) {
