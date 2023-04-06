@@ -184,7 +184,7 @@ export default {
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
     this.initSelectYearsList()
-    this.initUnderGraduateStudents()
+    this.initUnderGraduateStudents(this.currentPage,this.pageSize)
   },
   methods:{
     inputSelectYearFocus(){//年份输入框获得焦点
@@ -261,7 +261,7 @@ export default {
           if(resp.status == 200){
             this.dialogEdit = false
             this.$message.success(resp.msg)
-            this.initUnderGraduateStudents()
+            this.initUnderGraduateStudents(this.currentPage,this.pageSize)
           }else {
             this.$message.error(resp)
           }

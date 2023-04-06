@@ -191,7 +191,7 @@ export default {
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
     this.initSelectYearsList()
-    this.initGraduateStudents()
+    this.initGraduateStudents(this.currentPage,this.pageSize)
   },
   methods:{
     inputSelectYearFocus(){//年份输入框获得焦点
@@ -266,7 +266,7 @@ export default {
           if(resp.status == 200){
             this.dialogEdit = false
             this.$message.success(resp.msg)
-            this.initGraduateStudents()
+            this.initGraduateStudents(this.currentPage,this.pageSize)
           }else {
             this.$message.error(resp)
           }
@@ -282,7 +282,7 @@ export default {
         this.postRequest('/graduatestudentM/basic/deleteGraduateStudent',data).then((resp)=>{
           if(resp.code == 200){
             this.$message.success('删除成功')
-            this.initGraduateStudents()
+            this.initGraduateStudents(1,this.pageSize)
           }else {
             this.$message.warning('删除失败！')
           }
@@ -292,7 +292,7 @@ export default {
     onSuccess(res){
       if(res.status == 200){
         this.$message.success("导入成功")
-        this.initGraduateStudents()
+        this.initGraduateStudents(1,this.pageSize)
       }else {
         this.$message.error("导入失败")
       }
@@ -314,13 +314,13 @@ export default {
       this.pageSize=val
       // 注意：在改变每页显示的条数时，要将页码显示到第一页
       this.currentPage=1
-      this.initGraduateStudents()
+      this.initGraduateStudents(this.currentPage,this.pageSize)
     },
     // 显示第几页
     handleCurrentChange(val) {
       // 改变默认的页数
       this.currentPage=val;
-      this.initGraduateStudents()
+      this.initGraduateStudents(this.currentPage,this.pageSize)
     },
     initSelectYearsList(){
       let timeDate = new Date()
@@ -331,8 +331,8 @@ export default {
         return b - a;
       })
     },
-    initGraduateStudents(){
-      this.getRequest('/graduatestudentM/basic/getGraduateStudents?pageNum=' + this.currentPage + '&pageSize=' + this.pageSize).then((response)=>{
+    initGraduateStudents(curr,pagesize){
+      this.getRequest('/graduatestudentM/basic/getGraduateStudents?pageNum=' + curr + '&pageSize=' + pagesize).then((response)=>{
         if(response.code == 200){
           this.graduateStudents = response.extend.res[0]
           this.totalCount = response.extend.res[1]
