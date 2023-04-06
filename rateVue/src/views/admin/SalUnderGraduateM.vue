@@ -43,7 +43,7 @@
           </div>
         </div>
       </div>
-      <div class="select_div_input">
+      <div class="select_div_input" style="margin-left: 30px">
         <input
             autocomplete="off"
             style="width:95%;line-height:28px;
@@ -54,9 +54,8 @@
             @focus="inputSelectYearFocus"
             @blur="isSelectYearShow = isSelectYearFlag"/>
         <div class="select_div"
-             id="select_div_options"
              v-show="isSelectYearShow"
-             :style="'height:${menuHeight}'"
+             style="height:200px;overflow: scroll"
              @mouseover="isSelectYearFlag = true"
              @mouseleave="isSelectYearFlag = false"
         >
@@ -65,31 +64,13 @@
               v-for="val in selectYearsList"
               :key="val"
               :value="val"
-              @click="filter_teas(val)"
+              @click="filter_year(val)"
           >
             {{ val }}
           </div>
         </div>
       </div>
-
-      <!--      <el-select-->
-<!--          allow-create-->
-<!--          filterable-->
-<!--          clearable-->
-<!--          style="margin-left: 30px"-->
-<!--          default-first-option-->
-<!--          @change="onTypeBlur"-->
-<!--          placeholder="请选择入学年份"-->
-<!--          ref="yearSel"-->
-<!--          v-model="selectYear">-->
-<!--        <el-option-->
-<!--            v-for="val in selectYearsList"-->
-<!--            :key="val"-->
-<!--            :label="val"-->
-<!--            :value="val">-->
-<!--        </el-option>-->
-<!--      </el-select>-->
-      <el-button @click="filterBtn" style="margin-left: 30px;" type="primary" size="mini">筛选</el-button>
+      <el-button @click="filterBtn" style="margin-left: 30px;" type="primary">筛选</el-button>
     </div>
 
     <div style="margin-top: 10px">
@@ -188,18 +169,15 @@ export default {
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
     this.initSelectYearsList()
-    let scrollEle = document.addEventListener('scroll',this.scrollingYear())
     this.initUnderGraduateStudents()
   },
   methods:{
-    scrollingYear(){
-      if(this.yearTimer){
-        clearTimeout(this.yearTimer)
-      }
-      this.yearTimer
-    },
-    inputSelectYearFocus(){
+    inputSelectYearFocus(){//年份输入框获得焦点
       this.isSelectYearShow = true
+    },
+    filter_year(val){//点击年份下拉框的某个选项
+      this.selectYear = val
+      this.isSelectYearShow = false
     },
     filterBtn(){//点击筛选按钮
       let tempYear = this.selectYear
@@ -220,7 +198,7 @@ export default {
       this.isSelectShow=false
       this.isSelectFlag=false
     },
-    delayInputTimer(val){
+    delayInputTimer(val){//防抖
       if(this.timer){
         clearTimeout(this.timer)
       }
@@ -253,7 +231,7 @@ export default {
       this.dialogEdit = false
       this.currentUnderStudentOfEdit = {}
     },
-    editDialogShow(data){
+    editDialogShow(data){//控制变量
       this.dialogEdit = true
       this.currentUnderStudentOfEdit = data
     },
@@ -283,7 +261,7 @@ export default {
         }
       })
     },
-    onSuccess(res){
+    onSuccess(res){//上传excel成功的回调
       if(res.status == 200){
         this.$message.success("导入成功")
         this.initUnderGraduateStudents();
@@ -291,7 +269,7 @@ export default {
         this.$message.error("导入失败")
       }
     },
-    beforeUpload() {
+    beforeUpload() {//上传前
       this.$message.success("正在导入")
     },
     UploadUrl(){
@@ -303,13 +281,16 @@ export default {
       this.$message.success('正在下载')
       window.open(url,'_parent')
     },
-    initSelectYearsList(){
+    initSelectYearsList(){//初始化筛选框中的年份数据
       let timeDate = new Date()
       let temp1 = Array.from(Array(timeDate.getFullYear() - 20).keys(), n=>n+1)
       let temp2 = Array.from(Array(timeDate.getFullYear()).keys(), n=>n+1)
       this.selectYearsList = temp2.filter(item1 => !temp1.some(item2 => item2 === item1))//去掉两者相同的，留下不同的
+      this.selectYearsList.sort((a,b)=>{
+        return b - a;
+      })
     },
-    initUnderGraduateStudents(){
+    initUnderGraduateStudents(){//初始化本科生
       this.getRequest('/undergraduateM/basic/getUnderGraduateStudents').then((response)=>{
         if(response.code == 200){
           this.undergraduateStudents = response.extend.res
@@ -323,7 +304,7 @@ export default {
 <style scoped>
 .select_div_input{
   /*margin-left:3px;*/
-  width:30%;
+  width:20%;
   height:32px;
   position:relative;
   display:inline-block

@@ -43,18 +43,34 @@
           </div>
         </div>
       </div>
-      <el-select
-            style="margin-left: 30px"
-            placeholder="请选择入学年份"
-            v-model="selectYear">
-          <el-option
+      <div class="select_div_input" style="margin-left: 30px">
+        <input
+            autocomplete="off"
+            style="width:95%;line-height:28px;
+                              border:1px solid lightgrey;padding:0 10px 1px 15px;
+                              border-radius:4px;color:gray"
+            placeholder="请输入入学年份"
+            v-model="selectYear"
+            @focus="inputSelectYearFocus"
+            @blur="isSelectYearShow = isSelectYearFlag"/>
+        <div class="select_div"
+             v-show="isSelectYearShow"
+             style="height:200px;overflow: scroll"
+             @mouseover="isSelectYearFlag = true"
+             @mouseleave="isSelectYearFlag = false"
+        >
+          <div
+              class="select_div_div"
               v-for="val in selectYearsList"
               :key="val"
-              :label="val"
-              :value="val">
-          </el-option>
-      </el-select>
-      <el-button @click="filterBtn" style="margin-left: 30px;" type="primary" size="mini">筛选</el-button>
+              :value="val"
+              @click="filter_year(val)"
+          >
+            {{ val }}
+          </div>
+        </div>
+      </div>
+      <el-button @click="filterBtn" style="margin-left: 30px;" type="primary">筛选</el-button>
     </div>
     <div style="margin-top: 10px">
       <el-table
@@ -115,6 +131,8 @@ export default {
   name: "SalGraduateM",
   data(){
     return{
+      isSelectYearFlag:false,
+      isSelectYearShow:false,
       selectYearsList:[],
       isSelectFlag:false,
       isSelectShow:false,//搜索老师名字的搜索框
@@ -161,11 +179,19 @@ export default {
     this.initGraduateStudents()
   },
   methods:{
+    inputSelectYearFocus(){//年份输入框获得焦点
+      this.isSelectYearShow = true
+    },
+    filter_year(val){//点击年份下拉框的某个选项
+      this.selectYear = val
+      this.isSelectYearShow = false
+    },
     filterBtn(){//点击筛选按钮
+      let tempYear = this.selectYear
       if(this.selectYear == ''){
-        this.selectYear = 0
+        tempYear = 0
       }
-      let url = '/graduatestudentM/basic/getGraduateStudentsBySelect?year=' + parseInt(this.selectYear) + '&teaName=' + this.selectTeacerName
+      let url = '/graduatestudentM/basic/getGraduateStudentsBySelect?year=' + parseInt(tempYear) + '&teaName=' + this.selectTeacerName
       this.getRequest(url).then((resp)=>{
         if(resp){
           if(resp.status == 200){
@@ -265,6 +291,9 @@ export default {
       let temp1 = Array.from(Array(timeDate.getFullYear() - 20).keys(), n=>n+1)
       let temp2 = Array.from(Array(timeDate.getFullYear()).keys(), n=>n+1)
       this.selectYearsList = temp2.filter(item1 => !temp1.some(item2 => item2 === item1))//去掉两者相同的，留下不同的
+      this.selectYearsList.sort((a,b)=>{
+        return b - a;
+      })
     },
     initGraduateStudents(){
       this.getRequest('/graduatestudentM/basic/getGraduateStudents').then((response)=>{
@@ -279,7 +308,7 @@ export default {
 
 <style scoped>
 .select_div_input{
-  width:30%;
+  width:20%;
   height:32px;
   position:relative;
   display:inline-block
@@ -293,7 +322,7 @@ export default {
   position: absolute;
   background-color: #fff;
   z-index: 999;
-  overflow: hidden;
+  overflow: scroll;
   width: 90%;
   cursor: pointer;
 }
