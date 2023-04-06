@@ -1,5 +1,8 @@
 package org.sys.rate.controller.admin;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -64,20 +67,33 @@ public class TeacherBasicController {
     }
 //    管理员导入excel上传教师列表
     @PostMapping("/importTeachers")
-    public RespBean importData(String role,MultipartFile file) throws IOException, ParseException {
-        List<Teachers> teachersList= POIUtils.readExcel_teachers(file);
+    public RespBean importData(Integer institutionID,MultipartFile file) throws IOException, ParseException {
+        List<Teachers> teachersList= POIUtils.readExcel_teachers(institutionID,file);
         RespBean res;
         if(teachersList == null || teachersList.size() == 0){
             return RespBean.error("未读取到有效导入数据");
         }else {
             //角色是单独传过来的
             try {
-                 res = teachersService.addTeachers(teachersList,role);
+                 res = teachersService.addTeachers(teachersList);
             }catch (Exception e){
                 return RespBean.error("fail",e);
             }
         }
         return RespBean.ok("success",res);
+    }
+    @GetMapping("/getTeaNamesBySelect")
+    public RespBean getTeaNamesBySelect(String teaName){
+        return teachersService.getTeaNamesBySelect(teaName);
+    }
+    @GetMapping("/getTeachers")
+    public Msg getGraduateStudents(@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize,
+                                   @RequestParam("teaName")String teaName){
+        Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
+        List<Teachers> t = teachersService.getTeachers(teaName);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {t,info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res",res);
     }
 }
 

@@ -1,11 +1,6 @@
 package org.sys.rate.mapper;
 
-import org.sys.rate.model.Award;
-import org.sys.rate.model.Teacher;
-
-import org.sys.rate.model.Teachers;
-import org.sys.rate.model.Student;
-import org.sys.rate.model.UnderGraduate;
+import org.sys.rate.model.*;
 
 
 import java.util.List;
@@ -70,9 +65,11 @@ public interface TeachersMapper
     public int deleteTeachersByIds(String[] IDs);
 
     public List<Teachers> selectList();
+    List<Teachers> getTeachers(String teaName);
 
     int updateFROMImport(List<Teachers> record);
     int insertFROMImport(List<Teachers> record);
+    List<String> getTeaNamesBySelect(String teaName);
 
     public List<Teachers> selectTeasByJobnumber(List<String> list);
     Teachers selectTeaByJobnumber(String jobnumber);

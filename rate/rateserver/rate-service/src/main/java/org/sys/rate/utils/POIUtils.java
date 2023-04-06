@@ -1191,7 +1191,7 @@ public class POIUtils {
     }
 
     //管理员上传教师模版excel
-    public static List<Teachers> readExcel_teachers(MultipartFile file) {
+    public static List<Teachers> readExcel_teachers(Integer institutionID,MultipartFile file) {
         //tutorid目前没有处理
         List<Teachers> teachersList = new ArrayList<>();
         Teachers teachers=new Teachers();
@@ -1226,9 +1226,6 @@ public class POIUtils {
                     String idCard=null;//身份证号，主键
                     String email=null;//邮箱
                     String sex=null;//性别
-                    String isBelonging=null;//是否是本单位
-                    String username=null;
-                    String password=null;
                     for (int k = 0; k < Cells; k++) {
                         HSSFCell cell = row.getCell(k);
                         if (cell!=null) {
@@ -1250,15 +1247,6 @@ public class POIUtils {
                                 case "部门":
                                     department=cellValue;
                                     break;
-                                case "属于本单位":
-                                    isBelonging=cellValue;
-                                    break;
-                                case "用户名":
-                                    username=cellValue;
-                                    break;
-                                case "密码":
-                                    password=cellValue;
-                                    break;
                                 case "性别":
                                     sex=cellValue;
                                     break;
@@ -1270,23 +1258,17 @@ public class POIUtils {
                             }
                         }
                     }
-                    if(phone==null|| jobNumber==null|| department==null|| (!isBelonging.equals("是")&&!isBelonging.equals("否"))||name==null||idCard==null){
+                    if(phone==null|| jobNumber==null|| department==null||name==null||idCard==null){
                         continue;
                     }
                     teachers.setName(name);
                     teachers.setPhone(phone);
                     teachers.setIDNumber(idCard);
                     teachers.setEmail(email);
-                    teachers.setUsername(username);
-                    teachers.setPassword(password);
+                    teachers.setInstitutionid(institutionID);
                     teachers.setDepartment(department);
                     teachers.setSex(sex);
                     teachers.setJobnumber(jobNumber);
-                    if(isBelonging.equals("是")){
-                        teachers.setInstitutionid(1);
-                    }else {
-                        teachers.setInstitutionid(0);
-                    }
                     teachersList.add(teachers);
                 }
             }

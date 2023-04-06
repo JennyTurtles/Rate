@@ -74,12 +74,28 @@ public class TeachersService implements UserDetailsService {
     public List<Teachers> selectList(){
         return teachersMapper.selectList();
     }
-    public RespBean addTeachers(List<Teachers> teachers,String role) {
-        //如果更新role，deleteflag，用户名，密码，身份证不做处理
+
+    public List<Teachers> getTeachers(String teaName){
+        List<Teachers> res = new ArrayList<>();
+        try {
+            res = teachersMapper.getTeachers(teaName);
+        }catch (Exception e){
+        }
+        return res;
+    }
+    public RespBean getTeaNamesBySelect(String teaName){
+        List<String> res;
+        try {
+            res = teachersMapper.getTeaNamesBySelect(teaName);
+        }catch (Exception e){
+            return RespBean.error("error");
+        }
+        return RespBean.ok("ok",res);
+    }
+    public RespBean addTeachers(List<Teachers> teachers) {
         //返回的是已经存在的列表
         List<Teachers> checkTeachers = teachersMapper.check(teachers);
         List<String> checkIDNumbers = new ArrayList<>();
-        List<Teachers> updateTeas = new ArrayList<>();
         List<Teachers> insertTeas = new ArrayList<>();
         //有已经存在的老师了
         if(checkTeachers.size() != 0){
@@ -90,40 +106,12 @@ public class TeachersService implements UserDetailsService {
                 //不在更新列表中，说明表里没有这个数据
                 if(checkIDNumbers.indexOf(teachers.get(i).getIDNumber()) == -1){
                     insertTeas.add(teachers.get(i));
-                }else {
-                    //如果teacher表中有这个数据，用户名和密码还是用之前的
-                    Teachers temp = checkTeachers.get(checkIDNumbers.indexOf(teachers.get(i).getIDNumber()));
-                    teachers.get(i).setUsername(temp.getUsername());
-                    teachers.get(i).setPassword(temp.getPassword());
-                    teachers.get(i).setRole(role);
-                    updateTeas.add(teachers.get(i));
                 }
             }
         }else {
             insertTeas = teachers;
         }
-        //设置角色和密码
-        for(Teachers i : insertTeas){
-            if(i.getUsername() == null || i.getUsername().equals(""))
-            {//为空
-                i.setUsername(i.getPhone());
-            }
-            String encodePass;
-            if(i.getPassword() == null || i.getPassword().equals(""))
-            {//为空
-                encodePass = ExpertService.sh1(i.getPhone());
-            }
-            else
-            {//默认密码为手机号
-                encodePass = ExpertService.sh1(i.getPassword());
-            }
-            i.setPassword(encodePass);
-            i.setRole(role);
-        }
         try{
-            if(checkTeachers.size() != 0) {
-                teachersMapper.updateFROMImport(updateTeas);
-            }
             if(insertTeas.size() > 0){
                 teachersMapper.insertFROMImport(insertTeas);
             }

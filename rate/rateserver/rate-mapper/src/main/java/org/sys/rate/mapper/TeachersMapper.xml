@@ -375,4 +375,18 @@
         from teacher
         where jobnumber = #{jobnumber}
     </select>
+    <select id="getTeachers" resultMap="BaseResultMap">
+        select *
+        from teacher
+        <where>
+            <if test="teaName != null and teaName != ''">and name LIKE CONCAT('%', #{teaName}, '%')</if>
+        </where>
+    </select>
+    <select id="getTeaNamesBySelect" resultType="java.lang.String">
+        select t.name
+        from teacher t
+        <where>
+            <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
+        </where>
+    </select>
 </mapper>
