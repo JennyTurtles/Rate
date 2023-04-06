@@ -163,8 +163,7 @@ export default {
       }
       let that = this
       this.timer = setTimeout(()=>{
-        let url = '/teacher/basic/getTeaNamesBySelect?pageNum=' + this.currentPage + '&pageSize=' + this.pageSize +
-            '&teaName=' + this.selectTeacerName
+        let url = '/teacher/basic/getTeaNamesBySelect?teaName=' + this.selectTeacerName
         that.getRequest(url).then((resp)=>{
           that.select_teachers = []
           if(resp){
