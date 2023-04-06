@@ -101,10 +101,10 @@ export default {
   name: "SalTeacherM",
   data(){
     return{
-      pageSizes:[20,20,20,20,30],
+      pageSizes:[4,20,20,20,30],
       totalCount:0,
       currentPage:1,
-      pageSize:20,
+      pageSize:4,
       isSelectYearFlag:false,
       isSelectYearShow:false,
       selectYearsList:[],
@@ -163,7 +163,7 @@ export default {
       }
       let that = this
       this.timer = setTimeout(()=>{
-        let url = '/teacher/basic/getTeaNamesBySelect?pageNum=' + 1 + '&pageSize=' + 20 +
+        let url = '/teacher/basic/getTeaNamesBySelect?pageNum=' + this.currentPage + '&pageSize=' + this.pageSize +
             '&teaName=' + this.selectTeacerName
         that.getRequest(url).then((resp)=>{
           that.select_teachers = []
@@ -179,7 +179,7 @@ export default {
       },300);
     },
     filterBtn(){//点击筛选按钮
-      this.getRequest('/teacher/basic/getTeachers?pageNum=' + 1 + '&pageSize=' + 20 +
+      this.getRequest('/teacher/basic/getTeachers?pageNum=' + this.currentPage + '&pageSize=' + this.pageSize +
           '&teaName=' + this.selectTeacerName).then((response)=>{
         if(response.code == 200){
           this.teachers = response.extend.res[0]
@@ -246,13 +246,21 @@ export default {
       this.pageSize=val
       // 注意：在改变每页显示的条数时，要将页码显示到第一页
       this.currentPage=1
-      this.initTeachers()
+      if((this.selectTeacerName == '' || this.selectTeacerName == null)){
+        this.initTeachers()
+      }else {//筛选条件不为空
+        this.filterBtn()
+      }
     },
     // 显示第几页
     handleCurrentChange(val) {
       // 改变默认的页数
       this.currentPage=val;
-      this.initTeachers()
+      if((this.selectTeacerName == '' || this.selectTeacerName == null)){
+        this.initTeachers()
+      }else {//筛选条件不为空
+        this.filterBtn()
+      }
     },
     initTeachers(){
       this.getRequest('/teacher/basic/getTeachers?pageNum=' + this.currentPage + '&pageSize=' + this.pageSize +
