@@ -131,14 +131,13 @@ public class GraduateStudentService {
         return RespBean.ok("ok");
     }
 
-    public Msg getGraduatesStudent(){
+    public List<GraduateStudent> getGraduatesStudent(){
         List<GraduateStudent> res = new ArrayList<>();
         try {
             res = graduateStudentMapper.getGraduateStudent();
         }catch (Exception e){
-            return Msg.fail();
         }
-        return Msg.success().add("res",res);
+        return res;
     }
     public Msg deleteGraduateStudent(GraduateStudent grad){
         try {

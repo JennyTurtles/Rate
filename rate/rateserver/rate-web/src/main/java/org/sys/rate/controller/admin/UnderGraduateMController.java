@@ -1,5 +1,8 @@
 package org.sys.rate.controller.admin;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,8 +45,12 @@ public class UnderGraduateMController {
         return res;
     }
     @GetMapping("/getUnderGraduateStudents")
-    public Msg getUnderStudent(){
-        return underGraduateService.getUnderStudent();
+    public Msg getUnderStudent(@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
+        Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
+        List<UnderGraduate> t = underGraduateService.getUnderStudent();
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {t,info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res",res);
     }
     @PostMapping("/deleteUnderGraduateStudent")
     public Msg deleteUnderStudent(@RequestBody UnderGraduate under){

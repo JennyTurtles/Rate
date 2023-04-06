@@ -158,14 +158,13 @@ public class UnderGraduateService {
         return RespBean.ok("ok");
     }
 
-    public Msg getUnderStudent(){
+    public List<UnderGraduate> getUnderStudent(){
         List<UnderGraduate> res = new ArrayList<>();
         try {
              res = underGraduateMapper.getUnderStudent();
         }catch (Exception e){
-            return Msg.fail();
         }
-        return Msg.success().add("res",res);
+        return res;
     }
     public Msg deleteUnderStudent(UnderGraduate under){
         try {

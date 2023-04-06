@@ -85,8 +85,8 @@
         <el-table-column prop="teachers.name" label="导师姓名" align="center"></el-table-column>
         <el-table-column  label="操作" align="center">
           <template slot-scope="scope">
-            <el-button size="mini"  icon="el-icon-edit" plain @click="editDialogShow(scope.row)" type="primary">编辑</el-button>
-            <el-button size="mini" type="danger" icon="el-icon-delete" plain @click="deleteUnder(scope.row)">删除</el-button>
+            <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary">编辑</el-button>
+            <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -116,6 +116,17 @@
         </span>
       </template>
     </el-dialog>
+    <div style="margin-top: 10px;text-align:right">
+      <el-pagination @size-change="handleSizeChange"
+                     @current-change="handleCurrentChange"
+                     :current-page="currentPage"
+                     :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
+                     :total="totalCount"
+                     :page-sizes="pageSizes"
+                     background
+      >
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -125,6 +136,10 @@ export default {
   name: "SalStudentM",
   data(){
     return {
+      pageSizes:[20,20,20,20,30],
+      totalCount:0,
+      currentPage:1,
+      pageSize:20,
       isSelectYearFlag:false,
       isSelectYearShow:false,
       selectYearsList:[],
@@ -290,10 +305,24 @@ export default {
         return b - a;
       })
     },
+    handleSizeChange(val) {
+      // 改变每页显示的条数
+      this.pageSize=val
+      // 注意：在改变每页显示的条数时，要将页码显示到第一页
+      this.currentPage=1
+      this.initUnderGraduateStudents()
+    },
+    // 显示第几页
+    handleCurrentChange(val) {
+      // 改变默认的页数
+      this.currentPage=val;
+      this.initUnderGraduateStudents()
+    },
     initUnderGraduateStudents(){//初始化本科生
-      this.getRequest('/undergraduateM/basic/getUnderGraduateStudents').then((response)=>{
+      this.getRequest('/undergraduateM/basic/getUnderGraduateStudents?pageNum=' + this.currentPage + '&pageSize=' + this.pageSize).then((response)=>{
         if(response.code == 200){
-          this.undergraduateStudents = response.extend.res
+          this.undergraduateStudents = response.extend.res[0]
+          this.totalCount = response.extend.res[1]
         }
       })
     }
