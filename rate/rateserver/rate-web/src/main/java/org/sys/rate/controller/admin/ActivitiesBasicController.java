@@ -46,11 +46,6 @@ public class ActivitiesBasicController {
     @GetMapping("/sub")
     public RespBean getSubActivities(Integer activityID) {
         List<Activities> res = activitiesMapper.getSubActivities(activityID);
-        for (Activities activities : res) {
-            if (activities.getRequireGroup() == 0){
-
-            }
-        }
         return RespBean.ok("success",res);
     }
 
