@@ -19,7 +19,7 @@ public interface UnderGraduateMapper {
     List<String> getTeaNamesBySelect(String teaName);
     List<UnderGraduate> getUnderStudentsBySelect(String teaName,Integer year);
     List<Integer> check(List<UnderGraduate> under);
-
+    int checkHaveStudentOfstudenID(Integer studentID);
     int insertFROMImport(List<UnderGraduate> record);
 
     int updateFROMImport(List<UnderGraduate> record);

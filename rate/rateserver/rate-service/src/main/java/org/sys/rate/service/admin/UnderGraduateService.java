@@ -2,9 +2,7 @@ package org.sys.rate.service.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.sys.rate.mapper.StudentMapper;
-import org.sys.rate.mapper.TeachersMapper;
-import org.sys.rate.mapper.UnderGraduateMapper;
+import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.sys.rate.service.expert.ExpertService;
 
@@ -19,6 +17,10 @@ public class UnderGraduateService {
     StudentMapper studentMapper;
     @Autowired
     TeachersMapper teachersMapper;
+    @Autowired
+    ParticipatesMapper participatesMapper;
+    @Autowired
+    GraduateStudentMapper graduateStudentMapper;
     @Autowired
     UnderGraduateMapper underGraduateMapper;
     //管理员导入本科生，只添加，即使已经存在了该条数据也不更新
@@ -185,6 +187,11 @@ public class UnderGraduateService {
     public Msg deleteUnderStudent(UnderGraduate under){
         try {
             underGraduateMapper.deleteUnderStudent(under);
+            if(graduateStudentMapper.checkHaveStudentOfstudenID(under.getStudentID()) == 0 &&
+                    participatesMapper.isParticipants(under.getStudentID()) == 0){
+                //如果在选手表中和研究生表中查不到关于这个stuid关联的数据，说明可以删除
+                studentMapper.deleteStudent(under.getStudentID());
+            }
         }catch (Exception e){
             return Msg.fail();
         }return Msg.success();

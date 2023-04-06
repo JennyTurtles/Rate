@@ -106,4 +106,7 @@
             <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
         </where>
     </select>
+    <select id="checkHaveStudentOfstudenID" resultType="java.lang.Integer">
+        select exists (select * from graduatestudent where studentID=#{studentID})
+    </select>
 </mapper>

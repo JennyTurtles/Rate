@@ -269,17 +269,25 @@ export default {
       })
     },
     deleteUnder(data){//删除本科生
-      this.postRequest('/undergraduateM/basic/deleteUnderGraduateStudent',data).then((resp)=>{
-        if(resp.code == 200){
-          this.$message.success('删除成功')
-          this.initUnderGraduateStudents()
-        }
+      this.$confirm('确定删除吗？','提示',{
+        confirmButtonText:'确定',
+        cancelButtonText:'取消',
+        type:"warning"
+      }).then(()=> {
+        this.postRequest('/undergraduateM/basic/deleteUnderGraduateStudent', data).then((resp) => {
+          if (resp.code == 200) {
+            this.$message.success('删除成功')
+            this.initUnderGraduateStudents(1,this.pageSize)
+          }else {
+            this.$message.warning('删除失败！')
+          }
+        })
       })
     },
     onSuccess(res){//上传excel成功的回调
       if(res.status == 200){
         this.$message.success("导入成功")
-        this.initUnderGraduateStudents();
+        this.initUnderGraduateStudents(1,this.pageSize);
       }else {
         this.$message.error("导入失败")
       }
@@ -310,16 +318,17 @@ export default {
       this.pageSize=val
       // 注意：在改变每页显示的条数时，要将页码显示到第一页
       this.currentPage=1
-      this.initUnderGraduateStudents()
+      this.initUnderGraduateStudents(this.currentPage,this.pageSize)
     },
     // 显示第几页
     handleCurrentChange(val) {
       // 改变默认的页数
       this.currentPage=val;
-      this.initUnderGraduateStudents()
+      this.initUnderGraduateStudents(this.currentPage,this.pageSize)
     },
-    initUnderGraduateStudents(){//初始化本科生
-      this.getRequest('/undergraduateM/basic/getUnderGraduateStudents?pageNum=' + this.currentPage + '&pageSize=' + this.pageSize).then((response)=>{
+    initUnderGraduateStudents(curr,pagesize){//初始化本科生
+      //因为很多不同情况下都要初始化数据，所以不能只依靠data中都两个参数
+      this.getRequest('/undergraduateM/basic/getUnderGraduateStudents?pageNum=' + curr + '&pageSize=' + pagesize).then((response)=>{
         if(response.code == 200){
           this.undergraduateStudents = response.extend.res[0]
           this.totalCount = response.extend.res[1]
