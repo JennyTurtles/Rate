@@ -398,4 +398,9 @@
             where ID = #{teachers.ID}
         </foreach>
     </update>
+    <update id="updateRoleOfOneTeacher" parameterType="org.sys.rate.model.Teachers">
+            UPDATE teacher
+            SET role = #{role}
+            where ID = #{ID}
+    </update>
 </mapper>

@@ -109,4 +109,7 @@
     <select id="checkHaveStudentOfstudenID" resultType="java.lang.Integer">
         select exists (select * from undergraduate where studentID=#{studentID})
     </select>
+    <select id="checkHaveStudentOftutorID" resultType="java.lang.Integer">
+        select exists (select * from undergraduate where tutorID = #{tutorID} and ID != #{ID})
+    </select>
 </mapper>

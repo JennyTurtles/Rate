@@ -20,6 +20,7 @@ public interface UnderGraduateMapper {
     List<UnderGraduate> getUnderStudentsBySelect(String teaName,Integer year);
     List<Integer> check(List<UnderGraduate> under);
     int checkHaveStudentOfstudenID(Integer studentID);
+    int checkHaveStudentOftutorID(Integer tutorID,Integer ID);
     int insertFROMImport(List<UnderGraduate> record);
 
     int updateFROMImport(List<UnderGraduate> record);

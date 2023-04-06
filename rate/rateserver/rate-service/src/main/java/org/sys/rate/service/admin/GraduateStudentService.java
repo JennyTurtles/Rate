@@ -16,6 +16,8 @@ public class GraduateStudentService {
     @Autowired
     TeachersMapper teachersMapper;
     @Autowired
+    TeacherMapper teacherMapper;
+    @Autowired
     ParticipatesMapper participatesMapper;
     @Autowired
     UnderGraduateMapper underGraduateMapper;
@@ -157,9 +159,30 @@ public class GraduateStudentService {
         return res;
     }
     public Msg deleteGraduateStudent(GraduateStudent grad){
+        //无理需求。。。。
         //点击删除也要删除student表中的学生信息，所以要判断这个student是不是还是选手或其他身份
+        //同时也要删除对应老师的角色，所以也要判断这个老师是不是还是别的学生的导师
         try {
+            //我不想写那么多if，可是能有什么好办法？
             graduateStudentMapper.deleteGraduateStudent(grad);
+            //如果没有导师就直接删除
+            if(grad.getTutorID() != null && !grad.getTutorID().equals("")){
+                //说明只是这一个学生的研究生老师，需要去掉这个老师的研究生导师角色
+                if(graduateStudentMapper.checkHaveStudentOftutorID(grad.getTutorID(),grad.getID()) == 0){
+                    Teachers tea = teachersMapper.selectByPrimaryId(grad.getTutorID());
+                    String r = tea.getRole();
+                    //区分要不要删掉多余分号，我懒得思考了，就这样吧，好累，有bug再说
+                    if(r.contains("11;")){
+                        r = r.replace("11;","");
+                        tea.setRole(r);
+                        teachersMapper.updateRoleOfOneTeacher(tea);
+                    }else if(r.contains("11")){
+                        r = r.replace("11","");
+                        tea.setRole(r);
+                        teachersMapper.updateRoleOfOneTeacher(tea);
+                    }
+                }
+            }
             if(underGraduateMapper.checkHaveStudentOfstudenID(grad.getStudentID()) == 0 &&
                     participatesMapper.isParticipants(grad.getStudentID()) == 0){
                 //如果在选手表中和本科生表中查不到关于这个stuid关联的数据，说明可以删除

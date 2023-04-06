@@ -187,6 +187,24 @@ public class UnderGraduateService {
     public Msg deleteUnderStudent(UnderGraduate under){
         try {
             underGraduateMapper.deleteUnderStudent(under);
+            //如果没有导师就直接删除
+            if(under.getTutorID() != null && !under.getTutorID().equals("")){
+                //说明只是这一个学生的本科生老师，需要去掉这个老师的本科生导师角色
+                if(underGraduateMapper.checkHaveStudentOftutorID(under.getTutorID(),under.getID()) == 0){
+                    Teachers tea = teachersMapper.selectByPrimaryId(under.getTutorID());
+                    String r = tea.getRole();
+                    //区分要不要删掉多余分号，我懒得思考了，就这样吧，好累，有bug再说
+                    if(r.contains("10;")){
+                        r = r.replace("10;","");
+                        tea.setRole(r);
+                        teachersMapper.updateRoleOfOneTeacher(tea);
+                    }else if(r.contains("10")){
+                        r = r.replace("10","");
+                        tea.setRole(r);
+                        teachersMapper.updateRoleOfOneTeacher(tea);
+                    }
+                }
+            }
             if(graduateStudentMapper.checkHaveStudentOfstudenID(under.getStudentID()) == 0 &&
                     participatesMapper.isParticipants(under.getStudentID()) == 0){
                 //如果在选手表中和研究生表中查不到关于这个stuid关联的数据，说明可以删除

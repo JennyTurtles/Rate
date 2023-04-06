@@ -67,6 +67,7 @@ public interface TeachersMapper
     public List<Teachers> selectList();
     List<Teachers> getTeachers(String teaName);
 
+    Teachers selectByPrimaryId(Integer id);
     int updateFROMImport(List<Teachers> record);
     int insertFROMImport(List<Teachers> record);
     List<String> getTeaNamesBySelect(String teaName);
@@ -75,5 +76,6 @@ public interface TeachersMapper
     Teachers selectTeaByJobnumber(String jobnumber);
     public List<Teachers> selectTeasByName(List<String> list);
     int updateRoleOfTeachers(List<Teachers> teas);
+    int updateRoleOfOneTeacher(Teachers tea);
 
 }
