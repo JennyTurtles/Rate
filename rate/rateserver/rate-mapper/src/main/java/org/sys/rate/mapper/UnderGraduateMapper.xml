@@ -12,6 +12,7 @@
         <result property="email" column="email" jdbcType="VARCHAR"/>
         <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
         <result property="IDNumber" column="IDNumber" jdbcType="VARCHAR"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
         <association property="teachers" javaType="org.sys.rate.model.Teachers">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="tname"/>
@@ -66,7 +67,7 @@
         </foreach>
     </select>
     <select id="getUnderStudent" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber,t.name as tname,t.jobnumber as tjobnumber
+        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,t.name as tname,t.jobnumber as tjobnumber
         from undergraduate u
         left join teacher t
         on u.tutorID=t.ID
@@ -95,7 +96,7 @@
         </where>
     </select>
     <select id="getUnderStudentsBySelect" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber,t.name as tname,t.jobnumber as tjobnumber
+        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,t.name as tname,t.jobnumber as tjobnumber
         from undergraduate u
         left join teacher t
         on u.tutorID=t.ID

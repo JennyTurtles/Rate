@@ -1,13 +1,16 @@
 <template>
   <div>
     <Login :inf="loginForm" ref="login"></Login>
+    <Register ></Register>
   </div>
 </template>
 <script>
 import Login from "@/components/Login"
+import Register from "@/components/Register"
 export default {
   name: "StuLogin",
   components:{
+    Register,
     'Login':Login,
   },
   data() {

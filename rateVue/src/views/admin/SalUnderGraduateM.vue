@@ -76,8 +76,9 @@
     <div style="margin-top: 10px">
       <el-table
         :data="undergraduateStudents">
-        <el-table-column prop="name" label="姓名" align="center"></el-table-column>
         <el-table-column prop="stuNumber" label="学号" align="center"></el-table-column>
+        <el-table-column prop="name" label="姓名" align="center"></el-table-column>
+        <el-table-column prop="username" label="用户名" align="center"></el-table-column>
         <el-table-column prop="telephone" label="电话" align="center"></el-table-column>
         <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
         <el-table-column prop="year" label="入学年份" align="center"></el-table-column>
@@ -94,21 +95,10 @@
     <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px" @close="closeDialogEdit">
       <template>
         <el-form :model="currentUnderStudentOfEdit">
-          <el-form-item label="导师姓名">
+          <el-form-item label="导师">
             <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.teachers.name"></el-input>
           </el-form-item>
-          <el-form-item label="导师工号">
-            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.teachers.jobnumber"></el-input>
-          </el-form-item>
-<!--          <el-form-item label="学生姓名">-->
-<!--            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.name"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="学生电话">-->
-<!--            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.telephone"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="学生邮箱">-->
-<!--            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.email"></el-input>-->
-<!--          </el-form-item>-->
+
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="editUnder" type="primary">确定</el-button>

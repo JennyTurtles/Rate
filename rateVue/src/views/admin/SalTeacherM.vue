@@ -48,8 +48,9 @@
     <div style="margin-top: 10px">
       <el-table
           :data="teachers">
-        <el-table-column prop="name" label="姓名" align="center"></el-table-column>
         <el-table-column prop="jobnumber" label="工号" align="center"></el-table-column>
+        <el-table-column prop="name" label="姓名" align="center"></el-table-column>
+        <el-table-column prop="username" label="用户名" align="center"></el-table-column>
         <el-table-column prop="phone" label="电话" align="center"></el-table-column>
         <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
         <el-table-column prop="idnumber" label="身份证号" align="center"></el-table-column>
@@ -63,7 +64,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px">
+    <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px" @close="closeDialogEdit">
       <template>
         <el-form :model="currentTeacherOfEdit">
           <el-form-item label="教师电话">
@@ -101,10 +102,10 @@ export default {
   name: "SalTeacherM",
   data(){
     return{
-      pageSizes:[4,20,20,20,30],
+      pageSizes:[15,20,20,20,30],
       totalCount:0,
       currentPage:1,
-      pageSize:4,
+      pageSize:15,
       isSelectYearFlag:false,
       isSelectYearShow:false,
       selectYearsList:[],
@@ -188,7 +189,8 @@ export default {
     },
     closeDialogEdit(){//关闭对话框
       this.dialogEdit = false
-      this.currentGraduateStudentOfEdit = {}
+      this.initTeachers()
+      // this.currentGraduateStudentOfEdit = {}
     },
     editDialogShow(data){
       this.dialogEdit = true
