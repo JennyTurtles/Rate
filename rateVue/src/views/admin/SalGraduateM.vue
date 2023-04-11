@@ -92,7 +92,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px">
+    <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px" @close="closeDialogEdit">
       <template>
         <el-form :model="currentGraduateStudentOfEdit">
           <el-form-item label="导师姓名">
@@ -101,21 +101,21 @@
           <el-form-item label="导师工号">
             <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.teachers.jobnumber"></el-input>
           </el-form-item>
-          <el-form-item label="学生姓名">
-            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.name"></el-input>
-          </el-form-item>
-          <el-form-item label="学生电话">
-            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.telephone"></el-input>
-          </el-form-item>
-          <el-form-item label="学生邮箱">
-            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.email"></el-input>
-          </el-form-item>
-          <el-form-item label="学生类别">
-            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.studentType"></el-input>
-          </el-form-item>
-          <el-form-item label="学生积分">
-            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.point"></el-input>
-          </el-form-item>
+<!--          <el-form-item label="学生姓名">-->
+<!--            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.name"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="学生电话">-->
+<!--            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.telephone"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="学生邮箱">-->
+<!--            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.email"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="学生类别">-->
+<!--            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.studentType"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="学生积分">-->
+<!--            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.point"></el-input>-->
+<!--          </el-form-item>-->
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="editGraduate" type="primary">确定</el-button>
@@ -250,7 +250,7 @@ export default {
     },
     closeDialogEdit(){//关闭对话框
       this.dialogEdit = false
-      this.currentGraduateStudentOfEdit = {}
+      // this.currentGraduateStudentOfEdit = {}
     },
     editDialogShow(data){
       this.dialogEdit = true

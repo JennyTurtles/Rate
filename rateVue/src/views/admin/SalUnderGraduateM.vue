@@ -91,7 +91,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px">
+    <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px" @close="closeDialogEdit">
       <template>
         <el-form :model="currentUnderStudentOfEdit">
           <el-form-item label="导师姓名">
@@ -100,15 +100,15 @@
           <el-form-item label="导师工号">
             <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.teachers.jobnumber"></el-input>
           </el-form-item>
-          <el-form-item label="学生姓名">
-            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.name"></el-input>
-          </el-form-item>
-          <el-form-item label="学生手机号">
-            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.telephone"></el-input>
-          </el-form-item>
-          <el-form-item label="学生邮箱">
-            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.email"></el-input>
-          </el-form-item>
+<!--          <el-form-item label="学生姓名">-->
+<!--            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.name"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="学生电话">-->
+<!--            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.telephone"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="学生邮箱">-->
+<!--            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.email"></el-input>-->
+<!--          </el-form-item>-->
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="editUnder" type="primary">确定</el-button>
@@ -246,15 +246,22 @@ export default {
     },
     closeDialogEdit(){//关闭对话框
       this.dialogEdit = false
-      this.currentUnderStudentOfEdit = {}
+      this.initUnderGraduateStudents(this.currentPage,this.pageSize)
+      // this.currentUnderStudentOfEdit = {}
     },
     editDialogShow(data){//控制变量
       this.dialogEdit = true
       this.currentUnderStudentOfEdit = data
     },
     editUnder(){//点击编辑中的确定按钮
-      if(this.currentUnderStudentOfEdit.teachers.name == '' || this.currentUnderStudentOfEdit.teachers.jobnumber == ''){
-        this.$message.warning('请填写老师姓名和工号！')
+      if(this.currentUnderStudentOfEdit.teachers.name == '' || this.currentUnderStudentOfEdit.teachers.name == null ){
+        // this.currentUnderStudentOfEdit.teachers.jobnumber = ''
+        this.$message.warning('请填写老师姓名！')
+        return
+      }
+      if(this.currentUnderStudentOfEdit.teachers.jobnumber == '' || this.currentUnderStudentOfEdit.teachers.jobnumber == null){
+        // this.currentUnderStudentOfEdit.teachers.name = ''
+        this.$message.warning('请填写老师工号！')
         return
       }
       let data = this.currentUnderStudentOfEdit
