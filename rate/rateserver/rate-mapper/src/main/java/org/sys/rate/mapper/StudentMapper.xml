@@ -166,9 +166,16 @@
         update student
         <set>
             <if test="username != '' and username != null">username=#{username,jdbcType=VARCHAR},</if>
-            <if test="username != '' and username != null">password=#{password,jdbcType=VARCHAR},</if>
+            <if test="password != '' and password != null">password=#{password,jdbcType=VARCHAR},</if>
             registerQuestion = #{registerQuestion,jdbcType=VARCHAR},
             registerAnswer = #{registerAnswer,jdbcType=VARCHAR}
+        </set>
+        where ID=#{ID}
+    </update>
+    <update id="updatePasswordByAdmin">
+        update student
+        <set>
+            <if test="pass != '' and pass != null">password=#{pass,jdbcType=VARCHAR},</if>
         </set>
         where ID=#{ID}
     </update>

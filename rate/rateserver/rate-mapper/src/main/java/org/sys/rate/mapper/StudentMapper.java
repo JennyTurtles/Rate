@@ -17,6 +17,7 @@ public interface StudentMapper {
     Student getStuByIDNumber(String IDNumber);
     Student getById(Integer ID);
 
+    int updatePasswordByAdmin(Integer ID,String pass);
     int insert(Student record);
 
     int delete(Student record);

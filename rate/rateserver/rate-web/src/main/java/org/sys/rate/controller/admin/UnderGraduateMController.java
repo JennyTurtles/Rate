@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.sys.rate.mapper.StudentMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.LogService;
 import org.sys.rate.service.admin.UnderGraduateService;
+import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.POIUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +29,8 @@ public class UnderGraduateMController {
     LogService logService;
     @Autowired
     UnderGraduateService underGraduateService;
+    @Autowired
+    StudentMapper studentMapper;
 
     @GetMapping("/exportUnderGraduate")
     public ResponseEntity<byte[]> downloadExample_UnderGraduateStudents(HttpServletResponse response){
@@ -72,5 +76,19 @@ public class UnderGraduateMController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {t,info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return RespBean.ok("ok",res);
+    }
+    @PostMapping("/resetUnderPassword")
+    public RespBean resetUnderPassword(@RequestBody UnderGraduate under){
+        Integer res = 0;
+        try{
+            String p = ExpertService.sh1(under.getPassword());
+            res = studentMapper.updatePasswordByAdmin(under.getStudentID(),p);
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        if(res > 0){
+            return RespBean.ok("ok",null);
+        }
+        return RespBean.error("error",null);
     }
 }

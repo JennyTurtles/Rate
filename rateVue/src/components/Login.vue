@@ -24,11 +24,15 @@
                   auto-complete="off"
                   placeholder="请输入密码"></el-input>
       </el-form-item>
+      <div class="setPassword">
+        <span @click="forgetPassword">忘记密码?</span>
+      </div>
       <el-button size="normal"
                  type="primary"
                  style="width: 100%;"
                  native-type="submit"
                  @click="submitLogin">登录</el-button>
+
     </el-form>
   </div>
 </template>
@@ -65,6 +69,16 @@ export default {
     this.loginForm = this.inf
   },
   methods: {
+    forgetPassword(){//忘记密码选项
+      this.$router.push({
+        path:'/ResetPassword'
+      })
+    },
+    submitRegist(){
+      this.$router.replace({
+        path:''
+      })
+    },
     submitLogin () {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {//判断是否符合prop要求
@@ -109,6 +123,17 @@ export default {
 </script>
 
 <style>
+.setPassword span:hover{
+  color: #4b8ffe;
+}
+.setPassword{
+  cursor: pointer;
+  margin-top: -10px;
+  margin-bottom: 5px;
+  font-size: 12px;
+  color: gray;
+  text-decoration: none;
+}
 .loginContainer {
   border-radius: 15px;
   background-clip: padding-box;

@@ -76,20 +76,20 @@
       <el-table
           :data="graduateStudents">
         <el-table-column prop="stuNumber" label="学号" align="center"></el-table-column>
-        <el-table-column prop="name" label="姓名" align="center"></el-table-column>
+        <el-table-column prop="name" label="姓名" align="center" width="80px"></el-table-column>
         <el-table-column prop="username" label="用户名" align="center"></el-table-column>
-        <el-table-column prop="telephone" label="电话" align="center"></el-table-column>
+        <el-table-column prop="telephone" label="电话" align="center" width="80px"></el-table-column>
         <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
-        <el-table-column prop="year" label="入学年份" align="center"></el-table-column>
+        <el-table-column prop="year" label="入学年份" align="center" width="70px"></el-table-column>
         <el-table-column prop="studentType" label="学生类别" align="center"></el-table-column>
-        <el-table-column prop="point" label="积分" align="center"></el-table-column>
+        <el-table-column prop="point" label="积分" align="center" width="60px"></el-table-column>
         <el-table-column prop="idnumber" label="身份证号" align="center"></el-table-column>
-        <el-table-column prop="teachers.name" label="导师姓名" align="center"></el-table-column>
-        <el-table-column  label="操作" align="center">
+        <el-table-column prop="teachers.name" label="导师姓名" align="center" width="80px"></el-table-column>
+        <el-table-column  label="操作" align="center" width="180px">
           <template slot-scope="scope">
-            <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary">编辑</el-button>
-            <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)">删除</el-button>
-            <el-button size="mini" type="primary" plain @click="resetPassword(scope.row)">重置密码</el-button>
+            <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary" style="padding: 4px">编辑</el-button>
+            <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)" style="padding: 4px">删除</el-button>
+            <el-button size="mini" type="primary" plain @click="resetPasswordShow(scope.row)" style="padding: 4px">重置密码</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -106,6 +106,17 @@
           <el-button @click="closeDialogEdit">关闭</el-button>
         </span>
       </template>
+    </el-dialog>
+    <el-dialog title="重置密码" :visible.sync="dialogResetPassword" center width="400px">
+      <el-form>
+        <el-form-item label="请输入新密码:">
+          <el-input style="width: 60%" v-model="newPassword"></el-input>
+        </el-form-item>
+        <div class="footer">
+          <el-button @click="resetPassword" type="primary">确认</el-button>
+          <el-button @click="closeDialogReset" type="primary">取消</el-button>
+        </div>
+      </el-form>
     </el-dialog>
     <div style="margin-top: 10px;text-align:right">
       <el-pagination @size-change="handleSizeChange"
@@ -126,6 +137,8 @@ export default {
   name: "SalGraduateM",
   data(){
     return{
+      newPassword:'',
+      dialogResetPassword:false,
       pageSizes:[10,20,20,20,30],
       totalCount:0,
       currentPage:1,
@@ -178,8 +191,29 @@ export default {
     this.initGraduateStudents(this.currentPage,this.pageSize)
   },
   methods:{
-    resetPassword(data){//重制密码
-
+    closeDialogReset(){
+      this.dialogResetPassword = false
+    },
+    resetPasswordShow(data){//重制密码
+      this.currentGraduateStudentOfEdit = data
+      this.dialogResetPassword = true
+    },
+    resetPassword(){//重制密码
+      if(this.newPassword == '' || this.newPassword == null ){
+        this.$message.warning('请输入密码！')
+        return
+      }
+      this.currentGraduateStudentOfEdit.password = this.newPassword
+      this.postRequest('/graduatestudentM/basic/resetUnderPassword',this.currentGraduateStudentOfEdit).then((response)=>{
+        if(response){
+          if(response.status == 200){
+            this.$message.success("重置成功")
+            this.closeDialogReset()
+          }else {
+            this.$message.fail("重置失败")
+          }
+        }
+      })
     },
     inputSelectYearFocus(){//年份输入框获得焦点
       this.isSelectYearShow = true
@@ -343,6 +377,9 @@ export default {
 </script>
 
 <style scoped>
+.footer{
+  text-align: center;
+}
 .select_div_input{
   width:20%;
   height:32px;
