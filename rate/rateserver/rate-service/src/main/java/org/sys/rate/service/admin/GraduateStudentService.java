@@ -231,4 +231,7 @@ public class GraduateStudentService {
         }
         return res;
     }
+    public GraduateStudent getGradByStuID(Integer studentID){
+        return graduateStudentMapper.getGradByStuID(studentID);
+    }
 }

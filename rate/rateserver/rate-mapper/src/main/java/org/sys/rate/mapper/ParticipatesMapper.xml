@@ -228,8 +228,19 @@
         values  (#{IDvarchar,jdbcType=VARCHAR},
                 #{name,jdbcType=VARCHAR},#{IDvarchar,jdbcType=VARCHAR});
     </insert>-->
+<!--    为什么这样写？为了防止改出更多的bug，所以重写一个。。-->
     <insert id="insert" parameterType="org.sys.rate.model.Participates">
         insert into student  (ID,
+                              name,IDNumber, username,
+                              password, telephone, email,deleteflag
+        )
+        values (#{ID,jdbcType=INTEGER},
+                #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR},
+                #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false
+               )
+    </insert>
+    <insert id="insertParByRegister" parameterType="org.sys.rate.model.Participates">
+        insert into participants  (ID,
                               name,IDNumber, username,
                               password, telephone, email,deleteflag
         )

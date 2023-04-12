@@ -180,7 +180,10 @@ router.beforeEach((to, from, next) => {
             sessionStorage.clear('initRoutes_AllSameForm')
         }
         next()
-    } else if (to.path == '/teacher/tperact/InformationDetails') {
+    } else if (to.path == '/Student/Register' || to.path == '/Teacher/Register') {
+        next()
+    }
+    else if (to.path == '/teacher/tperact/InformationDetails') {
         next()
     }
     //除登录外的其他路径

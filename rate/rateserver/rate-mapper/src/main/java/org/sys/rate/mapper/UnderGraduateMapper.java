@@ -12,6 +12,7 @@ import java.util.List;
 public interface UnderGraduateMapper {
 
     List<UnderGraduate> getUnderStudent();
+    UnderGraduate getUnderByStuID(Integer studentID);
     int insert(UnderGraduate record);
     int update(Student record);
     int deleteUnderStudent(UnderGraduate under);

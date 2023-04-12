@@ -11,7 +11,9 @@
         <result column="email" property="email" jdbcType="VARCHAR"/>
         <result column="username" property="username" jdbcType="VARCHAR"/>
         <result column="password" property="password" jdbcType="VARCHAR"/>
-<!--        <result column="deleteFlag" property="deleteFlag" jdbcType="BIT"/>-->
+        <result column="registerAnswer" property="registerAnswer" jdbcType="VARCHAR"/>
+        <result column="registerQuestion" property="registerQuestion" jdbcType="VARCHAR"/>
+        <!--        <result column="deleteFlag" property="deleteFlag" jdbcType="BIT"/>-->
         <result column="year" property="year" jdbcType="INTEGER"/>
         <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
         <result column="role" property="role" jdbcType="INTEGER"/>
@@ -36,7 +38,7 @@
     </select>
 
     <insert id="insert" parameterType="org.sys.rate.model.Student">
-        insert into rate.student (name, studentnumber, telephone, email
+        insert into student (name, studentnumber, telephone, email
         )
         values  (#{name,jdbcType=VARCHAR}, #{studentnumber,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR},
                  #{email,jdbcType=VARCHAR});
@@ -113,6 +115,11 @@
         from student s,teacher t
         where s.username=#{username} and s.tutorID=t.ID
     </select>
+    <select id="getStuByIDNumber" resultMap="BaseResultMap">
+        select *
+        from student
+        where IDNumber = #{IDNumber}
+    </select>
 
     <insert id="insertFROMImport" parameterType="org.sys.rate.model.Student">
         insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,tutorID,role
@@ -134,6 +141,15 @@
         #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,0,''
         )
     </insert>
+    <insert id="insertStuFromRegister" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
+        insert into student  (ID,name,IDNumber,username,password,telephone,email,deleteflag,tutorID,role,registerQuestion,registerAnswer)
+        values (#{ID,jdbcType=INTEGER},
+        #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
+        #{username,jdbcType=VARCHAR},
+        #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,null,'',
+                #{registerQuestion,jdbcType=VARCHAR}, #{registerQuestion,jdbcType=VARCHAR}
+        )
+    </insert>
 
 
     <update id="updateFROMImport" parameterType="org.sys.rate.model.Student">
@@ -144,6 +160,17 @@
         <if test="username!=null">username=#{username,jdbcType=VARCHAR},</if>
                 </set>
         where IDNumber=#{IDNumber,jdbcType=VARCHAR} and ID!='0'
+    </update>
+
+    <update id="updatePasswordAndUsername" parameterType="org.sys.rate.model.Student">
+        update student
+        <set>
+            <if test="username != '' and username != null">username=#{username,jdbcType=VARCHAR},</if>
+            <if test="username != '' and username != null">password=#{password,jdbcType=VARCHAR},</if>
+            registerQuestion = #{registerQuestion,jdbcType=VARCHAR},
+            registerAnswer = #{registerAnswer,jdbcType=VARCHAR}
+        </set>
+        where ID=#{ID}
     </update>
     <delete id="deleteStudent" parameterType="Integer">
         delete from student where ID = #{ID};

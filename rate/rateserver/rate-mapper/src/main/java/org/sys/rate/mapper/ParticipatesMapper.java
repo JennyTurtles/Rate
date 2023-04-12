@@ -122,7 +122,7 @@ public interface ParticipatesMapper {
 
     @Select("SELECT COUNT(*) from participants WHERE studentID = #{stuId}")
     int isParticipants(Integer stuId);
-
+    int insertParByRegister(Participates par);
     List<Participates> getParticipantByAIdAndID(Integer activityID, List<Integer> participantID);
 
     Participates getParticipantIDByIDNumber(Integer activityID,String IDNumber);

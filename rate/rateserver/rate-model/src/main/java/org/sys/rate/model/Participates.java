@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 @Data
 public class Participates{
+    //需求提得晚，所以导致有很多多余的地方。。。改起来很麻烦 希望别变成屎山
     private Integer ID;//student的id
     private String IDNumber;//from stu_IDNumber
     private String studentnumber;//new from stu

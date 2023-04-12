@@ -1,10 +1,11 @@
 package org.sys.rate.controller.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.sys.rate.model.Student;
-import org.sys.rate.model.RespBean;
-import org.sys.rate.model.RespPageBean;
+import org.sys.rate.model.*;
+import org.sys.rate.service.admin.GraduateStudentService;
 import org.sys.rate.service.admin.StudentService;
+import org.sys.rate.service.admin.UnderGraduateService;
+
 import java.applet.AppletStub;
 import java.util.List;
 
@@ -13,11 +14,34 @@ import java.util.List;
 public class StudentBasicController {
     @Autowired
     StudentService StudentService;
-
+    @Autowired
+    UnderGraduateService underGraduateService;
+    @Autowired
+    GraduateStudentService graduateStudentService;
 
     @GetMapping("/getall")
     public List<Student> getAllStudent() {
         return StudentService.getAllStudent();
+    }
+    @GetMapping("/getStuByIDNumber")
+    public RespBean getStuByIDNumber(String IDNumber,String stuType) {
+        Student res = StudentService.getStuByIDNumber(IDNumber);
+        UnderGraduate under = null;
+        GraduateStudent grad = null;
+        //说明查询到了这个学生
+        if(res != null){
+            if(stuType != null && !stuType.equals("")){
+                if(stuType.equals("本科生")){
+                    under = underGraduateService.getUnderByStuID(res.getID());
+                    if (under != null) return RespBean.ok("res",under);
+                }else if(stuType.equals("研究生")){
+                    grad = graduateStudentService.getGradByStuID(res.getID());
+                    if (grad != null) return RespBean.ok("res",grad);
+                }
+
+            }
+        }
+        return RespBean.ok("res",res);
     }
 
     @PostMapping("/insert")

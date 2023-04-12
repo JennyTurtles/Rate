@@ -486,6 +486,20 @@ export default new Router({
       alias: '/',
     },
     {
+      path: '/Student/Register',
+      name: 'StuRegister',
+      hidden: true,
+      component: () => import('./views/student/Register'),
+      meta: { title: '学生注册' },
+    },
+    {
+      path: '/Teacher/Register',
+      name: 'TeaRegister',
+      hidden: true,
+      component: () => import('./views/teacher/Register'),
+      meta: { title: '教师注册' },
+    },
+    {
       //教师登录页
       path: '/Teacher/Login', //路由跳转路径
       name: '教师登录', //路由名称

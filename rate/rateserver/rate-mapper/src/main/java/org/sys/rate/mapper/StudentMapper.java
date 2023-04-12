@@ -14,7 +14,7 @@ public interface StudentMapper {
 
     Student loadUserByUsername(String username);
 //    List<Role> getAdminRolesById(Integer id);
-
+    Student getStuByIDNumber(String IDNumber);
     Student getById(Integer ID);
 
     int insert(Student record);
@@ -26,6 +26,8 @@ public interface StudentMapper {
     int check(@Param("IDNumber") String record);
     List<Student> checkAndReturnID(List<Student> stuList);
 
+    int updatePasswordAndUsername(Student record);
+    int insertStuFromRegister(Student record);//注册添加
     int insertFROMImport(Student record);
     int insertStuFromExcel(Student record);
     int updateFROMImport(Student record);

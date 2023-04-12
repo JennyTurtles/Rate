@@ -6,6 +6,8 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 public class Student extends Account {
+    //按照老师的说法，student表中要丢弃很多内容，所以先把这个类当作一个共同属性类（本科生 研究生 选手）
+    //数据库中更改但是这里不能改
     private Integer ID;
 //    private Integer sid;
 
@@ -20,12 +22,48 @@ public class Student extends Account {
     private Integer year;
     private Integer tutorID;
     private Teachers teachers;//老师对象
+    private String gradType;//专硕还是学硕
+    private String stuType;//本科生、研究生、选手
+    private String registerQuestion;
+    private String registerAnswer;
     private Integer deleteflag;
     private Integer role;
     private Thesis thesis;
 
+    public String getStuType() {
+        return stuType;
+    }
+
+    public void setStuType(String stuType) {
+        this.stuType = stuType;
+    }
+
+    public String getRegisterQuestion() {
+        return registerQuestion;
+    }
+
+    public void setRegisterQuestion(String registerQuestion) {
+        this.registerQuestion = registerQuestion;
+    }
+
+    public String getRegisterAnswer() {
+        return registerAnswer;
+    }
+
+    public void setRegisterAnswer(String registerAnswer) {
+        this.registerAnswer = registerAnswer;
+    }
+
     public Thesis getThesis() {
         return thesis;
+    }
+
+    public String getGradType() {
+        return gradType;
+    }
+
+    public void setGradType(String gradType) {
+        this.gradType = gradType;
     }
 
     public void setThesis(Thesis thesis) {

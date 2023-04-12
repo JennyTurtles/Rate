@@ -45,6 +45,9 @@ public class StudentService implements UserDetailsService {
     public List<Student> getAllStudent() {
         return StudentMapper.getTotal();
     }
+    public Student getStuByIDNumber(String IDNumber){
+        return StudentMapper.getStuByIDNumber(IDNumber);
+    }
 
     public Integer addStudent(Student record) {
         int result = StudentMapper.insert(record);

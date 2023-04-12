@@ -253,4 +253,7 @@ public class UnderGraduateService {
         }
         return res;
     }
+    public UnderGraduate getUnderByStuID(Integer studentID){
+        return underGraduateMapper.getUnderByStuID(studentID);
+    }
 }
