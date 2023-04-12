@@ -1,24 +1,28 @@
 <template>
   <div class="transfer">
-    <div class="transfer-panel">
+    <div class="transfer-panel-left">
       <p class="transfer-panel-header">
           <span></span>
-        <span>{{titleTexts && titleTexts[0]}}</span>
+          <el-checkbox @change="displayNoGroup" v-model="displayNoGroupCheck" style="float: left">仅未分组</el-checkbox>
+        <span style="margin-right: 75px">{{titleTexts && titleTexts[0]}}</span>
         <span>{{leftSelection.length}}/{{leftTableData.length}}</span>
       </p>
-      <div v-if="showQuery">
-        <el-form :inline="true" :model="leftQueryCondition" class="query-form">
+      <div v-if="showQuery" >
+        <el-form :inline="true" :model="leftQueryCondition" style="float: left" class="query-form">
           <slot name="leftCondition" v-bind:scope="leftQueryCondition"></slot>
+
           <el-form-item>
-            <el-button type="primary" @click="onLeftQuerySubmit()">{{queryTexts[0]}}</el-button>
+<!--            <el-button class="el-icon-search" type="primary" @click="onLeftQuerySubmit()">{{queryTexts[0]}}</el-button>-->
+              <el-button class="el-icon-search" type="primary" @click="onLeftQuerySubmit" style="padding: 7px;margin-left: 5px">搜索</el-button>
+              <el-button class="el-icon-refresh" type="primary" @click="refresh" style="padding: 7px;margin-left: 5px">重置</el-button>
           </el-form-item>
         </el-form>
       </div>
       <el-table
           ref="leftTable"
           size="small"
-          :max-height="maxHeight"
-          :height="minHeight"
+          @current-change="handleCurrentChangeColour"
+          height="700px"
           :data="leftTableData"
           :row-key="tableRowKey"
           :row-class-name="handleRowStyle"
@@ -26,11 +30,22 @@
           @selection-change="handleLeftSelectionChange"
           border
           >
+<!--        <el-table-column-->
+<!--            width="40px"-->
+<!--            type="selection"-->
+<!--            :selectable="handleSelectable"></el-table-column>-->
         <el-table-column
-            width="40px"
-            type="selection"
-            :selectable="handleSelectable"></el-table-column>
-        <el-table-column
+            sortable
+            :sort-method="(a, b) => {
+                if (col.label === '编号')
+                      return Number(a.code)- Number(b.code)
+                else if (col.label === '工号')
+                    return Number(a.jobNumber)- Number(b.jobNumber)
+                else{
+                    // 按照拼音排序
+                    return a[col.id].localeCompare(b[col.id], 'zh-Hans-CN', {sensitivity: 'accent'})
+                }
+            }"
             v-for="col in leftColumns"
             :prop="col.id"
             :key="col.id"
@@ -43,17 +58,17 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination
-          v-if="showPagination"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="pageIndex"
-          :page-sizes="[10, 20, 50, 100]"
-          :page-size="pageSize"
-          :pager-count="5"
-          :total="totalSize"
-          layout="total, sizes, prev, pager, next">
-      </el-pagination>
+<!--      <el-pagination-->
+<!--          v-if="false"-->
+<!--          @size-change="handleSizeChange"-->
+<!--          @current-change="handleCurrentChange"-->
+<!--          :current-page="pageIndex"-->
+<!--          :page-sizes="[1000]"-->
+<!--          :page-size="1000"-->
+<!--          :pager-count="5"-->
+<!--          :total="totalSize"-->
+<!--          layout="total, sizes, prev, pager, next">-->
+<!--      </el-pagination>-->
     </div>
     <div class="transfer-buttons">
       <el-button
@@ -61,7 +76,7 @@
           :class="buttonClasses"
           :disabled="disabledLeftButton"
           @click.native="addToRight">
-        <span v-if="buttonTexts[0] !== undefined" class="button-text">{{ buttonTexts[0] }}</span>
+        <span v-if="buttonTexts[0] !== undefined" class="button-text"></span>
         <i class="el-icon-arrow-right"></i>
       </el-button>
       <el-button
@@ -70,37 +85,28 @@
           :disabled="rightSelection.length === 0"
           @click.native="addToLeft">
         <i class="el-icon-arrow-left"></i>
-        <span v-if="buttonTexts[1] !== undefined" class="button-text">{{ buttonTexts[1] }}</span>
+        <span v-if="buttonTexts[1] !== undefined" class="button-text"></span>
       </el-button>
     </div>
-    <div class="transfer-panel">
+    <div class="transfer-panel-right">
       <p class="transfer-panel-header">
           <span>{{rightSelection.length}}/{{rightTableData.length}}</span>
         <span>{{titleTexts && titleTexts[1]}}</span>
 <!--          <el-button type="danger" style="position: absolute ;right: 70px;margin-top: 5px" @click="$parent.clearTransfer()">清空</el-button>-->
-          <el-button type="success" style="position: absolute ;right: 5px;margin-top: 5px" @click="$parent.import()">导入</el-button>
+          <el-button type="success" style="position: absolute ;right: 5px;margin-top: 5px;padding: 7px" @click="$parent.import()">导入</el-button>
       </p>
-      <div v-if="showQuery">
-        <el-form :inline="true" :model="rightQueryCondition" class="query-form">
-          <slot name="rightCondition" v-bind:scope="rightQueryCondition"></slot>
-          <el-form-item>
-            <el-button type="primary" @click="onRightQuerySubmit()">{{queryTexts[1]}}</el-button>
-          </el-form-item>
-        </el-form>
-      </div>
       <el-table
           ref="rightTable"
           size="small"
+          height="745px"
           :row-class-name="handleRowStyleForRight"
-          :max-height="maxHeight"
-          :height="minHeight"
           :data="calcRightTableData"
           :row-key="tableRowKey"
           @row-click="handleRightRowClick"
           @selection-change="handleRightSelectionChange"
           border
           >
-        <el-table-column width="40px" type="selection"></el-table-column>
+<!--        <el-table-column width="40px" type="selection"></el-table-column>-->
         <el-table-column
             v-for="col in rightColumns || leftColumns"
             :prop="col.id"
@@ -114,17 +120,13 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination
-          v-if="showPagination"
-          :total="rightTableData.length"
-          layout="total">
-      </el-pagination>
     </div>
   </div>
 </template>
 
 <script>
   import fa from "element-ui/src/locale/lang/fa";
+  import da from "element-ui/src/locale/lang/da";
 
   export default {
     name: 'EltTransfer',
@@ -196,12 +198,12 @@
       // 表格最小高度
       minHeight: {
         type: String,
-        default: '300px'
+        default: 'auto'
       },
       // 表格最大高度
       maxHeight: {
         type: String,
-        default: '500px'
+        default: 'auto'
       },
       // 表格行数据的Key
       tableRowKey: {
@@ -215,10 +217,11 @@
       return {
         // groupID:-1,
         // checkList : [],
+        displayNoGroupCheck:false,
         leftTableData: [],
         rightTableData: this.value || [],
         pageIndex: 1,
-        pageSize: 20,
+        pageSize: 1000,
         totalSize: 0,
         leftSelection: [],
         rightSelection: [],
@@ -258,124 +261,162 @@
       }
     },
     methods: {
-      handleLeftSelectionChange(selection) {
-        this.leftSelection = selection
-      },
-      handleRightSelectionChange(selection) {
-        this.rightSelection = selection
-      },
-      handleLeftRowClick(row) {
-        if (!this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, row))) {
-          this.$refs.leftTable.toggleRowSelection(row)
-        }
-      },
-      handleRightRowClick(row) {
-        this.$refs.rightTable.toggleRowSelection(row)
-      },
-      handleSizeChange(val) {
-        this.pageSize = val
-        this.handlePaginationCallBack()
-      },
-      handleCurrentChange(val) {
-        this.pageIndex = val
-        this.handlePaginationCallBack()
-      },
-      handlePaginationCallBack() {
-        if (this.showPagination && this.paginationCallBack) {
-          const condition = {
-            pageIndex: this.pageIndex,
-            pageSize: this.pageSize,
-            ...this.leftQueryCondition
-          }
-          this.paginationCallBack.call(null, condition).then(result => {
-            if (result && Array.isArray(result.data)) {
-              this.leftTableData = result.data
-              this.totalSize = result.total
+        handleLeftSelectionChange(selection) {
+            this.leftSelection = selection
+        },
+        handleRightSelectionChange(selection) {
+            this.rightSelection = selection
+        },
+        handleLeftRowClick(row) {
+            if (!this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, row))) {
+                this.$refs.leftTable.toggleRowSelection(row)
+            }
+        },
+        handleRightRowClick(row) {
+            this.$refs.rightTable.toggleRowSelection(row)
+        },
+        handleSizeChange(val) {
+            this.pageSize = val
+            this.handlePaginationCallBack()
+        },
+        handleCurrentChangeColour() {
+
+        },
+        handleCurrentChange(val) {
+            this.pageIndex = val
+            this.handlePaginationCallBack()
+        },
+        refresh() {
+            this.leftQueryCondition = {}
+            this.handlePaginationCallBack(true)
+        },
+        handlePaginationCallBack(flag) {
+            if (this.showPagination && this.paginationCallBack) {
+                const condition = {
+                    pageIndex: this.pageIndex,
+                    pageSize: this.pageSize,
+                    ...this.leftQueryCondition
+                }
+                this.paginationCallBack.call(null, condition).then(result => { // 筛选
+                    result.data = result.data.filter(data => {
+                        const conditionKeys = Object.keys(this.leftQueryCondition);
+                        return conditionKeys.every(key => {
+                            const rowCellData = data[key.toString()];
+                            const condVal = this.leftQueryCondition[key];
+                            if (rowCellData) {
+                                return String(rowCellData).indexOf(condVal) > -1
+                            }
+                            return true;
+                        })
+                    });
+                    result.total = result.data.length;
+                    if (result && Array.isArray(result.data)) {
+                        this.leftTableData = result.data
+                        this.totalSize = result.total
+                    }
+                    this.$nextTick(() => {
+                            this.leftTableData.forEach(leftRow => {
+                                const isHave = this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, leftRow))
+                                this.$refs.leftTable.toggleRowSelection(leftRow, isHave)
+                            })
+                            if (this.displayNoGroupCheck){
+                                this.leftTableData = this.leftTableData.filter(data => {
+                                    return !this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, data))
+                                })
+                            }
+
+                        }
+                    )
+                })
+            }
+        },
+        handleRowStyle({row}) {
+            if (this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, row))) {
+                return 'gray-row'
             }
 
-            this.$nextTick(() => {
-              this.leftTableData.forEach(leftRow => {
-                const isHave = this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, leftRow))
-                this.$refs.leftTable.toggleRowSelection(leftRow, isHave)
-              })
-            })
-          })
-        }
-      },
-      handleRowStyle({row}) {
-        if (this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, row))) {
-          return 'success-row'
-        }
-        // for (const item in this.checkList) {
-        //   if (this.checkList[item].id == row.id && this.checkList[item].groupID != this.groupID){
-        //     return 'warning-row'
-        //   }
-        // }
-        return ''
-      },
-        handleRowStyleForRight({row}) {
-            // if (this.leftTableData.some(leftRow => this.checkObjectIsEqual(leftRow, row))) {
-            //     return 'success-row'
+            // 如果row在this.leftSelection里就设置背景为蓝色
+            if (this.leftSelection.some(leftRow => this.checkObjectIsEqual(leftRow, row)))
+                return 'blue-row'
+            // for (const item in this.checkList) {
+            //   if (this.checkList[item].id == row.id && this.checkList[item].groupID != this.groupID){
+            //     return 'warning-row'
+            //   }
             // }
             return ''
         },
-      handleSelectable(row) {
-          // for (const item in this.checkList) {
-          //     if (this.checkList[item].id == row.id && this.checkList[item].groupID != this.groupID){
-          //         return false
-          //     }
-          // }
-        return !this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, row))
-      },
-      addToRight() {
-        var addList = []
-        for (const item of this.leftSelection) {
-          const isHave = this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, item))
-          if (!isHave) {
-            this.rightTableData.push(item)
-            addList.push(item)
-          }
-        }
-        this.$emit('input', this.rightTableData)
-        this.$parent.simpleAdd(addList)
-      },
-      addToLeft() {
-        var delList = []
-        this.rightSelection.forEach(item => {
-          const index = this.rightTableData.findIndex(rightRow => this.checkObjectIsEqual(rightRow, item))
-          if (index !== -1) {
-            this.rightTableData.splice(index, 1)
-            delList.push(item)
-            const leftRow = this.leftTableData.find(leftRow => this.checkObjectIsEqual(leftRow, item))
-            if(leftRow) {
-              this.$refs.leftTable.toggleRowSelection(leftRow, false)
+        handleRowStyleForRight({row}) {
+            if (this.rightSelection.some(rightRow => this.checkObjectIsEqual(rightRow, row)))
+                return 'blue-row'
+            return ''
+        },
+        handleSelectable(row) {
+            // for (const item in this.checkList) {
+            //     if (this.checkList[item].id == row.id && this.checkList[item].groupID != this.groupID){
+            //         return false
+            //     }
+            // }
+            return !this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, row))
+        },
+        addToRight() {
+            var addList = []
+            for (const item of this.leftSelection) {
+                const isHave = this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, item))
+                if (!isHave) {
+                    this.rightTableData.push(item)
+                    addList.push(item)
+                }
             }
-          }
-        })
-        this.$parent.delete(delList)
-        this.$emit('input', this.rightTableData)
-      },
-      onLeftQuerySubmit() {
-        this.handlePaginationCallBack();
-      },
-      onRightQuerySubmit() {
-        this.rightConditionTemp = JSON.parse(JSON.stringify(this.rightQueryCondition));
-      },
-      checkObjectIsEqual(rowObj1, rowObj2) {
-        return this.tableRowKey(rowObj1) === this.tableRowKey(rowObj2)
-      },
-      clear(){
-        this.rightTableData = [];
-        this.$refs.leftTable.clearSelection();
-        for (const key in this.leftQueryCondition) {
-          this.leftQueryCondition[key] = undefined;
-        }
-        for (const key in this.rightQueryCondition) {
-          this.rightQueryCondition[key] = undefined;
-        }
-        this.pageIndex = 1;
-        this.handlePaginationCallBack();
-      }
+            this.$emit('input', this.rightTableData)
+            this.$parent.simpleAdd(addList)
+        },
+        addToLeft() {
+            var delList = []
+            this.rightSelection.forEach(item => {
+                const index = this.rightTableData.findIndex(rightRow => this.checkObjectIsEqual(rightRow, item))
+                if (index !== -1) {
+                    this.rightTableData.splice(index, 1)
+                    delList.push(item)
+                    const leftRow = this.leftTableData.find(leftRow => this.checkObjectIsEqual(leftRow, item))
+                    if (leftRow) {
+                        this.$refs.leftTable.toggleRowSelection(leftRow, false)
+                    }
+                }
+            })
+            this.$parent.delete(delList)
+            this.$emit('input', this.rightTableData)
+        },
+        onLeftQuerySubmit() {
+            this.handlePaginationCallBack(true);
+        },
+        onRightQuerySubmit() {
+            this.rightConditionTemp = JSON.parse(JSON.stringify(this.rightQueryCondition));
+        },
+        checkObjectIsEqual(rowObj1, rowObj2) {
+            return this.tableRowKey(rowObj1) === this.tableRowKey(rowObj2)
+        },
+        clear() {
+            this.rightTableData = [];
+            this.$refs.leftTable.clearSelection();
+            // for (const key in this.leftQueryCondition) {
+            //   this.leftQueryCondition[key] = undefined;
+            // }
+            // for (const key in this.rightQueryCondition) {
+            //   this.rightQueryCondition[key] = undefined;
+            // }
+            this.pageIndex = 1;
+            this.handlePaginationCallBack();
+        },
+        displayNoGroup(flag) {
+            if (flag) {
+                // 仅显示不在右边表格中的行
+                this.leftTableData = this.leftTableData.filter(data => {
+                    return !this.rightTableData.some(rightRow => this.checkObjectIsEqual(rightRow, data))
+                })
+            }else {
+                this.handlePaginationCallBack(true);
+            }
+        },
     }
   }
 </script>
@@ -384,8 +425,9 @@
   .transfer {
     font-size: 14px;
     display: flex;
-    justify-content: center;
+    /*justify-content: center;*/
     align-items: center;
+
   }
 
   .el-icon-arrow-right, .el-icon-arrow-left {
@@ -393,19 +435,19 @@
     cursor: pointer;
   }
 
-  .transfer-panel {
+  .transfer-panel-left {
     border: 1px solid #EBEEF5;
     border-radius: 4px;
     overflow: hidden;
     background: #FFF;
     display: inline-block;
-    width: calc((100% - 100px) / 2);
+    /*width: calc((100% - 100px));*/
     max-height: 100%;
     box-sizing: border-box;
     position: relative
   }
 
-  .transfer-panel .transfer-panel-header {
+  .transfer-panel-left .transfer-panel-header {
     height: 40px;
     line-height: 40px;
     background: #F5F7FA;
@@ -415,6 +457,31 @@
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
     color: #000;
+  }
+
+  .transfer-panel-right {
+      border: 1px solid #EBEEF5;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #FFF;
+      display: inline-block;
+      /*width: calc((100% - 100px));*/
+      max-height: 100%;
+      box-sizing: border-box;
+      position: relative
+  }
+
+  .transfer-panel-right .transfer-panel-header {
+      height: 40px;
+      line-height: 40px;
+      background: #F5F7FA;
+      margin: 0;
+      padding-left: 0px;
+      padding-right: 12px;;
+      border-bottom: 1px solid #EBEEF5;
+      -webkit-box-sizing: border-box;
+      box-sizing: border-box;
+      color: #000;
   }
 
   .transfer-panel-header span:first-child {
@@ -428,7 +495,7 @@
   .transfer-buttons {
     display: inline-block;
     vertical-align: middle;
-    width: 100px;
+    width: 50px;
   }
 
   .transfer-button {
@@ -482,8 +549,16 @@
   .el-table .warning-row {
       background: oldlace;
   }
-
+  .el-table .blue-row {
+      background: #e6f7ff;
+  }
   .el-table .success-row {
       background: #f0f9eb;
   }
+
+  .gray-row {
+      color: #c6c5c5;
+      cursor: not-allowed;
+  }
+
 </style>

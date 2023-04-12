@@ -4,14 +4,23 @@
             style="text-align: center;margin-top: 10px;"
             ref="eltTransfer"
             :show-pagination="true"
+            :show-query="true"
             :pagination-call-back="paginationCallBackPar"
             :left-columns="leftColumns"
             :right-columns="rightColumns"
-            :title-texts="['未分组专家','已分组专家']"
+            :title-texts="['所有专家','本组专家']"
             :button-texts="['添加','删除']"
             :table-row-key="row => row.name"
             v-model="tableData"
         >
+        <template v-slot:leftCondition="{scope}">
+            <el-form-item label="" style="margin-left: 3px">
+                <el-input v-model="scope.jobNumber" placeholder="工号" style="width: 120px"></el-input>
+            </el-form-item>
+            <el-form-item label="" style="margin-right: 3px">
+                <el-input v-model="scope.name" placeholder="姓名" style="width: 80px"></el-input>
+            </el-form-item>
+        </template>
         </elt-transfer>
 
         <el-dialog
@@ -80,13 +89,12 @@ export default {
             mode:-1,
             tableData: [],
             leftColumns: [
-                {label: '姓名', id: 'name', width: '120px'},
-                {label: '工号', id: 'jobNumber', width: '120px'},
-                {label: '身份证', id: 'idnumber',}
+                {label: '工号', id: 'jobNumber', width: '200px'},
+                {label: '姓名', id: 'name', width: 'auto'},
             ],
             rightColumns:[
-                {label: '姓名', id: 'name', },
-                {label: '工号', id: 'jobNumber', },
+                {label: '工号', id: 'jobNumber', width: 'auto'},
+                {label: '姓名', id: 'name', width: '70px'},
             ],
             experts: []
         }
@@ -147,12 +155,11 @@ export default {
         init(){
            this.getRequest("/groups/basic/experts?groupID="+this.groupIDParent).then(res=>{ // 获取大组内的选手
                this.experts = res.obj;
-               console.log(this.experts)
-               this.clearTransfer();
                if (this.groupID === null) { // 处理不进行分组的情况，将分组的时机选在秘书点进来的时候，而不是管理员创建子活动的时候，类似于COW的思路
                    this.getRequest("/groups/basic/expertsForUniqueGroupSubActivity?activityID="+this.activityID+"&groupIDParent="+this.groupIDParent).then(res=>{ // 获取当前组内的选手
                        this.groupID = res.obj[0];
                        this.tableData = res.obj[1];
+                       this.clearTransfer();
                        for (let i = 0; i < this.tableData.length; i++) {
                            this.$refs.eltTransfer.rightTableData.push(this.tableData[i])
                        }
@@ -160,6 +167,7 @@ export default {
                }else{
                    this.getRequest("/groups/basic/experts?groupID="+this.groupID).then(res=>{ // 获取当前组内的选手
                        this.tableData = res.obj;
+                       this.clearTransfer();
                        for (let i = 0; i < this.tableData.length; i++) {
                            this.$refs.eltTransfer.rightTableData.push(this.tableData[i])
                        }

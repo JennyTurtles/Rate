@@ -9,7 +9,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "core-js": "^2.6.12",
-    "element-ui": "^2.15.6",
+    "element-ui": "^2.15.13",
     "file-saver": "^2.0.5",
     "font-awesome": "^4.7.0",
     "html2canvas": "^1.4.1",

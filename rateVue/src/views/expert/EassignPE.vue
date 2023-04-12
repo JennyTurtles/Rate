@@ -8,41 +8,33 @@
                     </el-button>
                </div>
         </div>
-        <elt-transfer
-            style="text-align: center;margin-top: 10px;"
-            ref="eltTransfer"
-            :show-pagination="true"
-            :pagination-call-back="paginationCallBackPar"
-            :left-columns="leftColumns"
-            :right-columns="rightColumns"
-            :title-texts="['未分组选手','已分组选手']"
-            :button-texts="['添加','删除']"
-            :table-row-key="row => row.name"
-            v-model="tableData"
-        >
-            <!-- 可以使用插槽获取到列信息和行信息，从而进行数据的处理 -->
-<!--            <template v-slot:default="{scope}">-->
-<!--                <div>-->
-<!--&lt;!&ndash;                    <span>{{scope.row}}</span>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <span v-if="scope.col.id === 'gender'">{{scope.row.gender === '男' ? '男生' : '女生'}}</span>&ndash;&gt;-->
-<!--                    <span>{{scope.row[scope.col.id]}}</span>-->
-<!--                </div>-->
-<!--            </template>-->
-<!--            <template v-slot:leftCondition="{scope}">-->
-<!--                <el-form-item label="姓名">-->
-<!--                    <el-input v-model="scope.name" placeholder="姓名"></el-input>-->
-<!--                </el-form-item>-->
-<!--                <el-form-item label="年龄">-->
-<!--                    <el-input v-model="scope.age" placeholder="年龄"></el-input>-->
-<!--                </el-form-item>-->
-<!--            </template>-->
-<!--            <template v-slot:rightCondition="{scope}">-->
-<!--                <el-form-item label="名称">-->
-<!--                    <el-input v-model="scope.name" placeholder="名称"></el-input>-->
-<!--                </el-form-item>-->
-<!--            </template>-->
-        </elt-transfer>
-
+        <div style="display: flex;">
+            <elt-transfer
+              style="text-align: center;margin-top: 10px;margin-right: 20px"
+              :show-query="true"
+              :query-texts="['搜索']"
+              ref="eltTransfer"
+              :show-pagination="true"
+              :pagination-call-back="paginationCallBackPar"
+              :left-columns="leftColumns"
+              :right-columns="rightColumns"
+              :title-texts="['所有选手','本组选手']"
+              :button-texts="['添加','删除']"
+              :table-row-key="row => row.name"
+              v-model="tableData"
+            >
+                <template v-slot:leftCondition="{scope}">
+                    <el-form-item label="" style="margin-left: 3px">
+                        <el-input v-model="scope.code" placeholder="编号" style="width: 120px"></el-input>
+                    </el-form-item>
+                    <el-form-item label="" style="margin-right: 3px">
+                        <el-input v-model="scope.name" placeholder="姓名" style="width: 75px"></el-input>
+                    </el-form-item>
+                </template>
+            </elt-transfer>
+            <el-divider direction="vertical"></el-divider>
+            <eassignE style="margin-left: 25px"></eassignE>
+        </div>
         <el-dialog
             title="导入选手到本组"
             :visible.sync="importParVisible"
@@ -102,7 +94,7 @@
           <el-button @click="dialogVisible_checkbox = false">关闭</el-button>
         </span>
         </el-dialog>
-        <eassignE></eassignE>
+
     </div>
 </template>
 
@@ -140,13 +132,12 @@ export default {
             mode:-1,
             tableData: [],
             leftColumns: [
-                {label: '姓名', id: 'name', width: '120px'},
-                {label: '编号', id: 'code', width: '120px'},
-                {label: '身份证', id: 'idnumber',}
+                {label: '编号', id: 'code', width: 'auto'},
+                {label: '姓名', id: 'name', width: 'auto'},
             ],
             rightColumns:[
-                {label: '姓名', id: 'name', },
                 {label: '编号', id: 'code', },
+                {label: '姓名', id: 'name', width: '70px'},
             ],
             pars: []
         }
@@ -209,21 +200,24 @@ export default {
         init(){
            this.getRequest("/groups/basic/pars?groupID="+this.groupIDParent).then(res=>{ // 获取大组内的选手
                this.pars = res.obj;
-               this.clearTransfer();
                if (this.groupID === null) { // 处理不进行分组的情况，将分组的时机选在秘书点进来的时候，而不是管理员创建子活动的时候，类似于COW的思路
                    this.getRequest("/groups/basic/parsForUniqueGroupSubActivity?activityID="+this.activityID+"&groupIDParent="+this.groupIDParent).then(res=>{ // 获取当前组内的选手
                        this.groupID = res.obj[0];
                        this.tableData = res.obj[1];
+                       this.clearTransfer();
                        for (let i = 0; i < this.tableData.length; i++) {
                            this.$refs.eltTransfer.rightTableData.push(this.tableData[i])
                        }
+
                    })
                }else{
                    this.getRequest("/groups/basic/pars?groupID="+this.groupID).then(res=>{ // 获取当前组内的选手
                        this.tableData = res.obj;
+                       this.clearTransfer();
                        for (let i = 0; i < this.tableData.length; i++) {
                            this.$refs.eltTransfer.rightTableData.push(this.tableData[i])
                        }
+
                    })
                }
 
@@ -252,6 +246,7 @@ export default {
         },
         clearTransfer() {
             this.$refs.eltTransfer.clear()
+            // this.$refs.eltTransfer.leftTableDataRaw = this.pars;
         },
         back(){
             this.$router.go(-1);
@@ -351,4 +346,12 @@ export default {
 </script>
 
 <style>
+.el-divider--vertical{
+    display:inline-block;
+    width:1px;
+    height:800px;
+    margin:0 8px;
+    vertical-align:middle;
+    position:relative;
+}
 </style>

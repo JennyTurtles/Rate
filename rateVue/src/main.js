@@ -56,7 +56,7 @@ import {
     DatePicker,
     RadioGroup,
     CollapseItem,
-    Switch, Popconfirm
+    Switch, Popconfirm,Divider
 } from 'element-ui';
 
 Vue.directive('focus', {
@@ -67,6 +67,7 @@ Vue.directive('focus', {
 })
 
 Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 };
+Vue.use(Divider)
 Vue.use(Transfer)
 Vue.use(Switch);
 Vue.component(Message);
