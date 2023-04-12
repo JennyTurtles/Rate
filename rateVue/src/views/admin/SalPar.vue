@@ -302,6 +302,7 @@
         导入模板中必须包含身份证号和姓名，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。
         <br/>
         首次导入请注意！如果student表中已有该选手的记录，则手机号、邮箱、属于本单位三列可为空，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为编号和手机号，其余必须填写。
+          <br/>模版内的列顺序为点击顺序。
       </div><br/>
       <div style="font-size: 16px;margin-left: 15%">基本信息：<br/>
         <el-checkbox label="姓名" key="姓名" v-model="dymatic_list" disabled style="width: 150px">姓名</el-checkbox>
@@ -322,6 +323,8 @@
         <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: 150px">
         </el-checkbox>
       </div>
+        <div style="font-size: 16px;margin-left: 15%;margin-top: 15px">模版列预览：<br/></div>
+        <div style="font-size: 16px;margin-left: 15%">{{preview(dymatic_list,scoreitem,infoitem)}}</div>
       <span slot="footer" class="dialog-footer">
           <el-button type="primary" @click="exportMo">下载</el-button>
           <el-button @click="dialogVisible_checkbox = false">关闭</el-button>
@@ -409,6 +412,12 @@ export default {
     this.ACNAME=this.$route.query.keywords_name;
   },
   methods: {
+      preview(dymatic_list,infoitem,scoreitem){
+          // 拼接3个list，然后转换为不带有引号的字符串
+          var list = dymatic_list.concat(scoreitem).concat(infoitem);
+          var str = list.join()
+          return str
+      },
     /** 查询角色列表 */
     onError(err, file, fileList) {
       this.importDataBtnText = '导入选手';

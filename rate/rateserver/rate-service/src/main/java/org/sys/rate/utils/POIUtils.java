@@ -652,7 +652,7 @@ public class POIUtils {
         {
             r0.createCell(datalist.size()+i).setCellValue("评分项:"+ScoreItem.get(i-InfoItem.size()));
         }
-        row.createCell(datalist.size()).setCellValue("请删除本行，如果student表中已有该选手的记录，则手机号、邮箱、属于本单位三列可为空，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为编号和手机号，其余必须填写。如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
+        row.createCell(datalist.size()).setCellValue("请删除本行，如果student表中已有该选手的记录，则手机号、邮箱、属于本单位三列可为空，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为编号和手机号，其余必须填写。如果用户已经存在，则导入数据中的用户名和密码将被忽略。可以交换列顺序但不可改变列标题。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
