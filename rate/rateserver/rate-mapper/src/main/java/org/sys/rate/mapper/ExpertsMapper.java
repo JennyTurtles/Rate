@@ -56,4 +56,9 @@ public interface ExpertsMapper {
     int isExpert(Integer teaId);
 
     void addParent(List<Experts> list);
+
+    @Select("select t.ID, g.`name` groupName,e.finished,e.role , t.username, t.institutionID, t.name, t.department, t.IDNumber, t.password,t.phone, t.email \n" +
+            "from teacher t,expertactivities e,`groups` g\n" +
+            "where e.`teacherID`=t.`id` and e.activityID = #{activityID} and g.ID = e.groupID")
+    List<Experts> getExpertsByActID(Integer activityID);
 }

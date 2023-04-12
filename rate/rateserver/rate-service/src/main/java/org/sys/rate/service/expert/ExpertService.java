@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
+import javax.annotation.Resource;
 import javax.lang.model.element.NestingKind;
 import javax.swing.text.Document;
 import java.io.OutputStream;
@@ -32,6 +33,8 @@ public class ExpertService implements UserDetailsService {
 	ParticipatesMapper participatesMapper;
 	@Autowired
 	ScoreItemMapper scoreItemMapper;
+	@Resource
+	GroupsMapper groupsMapper;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -213,6 +216,74 @@ public class ExpertService implements UserDetailsService {
 			sb.append(String.format("%02x", b));
 		}
 		return sb.toString();
+	}
+
+	// 不考虑复用，直接复制
+	public List<String> addTeachersWithGroupName(Integer activityid, List<Experts> list) {
+		List<String> result = new ArrayList<>();
+		StringBuilder error = null;
+		for (Experts experts : list) {
+			Expertactivities expertactivities = new Expertactivities();
+			expertactivities.setActivityid(activityid);
+			// 此处基于活动ID和小组名获取小组ID
+			Integer groupID = groupsMapper.selectIDByActivityIdAndGroupName(activityid, experts.getGroupName());
+			expertactivities.setGroupid(groupID);
+			expertactivities.setFinished(false);
+			//如果是1，则为本单位，再设置为管理员的instituteId，否则为null
+			if (experts.getInstitutionid() == 1) {
+				int instituteId = activitiesMapper.selectByActivityId(activityid);//通过活动号查找管理员组织号，新增的ActivitiesMapper方法
+				experts.setInstitutionid(instituteId);
+			} else {
+				experts.setInstitutionid(null);
+			}
+			//检查专家身份存不存在
+			if (expertsMapper.check(experts) > 0) {//这里是idnumbercheck
+				//存在就更新信息,不更新电话，邮箱，用户名，密码。
+				int i = expertsMapper.updateByIdNumber(experts);
+				System.out.println("专家信息更新！条数：" + i + " id: " + experts.getName());
+			} else {
+				//对密码进行处理，默认身份证后六位。
+				if (experts.getPassword().equals("")) {
+					experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
+				} else {
+					experts.setPassword(sh1(experts.getPassword()));
+				}
+				//对用户名进行处理，如果没有读到默认为电话号码
+				experts.setUsername(experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
+				if (expertsMapper.checkUsername(experts.getUsername()) > 0) {//这里是username_check
+					//用户名存在不导入
+					error = new StringBuilder();
+					error.append("专家姓名：").append(experts.getName()).append(",").append("重复的用户名：").append(experts.getUsername()).append(";");
+					result.add(error.toString());
+					System.out.println(experts.getUsername() + " exists!");
+				} else {
+					int insert = expertsMapper.insert(experts);
+					if (insert > 0) {
+						System.out.println("insert->" + experts.getName() + " 的信息插入成功");
+					} else {
+						System.out.println("insert->" + experts.getName() + " 的信息插入失败");
+					}
+				}
+			}
+			//在活动组中加入专家
+			expertactivities.setTeacherID(expertsMapper.getID(experts.getIdnumber()));
+			Integer expertId = expertsMapper.getID(experts.getIdnumber());
+			Integer pend = expertactivitiesMapper.checkByIDandActivityID(expertId, activityid);
+			if (pend != null && pend.equals(groupID)) {
+				System.out.println("该组已经有专家： " + experts.getName());
+			} else {
+				int insert = expertactivitiesMapper.insert(expertactivities);
+				if (insert > 0) {
+					System.out.println("专家插入成功！");
+				} else {
+					System.out.println("专家插入失败");
+				}
+			}
+		}
+		if(result.size()!=0){
+			result.add("请将以上用户名重复的专家更正后再导入,其他专家已经导入成功！");
+		}
+		return result;
 	}
 
 	//2.service
@@ -561,5 +632,7 @@ public class ExpertService implements UserDetailsService {
 		bean.setData(list);
 		return bean;
 	}
+
+
 
 }

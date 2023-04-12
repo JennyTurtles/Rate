@@ -223,6 +223,7 @@ export default {
       total: 0,
       loading: false,
       hrs: [],
+      mode:"",
       selectedRoles: [],
       allroles: [],
       hr_info: {
@@ -287,6 +288,7 @@ export default {
   mounted() {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
+    this.mode = this.$route.query.mode;
     this.initHrs();
     this.initData();
   },
@@ -349,9 +351,19 @@ export default {
     },
     back() {
       const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/search",
-      });
+      if (this.mode === "admin"){
+          _this.$router.push({
+              path: "/ActivitM/search",
+          });
+      }else if (this.mode === "adminSub"){
+          _this.$router.push({
+              path: "/ActivitM/SubActManage",
+              query:{
+                  id: this.$route.query.backID,
+              }
+          });
+      }
+
     },
     tableRowClassName({row, rowIndex}) {
       // 把每一行的索引放进row

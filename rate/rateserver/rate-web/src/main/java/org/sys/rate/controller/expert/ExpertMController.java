@@ -55,6 +55,12 @@ public class ExpertMController {
         return res;
     }
 
+    @GetMapping("/allByActID")
+    public RespBean getExpertsByActID(@RequestParam Integer activityID) {
+        List<Experts> res = expertsMapper.getExpertsByActID(activityID);
+        return RespBean.ok("获取成功",res);
+    }
+
     @GetMapping("/show_situ")
     public RespPageBean getExpertSituationByExpertID(@RequestParam Integer activityID,@RequestParam Integer groupID, @RequestParam Integer expertID,@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
         return expertService.getExpertSituationByExpertID(activityID,groupID,expertID,page, size);
@@ -108,6 +114,37 @@ public class ExpertMController {
         return RespBean.error("更新失败!");
     }
 
+    // 不考虑复用，直接复制
+    private RespBean importExpertsWithGroupName(Integer activityid,Integer insititutionID,RespPageBean bean) throws ParseException {
+        List<Experts> list= (List<Experts>) bean.getData();
+        if(list==null){
+            Log log=new Log();
+            SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
+            Timestamp nousedate = new Timestamp(date.getTime());
+            log.setLog(nousedate,insititutionID,"专家管理","未读取到有效导入数据，可能第"+bean.getTotal()+"行csv编码或者表头或者内容错误！");
+            logService.addLogs(log);
+            return RespBean.error("未读取到有效导入数据，可能第"+bean.getTotal()+"行csv编码或者表头或者内容错误！");
+        }else {
+            List<String> res=expertService.addTeachersWithGroupName(activityid,list);
+            if (res.size()==0) {
+                Log log=new Log();
+                SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
+                Timestamp nousedate = new Timestamp(date.getTime());
+                log.setLog(nousedate,insititutionID,"专家管理","导入成功");
+                logService.addLogs(log);
+                return RespBean.ok("success");
+            }
+            Log log=new Log();
+            SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
+            Timestamp nousedate = new Timestamp(date.getTime());
+            log.setLog(nousedate,insititutionID,"专家管理","导入失败");
+            logService.addLogs(log);
+            return RespBean.error("fail",res);
+        }
+    }
     private RespBean importExperts(Integer groupid,Integer activityid,Integer insititutionID,RespPageBean bean) throws ParseException {
         List<Experts> list= (List<Experts>) bean.getData();
         if(list==null){
@@ -144,6 +181,12 @@ public class ExpertMController {
     public RespBean importData(@RequestParam Integer groupid,@RequestParam Integer activityid,@RequestParam Integer insititutionID,MultipartFile file) throws IOException, ParseException {
         RespPageBean bean= POIUtils.readExcel_expert(file);
         return importExperts(groupid,activityid,insititutionID,bean);
+    }
+
+    @PostMapping("/importWithGroupName")
+    public RespBean importDataWithGroupName(@RequestParam Integer activityid,@RequestParam Integer insititutionID,MultipartFile file) throws IOException, ParseException {
+        RespPageBean bean= POIUtils.readExcel_expert(file);
+        return importExpertsWithGroupName(activityid,insititutionID,bean);
     }
 
     @PutMapping("/pass")

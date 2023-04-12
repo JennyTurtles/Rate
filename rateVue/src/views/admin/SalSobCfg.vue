@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="display: flex; justify-content: left">
-    {{ ACNAME }}活动 {{ keywords_name }} <a v-show="flag===0">专家名单</a> <a v-show="flag==1">专家打分</a>
+    {{ keywords_name }} <a v-show="flag===0">专家名单</a> <a v-show="flag==1">专家打分</a>
       <div style="margin-left: auto">
         <el-button icon="el-icon-back" type="primary" @click="back">
           返回
@@ -10,8 +10,8 @@
     </div>
     <div style="display: flex; justify-content: left;margin-top:10px">
       <div v-if="flag==0">
-        <span v-show="mode==='admin'" style="font-weight:600;">导入新数据</span> <a v-show="mode==='admin'">第一步：</a>
-        <el-button v-show="mode==='admin'"
+        <span v-show="mode==='admin'|| mode==='adminSub'" style="font-weight:600;">导入新数据</span> <a v-show="mode==='admin'|| mode==='adminSub'">第一步：</a>
+        <el-button v-show="mode==='admin'|| mode==='adminSub'"
             type="primary"
             @click="exportMo"
             icon="el-icon-upload"
@@ -19,7 +19,7 @@
         >
           下载模板
         </el-button>
-        <a v-show="mode==='admin'">第二步：</a>
+        <a v-show="mode==='admin'|| mode==='adminSub'">第二步：</a>
         <el-upload
             :show-file-list="false"
             :before-upload="beforeUpload"
@@ -28,7 +28,7 @@
             :disabled="importDataDisabled"
             style="display: inline-flex; margin-right: 8px"
             :action="UploadUrl()"
-            v-show="mode==='admin'"
+            v-show="mode==='admin'|| mode==='adminSub'"
         >
           <el-button
               :disabled="importDataDisabled"
@@ -41,7 +41,7 @@
       </div>
 
     </div>
-    <div v-show="mode==='admin' && flag == 0"><br/>专家导入后的初始用户名为手机号，密码为身份证后六位<br/>单元格中内容双击后可编辑</div>
+    <div v-show="mode==='admin'|| mode==='adminSub' && flag == 0"><br/>专家导入后的初始用户名为手机号，密码为身份证后六位<br/>单元格中内容双击后可编辑</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -75,6 +75,11 @@
             <span class="spanscoped" v-else>{{ scope.row.name }}</span>
           </template>
         </el-table-column>
+        <el-table-column prop="name" fixed label="组名" min-width="3%">
+              <template slot-scope="scope">
+                  <span class="spanscoped">{{ scope.row.groupName }}</span>
+              </template>
+          </el-table-column>
         <el-table-column
             v-if="flag==0"
             prop="idnumber"
@@ -154,7 +159,7 @@
           </template>
         </el-table-column>
         <el-table-column
-            v-if="mode === 'admin' && flag == 0"
+            v-if="mode === 'admin' || mode==='adminSub' && flag == 0"
             prop="role"
             label="角色设置"
             align="center"
@@ -374,6 +379,7 @@ export default {
   name: "SalSobCfg",
   data() {
     return {
+        activityID:-1,
       flag:0,
       //当前焦点数据
       currentfocusdata: "",
@@ -479,6 +485,7 @@ export default {
   },
   mounted() {
     this.keywords = this.$route.query.keywords;
+    this.activityID = this.$route.query.activityID;
     this.keywords_name = this.$route.query.keyword_name;
     this.groupID = this.$route.query.groupID;
     this.ACNAME = this.$route.query.keywords_name;
@@ -534,20 +541,30 @@ export default {
       });
     },
     initHrs() {
-      this.getRequest(
-          "/systemM/Experts/?keywords=" +
-          this.groupID +
-          "&page=" +
-          1 +
-          "&size=" +
-          1000 // 避免分页
-      ).then((resp) => {
-        if (resp) {
-          this.hrs = resp;
-          this.total = resp.length;
-          console.log(this.hrs);
-        }
-      });
+      if (typeof this.activityID == "undefined") { // 此时是从分组管理进入的
+          this.getRequest(
+              "/systemM/Experts/?keywords=" + this.groupID +
+              "&page=" + 1 +
+              "&size=" + 1000 // 避免分页
+          ).then((resp) => {
+              if (resp) {
+                  this.hrs = resp;
+                  this.total = resp.length;
+              }
+          });
+      }else {  // 从活动或子活动进入
+          if (this.mode === 'admin' || this.mode === 'adminSub'){ // 直接基于活动ID返回所有专家
+              this.getRequest(
+                  "/systemM/Experts/allByActID?activityID=" + this.activityID
+              ).then((resp) => {
+                  if (resp) {
+                      this.hrs = resp.obj;
+                      this.total = this.hrs;
+                  }
+              });
+          }
+      }
+
     },
     jumperInToS(data){
       const _this = this;
@@ -637,6 +654,13 @@ export default {
     back() {
       const _this = this;
       if (this.mode === "admin"){
+          console.log(this.activityID)
+          if (typeof this.activityID !== "undefined") { // 从主活动进入
+              _this.$router.push({
+                  path: "/ActivitM/search",
+              });
+              return
+          }
         _this.$router.push({
           path: this.flag ? "/ActivitM/score" : "/ActivitM/table",
           query: {
@@ -645,7 +669,8 @@ export default {
             mode:this.mode,
           },
         });
-      }else if (this.mode === "secretary"){
+      }
+      else if (this.mode === "secretary"){
         _this.$router.push({
           path: '/secretary/ActManage',
           query: {
@@ -655,6 +680,14 @@ export default {
             mode:this.mode,
           },
         });
+      }
+      else if (this.mode === "adminSub"){
+          _this.$router.push({
+              path: "/ActivitM/SubActManage",
+              query: {
+                  id: this.$route.query.backID,
+              },
+          });
       }
     },
     tableRowClassName({row, rowIndex}) {
@@ -774,12 +807,19 @@ export default {
       this.importDataDisabled = true;
     },
     UploadUrl() {
-      let url = "/systemM/Experts/import?groupid=" + this.groupID + "&activityid=" + this.keywords+"&insititutionID="+this.user.institutionID;
-      return url;
+      if (typeof this.activityID !== "undefined") { // 从主活动进入
+        return "/systemM/Experts/importWithGroupName?activityid=" + this.keywords+"&insititutionID="+this.user.institutionID;
+      }else{
+        return "/systemM/Experts/import?groupid=" + this.groupID + "&activityid=" + this.keywords+"&insititutionID="+this.user.institutionID;
+      }
     },
     exportMo() {
       Message.success("正在下载模板");
-      window.open("/participants/basic/exportMo", "_parent");
+        if (typeof this.activityID !== "undefined") {
+            window.open("/participants/basic/exportMoWithGroupName", "_parent");
+        }else{
+            window.open("/participants/basic/exportMo", "_parent");
+        }
     },
     reset_password(row) {
       row.institutionid=this.user.institutionID;

@@ -43,6 +43,15 @@ public class Experts extends Account {
     private Integer isSecretary;
     private Integer groupID;
     private Integer activityID;
+    private String  groupName;
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
 
     public Boolean getFinished() {
         return finished;

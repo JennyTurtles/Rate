@@ -122,7 +122,7 @@
             >
             <el-button
                 @click="showScoreItem(scope.row)"
-                v-show="mode==='admin'"
+                v-show="mode==='admin' || mode==='adminSub'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
@@ -176,7 +176,6 @@
             </el-button
             >
               <el-button
-                      v-show="mode === 'secretary'"
                       @click="showGroups(scope.row)"
                       style="padding: 4px"
                       size="mini"
@@ -839,6 +838,7 @@ export default {
                   keywords: data.id,
                   keyword_name: data.name,
                   mode:this.mode,
+                  backID:this.activityID,
               },
           });
       }else if (this.mode === "secretary"){
@@ -874,6 +874,8 @@ export default {
         query: {
           keywords: data.id,
           keyword_name: data.name,
+          mode:this.mode,
+          backID:this.activityID
         },
       });
     },
@@ -941,10 +943,12 @@ export default {
           _this.$router.push({
               path: "/ActivitM/sobcfg",
               query: {
+                  activityID: data.id,
                   keywords: data.id,
                   keyword_name: data.name,
                   keywords_name:this.keywords_name,
                   groupID: data.groupID,
+                  backID: this.activityID,
                   mode:this.mode
               }
           })

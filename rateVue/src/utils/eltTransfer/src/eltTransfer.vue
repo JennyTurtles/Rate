@@ -22,7 +22,7 @@
           ref="leftTable"
           size="small"
           @current-change="handleCurrentChangeColour"
-          height="700px"
+          height="790px"
           :data="leftTableData"
           :row-key="tableRowKey"
           :row-class-name="handleRowStyle"
