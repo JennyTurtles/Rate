@@ -28,17 +28,15 @@
       <div class="setPassword">
         <span @click="forgetPassword">忘记密码?</span>
       </div>
-      <div>
+      <div class="footer">
         <el-button size="normal"
                    type="primary"
-                   style="width: 100%;"
+                   style="width: 40%;"
                    native-type="submit"
                    @click="submitLogin">登录</el-button>
-      </div>
-      <div>
         <el-button size="normal"
                    type="primary"
-                   style="width: 100%;margin-top: 10px"
+                   style="width: 40%;margin-left: 40px"
                    native-type="submit"
                    @click="submitRegist">注册</el-button>
       </div>
@@ -119,6 +117,10 @@ export default {
 </script>
 
 <style>
+.footer{
+  margin-top: 8px;
+  text-align: center;
+}
 .setPassword span:hover{
   color: #4b8ffe;
 }
@@ -126,7 +128,7 @@ export default {
   cursor: pointer;
   margin-top: -10px;
   margin-bottom: 5px;
-  font-size: 13px;
+  font-size: 12px;
   color: gray;
   text-decoration: none;
 }
