@@ -1,5 +1,6 @@
 <template>
   <div>
+<!--    因为不确定别的角色有没有注册，所以先分离开login组件-->
     <el-form @submit.native.prevent
              :rules="rules"
              ref="loginForm"
@@ -24,6 +25,9 @@
                   auto-complete="off"
                   placeholder="请输入密码"></el-input>
       </el-form-item>
+      <div class="setPassword">
+        <a > 忘记密码</a>
+      </div>
       <div>
         <el-button size="normal"
                    type="primary"
@@ -110,6 +114,14 @@ export default {
 </script>
 
 <style>
+.setPassword{
+  cursor: pointer;
+  margin-top: -10px;
+  margin-bottom: 5px;
+  font-size: 13px;
+  color: #4b8ffe;
+  text-decoration: none;
+}
 .loginContainer {
   border-radius: 15px;
   background-clip: padding-box;
@@ -122,7 +134,7 @@ export default {
 }
 
 .loginTitle {
-  margin: 15px auto 20px auto;
+  margin: 10px auto 20px auto;
   text-align: center;
   color: #505458;
 }

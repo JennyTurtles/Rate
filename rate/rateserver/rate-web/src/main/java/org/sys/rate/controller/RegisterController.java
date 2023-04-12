@@ -9,6 +9,7 @@ import org.sys.rate.mapper.UnderGraduateMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.GraduateStudentService;
 import org.sys.rate.service.admin.UnderGraduateService;
+import org.sys.rate.service.expert.ExpertService;
 
 import java.util.Map;
 
@@ -35,6 +36,9 @@ public class RegisterController {
                 //老师用excel导入没有密保 怎么处理？？？
                 studentMapper.insertStuFromRegister(student);
             }else {//有这个学生，就更新用户名和密码和密保
+                //加密
+                String password = ExpertService.sh1(student.getPassword());
+                student.setPassword(password);
                 studentMapper.updatePasswordAndUsername(student);
             }
 
