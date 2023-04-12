@@ -88,6 +88,7 @@
           <template slot-scope="scope">
             <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary">编辑</el-button>
             <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)">删除</el-button>
+            <el-button size="mini" type="primary" plain @click="resetPassword(scope.row)">重置密码</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -177,6 +178,9 @@ export default {
     this.initUnderGraduateStudents(this.currentPage,this.pageSize)
   },
   methods:{
+    resetPassword(data){//重制密码
+
+    },
     inputSelectYearFocus(){//年份输入框获得焦点
       this.isSelectYearShow = true
     },

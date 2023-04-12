@@ -26,7 +26,7 @@
                   placeholder="请输入密码"></el-input>
       </el-form-item>
       <div class="setPassword">
-        <a > 忘记密码</a>
+        <span @click="forgetPassword">忘记密码?</span>
       </div>
       <div>
         <el-button size="normal"
@@ -72,6 +72,11 @@ export default {
     }
   },
   methods: {
+    forgetPassword(){//忘记密码选项
+      this.$router.push({
+        path:'/ResetPassword'
+      })
+    },
     submitRegist(){
       this.$router.push({
         path:'/Student/Register'
@@ -114,12 +119,15 @@ export default {
 </script>
 
 <style>
+.setPassword span:hover{
+  color: #4b8ffe;
+}
 .setPassword{
   cursor: pointer;
   margin-top: -10px;
   margin-bottom: 5px;
   font-size: 13px;
-  color: #4b8ffe;
+  color: gray;
   text-decoration: none;
 }
 .loginContainer {

@@ -493,6 +493,13 @@ export default new Router({
       meta: { title: '学生注册' },
     },
     {
+      path: '/ResetPassword',
+      name: 'ResetPassword',
+      hidden: true,
+      component: () => import('./components/ResetPassword'),
+      meta: { title: '找回密码' },
+    },
+    {
       path: '/Teacher/Register',
       name: 'TeaRegister',
       hidden: true,

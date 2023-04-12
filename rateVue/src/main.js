@@ -180,7 +180,7 @@ router.beforeEach((to, from, next) => {
             sessionStorage.clear('initRoutes_AllSameForm')
         }
         next()
-    } else if (to.path == '/Student/Register' || to.path == '/Teacher/Register') {
+    } else if (to.path == '/Student/Register' || to.path == '/Teacher/Register' || to.path == '/ResetPassword') {
         next()
     }
     else if (to.path == '/teacher/tperact/InformationDetails') {
