@@ -1,14 +1,9 @@
 package org.sys.rate.controller.admin;
 
-import org.apache.ibatis.javassist.expr.NewArray;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.DisplayItemMapper;
-import org.sys.rate.mapper.InfoItemMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.DisplayItemService;
-
-import java.text.Collator;
-
 import javax.annotation.Resource;
 import java.util.*;
 
@@ -54,7 +49,7 @@ public class DisplayItemController {
 
     @PostMapping("/save")
     public RespBean save(@RequestBody DisplayItem displayItems) {
-        int res = 0;
+        int res;
         if (displayItems.getID() == null)
             res =  displayItemMapper.insert(displayItems);
         else
