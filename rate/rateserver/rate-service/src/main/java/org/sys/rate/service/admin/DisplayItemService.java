@@ -36,7 +36,7 @@ public class DisplayItemService {
         res.add(new DisplayItem("编号", "code"));
         res.add(new DisplayItem("组名", "group"));
         res.add(new DisplayItem("专家打分", "scores"));
-        res.add(new DisplayItem("姓名", "scores"));
+        res.add(new DisplayItem("姓名", "name"));
         // 获取信息项
         List<InfoItem> infoItems = infoItemMapper.getAll(activityID);
         for (InfoItem infoItem : infoItems)

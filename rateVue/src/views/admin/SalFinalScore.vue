@@ -109,7 +109,7 @@
           </template>
           <template slot-scope="scope">
             <div>
-              <span v-if="typeof displayItem[i].fullScore !== 'undefined' && scope.row.map[v.name] < displayItem[i].fullScore * 0.6"
+              <span v-if="typeof displayItem[i].passScore !== 'undefined' && scope.row.map[v.name] < displayItem[i].passScore"
                     style="color: red">{{scope.row.map[v.name]}}</span>
               <span v-else>{{scope.row.map[v.name]}}</span>
             </div>

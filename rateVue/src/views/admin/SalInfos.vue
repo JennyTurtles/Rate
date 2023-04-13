@@ -9,7 +9,8 @@
         </el-button>
       </div>
     </div>
-    <div><br/>单元格中内容双击后可编辑</div>
+    <div v-if="mode !== 'secretary'"><br/>单元格中内容双击后可编辑</div>
+    <div v-if="mode === 'secretary'"><br/>单元格内容只可查看不可编辑</div>
     <div><br/>是否展示：该信息项是否在展示给专家打分。大小限制：对文件大小或输入内容字数的限制</div>
     <div style="margin-top: 10px">
       <el-table
@@ -59,12 +60,16 @@
             align="center"
             width="120px"
         >
-          <template slot-scope="scope">
+          <template slot-scope="scope" v-if="mode!=='secretary'" >
             <el-checkbox
                 v-model.trim="scope.row.byParticipant"
                 @change="UpdateCheckbox(scope.row,'byParticipan')"
             ></el-checkbox>
             选手填写
+          </template>
+          <template slot-scope="scope" v-if="mode==='secretary'">
+            <span v-if="scope.row.byParticipant">是</span>
+            <span v-else>否</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -125,15 +130,19 @@
             align="center"
             min-width="3%"
         >
-          <template slot-scope="scope">
+          <template slot-scope="scope" v-if="mode!=='secretary'">
             <el-checkbox
                 v-model.trim="scope.row.display"
                 @change="UpdateCheckbox(scope.row,'display') "
             ></el-checkbox>
             display
           </template>
+          <template slot-scope="scope" v-if="mode==='secretary'">
+            <span v-if="scope.row.display">是</span>
+            <span v-else>否</span>
+          </template>
         </el-table-column>
-        <el-table-column align="center" min-width="5%" label="操作">
+        <el-table-column align="center" min-width="5%" label="操作" v-if="this.mode!=='secretary'">
           <template slot-scope="scope">
             <el-button
                 @click="UpdateOrNew(scope.row)"
@@ -161,6 +170,7 @@
         <div style="margin-left: 8px">
           <el-button
               @click="newScoring()"
+              v-show="this.mode!=='secretary'"
               type="primary"
               icon="el-icon-plus"
           >新增
@@ -299,38 +309,45 @@ export default {
   methods: {
     // 点击下拉框对显示的选项进行筛选。已选中文本类型则不允许选其他所有类型；已选中文件类型则不允许选本文类型。
     handleVisible(row){
-      if (row.shuZuType === null){ // 处理为空的情况
-        for (let i = 0; i < this.shuju.length; i++) {
-          if (row.byParticipant === true && i === 5)
-            this.shuju[i].disabled = true
-          else
-            this.shuju[i].disabled = false
-        }
-        return;
-      }
-      if (row.shuZuType.indexOf("textbox") !== -1 || row.shuZuType.indexOf("textarea") !== -1 || row.shuZuType.indexOf("label") !== -1){ // 有文本类型
+      if (this.mode==='secretary'){
         for (let i = 0; i < this.shuju.length; i++) {
           this.shuju[i].disabled = true
         }
-      }else{
-        for (let i = 0; i < this.shuju.length; i++) {
-          this.shuju[i].disabled = false
-        }
-        if (row.shuZuType.length !== 0){ // 有文件类型
-          this.shuju[0].disabled = true
-          this.shuju[1].disabled = true
-          this.shuju[5].disabled = true
-        }
-      }
-      if (row.byParticipant === true){ // 选手填写打了个勾，label类型就要被禁止
-        this.shuju[5].disabled = true
       }
       else{
-        for (let i = 0; i < this.shuju.length - 1; i++) {
-          this.shuju[i].disabled = true
+        if (row.shuZuType === null){ // 处理为空的情况
+          for (let i = 0; i < this.shuju.length; i++) {
+            if (row.byParticipant === true && i === 5)
+              this.shuju[i].disabled = true
+            else
+              this.shuju[i].disabled = false
+          }
+          return;
         }
+        if (row.shuZuType.indexOf("textbox") !== -1 || row.shuZuType.indexOf("textarea") !== -1 || row.shuZuType.indexOf("label") !== -1){ // 有文本类型
+          for (let i = 0; i < this.shuju.length; i++) {
+            this.shuju[i].disabled = true
+          }
+        }else{
+          for (let i = 0; i < this.shuju.length; i++) {
+            this.shuju[i].disabled = false
+          }
+          if (row.shuZuType.length !== 0){ // 有文件类型
+            this.shuju[0].disabled = true
+            this.shuju[1].disabled = true
+            this.shuju[5].disabled = true
+          }
+        }
+        if (row.byParticipant === true){ // 选手填写打了个勾，label类型就要被禁止
+          this.shuju[5].disabled = true
+        }
+        else{
+          for (let i = 0; i < this.shuju.length - 1; i++) {
+            this.shuju[i].disabled = true
+          }
+        }
+        // this.shuju[5].disabled = row.byParticipant === true;
       }
-      // this.shuju[5].disabled = row.byParticipant === true;
     },
     Delete_Info_Item(si) {
       this.$confirm("此操作将永久删除【" + si.name + "】, 是否继续?", "提示", {
@@ -385,6 +402,7 @@ export default {
         if (resp) {
           this.loading = false;
           this.hrs = resp.data;
+          console.log(this.hrs);
           this.total = resp.total;
         }
       });
@@ -404,6 +422,8 @@ export default {
           url = "/ActivitM/search"
       else if (this.mode === "adminSub")
           url = "/ActivitM/SubActManage"
+      else if (this.mode === "secretary")
+          url = "/secretary/ActManage"
       _this.$router.push({
         path: url,
         query: {
@@ -417,62 +437,68 @@ export default {
     },
     // 添加明细原因 row 当前行 column 当前列
     tabClick(row, column, cell, event) {
-      switch (column.label) {
-        case "contentType":
-          this.tabClickIndex = row.index;
-          this.tabClickLabel = column.label;
-          break;
-        case "大小限制(字节默认为M，字为字数)":
-          this.tabClickIndex = row.index;
-          this.tabClickLabel = column.label;
-          break;
-        case "名称":
-          this.tabClickIndex = row.index;
-          this.tabClickLabel = column.label;
-          break;
-        default:
-          return;
+      if (this.mode!== 'secretary'){
+        switch (column.label) {
+          case "contentType":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "大小限制(字节默认为M，字为字数)":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "名称":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          default:
+            return;
+        }
       }
     },
     beforehandleEdit(index, row, label) {
-      if (label === 'name' || label === 'type') {
-        this.currentfocusdata = row.name
-      } else if (label === 'sizelimit') {
-        this.currentfocusdata = row.sizelimit
+      if (this.mode!== 'secretary'){
+        if (label === 'name' || label === 'type') {
+          this.currentfocusdata = row.name
+        } else if (label === 'sizelimit') {
+          this.currentfocusdata = row.sizelimit
+        }
+        this.currentfocusdata = row[label]
       }
-      this.currentfocusdata = row[label]
     },
     handleEdit(index, row, label) {
-      if (label === 'type'){
-        if (row.shuZuType.indexOf("textbox") !== -1 || row.shuZuType.indexOf("textarea") !== -1 || row.shuZuType.indexOf("label") !== -1){ // 有文本类型
-          for (let i = 0; i < this.shuju.length; i++) {
-            this.shuju[i].disabled = true
+      if (this.mode!== 'secretary'){
+        if (label === 'type'){
+          if (row.shuZuType.indexOf("textbox") !== -1 || row.shuZuType.indexOf("textarea") !== -1 || row.shuZuType.indexOf("label") !== -1){ // 有文本类型
+            for (let i = 0; i < this.shuju.length; i++) {
+              this.shuju[i].disabled = true
+            }
+          }else{
+            for (let i = 0; i < this.shuju.length; i++) {
+              this.shuju[i].disabled = false
+            }
+            if (row.shuZuType.length !== 0){ // 有文件类型
+              this.shuju[0].disabled = true
+              this.shuju[1].disabled = true
+              this.shuju[5].disabled = true
+            }
+            if (row.byParticipant === true)
+              this.shuju[5].disabled = true
           }
-        }else{
-          for (let i = 0; i < this.shuju.length; i++) {
-            this.shuju[i].disabled = false
-          }
-          if (row.shuZuType.length !== 0){ // 有文件类型
-            this.shuju[0].disabled = true
-            this.shuju[1].disabled = true
-            this.shuju[5].disabled = true
-          }
-          if (row.byParticipant === true)
-            this.shuju[5].disabled = true
         }
-      }
-      if (row[label] == ''&&label !== 'sizelimit'&&label !== 'contentType') {
-        Message.warning('输入内容不能为空!')
-        if (label === 'name' || label === 'type') {
-          row.name = this.currentfocusdata
-        } else if (label === 'sizelimit') {
-          row.sizelimit = this.currentfocusdata
+        if (row[label] == ''&&label !== 'sizelimit'&&label !== 'contentType') {
+          Message.warning('输入内容不能为空!')
+          if (label === 'name' || label === 'type') {
+            row.name = this.currentfocusdata
+          } else if (label === 'sizelimit') {
+            row.sizelimit = this.currentfocusdata
+          }
+          Message.warning('输入内容不能为空！')
+          row[label] = this.currentfocusdata
+        } else {
+          this.UpdateOrNew(row)
+          // this.newScoring(row)
         }
-        Message.warning('输入内容不能为空！')
-        row[label] = this.currentfocusdata
-      } else {
-        this.UpdateOrNew(row)
-        // this.newScoring(row)
       }
     },
     // 失去焦点初始化
@@ -481,9 +507,11 @@ export default {
       // if (this.currentfocusdata == null) {
       //   Message.error('输入内容不能为空！操作未保存！')
       // }
-      this.tabClickIndex = null;
-      this.tabClickLabel = "";
-      this.currentfocusdata = ""
+      if (this.mode!=='secretary'){
+        this.tabClickIndex = null;
+        this.tabClickLabel = "";
+        this.currentfocusdata = ""
+      }
     },
     save() {
       const _this = this;

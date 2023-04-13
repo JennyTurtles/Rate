@@ -9,7 +9,8 @@
         </el-button>
       </div>
     </div>
-    <div><br/>单元格中内容双击后可编辑</div>
+    <div v-if="mode!=='secretary'"><br/>单元格中内容双击后可编辑</div>
+    <div v-if="mode==='secretary'"><br/>单元格内容只可查看不可编辑</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -30,7 +31,7 @@
             fixed
             align="name"
             label="名称"
-            width="80px"
+            min-width="10%"
         >
           <template slot-scope="scope">
             <el-input
@@ -56,7 +57,7 @@
             prop="score"
             label="分数"
             align="center"
-            width="80px"
+            min-width="10%"
         >
           <template slot-scope="scope">
             <el-input
@@ -83,7 +84,7 @@
             prop="coef"
             label="折算系数"
             align="center"
-            width="80px"
+            min-width="10%"
         >
           <template slot-scope="scope">
             <el-input
@@ -111,9 +112,9 @@
             prop="byexpert"
             label="是否需要专家打分"
             align="center"
-            width="120px"
+            min-width="10%"
         >
-          <template slot-scope="scope">
+          <template slot-scope="scope" v-if="mode!=='secretary'">
             <el-checkbox
                 :true-label="1"
                 :false-label="0"
@@ -122,12 +123,16 @@
             ></el-checkbox>
             专家打分
           </template>
+          <template slot-scope="scope" v-if="mode==='secretary'">
+            <span v-if="scope.row.byexpert">是</span>
+            <span v-else>否</span>
+          </template>
         </el-table-column>
         <el-table-column
             prop="comment"
             label="详细描述"
             align="center"
-            min-width="3%"
+            min-width="10%"
         >
           <template slot-scope="scope">
             <el-input
@@ -151,7 +156,7 @@
             >
           </template>
         </el-table-column>
-        <el-table-column align="center" min-width="5%" label="操作">
+        <el-table-column align="center" min-width="20%" label="操作" v-if="mode!=='secretary'">
           <template slot-scope="scope">
             <el-button
                 @click="UpdateOrNew(scope.row)"
@@ -175,7 +180,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div style="margin: 20px 0; display: flex; justify-content: left">
+      <div style="margin: 20px 0; display: flex; justify-content: left" v-show="mode!=='secretary'">
         <div style="margin-left: 8px">
           <el-button
               @click="newScoring()"
@@ -362,6 +367,13 @@ export default {
                   id: this.$route.query.backID,
               }
           });
+      }else if (this.mode==="secretary"){
+        _this.$router.push({
+          path: "/secretary/ActManage",
+          query:{
+            id: this.$route.query.backID,
+          }
+        });
       }
 
     },
@@ -371,58 +383,64 @@ export default {
     },
     // 添加明细原因 row 当前行 column 当前列
     tabClick(row, column, cell, event) {
-      switch (column.label) {
-        case "折算系数":
-          this.tabClickIndex = row.index;
-          this.tabClickLabel = column.label;
-          break;
-        case "分数":
-          this.tabClickIndex = row.index;
-          this.tabClickLabel = column.label;
-          break;
-        case "名称":
-          this.tabClickIndex = row.index;
-          this.tabClickLabel = column.label;
-          break;
-        case "详细描述":
-          this.tabClickIndex = row.index;
-          this.tabClickLabel = column.label;
-          break;
-        default:
-          return;
+      if (this.mode!=="secretary"){
+        switch (column.label) {
+          case "折算系数":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "分数":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "名称":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "详细描述":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          default:
+            return;
+        }
       }
     },
     beforehandleEdit(index, row, label) {
-      if (label === 'name') {
-        this.currentfocusdata = row.name
-      } else if (label === 'score') {
-        // console.log('222222222222222222')
-        this.currentfocusdata = row.score
-      } else if (label === 'coef') {
-        this.currentfocusdata = row.coef
-      } else if (label === 'comment') {
-        this.currentfocusdata = row.comment
+      if (this.mode!=="secretary"){
+        if (label === 'name') {
+          this.currentfocusdata = row.name
+        } else if (label === 'score') {
+          // console.log('222222222222222222')
+          this.currentfocusdata = row.score
+        } else if (label === 'coef') {
+          this.currentfocusdata = row.coef
+        } else if (label === 'comment') {
+          this.currentfocusdata = row.comment
+        }
+        this.currentfocusdata = row[label]
       }
-      this.currentfocusdata = row[label]
     },
     handleEdit(index, row, label) {
       //console.log(row);
-      if (row[label] == ''&&label !== 'comment') {
-        Message.warning('输入内容不能为空!')
-        if (label === 'name') {
-          row.name = this.currentfocusdata
-        } else if (label === 'score') {
-          row.score = this.currentfocusdata
-        } else if (label === 'coef') {
-          row.coef = this.currentfocusdata
-        }else if (label === 'comment') {
-          row.comment = this.currentfocusdata
+      if (this.mode!=="secretary"){
+        if (row[label] == ''&&label !== 'comment') {
+          Message.warning('输入内容不能为空!')
+          if (label === 'name') {
+            row.name = this.currentfocusdata
+          } else if (label === 'score') {
+            row.score = this.currentfocusdata
+          } else if (label === 'coef') {
+            row.coef = this.currentfocusdata
+          }else if (label === 'comment') {
+            row.comment = this.currentfocusdata
+          }
+          Message.warning('输入内容不能为空！')
+          row[label] = this.currentfocusdata
+        } else {
+          this.UpdateOrNew(row)
+          // this.newScoring(row)
         }
-        Message.warning('输入内容不能为空！')
-        row[label] = this.currentfocusdata
-      } else {
-        this.UpdateOrNew(row)
-        // this.newScoring(row)
       }
     },
     // 失去焦点初始化
