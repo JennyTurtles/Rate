@@ -46,7 +46,7 @@ public class DisplayItemController {
         List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItem(activityID);
         for (DisplayItem displayItem : displayItems)
             // 如果displayItem的source包含"*"则加到res中，包含"*"的都是第二类展示项
-            if (displayItem.getSource().contains("*"))
+            if (displayItem.getSource() != null && displayItem.getSource().contains("*"))
                 res.add(new DisplayItem(displayItem.getName(), displayItem.getSource()));
         Collections.sort(res); // 按照sourceName排序
         return RespBean.ok("success",res);
