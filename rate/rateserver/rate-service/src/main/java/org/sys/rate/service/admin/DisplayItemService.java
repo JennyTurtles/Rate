@@ -276,4 +276,43 @@ public class DisplayItemService {
         return table;
     }
 
+    //修改展示顺序
+    public String alterDisplay(Integer total,Integer activityID,DisplayItem displayItem) {
+        //Participates old=participatesMapper.getEmployeeById(company.getID());
+        Integer maxDisplaySequence = total;
+        if (displayItem.getID() != null
+                && displayItem.getDisplaySequence() > 0) {
+            DisplayItem old=displayItemMapper.getDisplayItemByID(displayItem.getID());
+            // id确实存在
+            if (old != null) {
+                // 显示顺序没有变化
+                if (old.getDisplaySequence() == displayItem
+                        .getDisplaySequence())
+                    return "success";
+                // 修改的显示序号不能大于最大的显示序号
+                if (displayItem.getDisplaySequence() <= maxDisplaySequence) {
+                    if (displayItem.getDisplaySequence() > old
+                            .getDisplaySequence()) {
+                        // 修正显示顺序
+                        displayItemMapper.subDisplaySequence(activityID,old.getDisplaySequence(),displayItem
+                                .getDisplaySequence());
+                        // 保存
+                        displayItemMapper.saveDisplaySequence(activityID,displayItem.getDisplaySequence(),displayItem.getID());
+                        return "success";
+
+                    }
+                    if (displayItem.getDisplaySequence() < old
+                            .getDisplaySequence()) {
+                        // 修正显示顺序
+                        displayItemMapper.addDisplaySequence(activityID,displayItem.getDisplaySequence(),old
+                                .getDisplaySequence());
+                        // 保存
+                        displayItemMapper.saveDisplaySequence(activityID,displayItem.getDisplaySequence(),displayItem.getID());
+                        return "success";
+                    }
+                }
+            }
+        }
+        return "false";
+    }
 }

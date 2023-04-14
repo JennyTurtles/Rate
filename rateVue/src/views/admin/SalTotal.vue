@@ -420,8 +420,8 @@ export default {
     },
     reset(){
       this.initHrs();
- //     this.initFirst();
- //     this.initSecond();
+      this.initFirst();
+      this.initSecond();
     },
     inputBlur() {
       this.tabClickIndex = null;
@@ -429,11 +429,10 @@ export default {
       this.currentfocusdata = ""
     },
     alterDisplay(row){
-      row.institutionid= this.user.institutionID;
       const _this = this;
       //console.log(row);
-      this.postRequest("/participants/basic/alterDisplay?total="+this.total+"&groupID="+this.groupID,row).then((resp) => {
-        this.refreshact();
+      this.postRequest("/displayItem/alterDisplay?total="+this.total+"&activityID="+this.keywords,row).then((resp) => {
+        this.reset();
       });
     },
     firstChange(event){

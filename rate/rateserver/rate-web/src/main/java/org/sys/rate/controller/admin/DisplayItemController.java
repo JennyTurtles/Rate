@@ -4,7 +4,13 @@ import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.DisplayItemMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.DisplayItemService;
+
+import java.sql.Timestamp;
+import java.text.Collator;
+
 import javax.annotation.Resource;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
@@ -72,5 +78,14 @@ public class DisplayItemController {
         res.add(pars);
         res.add(displayItems);
         return RespBean.ok("success",res);
+    }
+
+    //alterDisplay
+    @PostMapping("/alterDisplay")
+    public RespBean alterDisplay(@RequestParam Integer total,@RequestParam Integer activityID,@RequestBody DisplayItem displayItem){
+        //System.out.println("import123"+total+groupID+company);
+        if(displayItemService.alterDisplay(total, activityID, displayItem).equals("success"))
+            return RespBean.ok("success");
+        return RespBean.error("fail");
     }
 }

@@ -25,4 +25,19 @@ public interface DisplayItemMapper {
 
     @Select("select name from displayitem where ID = #{ID}")
     String getNameByID(Integer id);
+
+    @Select("select * from displayitem where ID = #{ID}")
+    DisplayItem getDisplayItemByID(Integer id);
+
+    @Update("update displayitem set displaySequence=displaySequence-1 " +
+            "where activityID=#{activityID} and displaySequence > #{small}  and ID!='0' " +
+            "and displaySequence <= #{big}")
+    Integer subDisplaySequence(@Param("activityID") Integer activityID, @Param("small") Integer small,@Param("big") Integer big);
+
+    @Update("UPDATE displayitem set displaySequence=#{newP} where activityID=#{activityID} and ID=#{ID}")
+    Integer saveDisplaySequence(@Param("activityID") Integer activityID, @Param("newP") Integer newP,@Param("ID") Integer ID);
+
+    @Update("UPDATE displayitem set displaySequence=displaySequence+1 " +
+            "where activityID=#{activityID} and displaySequence < #{big} and displaySequence >= #{small} and ID!='0'")
+    Integer addDisplaySequence(@Param("activityID") Integer activityID, @Param("small") Integer small,@Param("big") Integer big);
 }
