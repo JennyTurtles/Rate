@@ -699,6 +699,7 @@ public class POIUtils {
         sheet.setColumnWidth(8, 20 * 256);
         sheet.setColumnWidth(9, 20 * 256);
         //6. 创建标题行
+        //就是不用循环，就硬写是吧
         HSSFRow r0 = sheet.createRow(0);
         HSSFCell c0 = r0.createCell(0);
         c0.setCellValue("工号");
@@ -731,6 +732,94 @@ public class POIUtils {
         row.createCell(7).setCellValue("否");
         row.createCell(8).setCellValue("zhangsan");
         row.createCell(9).setCellValue("123456");
+        sheet.createRow(2).createCell(0).setCellValue("请删除提示行，如果数据库中已有该专家的记录，将根据填写信息进行更新，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为手机号和身份证后六位，其余必须填写。");
+        sheet.createRow(3).createCell(0).setCellValue("如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
+        sheet.createRow(4).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setContentDispositionFormData("attachment", new String("experts模板.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
+
+    // 不考虑复用，直接复制粘贴
+    public static ResponseEntity<byte[]> writeMoWithGroupName() {
+        //1. 创建一个 Excel 文档
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        //2. 创建文档摘要
+        workbook.createInformationProperties();
+        //3. 获取并配置文档信息
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
+        //4. 获取文档摘要信息
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        //文档标题
+        summInfo.setTitle("experts");
+        //文档作者
+        summInfo.setAuthor("东华大学");
+        // 文档备注
+        summInfo.setComments("本文档由东华大学计算机学院提供");
+        //5. 创建样式
+        //创建标题行的样式
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        HSSFCellStyle dateCellStyle = workbook.createCellStyle();
+        dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+        HSSFSheet sheet = workbook.createSheet("experts");
+        //设置列的宽度
+        sheet.setColumnWidth(0, 15 * 256);
+        sheet.setColumnWidth(1, 10 * 256);
+        sheet.setColumnWidth(2, 10 * 256);
+        sheet.setColumnWidth(3, 6 * 256);
+        sheet.setColumnWidth(4, 20 * 256);
+        sheet.setColumnWidth(5, 15 * 256);
+        sheet.setColumnWidth(6, 15 * 256);
+        sheet.setColumnWidth(7, 10 * 256);
+        sheet.setColumnWidth(8, 20 * 256);
+        sheet.setColumnWidth(9, 20 * 256);
+        sheet.setColumnWidth(10, 20 * 256);
+        //6. 创建标题行
+        //就是不用循环，就硬写是吧
+        HSSFRow r0 = sheet.createRow(0);
+        HSSFCell c0 = r0.createCell(0);
+        c0.setCellValue("工号");
+        HSSFCell c1 = r0.createCell(1);
+        c1.setCellValue("姓名");
+        HSSFCell c2 = r0.createCell(2);
+        c2.setCellValue("部门");
+        HSSFCell c3 = r0.createCell(3);
+        c3.setCellValue("性别");
+        HSSFCell c4 = r0.createCell(4);
+        c4.setCellValue("身份证号码");
+        HSSFCell c5 = r0.createCell(5);
+        c5.setCellValue("手机号");
+        HSSFCell c6 = r0.createCell(6);
+        c6.setCellValue("邮箱");
+        HSSFCell c7 = r0.createCell(7);
+        c7.setCellValue("属于本单位");
+        HSSFCell c8 = r0.createCell(8);
+        c8.setCellValue("用户名");
+        HSSFCell c9 = r0.createCell(9);
+        c9.setCellValue("密码");
+        HSSFCell c10 = r0.createCell(10);
+        c10.setCellValue("组名");
+        HSSFRow row = sheet.createRow(1);
+        row.createCell(0).setCellValue("20131000");
+        row.createCell(1).setCellValue("张三");
+        row.createCell(2).setCellValue("计算机学院");
+        row.createCell(3).setCellValue("男");
+        row.createCell(4).setCellValue("123456789123456789");
+        row.createCell(5).setCellValue("13812341234");
+        row.createCell(6).setCellValue("123@dhu.edu.cn");
+        row.createCell(7).setCellValue("否");
+        row.createCell(8).setCellValue("zhangsan");
+        row.createCell(9).setCellValue("123456");
+        row.createCell(10).setCellValue("小组X");
         sheet.createRow(2).createCell(0).setCellValue("请删除提示行，如果数据库中已有该专家的记录，将根据填写信息进行更新，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为手机号和身份证后六位，其余必须填写。");
         sheet.createRow(3).createCell(0).setCellValue("如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
         sheet.createRow(4).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
@@ -1316,6 +1405,7 @@ public class POIUtils {
                     String isBelonging=null;//是否是本单位
                     String username=null;
                     String password=null;
+                    String groupName=null;
                     for (int k = 0; k < Cells; k++) {
                         HSSFCell cell = row.getCell(k);
                         //cell.setCellType(CellType.STRING);
@@ -1354,6 +1444,9 @@ public class POIUtils {
                                 case "工号":
                                     jobNumber=cellValue;
                                     break;
+                                case "组名":
+                                    groupName=cellValue;
+                                    break;
                                 default:
                                     break;
                             }
@@ -1378,6 +1471,7 @@ public class POIUtils {
                     expert.setJobNumber(jobNumber);
                     expert.setUsername(username);
                     expert.setPassword(password);
+                    expert.setGroupName(groupName);
                     if(isBelonging.equals("是")){
                         expert.setInstitutionid(1);
                     }else {

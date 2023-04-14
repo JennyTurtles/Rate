@@ -165,6 +165,8 @@ public class ParticipatesBasicController {
         //Integer ScoreItemFinal=scoreItemService.selectScoreItemFinal(activityID);
         return POIUtils.employee2Excel(list);
     }
+
+
     @GetMapping("/exportTG")
     public ResponseEntity<byte[]> exportData_group(@RequestParam Integer groupID) {
         //先get评分项item
@@ -178,6 +180,11 @@ public class ParticipatesBasicController {
     @GetMapping("/exportMo")
     public ResponseEntity<byte[]> downloadExample(HttpServletResponse response) {
         return POIUtils.writeMo();
+    }
+
+    @GetMapping("/exportMoWithGroupName")
+    public ResponseEntity<byte[]> downloadExampleWithGroupName(HttpServletResponse response) {
+        return POIUtils.writeMoWithGroupName();
     }
 
     @GetMapping("/exportMoPar_Group")

@@ -90,4 +90,7 @@ public interface GroupsMapper {
             "SELECT count(*) FROM expertactivities WHERE activityID = #{activityID} and groupID = #{groupID})\n" +
             "WHERE activityID = #{activityID} AND ID = #{groupID}")
     Integer updateExpertCount(Integer activityID, Integer groupID);
+
+    @Select("SELECT ID FROM `groups` WHERE activityID = #{activityID} AND name = #{groupName} LIMIT 1")
+    Integer selectIDByActivityIdAndGroupName(@Param("activityID") Integer activityID, @Param("groupName") String groupName);
 }

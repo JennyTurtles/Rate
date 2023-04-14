@@ -109,7 +109,7 @@
           </template>
           <template slot-scope="scope">
             <div>
-              <span v-if="typeof displayItem[i].fullScore !== 'undefined' && scope.row.map[v.name] < displayItem[i].fullScore * 0.6"
+              <span v-if="typeof displayItem[i].passScore !== 'undefined' && scope.row.map[v.name] < displayItem[i].passScore"
                     style="color: red">{{scope.row.map[v.name]}}</span>
               <span v-else>{{scope.row.map[v.name]}}</span>
             </div>
@@ -275,9 +275,11 @@ export default {
             }
           }
         }
-      }else if (this.mode === "secretary"){
+      }
+      else if (this.mode === "secretary"){
         url = "/secretary/ActManage"
-      }else if (this.mode === "secretarySub"){
+      }
+      else if (this.mode === "secretarySub"){
           if (typeof this.groupName === "undefined"){ // 此时查看的是整个子活动的选手分数
               url = "/secretary/SubActManage"
               query = {
@@ -300,6 +302,12 @@ export default {
               }
           }
 
+      }
+      else if (this.mode === "adminSub"){
+          url = "/ActivitM/SubActManage"
+          query = {
+              id: this.$route.query.backID,
+          }
       }
       _this.$router.push({
         path: url,

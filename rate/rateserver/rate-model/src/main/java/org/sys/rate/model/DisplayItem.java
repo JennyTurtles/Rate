@@ -17,7 +17,7 @@ public class DisplayItem implements Comparable<DisplayItem> { // 列的信息
     private String source;
     private String sourceName;
     private Integer displaySequence;
-    private Integer fullScore;
+    private Integer passScore;
 
     public DisplayItem(String sourceName, String source) {
         this.sourceName = sourceName;
@@ -31,7 +31,7 @@ public class DisplayItem implements Comparable<DisplayItem> { // 列的信息
         this.source = displayItem.getSource();
         this.sourceName = displayItem.getSourceName();
         this.displaySequence = displayItem.getDisplaySequence();
-        this.fullScore = displayItem.getFullScore();
+        this.passScore = displayItem.getPassScore();
     }
 
     @Override

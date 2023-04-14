@@ -122,13 +122,24 @@
             >
             <el-button
                 @click="showScoreItem(scope.row)"
-                v-show="mode==='admin'"
+                v-show="mode==='admin' || mode==='adminSub'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
                 type="primary"
                 plain
             >评分项设置
+            </el-button
+            >
+            <el-button
+                @click="showScoreItem(scope.row)"
+                v-show="mode==='secretary'"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-tickets"
+                type="primary"
+                plain
+            >评分项查看
             </el-button
             >
             <el-button
@@ -143,6 +154,17 @@
             </el-button
             >
             <el-button
+                @click="showInfoItem(scope.row)"
+                v-show="mode==='secretary'"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-tickets"
+                type="primary"
+                plain
+            >信息项查看
+            </el-button
+            >
+            <el-button
                 @click="showTotalItem(scope.row)"
                 v-show="mode==='admin' || mode==='adminSub'"
                 style="padding: 4px"
@@ -150,7 +172,7 @@
                 icon="el-icon-tickets"
                 type="primary"
                 plain
-            >总分项设置
+            >成绩查看设置
             </el-button
             >
             <el-button
@@ -175,8 +197,7 @@
             >选手管理
             </el-button
             >
-              <el-button
-                      v-show="mode === 'secretary'"
+             <el-button
                       @click="showGroups(scope.row)"
                       style="padding: 4px"
                       size="mini"
@@ -186,6 +207,17 @@
               >专家管理
               </el-button
               >
+            <el-button
+                v-show="mode === 'secretary'"
+                @click="showParticipants(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-tickets"
+                type="primary"
+                plain
+            >选手管理
+            </el-button
+            >
             <el-button
                 @click="showScore(scope.row)"
                 v-show="mode==='admin' || mode==='adminSub'"
@@ -826,6 +858,8 @@ export default {
         query: {
           keywords: data.id,
           keyword_name: data.name,
+          mode:this.mode,
+          backID:this.activityID,
         },
       });
     },
@@ -839,6 +873,7 @@ export default {
                   keywords: data.id,
                   keyword_name: data.name,
                   mode:this.mode,
+                  backID:this.activityID,
               },
           });
       }else if (this.mode === "secretary"){
@@ -874,6 +909,8 @@ export default {
         query: {
           keywords: data.id,
           keyword_name: data.name,
+          mode:this.mode,
+          backID:this.activityID
         },
       });
     },
@@ -941,14 +978,29 @@ export default {
           _this.$router.push({
               path: "/ActivitM/sobcfg",
               query: {
+                  activityID: data.id,
                   keywords: data.id,
                   keyword_name: data.name,
                   keywords_name:this.keywords_name,
                   groupID: data.groupID,
+                  backID: this.activityID,
                   mode:this.mode
               }
           })
       },
+     showParticipants(data){
+         const _this = this;
+         _this.$router.push({
+             path: "/participantsM",
+             query: {
+                 activityID: data.id,
+                 keyword_name: data.name,
+                 keywords_name:this.keywords_name,
+                 groupID: data.groupID,
+                 mode:this.mode
+         }
+       })
+     }
   },
 };
 </script>
