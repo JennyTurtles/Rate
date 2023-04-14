@@ -60,8 +60,6 @@ public class ReceiveIMAPmails {
         props.setProperty("mail.imap.auth.login.disable", "true");
 
         // 解决A3 NO SELECT UNSAFE LOGIN
-        // 带上IMAP ID信息，由key和value组成，例如name，version，vendor，support-email等。
-        // 其中value随便写
         HashMap<String, String> iam = new HashMap<>();
         iam.put("name", "myname");
         iam.put("version", "1.0.0");
@@ -71,7 +69,6 @@ public class ReceiveIMAPmails {
         // 创建Session实例对象
         Session session = Session.getInstance(props);
         // 创建IMAP协议的Store对象
-//        Store store = session.getStore("imap");
         IMAPStore store = (IMAPStore) session.getStore("imap");
         // 连接邮箱服务器
         store.connect(from, password);

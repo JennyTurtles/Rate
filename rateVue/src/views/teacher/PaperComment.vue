@@ -11,7 +11,8 @@
                 element-loading-text="正在加载..."
                 element-loading-spinner="el-icon-loading"
                 element-loading-background="rgba(0, 0, 0, 0.12)"
-                style="width: 100%">
+                style="width: 100%"
+                v-loading.fullscreen.lock="loading">
                 <el-table-column label="" type="index" width="50"></el-table-column>
                 <el-table-column
                     prop="sname"
@@ -63,7 +64,6 @@
 </template>
 
 <script>
-
     export default {
         name: "teaPaperComment",
         data() {
@@ -253,6 +253,14 @@
 </script>
 
 <style>
+    .el-loading-spinner {
+      font-size: 20px;
+      /*font-weight: bold;*/
+    }
+
+    .el-loading-spinner .el-loading-text {
+      font-size: 18px;
+    }
     .el-tooltip__popper {
         max-width: 750px;
     }

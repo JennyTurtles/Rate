@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
-import org.sys.rate.service.expert.ExpertService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +22,7 @@ public class GraduateStudentService {
     UnderGraduateMapper underGraduateMapper;
     @Autowired
     GraduateStudentMapper graduateStudentMapper;
+
     //管理员导入研究生，只添加，即使已经存在了该条数据也不更新
     public RespBean addGraduate(List<GraduateStudent> graduateList, List<Student> stuList) {
         //根据身份证号得到已经存在的student
@@ -233,5 +233,14 @@ public class GraduateStudentService {
     }
     public GraduateStudent getGradByStuID(Integer studentID){
         return graduateStudentMapper.getGradByStuID(studentID);
+    }
+
+    public List<GraduateStudent> getGraduateListByTutorID(Integer tutorID) {
+        List<GraduateStudent> res = null;
+        try {
+            res = graduateStudentMapper.getGraduateListByTutorID(tutorID);
+        }catch (Exception e){
+        }
+        return res;
     }
 }

@@ -47,18 +47,22 @@ public class GraduateStudent extends Student{
         this.stuNumber = stuNumber;
     }
 
+    @Override
     public Integer getYear() {
         return year;
     }
 
+    @Override
     public void setYear(Integer year) {
         this.year = year;
     }
 
+    @Override
     public Integer getTutorID() {
         return tutorID;
     }
 
+    @Override
     public void setTutorID(Integer tutorID) {
         this.tutorID = tutorID;
     }

@@ -2,9 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.sys.rate.model.Student;
 import org.sys.rate.model.GraduateStudent;
-import org.sys.rate.model.UnderGraduate;
 
 import java.util.List;
 
@@ -29,4 +27,5 @@ public interface GraduateStudentMapper {
     List<String> getTeaNamesBySelect(String teaName);
     List<GraduateStudent> getGraduateStudentsBySelect(String teaName,Integer year);
 
+    List<GraduateStudent> getGraduateListByTutorID(Integer tutorID);
 }

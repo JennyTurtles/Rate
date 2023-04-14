@@ -188,8 +188,10 @@ public class Download {
         out.close();
     }
 
-    public synchronized void deleteAllFiles(String path) {
-        Logger logger = Logger.getLogger("upload/DeleteErrLog");
+    public void deleteAllFiles(String path) {
+        Logger logger = Logger.getLogger("deleteFilesErr");
+//        FileHandler fileHandler = new FileHandler("path/to/log/file.log");
+//        logger.addHandler(fileHandler);
         File directory = new File(path);
         File[] files = directory.listFiles();
         if (files != null) {
@@ -217,7 +219,7 @@ public class Download {
 
 
 
-    public void removePageFromPDF(String path, String tempPath, int page) throws Exception,DocumentException,IOException {
+    public void removePageFromPDF(String path, String tempPath, int page) throws Exception {
         PdfReader reader = null;
         FileOutputStream fos = null;
         try {
@@ -248,12 +250,13 @@ public class Download {
 
     public String adaptRows(String origin, int ROWSLIMIT) {
         int rows = 0, count = 0;
+        final int oneRowCount = 35;
         // 0.清理首尾的空白符和\n && 清理多余的\n
         origin = origin.trim();
         origin = origin.replace("\n\n", "\n");
         // 1.统计有多少行数
         for (int i = 0; i < origin.length(); ++i) {
-            if (count > 35 || origin.charAt(i) == '\n') {
+            if (count > oneRowCount || origin.charAt(i) == '\n') {
                 count = 0;
                 rows++;
             } else {

@@ -119,7 +119,6 @@ public class PaperCommentController {
 
     @ResponseBody
     @GetMapping("/exportPDF")
-
     public void exportDataPDF(HttpServletResponse response, @RequestParam Integer thesisID) {
         download.preDownload(response, thesisID);
     }

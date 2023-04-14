@@ -127,4 +127,40 @@
         from graduatestudent u,student s
         where u.studentID=#{studentID} and s.ID = u.studentID
     </select>
+
+    <resultMap id="GraduateListMap" type="org.sys.rate.model.GraduateStudent">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <result column="stuNumber" property="stuNumber" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result column="studentType" property="studentType" jdbcType="VARCHAR"/>
+        <result column="year" property="year" jdbcType="INTEGER"/>
+        <result column="point" property="point" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getGraduateListByTutorID" resultMap="GraduateListMap">
+        SELECT
+            s.ID AS ID,
+            g.stuNumber,
+            s.`name`,
+            g.studentType,
+            g.`year`,
+            g.point,
+            s.email,
+            s.telephone,
+            s.username,
+            s.`password`
+        FROM
+            `graduatestudent` g,
+            `student` s
+        WHERE
+            g.tutorID = #{tutorID}
+          AND g.studentID = s.ID
+          AND s.deleteflag = 0
+        ORDER BY
+            g.stuNumber
+    </select>
 </mapper>
