@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.sys.rate.mapper.TeachersMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.TeacherService;
 import org.sys.rate.service.admin.TeachersService;
+import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.POIUtils;
 
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +32,8 @@ public class TeacherBasicController {
     TeacherService TeacherService;
     @Autowired
     TeachersService teachersService;
+    @Autowired
+    TeachersMapper teachersMapper;
 
     @GetMapping("/getall")
     public List<Teacher> getAllTeacher() {
@@ -94,6 +98,14 @@ public class TeacherBasicController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {t,info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res",res);
+    }
+    @PostMapping("/updatePassword")
+    public RespBean updatePassword(@RequestBody Teachers record) {
+        String pass = ExpertService.sh1(record.getPassword());//加密
+        if (teachersMapper.updatePassword(record.getID(),pass) == 1) {
+            return RespBean.ok("更新成功!");
+        }
+        return RespBean.error("更新失败!");
     }
 }
 

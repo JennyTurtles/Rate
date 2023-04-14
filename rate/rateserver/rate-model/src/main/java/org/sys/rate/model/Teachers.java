@@ -37,8 +37,27 @@ public class Teachers extends Account
     private String password;
     private String phone;
     private String role;
+    private String registerQuestion;
+    private String registerAnswer;
+
     /** 删除标志 */
     private Long deleteflag;
+
+    public String getRegisterAnswer() {
+        return registerAnswer;
+    }
+
+    public void setRegisterAnswer(String registerAnswer) {
+        this.registerAnswer = registerAnswer;
+    }
+
+    public String getRegisterQuestion() {
+        return registerQuestion;
+    }
+
+    public void setRegisterQuestion(String registerQuestion) {
+        this.registerQuestion = registerQuestion;
+    }
 
     public void setID(Integer ID)
     {

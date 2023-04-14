@@ -2,10 +2,7 @@ package org.sys.rate.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.sys.rate.mapper.GraduateStudentMapper;
-import org.sys.rate.mapper.ParticipatesMapper;
-import org.sys.rate.mapper.StudentMapper;
-import org.sys.rate.mapper.UnderGraduateMapper;
+import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.GraduateStudentService;
 import org.sys.rate.service.admin.UnderGraduateService;
@@ -24,6 +21,8 @@ public class RegisterController {
     ParticipatesMapper participatesMapper;
     @Autowired
     StudentMapper studentMapper;
+    @Autowired
+    TeachersMapper teachersMapper;
 
     @PostMapping("/stu")
     public RespBean registerStu(@RequestBody Student student){
@@ -68,4 +67,24 @@ public class RegisterController {
         }
         return RespBean.ok("ok",null);
     }
+
+    @GetMapping("/getUserByIdNumber")
+    public RespBean getUserByIdNumber(String role,String idNumber){
+        if(idNumber.equals("")){
+            return RespBean.ok("null",null);
+        }else {
+            try {
+                if(role.equals("student")){
+                    Student stu = studentMapper.getStuByIDNumber(idNumber);
+                    return RespBean.ok("student",stu);
+                }else if(role.equals("teacher")){
+                    Teachers tea =teachersMapper.getTeaByIDNumber(idNumber);
+                    return RespBean.ok("teacher",tea);
+                }
+            }catch (Exception e){
+            }
+        }
+        return RespBean.error("error",null);
+    }
+
 }

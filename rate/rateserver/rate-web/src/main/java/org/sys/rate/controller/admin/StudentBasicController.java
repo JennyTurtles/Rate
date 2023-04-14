@@ -1,10 +1,12 @@
 package org.sys.rate.controller.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.sys.rate.mapper.StudentMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.GraduateStudentService;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.UnderGraduateService;
+import org.sys.rate.service.expert.ExpertService;
 
 import java.applet.AppletStub;
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.List;
 public class StudentBasicController {
     @Autowired
     StudentService StudentService;
+    @Autowired
+    StudentMapper studentMapper;
     @Autowired
     UnderGraduateService underGraduateService;
     @Autowired
@@ -64,6 +68,14 @@ public class StudentBasicController {
     @PostMapping("/update")
     public RespBean updateStudent(@RequestBody Student record) {
         if (StudentService.updateStudent(record) == 1) {
+            return RespBean.ok("更新成功!");
+        }
+        return RespBean.error("更新失败!");
+    }
+    @PostMapping("/updatePassword")
+    public RespBean updatePassword(@RequestBody Student record) {
+        String pass = ExpertService.sh1(record.getPassword());//加密
+        if (studentMapper.updatePassword(record.getID(),pass) == 1) {
             return RespBean.ok("更新成功!");
         }
         return RespBean.error("更新失败!");

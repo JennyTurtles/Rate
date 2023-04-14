@@ -172,7 +172,7 @@
         </set>
         where ID=#{ID}
     </update>
-    <update id="updatePasswordByAdmin">
+    <update id="updatePassword">
         update student
         <set>
             <if test="pass != '' and pass != null">password=#{pass,jdbcType=VARCHAR},</if>

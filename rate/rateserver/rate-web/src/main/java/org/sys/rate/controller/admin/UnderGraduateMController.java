@@ -82,7 +82,7 @@ public class UnderGraduateMController {
         Integer res = 0;
         try{
             String p = ExpertService.sh1(under.getPassword());
-            res = studentMapper.updatePasswordByAdmin(under.getStudentID(),p);
+            res = studentMapper.updatePassword(under.getStudentID(),p);
         }catch (Exception e){
             return RespBean.error("error",null);
         }

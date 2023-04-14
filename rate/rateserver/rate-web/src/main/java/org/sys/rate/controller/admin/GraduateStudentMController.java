@@ -105,7 +105,7 @@ public class GraduateStudentMController {
         Integer res = 0;
         try{
             String p = ExpertService.sh1(grad.getPassword());
-            res = studentMapper.updatePasswordByAdmin(grad.getStudentID(),p);
+            res = studentMapper.updatePassword(grad.getStudentID(),p);
         }catch (Exception e){
             return RespBean.error("error",null);
         }

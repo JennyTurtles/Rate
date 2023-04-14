@@ -13,6 +13,8 @@
         <result column="phone" jdbcType="VARCHAR" property="phone" />
         <result column="email" jdbcType="VARCHAR" property="email" />
         <result column="deleteflag" property="deleteflag" jdbcType="BIT"/>
+        <result column="registerAnswer" property="registerAnswer" jdbcType="VARCHAR"/>
+        <result column="registerQuestion" property="registerQuestion" jdbcType="VARCHAR"/>
         <result column="role" property="role" jdbcType="VARCHAR"/>
     </resultMap>
 
@@ -402,5 +404,17 @@
             UPDATE teacher
             SET role = #{role}
             where ID = #{ID}
+    </update>
+    <select id="getTeaByIDNumber" resultMap="BaseResultMap">
+        select *
+        from teacher
+        where IDNumber = #{IDNumber}
+    </select>
+    <update id="updatePassword">
+        update teacher
+        <set>
+            <if test="pass != '' and pass != null">password=#{pass,jdbcType=VARCHAR},</if>
+        </set>
+        where ID=#{ID}
     </update>
 </mapper>

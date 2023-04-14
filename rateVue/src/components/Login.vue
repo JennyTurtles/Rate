@@ -27,12 +27,22 @@
       <div class="setPassword">
         <span @click="forgetPassword">忘记密码?</span>
       </div>
-      <el-button size="normal"
-                 type="primary"
-                 style="width: 100%;"
-                 native-type="submit"
-                 @click="submitLogin">登录</el-button>
-
+      <div class="footer">
+        <div>
+          <el-button size="normal"
+                     type="primary"
+                     style="width: 100%;"
+                     native-type="submit"
+                     @click="submitLogin">登录</el-button>
+        </div>
+        <div style="margin-top: 15px" v-show="loginForm.role !== 'admin'">
+          <el-button size="normal"
+                     type="primary"
+                     style="width: 100%;"
+                     native-type="submit"
+                     @click="submitRegist">注册</el-button>
+        </div>
+      </div>
     </el-form>
   </div>
 </template>
@@ -62,18 +72,18 @@ export default {
     }
   },
   mounted () {
-    // // 向后端获取公钥
-    // this.getRequest('/getPublicKey').then(resp => {
-    //   this.publicKey = resp.obj
-    // })
     this.loginForm = this.inf
   },
   methods: {
     forgetPassword(){//忘记密码选项
       this.$router.push({
-        path:'/ResetPassword'
+        path:'/ResetPassword',
+        query:{
+          key:this.loginForm.role//把角色传递过去
+        }
       })
     },
+    //只有学生和teacher才有注册功能
     submitRegist(){
       this.$router.replace({
         path:''
@@ -123,6 +133,10 @@ export default {
 </script>
 
 <style>
+.footer{
+  margin-top: 8px;
+  text-align: center;
+}
 .setPassword span:hover{
   color: #4b8ffe;
 }
