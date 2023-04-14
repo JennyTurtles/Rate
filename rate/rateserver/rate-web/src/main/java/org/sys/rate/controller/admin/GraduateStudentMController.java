@@ -85,9 +85,6 @@ public class GraduateStudentMController {
         return RespBean.ok("ok", res);
     }
 
-    // 根据入学年份、学生姓名、专业类型 + curr+ pagenum返回查询结果
-    // 要不然从前端返回？？算了，还有total需要考虑，但是好像也没有多难，要不然试试
-
     @GetMapping("/getGraduateListByTutorID")
     public RespBean getGraduateListByTutorID(@RequestParam("tutorID") Integer tutorID, @RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
         // 设置当前所在页和每页显示的条数

@@ -141,6 +141,7 @@
         <result property="username" column="username" jdbcType="VARCHAR"/>
     </resultMap>
 
+<!--   这里通过stuNumber进行改变，也行-->
     <select id="getGraduateListByTutorID" resultMap="GraduateListMap">
         SELECT
             s.ID AS ID,

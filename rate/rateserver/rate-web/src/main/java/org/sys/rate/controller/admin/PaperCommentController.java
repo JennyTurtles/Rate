@@ -116,7 +116,6 @@ public class PaperCommentController {
     /**
      * 通过thesisID返回需要打印的pdf文件
      */
-
     @ResponseBody
     @GetMapping("/exportPDF")
     public void exportDataPDF(HttpServletResponse response, @RequestParam Integer thesisID) {

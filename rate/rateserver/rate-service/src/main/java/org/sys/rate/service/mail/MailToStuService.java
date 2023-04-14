@@ -32,7 +32,6 @@ public class MailToStuService {
     @Resource
     PaperService paperService;
 
-    // createMimeMessage可以展示超文本信息
     @GetMapping("multi")
     public void sendStuMail(String state, Long ID) throws MessagingException {
         if (state.equals("commit"))

@@ -88,9 +88,8 @@ public class ReceiveIMAPmails {
         // 解析邮件
         parseMessage(messages);
 
-        folder.close(false);    // 关闭邮件夹对象；若删除邮件则及时更新Folder,打开.
-        // If you just close the folder, you can't do anything more to the folder, but you can still operate on the store.
-        store.close();             // 关闭连接对象
+        folder.close(false);
+        store.close();
     }
 
     /**

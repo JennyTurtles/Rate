@@ -4,9 +4,6 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 export default new Router({
-  // mode:'hash',
-  // mode:'history',
-  // base: '/',
   routes: [
     {
       path: '/Admin/Login', //管理员路由跳转路径

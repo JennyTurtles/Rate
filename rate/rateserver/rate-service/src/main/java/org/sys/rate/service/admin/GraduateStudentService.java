@@ -234,7 +234,7 @@ public class GraduateStudentService {
     public GraduateStudent getGradByStuID(Integer studentID){
         return graduateStudentMapper.getGradByStuID(studentID);
     }
-
+    // 获取导师旗下研究生
     public List<GraduateStudent> getGraduateListByTutorID(Integer tutorID) {
         List<GraduateStudent> res = null;
         try {

@@ -10,7 +10,7 @@ public class GraduateStudent extends Student{
     private String studentType;
     private String point;
 
-
+    // 建议对继承的方法加上Override
     @Override
     public Integer getID() {
         return ID;

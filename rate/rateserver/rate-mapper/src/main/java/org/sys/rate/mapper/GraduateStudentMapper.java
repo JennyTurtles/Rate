@@ -27,5 +27,6 @@ public interface GraduateStudentMapper {
     List<String> getTeaNamesBySelect(String teaName);
     List<GraduateStudent> getGraduateStudentsBySelect(String teaName,Integer year);
 
+    // 获取研究生列表
     List<GraduateStudent> getGraduateListByTutorID(Integer tutorID);
 }

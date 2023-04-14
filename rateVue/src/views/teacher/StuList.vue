@@ -293,7 +293,6 @@
                 postPasswordPromise.then((res)=>{
                     this.pageSize = 20
                     this.currentPage = 1
-                    console.log("test");
                     this.initGraduateStudents(this.currentPage, this.pageSize)
                 })
 

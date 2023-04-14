@@ -141,8 +141,6 @@ public class Download {
                 reader.close();
                 os.close();
                 if (paperComments.size() != 10 && paperComments.size() != 20) {
-//                    String fileNewName = student.getName() + "-" + System.currentTimeMillis()/1000 + ".pdf";
-//                    String fileNewName = student.getName() + "-" + "1" + ".pdf";
                     String fileNewName = student.getName() + "-" + UUID.randomUUID().toString() + ".pdf";
                     removePageFromPDF(DEST + fileName, DEST + fileNewName, paperComments.size() + 1);
                     getDownload(response, DEST + fileNewName, false);
@@ -174,7 +172,6 @@ public class Download {
             URL u = new URL("file:///" + filePath);
             response.setContentType(u.openConnection().getContentType());
             response.setHeader("Content-Disposition", "inline; filename=" + java.net.URLEncoder.encode(filename, "UTF-8"));
-            // 文件名应该编码成UTF-8
         } else {
             // 纯下载方式
             response.setContentType("application/pdf;charset=utf-8");

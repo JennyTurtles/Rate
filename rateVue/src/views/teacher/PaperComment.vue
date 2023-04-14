@@ -20,8 +20,6 @@
                     label="姓名"
                     width="100px"
                     :show-overflow-tooltip="true"></el-table-column>
-                <!-- <el-table-column prop="majority" align="center" label="专业"
-                width="250px"></el-table-column> -->
                 <el-table-column prop="thesis.name" align="center" label="论文题目" width="500px"></el-table-column>
 
                 <el-table-column
