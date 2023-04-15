@@ -24,7 +24,7 @@
                   auto-complete="off"
                   placeholder="请输入密码"></el-input>
       </el-form-item>
-      <div class="setPassword">
+      <div class="setPassword" v-show="loginForm.role !== 'admin'">
         <span @click="forgetPassword">忘记密码?</span>
       </div>
       <div class="footer">
@@ -83,11 +83,18 @@ export default {
         }
       })
     },
-    //只有学生和teacher才有注册功能
+    //只有学生和teacher才有注册功能 专家不注册
     submitRegist(){
-      this.$router.replace({
-        path:''
-      })
+      //因为老师注册和学生注册有些地方不一样所以先弄成两个组件
+      if(this.loginForm.role == 'student'){
+        this.$router.replace({
+          path:'/Student/Register'
+        })
+      }else if(this.loginForm.role == 'teacher'){
+        this.$router.replace({
+          path:'/Teacher/Register'
+        })
+      }
     },
     submitLogin () {
       this.$refs.loginForm.validate((valid) => {

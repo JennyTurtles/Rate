@@ -2,7 +2,7 @@
   <div>
     <el-form class="resetPassContainer" :label-width="labelWidth">
       <el-form-item label="请输入身份证号:">
-        <el-input style="width: 60%"  v-model="idNumber"></el-input>
+        <el-input style="width: 60%"  v-model="idNumber" @input="checkIdNumber"></el-input>
       </el-form-item>
       <el-form-item label="请输入密保问题:">
         <el-input style="width: 60%"  v-model="passQuestion"></el-input>
@@ -51,15 +51,9 @@ export default {
   watch:{
     passAnswer:{
       handler(){
-        debounce(this.check(),400)
+        this.check()
       }
     },
-    idNumber:{
-      handler(){
-        debounce(this.checkIdNumber(),400)
-      }
-    },
-
   },
   computed:{
     labelWidth(){
@@ -77,24 +71,24 @@ export default {
       if(this.idNumber == '' || this.idNumber == null){
         return
       }
-      //密保问题正确
+      //密保问题正确并且根据身份证号查找到了学生
       if(this.passQuestion === this.user.registerQuestion && this.passAnswer === this.user.registerAnswer){
         this.resetPassShow = true
       }else {
         this.resetPassShow = false
+        this.$message.warning('密保不正确！')
       }
     },
-    checkIdNumber(){
-      let url = '/registerUser/getUserByIdNumber?role=' + this.role + '&idNumber=' + this.idNumber
-      this.getRequest(url).then((response)=>{
-        if (response){
-          if(response.status == 200){
-            this.user = response.obj
+    checkIdNumber: debounce(function (){
+        let url = '/registerUser/getUserByIdNumber?role=' + this.role + '&idNumber=' + this.idNumber
+        this.getRequest(url).then((response)=>{
+          if (response){
+            if(response.status == 200){
+              this.user = response.obj
+            }
           }
-        }
-      })
-
-    },
+        })
+      },400),
     reset(){
       if(this.newPass == '' || this.newPass == null){
         return

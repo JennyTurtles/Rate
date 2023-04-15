@@ -30,14 +30,13 @@ public class RegisterController {
         //没有就插入，同时判断选择注册的身份
         String stuType = student.getStuType();
         try{
+            String password = ExpertService.sh1(student.getPassword());
+            student.setPassword(password);
             //可以直接根据id判断，因为在填写时已经做了查询，查到了id会存在，没查到就是null
             if(student.getID() == null){//插入学生表 并返回id
                 //老师用excel导入没有密保 怎么处理？？？
                 studentMapper.insertStuFromRegister(student);
             }else {//有这个学生，就更新用户名和密码和密保
-                //加密
-                String password = ExpertService.sh1(student.getPassword());
-                student.setPassword(password);
                 studentMapper.updatePasswordAndUsername(student);
             }
 
@@ -58,9 +57,11 @@ public class RegisterController {
                 grad.setStudentID(student.getID());
                 grad.setStudentType(student.getGradType());
                 grad.setPoint(null);//怎么处理？
-            }else if(stuType.equals("没有本校学号")){//说明是选手,先不写，问老师怎么处理？
-                Participates par = null;
-//            participatesMapper.insertParByRegister(par);
+                graduateStudentMapper.insert(grad);
+            }else if(stuType.equals("没有本校学号")){//选手
+                Participates par = null;//code?display?都怎么处理？
+                par.setStudentID(student.getID());
+                participatesMapper.insertParByRegister(par);
             }
         }catch (Exception e){
             return RespBean.error("error",null);

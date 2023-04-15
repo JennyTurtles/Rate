@@ -239,15 +239,11 @@
                 #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false
                )
     </insert>
+<!--    需求不完整 先这样写着，后面再改-->
     <insert id="insertParByRegister" parameterType="org.sys.rate.model.Participates">
-        insert into participants  (ID,
-                              name,IDNumber, username,
-                              password, telephone, email,deleteflag
-        )
+        insert into participants  (ID,studentID)
         values (#{ID,jdbcType=INTEGER},
-                #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR},
-                #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false
-               )
+                #{studentID})
     </insert>
 
     <update id="insert_update" parameterType="org.sys.rate.model.Activities">

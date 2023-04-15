@@ -114,7 +114,6 @@ export default {
     },
     //填写身份证号
     idNumberChange: debounce(function (){this.getStu();},400),
-
     getStu(){
       if(this.user.idnumber == '' || this.user.idnumber == null){
         return
