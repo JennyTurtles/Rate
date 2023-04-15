@@ -107,5 +107,15 @@ public class TeacherBasicController {
         }
         return RespBean.error("更新失败!");
     }
+    @GetMapping("/getTeaByIdNumber")
+    public RespBean getTeaByIdNumber(String IDNumber){
+        Teachers tea = null;
+        try{
+            tea = teachersMapper.getTeaByIDNumber(IDNumber);
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        return RespBean.ok("ok",tea);
+    }
 }
 

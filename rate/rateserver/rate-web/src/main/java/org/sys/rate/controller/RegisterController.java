@@ -24,6 +24,7 @@ public class RegisterController {
     @Autowired
     TeachersMapper teachersMapper;
 
+    //学生注册
     @PostMapping("/stu")
     public RespBean registerStu(@RequestBody Student student){
         //根据身份证判断 如果有这个student，就设置用户名密码和密保
@@ -69,6 +70,7 @@ public class RegisterController {
         return RespBean.ok("ok",null);
     }
 
+    //忘记密码里面，通过输入身份证号和role查找用户
     @GetMapping("/getUserByIdNumber")
     public RespBean getUserByIdNumber(String role,String idNumber){
         if(idNumber.equals("")){
@@ -88,4 +90,24 @@ public class RegisterController {
         return RespBean.error("error",null);
     }
 
+    //教师注册
+    @PostMapping("/tea")
+    public RespBean registerTea(@RequestBody Teachers teacher){
+        //根据身份证判断 如果有这个teacher，就设置用户名密码和密保
+        //没有就插入，同时判断选择注册的身份
+        try{
+            String password = ExpertService.sh1(teacher.getPassword());
+            teacher.setPassword(password);
+            //可以直接根据id判断，因为在填写时已经做了查询，查到了id会存在，没查到就是null
+            if(teacher.getID() == null){//插入学生表 并返回id
+                //老师用excel导入没有密保 怎么处理？？？
+                teachersMapper.insertTeaFromRegister(teacher);
+            }else {//有这个老师，就更新用户名和密码和密保
+                teachersMapper.updatePasswordAndUsername(teacher);
+            }
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        return RespBean.ok("ok",null);
+    }
 }

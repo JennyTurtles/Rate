@@ -417,4 +417,23 @@
         </set>
         where ID=#{ID}
     </update>
+    <update id="updatePasswordAndUsername" parameterType="org.sys.rate.model.Teachers">
+        update teacher
+        <set>
+            <if test="username != '' and username != null">username=#{username,jdbcType=VARCHAR},</if>
+            <if test="password != '' and password != null">password=#{password,jdbcType=VARCHAR},</if>
+            registerQuestion = #{registerQuestion,jdbcType=VARCHAR},
+            registerAnswer = #{registerAnswer,jdbcType=VARCHAR}
+        </set>
+        where ID=#{ID}
+    </update>
+    <insert id="insertTeaFromRegister" parameterType="org.sys.rate.model.Teachers" useGeneratedKeys="true" keyProperty="ID">
+        insert into teacher  (ID,jobnumber,department,name,IDNumber,username,password,phone,email,deleteflag,sex,role,registerQuestion,registerAnswer)
+        values (#{ID,jdbcType=INTEGER},#{jobnumber,jdbcType=VARCHAR},#{department,jdbcType=VARCHAR},
+                #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
+                #{username,jdbcType=VARCHAR},
+                #{password,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,#{sex,jdbcType=VARCHAR},'',
+                #{registerQuestion,jdbcType=VARCHAR}, #{registerQuestion,jdbcType=VARCHAR}
+               )
+    </insert>
 </mapper>

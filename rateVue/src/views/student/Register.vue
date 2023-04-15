@@ -41,7 +41,7 @@
           <el-input style="width: 60%" v-model="user.username"></el-input>
         </el-form-item>
         <el-form-item label="请输入密码:">
-          <el-input style="width: 60%" v-model="user.password"></el-input>
+          <el-input style="width: 60%" v-model="user.password" type="password"></el-input>
         </el-form-item>
         <el-form-item label="请输入密保问题:">
           <el-input style="width: 60%" v-model="user.registerQuestion"></el-input>

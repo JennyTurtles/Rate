@@ -13,6 +13,10 @@ import java.util.List;
  */
 public interface TeachersMapper 
 {
+    int updatePasswordAndUsername(Teachers record);
+    int insertTeaFromRegister(Teachers record);//注册添加
+
+
     int updatePassword(Integer ID,String pass);
 
     Teachers getTeaByIDNumber(String IDNumber);
