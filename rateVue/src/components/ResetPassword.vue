@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-form class="resetPassContainer" :label-width="labelWidth">
+    <el-form class="resetPassContainer" :label-width="labelWidth" :rules="rules">
       <el-form-item label="请输入身份证号:">
         <el-input style="width: 60%"  v-model="idNumber" @input="checkIdNumber"></el-input>
       </el-form-item>
@@ -8,13 +8,13 @@
         <el-input style="width: 60%"  v-model="passQuestion"></el-input>
       </el-form-item>
       <el-form-item label="请输入密保答案:">
-        <el-input style="width: 60%" v-model="passAnswer"></el-input>
+        <el-input style="width: 60%" v-model="passAnswer" @input="check"></el-input>
       </el-form-item>
       <div v-show="resetPassShow">
         <el-form-item label="请输入新密码:">
           <el-input style="width: 60%" v-model="newPass" type="password"></el-input>
         </el-form-item>
-        <el-form-item label="请确认新密码:">
+        <el-form-item label="请确认新密码:" prop="confirmNewPass">
           <el-input style="width: 60%" v-model="confirmNewPass" type="password"></el-input>
         </el-form-item>
         <div class="footer">
@@ -33,27 +33,35 @@ export default {
   name: "ResetPassword",
   data(){
     return{
-      user:{
-
-      },
+      user:{},
       role:"",
       idNumber:'',
       passQuestion:'',
       passAnswer:'',
       resetPassShow:false,
       newPass:'',
-      confirmNewPass:''
+      confirmNewPass:'',
+      rules:{
+        confirmNewPass:[
+          {
+            trigger:["blur","change"],
+            message:"请仔细核对密码！",
+            required:true,
+            validator:(rule,value,callback)=>{
+              if (this.newPass !== value) {
+                callback(new Error("输入密码不一致!"));
+              }
+            }
+          }
+        ]
+      },
     }
+
   },
   mounted() {
     this.role = this.$route.query.key
   },
   watch:{
-    passAnswer:{
-      handler(){
-        this.check()
-      }
-    },
   },
   computed:{
     labelWidth(){
@@ -61,24 +69,24 @@ export default {
     }
   },
   methods:{
-    check(){//密保答案失去焦点，进行判断
-      if(this.passQuestion == '' || this.passQuestion == null){
-        return
-      }
-      if(this.passAnswer == '' || this.passAnswer == null){
-        return
-      }
-      if(this.idNumber == '' || this.idNumber == null){
-        return
-      }
-      //密保问题正确并且根据身份证号查找到了学生
-      if(this.passQuestion === this.user.registerQuestion && this.passAnswer === this.user.registerAnswer){
-        this.resetPassShow = true
-      }else {
-        this.resetPassShow = false
-        this.$message.warning('密保不正确！')
-      }
-    },
+    check: debounce(function (){
+        if(this.passQuestion == '' || this.passQuestion == null){
+          return
+        }
+        if(this.passAnswer == '' || this.passAnswer == null){
+          return
+        }
+        if(this.idNumber == '' || this.idNumber == null){
+          return
+        }
+        //密保问题正确并且根据身份证号查找到了学生
+        if(this.passQuestion === this.user.registerQuestion && this.passAnswer === this.user.registerAnswer){
+          this.resetPassShow = true
+        }else {
+          this.resetPassShow = false
+          this.$message.warning('密保不正确！')
+        }
+    },300),//密保答案失去焦点，进行判断,
     checkIdNumber: debounce(function (){
         let url = '/registerUser/getUserByIdNumber?role=' + this.role + '&idNumber=' + this.idNumber
         this.getRequest(url).then((response)=>{
