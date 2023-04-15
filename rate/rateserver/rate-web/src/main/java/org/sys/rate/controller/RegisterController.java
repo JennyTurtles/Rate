@@ -41,7 +41,7 @@ public class RegisterController {
             }
 
             if(stuType.equals("本科生")){
-                UnderGraduate under = null;
+                UnderGraduate under = new UnderGraduate();
                 under.setStuNumber(student.getStudentnumber());
                 under.setTutorID(null);
                 under.setInstitutionID(null);//怎么处理？
@@ -49,7 +49,7 @@ public class RegisterController {
                 under.setStudentID(student.getID());
                 underGraduateMapper.insert(under);
             }else if(stuType.equals("研究生")){
-                GraduateStudent grad = null;
+                GraduateStudent grad = new GraduateStudent();
                 grad.setStuNumber(student.getStudentnumber());
                 grad.setTutorID(null);
                 grad.setInstitutionID(null);//怎么处理？

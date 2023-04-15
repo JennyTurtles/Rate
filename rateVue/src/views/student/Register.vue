@@ -26,15 +26,15 @@
         </el-form-item>
         <div v-show="selectStuType !== '没有本校学号' && selectStuType !== null && selectStuType !== ''">
           <el-form-item label="请输入学号:">
-            <el-input style="width: 60%" v-model="user.stuNumber"></el-input>
+            <el-input style="width: 60%" v-model="user.studentnumber"></el-input>
           </el-form-item>
           <el-form-item label="请输入入学年份:">
-            <el-input style="width: 60%" v-model="user.year"></el-input>
+            <el-input style="width: 60%" v-model="user.year" placeholder="2022"></el-input>
           </el-form-item>
         </div>
         <div v-show="selectStuType === '研究生'">
           <el-form-item label="请输入研究生类型:">
-            <el-input style="width: 60%" v-model="user.studentType"></el-input>
+            <el-input style="width: 60%" v-model="user.gradType" placeholder="专硕/学硕"></el-input>
           </el-form-item>
         </div>
         <el-form-item label="请输入用户名:">
@@ -71,11 +71,11 @@ export default {
         telephone:'',
         email:'',
         idnumber:'',
-        stuNumber:'',
+        studentnumber:'',
         year:'',
         username:'',
         password:'',
-        studentType:'',//专硕/学硕
+        gradType:'',//专硕/学硕
         registerQuestion:'',
         registerAnswer:''
       },
@@ -123,6 +123,9 @@ export default {
         if(resp){
           if(resp.status == 200 && resp.obj != null){
             this.user = resp.obj
+            //查到了这个学生把用户名密码设置为空，用户重新设置？
+            this.user.username = ''
+            this.user.password = ''
           }else if(resp.obj == null && (this.selectStuType == "" || this.selectStuType == null)){
             this.user.name = ''
             this.user.telephone = ''
