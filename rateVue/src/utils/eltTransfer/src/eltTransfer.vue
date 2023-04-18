@@ -98,6 +98,7 @@
       <el-table
           ref="rightTable"
           size="small"
+          style="width: 200px"
           height="745px"
           :row-class-name="handleRowStyleForRight"
           :data="calcRightTableData"
@@ -441,7 +442,7 @@
     overflow: hidden;
     background: #FFF;
     display: inline-block;
-    /*width: calc((100% - 100px));*/
+    width: 500px;
     max-height: 100%;
     box-sizing: border-box;
     position: relative
@@ -465,7 +466,7 @@
       overflow: hidden;
       background: #FFF;
       display: inline-block;
-      /*width: calc((100% - 100px));*/
+      width: 200px;
       max-height: 100%;
       box-sizing: border-box;
       position: relative

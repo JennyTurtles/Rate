@@ -431,7 +431,7 @@
         <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: 150px">
         </el-checkbox>
       </div>
-        <div style="font-size: 16px;margin-left: 15%;margin-top: 15px">模版列预览：<br/></div>
+        <div style="font-size: 16px;margin-left: 15%;margin-top: 15px">模版中的列排列顺序如下：<br/></div>
       <div style="font-size: 16px;margin-left: 15%">{{preview(dymatic_list,scoreitem,infoitem)}}</div>
       <span slot="footer" class="dialog-footer">
           <el-button type="primary" @click="exportMo">下载</el-button>
