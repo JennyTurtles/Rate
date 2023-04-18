@@ -12,7 +12,7 @@
         </el-button>
       </div>
     </div>
-    <div>标红分数：小于该项分数满分的60%</div>
+    <div>标红分数：小于该项分数的及格分数</div>
     <div style="margin-top: 15px">
       <span>请选择筛选依据：  </span>
       <el-select
@@ -214,8 +214,8 @@ export default {
         if (resp) {
           this.displayPars = resp.obj[0];
           this.displayItem = resp.obj[1];
-          // console.log(this.displayPars) // 行信息
-          // console.log(this.displayItem) // 列信息
+          console.log(this.displayPars) // 行信息
+          console.log(this.displayItem) // 列信息
           this.initFitler()
         }
       });

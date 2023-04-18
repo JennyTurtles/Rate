@@ -164,14 +164,33 @@
         <el-radio :label="2" >用公式计算</el-radio>
       </el-radio-group>
       <el-form v-if="radio===1" style="padding-top: 10px" :inline="true">
-        <el-form-item label="已有信息选择" :label-width="formLabelWidth" center :model="item">
+        <el-form-item label="选择活动" :label-width="formLabelWidth" center :model="item" v-if="subActivities.length>1">
+          <el-select v-model="currentActivity" placeholder="请选择" @change="activityChange($event)">
+            <el-option
+                v-for="x in subActivities"
+                :key="x.name"
+                :label="x.name"
+                :value="x.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="已有信息选择" :label-width="formLabelWidth" center :model="item" v-if="currentActivity!==null">
+          <el-select v-model="currentfirst" placeholder="请选择" @change="firstChange($event)">
+            <el-option
+                v-for="x in subInfo"
+                :key="x.sourceName"
+                :label="x.sourceName"
+                :value="x.source">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="已有信息选择" :label-width="formLabelWidth" center :model="item" v-if="subActivities.length===1">
           <el-select v-model="currentfirst" placeholder="请选择" @change="firstChange($event)">
             <el-option
                 v-for="x in first"
                 :key="x.sourceName"
                 :label="x.sourceName"
-                :value="x.source"
-                :disabled="x.disabled">
+                :value="x.source">
             </el-option>
           </el-select>
         </el-form-item>
@@ -184,13 +203,12 @@
                class="demo-form-inline">
 <!--        固定项-->
         <el-form-item label="项名" :label-width="formLabelWidth">
-          <el-select v-model="currentsecond" placeholder="请选择" @change="sourceChange($event)">
+          <el-select v-model="dispalyname" placeholder="请选择" @change="sourceChange($event)">
             <el-option
                 v-for="x in second"
                 :key="x.sourceName"
                 :label="x.sourceName"
-                :value="x.source"
-                :disabled="x.disabled">
+                :value="x.source">
             </el-option>
           </el-select>
         </el-form-item>
@@ -203,7 +221,7 @@
         <!-- 不止一个项目，用div包裹起来 -->
         <div v-if="radio===2" v-for="(i, index) in form.dynamicItem" :key="index">
           <el-form-item label="项名" :label-width="formLabelWidth">
-            <el-select v-model="sourcename[index]" placeholder="请选择" @change="dynamicName($event,i,index)">
+            <el-select v-model="source[index]" placeholder="请选择" @change="dynamicName($event,i,index)">
               <el-option
                   v-for="x in second"
                   :key="x.sourceName"
@@ -213,7 +231,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="系数" :label-width="formLabelWidth">
-            <el-input  v-model="xishu[index]" placeholder="请输入系数" @change="dynamicTimes($event,i,index)"></el-input>
+            <el-input  v-model="times[index]" placeholder="请输入系数" @change="dynamicTimes($event,i,index)"></el-input>
           </el-form-item>
           <el-form-item>
             <i class="el-icon-delete" @click="deleteSecond(i, index)"></i>
@@ -257,6 +275,8 @@ export default {
       hrs:[],
       first:[],
       second:[],
+      subActivities:[],
+      subMap:[],
       dialogVisible: false,
       item:{
         id: null,
@@ -280,15 +300,17 @@ export default {
       },
       radio: 1,
       formLabelWidth:'120px',
-      xishu: [],
-      sourcename:[],
+      times: [],     //展示动态项的系数
+      source:[], //展示动态项的source
       tabClickIndex: null, // 点击的单元格
       tabClickLabel: "", // 当前点击的列名
       currentfocusdata: "",
-      currentfirst:"",
-      currentsecond:"",
-      currenttimes:"",
-      dispalyname:"",
+      currentfirst:"", //展示第一类source
+      currentsecond:"", //存储固定项的第二类source
+      currenttimes:"", //存储固定项的系数
+      dispalyname:"",//展示第二类固定项的source
+      currentActivity:null,//当前选择的活动
+      subInfo:[],
     };
   },
   computed: {
@@ -296,14 +318,10 @@ export default {
       return JSON.parse(localStorage.getItem('user')); //object信息
     },
   },
-  created() {
-  },
   mounted() {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
     this.initHrs();
-    this.initFirst();
-    this.initSecond();
   },
   methods: {
     initHrs() {
@@ -312,14 +330,15 @@ export default {
           "/displayItem/all?activityID=" +
           this.keywords
       ).then((resp) => {
-        console.log("resp",resp);
         if (resp) {
           this.loading = false;
           this.hrs = resp.data;
           this.total = resp.total;
-          console.log(this.hrs);
         }
       });
+      this.initFirst();
+      this.initSecond();
+      this.initSubInformation();
     },
     initFirst(){
       this.loading = true;
@@ -327,7 +346,6 @@ export default {
           "/displayItem/first?activityID=" +
           this.keywords
       ).then((resp) => {
-        console.log("resp",resp);
         if (resp) {
           this.loading = false;
           this.first = resp.obj;
@@ -341,7 +359,6 @@ export default {
           "/displayItem/second?activityID=" +
           this.keywords
       ).then((resp) => {
-        console.log("resp",resp);
         if (resp) {
           this.loading = false;
           this.second = resp.obj;
@@ -349,13 +366,21 @@ export default {
         }
       });
     },
-    sizeChange(currentSize) {
-      this.size = currentSize;
-      this.initHrs();
-    },
-    currentChange(currentPage) {
-      this.page = currentPage;
-      this.initHrs("advanced");
+    initSubInformation(){
+      this.loading = true;
+      this.getRequest(
+          "/displayItem/subFirst?activityID=" +
+          this.keywords
+      ).then((resp) => {
+        if (resp) {
+          console.log(resp);
+          this.loading = false;
+          this.subActivities = resp.obj[0];
+          this.subMap=resp.obj[1].dmap;
+          console.log(this.subActivities);
+          console.log(this.subMap);
+        }
+      });
     },
     back() {
       const _this = this;
@@ -390,7 +415,6 @@ export default {
       this.currentfocusdata = row[label]
     },
     handleEdit(index, row, label) {
-      //console.log(row);
       if (row[label] === ''&&label !== 'score') {
         Message.warning('输入内容不能为空!')
         if (label === 'name') {
@@ -402,7 +426,6 @@ export default {
         row[label] = this.currentfocusdata
       } else {
         this.UpdateOrNew(row)
-        // this.newScoring(row)
       }
     },
     UpdateOrNew(displayItem) {
@@ -420,8 +443,6 @@ export default {
     },
     reset(){
       this.initHrs();
-      this.initFirst();
-      this.initSecond();
     },
     inputBlur() {
       this.tabClickIndex = null;
@@ -435,36 +456,87 @@ export default {
         this.reset();
       });
     },
+    findID(source){
+      var id;
+      for(var i in this.second){
+        var value=this.second[i];
+        if (value.source===source) {
+          id=value.id;
+        }
+      }
+      return id;
+    },
+    findSource(source){
+      var result;
+      if (source.includes("displayitem")){
+        var all=source.split(".")
+        var id=all[1];
+        for(var i in this.second){
+          var value=this.second[i];
+          if (value.id==id) {
+            result=value.source;
+            break;
+          }
+        }
+      }
+      else{
+        result=source;
+      }
+      return result;
+    },
     firstChange(event){
        this.currentfirst=event;
     },
     sourceChange(event){
-      this.currentsecond=event;
+      this.dispalyname=event;
+      if(event.includes("*")){
+        var id=this.findID(event);
+        this.currentsecond="displayitem."+id;
+      }
+      else {
+        this.currentsecond=event;
+      }
     },
     timesChange(event){
       this.currenttimes=event;
     },
     dynamicName(event,item,index){
-      this.form.dynamicItem[index].source=event;
-      this.sourcename[index]=event;
+      if (event.includes("*")){
+        var id=this.findID(event);
+        this.form.dynamicItem[index].source="displayitem."+id;
+        this.source[index]=event;
+      }
+      else{
+        this.form.dynamicItem[index].source=event;
+        this.source[index]=event;
+      }
+    },
+    activityChange(event){
+      this.currentActivity=event;
+      this.subInfo.splice(0,this.subInfo.length);
+      var value = this.subMap[event];
+      for (var j in value){
+        this.subInfo.push(value[j]);
+      }
+      console.log(this.subInfo);
     },
     dynamicTimes(event,item,index){
       this.form.dynamicItem[index].times=event;
-      this.xishu[index]=event;
+      this.times[index]=event;
     },
     newSecond(){
       this.form.dynamicItem.push({
         source: '',
         times: '',
       })
-      this.sourcename.push("");
-      this.xishu.push("");
+      this.source.push("");
+      this.times.push("");
       console.log(this.form);
     },
     deleteSecond (item, index) {
       this.form.dynamicItem.splice(index, 1);
-      this.xishu.splice(index,1);
-      this.sourcename.splice(index,1);
+      this.times.splice(index,1);
+      this.source.splice(index,1);
     },
     deleteItem(row){
       this.$confirm("是否删除此展示项?", "提示", {
@@ -500,31 +572,19 @@ export default {
           var s=row.source;
           var items=s.split("+");
           for (let i=0;i<items.length;i++){
+            var all=items[i].split("*");
             if (i===0){
-              var all=items[i].split("*");
               this.currenttimes=all[0];
               this.currentsecond=all[1];
-              // for(var j in this.second){
-              //   var value=this.second[j];
-              //   if (value.source===all[1]) {
-              //     this.currentsecond=value.sourceName;
-              //   }
-              // }
+              this.dispalyname=this.findSource(all[1]);
             }
             else{
-              var all=items[i].split("*");
               this.form.dynamicItem.push({
-                source: all[1],
+                source: this.findSource(all[1]),
                 times: all[0],
               })
-              this.xishu.push(all[0]);
-              this.sourcename.push(all[1]);
-              // for(var j in this.second){
-              //   var value=this.second[j];
-              //   if (value.source===all[1]) {
-              //     this.sourcename.push(value.sourceName);
-              //   }
-              // }
+              this.times.push(all[0]);
+              this.source.push(this.findSource(all[1]));
             }
           }
         }
@@ -534,7 +594,7 @@ export default {
         }
       }
       this.dialogVisible = true;
-      console.log(this.radio);
+      console.log(this.form.dynamicItem);
     },
     doAdd(){
       if (this.radio===1){
@@ -542,10 +602,19 @@ export default {
           Message.warning('输入内容不能为空!')
         }
         else{
-          for(var i in this.first){
-            var value=this.first[i];
-            if (value.source===this.currentfirst)
-              this.dispalyname=value.sourceName;
+          if (this.subActivities!==null){
+            for(var i in this.subInfo){
+              var value=this.subInfo[i];
+              if (value.source===this.currentfirst)
+                this.dispalyname=value.sourceName;
+            }
+          }
+          else{
+            for(var i in this.first){
+              var value=this.first[i];
+              if (value.source===this.currentfirst)
+                this.dispalyname=value.sourceName;
+            }
           }
           this.item.source=this.currentfirst;
           this.item.name=this.dispalyname;
@@ -577,13 +646,13 @@ export default {
       this.currentsecond="";
       this.radio=1;
       this.dispalyname="";
+      this.currentActivity=null;
       let len=this.form.dynamicItem.length;
-      this.sourcename.splice(0,len);
-      this.xishu.splice(0,len);
+      this.source.splice(0,len);
+      this.times.splice(0,len);
       this.form.dynamicItem.splice(0,len);
     },
     newItem() {
-      //console.log("creating")
       let obj = {};
       obj.activityID = this.keywords;
       obj.id = null;
@@ -594,10 +663,6 @@ export default {
       this.hrs.push(obj);
       this.UpdateOrNew(obj);
       this.initHrs();
-      /*this.postRequest("/scoreItem/basic/insert", obj)
-          .then((resp) => {
-            this.initHrs();
-          });*/
     },
   },
 };

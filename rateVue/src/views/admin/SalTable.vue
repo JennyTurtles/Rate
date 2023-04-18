@@ -114,20 +114,20 @@
                 icon="el-icon-tickets"
                 type="primary"
                 plain
-            >专家管理
+            >专家和选手管理
             </el-button
             >
-            <el-button
-                @click="showParticipantsM(scope.row)"
-                v-show="mode !== 'secretarySub'"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-s-operation"
-                type="primary"
-                plain
-            >选手管理
-            </el-button
-            >
+<!--            <el-button-->
+<!--                @click="showParticipantsM(scope.row)"-->
+<!--                v-show="mode !== 'secretarySub'"-->
+<!--                style="padding: 4px"-->
+<!--                size="mini"-->
+<!--                icon="el-icon-s-operation"-->
+<!--                type="primary"-->
+<!--                plain-->
+<!--            >选手管理-->
+<!--            </el-button-->
+<!--            >-->
 <!--            <el-button-->
 <!--                @click="output_group(scope.row)"-->
 <!--                v-show="mode==='admin'"-->

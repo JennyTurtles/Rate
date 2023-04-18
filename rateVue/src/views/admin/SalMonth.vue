@@ -9,8 +9,8 @@
         </el-button>
       </div>
     </div>
-    <div v-if="mode!=='secretary'"><br/>单元格中内容双击后可编辑</div>
-    <div v-if="mode==='secretary'"><br/>单元格内容只可查看不可编辑</div>
+    <div v-if="mode !== 'secretary' && mode!=='secretarySub'"><br/>单元格中内容双击后可编辑</div>
+    <div v-if="mode === 'secretary' || mode==='secretarySub'"><br/>单元格内容只可查看不可编辑</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -123,7 +123,7 @@
             ></el-checkbox>
             专家打分
           </template>
-          <template slot-scope="scope" v-if="mode==='secretary'">
+          <template slot-scope="scope" v-if="mode==='secretary' || mode==='secretarySub'">
             <span v-if="scope.row.byexpert">是</span>
             <span v-else>否</span>
           </template>
@@ -156,7 +156,7 @@
             >
           </template>
         </el-table-column>
-        <el-table-column align="center" min-width="20%" label="操作" v-if="mode!=='secretary'">
+        <el-table-column align="center" min-width="20%" label="操作" v-if="mode!=='secretary' && this.mode!=='secretarySub'">
           <template slot-scope="scope">
             <el-button
                 @click="UpdateOrNew(scope.row)"
@@ -180,7 +180,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div style="margin: 20px 0; display: flex; justify-content: left" v-show="mode!=='secretary'">
+      <div style="margin: 20px 0; display: flex; justify-content: left" v-show="mode!=='secretary' &&mode!=='secretarySub'">
         <div style="margin-left: 8px">
           <el-button
               @click="newScoring()"
@@ -374,8 +374,15 @@ export default {
             id: this.$route.query.backID,
           }
         });
+      }else if (this.mode==="secretarySub"){
+        _this.$router.push({
+          path: "/secretary/SubActManage",
+          query:{
+            id: this.$route.query.backID,
+            groupID :this.$route.query.groupID,
+          }
+        });
       }
-
     },
     tableRowClassName({row, rowIndex}) {
       // 把每一行的索引放进row
@@ -383,7 +390,7 @@ export default {
     },
     // 添加明细原因 row 当前行 column 当前列
     tabClick(row, column, cell, event) {
-      if (this.mode!=="secretary"){
+      if (this.mode!=="secretary" && this.mode!=='secretarySub'){
         switch (column.label) {
           case "折算系数":
             this.tabClickIndex = row.index;
@@ -407,7 +414,7 @@ export default {
       }
     },
     beforehandleEdit(index, row, label) {
-      if (this.mode!=="secretary"){
+      if (this.mode!=="secretary"&& this.mode!=='secretarySub'){
         if (label === 'name') {
           this.currentfocusdata = row.name
         } else if (label === 'score') {
@@ -423,7 +430,7 @@ export default {
     },
     handleEdit(index, row, label) {
       //console.log(row);
-      if (this.mode!=="secretary"){
+      if (this.mode!=="secretary"&& this.mode!=='secretarySub'){
         if (row[label] == ''&&label !== 'comment') {
           Message.warning('输入内容不能为空!')
           if (label === 'name') {

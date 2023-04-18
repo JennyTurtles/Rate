@@ -696,8 +696,9 @@ public class POIUtils {
         sheet.setColumnWidth(5, 15 * 256);
         sheet.setColumnWidth(6, 15 * 256);
         sheet.setColumnWidth(7, 10 * 256);
-        sheet.setColumnWidth(8, 20 * 256);
+        sheet.setColumnWidth(8, 10 * 256);
         sheet.setColumnWidth(9, 20 * 256);
+        sheet.setColumnWidth(10, 20 * 256);
         //6. 创建标题行
         //就是不用循环，就硬写是吧
         HSSFRow r0 = sheet.createRow(0);
@@ -716,11 +717,13 @@ public class POIUtils {
         HSSFCell c6 = r0.createCell(6);
         c6.setCellValue("邮箱");
         HSSFCell c7 = r0.createCell(7);
-        c7.setCellValue("属于本单位");
+        c7.setCellValue("角色");
         HSSFCell c8 = r0.createCell(8);
-        c8.setCellValue("用户名");
+        c8.setCellValue("属于本单位");
         HSSFCell c9 = r0.createCell(9);
-        c9.setCellValue("密码");
+        c9.setCellValue("用户名");
+        HSSFCell c10 = r0.createCell(10);
+        c10.setCellValue("密码");
         HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("20131000");
         row.createCell(1).setCellValue("张三");
@@ -729,9 +732,10 @@ public class POIUtils {
         row.createCell(4).setCellValue("123456789123456789");
         row.createCell(5).setCellValue("13812341234");
         row.createCell(6).setCellValue("123@dhu.edu.cn");
-        row.createCell(7).setCellValue("否");
-        row.createCell(8).setCellValue("zhangsan");
-        row.createCell(9).setCellValue("123456");
+        row.createCell(7).setCellValue("专家");
+        row.createCell(8).setCellValue("否");
+        row.createCell(9).setCellValue("zhangsan");
+        row.createCell(10).setCellValue("123456");
         sheet.createRow(2).createCell(0).setCellValue("请删除提示行，如果数据库中已有该专家的记录，将根据填写信息进行更新，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为手机号和身份证后六位，其余必须填写。");
         sheet.createRow(3).createCell(0).setCellValue("如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
         sheet.createRow(4).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
@@ -780,9 +784,10 @@ public class POIUtils {
         sheet.setColumnWidth(5, 15 * 256);
         sheet.setColumnWidth(6, 15 * 256);
         sheet.setColumnWidth(7, 10 * 256);
-        sheet.setColumnWidth(8, 20 * 256);
+        sheet.setColumnWidth(8, 10 * 256);
         sheet.setColumnWidth(9, 20 * 256);
         sheet.setColumnWidth(10, 20 * 256);
+        sheet.setColumnWidth(11, 20 * 256);
         //6. 创建标题行
         //就是不用循环，就硬写是吧
         HSSFRow r0 = sheet.createRow(0);
@@ -801,13 +806,15 @@ public class POIUtils {
         HSSFCell c6 = r0.createCell(6);
         c6.setCellValue("邮箱");
         HSSFCell c7 = r0.createCell(7);
-        c7.setCellValue("属于本单位");
-        HSSFCell c8 = r0.createCell(8);
-        c8.setCellValue("用户名");
-        HSSFCell c9 = r0.createCell(9);
-        c9.setCellValue("密码");
-        HSSFCell c10 = r0.createCell(10);
-        c10.setCellValue("组名");
+        c7.setCellValue("角色");
+        HSSFCell c8 = r0.createCell(7);
+        c8.setCellValue("属于本单位");
+        HSSFCell c9 = r0.createCell(8);
+        c9.setCellValue("用户名");
+        HSSFCell c10 = r0.createCell(9);
+        c10.setCellValue("密码");
+        HSSFCell c11 = r0.createCell(10);
+        c11.setCellValue("组名");
         HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("20131000");
         row.createCell(1).setCellValue("张三");
@@ -816,10 +823,11 @@ public class POIUtils {
         row.createCell(4).setCellValue("123456789123456789");
         row.createCell(5).setCellValue("13812341234");
         row.createCell(6).setCellValue("123@dhu.edu.cn");
-        row.createCell(7).setCellValue("否");
-        row.createCell(8).setCellValue("zhangsan");
-        row.createCell(9).setCellValue("123456");
-        row.createCell(10).setCellValue("小组X");
+        row.createCell(7).setCellValue("专家");
+        row.createCell(8).setCellValue("否");
+        row.createCell(9).setCellValue("zhangsan");
+        row.createCell(10).setCellValue("123456");
+        row.createCell(11).setCellValue("小组X");
         sheet.createRow(2).createCell(0).setCellValue("请删除提示行，如果数据库中已有该专家的记录，将根据填写信息进行更新，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为手机号和身份证后六位，其余必须填写。");
         sheet.createRow(3).createCell(0).setCellValue("如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
         sheet.createRow(4).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");

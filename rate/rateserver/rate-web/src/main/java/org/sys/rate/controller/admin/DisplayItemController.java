@@ -1,14 +1,17 @@
 package org.sys.rate.controller.admin;
 
 import org.springframework.web.bind.annotation.*;
+import org.sys.rate.mapper.ActivitiesMapper;
 import org.sys.rate.mapper.DisplayItemMapper;
 import org.sys.rate.model.*;
+import org.sys.rate.service.admin.ActivitiesService;
 import org.sys.rate.service.admin.DisplayItemService;
 
 import java.sql.Timestamp;
 import java.text.Collator;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -21,6 +24,8 @@ public class DisplayItemController {
     DisplayItemMapper displayItemMapper;
     @Resource
     DisplayItemService displayItemService;
+    @Resource
+    ActivitiesMapper activitiesMapper;
 
     @GetMapping("/all")
     public RespPageBean getAllDisplayItem(@RequestParam Integer activityID) {
@@ -47,8 +52,11 @@ public class DisplayItemController {
         List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItem(activityID);
         for (DisplayItem displayItem : displayItems)
             // 如果displayItem的source包含"*"则加到res中，包含"*"的都是第二类展示项
-            if (displayItem.getSource() != null && displayItem.getSource().contains("*"))
-                res.add(new DisplayItem(displayItem.getName(), displayItem.getSource()));
+            if (displayItem.getSource() != null && displayItem.getSource().contains("*")){
+                DisplayItem displayItem1 = new DisplayItem(displayItem.getName(),displayItem.getSource());
+                displayItem1.setID(displayItem.getID());
+                res.add(displayItem1);
+            }
         Collections.sort(res); // 按照sourceName排序
         return RespBean.ok("success",res);
     }
@@ -83,9 +91,35 @@ public class DisplayItemController {
     //alterDisplay
     @PostMapping("/alterDisplay")
     public RespBean alterDisplay(@RequestParam Integer total,@RequestParam Integer activityID,@RequestBody DisplayItem displayItem){
-        //System.out.println("import123"+total+groupID+company);
         if(displayItemService.alterDisplay(total, activityID, displayItem).equals("success"))
             return RespBean.ok("success");
         return RespBean.error("fail");
+    }
+
+    @GetMapping("/subFirst") //获取子活动的第一类展示项
+    public RespBean getSubFirst(@RequestParam Integer activityID){
+        List<Activities> subActivities = activitiesMapper.getSubActivities(activityID);
+        subActivities.add(activitiesMapper.queryById(activityID));
+        HashMap<Integer,HashMap<String,DisplayItem>> map = new LinkedHashMap<>();//<activityID,<displayName,displayItem>>
+        for (Activities activities:subActivities){
+            List<DisplayItem> displayItems=displayItemService.getFirstDisplayItem(activities.getId());
+            Collections.sort(displayItems);
+            for (DisplayItem item:displayItems){
+                if (map.get(activities.getId())==null){
+                    HashMap<String,DisplayItem> value = new LinkedHashMap<>();
+                    value.put(item.getSourceName(),item);
+                    map.put(activities.getId(),value);
+                }
+                else {
+                    map.get(activities.getId()).put(item.getSourceName(),item);
+                }
+            }
+        }
+        HashPEexport hashPEexport = new HashPEexport();
+        hashPEexport.setDmap(map);
+        List<Object> res = new ArrayList<>();
+        res.add(subActivities);
+        res.add(hashPEexport);
+        return RespBean.ok("success",res);
     }
 }

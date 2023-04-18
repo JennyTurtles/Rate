@@ -541,7 +541,7 @@ export default {
       });
     },
     initHrs() {
-      if (typeof this.activityID == "undefined") { // 此时是从分组管理进入的
+      if (typeof this.activityID == "undefined" || this.mode === 'secretary') { // 此时是从分组管理进入的
           this.getRequest(
               "/systemM/Experts/?keywords=" + this.groupID +
               "&page=" + 1 +
@@ -549,6 +549,7 @@ export default {
           ).then((resp) => {
               if (resp) {
                   this.hrs = resp;
+                  console.log(this.hrs);
                   this.total = resp.length;
               }
           });

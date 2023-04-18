@@ -100,6 +100,14 @@
             width="75"
         >
         </el-table-column>
+        <el-table-column
+            prop="groupName"
+            label="组名"
+            align="center"
+            width="75"
+            v-if="mode==='secretary'"
+        >
+        </el-table-column>
         <el-table-column align="center" width="650" label="操 作">
           <template slot-scope="scope">
             <el-button
@@ -133,7 +141,7 @@
             >
             <el-button
                 @click="showScoreItem(scope.row)"
-                v-show="mode==='secretary'"
+                v-show="mode==='secretary' || mode==='secretarySub'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
@@ -155,7 +163,7 @@
             >
             <el-button
                 @click="showInfoItem(scope.row)"
-                v-show="mode==='secretary'"
+                v-show="mode==='secretary' || mode==='secretarySub'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
@@ -844,7 +852,7 @@ export default {
       const _this = this;
       if (this.mode === "admin")
         _this.$router.push({query :{id:data.id}, path: "/ActivitM/SubActManage",});
-      else if (this.mode === "secretary"){
+      else if (this.mode === "secretary" || this.mode === "secretarySub"){
         _this.$router.push({
           query :{id:data.id,actName:data.name,groupName:data.groupName,groupID:data.groupID},
           path: "/secretary/SubActManage",});

@@ -9,8 +9,8 @@
         </el-button>
       </div>
     </div>
-    <div v-if="mode !== 'secretary'"><br/>单元格中内容双击后可编辑</div>
-    <div v-if="mode === 'secretary'"><br/>单元格内容只可查看不可编辑</div>
+    <div v-if="mode !== 'secretary' &&mode!=='secretarySub'"><br/>单元格中内容双击后可编辑</div>
+    <div v-if="mode === 'secretary' || mode==='secretarySub'"><br/>单元格内容只可查看不可编辑</div>
     <div><br/>是否展示：该信息项是否在展示给专家打分。大小限制：对文件大小或输入内容字数的限制</div>
     <div style="margin-top: 10px">
       <el-table
@@ -67,7 +67,7 @@
             ></el-checkbox>
             选手填写
           </template>
-          <template slot-scope="scope" v-if="mode==='secretary'">
+          <template slot-scope="scope" v-if="mode==='secretary' || mode==='secretarySub'">
             <span v-if="scope.row.byParticipant">是</span>
             <span v-else>否</span>
           </template>
@@ -137,12 +137,12 @@
             ></el-checkbox>
             display
           </template>
-          <template slot-scope="scope" v-if="mode==='secretary'">
+          <template slot-scope="scope" v-if="mode==='secretary' || mode==='secretarySub'">
             <span v-if="scope.row.display">是</span>
             <span v-else>否</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" min-width="5%" label="操作" v-if="this.mode!=='secretary'">
+        <el-table-column align="center" min-width="5%" label="操作" v-if="this.mode!=='secretary' && this.mode!=='secretarySub'">
           <template slot-scope="scope">
             <el-button
                 @click="UpdateOrNew(scope.row)"
@@ -170,7 +170,7 @@
         <div style="margin-left: 8px">
           <el-button
               @click="newScoring()"
-              v-show="this.mode!=='secretary'"
+              v-show="mode!=='secretary' &&mode!=='secretarySub'"
               type="primary"
               icon="el-icon-plus"
           >新增
@@ -233,6 +233,8 @@ export default {
       ],
       activitydata: [],
       keywords_name: "",
+      groupID:"",
+      groupName:"",
       size: 10,
       total: 0,
       loading: false,
@@ -303,6 +305,9 @@ export default {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
     this.mode = this.$route.query.mode;
+    this.groupID = this.$route.query.groupID;
+    this.groupName = this.$route.query.groupName;
+    console.log(this.groupID);
     this.initHrs();
     this.initData();
   },
@@ -418,18 +423,39 @@ export default {
     back() {
       const _this = this;
       var url;
-      if (this.mode === "admin")
-          url = "/ActivitM/search"
-      else if (this.mode === "adminSub")
-          url = "/ActivitM/SubActManage"
-      else if (this.mode === "secretary")
-          url = "/secretary/ActManage"
-      _this.$router.push({
-        path: url,
-        query: {
-          id: this.$route.query.backID,
-        },
-      });
+      if (this.mode === "admin"){
+        _this.$router.push({
+          path: "/ActivitM/search",
+          query: {
+            id: this.$route.query.backID,
+          },
+        });
+      }
+      else if (this.mode === "adminSub"){
+        _this.$router.push({
+          path: "/ActivitM/SubActManage",
+          query: {
+            id: this.$route.query.backID,
+          },
+        });
+      }
+      else if (this.mode === "secretary"){
+        _this.$router.push({
+          path: "/secretary/ActManage",
+          query: {
+            id: this.$route.query.backID,
+          },
+        });
+      }
+      else if (this.mode === "secretarySub"){
+        _this.$router.push({
+          path: "/secretary/SubActManage",
+          query: {
+            id: this.$route.query.backID,
+            groupID :this.$route.query.groupID,
+          },
+        });
+      }
     },
     tableRowClassName({row, rowIndex}) {
       // 把每一行的索引放进row
@@ -437,7 +463,7 @@ export default {
     },
     // 添加明细原因 row 当前行 column 当前列
     tabClick(row, column, cell, event) {
-      if (this.mode!== 'secretary'){
+      if (this.mode!== 'secretary' && this.mode!=='secretarySub'){
         switch (column.label) {
           case "contentType":
             this.tabClickIndex = row.index;
@@ -457,7 +483,7 @@ export default {
       }
     },
     beforehandleEdit(index, row, label) {
-      if (this.mode!== 'secretary'){
+      if (this.mode!== 'secretary' && this.mode!=='secretarySub'){
         if (label === 'name' || label === 'type') {
           this.currentfocusdata = row.name
         } else if (label === 'sizelimit') {
@@ -467,7 +493,7 @@ export default {
       }
     },
     handleEdit(index, row, label) {
-      if (this.mode!== 'secretary'){
+      if (this.mode!== 'secretary' && this.mode!=='secretarySub'){
         if (label === 'type'){
           if (row.shuZuType.indexOf("textbox") !== -1 || row.shuZuType.indexOf("textarea") !== -1 || row.shuZuType.indexOf("label") !== -1){ // 有文本类型
             for (let i = 0; i < this.shuju.length; i++) {

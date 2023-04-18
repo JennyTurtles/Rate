@@ -1,12 +1,12 @@
 <template>
   <div>
     <div >
-      <a v-show="mode==='admin'">
+      <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
+      <a>
       选手导入到本组<br/><br/>
       选手第一次导入时，可先不分组。此时可以将导入表格中的“分组名称”留空，进行导入操作。待分组后，再导入一次，从而实现分组。
       选手的信息项以及评分项，也可在选手第一次导入时留空，待第二次、第三次（或之后）导入时填入那些信息。<br/>
       </a>
-      <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
       <div style="display: flex;justify-content: space-between;">
         <!-- <div>
           <el-input placeholder="请输入单位名进行搜索，可以直接回车搜索..." prefix-icon="el-icon-search"
@@ -122,7 +122,7 @@
             align="center"
             min-width="10%">
         </el-table-column>
-        <el-table-column align="left" v-if="mode==='admin'" label="操作" min-width="30%">
+        <el-table-column align="left" label="操作" min-width="30%">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"
