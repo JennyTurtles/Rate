@@ -7,8 +7,8 @@
           <el-dropdown class="userInfo" @command="commandHandler">
             <span class="el-dropdown-link"> 您好，{{ user.name }}<a v-show=" user.role.indexOf('3') !== -1 ||user.role.indexOf('4') !== -1 ||user.role.indexOf('8') !== -1 ||user.role.indexOf('9') !== -1">老师</a> </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="userinfo">修改密码</el-dropdown-item>
-              <!--                            <el-dropdown-item command="setting">设置</el-dropdown-item>-->
+              <el-dropdown-item command="changePassword">修改密码</el-dropdown-item>
+              <el-dropdown-item command="userInfo">个人中心</el-dropdown-item>
               <el-dropdown-item command="logout" divided
               >注销登录</el-dropdown-item
               >
@@ -201,36 +201,11 @@ export default {
             message: "已取消操作",
           });
         });
-      } else if (cmd == "userinfo") {
-        // this.$router.push("/hrinfo"); // 个人中心还没做
-        // this.role = JSON.parse(localStorage.getItem("user")).role
+      } else if (cmd == "changePassword") {
         this.showPassword = true
-        // this.$prompt("请输入新密码", "提示", {
-        //   confirmButtonText: "确定",
-        //   cancelButtonText: "取消",
-        // })
-        //     .then(({ value }) => {
-        //       this.$confirm("将密码修改为："+value, "提示", {
-        //         confirmButtonText: "确定",
-        //         cancelButtonText: "取消",
-        //         type: "warning",
-        //       }).then(() => {
-        //         this.postRequest("/system/config/updatePassword?ID="+user.id+"&password="+sha1(value)).then((res) => {
-        //           if (res) {
-        //             this.$message({
-        //               type: "success",
-        //               message: "修改成功!",
-        //             });
-        //           }
-        //         });
-        //       })
-        //     })
-        //     .catch(() => {
-        //       this.$message({
-        //         type: "info",
-        //         message: "已取消操作",
-        //       });
-        //     });
+      }
+      else if (cmd == "userInfo") {
+        this.$router.push('')
       }
     },
     submitPassword(){
