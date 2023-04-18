@@ -24,17 +24,24 @@
             </el-option>
           </el-select>
         </el-form-item>
+<!--        <div v-show="selectStuType == '本科生' || selectStuType == '研究生'">-->
         <div v-show="selectStuType !== '没有本校学号' && selectStuType !== null && selectStuType !== ''">
           <el-form-item label="请输入学号:">
             <el-input style="width: 60%" v-model="user.studentnumber"></el-input>
           </el-form-item>
           <el-form-item label="请输入入学年份:">
-            <el-input style="width: 60%" v-model="user.year" placeholder="2022"></el-input>
+            <el-input style="width: 60%" v-model="user.year" :placeholder="defaultYear"></el-input>
           </el-form-item>
         </div>
         <div v-show="selectStuType === '研究生'">
           <el-form-item label="请输入研究生类型:">
-            <el-input style="width: 60%" v-model="user.gradType" placeholder="专硕/学硕"></el-input>
+            <el-select v-model="user.gradType">
+              <el-option v-for="val in ['专硕','学硕']"
+                         :value="val"
+                         :label="val"
+                         :key="val">
+              </el-option>
+            </el-select>
           </el-form-item>
         </div>
         <el-form-item label="请输入用户名:">
@@ -64,6 +71,7 @@ export default {
   name: "StuRegister",
   data(){
     return{
+      defaultYear:2022,
       selectStuType:'',
       stuType:['没有本校学号','本科生','研究生'],
       user:{
@@ -103,6 +111,14 @@ export default {
         this.$message.warning('请选择注册的学生身份！')
         return
       }
+      if(this.user.registerQuestion == null || this.user.registerQuestion == ''){
+        this.$message.warning('请输入密保问题！')
+        return
+      }
+      if(this.user.registerAnswer == null || this.user.registerAnswer == ''){
+        this.$message.warning('请输入密保答案！')
+        return
+      }
       this.user.stuType = this.selectStuType
       postRequest('/registerUser/stu',this.user).then((response)=>{
         if(response){
@@ -123,9 +139,6 @@ export default {
         if(resp){
           if(resp.status == 200 && resp.obj != null){
             this.user = resp.obj
-            //查到了这个学生把用户名密码设置为空，用户重新设置？
-            this.user.username = ''
-            this.user.password = ''
           }else if(resp.obj == null && (this.selectStuType == "" || this.selectStuType == null)){
             this.user.name = ''
             this.user.telephone = ''

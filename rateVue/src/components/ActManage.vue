@@ -207,6 +207,7 @@
             >
              <el-button
                       @click="showGroups(scope.row)"
+                      v-show="mode === 'admin' || mode === 'adminSub' "
                       style="padding: 4px"
                       size="mini"
                       icon="el-icon-tickets"

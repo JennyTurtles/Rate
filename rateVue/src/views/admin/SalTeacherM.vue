@@ -49,17 +49,18 @@
       <el-table
           :data="teachers">
         <el-table-column prop="jobnumber" label="工号" align="center"></el-table-column>
-        <el-table-column prop="name" label="姓名" align="center"></el-table-column>
+        <el-table-column prop="name" label="姓名" align="center" width="80px"></el-table-column>
         <el-table-column prop="username" label="用户名" align="center"></el-table-column>
         <el-table-column prop="phone" label="电话" align="center"></el-table-column>
         <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
         <el-table-column prop="idnumber" label="身份证号" align="center"></el-table-column>
-        <el-table-column prop="sex" label="性别" align="center"></el-table-column>
+        <el-table-column prop="sex" label="性别" align="center" width="60px"></el-table-column>
         <el-table-column prop="department" label="部门" align="center"></el-table-column>
-        <el-table-column  label="操作" align="center">
+        <el-table-column  label="操作" align="center" width="180px">
           <template slot-scope="scope">
-            <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary">编辑</el-button>
-            <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)">删除</el-button>
+            <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary" style="padding: 4px">编辑</el-button>
+            <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)" style="padding: 4px">删除</el-button>
+            <el-button size="mini" type="primary" plain @click="resetPasswordShow(scope.row)" style="padding: 4px">重置密码</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -83,6 +84,17 @@
         </span>
       </template>
     </el-dialog>
+    <el-dialog title="重置密码" :visible.sync="dialogResetPassword" center width="400px" @close="closeDialogReset">
+      <el-form >
+        <el-form-item label="请输入新密码:">
+          <el-input style="width: 60%" v-model="newPassword"></el-input>
+        </el-form-item>
+        <div class="footer">
+          <el-button @click="resetPassword" type="primary">确认</el-button>
+          <el-button @click="closeDialogReset" type="primary">取消</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
     <div style="margin-top: 10px;text-align:right">
       <el-pagination @size-change="handleSizeChange"
                      @current-change="handleCurrentChange"
@@ -102,10 +114,12 @@ export default {
   name: "SalTeacherM",
   data(){
     return{
+      newPassword:'',//重置密码中的新密码
       pageSizes:[15,20,20,20,30],
       totalCount:0,
       currentPage:1,
       pageSize:15,
+      dialogResetPassword:false,
       isSelectYearFlag:false,
       isSelectYearShow:false,
       selectYearsList:[],
@@ -124,7 +138,8 @@ export default {
         phone:'',
         email:'',
         point:'',
-        department:''
+        department:'',
+        password:'',
       },
     }
   },
@@ -147,6 +162,31 @@ export default {
     this.initTeachers()
   },
   methods:{
+    resetPassword(){//重制密码
+      if(this.newPassword == '' || this.newPassword == null ){
+        this.$message.warning('请输入密码！')
+        return
+      }
+      this.currentTeacherOfEdit.password = this.newPassword
+      this.postRequest('/teacher/basic/updatePassword',this.currentTeacherOfEdit).then((response)=>{
+        if(response){
+          if(response.status == 200){
+            this.$message.success("重置成功")
+            this.closeDialogReset()
+          }else {
+            this.$message.fail("重置失败")
+          }
+        }
+      })
+    },
+
+    closeDialogReset(){
+      this.dialogResetPassword = false
+    },
+    resetPasswordShow(data){//重制密码
+      this.currentTeacherOfEdit = data
+      this.dialogResetPassword = true
+    },
     inputSelectTeacerNameFocus(){//input获取焦点判断是否有下拉框，是否可输入
       this.isSelectShow = true//控制下拉框是否显示
     },
@@ -277,6 +317,9 @@ export default {
 </script>
 
 <style scoped>
+.footer{
+  text-align: center;
+}
 .select_div_input{
   width:20%;
   height:32px;

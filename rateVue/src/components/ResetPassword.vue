@@ -1,16 +1,24 @@
 <template>
   <div>
-    <el-form class="resetPassContainer" :label-width="labelWidth" :rules="rules">
-      <el-form-item label="请输入身份证号:">
-        <el-input style="width: 60%"  v-model="idNumber" @input="checkIdNumber"></el-input>
-      </el-form-item>
-      <el-form-item label="请输入密保问题:">
-        <el-input style="width: 60%"  v-model="passQuestion"></el-input>
-      </el-form-item>
-      <el-form-item label="请输入密保答案:">
-        <el-input style="width: 60%" v-model="passAnswer" @input="check"></el-input>
-      </el-form-item>
-      <div v-show="resetPassShow">
+    <div v-show="!resetPassShow">
+      <el-form class="resetPassContainer" :label-width="labelWidth" >
+        <el-form-item label="请输入身份证号:">
+          <el-input style="width: 60%"  v-model="idNumber" @input="checkIdNumber"></el-input>
+        </el-form-item>
+        <el-form-item label="请输入密保问题:">
+          <el-input style="width: 60%"  v-model="passQuestion"></el-input>
+        </el-form-item>
+        <el-form-item label="请输入密保答案:">
+          <el-input style="width: 60%" v-model="passAnswer"></el-input>
+        </el-form-item>
+        <div class="footer">
+          <el-button @click="check" type="primary">确认</el-button>
+        </div>
+      </el-form>
+    </div>
+
+    <div v-show="resetPassShow">
+      <el-form class="resetPassContainer" :label-width="labelWidth" :rules="rules">
         <el-form-item label="请输入新密码:">
           <el-input style="width: 60%" v-model="newPass" type="password"></el-input>
         </el-form-item>
@@ -20,8 +28,8 @@
         <div class="footer">
           <el-button @click="reset" type="primary">确认</el-button>
         </div>
-      </div>
-    </el-form>
+      </el-form>
+    </div>
   </div>
 </template>
 
@@ -69,7 +77,7 @@ export default {
     }
   },
   methods:{
-    check: debounce(function (){
+    check(){
         if(this.passQuestion == '' || this.passQuestion == null){
           return
         }
@@ -84,19 +92,23 @@ export default {
           this.resetPassShow = true
         }else {
           this.resetPassShow = false
-          this.$message.warning('密保不正确！')
+          this.$message.warning('密保答案不正确！')
         }
-    },300),//密保答案失去焦点，进行判断,
-    checkIdNumber: debounce(function (){
+    },
+    //输入身份证号进行查找判断
+    checkIdNumber(){
+      if(this.idNumber.length == 15 || this.idNumber.length == 18){
         let url = '/registerUser/getUserByIdNumber?role=' + this.role + '&idNumber=' + this.idNumber
         this.getRequest(url).then((response)=>{
           if (response){
             if(response.status == 200){
               this.user = response.obj
+              this.passQuestion = response.obj.registerQuestion
             }
           }
         })
-      },400),
+      }
+    },
     reset(){
       if(this.newPass == '' || this.newPass == null){
         return
