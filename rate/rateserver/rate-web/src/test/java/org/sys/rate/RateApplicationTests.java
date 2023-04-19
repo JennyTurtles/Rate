@@ -12,6 +12,7 @@ public class RateApplicationTests {
 
     @Test
     public void contextLoads() {
+
     }
 
 }
