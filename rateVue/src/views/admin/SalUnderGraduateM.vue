@@ -95,11 +95,19 @@
     </div>
     <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px" @close="closeDialogEdit">
       <template>
-        <el-form :model="currentUnderStudentOfEdit">
+        <el-form :model="currentUnderStudentOfEdit" :label-width="labelWidth">
           <el-form-item label="导师">
             <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.teachers.name"></el-input>
           </el-form-item>
-
+          <el-form-item label="学生姓名">
+            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.name"></el-input>
+          </el-form-item>
+          <el-form-item label="学生手机号">
+            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.telephone"></el-input>
+          </el-form-item>
+          <el-form-item label="学生邮箱">
+            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.email"></el-input>
+          </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
           <el-button @click="editUnder" type="primary">确定</el-button>
@@ -137,6 +145,7 @@
 
 <script>
 import {Message} from "element-ui";
+import {debounce} from "@/utils/debounce";
 export default {
   name: "SalStudentM",
   data(){
@@ -175,10 +184,16 @@ export default {
       undergraduateStudents:[]
     }
   },
+  created() {
+    //初始化防抖
+    this.debounceSearch = debounce(this.delayInputTimer,300)
+  },
   watch:{
     selectTeacerName:{
       handler(val){
-        this.delayInputTimer(val)
+        if(val){
+          this.debounceSearch()
+        }
       }
     }
   },
@@ -188,6 +203,9 @@ export default {
           ? 150 + 'px'
           : `${this.selectTeacerName.length * 50}px`
     },
+    labelWidth(){
+      return `${8 * 17}px`
+    }
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
@@ -247,31 +265,22 @@ export default {
       this.isSelectShow=false
       this.isSelectFlag=false
     },
-    delayInputTimer(val){//防抖
-      if(this.timer){
-        clearTimeout(this.timer)
-      }
-      if(!val){
-        return
-      }
+    delayInputTimer(){//防抖
       if(this.selectYear == ''){
         this.selectYear = 0
       }
-      let that = this
-      this.timer = setTimeout(()=>{
         let url = '/undergraduateM/basic/getTeaNamesBySelect?teaName=' + this.selectTeacerName
-        that.getRequest(url).then((resp)=>{
-          that.select_teachers = []
+        this.getRequest(url).then((resp)=>{
+          this.select_teachers = []
           if(resp){
             if(resp.status == 200){
               for(var i=0;i<resp.obj.length;i++){
-                that.select_teachers.push(resp.obj[i])
+                this.select_teachers.push(resp.obj[i])
               }
-              that.select_teachers = Array.from(new Set(that.select_teachers));
+              this.select_teachers = Array.from(new Set(this.select_teachers));
             }
           }
         })
-      },300);
     },
     inputSelectTeacerNameFocus(){//input获取焦点判断是否有下拉框，是否可输入
       this.isSelectShow = true//控制下拉框是否显示

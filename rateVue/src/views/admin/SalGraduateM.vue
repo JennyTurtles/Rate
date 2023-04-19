@@ -94,11 +94,46 @@
         </el-table-column>
       </el-table>
     </div>
-    <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px" @close="closeDialogEdit">
+    <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="400px" @close="closeDialogEdit">
       <template>
-        <el-form :model="currentGraduateStudentOfEdit">
-          <el-form-item label="导师">
-            <el-input style="width: 50%" v-model="currentGraduateStudentOfEdit.teachers.name"></el-input>
+        <el-form :model="currentGraduateStudentOfEdit" :label-width="labelWidth">
+          <el-form-item label="导师信息">
+            <div class="select_div_input" style="width: 70%">
+              <input
+                  autocomplete="off"
+                  style="width:95%;line-height:28px;
+                              border:1px solid lightgrey;padding:0 10px 1px 15px;
+                              border-radius:4px;color:gray"
+                  placeholder="请输入老师姓名"
+                  v-model="currentGraduateStudentOfEdit.teachers.name"
+                  @focus="inputSelectTeacerNameFocus"
+                  @blur="isSelectShow = isSelectFlag"/>
+              <div class="select_div"
+                   v-show="isSelectShow && currentGraduateStudentOfEdit.teachers.name ? true:false"
+                   :style="'height:${menuHeight}'"
+                   @mouseover="isSelectFlag = true"
+                   @mouseleave="isSelectFlag = false"
+              >
+                <div
+                    class="select_div_div"
+                    v-for="val in selectTeaNameAndJobnumber"
+                    :key="val"
+                    :value="val"
+                    @click="filterEditTeacher(val)"
+                >
+                  {{ val }}
+                </div>
+              </div>
+            </div>
+          </el-form-item>
+          <el-form-item label="学生姓名">
+            <el-input style="width: 70%" v-model="currentGraduateStudentOfEdit.name"></el-input>
+          </el-form-item>
+          <el-form-item label="学生电话">
+            <el-input style="width: 70%" v-model="currentGraduateStudentOfEdit.telephone"></el-input>
+          </el-form-item>
+          <el-form-item label="学生邮箱">
+            <el-input style="width: 70%" v-model="currentGraduateStudentOfEdit.email"></el-input>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
@@ -133,10 +168,13 @@
 </template>
 
 <script>
+import {debounce} from "@/utils/debounce";
+
 export default {
   name: "SalGraduateM",
   data(){
     return{
+      selectTeaNameAndJobnumber:[],//编辑框中导师搜索一栏的下拉框绑定数据
       newPassword:'',
       dialogResetPassword:false,
       pageSizes:[10,20,20,20,30],
@@ -174,7 +212,17 @@ export default {
   watch:{
     selectTeacerName:{
       handler(val){
-        this.delayInputTimer(val)
+        if(val){
+          this.debounceSearch()
+        }
+      }
+    },
+    //监听编辑框中老师姓名是否变化
+    'currentGraduateStudentOfEdit.teachers.name':{
+      handler(val){
+        if(val){
+          this.debounceSearch()
+        }
       }
     }
   },
@@ -184,6 +232,13 @@ export default {
           ? 150 + 'px'
           : `${this.selectTeacerName.length * 50}px`
     },
+    labelWidth(){
+      return `${8 * 17}px`
+    }
+  },
+  created() {
+    //初始化防抖
+    this.debounceSearch = debounce(this.delayInputTimer,500)
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
@@ -238,33 +293,44 @@ export default {
         }
       })
     },
-    filter_teas(val){//点击某个筛选出来的名字
-      this.selectTeacerName = val
+
+    //编辑框中 搜索老师姓名之后点击下拉框的某个选项
+    filterEditTeacher(val){
+      this.currentGraduateStudentOfEdit.teachers.name = val.split(":")[1]
+      this.currentGraduateStudentOfEdit.teachers.jobnumber = val.split(":")[0]
       this.isSelectShow=false
       this.isSelectFlag=false
     },
-    delayInputTimer(val){
-      if(this.timer){
-        clearTimeout(this.timer)
+    //页面的搜索框
+    filter_teas(val){//点击某个筛选出来的名字
+      this.selectTeacerName = val//绑定数据
+      this.isSelectShow=false
+      this.isSelectFlag=false
+    },
+    //防抖函数
+    delayInputTimer(){
+      let url
+      if(this.dialogEdit){
+        url = '/graduatestudentM/basic/getTeaNamesBySelect?teaName=' + this.currentGraduateStudentOfEdit.teachers.name
+      }else {
+        url = '/graduatestudentM/basic/getTeaNamesBySelect?teaName=' + this.selectTeacerName
       }
-      if(!val){
-        return
-      }
-      let that = this
-      this.timer = setTimeout(()=>{
-        let url = '/graduatestudentM/basic/getTeaNamesBySelect?teaName=' + this.selectTeacerName
-        that.getRequest(url).then((resp)=>{
-          that.select_teachers = []
-          if(resp){
-            if(resp.status == 200){
-              for(var i=0;i<resp.obj.length;i++){
-                that.select_teachers.push(resp.obj[i])
-              }
-              that.select_teachers = Array.from(new Set(that.select_teachers));
+      this.getRequest(url).then((resp)=>{
+        this.select_teachers = []
+        this.selectTeaNameAndJobnumber = []
+        if(resp){
+          if(resp.status == 200){
+            for(var i=0;i<resp.obj.length;i++){
+              this.select_teachers.push(resp.obj[i].name)
+              //工号+姓名显示 以防老师的名字是相同的
+              this.selectTeaNameAndJobnumber.push(resp.obj[i].jobnumber + ":" + resp.obj[i].name)
             }
+            //去重 为什么会有重复值 先放这
+            this.select_teachers = Array.from(new Set(this.select_teachers));
+            this.selectTeaNameAndJobnumber = Array.from(new Set(this.selectTeaNameAndJobnumber));
           }
-        })
-      },300);
+        }
+      })
     },
     inputSelectTeacerNameFocus(){//input获取焦点判断是否有下拉框，是否可输入
       this.isSelectShow = true//控制下拉框是否显示
@@ -272,13 +338,13 @@ export default {
     closeDialogEdit(){//关闭对话框
       this.dialogEdit = false
       this.initGraduateStudents(this.currentPage,this.pageSize)
-      // this.currentGraduateStudentOfEdit = {}
     },
     editDialogShow(data){
       this.dialogEdit = true
       this.currentGraduateStudentOfEdit = data
     },
     editGraduate(){//点击编辑中的确定按钮
+      // 应该进行表单验证（如手机号），以后再改
       if(this.currentGraduateStudentOfEdit.teachers.name == '' || this.currentGraduateStudentOfEdit.teachers.jobnumber == '' ||
           this.currentGraduateStudentOfEdit.teachers.name == null || this.currentGraduateStudentOfEdit.teachers.jobnumber == null){
         this.$message.warning('请填写老师姓名和工号！')
