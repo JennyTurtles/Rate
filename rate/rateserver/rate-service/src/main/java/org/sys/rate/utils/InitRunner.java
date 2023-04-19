@@ -46,8 +46,8 @@ public class InitRunner implements ApplicationRunner {
                 try {
                     String timeStr1 = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 //                    System.out.println("-----启动解封未读邮件功能！-----当前时间为:"+timeStr1);
-                    updateProperties();
-                    receiveMails.readMails();
+//                    updateProperties();
+//                    receiveMails.readMails();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
