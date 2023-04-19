@@ -231,14 +231,16 @@ public class ExpertService implements UserDetailsService {
 				int i = expertsMapper.updateByIdNumber(experts);
 				System.out.println("专家信息更新！条数：" + i + " id: " + experts.getName());
 			} else {
-				//对密码进行处理，默认身份证后六位。
-				if (experts.getPassword().equals("")) {
-					experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
-				} else {
-					experts.setPassword(sh1(experts.getPassword()));
+				if (experts.getPassword() != null){
+					//对密码进行处理，默认身份证后六位。
+					if (experts.getPassword().equals("")) {
+						experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
+					} else {
+						experts.setPassword(sh1(experts.getPassword()));
+					}
 				}
 				//对用户名进行处理，如果没有读到默认为电话号码
-				experts.setUsername(experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
+				experts.setUsername(experts.getUsername() == null || experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
 				if (expertsMapper.checkUsername(experts.getUsername()) > 0) {//这里是username_check
 					//用户名存在不导入
 					error = new StringBuilder();
@@ -297,14 +299,16 @@ public class ExpertService implements UserDetailsService {
 				int i = expertsMapper.updateByIdNumber(experts);
 				System.out.println("专家信息更新！条数：" + i + " id: " + experts.getName());
 			} else {
-				//对密码进行处理，默认身份证后六位。
-				if (experts.getPassword().equals("")) {
-					experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
-				} else {
-					experts.setPassword(sh1(experts.getPassword()));
+				if (experts.getPassword() != null){
+					//对密码进行处理，默认身份证后六位。
+					if (experts.getPassword().equals("")) {
+						experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
+					} else {
+						experts.setPassword(sh1(experts.getPassword()));
+					}
 				}
 				//对用户名进行处理，如果没有读到默认为电话号码
-				experts.setUsername(experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
+				experts.setUsername(experts.getUsername() == null || experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
 				if (expertsMapper.checkUsername(experts.getUsername()) > 0) {//这里是username_check
 					//用户名存在不导入
 					error = new StringBuilder();

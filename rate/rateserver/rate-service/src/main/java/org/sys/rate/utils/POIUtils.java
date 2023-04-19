@@ -609,15 +609,15 @@ public class POIUtils {
                 case "邮箱":
                     row.createCell(i).setCellValue("123@dhu.edu.cn");
                     break;
-                case "属于本单位":
-                    row.createCell(i).setCellValue("否");
-                    break;
-                case "用户名":
-                    row.createCell(i).setCellValue("zhangsan");
-                    break;
-                case "密码":
-                    row.createCell(i).setCellValue("123456");
-                    break;
+//                case "属于本单位":
+//                    row.createCell(i).setCellValue("否");
+//                    break;
+//                case "用户名":
+//                    row.createCell(i).setCellValue("zhangsan");
+//                    break;
+//                case "密码":
+//                    row.createCell(i).setCellValue("123456");
+//                    break;
                 case "身份证号码":
                     row.createCell(i).setCellValue("310111111111111111");
                     break;
@@ -705,11 +705,11 @@ public class POIUtils {
         c6.setCellValue("邮箱");
         HSSFCell c7 = r0.createCell(7);
         c7.setCellValue("角色");
-        HSSFCell c8 = r0.createCell(8);
-        c8.setCellValue("属于本单位");
-        HSSFCell c9 = r0.createCell(9);
+/*        HSSFCell c8 = r0.createCell(8);
+        c8.setCellValue("属于本单位");*/
+        HSSFCell c9 = r0.createCell(8);
         c9.setCellValue("用户名");
-        HSSFCell c10 = r0.createCell(10);
+        HSSFCell c10 = r0.createCell(9);
         c10.setCellValue("密码");
         HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("20131000");
@@ -720,12 +720,17 @@ public class POIUtils {
         row.createCell(5).setCellValue("13812341234");
         row.createCell(6).setCellValue("123@dhu.edu.cn");
         row.createCell(7).setCellValue("专家");
-        row.createCell(8).setCellValue("否");
-        row.createCell(9).setCellValue("zhangsan");
-        row.createCell(10).setCellValue("123456");
-        sheet.createRow(2).createCell(0).setCellValue("请删除提示行，如果数据库中已有该专家的记录，将根据填写信息进行更新，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为手机号和身份证后六位，其余必须填写。");
-        sheet.createRow(3).createCell(0).setCellValue("如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
-        sheet.createRow(4).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
+//        row.createCell(8).setCellValue("否");
+        row.createCell(8).setCellValue("zhangsan");
+        row.createCell(9).setCellValue("123456");
+//        sheet.createRow(2).createCell(0).setCellValue("请删除提示行，如果数据库中已有该专家的记录，将根据填写信息进行更新，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为手机号和身份证后六位，其余必须填写。");
+//        sheet.createRow(3).createCell(0).setCellValue("如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
+//        sheet.createRow(4).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
+        sheet.createRow(2).createCell(0).setCellValue("注意事项：");
+        sheet.createRow(3).createCell(0).setCellValue("1.如果专家是本单位的，工号必须填，用户名和密码可以不填；如果专家不为本单位的，工号不填，用户名和密码必须填");
+        sheet.createRow(4).createCell(0).setCellValue("2.如果数据库中已有该专家的记录，则将根据填写信息进行更新。");
+        sheet.createRow(5).createCell(0).setCellValue("3.可以交换列顺序但不可以改变列标题。");
+        sheet.createRow(6).createCell(0).setCellValue("4.请删除以上注意事项。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -794,8 +799,8 @@ public class POIUtils {
         c6.setCellValue("邮箱");
         HSSFCell c7 = r0.createCell(7);
         c7.setCellValue("角色");
-        HSSFCell c8 = r0.createCell(7);
-        c8.setCellValue("属于本单位");
+//        HSSFCell c8 = r0.createCell(7);
+//        c8.setCellValue("属于本单位");
         HSSFCell c9 = r0.createCell(8);
         c9.setCellValue("用户名");
         HSSFCell c10 = r0.createCell(9);
@@ -811,13 +816,15 @@ public class POIUtils {
         row.createCell(5).setCellValue("13812341234");
         row.createCell(6).setCellValue("123@dhu.edu.cn");
         row.createCell(7).setCellValue("专家");
-        row.createCell(8).setCellValue("否");
-        row.createCell(9).setCellValue("zhangsan");
-        row.createCell(10).setCellValue("123456");
-        row.createCell(11).setCellValue("小组X");
-        sheet.createRow(2).createCell(0).setCellValue("请删除提示行，如果数据库中已有该专家的记录，将根据填写信息进行更新，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为手机号和身份证后六位，其余必须填写。");
-        sheet.createRow(3).createCell(0).setCellValue("如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
-        sheet.createRow(4).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
+//        row.createCell(8).setCellValue("否");
+        row.createCell(8).setCellValue("zhangsan");
+        row.createCell(9).setCellValue("123456");
+        row.createCell(10).setCellValue("小组X");
+        sheet.createRow(2).createCell(0).setCellValue("注意事项：");
+        sheet.createRow(3).createCell(0).setCellValue("1.如果专家是本单位的，工号必须填，用户名和密码可以不填；如果专家不为本单位的，工号不填，用户名和密码必须填");
+        sheet.createRow(4).createCell(0).setCellValue("2.如果数据库中已有该专家的记录，则将根据填写信息进行更新。");
+        sheet.createRow(5).createCell(0).setCellValue("3.可以交换列顺序但不可以改变列标题。");
+        sheet.createRow(6).createCell(0).setCellValue("4.请删除以上注意事项。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -1260,8 +1267,11 @@ public class POIUtils {
         row.createCell(4).setCellValue("123456789123456789");
         row.createCell(5).setCellValue("13812341234");
         row.createCell(6).setCellValue("123@dhu.edu.cn");
-        sheet.createRow(2).createCell(0).setCellValue("请删除提示行，如果数据库中已有该老师的记录，将根据填写信息进行更新，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为手机号和身份证后六位，其余必须填写。");
-        sheet.createRow(3).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
+        sheet.createRow(2).createCell(0).setCellValue("注意事项：");
+        sheet.createRow(3).createCell(0).setCellValue("1.如果专家是本单位的，工号必须填，用户名和密码可以不填；如果专家不为本单位的，工号不填，用户名和密码必须填");
+        sheet.createRow(4).createCell(0).setCellValue("2.如果数据库中已有该专家的记录，则将根据填写信息进行更新。");
+        sheet.createRow(5).createCell(0).setCellValue("3.可以交换列顺序但不可以改变列标题。");
+        sheet.createRow(6).createCell(0).setCellValue("4.请删除以上注意事项。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -1397,7 +1407,7 @@ public class POIUtils {
                     String idCard=null;//身份证号，主键
                     String email=null;//邮箱
                     String sex=null;//性别
-                    String isBelonging=null;//是否是本单位
+//                    String isBelonging=null;//是否是本单位
                     String username=null;
                     String password=null;
                     String groupName=null;
@@ -1424,9 +1434,9 @@ public class POIUtils {
                                 case "部门":
                                     department=cellValue;
                                     break;
-                                case "属于本单位":
-                                    isBelonging=cellValue;
-                                    break;
+//                                case "属于本单位":
+//                                    isBelonging=cellValue;
+//                                    break;
                                 case "用户名":
                                     username=cellValue;
                                     break;
@@ -1447,10 +1457,7 @@ public class POIUtils {
                             }
                         }
                     }
-                    if(phone==null||
-                            jobNumber==null||
-                            department==null||
-                            (!isBelonging.equals("是")&&!isBelonging.equals("否"))||name==null||idCard==null){
+                    if(phone==null|| department==null || name==null||idCard==null){
                             continue;
 //                        System.out.println("csv 编码或者表头或者信息有问题！！");
 //                        RespPageBean bean=new RespPageBean();
@@ -1467,7 +1474,7 @@ public class POIUtils {
                     expert.setUsername(username);
                     expert.setPassword(password);
                     expert.setGroupName(groupName);
-                    if(isBelonging.equals("是")){
+                    if(jobNumber != null){ // 有工号就是本单位的
                         expert.setInstitutionid(1);
                     }else {
                         expert.setInstitutionid(0);

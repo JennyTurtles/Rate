@@ -282,7 +282,7 @@ public class ExpertMController {
         return RespBean.error(res1.getMsg());
     }
 
-    // 为了检查选手是否在主活动存在，在import方法外面套了一层
+    // 为了检查专家是否在主活动存在，在import方法外面套了一层
     @Transactional
     @PostMapping("/subImport")
     public RespBean importSubData(@RequestParam Integer groupid,@RequestParam Integer activityid,
@@ -290,7 +290,7 @@ public class ExpertMController {
                                   MultipartFile file) throws IOException, ParseException {
         RespPageBean bean =  POIUtils.readExcel_expert(file);
         RespBean respBean = importExperts(groupid,activityid,insititutionID,bean); // 为了复用才返回respBean
-        if (respBean.getStatus() != 200){ // 检查当前选手是否在主活动中存在
+        if (respBean.getStatus() != 200){ // 检查当前专家是否在主活动中存在
             RespBean.error(respBean.getMsg());
         }
         List<Experts> list= (List<Experts>) bean.getData();
