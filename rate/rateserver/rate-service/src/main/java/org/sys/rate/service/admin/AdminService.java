@@ -38,7 +38,7 @@ public class AdminService implements UserDetailsService {
         if (admin == null) {
             throw new UsernameNotFoundException("用户名不存在!");
         }
-        admin.setRoles(adminMapper.getAdminRolesById(admin.getId()));
+        admin.setRoles(adminMapper.getAdminRolesById(admin.getID()));
         return admin;
     }
 
@@ -46,7 +46,7 @@ public class AdminService implements UserDetailsService {
         if (page != null && size != null) {
             page = (page - 1) * size;
         }
-        List<Admin> data = adminMapper.getAllHrs(HrUtils.getCurrentHr().getId(),keywords,page, size);
+        List<Admin> data = adminMapper.getAllHrs(HrUtils.getCurrentHr().getID(),keywords,page, size);
         Long total = adminMapper.getTotal(keywords);
         RespPageBean bean = new RespPageBean();
         bean.setData(data);

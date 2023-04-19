@@ -12,7 +12,7 @@ import java.util.Objects;
 
 
 public class Admin extends Account {
-    //private Integer id;
+    private Integer ID;
     private String companyName;
 //    private Integer institutionID;
     //private String name;
@@ -55,13 +55,13 @@ public class Admin extends Account {
         this.roles = roles;
     }
 */
-    /*public Integer getId() {
-        return super.getId();
+    public Integer getID() {
+        return ID;
     }
 
-    public void setId(Integer id) {
-        this.id;
-    }*/
+    public void setID(Integer id) {
+        this.ID = id;
+    }
 
     public String getcompanyName() {
         return companyName;

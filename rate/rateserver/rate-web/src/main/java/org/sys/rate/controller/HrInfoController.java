@@ -1,6 +1,7 @@
 package org.sys.rate.controller;
 
 import org.sys.rate.config.FastDFSUtils;
+import org.sys.rate.mapper.AdminMapper;
 import org.sys.rate.model.Account;
 import org.sys.rate.model.Hr;
 import org.sys.rate.model.Admin;
@@ -27,6 +28,7 @@ import java.util.Map;
  * @时间 2020-03-01 13:07
  */
 @RestController
+@RequestMapping("/info")
 public class HrInfoController {
 
     @Autowired
@@ -34,6 +36,8 @@ public class HrInfoController {
 
     @Autowired
     AdminService adminService;
+    @Autowired
+    AdminMapper adminMapper;
 
     @Value("${fastdfs.nginx.host}")
     String nginxHost;
@@ -41,6 +45,19 @@ public class HrInfoController {
     @GetMapping("/hr/info")
     public Account getCurrentHr(Authentication authentication) {
         return ((Account) authentication.getPrincipal());//直接注入 Authentication，注入成功后，就能直接使用
+    }
+    @GetMapping("/admin")
+    public RespBean getAdminInfo(Integer id) {
+        Admin res = null;
+        try {
+           res = adminMapper.getById(id);
+            if(res != null){
+                return RespBean.ok("ok",res);
+            }
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        return RespBean.error("error",null);
     }
 
     @PutMapping("/admin/info")

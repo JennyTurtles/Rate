@@ -133,7 +133,7 @@ public class MenuService {
 
 
     public List<Menu> getMenusByExpertId() {
-        return menuMapper.getMenusById(((Student) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId());
+        return menuMapper.getMenusById(((Student) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getID());
     }
 //    public List<Menu> getMenusByStuId() {
 //        Integer id=((Student) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();

@@ -39,7 +39,7 @@ public class HrService  {
     }*/
 
     public List<Hr> getAllHrs(String keywords) {
-        return hrMapper.getAllHrs(HrUtils.getCurrentHr().getId(),keywords);
+        return hrMapper.getAllHrs(HrUtils.getCurrentHr().getID(),keywords);
     }
 
     public Integer updateHr(Hr hr) {
@@ -57,7 +57,7 @@ public class HrService  {
     }
 
     public List<Hr> getAllHrsExceptCurrentHr() {
-        return hrMapper.getAllHrsExceptCurrentHr(HrUtils.getCurrentHr().getId());
+        return hrMapper.getAllHrsExceptCurrentHr(HrUtils.getCurrentHr().getID());
     }
 
     public Integer updateHyById(Hr hr) {

@@ -137,7 +137,7 @@
             }
         },
         mounted() {
-            this.initHr();
+            // this.initHr();
         },
         methods: {
             onSuccess() {
@@ -187,16 +187,15 @@
             showUpdatePasswdView() {
                 this.passwdDialogVisible = true;
             },
-            initHr() {
-                this.getRequest('/hr/info').then(resp => {
-                    if (resp) {
-                        this.hr = resp;
-                        this.hr2 = Object.assign({}, this.hr);
-                        window.sessionStorage.setItem("user", JSON.stringify(resp));
-                        this.$store.commit('INIT_CURRENTHR', resp);
-                    }
-                })
-            }
+            // initHr() {
+            //     this.getRequest('/hr/info').then(resp => {
+            //         if (resp) {
+            //             this.hr = resp;
+            //             this.hr2 = Object.assign({}, this.hr);
+            //             this.$store.commit('INIT_CURRENTHR', resp);
+            //         }
+            //     })
+            // }
         }
     }
 </script>

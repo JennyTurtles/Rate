@@ -205,7 +205,11 @@ export default {
         this.showPassword = true
       }
       else if (cmd == "userInfo") {
-        this.$router.push('')
+        if(this.user.role == '1'){
+          this.$router.push({
+            path:'/admin/PersonalCenter'
+          })
+        }
       }
     },
     submitPassword(){

@@ -10,8 +10,10 @@ import java.util.List;
 
 public interface AdminMapper {
 
+    //由于第一个人写的代码非常乱，admin里的id应该是ID，id是不对的，碰到错误可以参考是不是id的原因，id的bug没有改完
     @Select("select * from admin where ID = #{ID}")
     Admin getById(Integer ID);
+
 
     int deleteByPrimaryKey(Integer id);
 

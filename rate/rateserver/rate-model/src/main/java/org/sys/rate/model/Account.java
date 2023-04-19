@@ -13,7 +13,7 @@ import java.util.Objects;
 
 public class Account implements UserDetails {
     Integer ID;
-    Integer id;
+//    Integer id;
     String name;
     Integer institutionID;
 
@@ -54,13 +54,13 @@ public class Account implements UserDetails {
         this.roles = roles;
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
+//    public Integer getId() {
+//        return id;
+//    }
+//
+//    public void setId(Integer id) {
+//        this.id = id;
+//    }
 
     public Integer getID() {
         return ID;

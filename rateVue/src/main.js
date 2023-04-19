@@ -195,6 +195,10 @@ router.beforeEach((to, from, next) => {
                 next()
                 return;
             }
+            if (to.path == '/admin/PersonalCenter') {
+                next()
+                return;
+            }
             if (JSON.parse(localStorage.getItem('user')).role == "3") {
                 next()
                 return

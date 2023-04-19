@@ -30,12 +30,12 @@ export default new Router({
           meta: { title: '分配人员' },
         },
         {
-          path: '/hrinfo',
-          name: '个人中心1',
+          path: '/admin/PersonalCenter',
+          name: '管理员个人中心',
           hidden: true,
-          component: () => import('./views/HrInfo.vue'),
+          component: () => import('./views/admin/HrInfo.vue'),
           meta: {
-            title: '个人中心',
+            title: '管理员个人中心',
           },
         },
         {
