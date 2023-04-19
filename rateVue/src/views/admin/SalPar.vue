@@ -305,12 +305,16 @@
     </el-dialog>
     <!--弹窗-->
     <el-dialog :title="title" :visible.sync="dialogVisible_checkbox" width="60%" center>
-      <div style="font-size: 17px;">
-        导入模板中必须包含身份证号和姓名，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。
-        <br/>
-        首次导入请注意！如果student表中已有该选手的记录，则手机号、邮箱、属于本单位三列可为空，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为编号和手机号，其余必须填写。
-          <br/>模版内的列顺序为点击顺序。
-      </div><br/>
+<!--      <div style="font-size: 17px;">-->
+<!--        导入模板中必须包含身份证号和姓名，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。-->
+<!--        <br/>-->
+<!--        首次导入请注意！如果student表中已有该选手的记录，则手机号、邮箱、属于本单位三列可为空，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为编号和手机号，其余必须填写。-->
+<!--          <br/>模版内的列顺序为点击顺序。-->
+<!--      </div><br/>-->
+        <div style="font-size: 17px;">
+            导入模板中必须包含姓名和身份证号，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。
+            <br/>
+        </div><br/>
       <div style="font-size: 16px;margin-left: 15%">基本信息：<br/>
         <el-checkbox label="姓名" key="姓名" v-model="dymatic_list" disabled style="width: 150px">姓名</el-checkbox>
         <el-checkbox label="身份证号码" v-model="dymatic_list" disabled style="width: 150px">身份证号码</el-checkbox>
@@ -318,9 +322,9 @@
         <el-checkbox label="序号" v-model="dymatic_list"  style="width: 150px">序号</el-checkbox>
         <el-checkbox label="手机号" v-model="dymatic_list"  style="width: 150px">手机号</el-checkbox>
         <el-checkbox label="邮箱" v-model="dymatic_list"  style="width: 150px">邮箱</el-checkbox>
-        <el-checkbox label="属于本单位" v-model="dymatic_list"  style="width: 150px">属于本单位</el-checkbox>
-        <el-checkbox label="用户名" v-model="dymatic_list"  style="width: 150px">用户名</el-checkbox>
-        <el-checkbox label="密码" v-model="dymatic_list"  style="width: 150px">密码</el-checkbox>
+<!--        <el-checkbox label="属于本单位" v-model="dymatic_list"  style="width: 150px">属于本单位</el-checkbox>-->
+<!--        <el-checkbox label="用户名" v-model="dymatic_list"  style="width: 150px">用户名</el-checkbox>-->
+<!--        <el-checkbox label="密码" v-model="dymatic_list"  style="width: 150px">密码</el-checkbox>-->
       </div><br/>
       <div style="font-size: 16px;margin-left: 15%">信息项：<br/>
         <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" v-model="infoitem" style="width: 150px">

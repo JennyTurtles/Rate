@@ -215,7 +215,7 @@ public class ParticipatesBasicController {
             logService.addLogs(log);
             return RespBean.error("未读取到有效导入数据，可能第"+bean.getTotal()+"行csv编码或者表头或者内容错误！");
         }
-        String res=participatesService.addParticipatess(groupid,activityid,list);
+        String res=participatesService.addParticipatess(groupid,activityid,insititutionID,list);
         if (res.equals("operate successfully")) {
             Log log=new Log();
             SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

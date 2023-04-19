@@ -92,6 +92,13 @@
             <span style="fontSize:15px;margin-left: 10px">
                 积分选择:
             </span>
+            <div class="select_point_input">
+                <input type="number" autocomplete="off" v-model.number="point1" :min="0" :max="50">
+            </div>
+            <label>&nbsp;-&nbsp;</label>
+            <div class="select_point_input">
+                <input type="number" autocomplete="off" v-model.number="point2" :min="0" :max="50">
+            </div>
             <el-button
                 icon="el-icon-search"
                 @click="filterBtn"
@@ -113,13 +120,12 @@
                 <el-table-column prop="stuNumber" label="学号" align="center" width="100px"></el-table-column>
                 <el-table-column prop="name" label="姓名" align="center" width="100px"></el-table-column>
                 <el-table-column prop="year" label="入学年份" align="center" width="80px"></el-table-column>
-                <el-table-column prop="studentType" label="学生类别" align="center" width="80px"></el-table-column>
-                <el-table-column prop="telephone" label="电话" align="center" width="100px"></el-table-column>
-                <el-table-column prop="email" label="邮箱" align="center" width="200px"></el-table-column>
-                <el-table-column prop="point" label="积分" align="center" width="50px"></el-table-column>
-                <el-table-column prop="username" label="用户名" align="center" width="120px"></el-table-column>
-                <el-table-column prop="password" label="登陆密码" align="center"></el-table-column>
-                <el-table-column label="操作" align="center" width="80px">
+                <el-table-column prop="studentType" label="学生类别" align="center" width="100px"></el-table-column>
+                <el-table-column prop="telephone" label="电话" align="center" width="150px"></el-table-column>
+                <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
+                <el-table-column prop="point" label="积分" align="center" width="80px"></el-table-column>
+                <el-table-column prop="username" label="用户名" align="center" width="100px"></el-table-column>
+                <el-table-column label="操作" align="center" width="100px">
                     <template slot-scope="scope">
                         <el-button
                             size="mini"
@@ -165,6 +171,8 @@
         name: "GraduateList",
         data() {
             return {
+                point1: 0,
+                point2: 15,
                 pageSizes: [
                     10, 20, 30
                 ],
@@ -257,45 +265,30 @@
                     return
                 }
                 this.currentGraduateStudentOfEdit.password = this.newPassword
-                this.currentGraduateStudentOfEdit.studentID = this.currentGraduateStudentOfEdit.id
-                // this     .postRequest(         '/graduatestudentM/basic/resetUnderPassword',
-                // this.currentGraduateStudentOfEdit     )     .then((response) => {         if
-                // (response) {             if (response.status == 200) {                 this
-                // .$message                     .success("重置成功")
-                // this.closeDialogReset()                 this.pageSize = 20
-                // this.currentPage = 1                 initGraduateStudents(this.currentPage,
-                // this.pageSize)             } else {                 this
-                // .$message                     .fail("重置失败")             }         }     })
-                let postPasswordPromise = new Promise((resolve, reject) => {
+                this.currentGraduateStudentOfEdit.studentID = this
+                    .currentGraduateStudentOfEdit
+                    .id
+
                     this
-                        .postRequest(
-                            '/graduatestudentM/basic/resetUnderPassword',
-                            this.currentGraduateStudentOfEdit
-                        )
-                        .then((response) => {
-                            if (response) {
-                                if (response.status == 200) {
-                                    this
-                                        .$message
-                                        .success("重置成功")
+                    .postRequest(
+                        '/graduatestudentM/basic/resetUnderPassword',
+                        this.currentGraduateStudentOfEdit
+                    )
+                    .then((response) => {
+                        if (response) {
+                            if (response.status == 200) {
+                                this
+                                    .$message
+                                    .success("重置成功")
 
-                                    this.closeDialogReset()
-                                    resolve(response.status)
-                                } else {
-                                    this
-                                        .$message
-                                        .fail("重置失败")
-                                }
+                                this.closeDialogReset()
+                            } else {
+                                this
+                                    .$message
+                                    .fail("重置失败")
                             }
-                        })
-                })
-
-                postPasswordPromise.then((res)=>{
-                    this.pageSize = 20
-                    this.currentPage = 1
-                    this.initGraduateStudents(this.currentPage, this.pageSize)
-                })
-
+                        }
+                    })
             },
             inputSelectGraduatesNameFocus() { //input获取焦点判断是否有下拉框，是否可输入
                 this.isSelectShow = true //控制下拉框是否显示
@@ -324,32 +317,27 @@
 
             filterBtn() { //点击筛选按钮
                 this.graduateStudents = this.database
-                let tempYear = this.selectYear
-                if (this.selectYear == '') {
-                    tempYear = 0
-                }
 
-                let condition = {
-                    year: tempYear,
-                    name: this.selectGraduatesName,
-                    studentType: this.selectType
-                }
+                // 筛选积分
+                const {point1, point2} = this
+                this.graduateStudents = this
+                    .graduateStudents
+                    .filter(student => student.point >= point1 && student.point <= point2)
 
+                // 筛选毕业生
+                const {selectYear, selectGraduatesName, selectType} = this
                 const filteredGraduateStudents = this
                     .graduateStudents
-                    .filter(item => {
-                        return Object
-                            .keys(condition)
-                            .every(key => {
-                                return String(item[key])
-                                    .toLowerCase()
-                                    .includes(String(condition[key]).trim().toLowerCase())
-                            })
+                    .filter(({year, name, studentType}) => {
+                        return (selectYear === '' || year === selectYear) && name
+                            .toLowerCase()
+                            .includes(selectGraduatesName.trim().toLowerCase()) && studentType
+                            .toLowerCase()
+                            .includes(selectType.trim().toLowerCase())
                     })
 
                 this.graduateStudents = filteredGraduateStudents
                 this.totalCount = this.graduateStudents.length
-
             },
 
             delayInputTimer(val) {
@@ -370,23 +358,6 @@
                 }, 300);
             },
 
-            // closeDialogEdit() { 关闭对话框     this.dialogEdit = false
-            // this.initGraduateStudents(this.currentPage, this.pageSize) },
-            // editDialogShow(data) {     this.dialogEdit = true
-            // this.currentGraduateStudentOfEdit = data }, editGraduate() { 点击编辑中的确定按钮 if
-            // (this.currentGraduateStudentOfEdit.teachers.name == '' ||
-            // this.currentGraduateStudentOfEdit.teachers.jobnumber == '' ||
-            // this.currentGraduateStudentOfEdit.teachers.name == null ||
-            // this.currentGraduateStudentOfEdit.teachers.jobnumber == null) {         this
-            // .$message             .warning('请填写老师姓名和工号！')         return     }     let
-            // data = this         .currentGraduateStudentOfEdit         this
-            // .postRequest('/graduatestudentM/basic/editGraduateStudent', data)
-            // .then((resp) => {             if (resp) {                 if (resp.status ==
-            // 200) {                     this.dialogEdit = false                     this
-            // .$message                         .success(resp.msg)
-            // this.initGraduateStudents(this.currentPage, this.pageSize)                 }
-            // else {                     this                         .$message
-            // .error(resp)                 }             }         }) },
             handleSizeChange(val) {
                 // 改变每页显示的条数
                 this.pageSize = val
@@ -421,6 +392,8 @@
                 this.selectGraduatesName = ''
                 this.selectType = ''
                 this.selectYear = ''
+                this.point1 = 0
+                this.point2 = 15
                 this.graduateStudents = this.database
                 this.pageSize = 20
                 this.currentPage = 1
@@ -472,5 +445,20 @@
         /*padding-top: 7px;*/
         padding-left: 12px;
         width: 100%;
+    }
+
+    .select_point_input {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    .select_point_input input {
+        line-height: 28px;
+        width: 50px;
+        height: 30px;
+        border: 1px solid lightgray;
+        padding: 0 10px 1px 15px;
+        border-radius: 4px;
+        color: gray;
     }
 </style>

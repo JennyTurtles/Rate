@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
+import org.sys.rate.utils.PasswordUtils;
 
 import javax.annotation.Resource;
 import javax.lang.model.element.NestingKind;
@@ -202,20 +203,8 @@ public class ExpertService implements UserDetailsService {
 		return true;
 	}
 
-	public static String sh1(String password) { // 后续移到utils中
-		MessageDigest digest = null;
-		try {
-			digest = MessageDigest.getInstance("SHA-1");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-		assert digest != null;
-		byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
-		StringBuilder sb = new StringBuilder();
-		for (byte b : hash) {
-			sb.append(String.format("%02x", b));
-		}
-		return sb.toString();
+	public static String sh1(String password) {
+		return PasswordUtils.sh1(password); // 暂时这样移动一下
 	}
 
 	// 不考虑复用，直接复制
@@ -242,14 +231,15 @@ public class ExpertService implements UserDetailsService {
 				int i = expertsMapper.updateByIdNumber(experts);
 				System.out.println("专家信息更新！条数：" + i + " id: " + experts.getName());
 			} else {
-				//对密码进行处理，默认身份证后六位。
-				if (experts.getPassword().equals("")) {
-					experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
-				} else {
-					experts.setPassword(sh1(experts.getPassword()));
-				}
+					//对密码进行处理，默认身份证后六位。
+					if (experts.getPassword() == null || experts.getPassword().equals("")) {
+						experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
+					} else {
+						experts.setPassword(sh1(experts.getPassword()));
+					}
+
 				//对用户名进行处理，如果没有读到默认为电话号码
-				experts.setUsername(experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
+				experts.setUsername(experts.getUsername() == null || experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
 				if (expertsMapper.checkUsername(experts.getUsername()) > 0) {//这里是username_check
 					//用户名存在不导入
 					error = new StringBuilder();
@@ -308,14 +298,14 @@ public class ExpertService implements UserDetailsService {
 				int i = expertsMapper.updateByIdNumber(experts);
 				System.out.println("专家信息更新！条数：" + i + " id: " + experts.getName());
 			} else {
-				//对密码进行处理，默认身份证后六位。
-				if (experts.getPassword().equals("")) {
-					experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
-				} else {
-					experts.setPassword(sh1(experts.getPassword()));
-				}
+					//对密码进行处理，默认身份证后六位。
+					if (experts.getPassword() == null || experts.getPassword().equals("")) {
+						experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
+					} else {
+						experts.setPassword(sh1(experts.getPassword()));
+					}
 				//对用户名进行处理，如果没有读到默认为电话号码
-				experts.setUsername(experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
+				experts.setUsername(experts.getUsername() == null || experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
 				if (expertsMapper.checkUsername(experts.getUsername()) > 0) {//这里是username_check
 					//用户名存在不导入
 					error = new StringBuilder();

@@ -41,7 +41,13 @@
       </div>
 
     </div>
-    <div v-show="mode==='admin'|| mode==='adminSub' && flag == 0"><br/>专家导入后的初始用户名为手机号，密码为身份证后六位<br/>单元格中内容双击后可编辑</div>
+    <div v-show="mode==='admin'|| mode==='adminSub' && flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码可以不填；如果专家不为本单位的，工号不填，用户名和密码必须填
+        <br/>专家导入后的初始用户名为手机号，密码为身份证后六位
+        <br/>单元格中内容双击后可编辑
+    </div>
+
+
+
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
