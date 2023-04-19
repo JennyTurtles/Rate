@@ -114,18 +114,18 @@
             align="center"
             min-width="10%"
         >
-          <template slot-scope="scope" v-if="mode!=='secretary'">
-            <el-checkbox
-                :true-label="1"
-                :false-label="0"
-                v-model.trim="scope.row.byexpert"
-                @change="UpdateCheckbox(scope.row)"
-            ></el-checkbox>
+          <template slot-scope="scope" >
+              <span v-if="mode!=='secretary'">
+                 <el-checkbox
+                    :true-label="1"
+                    :false-label="0"
+                    v-model.trim="scope.row.byexpert"
+                    @change="UpdateCheckbox(scope.row)"
+                 ></el-checkbox>
             专家打分
-          </template>
-          <template slot-scope="scope" v-if="mode==='secretary' || mode==='secretarySub'">
-            <span v-if="scope.row.byexpert">是</span>
-            <span v-else>否</span>
+              </span>
+              <span v-else-if="scope.row.byexpert">是</span>
+              <span v-else>否</span>
           </template>
         </el-table-column>
         <el-table-column

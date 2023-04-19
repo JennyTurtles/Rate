@@ -60,16 +60,20 @@
             align="center"
             width="120px"
         >
-          <template slot-scope="scope" v-if="mode!=='secretary'" >
+          <template slot-scope="scope" >
+              <span v-if="mode!=='secretary'" >
             <el-checkbox
                 v-model.trim="scope.row.byParticipant"
                 @change="UpdateCheckbox(scope.row,'byParticipan')"
             ></el-checkbox>
             选手填写
-          </template>
-          <template slot-scope="scope" v-if="mode==='secretary' || mode==='secretarySub'">
-            <span v-if="scope.row.byParticipant">是</span>
-            <span v-else>否</span>
+              </span>
+              <span v-else-if="scope.row.byParticipant">是</span>
+              <span v-else>否</span>
+<!--          </template>-->
+<!--          <template slot-scope="scope" v-if="mode==='secretary' || mode==='secretarySub'">-->
+<!--            <span v-if="scope.row.byParticipant">是</span>-->
+<!--            <span v-else>否</span>-->
           </template>
         </el-table-column>
         <el-table-column
@@ -130,16 +134,16 @@
             align="center"
             min-width="3%"
         >
-          <template slot-scope="scope" v-if="mode!=='secretary'">
+          <template slot-scope="scope">
+              <span  v-if="mode!=='secretary'">
             <el-checkbox
                 v-model.trim="scope.row.display"
                 @change="UpdateCheckbox(scope.row,'display') "
             ></el-checkbox>
             display
-          </template>
-          <template slot-scope="scope" v-if="mode==='secretary' || mode==='secretarySub'">
-            <span v-if="scope.row.display">是</span>
-            <span v-else>否</span>
+              </span>
+              <span v-else-if="scope.row.display">是</span>
+              <span v-else>否</span>
           </template>
         </el-table-column>
         <el-table-column align="center" min-width="5%" label="操作" v-if="this.mode!=='secretary' && this.mode!=='secretarySub'">
