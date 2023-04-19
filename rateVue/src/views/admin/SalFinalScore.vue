@@ -91,7 +91,7 @@
             :sort-method="(a, b) => {
                       return Number(a.map[v.name])- Number(b.map[v.name])}"
             :sort-orders="['descending', 'ascending']">
-          <template v-slot:header='scope' v-if="displayItem[i].source.indexOf('*') !== -1">
+          <template v-slot:header='scope' v-if="displayItem[i].source != null && displayItem[i].source.indexOf('*') !== -1">
             <span>
               	  <el-tooltip
                       :aa="scope"

@@ -74,10 +74,9 @@ public class DisplayItemService {
         // 为每个选手添加展示项
         for (ParticipantsDisplay par : pars) {
             par.setMap(new HashMap<>());
-
             // 为该选手添加展示项
             for (DisplayItem displayItem : displayItems) {
-                if (!displayItem.getSource().contains("*")) {  // 第一类：displayItem的source不包含"*"
+                if (displayItem.getSource() == null || !displayItem.getSource().contains("*")) {  // 第一类：displayItem的source不包含"*"
                     String displayContent = getDisplayContentPart(displayItem.getSource(), par, tableInfoItem, tableScoreItem, displayItemMap, activityID);
                     par.getMap().put(displayItem.getName(), formatDouble(displayContent));
                 } else // 第二类，需要计算
@@ -113,6 +112,8 @@ public class DisplayItemService {
     // 用于解析字符串，传入系数*项名 或 项名，返回该展示项的值，同时适用于第一类和第二类展示项
     private String getDisplayContentPart(String str, ParticipantsDisplay par, Table<Integer,Integer,String> tableInfoItem,
                                          Table<Integer, Integer,Double> tableScoreItem, Map<Integer, DisplayItem> displayItemMap, Integer activityID) {
+        if (str == null)
+            str = "error";
         String[] split = str.split("\\*");
         String target = split.length == 1 ? split[0] : split[1]; // 区分第一类和第二类展示项
         double coefficient = split.length == 1 ? 1 : Double.parseDouble(split[0]);
