@@ -384,13 +384,7 @@
           </el-input>
         </el-form-item>
         <el-form-item label="存在子活动: " prop="comment">
-         <el-input
-                      type="textarea"
-                      :rows="2"
-                      v-model="emp.comment"
-                      placeholder="备注"
-              >
-              </el-input>
+            <el-checkbox v-model="haveSub"></el-checkbox>
         </el-form-item>
 
         <!-- <el-form-item label="评分项数:" prop="scoreItemCount">
@@ -455,6 +449,7 @@ export default {
   props:["mode","activityID","actName","groupName","groupID"], // 四个地方复用组件
   data() {
     return {
+      haveSub:false,
       startDate: '',
       experts:'',
       participates:'',
@@ -599,6 +594,7 @@ export default {
     showEditEmpView(data) {
       this.title = "编辑单位信息";
       this.emp = data;
+      this.haveSub = data.haveSub === 1;
       this.dialogVisible = true;
     },
     showEditEmpView_show(data) {
@@ -690,6 +686,7 @@ export default {
     doAddEmp() {
         if(this.mode === 'adminSub')
             this.emp.parentID = this.activityID;
+        this.emp.haveSub = this.haveSub ? 1 : 0
       if (this.emp.id) {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
@@ -699,6 +696,10 @@ export default {
                 (resp) => {
                   if (resp) {
                     this.dialogVisible = false;
+                      this.$message({
+                          type: 'success',
+                          message: '修改成功!'
+                      });
                     this.initEmps();
                   }
                 }
@@ -713,6 +714,10 @@ export default {
             this.postRequest("/activities/basic/insert", _this.emp).then(
                 (resp) => {
                   if (resp) {
+                      this.$message({
+                          type: 'success',
+                          message: '添加成功!'
+                      });
                     this.dialogVisible = false;
                     this.initEmps();
                   }

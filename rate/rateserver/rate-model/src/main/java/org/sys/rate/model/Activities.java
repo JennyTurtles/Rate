@@ -30,6 +30,16 @@ public class Activities {
     private String groupName;
     private Integer parentID;
     private Integer requireGroup;
+    private Integer haveSub;
+
+    public Integer getHaveSub() {
+        return haveSub;
+    }
+
+    public void setHaveSub(Integer haveSub) {
+        this.haveSub = haveSub;
+    }
+
     public Integer getGroupID() {
         return groupID;
     }
