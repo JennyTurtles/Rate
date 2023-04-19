@@ -140,7 +140,6 @@
         <result column="point" property="point" jdbcType="VARCHAR"/>
         <result property="email" column="email" jdbcType="VARCHAR"/>
         <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
-        <result property="password" column="password" jdbcType="VARCHAR"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
     </resultMap>
 
@@ -155,8 +154,7 @@
             g.point,
             s.email,
             s.telephone,
-            s.username,
-            s.`password`
+            s.username
         FROM
             `graduatestudent` g,
             `student` s

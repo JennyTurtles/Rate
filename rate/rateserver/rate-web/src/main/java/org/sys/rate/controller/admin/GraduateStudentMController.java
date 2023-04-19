@@ -90,10 +90,6 @@ public class GraduateStudentMController {
         // 设置当前所在页和每页显示的条数
         Page page = PageHelper.startPage(pageNum, pageSize);
         List<GraduateStudent> t = graduateStudentService.getGraduateListByTutorID(tutorID);
-        // 对t中密码进行解密，显示到界面上,有点问题，解密出现错误。
-//        for(GraduateStudent each:t){
-//            each.setPassword(rsaUtil.decrypt(each.getPassword()));
-//        }
         PageInfo info = new PageInfo<>(page.getResult());
         // res是分页后的数据，info.getTotal()是总条数
         Object[] res = {t, info.getTotal()};
