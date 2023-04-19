@@ -1,7 +1,4 @@
 package org.sys.rate.utils;
-
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
-import org.apache.poi.hpsf.Array;
 import org.apache.poi.hpsf.DocumentSummaryInformation;
 import org.apache.poi.hpsf.SummaryInformation;
 import org.apache.poi.hssf.usermodel.*;
@@ -13,26 +10,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
-import org.sys.rate.mapper.ScoreItemMapper;
 import org.sys.rate.model.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.*;
 
-/**
- * @作者 江南一点雨
- * @公众号 江南一点雨
- * @微信号 a_java_boy
- * @GitHub https://github.com/lenve
- * @博客 http://wangsong.blog.csdn.net
- * @网站 http://www.javaboy.org
- * @时间 2019-11-11 23:25
- */
 public class POIUtils {
-    @Autowired
-    ScoreItemMapper scoreItemMapper;
 
     public static ResponseEntity<byte[]> employee2Excel(HashPEexport hashPEexport) {
         //1. 创建一个 Excel 文档
@@ -215,7 +199,7 @@ public class POIUtils {
                     String idCard= null;
                     String email= null;
                     String code= null;
-                    String isBelonging= "";
+//                    String isBelonging= "";
                     String username= "";
                     String password= "";
                     String displaySequence= null;
@@ -244,9 +228,9 @@ public class POIUtils {
                                     case "编号":
                                         code=cellValue;
                                         break;
-                                    case "属于本单位":
-                                        isBelonging=cellValue;
-                                        break;
+//                                    case "属于本单位":
+//                                        isBelonging=cellValue;
+//                                        break;
                                     case "用户名":
                                         username=cellValue;
                                         break;
@@ -282,9 +266,9 @@ public class POIUtils {
                                 case "编号":
                                     code="";
                                     break;
-                                case "属于本单位":
-                                    isBelonging="";
-                                    break;
+//                                case "属于本单位":
+//                                    isBelonging="";
+//                                    break;
                                 case "用户名":
                                     username="";
                                     break;
@@ -351,13 +335,13 @@ public class POIUtils {
                             }
                         }
                     }
-                    if(isBelonging.equals("是")){
-                        p.setInstitutionid(1);
-                    }else if(isBelonging.equals("否")){
-                        p.setInstitutionid(0);
-                    }else {
-                        p.setInstitutionid(-1);//不修改
-                    }
+//                    if(isBelonging.equals("是")){
+//                        p.setInstitutionid(1);
+//                    }else if(isBelonging.equals("否")){
+//                        p.setInstitutionid(0);
+//                    }else {
+//                        p.setInstitutionid(-1);//不修改
+//                    }
                     HashMap<Integer, String> map_score = new HashMap<>();
                     for(int n=0;n<ScoreItem.size();n++)
                     {
@@ -652,7 +636,10 @@ public class POIUtils {
         {
             r0.createCell(datalist.size()+i).setCellValue("评分项:"+ScoreItem.get(i-InfoItem.size()));
         }
-        row.createCell(datalist.size()).setCellValue("请删除本行，如果student表中已有该选手的记录，则手机号、邮箱、属于本单位三列可为空，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为编号和手机号，其余必须填写。如果用户已经存在，则导入数据中的用户名和密码将被忽略。可以交换列顺序但不可改变列标题。");
+        sheet.createRow(2).createCell(0).setCellValue("注意事项：");
+        sheet.createRow(3).createCell(0).setCellValue("1.如果数据库中已有该选手的记录，则将根据填写信息进行更新。");
+        sheet.createRow(4).createCell(0).setCellValue("2.可以交换列顺序但不可以改变列标题。");
+        sheet.createRow(5).createCell(0).setCellValue("3.请删除以上注意事项。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {

@@ -180,7 +180,7 @@ public class ParticipatesService {
     // 举例：checkByIDandActivityID通过活动ID和选手ID查找，后面checkGroupIDExists又用同样的方式查找了一遍，注释写的是：真的不存在。请问还有假的不存在吗？？
     // 举例：前面已经通过if-else确保了选手表里没有记录，写的sql为什么用ON DUPLICATE KEY UPDATE呢？
     // 建议：将此代码布置为JAVA程序设计课的课后作业，让同学们改BUG，作为反面教材引以为鉴
-    public String addParticipatess(Integer groupid,Integer activityid,List<Participates> list) {
+    public String addParticipatess(Integer groupid,Integer activityid,Integer insititutionID,List<Participates> list) {
         //先获得顺序的总数，order取top，然后循环的时候插入++插入。
         Integer last=participatesMapper.getlastDisplaySequence(groupid);
         if(last==null)
@@ -195,16 +195,17 @@ public class ParticipatesService {
             student.setTelephone(participants.getTelephone());
             student.setIDNumber(participants.getIDNumber());
             student.setEmail(participants.getEmail());
+            student.setInstitutionid(insititutionID);
 //            student.setRole("7");
             //如果是1，则为本单位，再设置为管理员的instituteId，否则为null
-            if(participants.getInstitutionid()==1){
-                int instituteId = activitiesMapper.selectByActivityId(activityid);//通过活动号查找管理员组织号，新增的ActivitiesMapper方法
-                student.setInstitutionid(instituteId);
-            }else if(participants.getInstitutionid()==-1){
-                student.setInstitutionid(-1);
-            }else {
-                student.setInstitutionid(null);
-            }
+//            if(participants.getInstitutionid()==1){
+//                int instituteId = activitiesMapper.selectByActivityId(activityid);//通过活动号查找管理员组织号，新增的ActivitiesMapper方法
+//                student.setInstitutionid(instituteId);
+//            }else if(participants.getInstitutionid()==-1){
+//                student.setInstitutionid(-1);
+//            }else {
+//                student.setInstitutionid(null);
+//            }
             if (studentMapper.check(participants.getIDNumber())!=0) {
                 if(!participants.getUsername().equals(""))
                 {//不为空

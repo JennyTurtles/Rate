@@ -89,11 +89,11 @@ export default {
             mode:-1,
             tableData: [],
             leftColumns: [
-                {label: '工号', id: 'jobNumber', width: '200px'},
-                {label: '姓名', id: 'name', width: 'auto'},
+                {label: '工号', id: 'jobNumber', width: 'auto'},
+                {label: '姓名', id: 'name', width: '90px'},
             ],
             rightColumns:[
-                {label: '工号', id: 'jobNumber', width: 'auto'},
+                {label: '工号', id: 'jobNumber', width: '150px'},
                 {label: '姓名', id: 'name', width: '70px'},
             ],
             experts: []

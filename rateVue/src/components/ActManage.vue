@@ -383,6 +383,15 @@
           >
           </el-input>
         </el-form-item>
+        <el-form-item label="存在子活动: " prop="comment">
+         <el-input
+                      type="textarea"
+                      :rows="2"
+                      v-model="emp.comment"
+                      placeholder="备注"
+              >
+              </el-input>
+        </el-form-item>
 
         <!-- <el-form-item label="评分项数:" prop="scoreItemCount">
                 <el-input size="mini" style="width: 200px" prefix-icon="el-icon-edit" v-model="emp.scoreItemCount"

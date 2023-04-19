@@ -13,8 +13,8 @@
 
           <el-form-item>
 <!--            <el-button class="el-icon-search" type="primary" @click="onLeftQuerySubmit()">{{queryTexts[0]}}</el-button>-->
-              <el-button class="el-icon-search" type="primary" @click="onLeftQuerySubmit" style="padding: 7px;margin-left: 5px">搜索</el-button>
-              <el-button class="el-icon-refresh" type="primary" @click="refresh" style="padding: 7px;margin-left: 5px">重置</el-button>
+              <el-button class="el-icon-search" type="primary" @click="onLeftQuerySubmit" style="padding: 7px;margin-left: 5px"></el-button>
+              <el-button class="el-icon-refresh" type="primary" @click="refresh" style="padding: 7px;margin-left: 5px"></el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -98,7 +98,6 @@
       <el-table
           ref="rightTable"
           size="small"
-          style="width: 200px"
           height="745px"
           :row-class-name="handleRowStyleForRight"
           :data="calcRightTableData"
@@ -426,7 +425,7 @@
   .transfer {
     font-size: 14px;
     display: flex;
-    /*justify-content: center;*/
+    justify-content: center;
     align-items: center;
 
   }
@@ -442,13 +441,23 @@
     overflow: hidden;
     background: #FFF;
     display: inline-block;
-    width: 500px;
+    /*width: 50%;*/
     max-height: 100%;
     box-sizing: border-box;
-    position: relative
+    position: relative;
   }
-
-  .transfer-panel-left .transfer-panel-header {
+  .transfer-panel-right {
+      border: 1px solid #EBEEF5;
+      border-radius: 4px;
+      overflow: hidden;
+      background: #FFF;
+      display: inline-block;
+      /*width: 40%;*/
+      max-height: 100%;
+      box-sizing: border-box;
+      position: relative
+  }
+  .transfer-panel-header {
     height: 40px;
     line-height: 40px;
     background: #F5F7FA;
@@ -458,31 +467,6 @@
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
     color: #000;
-  }
-
-  .transfer-panel-right {
-      border: 1px solid #EBEEF5;
-      border-radius: 4px;
-      overflow: hidden;
-      background: #FFF;
-      display: inline-block;
-      width: 200px;
-      max-height: 100%;
-      box-sizing: border-box;
-      position: relative
-  }
-
-  .transfer-panel-right .transfer-panel-header {
-      height: 40px;
-      line-height: 40px;
-      background: #F5F7FA;
-      margin: 0;
-      padding-left: 0px;
-      padding-right: 12px;;
-      border-bottom: 1px solid #EBEEF5;
-      -webkit-box-sizing: border-box;
-      box-sizing: border-box;
-      color: #000;
   }
 
   .transfer-panel-header span:first-child {

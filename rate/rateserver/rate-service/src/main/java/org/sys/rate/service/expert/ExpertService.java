@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
+import org.sys.rate.utils.PasswordUtils;
 
 import javax.annotation.Resource;
 import javax.lang.model.element.NestingKind;
@@ -202,20 +203,8 @@ public class ExpertService implements UserDetailsService {
 		return true;
 	}
 
-	public static String sh1(String password) { // 后续移到utils中
-		MessageDigest digest = null;
-		try {
-			digest = MessageDigest.getInstance("SHA-1");
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-		}
-		assert digest != null;
-		byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
-		StringBuilder sb = new StringBuilder();
-		for (byte b : hash) {
-			sb.append(String.format("%02x", b));
-		}
-		return sb.toString();
+	public static String sh1(String password) {
+		return PasswordUtils.sh1(password); // 暂时这样移动一下
 	}
 
 	// 不考虑复用，直接复制
