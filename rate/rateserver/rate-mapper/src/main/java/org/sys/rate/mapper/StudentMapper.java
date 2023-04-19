@@ -2,9 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-
-import org.apache.ibatis.annotations.Select;
-import org.sys.rate.model.*;
+import org.sys.rate.model.Student;
 
 import java.util.List;
 

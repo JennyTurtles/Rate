@@ -1,15 +1,10 @@
 package org.sys.rate.service.admin;
 
 import org.apache.ibatis.annotations.Param;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.PaperMapper;
 import org.sys.rate.model.Paper;
-import org.sys.rate.mapper.PublicationMapper;
-import org.sys.rate.model.Publication;
-
 import org.sys.rate.service.mail.MailToStuService;
-import org.w3c.dom.Text;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -99,10 +94,10 @@ public class PaperService {
 
 //    修改论文状态
     public int editState(String state, Long ID) throws MessagingException {
-        mailToStuService.sendStuMail(state, ID);
+        Paper paper = paperMapper.selectByID(ID);
+        mailToStuService.sendStuMail(state, paper);
         // 管理员通过的时候需要处理2分论文的情况，还要计算student的活动总分
         if (state.equals("adm_pass")){
-            Paper paper = paperMapper.selectByID(ID);
             Long stuID = paper.getStudentID();
             Long score = paper.getPoint();
 

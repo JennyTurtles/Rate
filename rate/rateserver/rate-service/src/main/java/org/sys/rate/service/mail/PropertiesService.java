@@ -1,6 +1,5 @@
 package org.sys.rate.service.mail;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -10,15 +9,9 @@ import java.util.Map;
 @Service
 public class PropertiesService {
 
-//    @Value("${spring.mail.host}")
     private String host;
-
-//    @Value("${spring.mail.username}")
     private String username;
-
-//    @Value("${spring.mail.password}")
     private String password;
-
     private String sendHost;
 
     public String getSendHost() {
@@ -42,10 +35,11 @@ public class PropertiesService {
     }
 
     public String getUsername() {
-        if(!username.isEmpty())
+        if(!username.isEmpty()) {
             return username;
-        else
+        } else {
             return null;
+        }
     }
 
     public void setPassword(String password) {
@@ -61,8 +55,6 @@ public class PropertiesService {
 
 
     public void setMyPropertyFromDatabase() {
-//        String sql = "SELECT host,username,password,sendHost FROM properties where id = ?";
-//        Map<String, Object> row = jdbcTemplate.queryForMap(sql, new Object[] {4});
         String sql = "SELECT host, username, password, sendHost FROM properties WHERE id = (SELECT MAX(id) FROM properties)";
         Map<String, Object> row = jdbcTemplate.queryForMap(sql);
 

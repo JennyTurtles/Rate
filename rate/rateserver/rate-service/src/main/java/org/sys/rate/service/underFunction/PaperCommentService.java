@@ -41,12 +41,9 @@ public class PaperCommentService {
         return paperCommentMapper.updateStuComment(paperComment);
     }
 
-
     public List<Student>getStuIDbyTeaID(int teaID) {
         return paperCommentMapper.getStuIDbyTeaID(teaID);
     }
-
-
 
     public Thesis getThesis(int stuID) {
         return paperCommentMapper.getThesis(stuID);

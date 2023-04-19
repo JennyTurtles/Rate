@@ -33,8 +33,7 @@
                 element-loading-text="正在加载..."
                 element-loading-spinner="el-icon-loading"
                 element-loading-background="rgba(0, 0, 0, 0.12)"
-                style="width: 100%"
-                >
+                style="width: 100%">
                 <el-table-column
                     prop="code"
                     fixed="fixed"

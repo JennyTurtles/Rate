@@ -3,11 +3,9 @@ package org.sys.rate.service.mail;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.sys.rate.model.Paper;
+import org.sys.rate.model.Productions;
 import org.sys.rate.model.Student;
 import org.sys.rate.model.Teacher;
-import org.sys.rate.service.admin.PaperService;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.TeacherService;
 
@@ -29,70 +27,74 @@ public class MailToStuService {
     @Resource
     TeacherService teacherService;
 
-    @Resource
-    PaperService paperService;
 
-    @GetMapping("multi")
-    public void sendStuMail(String state, Long ID) throws MessagingException {
-        if (state.equals("commit"))
+    private String from = null;
+
+    public <T extends Productions> void sendStuMail(String state, T production) {
+        if (state.equals("commit")) {
             return;
-//        System.out.println("------------开始给相关的学生发送邮件！------------");
+        }
 
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-        Paper paper = paperService.getById((int) (long) ID);
-        Student student = studentService.getById((int) (long) paper.getStudentID());
+        Student student = studentService.getById(Math.toIntExact(production.getStudentID()));
         Teacher teacher = teacherService.getById(student.getTutorID());
 
         String subject = "", content = "";
         String to = student.getEmail();
 
+        StringBuilder contentBuilder = new StringBuilder();
+        contentBuilder.append("亲爱的同学：<br>")
+                .append("您好！<br>")
+                .append("<b>您的").append(production.getName());
+
         switch (state) {
             case "tea_pass":
                 subject = "恭喜你，你的论文已经被导师通过！";
-                content = "亲爱的同学：<br>" +
-                        "您好！<br>" +
-                        "<b>您的" + paper.getName() + "已经被" + teacher.getName() + "老师通过！</b><br>" +
-                        "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！" + "<br><br>" +
-                        "本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
+                contentBuilder.append("已经被").append(teacher.getName()).append("老师通过！</b><br>");
                 break;
             case "tea_reject":
                 subject = "你的论文已经被导师驳回！";
-                content = "亲爱的同学：<br>" +
-                        "您好！<br>" +
-                        "<b>您的" + paper.getName() + "已经被" + teacher.getName() + "老师驳回！</b><br>" +
-                        "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！" + "<br><br>" +
-                        "本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
+                contentBuilder.append("已经被").append(teacher.getName()).append("老师驳回！</b><br>");
                 break;
             case "adm_pass":
                 subject = "恭喜你，你的论文已经被管理员通过！";
-                content = "亲爱的同学：<br>" +
-                        "您好！<br>" +
-                        "<b>您的" + paper.getName() + "已经被管理员通过！</b><br>" +
-                        "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！" + "<br><br>" +
-                        "本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
+                contentBuilder.append("已经被管理员通过！</b><br>");
                 break;
             case "adm_reject":
                 subject = "你的论文已经被管理员驳回！";
-                content = "亲爱的同学：<br>" +
-                        "您好！<br>" +
-                        "登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！" + "<br><br>" +
-                        "本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！";
+                contentBuilder.append("已经被管理员驳回！</b><br>");
                 break;
             default:
-                System.out.println("未知状态！");
+                throw new IllegalArgumentException("未知状态！");
         }
-        String from = propertiesService.getUsername();
-        helper.setFrom(from);
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(content, true);
-//        helper.addAttachment("教师审核学生项目——邮件回复模板.txt",new File("upload/教师审核学生项目——邮件回复模板.txt"));
-//        helper.addAttachment(paper.getName()+"",new File("upload/"+filePath));
+        contentBuilder.append("登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！<br><br>")
+                .append("本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！");
+        content = contentBuilder.toString();
 
+        // 设置邮件主题
+        subject = subject!=null?subject:"东华大学计算机学院教学系统邮件";
 
-        mailSender.send(message);
-//        System.out.println("------------给学生的邮件已经成功发送------------");
+        try {
+            getFrom();
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setFrom(this.from);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(content, true);
+            mailSender.send(message);
+            System.out.println("邮件已发送给学生 ");
+        } catch (MessagingException e) {
+            System.out.println("邮件发送给学生失败");
+        }
+    }
+
+    private void getFrom(){
+        if (this.from == null) {
+            String username = propertiesService.getUsername();
+            if (username == null) {
+                throw new NullPointerException("from is null");
+            }
+            this.from = username;
+        }
     }
 }

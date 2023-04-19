@@ -9,7 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import org.sys.rate.service.mail.PropertiesService;
-import org.sys.rate.service.mail.ReceiveIMAPmails;
+import org.sys.rate.service.mail.ReceiveMails;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
@@ -27,7 +27,7 @@ import java.util.TimerTask;
 public class InitRunner implements ApplicationRunner {
 
     @Resource
-    public ReceiveIMAPmails receiveIMAPmails;
+    public ReceiveMails receiveMails;
 
     @Value("${spring.mail.username}")
     private String from;
@@ -46,8 +46,8 @@ public class InitRunner implements ApplicationRunner {
                 try {
                     String timeStr1 = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 //                    System.out.println("-----启动解封未读邮件功能！-----当前时间为:"+timeStr1);
-//                    updateProperties();
-//                    receiveIMAPmails.readMails();
+                    updateProperties();
+                    receiveMails.readMails();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
