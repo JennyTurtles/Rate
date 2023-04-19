@@ -13,6 +13,9 @@
         <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
         <result property="IDNumber" column="IDNumber" jdbcType="VARCHAR"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <result column="registerAnswer" property="registerAnswer" jdbcType="VARCHAR"/>
+        <result column="registerQuestion" property="registerQuestion" jdbcType="VARCHAR"/>
         <association property="teachers" javaType="org.sys.rate.model.Teachers">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="tname"/>
@@ -117,7 +120,7 @@
         select exists (select * from undergraduate where tutorID = #{tutorID} and ID != #{ID})
     </select>
     <select id="getUnderByStuID" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber
+        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,s.password,s.registerQuestion,s.registerAnswer
         from undergraduate u,student s
         where u.studentID = #{studentID} and s.ID = u.studentID
     </select>

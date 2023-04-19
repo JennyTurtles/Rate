@@ -48,7 +48,9 @@ public class RegisterController {
                 under.setInstitutionID(null);//怎么处理？
                 under.setYear(student.getYear());
                 under.setStudentID(student.getID());
-                underGraduateMapper.insert(under);
+                if(underGraduateMapper.getUnderByStuID(student.getID()) == null){
+                    underGraduateMapper.insert(under);
+                }
             }else if(stuType.equals("研究生")){
                 GraduateStudent grad = new GraduateStudent();
                 grad.setStuNumber(student.getStudentnumber());
@@ -58,11 +60,13 @@ public class RegisterController {
                 grad.setStudentID(student.getID());
                 grad.setStudentType(student.getGradType());
                 grad.setPoint(null);//怎么处理？
-                graduateStudentMapper.insert(grad);
+                if(graduateStudentMapper.getGradByStuID(student.getID()) == null){
+                    graduateStudentMapper.insert(grad);
+                }
             }else if(stuType.equals("没有本校学号")){//选手
                 Participates par = null;//code?display?都怎么处理？
                 par.setStudentID(student.getID());
-                participatesMapper.insertParByRegister(par);
+//                participatesMapper.insertParByRegister(par);
             }
         }catch (Exception e){
             return RespBean.error("error",null);
