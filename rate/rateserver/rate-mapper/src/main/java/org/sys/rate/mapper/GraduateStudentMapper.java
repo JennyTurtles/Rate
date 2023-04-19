@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.GraduateStudent;
+import org.sys.rate.model.Teachers;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ public interface GraduateStudentMapper {
 
     @Select("SELECT COUNT(*) from graduatestudent WHERE studentID = #{stuId}")
     int isGraduateStudent(Integer stuId);
-    List<String> getTeaNamesBySelect(String teaName);
+    List<Teachers> getTeaNamesBySelect(String teaName);
     List<GraduateStudent> getGraduateStudentsBySelect(String teaName,Integer year);
 
     // 获取研究生列表
