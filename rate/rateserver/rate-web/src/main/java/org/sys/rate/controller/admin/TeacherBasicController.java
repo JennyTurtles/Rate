@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.sys.rate.mapper.TeacherMapper;
 import org.sys.rate.mapper.TeachersMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.TeacherService;
@@ -32,6 +33,8 @@ public class TeacherBasicController {
     TeacherService TeacherService;
     @Autowired
     TeachersService teachersService;
+    @Autowired
+    TeacherMapper teacherMapper;
     @Autowired
     TeachersMapper teachersMapper;
 
@@ -60,6 +63,13 @@ public class TeacherBasicController {
     @PostMapping("/update")
     public RespBean updateTeacher(@RequestBody Teacher record) {
         if (TeacherService.updateTeacher(record) == 1) {
+            return RespBean.ok("更新成功!");
+        }
+        return RespBean.error("更新失败!");
+    }
+    @PostMapping("/updateByInfo")
+    public RespBean updateByInfo(@RequestBody Teacher record) {
+        if (teacherMapper.updateByPrimaryKey(record) == 1) {
             return RespBean.ok("更新成功!");
         }
         return RespBean.error("更新失败!");

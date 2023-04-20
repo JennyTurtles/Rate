@@ -324,11 +324,11 @@
   </update>
 
   <update id="update" parameterType="org.sys.rate.model.Student">
-    UPDATE rate.teacher SET name=#{name,jdbcType=VARCHAR},
+    UPDATE teacher SET name=#{name,jdbcType=VARCHAR},
                             jobnumber=#{jobnumber,jdbcType=VARCHAR},
                             phone=#{phone,jdbcType=VARCHAR},
                             email=#{email,jdbcType=VARCHAR}
-    where rate.teacher.ID=#{id,jdbcType=INTEGER};
+    where ID=#{id,jdbcType=INTEGER};
   </update>
   <select id="check" resultType="INTEGER">
     select COUNT(*)

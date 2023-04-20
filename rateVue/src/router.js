@@ -39,12 +39,12 @@ export default new Router({
           },
         },
         {
-          path: '/UserInfo',
-          name: '个人中心2',
+          path: '/teacher/PersonalCenter',
+          name: '老师个人中心',
           hidden: true,
-          component: () => import('./views/expert/userInfo.vue'),
+          component: () => import('./views/HrInfo.vue'),
           meta: {
-            title: '个人中心',
+            title: '老师个人中心',
           },
         },
         {//管理员下的

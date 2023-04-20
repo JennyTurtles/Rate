@@ -20,6 +20,7 @@
 <script>
     export default {
       name: "HrInfo",
+      inject: ["reload"],
       data() {
         return {
           infoIsChanged:false,
@@ -41,6 +42,9 @@
             if(response.status == 200){
               this.$message.success(response.msg)
               this.infoIsChanged = false
+              this.user.name = this.hr.name
+              localStorage.setItem("user",JSON.stringify(this.user))
+              this.reload()
             }else {
               this.$message.fail("更新失败")
             }
@@ -49,7 +53,7 @@
         initHr() {
           this.getRequest('/info/admin?id=' + this.user.id).then(resp => {
             if (resp) {
-              this.hr = resp.obj;
+              if(resp.status == 200) this.hr = resp.obj;
             }
           })
         }

@@ -209,6 +209,11 @@ export default {
           this.$router.push({
             path:'/admin/PersonalCenter'
           })
+        }//如果是专家，研究生导师 本科生导师去相同的个人中心界面
+        else if(this.user.role.indexOf('3') >= 0 || this.user.role.indexOf('8') >= 0 || this.user.role.indexOf('9') >= 0){
+          this.$router.push({
+            path:'/teacher/PersonalCenter'
+          })
         }
       }
     },
