@@ -46,8 +46,6 @@
         <br/>单元格中内容双击后可编辑
     </div>
 
-
-
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -555,7 +553,6 @@ export default {
           ).then((resp) => {
               if (resp) {
                   this.hrs = resp;
-                  console.log(this.hrs);
                   this.total = resp.length;
               }
           });
@@ -567,6 +564,7 @@ export default {
                   if (resp) {
                       this.hrs = resp.obj;
                       this.total = this.hrs;
+                      console.log(this.hrs)
                   }
               });
           }
@@ -604,8 +602,7 @@ export default {
 
     changeRole(index,data){
       this.currentrole = data.role;
-     // console.log(this.currentrole);
-        this.getRequest("/secretary/setRole?teacherID=" + data.id + "&activityID=" + this.keywords + "&groupID=" + this.groupID + "&role=" + this.currentrole)
+        this.getRequest("/secretary/setRole?teacherID=" + data.id + "&activityID=" + this.keywords + "&groupID=" + data.groupID + "&role=" + this.currentrole)
             .then((resp) => {
               if(resp)
               {Message.success("更新成功");}

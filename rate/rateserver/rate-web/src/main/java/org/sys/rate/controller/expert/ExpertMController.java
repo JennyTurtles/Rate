@@ -58,6 +58,9 @@ public class ExpertMController {
     @GetMapping("/allByActID")
     public RespBean getExpertsByActID(@RequestParam Integer activityID) {
         List<Experts> res = expertsMapper.getExpertsByActID(activityID);
+        for (Experts expert : res) {    // 处理两种id的问题
+            expert.setId(expert.getID());
+        }
         return RespBean.ok("获取成功",res);
     }
 

@@ -205,9 +205,19 @@
             >选手管理
             </el-button
             >
+              <el-button
+                      v-show="mode === 'secretary'"
+                      @click="showParticipants(scope.row)"
+                      style="padding: 4px"
+                      size="mini"
+                      icon="el-icon-tickets"
+                      type="primary"
+                      plain
+              >选手管理
+              </el-button
+              >
              <el-button
                       @click="showGroups(scope.row)"
-                      v-show="mode === 'admin' || mode === 'adminSub' "
                       style="padding: 4px"
                       size="mini"
                       icon="el-icon-tickets"
@@ -217,19 +227,8 @@
               </el-button
               >
             <el-button
-                v-show="mode === 'secretary'"
-                @click="showParticipants(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-tickets"
-                type="primary"
-                plain
-            >选手管理
-            </el-button
-            >
-            <el-button
                 @click="showScore(scope.row)"
-                v-show="mode==='admin' || mode==='adminSub'"
+                v-show="true"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-plus"
@@ -278,7 +277,7 @@
                       icon="el-icon-plus"
                       type="primary"
                       plain
-                      v-show="mode !== 'secretarySub' && mode !== 'adminSub'"
+                      v-show="mode !== 'secretarySub' && mode !== 'adminSub' && scope.row.haveSub === 1"
               >子活动管理
               </el-button
               >
