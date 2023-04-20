@@ -39,6 +39,15 @@ export default new Router({
           },
         },
         {
+          path: '/student/PersonalCenter',
+          name: '学生个人中心',
+          hidden: true,
+          component: () => import('./views/student/HrInfo.vue'),
+          meta: {
+            title: '学生个人中心',
+          },
+        },
+        {
           path: '/teacher/PersonalCenter',
           name: '老师个人中心',
           hidden: true,

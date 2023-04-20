@@ -50,7 +50,7 @@
     </update>
 
     <update id="update" parameterType="org.sys.rate.model.Student">
-        UPDATE rate.student SET name=#{name,jdbcType=VARCHAR},
+        UPDATE student SET name=#{name,jdbcType=VARCHAR},
                                 studentnumber=#{studentnumber,jdbcType=VARCHAR},
                                 telephone=#{telephone,jdbcType=VARCHAR},
                                 email=#{email,jdbcType=VARCHAR}

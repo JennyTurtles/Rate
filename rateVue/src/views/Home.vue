@@ -215,6 +215,11 @@ export default {
             path:'/teacher/PersonalCenter'
           })
         }
+        else if(this.user.role.indexOf('10') >= 0 || this.user.role.indexOf('11') >= 0 || this.user.role.indexOf('7') >= 0){
+          this.$router.push({
+            path:'/student/PersonalCenter'
+          })
+        }
       }
     },
     submitPassword(){

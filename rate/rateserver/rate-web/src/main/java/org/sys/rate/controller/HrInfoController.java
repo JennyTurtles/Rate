@@ -2,6 +2,7 @@ package org.sys.rate.controller;
 
 import org.sys.rate.config.FastDFSUtils;
 import org.sys.rate.mapper.AdminMapper;
+import org.sys.rate.mapper.StudentMapper;
 import org.sys.rate.mapper.TeachersMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.HrService;
@@ -33,6 +34,8 @@ public class HrInfoController {
     HrService hrService;
     @Autowired
     TeachersMapper teachersMapper;
+    @Autowired
+    StudentMapper studentMapper;
 
     @Autowired
     AdminService adminService;
@@ -64,6 +67,19 @@ public class HrInfoController {
         Teachers res = null;
         try {
             res = teachersMapper.selectByPrimaryId(id);
+            if(res != null){
+                return RespBean.ok("ok",res);
+            }
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        return RespBean.error("error",null);
+    }
+    @GetMapping("/student")
+    public RespBean getStudentInfo(Integer id) {
+        Student res = null;
+        try {
+            res = studentMapper.getById(id);
             if(res != null){
                 return RespBean.ok("ok",res);
             }
