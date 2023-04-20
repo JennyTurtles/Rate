@@ -9,7 +9,7 @@
           <el-input style="width: 60%"  v-model="passQuestion"></el-input>
         </el-form-item>
         <el-form-item label="请输入密保答案:">
-          <el-input style="width: 60%" v-model="passAnswer"></el-input>
+          <el-input style="width: 60%" v-model="passAnswer" :disabled="pwdSecurityStatus"></el-input>
         </el-form-item>
         <div class="footer">
           <el-button @click="check" type="primary">确认</el-button>
@@ -41,6 +41,11 @@ export default {
   name: "ResetPassword",
   data(){
     return{
+      pwdSecurityStatus:true,
+      pwdSecurityNums:{
+        count:0,
+        times:new Date()
+      },
       user:{},
       role:"",
       idNumber:'',
@@ -68,32 +73,70 @@ export default {
   },
   mounted() {
     this.role = this.$route.query.key
+    //存在vuex会不会更安全一点？
+    if(localStorage.getItem("pwdSecurityNums") === null){
+      localStorage.setItem("pwdSecurityNums",JSON.stringify(this.pwdSecurityNums))
+      this.$nextTick(() => this.pwdSecurityStatus = false)
+    }else {
+      //更好的方式是设置一个定时器，监视时间戳的改变，不过24之后用户基本都会刷新，定时器不需要应该也可以
+      this.pwdSecurityNums = JSON.parse(localStorage.getItem("pwdSecurityNums"))
+      this.$nextTick(()=>{
+        this.clearPwdSecurity()
+        this.judgePwdSecurity()
+      })
+    }
   },
-  watch:{
-  },
+  watch:{},
   computed:{
     labelWidth(){
       return `${10 * 17}px`
     }
   },
   methods:{
+    clearPwdSecurity(){//判断是否超过24小时，超过直接赋值
+      let hour = new Date().getHours()
+      if(hour - this.pwdSecurityNums.times >= 24){
+        let temp = {
+          count:0,
+          times:new Date()
+        }
+        localStorage.setItem("pwdSecurityNums",JSON.stringify(temp))
+      }
+    },
+    judgePwdSecurity(){
+      let hour = new Date().getHours()
+      //改变密保输入框的状态
+      if(this.pwdSecurityNums.count < 3 && (hour - this.pwdSecurityNums.times) < 24){
+        this.pwdSecurityStatus = false//可以输入
+      }else {
+        this.$message.warning("密保输入错误超过限制！请在24小时之后尝试")
+        this.pwdSecurityStatus = true//不可输入
+      }
+    },
     check(){
-        if(this.passQuestion == '' || this.passQuestion == null){
-          return
-        }
-        if(this.passAnswer == '' || this.passAnswer == null){
-          return
-        }
-        if(this.idNumber == '' || this.idNumber == null){
-          return
-        }
-        //密保问题正确并且根据身份证号查找到了学生
-        if(this.passQuestion === this.user.registerQuestion && this.passAnswer === this.user.registerAnswer){
-          this.resetPassShow = true
+      if(this.passQuestion == '' || this.passQuestion == null){
+        return
+      }
+      if(this.passAnswer == '' || this.passAnswer == null){
+        return
+      }
+      if(this.idNumber == '' || this.idNumber == null){
+        return
+      }
+      //密保问题正确并且根据身份证号查找到了学生
+      if(this.passQuestion === this.user.registerQuestion && this.passAnswer === this.user.registerAnswer){
+        this.resetPassShow = true
+      }else {
+        this.resetPassShow = false
+        this.pwdSecurityNums.count ++;//时间不变，次数改变
+        if(this.pwdSecurityNums.count == 3){
+          this.$message.warning(`密保答案不正确！请24小时之后再次尝试`)
+          this.pwdSecurityStatus = true
         }else {
-          this.resetPassShow = false
-          this.$message.warning('密保答案不正确！')
+          this.$message.warning(`密保答案不正确！还剩${3 - this.pwdSecurityNums.count}次机会`)
         }
+        localStorage.setItem("pwdSecurityNums",JSON.stringify(this.pwdSecurityNums))
+      }
     },
     //输入身份证号进行查找判断
     checkIdNumber(){
