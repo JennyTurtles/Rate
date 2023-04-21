@@ -14,6 +14,8 @@ public class PropertiesService {
     private String password;
     private String sendHost;
 
+    private Map<String, Object> cachedProperties; // 添加一个 Map 来保存检索的数据
+
     public String getSendHost() {
         return sendHost;
     }
@@ -35,8 +37,8 @@ public class PropertiesService {
     }
 
     public String getUsername() {
-        if(!username.isEmpty()) {
-            return username;
+        if(cachedProperties != null && cachedProperties.get("username") != null) {
+            return (String) cachedProperties.get("username"); // 从缓存中获取
         } else {
             return null;
         }
@@ -47,21 +49,24 @@ public class PropertiesService {
     }
 
     public String getPassword() {
-        return password;
+        if(cachedProperties != null && cachedProperties.get("password") != null) {
+            return (String) cachedProperties.get("password"); // 从缓存中获取
+        } else {
+            return null;
+        }
     }
 
     @Resource
     private JdbcTemplate jdbcTemplate;
 
-
     public void setMyPropertyFromDatabase() {
         String sql = "SELECT host, username, password, sendHost FROM properties WHERE id = (SELECT MAX(id) FROM properties)";
-        Map<String, Object> row = jdbcTemplate.queryForMap(sql);
+        cachedProperties = jdbcTemplate.queryForMap(sql); // 保存到缓存中
 
-        setHost((String) row.get("host"));
-        setUsername((String) row.get("username"));
-        setPassword((String) row.get("password"));
-        setSendHost((String) row.get("sendHost"));
+        setHost((String) cachedProperties.get("host"));
+        setUsername((String) cachedProperties.get("username"));
+        setPassword((String) cachedProperties.get("password"));
+        setSendHost((String) cachedProperties.get("sendHost"));
     }
 
     public PropertiesService() {
@@ -70,5 +75,4 @@ public class PropertiesService {
             throw new NullPointerException();
         }
     }
-
 }

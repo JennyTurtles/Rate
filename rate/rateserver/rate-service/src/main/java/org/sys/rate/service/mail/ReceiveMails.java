@@ -1,7 +1,9 @@
 package org.sys.rate.service.mail;
 
 import com.sun.mail.imap.IMAPStore;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.PaperOperService;
@@ -50,7 +52,7 @@ public class ReceiveMails {
     @Resource
     PaperOperService paperOperService;
 
-    Logger logger;
+    private static final Logger logger = LoggerFactory.getLogger(ReceiveMails.class);
 
     private String from = null;
     private String password = null;
@@ -62,28 +64,20 @@ public class ReceiveMails {
     private final String REASON_PROMPT_FIXED = "(请填写理由)";
 
 
-    /**
-     * 完成邮件读取功能
-     */
     public void readMails() throws Exception {
-        // NullPointerException
-        try {
-            handleNullPointerException();
-        } catch (NullPointerException e) {
-//            logger.error("管理员邮箱信息出现空指针异常！");
-            System.out.println("管理员邮箱信息出现空指针异常！");
+        handleNullPointerException();
+        if (StringUtils.isBlank(this.from) || StringUtils.isBlank(this.password)) {
+            logger.warn("账号或密码不能为空！");
+            return;
         }
-
 
         // 准备连接服务器的会话信息
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imap");
         props.setProperty("mail.imap.host", this.host);
-        // IMAP收件服务器地址：imap.126.com 安全类型：SSL 端口号：993;若安全类型选择“无”，则需将端口号修改为 143
         props.setProperty("mail.imap.port", "143");
         props.setProperty("mail.imap.auth.login.disable", "true");
 
-        // 解决A3 NO SELECT UNSAFE LOGIN
         HashMap<String, String> IAM = new HashMap<>(4);
         IAM.put("name", "rate");
         IAM.put("version", "1.0.0");
@@ -91,53 +85,62 @@ public class ReceiveMails {
         IAM.put("support-email", "testmail@test.com");
 
         Session session = Session.getInstance(props);
-        IMAPStore store = (IMAPStore) session.getStore("imap");
-
-
-        store.connect(this.from, this.password);
+        IMAPStore store = null;
         try {
-            if (!store.isConnected()) {
-                throw new MessagingException("Store is not connected");
-            }
+            store = (IMAPStore) session.getStore("imap");
+            store.connect(this.from, this.password);
             store.id(IAM);
 
             Folder folder = store.getFolder("INBOX");
             folder.open(Folder.READ_WRITE);
+
             Message[] unreadMessages = folder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
-            // Parse the retrieved messages using a custom function
+            unreadMessages = getFirstNMessages(unreadMessages, 200);
+
             parseMessage(unreadMessages);
-            folder.close(false);
-        } catch (NullPointerException | MessagingException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new MessagingException("Error while parsing messages", e);
+        } catch (MessagingException e) {
+            logger.error("连接邮件服务器失败！", e);
+            throw new MessagingException("连接邮件服务器失败！", e);
         } finally {
-            store.close();
+            if (store != null && store.isConnected()) {
+                try {
+                    store.close();
+                } catch (MessagingException e) {
+                    // 处理异常
+                    logger.error("无法关闭收件箱！");
+                }
+            }
         }
+
+
 
     }
 
     private void handleNullPointerException() {
-        String username = propertiesService.getUsername();
-        String userPassword = propertiesService.getPassword();
-        String mailHost = propertiesService.getHost();
+        this.from = propertiesService.getUsername();
+        this.password = propertiesService.getPassword();
+        this.host = propertiesService.getHost();
 
-        if (username == null) {
+        if (this.from == null) {
             throw new NullPointerException("from is null");
-        } else {
-            this.from = username;
         }
 
-        if (userPassword == null) {
+        if (this.password == null) {
             throw new NullPointerException("password is null");
-        } else {
-            this.password = userPassword;
         }
 
-        if (mailHost == null) {
+        if (this.host == null) {
             throw new NullPointerException("host is null");
+        }
+    }
+
+    public static Message[] getFirstNMessages(Message[] messages, int n) {
+        if (messages.length > n) {
+            Message[] newMessageArray = new Message[n];
+            System.arraycopy(messages, 0, newMessageArray, 0, n);
+            return newMessageArray;
         } else {
-            this.host = mailHost;
+            return messages;
         }
     }
 
@@ -155,18 +158,7 @@ public class ReceiveMails {
             if (senderEmail.equals("Postmaster@126.com")) {
                 continue;
             }
-            // 对邮件正文部分进行特殊处理
-//            String content = "";
-//            Object text = message.getContent();
-//            if (text instanceof String) {
-//                content = (String) text;
-//                message.setFlag(Flags.Flag.DELETED, true);
-//            } else {
-//                // 邮件内容不是字符串，将邮件标记为旗帜邮件
-//                message.setFlag(Flags.Flag.FLAGGED, true);
-//                // ***这里不应该用return，否则就跳出整个循环了
-//                continue;
-//            }
+
             String content = getTextFromMessage(message);
             message.setFlag(Flags.Flag.DELETED, true);
             content = clearFormat(content);
@@ -211,24 +203,23 @@ public class ReceiveMails {
                 }
                 // 2.教师的邮件和发件人邮件是否匹配
                 if (getTutorEmail(paper) == null || getTutorEmail(paper).length() == 0 || !getTutorEmail(paper).equals(senderEmail)) {
-                    // TODO:这里要加上正确的邮箱地址，因为在0中已经判断了ID在数据库中是否存在，所以这里是不匹配的问题，回答的时候请检查邮箱地址是否为XX或者检查成果编号是否正确
                     mailToTeacherService.sendTeaFeedbackMail(paper, "论文", senderEmail, "IDNotMatchTutorEmail", originalMessage);
                     continue;
                 }
                 // 3.修改成果的操作历史
                 if (!editPaperOperation(ID, lines.get(this.phrases[3]), state)) {
-                    System.out.println("修改成果状态失败，成果类型：" + lines.get(this.phrases[0]) + "，成果编号：" + lines.get(this.phrases[1]));
-                } else {
-                    // 4.修改成果的状态
-                    if (paperService.editState(state, Long.valueOf(ID))!=0) {
-                        // 5.若成功，将修改后的状态发给老师&&学生
-                        String editStateSuccess = state.equals("tea_pass") ? "editPassSuccess" : "editRejectSuccess";
-                        mailToTeacherService.sendTeaFeedbackMail(paper, "论文", senderEmail, editStateSuccess, originalMessage);
-                        continue;
-                    }else{
-                        System.out.println("修改成果状态失败！");
-                    }
+                    logger.error("修改成果状态失败，成果类型：" + lines.get(this.phrases[0]) + "，成果编号：" + lines.get(this.phrases[1]));
+                    continue;
                 }
+                // 4.修改成果的状态
+                if (paperService.editState(state, Long.valueOf(ID)) == 0) {
+                    logger.error("修改成果状态失败!");
+                    continue;
+                }
+                // 5.若成功，将修改后的状态发给老师&&学生
+                String editStateSuccess = state.equals("tea_pass") ? "editPassSuccess" : "editRejectSuccess";
+                mailToTeacherService.sendTeaFeedbackMail(paper, "论文", senderEmail, editStateSuccess, originalMessage);
+
 
             }
             // 在这里添加其他的成果类型
@@ -343,6 +334,11 @@ public class ReceiveMails {
             return false;
         }
 
+        // extra judge
+        if (lines.get(this.phrases[2]).equals("驳回") && numLines == 3) {
+            mailToTeacherService.sendTeaFeedbackMail(senderEmail, "wrongNumKeyWords", originalMessage);
+        }
+
         // judge the line4
         if (numLines == 4) {
             // clear the reason
@@ -405,7 +401,7 @@ public class ReceiveMails {
                 mailToTeacherService.sendTeaFeedbackMail(senderEmail, "spam", originalMessage);
                 return false;
             default:
-                System.out.println("countOccurrences(content, numLines) got wrong num!");
+                logger.error("countOccurrences(content, numLines) got wrong num!");
                 return false;
         }
     }

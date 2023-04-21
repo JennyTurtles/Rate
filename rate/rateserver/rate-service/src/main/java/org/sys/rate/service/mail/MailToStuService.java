@@ -1,5 +1,9 @@
 package org.sys.rate.service.mail;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -12,6 +16,7 @@ import org.sys.rate.service.admin.TeacherService;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class MailToStuService {
@@ -27,6 +32,8 @@ public class MailToStuService {
     @Resource
     TeacherService teacherService;
 
+    private static final Logger logger = LoggerFactory.getLogger(MailToStuService.class);
+
 
     private String from = null;
 
@@ -39,7 +46,6 @@ public class MailToStuService {
         Teacher teacher = teacherService.getById(student.getTutorID());
 
         String subject = "", content = "";
-        String to = student.getEmail();
 
         StringBuilder contentBuilder = new StringBuilder();
         contentBuilder.append("亲爱的同学：<br>")
@@ -72,29 +78,39 @@ public class MailToStuService {
 
         // 设置邮件主题
         subject = subject!=null?subject:"东华大学计算机学院教学系统邮件";
-
-        try {
-            getFrom();
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setFrom(this.from);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(content, true);
-            mailSender.send(message);
-            System.out.println("邮件已发送给学生 ");
-        } catch (MessagingException e) {
-            System.out.println("邮件发送给学生失败");
-        }
+        sendMailAsync(student.getEmail(), subject, content);
     }
 
     private void getFrom(){
+        this.from = propertiesService.getUsername();
+
         if (this.from == null) {
-            String username = propertiesService.getUsername();
-            if (username == null) {
-                throw new NullPointerException("from is null");
-            }
-            this.from = username;
+            throw new NullPointerException("from is null");
         }
+    }
+
+    public void sendMailAsync(final String to, final String subject, final String content) {
+        if (StringUtils.isEmpty(to) || StringUtils.isEmpty(subject) || StringUtils.isEmpty(content)) {
+            throw new IllegalArgumentException("One or more parameters required for sending email is empty or null.");
+        }
+
+        getFrom();
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true);
+                helper.setFrom(this.from);
+                helper.setTo(to);
+                helper.setSubject(subject);
+                helper.setText(content, true);
+
+                mailSender.send(message);
+                logger.info("Email sent to {}", to);
+            } catch (MessagingException e) {
+                logger.error("Failed to send email: {}", e.getMessage(), e);
+                throw new MailSendException("Error sending email", e);
+            }
+        });
     }
 }

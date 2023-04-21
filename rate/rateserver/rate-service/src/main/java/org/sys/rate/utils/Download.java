@@ -2,8 +2,8 @@ package org.sys.rate.utils;
 
 
 import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.*;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.PaperComment;
 import org.sys.rate.model.Student;
@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author zyk
@@ -43,6 +41,8 @@ public class Download {
 
     @Resource
     PaperCommentService paperCommentService;
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Download.class);
 
     public void preDownload(HttpServletResponse response, Integer thesisID) {
         // 获取thesis的信息
@@ -186,9 +186,7 @@ public class Download {
     }
 
     public void deleteAllFiles(String path) {
-        Logger logger = Logger.getLogger("deleteFilesErr");
 //        FileHandler fileHandler = new FileHandler("path/to/log/file.log");
-//        logger.addHandler(fileHandler);
         File directory = new File(path);
         File[] files = directory.listFiles();
         if (files != null) {
@@ -201,28 +199,22 @@ public class Download {
                         file.delete();
                     } catch (SecurityException e) {
                         // handle the exception here
-                        logger.log(Level.WARNING, "Unable to delete file: " + file.getName(), e);
+                        logger.error("Unable to delete file: " + file.getName(), e);
                     } finally {
                         // Release the lock on the file
                         lock.release();
                     }
                 } catch (IOException e) {
                     // handle the exception here
-                    logger.log(Level.WARNING, "Unable to acquire lock on file: " + file.getName(), e);
+                    logger.error("Unable to acquire lock on file: " + file.getName(), e);
                 }
             }
         }
     }
 
-
-
     public void removePageFromPDF(String path, String tempPath, int page) throws Exception {
-        PdfReader reader = null;
-        FileOutputStream fos = null;
-        try {
-            reader = new PdfReader(path);
-            File tmpNewFile = new File(tempPath);
-            fos = new FileOutputStream(tmpNewFile);
+        try (FileOutputStream fos = new FileOutputStream(tempPath)) {
+            PdfReader reader = new PdfReader(path);
             Document d = new Document();
             PdfCopy copy = new PdfCopy(d, fos);
             d.open();
@@ -230,20 +222,12 @@ public class Download {
                 copy.addPage(copy.getImportedPage(reader, i));
             }
             copy.freeReader(reader);
-            reader.close();
             d.close();
-        } catch (FileNotFoundException e1) {
-            e1.printStackTrace();
-        } catch (DocumentException e1) {
-            e1.printStackTrace();
-        } catch (IOException e2) {
-            e2.printStackTrace();
-        } finally {
-            if (fos != null) {
-                fos.close();
-            }
+        } catch (Exception e) {
+            throw new Exception("Error while removing page from PDF", e);
         }
     }
+
 
     public String adaptRows(String origin, int ROWSLIMIT) {
         int rows = 0, count = 0;
