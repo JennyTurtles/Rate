@@ -500,7 +500,6 @@ export default {
   methods: {
 
     Delete_ExActivity(si) {
-      console.log(si)
       if (si.finished)
       {
         this.$message({
@@ -516,7 +515,7 @@ export default {
       })
           .then(() => {
             si.institutionid=this.user.institutionID;
-            this.postRequest("/systemM/Experts/delete?groupid=" + this.groupID + "&activityid=" + this.keywords, si).then(resp => {
+            this.postRequest("/systemM/Experts/delete?groupid=" + si.groupID + "&activityid=" + this.keywords, si).then(resp => {
               if (resp) {
                 this.initHrs();
               }
