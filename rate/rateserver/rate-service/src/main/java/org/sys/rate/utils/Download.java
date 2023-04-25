@@ -17,9 +17,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URL;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -186,30 +183,27 @@ public class Download {
     }
 
     public void deleteAllFiles(String path) {
-//        FileHandler fileHandler = new FileHandler("path/to/log/file.log");
         File directory = new File(path);
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                try (FileChannel channel = FileChannel.open(file.toPath(), StandardOpenOption.WRITE)) {
-                    // Acquire an exclusive lock on the file
-                    FileLock lock = channel.lock();
-                    try {
-                        // Delete the file
-                        file.delete();
-                    } catch (SecurityException e) {
-                        // handle the exception here
-                        logger.error("Unable to delete file: " + file.getName(), e);
-                    } finally {
-                        // Release the lock on the file
-                        lock.release();
+        if (directory.isDirectory()) {
+            for (File file : directory.listFiles()) {
+                if (file.isFile() && file.canWrite()) {
+                    try (FileWriter fileWriter = new FileWriter(file)) {
+                        // 将文件的内容清空
+                        fileWriter.write("");
+                    } catch (IOException e) {
+                        logger.error("Unable to clear content of file: " + file.getName(), e);
                     }
-                } catch (IOException e) {
-                    // handle the exception here
-                    logger.error("Unable to acquire lock on file: " + file.getName(), e);
+                    if (!file.delete()) {
+                        logger.error("Unable to delete file: " + file.getName());
+                    }
+                } else {
+                    logger.warn("Skip file: " + file.getName());
                 }
             }
+        } else {
+            logger.error("Not a directory: " + path);
         }
+
     }
 
     public void removePageFromPDF(String path, String tempPath, int page) throws Exception {

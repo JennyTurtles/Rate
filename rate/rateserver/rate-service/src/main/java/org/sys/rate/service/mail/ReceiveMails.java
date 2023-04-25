@@ -100,7 +100,7 @@ public class ReceiveMails {
             parseMessage(unreadMessages);
         } catch (MessagingException e) {
             logger.error("连接邮件服务器失败！", e);
-            throw new MessagingException("连接邮件服务器失败！", e);
+            throw e;
         } finally {
             if (store != null && store.isConnected()) {
                 try {

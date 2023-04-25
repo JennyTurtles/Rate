@@ -1,8 +1,5 @@
 package org.sys.rate.service.mail;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +9,6 @@ import java.util.Map;
 @Service
 public class PropertiesService {
 
-    private static final Logger logger = LoggerFactory.getLogger(PropertiesService.class);
     private String host;
     private String username;
     private String password;
@@ -65,21 +61,15 @@ public class PropertiesService {
 
     public void setMyPropertyFromDatabase() {
         String sql = "SELECT host, username, password, sendHost FROM properties WHERE id = (SELECT MAX(id) FROM properties)";
-        try{
-            cachedProperties = jdbcTemplate.queryForMap(sql); // 保存到缓存中
-            setHost((String) cachedProperties.get("host"));
-            setUsername((String) cachedProperties.get("username"));
-            setPassword((String) cachedProperties.get("password"));
-            setSendHost((String) cachedProperties.get("sendHost"));
-        }catch (EmptyResultDataAccessException e){
-            logger.warn("数据库中没有配置信息");
-        }
+        cachedProperties = jdbcTemplate.queryForMap(sql);
+
+        setHost((String) cachedProperties.get("host"));
+        setUsername((String) cachedProperties.get("username"));
+        setPassword((String) cachedProperties.get("password"));
+        setSendHost((String) cachedProperties.get("sendHost"));
     }
 
     public PropertiesService() {
-        boolean flag = false;
-        if(flag) {
-            throw new NullPointerException();
-        }
+
     }
 }
