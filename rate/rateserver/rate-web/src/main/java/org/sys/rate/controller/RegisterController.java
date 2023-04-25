@@ -35,7 +35,6 @@ public class RegisterController {
             student.setPassword(password);
             //可以直接根据id判断，因为在填写时已经做了查询，查到了id会存在，没查到就是null
             if(student.getID() == null){//插入学生表 并返回id
-                //老师用excel导入没有密保 怎么处理？？？
                 studentMapper.insertStuFromRegister(student);
             }else {//有这个学生，就更新用户名和密码和密保
                 studentMapper.updatePasswordAndUsername(student);
@@ -63,11 +62,12 @@ public class RegisterController {
                 if(graduateStudentMapper.getGradByStuID(student.getID()) == null){
                     graduateStudentMapper.insert(grad);
                 }
-            }else if(stuType.equals("没有本校学号")){//选手
-                Participates par = null;//code?display?都怎么处理？
-                par.setStudentID(student.getID());
-//                participatesMapper.insertParByRegister(par);
             }
+//            else if(stuType.equals("没有本校学号")){//选手
+//                Participates par = null;//code?display?都怎么处理？
+//                par.setStudentID(student.getID());
+////                participatesMapper.insertParByRegister(par);
+//            }
         }catch (Exception e){
             return RespBean.error("error",null);
         }

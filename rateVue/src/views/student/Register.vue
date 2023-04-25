@@ -178,7 +178,11 @@ export default {
         if(resp){
           if(resp.status == 200 && resp.obj != null){
             this.user = resp.obj
-            this.userInfoIsDisabled = true
+            if(this.user.registerQuestion != '' && this.user.registerQuestion != null && this.user.registerAnswer != '' && this.user.registerAnswer != null){
+              this.userInfoIsDisabled = true
+            }else {
+              this.userInfoIsDisabled = false
+            }
             if(this.user.username != '' && this.user.username != null && this.user.password != '' && this.user.password != null){
               this.usernameAndPwdIsDisabled = true
             }else {
@@ -188,6 +192,12 @@ export default {
             this.user.name = ''
             this.user.telephone = ''
             this.user.email = ''
+            this.user.registerQuestion = ''
+            this.user.registerAnswer = ''
+            this.user.username = ''
+            this.user.password = ''
+            this.usernameAndPwdIsDisabled = false
+            this.userInfoIsDisabled = false
           }
         }
       }).catch((err)=>{

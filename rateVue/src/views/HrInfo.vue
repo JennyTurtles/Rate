@@ -1,6 +1,6 @@
 <template>
   <div class="box">
-    <el-form :model="hr" label-width="50px" class="formbox">
+    <el-form :model="hr" label-width="70px" class="formbox">
       <el-form-item label="姓名">
         <el-input v-model="hr.name" @input="infoChange"></el-input>
       </el-form-item>

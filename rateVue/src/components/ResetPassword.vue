@@ -12,7 +12,7 @@
           <el-input style="width: 60%" v-model="passAnswer" :disabled="pwdSecurityStatus"></el-input>
         </el-form-item>
         <div class="footer">
-          <el-button @click="check" type="primary">确认</el-button>
+          <el-button @click="check" type="primary" :disabled="confirmBtn">确认</el-button>
         </div>
       </el-form>
     </div>
@@ -26,7 +26,7 @@
           <el-input style="width: 60%" v-model="confirmNewPass" type="password"></el-input>
         </el-form-item>
         <div class="footer">
-          <el-button @click="reset" type="primary">确认</el-button>
+          <el-button @click="reset" type="primary" >确认</el-button>
         </div>
       </el-form>
     </div>
@@ -41,10 +41,12 @@ export default {
   name: "ResetPassword",
   data(){
     return{
+      confirmBtn:false,
       pwdSecurityStatus:true,
       pwdSecurityNums:{
         count:0,
-        times:new Date()
+        timesDate:new Date().getDate(),
+        timesHour:new Date().getHours(),
       },
       user:{},
       role:"",
@@ -54,16 +56,15 @@ export default {
       resetPassShow:false,
       newPass:'',
       confirmNewPass:'',
+      checkPwdState:false,
       rules:{
         confirmNewPass:[
           {
             trigger:["blur","change"],
-            message:"请仔细核对密码！",
+            message:"输入密码不一致！",
             required:true,
             validator:(rule,value,callback)=>{
-              if (this.newPass !== value) {
-                callback(new Error("输入密码不一致!"));
-              }
+              if(!this.checkPwdState) callback(new Error("输入密码不一致!"));
             }
           }
         ]
@@ -86,31 +87,56 @@ export default {
       })
     }
   },
-  watch:{},
+  watch:{
+    confirmNewPass:{
+      handler(){
+        //因为不想输入一个判断一次，所以只在长度一样的时候判断一次
+        if(this.confirmNewPass.length == this.newPass.length)this.checkPwd()
+        else this.checkPwdState = false
+      }
+    },
+  },
   computed:{
     labelWidth(){
       return `${10 * 17}px`
     }
   },
   methods:{
+    checkPwd(){
+      if(this.confirmNewPass !== this.newPass) this.checkPwdState = false
+      else this.checkPwdState = true
+    },
     clearPwdSecurity(){//判断是否超过24小时，超过直接赋值
       let hour = new Date().getHours()
-      if(hour - this.pwdSecurityNums.times >= 24){
+      let date = new Date().getDate()
+      if(24 - this.pwdSecurityNums.timesHour + hour >= 24 && (date - this.pwdSecurityNums.timesDate) < 0){
         let temp = {
           count:0,
-          times:new Date()
+          timesDate:new Date().getDate(),
+          timesHour:new Date().getHours(),
         }
         localStorage.setItem("pwdSecurityNums",JSON.stringify(temp))
+        this.pwdSecurityStatus = false
+        this.confirmBtn = false
       }
+
     },
     judgePwdSecurity(){
       let hour = new Date().getHours()
+      let date = new Date().getDate()
       //改变密保输入框的状态
-      if(this.pwdSecurityNums.count < 3 && (hour - this.pwdSecurityNums.times) < 24){
+      if(this.pwdSecurityNums.count < 3 && (date - this.pwdSecurityNums.timesDate) === 0){//说明是一天
         this.pwdSecurityStatus = false//可以输入
-      }else {
-        this.$message.warning("密保输入错误超过限制！请在24小时之后尝试")
-        this.pwdSecurityStatus = true//不可输入
+        this.confirmBtn = false
+      }else if(this.pwdSecurityNums.count === 3 && (date - this.pwdSecurityNums.timesDate) < 0){//不在同一天判断小时
+        if(24 - this.pwdSecurityNums.timesHour + hour < 24){//24小时内
+          this.$message.warning("密保输入错误超过限制！请在24小时之后尝试")
+          this.pwdSecurityStatus = true//不可输入
+          this.confirmBtn = true
+        }else if(24 - this.pwdSecurityNums.timesHour + hour >= 24){//大于24小时
+          this.clearPwdSecurity()
+        }
+
       }
     },
     check(){
@@ -131,6 +157,7 @@ export default {
         this.pwdSecurityNums.count ++;//时间不变，次数改变
         if(this.pwdSecurityNums.count == 3){
           this.$message.warning(`密保答案不正确！请24小时之后再次尝试`)
+          this.confirmBtn = true
           this.pwdSecurityStatus = true
         }else {
           this.$message.warning(`密保答案不正确！还剩${3 - this.pwdSecurityNums.count}次机会`)
