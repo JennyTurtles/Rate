@@ -93,12 +93,11 @@
         SET tutorID = #{tutorID}
         where ID=#{ID,jdbcType=INTEGER};
     </update>
-    <select id="getTeaNamesBySelect" resultType="java.lang.String">
-        select t.name
+    <select id="getTeaNamesBySelect" resultType="org.sys.rate.model.Teachers">
+        select t.*
         from undergraduate g,teacher t
         <where>
             <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
-            and g.tutorID = t.ID
         </where>
     </select>
     <select id="getUnderStudentsBySelect" resultMap="BaseResultMap">

@@ -97,7 +97,33 @@
       <template>
         <el-form :model="currentUnderStudentOfEdit" :label-width="labelWidth">
           <el-form-item label="导师">
-            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.teachers.name"></el-input>
+            <div class="select_div_input" style="width: 70%">
+              <input
+                  autocomplete="off"
+                  style="width:95%;line-height:28px;
+                              border:1px solid lightgrey;padding:0 10px 1px 15px;
+                              border-radius:4px;color:gray"
+                  placeholder="请输入老师姓名"
+                  v-model="currentUnderStudentOfEdit.teachers.name"
+                  @focus="inputSelectTeacerNameFocus"
+                  @blur="isSelectShow = isSelectFlag"/>
+              <div class="select_div"
+                   v-show="isSelectShow && currentUnderStudentOfEdit.teachers.name ? true:false"
+                   :style="'height:${menuHeight}'"
+                   @mouseover="isSelectFlag = true"
+                   @mouseleave="isSelectFlag = false"
+              >
+                <div
+                    class="select_div_div"
+                    v-for="val in selectTeaNameAndJobnumber"
+                    :key="val"
+                    :value="val"
+                    @click="filterEditTeacher(val)"
+                >
+                  {{ val }}
+                </div>
+              </div>
+            </div>
           </el-form-item>
           <el-form-item label="学生姓名">
             <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.name"></el-input>
@@ -150,6 +176,7 @@ export default {
   name: "SalStudentM",
   data(){
     return {
+      selectTeaNameAndJobnumber:[],//编辑框中导师搜索一栏的下拉框绑定数据
       newPassword:'',//重置密码中的新密码
       conNewPassword:'',//重置密码中的确认新密码
       dialogResetPassword:false,
@@ -186,10 +213,17 @@ export default {
   },
   created() {
     //初始化防抖
-    this.debounceSearch = debounce(this.delayInputTimer,300)
+    this.debounceSearch = debounce(this.delayInputTimer,500)
   },
   watch:{
     selectTeacerName:{
+      handler(val){
+        if(val){
+          this.debounceSearch()
+        }
+      }
+    },
+    'currentUnderStudentOfEdit.teachers.name':{
       handler(val){
         if(val){
           this.debounceSearch()
@@ -213,6 +247,13 @@ export default {
     this.initUnderGraduateStudents(this.currentPage,this.pageSize)
   },
   methods:{
+    //编辑框中 搜索老师姓名之后点击下拉框的某个选项
+    filterEditTeacher(val){
+      this.currentUnderStudentOfEdit.teachers.name = val.split(":")[1]
+      this.currentUnderStudentOfEdit.teachers.jobnumber = val.split(":")[0]
+      this.isSelectShow=false
+      this.isSelectFlag=false
+    },
     closeDialogReset(){
       this.dialogResetPassword = false
     },
@@ -266,18 +307,23 @@ export default {
       this.isSelectFlag=false
     },
     delayInputTimer(){//防抖
-      if(this.selectYear == ''){
-        this.selectYear = 0
+      let url
+      if(this.dialogEdit){
+        url = '/undergraduateM/basic/getTeaNamesBySelect?teaName=' + this.currentUnderStudentOfEdit.teachers.name
+      }else {
+        url = '/undergraduateM/basic/getTeaNamesBySelect?teaName=' + this.selectTeacerName
       }
-        let url = '/undergraduateM/basic/getTeaNamesBySelect?teaName=' + this.selectTeacerName
         this.getRequest(url).then((resp)=>{
           this.select_teachers = []
+          this.selectTeaNameAndJobnumber = []
           if(resp){
             if(resp.status == 200){
               for(var i=0;i<resp.obj.length;i++){
-                this.select_teachers.push(resp.obj[i])
+                this.select_teachers.push(resp.obj[i].name)
+                this.selectTeaNameAndJobnumber.push(resp.obj[i].jobnumber + ":" + resp.obj[i].name)
               }
               this.select_teachers = Array.from(new Set(this.select_teachers));
+              this.selectTeaNameAndJobnumber = Array.from(new Set(this.selectTeaNameAndJobnumber));
             }
           }
         })

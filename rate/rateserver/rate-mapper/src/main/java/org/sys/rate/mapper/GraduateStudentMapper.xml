@@ -104,7 +104,6 @@
         from graduatestudent g,teacher t
         <where>
             <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
-            and g.tutorID = t.ID
         </where>
     </select>
     <select id="getGraduateStudentsBySelect" resultMap="BaseResultMap">

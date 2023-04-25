@@ -237,7 +237,7 @@ public class UnderGraduateService {
         }return RespBean.ok("更新成功");
     }
     public RespBean getTeaNamesBySelect(String teaName){
-        List<String> res;
+        List<Teachers> res;
         try {
             res = underGraduateMapper.getTeaNamesBySelect(teaName);
         }catch (Exception e){

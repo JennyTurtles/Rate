@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Student;
+import org.sys.rate.model.Teachers;
 import org.sys.rate.model.UnderGraduate;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface UnderGraduateMapper {
     int update(Student record);
     int deleteUnderStudent(UnderGraduate under);
     int editUnderStudent(UnderGraduate under);
-    List<String> getTeaNamesBySelect(String teaName);
+    List<Teachers> getTeaNamesBySelect(String teaName);
     List<UnderGraduate> getUnderStudentsBySelect(String teaName,Integer year);
     List<Integer> check(List<UnderGraduate> under);
     int checkHaveStudentOfstudenID(Integer studentID);
