@@ -13,6 +13,9 @@
       <el-form-item label="部门">
         <el-input v-model="hr.department" @input="infoChange"></el-input>
       </el-form-item>
+      <el-form-item label="身份证号">
+        <el-input v-model="hr.idnumber" disabled></el-input>
+      </el-form-item>
       <div class="footer">
         <el-button @click="saveInfo" type="primary" :disabled="!infoIsChanged">保存</el-button>
       </div>

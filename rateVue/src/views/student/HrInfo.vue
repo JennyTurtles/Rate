@@ -1,6 +1,6 @@
 <template>
   <div class="box">
-    <el-form :model="hr" label-width="50px" class="formbox">
+    <el-form :model="hr" label-width="70px" class="formbox">
       <el-form-item label="姓名">
         <el-input v-model="hr.name" @input="infoChange"></el-input>
       </el-form-item>
@@ -9,6 +9,15 @@
       </el-form-item>
       <el-form-item label="邮箱">
         <el-input v-model="hr.email" @input="infoChange"></el-input>
+      </el-form-item>
+      <el-form-item label="学号">
+        <el-input v-model="hr.stuNumber" disabled></el-input>
+      </el-form-item>
+      <el-form-item label="入学年份">
+        <el-input v-model="hr.year" disabled></el-input>
+      </el-form-item>
+      <el-form-item label="身份证号">
+        <el-input v-model="hr.idnumber" disabled></el-input>
       </el-form-item>
       <div class="footer">
         <el-button @click="saveInfo" type="primary" :disabled="!infoIsChanged">保存</el-button>
@@ -38,6 +47,7 @@ export default {
     },
     saveInfo(){
       let url = '/student/basic/update'
+      if(this.hr.studentID) this.$set(this.hr,'id',this.hr.studentID)
       this.postRequest(url,this.hr).then((response)=>{
         if(response.status == 200){
           this.$message.success(response.msg)

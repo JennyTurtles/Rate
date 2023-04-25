@@ -1,9 +1,7 @@
 package org.sys.rate.controller;
 
 import org.sys.rate.config.FastDFSUtils;
-import org.sys.rate.mapper.AdminMapper;
-import org.sys.rate.mapper.StudentMapper;
-import org.sys.rate.mapper.TeachersMapper;
+import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.HrService;
 import org.sys.rate.service.admin.AdminService;
@@ -32,6 +30,10 @@ public class HrInfoController {
 
     @Autowired
     HrService hrService;
+    @Autowired
+    UnderGraduateMapper underGraduateMapper;
+    @Autowired
+    GraduateStudentMapper graduateStudentMapper;
     @Autowired
     TeachersMapper teachersMapper;
     @Autowired
@@ -79,9 +81,16 @@ public class HrInfoController {
     public RespBean getStudentInfo(Integer id) {
         Student res = null;
         try {
-            res = studentMapper.getById(id);
-            if(res != null){
-                return RespBean.ok("ok",res);
+            //因为可能既是研究生又是本科生，并且只传递id值，所以都要查询
+            UnderGraduate under = underGraduateMapper.getUnderByStuID(id);
+            GraduateStudent grad = graduateStudentMapper.getGradByStuID(id);
+            if(grad != null) return RespBean.ok("ok",grad);
+            else if(under != null) return RespBean.ok("ok",under);
+            else {
+                res = studentMapper.getById(id);
+                if(res != null){
+                    return RespBean.ok("ok",res);
+                }
             }
         }catch (Exception e){
             return RespBean.error("error",null);
