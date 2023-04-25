@@ -201,7 +201,7 @@
                :inline="true"
                :model="form"
                class="demo-form-inline">
-<!--        固定项-->
+        <!-- 固定项  -->
         <el-form-item label="项名" :label-width="formLabelWidth">
           <el-select v-model="dispalyname" placeholder="请选择" @change="sourceChange($event)">
             <el-option
@@ -215,7 +215,7 @@
         <el-form-item label="系数" :label-width="formLabelWidth">
           <el-input  v-model="currenttimes" placeholder="请输入系数" @change="timesChange($event)"></el-input>
         </el-form-item>
-<!--        固定项-->
+        <!-- 固定项  -->
 
         <!-- 动态增加项目 -->
         <!-- 不止一个项目，用div包裹起来 -->
@@ -237,6 +237,7 @@
             <i class="el-icon-delete" @click="deleteSecond(i, index)"></i>
           </el-form-item>
         </div>
+        <!-- 动态增加项目 -->
       </el-form>
       <div v-if="radio===2" style="margin: 20px 0; display: flex; justify-content: left">
         <div style="margin-left: 8px">
@@ -265,11 +266,8 @@ export default {
   data() {
     return {
       title: "",
-      page: 1,
       keywords: "",
       keywords_name: "",
-      size: 10,
-      total: 0,
       loading: false,
       labelPosition: "left",
       hrs:[],
@@ -292,12 +290,6 @@ export default {
         times: '',
         dynamicItem: [],
       },
-      formRules: {
-        source: [{required: true, message: '请选择项名', trigger: 'blur'}],
-        times: [
-          {required: true, message: '请输入系数', trigger: 'blur'},
-        ]
-      },
       radio: 1,
       formLabelWidth:'120px',
       times: [],     //展示动态项的系数
@@ -306,11 +298,12 @@ export default {
       tabClickLabel: "", // 当前点击的列名
       currentfocusdata: "",
       currentfirst:"", //展示第一类source
-      currentsecond:"", //存储固定项的第二类source
-      currenttimes:"", //存储固定项的系数
+      currentsecond:"", //存储第二类固定项的source
+      currenttimes:"", //存储第二类固定项的系数
       dispalyname:"",//展示第二类固定项的source
       currentActivity:null,//当前选择的活动
       subInfo:[],
+      mode:'',
     };
   },
   computed: {
@@ -321,6 +314,7 @@ export default {
   mounted() {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
+    this.mode = this.$route.query.mode;
     this.initHrs();
   },
   methods: {
@@ -349,7 +343,6 @@ export default {
         if (resp) {
           this.loading = false;
           this.first = resp.obj;
-          console.log(this.first);
         }
       });
     },
@@ -362,7 +355,6 @@ export default {
         if (resp) {
           this.loading = false;
           this.second = resp.obj;
-          console.log(this.second);
         }
       });
     },
@@ -377,16 +369,23 @@ export default {
           this.loading = false;
           this.subActivities = resp.obj[0];
           this.subMap=resp.obj[1].dmap;
-          console.log(this.subActivities);
-          console.log(this.subMap);
         }
       });
     },
     back() {
       const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/search",
-      });
+      if (this.mode === "admin"){
+        _this.$router.push({
+          path: "/ActivitM/search",
+        });
+      }else if (this.mode === "adminSub") {
+        _this.$router.push({
+          path: "/ActivitM/SubActManage",
+          query: {
+            id: this.$route.query.backID,
+          }
+        });
+      }
     },
     tabClick(row, column, cell, event) {
       switch (column.label) {
@@ -456,7 +455,7 @@ export default {
         this.reset();
       });
     },
-    findID(source){
+    findSouceID(source){
       var id;
       for(var i in this.second){
         var value=this.second[i];
@@ -484,13 +483,26 @@ export default {
       }
       return result;
     },
+    findActivityID(source){
+      var id;
+      for(var i in this.subMap){
+        var value = this.subMap[i];
+        for (var j in value){
+          if (source==value[j].source){
+            id=i;
+            break;
+          }
+        }
+      }
+      return id;
+    },
     firstChange(event){
        this.currentfirst=event;
     },
     sourceChange(event){
       this.dispalyname=event;
       if(event.includes("*")){
-        var id=this.findID(event);
+        var id=this.findSouceID(event);
         this.currentsecond="displayitem."+id;
       }
       else {
@@ -502,7 +514,7 @@ export default {
     },
     dynamicName(event,item,index){
       if (event.includes("*")){
-        var id=this.findID(event);
+        var id=this.findSouceID(event);
         this.form.dynamicItem[index].source="displayitem."+id;
         this.source[index]=event;
       }
@@ -513,12 +525,17 @@ export default {
     },
     activityChange(event){
       this.currentActivity=event;
-      this.subInfo.splice(0,this.subInfo.length);
       var value = this.subMap[event];
-      for (var j in value){
-        this.subInfo.push(value[j]);
+      this.subInfo.splice(0,this.subInfo.length);
+      for (var i in value){
+        this.subInfo.push(value[i]);
       }
-      console.log(this.subInfo);
+      this.currentfirst="";
+      for (var i = 0;i<this.subInfo.length;i++){
+        if (this.subInfo[i].source===this.item.source){
+          this.currentfirst=this.item.source;
+        }
+      }
     },
     dynamicTimes(event,item,index){
       this.form.dynamicItem[index].times=event;
@@ -531,7 +548,6 @@ export default {
       })
       this.source.push("");
       this.times.push("");
-      console.log(this.form);
     },
     deleteSecond (item, index) {
       this.form.dynamicItem.splice(index, 1);
@@ -546,7 +562,6 @@ export default {
       })
           .then(() => {
             this.deleteRequest("/displayItem/?ID="+row.id).then((resp) => {
-              console.log(resp);
               if (resp) {
                 if(resp.msg==='success')
                 {Message.success('删除成功')}
@@ -591,10 +606,28 @@ export default {
         else{
           this.radio=1;
           this.currentfirst=row.source;
+          this.currentActivity=this.findActivityID(this.currentfirst)*1;
+          var value = this.subMap[this.currentActivity];
+          for (var i in value){
+            this.subInfo.push(value[i]);
+          }
         }
       }
+      else {
+          this.radio=1;
+          if (this.subActivities.length===1)
+            this.currentActivity=null;
+          else {
+            this.currentActivity=this.keywords*1;
+            var value = this.subMap[this.currentActivity];
+            for (var i in value){
+              this.subInfo.push(value[i]);
+            }
+          }
+      }
+      if (this.subActivities.length===1)
+        this.currentActivity=null;
       this.dialogVisible = true;
-      console.log(this.form.dynamicItem);
     },
     doAdd(){
       if (this.radio===1){
@@ -602,7 +635,7 @@ export default {
           Message.warning('输入内容不能为空!')
         }
         else{
-          if (this.subActivities!==null){
+          if (this.currentActivity!==null){
             for(var i in this.subInfo){
               var value=this.subInfo[i];
               if (value.source===this.currentfirst)
@@ -618,8 +651,6 @@ export default {
           }
           this.item.source=this.currentfirst;
           this.item.name=this.dispalyname;
-          this.UpdateOrNew(this.item);
-          this.quit();
         }
       }
       else if (this.radio===2){
@@ -634,10 +665,10 @@ export default {
           }
           this.item.name="请输入显示名称";
           this.item.passScore=null;
-          this.UpdateOrNew(this.item);
-          this.quit();
         }
       }
+      this.UpdateOrNew(this.item);
+      this.quit();
     },
     quit(){
       this.dialogVisible=false;
@@ -651,6 +682,7 @@ export default {
       this.source.splice(0,len);
       this.times.splice(0,len);
       this.form.dynamicItem.splice(0,len);
+      this.subInfo.splice(0,this.subInfo.length);
     },
     newItem() {
       let obj = {};

@@ -327,6 +327,14 @@ export default {
                   mode: _this.mode,
               }
           })
+      }else if (this.mode ==='secretary'){
+        _this.$router.push({
+          path: '/secretary/ActManage',
+          query: {
+            id: _this.$route.query.backID,
+            mode: _this.mode,
+          }
+        })
       }
     },
     tableRowClassName({row, rowIndex}) {

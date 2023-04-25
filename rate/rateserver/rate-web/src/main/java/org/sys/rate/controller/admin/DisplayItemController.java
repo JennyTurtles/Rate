@@ -34,14 +34,14 @@ public class DisplayItemController {
 
     @GetMapping("/first") // 获取所有第一类展示项
     public RespBean getFirst(@RequestParam Integer activityID) {
-        List<DisplayItem> res = displayItemService.getFirstDisplayItem(activityID);
+        List<DisplayItem> res = displayItemService.getFirstDisplayItem(activityID,0);
         Collections.sort(res); // 按照sourceName排序，方便前端查看
         return RespBean.ok("success",res);
     }
 
     @GetMapping("/second") // 获取所有展示项，在第一类的基础上加上了第二类展示项，第二类指的是displayitem表中涉及计算操作的项
     public RespBean getSecond(@RequestParam Integer activityID) {
-        List<DisplayItem> res = displayItemService.getFirstDisplayItem(activityID);
+        List<DisplayItem> res = displayItemService.getFirstDisplayItem(activityID,0);
         List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItem(activityID);
         for (DisplayItem displayItem : displayItems)
             // 如果displayItem的source包含"*"则加到res中，包含"*"的都是第二类展示项
@@ -92,10 +92,10 @@ public class DisplayItemController {
     @GetMapping("/subFirst") //获取子活动的第一类展示项
     public RespBean getSubFirst(@RequestParam Integer activityID){
         List<Activities> subActivities = activitiesMapper.getSubActivities(activityID);
-        subActivities.add(activitiesMapper.queryById(activityID));
+        subActivities.add(0,activitiesMapper.queryById(activityID)); //添加主活动
         HashMap<Integer,HashMap<String,DisplayItem>> map = new LinkedHashMap<>();//<activityID,<displayName,displayItem>>
         for (Activities activities:subActivities){
-            List<DisplayItem> displayItems=displayItemService.getFirstDisplayItem(activities.getId());
+            List<DisplayItem> displayItems=displayItemService.getFirstDisplayItem(activities.getId(),1);
             Collections.sort(displayItems);
             for (DisplayItem item:displayItems){
                 if (map.get(activities.getId())==null){

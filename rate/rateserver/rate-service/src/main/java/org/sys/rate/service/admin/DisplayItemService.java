@@ -3,10 +3,7 @@ package org.sys.rate.service.admin;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.springframework.stereotype.Service;
-import org.sys.rate.mapper.DisplayItemMapper;
-import org.sys.rate.mapper.InfoItemMapper;
-import org.sys.rate.mapper.ParticipatesMapper;
-import org.sys.rate.mapper.ScoreItemMapper;
+import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
@@ -28,15 +25,19 @@ public class DisplayItemService {
     DisplayItemMapper displayItemMapper;
     @Resource
     ScoreItemMapper scoreItemMapper;
+    @Resource
+    ActivitiesMapper activitiesMapper;
 
     // 获得所有第一类展示项，包括：基础信息、信息项目
-    public List<DisplayItem> getFirstDisplayItem(Integer activityID) {
+    public List<DisplayItem> getFirstDisplayItem(Integer activityID, Integer flag) {
         List<DisplayItem> res = new ArrayList<>();
         // 首先获取基础信息（非信息项）
-        res.add(new DisplayItem("编号", "code"));
-        res.add(new DisplayItem("组名", "group"));
-        res.add(new DisplayItem("专家打分", "scores"));
-        res.add(new DisplayItem("姓名", "name"));
+        if (flag==0){ //flag=0:子活动管理中设置 flag=1:主活动中设置子活动的
+            res.add(new DisplayItem("编号", "code"));
+            res.add(new DisplayItem("组名", "group"));
+            res.add(new DisplayItem("专家打分", "scores"));
+            res.add(new DisplayItem("姓名", "name"));
+        }
         // 获取信息项
         List<InfoItem> infoItems = infoItemMapper.getAll(activityID);
         for (InfoItem infoItem : infoItems)
