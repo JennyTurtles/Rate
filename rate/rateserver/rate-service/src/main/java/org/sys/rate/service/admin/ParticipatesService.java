@@ -436,7 +436,8 @@ public class ParticipatesService {
         }
         if(result>0)
         {
-            participatesMapper.subDisplaySequence(groupID,company.getDisplaySequence(),null);
+            if (groupID != -1)
+                participatesMapper.subDisplaySequence(groupID,company.getDisplaySequence(),null);
             return 1;
         }
         return 0;
