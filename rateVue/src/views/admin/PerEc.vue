@@ -541,6 +541,8 @@ export default {
       this.getRequest(
           "/system/admin/?keywords=" +
           this.keywords +
+          "&ID=" +
+          JSON.parse(localStorage.getItem("user")).id +
           "&page=" +
           this.page +
           "&size=" +

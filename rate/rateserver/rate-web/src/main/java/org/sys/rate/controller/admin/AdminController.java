@@ -31,8 +31,8 @@ public class AdminController {
     @Autowired
     RoleService roleService;
     @GetMapping("/")
-    public RespPageBean getAllAds(@RequestParam String keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
-        return adminService.getAllHrs(keywords,page, size);
+    public RespPageBean getAllAds(@RequestParam String keywords, @RequestParam Integer ID,@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
+        return adminService.getAllHrs(keywords,ID,page, size);
     }
 
     @GetMapping("/advanced")
