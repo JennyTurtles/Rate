@@ -31,6 +31,23 @@ public class Activities {
     private Integer parentID;
     private Integer requireGroup;
     private Integer haveSub;
+    private Integer haveComment;
+
+    public Integer getRequireGroup() {
+        return requireGroup;
+    }
+
+    public void setRequireGroup(Integer requireGroup) {
+        this.requireGroup = requireGroup;
+    }
+
+    public Integer getHaveComment() {
+        return haveComment;
+    }
+
+    public void setHaveComment(Integer haveComment) {
+        this.haveComment = haveComment;
+    }
 
     public Integer getHaveSub() {
         return haveSub;

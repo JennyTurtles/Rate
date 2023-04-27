@@ -14,6 +14,7 @@
         <result column="deleteFlag" property="deleteFlag" jdbcType="BIT"/>
         <result column="institutionID" property="institutionID" jdbcType="INTEGER"/>
         <result column="haveSub" property="haveSub" jdbcType="INTEGER"/>
+        <result column="haveComment" property="haveComment" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -32,7 +33,7 @@
         e.`departmentId`=d.`id` and e.`jobLevelId`=j.`id` and e.`posId`=pos.`id` and e.`id`=#{id}
     </select>
     <select id="getActivitiesByPage" resultMap="BaseResultMap">
-        select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID,e.status,e.haveSub
+        select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID,e.status,e.haveSub,e.haveComment
         from activities e
         where e.deleteFlag = '0'
         and e.institutionID = #{institutionID}
@@ -96,10 +97,10 @@
         </where>
     </select>
     <insert id="insert" parameterType="org.sys.rate.model.Activities">
-        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID,parentID,haveSub
+        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID,parentID,haveSub,haveComment
         )
         values  (#{name,jdbcType=VARCHAR}, #{startDate,jdbcType=TIMESTAMP}, #{scoreItemCount,jdbcType=INTEGER},
-                #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER},#{parentID,jdbcType=INTEGER},#{haveSub,jdbcType=INTEGER});
+                #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER},#{parentID,jdbcType=INTEGER},#{haveSub,jdbcType=INTEGER},#{haveComment,jdbcType=INTEGER});
         insert into scoreitem (activityID,name,score,coef,byExpert)
         values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'活动得分',100,1,true)
     </insert>
@@ -131,7 +132,8 @@
                               scoreItemCount=#{scoreItemCount,jdbcType=INTEGER},
                                comment=#{comment,jdbcType=VARCHAR},
                                parentID=#{parentID,jdbcType=INTEGER},
-                              haveSub=#{haveSub,jdbcType=INTEGER}
+                              haveSub=#{haveSub,jdbcType=INTEGER},
+                              haveComment=#{haveComment,jdbcType=INTEGER}
         where ID=#{id,jdbcType=INTEGER}
     </update>
 

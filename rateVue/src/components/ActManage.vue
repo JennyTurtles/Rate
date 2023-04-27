@@ -382,14 +382,12 @@
           >
           </el-input>
         </el-form-item>
-        <el-form-item label="存在子活动: " prop="comment">
+        <el-form-item label="存在子活动: " v-show="mode === 'admin'">
             <el-checkbox v-model="haveSub"></el-checkbox>
         </el-form-item>
-
-        <!-- <el-form-item label="评分项数:" prop="scoreItemCount">
-                <el-input size="mini" style="width: 200px" prefix-icon="el-icon-edit" v-model="emp.scoreItemCount"
-                          placeholder="评分项数"></el-input>
-              </el-form-item> -->
+        <el-form-item label="是否写评语: ">
+            <el-checkbox v-model="haveComment"></el-checkbox>
+        </el-form-item>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -449,6 +447,7 @@ export default {
   data() {
     return {
       haveSub:false,
+      haveComment:false,
       startDate: '',
       experts:'',
       participates:'',
@@ -578,7 +577,7 @@ export default {
         startDate: null,
         name: "",
         scoreItemCount: "0",
-        comment: "活动备注example：关于xxx的活动",
+        comment: "活动备注example：关于xxx的活动。备注信息将显示在专家评分表的活动标题下方。",
       };
     },
     exportEx(data){
@@ -591,9 +590,10 @@ export default {
       this.text='';
     },
     showEditEmpView(data) {
-      this.title = "编辑单位信息";
+      this.title = "编辑活动信息";
       this.emp = data;
       this.haveSub = data.haveSub === 1;
+      this.haveComment = data.haveComment === 1;
       this.dialogVisible = true;
     },
     showEditEmpView_show(data) {
@@ -683,9 +683,11 @@ export default {
       });
     },
     doAddEmp() {
-        if(this.mode === 'adminSub')
-            this.emp.parentID = this.activityID;
-        this.emp.haveSub = this.haveSub ? 1 : 0
+      if(this.mode === 'adminSub')
+         this.emp.parentID = this.activityID;
+      this.emp.haveSub = this.haveSub ? 1 : 0
+      this.emp.haveComment = this.haveComment ? 1 : 0
+      this.emp.requireGroup = this.requireGroup ? 1 : 0
       if (this.emp.id) {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {

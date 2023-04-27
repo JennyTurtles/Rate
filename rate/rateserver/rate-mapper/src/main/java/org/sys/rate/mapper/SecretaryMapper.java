@@ -16,7 +16,7 @@ public interface SecretaryMapper {
     @Update("UPDATE expertactivities SET role = #{role} WHERE teacherID = #{teacherID} AND activityID = #{activityID} AND groupID = #{groupID}")
     int setSecretary(Integer teacherID, Integer activityID, Integer groupID,String role);
 
-    @Select("SELECT a.ID,groupID,a.name,startDate,scoreItemCount,score,groupCount,g.expertCount,g.participantCount,comment,g.name as groupName,a.haveSub\n" +
+    @Select("SELECT a.ID,groupID,a.name,startDate,scoreItemCount,score,groupCount,g.expertCount,g.participantCount,comment,g.name as groupName,a.haveSub,a.haveComment\n" +
             "FROM expertactivities e, activities a, `groups` g\n" +
             "WHERE e.activityID = a.ID AND e.groupID = g.ID AND teacherID = #{teacherID} AND (role = '秘书' OR role = '组长')")
     List<Activities> getAct(Integer teacherID);
