@@ -727,10 +727,11 @@ public class POIUtils {
 //        sheet.createRow(3).createCell(0).setCellValue("如果用户已经存在，则导入数据中的用户名和密码将被忽略。");
 //        sheet.createRow(4).createCell(0).setCellValue("请再三检查身份证号，无法进行动态更新！！！");
         sheet.createRow(2).createCell(0).setCellValue("注意事项：");
-        sheet.createRow(3).createCell(0).setCellValue("1.如果专家是本单位的，工号必须填，用户名和密码可以不填；如果专家不为本单位的，工号不填，用户名和密码必须填");
-        sheet.createRow(4).createCell(0).setCellValue("2.如果数据库中已有该专家的记录，则将根据填写信息进行更新。");
+        sheet.createRow(3).createCell(0).setCellValue("1.如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。");
+        sheet.createRow(4).createCell(0).setCellValue("2.如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。");
         sheet.createRow(5).createCell(0).setCellValue("3.可以交换列顺序但不可以改变列标题。");
-        sheet.createRow(6).createCell(0).setCellValue("4.请删除以上注意事项。");
+        sheet.createRow(6).createCell(0).setCellValue("4.角色可以为：组长、秘书、专家。");
+        sheet.createRow(7).createCell(0).setCellValue("5.导入前请删除模板中的提示信息。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -821,10 +822,11 @@ public class POIUtils {
         row.createCell(9).setCellValue("123456");
         row.createCell(10).setCellValue("小组X");
         sheet.createRow(2).createCell(0).setCellValue("注意事项：");
-        sheet.createRow(3).createCell(0).setCellValue("1.如果专家是本单位的，工号必须填，用户名和密码可以不填；如果专家不为本单位的，工号不填，用户名和密码必须填");
-        sheet.createRow(4).createCell(0).setCellValue("2.如果数据库中已有该专家的记录，则将根据填写信息进行更新。");
+        sheet.createRow(3).createCell(0).setCellValue("1.如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。");
+        sheet.createRow(4).createCell(0).setCellValue("2.如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。");
         sheet.createRow(5).createCell(0).setCellValue("3.可以交换列顺序但不可以改变列标题。");
-        sheet.createRow(6).createCell(0).setCellValue("4.请删除以上注意事项。");
+        sheet.createRow(6).createCell(0).setCellValue("4.角色可以为：组长、秘书、专家。");
+        sheet.createRow(7).createCell(0).setCellValue("5.导入前请删除模板中的提示信息。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -1268,10 +1270,11 @@ public class POIUtils {
         row.createCell(5).setCellValue("13812341234");
         row.createCell(6).setCellValue("123@dhu.edu.cn");
         sheet.createRow(2).createCell(0).setCellValue("注意事项：");
-        sheet.createRow(3).createCell(0).setCellValue("1.如果专家是本单位的，工号必须填，用户名和密码可以不填；如果专家不为本单位的，工号不填，用户名和密码必须填");
-        sheet.createRow(4).createCell(0).setCellValue("2.如果数据库中已有该专家的记录，则将根据填写信息进行更新。");
+        sheet.createRow(3).createCell(0).setCellValue("1.如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。");
+        sheet.createRow(4).createCell(0).setCellValue("2.如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。");
         sheet.createRow(5).createCell(0).setCellValue("3.可以交换列顺序但不可以改变列标题。");
-        sheet.createRow(6).createCell(0).setCellValue("4.请删除以上注意事项。");
+        sheet.createRow(6).createCell(0).setCellValue("4.角色可以为：组长、秘书、专家。");
+        sheet.createRow(7).createCell(0).setCellValue("5.导入前请删除模板中的提示信息。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
