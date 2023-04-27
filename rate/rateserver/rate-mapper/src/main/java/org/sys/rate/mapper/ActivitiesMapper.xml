@@ -39,6 +39,7 @@
         and e.institutionID = #{institutionID}
         and e.parentID is null
         and aa.activityID = e.id
+        and aa.adminID = #{ID}
         <if test="page !=null and size!=null">
             limit #{page},#{size}
         </if>
@@ -97,11 +98,14 @@
                 </if>
         </where>
     </select>
-    <insert id="insert" parameterType="org.sys.rate.model.Activities">
+    <insert id="insert" parameterType="org.sys.rate.model.Activities" useGeneratedKeys="true" keyProperty="id">
         insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID,parentID,haveSub,haveComment
         )
         values  (#{name,jdbcType=VARCHAR}, #{startDate,jdbcType=TIMESTAMP}, #{scoreItemCount,jdbcType=INTEGER},
                 #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER},#{parentID,jdbcType=INTEGER},#{haveSub,jdbcType=INTEGER},#{haveComment,jdbcType=INTEGER});
+
+    </insert>
+    <insert id="insertScoreItem" parameterType="org.sys.rate.model.Activities">
         insert into scoreitem (activityID,name,score,coef,byExpert)
         values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'活动得分',100,1,true)
     </insert>

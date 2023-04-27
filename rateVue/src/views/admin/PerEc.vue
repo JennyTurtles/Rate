@@ -403,6 +403,10 @@ export default {
         {
           name:"教师管理权限",
           id:-3,
+        },
+        {
+          name:"活动管理权限",
+          id:-4,
         }],
       labelPosition: "left",
       searchValue: {
@@ -495,8 +499,7 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
-      })
-          .then(() => {
+      }).then(() => {
             this.postRequest("/system/admin/delete", hr).then((resp) => {
               if (resp) {
                 this.initHrs();
@@ -549,6 +552,7 @@ export default {
                 if(item.name == '本科生管理') this.menuPermissionList[0].id = item.id
                 else if(item.name == '研究生管理') this.menuPermissionList[1].id = item.id
                 else if(item.name == '教师管理') this.menuPermissionList[2].id = item.id
+                else if(item.name == '活动管理') this.menuPermissionList[3].id = item.id
               })
             }
           }

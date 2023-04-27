@@ -63,6 +63,7 @@ public class ActivitiesService {
             else result = false;//说明达到上限 不能添加
             if (result){
                 insertID = activitiesMapper.insert(employee);
+                activitiesMapper.insertScoreItem(employee);//原本是合并写的，改成分开写
                 activitiesMapper.insert_update(employee);
                 //在管理员_活动表中添加记录
                 adminActivityMapper.insertRecordOfAddActivity(employee.getAdminID(),employee.getId());
