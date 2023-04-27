@@ -176,7 +176,7 @@
                 v-show="mode==='secretary' || mode==='secretarySub'"
                 style="padding: 4px"
                 size="mini"
-                icon="el-icon-tickets"
+                icon="el-icon-search"
                 type="primary"
                 plain
             >信息项查看
@@ -263,7 +263,7 @@
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
-                icon="el-icon-plus"
+                icon="el-icon-download"
                 type="primary"
                 plain
             >{{text}}导出专家打分
@@ -274,7 +274,7 @@
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
-                icon="el-icon-plus"
+                icon="el-icon-search"
                 type="primary"
                 plain
             >查看选手成绩
@@ -289,6 +289,17 @@
                       plain
                       v-show="mode !== 'secretarySub' && mode !== 'adminSub' && scope.row.haveSub === 1"
               >子活动管理
+              </el-button
+              >
+              <el-button
+                      @click="exportGradeForm(scope.row)"
+                      style="padding: 4px"
+                      size="mini"
+                      icon="el-icon-download"
+                      type="primary"
+                      plain
+                      v-show="mode === 'secretary' && scope.row.haveSub === 1"
+              >导出成绩评定表
               </el-button
               >
             <el-button
@@ -359,7 +370,7 @@
       <el-form
           :label-position="labelPosition"
           label-width="100px"
-          :model="emp"
+          :model="emp_edit"
           :rules="rules"
           ref="empForm"
       >
@@ -368,14 +379,14 @@
               size="mini"
               style="width: 200px"
               prefix-icon="el-icon-edit"
-              v-model="emp.name"
-              placeholder="请输入单位名称"
+              v-model="emp_edit.name"
+              placeholder="请输入活动名称"
           ></el-input>
         </el-form-item>
         <el-form-item label="开始时间:" prop="startDate">
           <div class="block">
             <el-date-picker
-                v-model="emp.startDate"
+                v-model="emp_edit.startDate"
                 type="datetime"
                 value-format="yyyy-MM-dd HH:mm:ss"
                 placeholder="选择日期和时间">
@@ -386,7 +397,7 @@
           <el-input
               type="textarea"
               :rows="2"
-              v-model="emp.comment"
+              v-model="emp_edit.comment"
               placeholder="备注"
           >
           </el-input>
@@ -404,7 +415,6 @@
         <el-button type="primary" @click="doAddEmp">确 定</el-button>
       </span>
     </el-dialog>
-
     <el-dialog
         :title="title_show"
         :visible.sync="dialogVisible_show"
@@ -442,12 +452,146 @@
         >
       </span>
     </el-dialog>
+    <el-dialog title="成绩评定表导出设置" :visible.sync="exportGradeFormVisible" width="35%">
+          <el-form
+                  label-position="left"
+                  label-width="120px"
+                  :model="gradeForm"
+          >
+              <el-divider>评语设置</el-divider>
+              <el-form-item label="指导教师评语:">
+                  <el-select
+                     style="width: 100%"
+                     v-model="gradeForm.instructorComment"
+                     placeholder="请选择对应的子活动"
+                  >
+                    <el-option
+                      v-for="item in subActs"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
+                    </el-option>
+                  </el-select>
+              </el-form-item>
+              <el-form-item label="评阅教师评语:" prop="startDate">
+                  <el-select
+                     style="width: 100%"
+                     v-model="gradeForm.reviewComment"
+                     placeholder="请选择对应的子活动">
+                     <el-option
+                       v-for="item in subActs"
+                       :key="item.id"
+                       :label="item.name"
+                       :value="item.id">
+                     </el-option>
+                  </el-select>
+              </el-form-item>
+              <el-form-item label="答辩评语:" prop="startDate">
+                 <el-select
+                    style="width: 100%"
+                    v-model="gradeForm.defenseComment"
+                    placeholder="请选择对应的子活动">
+                    <el-option
+                      v-for="item in subActs"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
+                    </el-option>
+                 </el-select>
+              </el-form-item>
+              <el-divider>评分项设置</el-divider>
+              <el-form-item label="指导教师评分项:" prop="startDate">
+                  <el-select
+                     style="width: 80%"
+                     v-model="gradeForm.instructorScoreItemsActID"
+                     placeholder="请选择对应的子活动">
+                      <el-option
+                              v-for="item in subActs"
+                              :key="item.id"
+                              :label="item.name"
+                              :value="item.id">
+                      </el-option>
+                  </el-select>
+                  <el-button type="success" style="margin-left: 10px" @click="innerDialogType='指导教师评分项';getScoreItems(gradeForm.instructorScoreItemsActID)">设置</el-button>
+              </el-form-item>
+              <el-form-item label="评阅教师评分项:" prop="startDate">
+                  <el-select
+                    style="width: 80%"
+                    v-model="gradeForm.reviewScoreItemsActID"
+                    placeholder="请选择对应的子活动">
+                      <el-option
+                         v-for="item in subActs"
+                         :key="item.id"
+                         :label="item.name"
+                         :value="item.id">
+                      </el-option>
+                  </el-select>
+                  <el-button type="success" style="margin-left: 10px" @click="innerDialogType='评阅教师评分项';getScoreItems(gradeForm.reviewScoreItemsActID)">设置</el-button>
+              </el-form-item>
+              <el-form-item label="答辩小组评分项:" prop="startDate">
+                  <el-select
+                    style="width: 80%"
+                    v-model="gradeForm.defenseScoreItemsActID"
+                    placeholder="请选择对应的子活动">
+                      <el-option
+                         v-for="item in subActs"
+                         :key="item.id"
+                         :label="item.name"
+                         :value="item.id">
+                      </el-option>
+                  </el-select>
+                  <el-button type="success" style="margin-left: 10px" @click="innerDialogType='答辩小组评分项';getScoreItems(gradeForm.defenseScoreItemsActID)">设置</el-button>
+              </el-form-item>
+          </el-form>
+
+          <span slot="footer" class="dialog-footer">
+        <el-button @click="exportGradeFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="goExportGradeForm();exportGradeFormVisible = false">下 载</el-button>
+      </span>
+      </el-dialog>
+      <el-dialog
+        width="80%"
+        :title="innerDialogType"
+        :visible.sync="innerVisible"
+        append-to-body>
+        <el-table :data="scoreItemSelected" stripe style="width: 100%">
+            <el-table-column label="评分项名">
+                <template slot-scope="scope">
+                <el-select
+                   style="width: 100%"
+                   v-model="scope.row.id"
+                   placeholder="请选择评分项">
+                    <el-option
+                       v-for="item in scoreItems"
+                       :key="item.id"
+                       :label="item.name"
+                       :value="item.id">
+                    </el-option>
+                </el-select>
+                </template>
+            </el-table-column>
+            <el-table-column prop="coef" label="折合系数" width="100px">
+                <template slot-scope="scope">
+                    <el-input v-model="scope.row.coef"></el-input>
+                </template>
+            </el-table-column>
+            <el-table-column label="操作" width="80px">
+                <template slot-scope="scope">
+                    <el-button type="danger" @click="deleteRow(scope.row)">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <el-button type="success" style="margin-top: 10px" @click="scoreItemSelected.push({})">新增</el-button>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="innerVisible = false">取 消</el-button>
+            <el-button type="primary" @click="innerVisible = false;confirmScoreItem()">确 定</el-button>
+        </span>
+      </el-dialog>
   </div>
 </template>
 
 <script>
 import {Message} from "element-ui";
-import da from "element-ui/src/locale/lang/da";
 import fa from "element-ui/src/locale/lang/fa";
 
 export default {
@@ -455,8 +599,13 @@ export default {
   props:["mode","activityID","actName","groupName","groupID"], // 四个地方复用组件
   data() {
     return {
+      scoreItems:[],
       dialogActivityPermission:false,//控制对话框
       dialogActivityPermissionOfAdmin:[],//选择授权的管理员名单
+      scoreItemSelected:[[]],
+      innerDialogType: '',
+      innerVisible:false,
+      subActs:[],
       haveSub:false,
       haveComment:false,
       startDate: '',
@@ -472,8 +621,21 @@ export default {
       showAdvanceSearchView: false,
       allDeps: [],
       emps: [],
+      emp_edit:{},
+      gradeForm:{
+          instructorComment: '',
+          reviewComment: '',
+          defenseComment: '',
+          instructorScoreItemsActID: '',
+          reviewScoreItemsActID: '',
+          defenseScoreItemsActID: '',
+          instructorScoreItems: [],
+          reviewScoreItems: [],
+          defenseScoreItems: [],
+      },
       loading: false,
       dialogVisible: false,
+      exportGradeFormVisible: false,
       dialogVisible_show: false,
       total: 0,
       page: 1,
@@ -530,6 +692,46 @@ export default {
     this.initEmps();
   },
   methods: {
+      confirmScoreItem(){
+          if (this.innerDialogType === '指导教师评分项'){
+              this.gradeForm.instructorScoreItems = this.scoreItemSelected
+          }else if (this.innerDialogType === '评阅教师评分项'){
+              this.gradeForm.reviewScoreItems = this.scoreItemSelected
+          }else
+              this.gradeForm.defenseScoreItems = this.scoreItemSelected
+      },
+      deleteRow(row){
+          const index = this.scoreItemSelected.indexOf(row);
+          if (index !== -1) {
+              this.scoreItemSelected.splice(index, 1);
+          }
+      },
+    getScoreItems(id){
+        if (id === ""){
+            // 弹出提示框
+            Message({
+                message: '请先选择子活动',
+                type: 'warning'
+            })
+            return
+        }
+        this.innerVisible=true
+        if (this.innerDialogType === '指导教师评分项'){
+            this.scoreItemSelected = this.gradeForm.instructorScoreItems
+        }else if (this.innerDialogType === '评阅教师评分项'){
+            this.scoreItemSelected = this.gradeForm.reviewScoreItems
+        }else
+            this.scoreItemSelected = this.gradeForm.defenseScoreItems
+
+        if (this.scoreItemSelected.length === 0){
+            this.scoreItemSelected.push({})
+        }
+        this.getRequest("/scoreItem/basic/getall?activityID="+id).then(res=>{
+            if(res.status === 200){
+                this.scoreItems = res.obj;
+            }
+        })
+    },
     //活动进行授权给其他的管理员
     activityPermission(data){
 
@@ -547,6 +749,21 @@ export default {
             }
         })
     },
+      goExportGradeForm(){
+          for (var i = 0; i < this.gradeForm.defenseScoreItems.length; i++) {
+              if (typeof this.gradeForm.defenseScoreItems[i].id === 'undefined')
+                  this.gradeForm.defenseScoreItems.splice(i, 1);
+          }
+          for (var i = 0; i < this.gradeForm.reviewScoreItems.length; i++) {
+              if (typeof this.gradeForm.reviewScoreItems[i].id === 'undefined')
+                  this.gradeForm.reviewScoreItems.splice(i, 1);
+          }
+          for (var i = 0; i < this.gradeForm.instructorScoreItems.length; i++) {
+              if (typeof this.gradeForm.instructorScoreItems[i].id === 'undefined')
+                  this.gradeForm.instructorScoreItems.splice(i, 1);
+          }
+          console.log(this.gradeForm)
+      },
     changeCheckGroup(row){
       this.postRequest("/activities/basic/changeRequireGroup?activityID="+row.id+"&requireGroup="+(row.requireGroup?1:0)).then(res=>{
         if(res.status === 200){
@@ -609,6 +826,7 @@ export default {
       this.haveSub = data.haveSub === 1;
       this.haveComment = data.haveComment === 1;
       this.dialogVisible = true;
+      this.emp_edit = JSON.parse(JSON.stringify(data));
     },
     showEditEmpView_show(data) {
       this.title_show = "显示详情";
@@ -640,7 +858,7 @@ export default {
                 type: "warning",
               }
           ).then(() => {
-            this.postRequest("/activities/basic/delete", data).then((resp) => {
+            this.postRequest("/activities/basic/predelete", data).then((resp) => {
               if (resp) {
                 this.dialogVisible = false;
                 this.initEmps();
@@ -687,6 +905,7 @@ export default {
       });
     },
     doAddEmp() {
+        this.emp = this.emp_edit
       if(this.mode === 'adminSub')
          this.emp.parentID = this.activityID;
       this.emp.haveSub = this.haveSub ? 1 : 0
@@ -1022,7 +1241,16 @@ export default {
                  mode:this.mode
          }
        })
-     }
+     },
+      exportGradeForm(data){
+          this.getRequest("/activities/basic/sub?activityID="+data.id).then((resp)=>{
+              this.subActs = resp.obj
+          })
+        this.exportGradeFormVisible = true;
+      },
+      showScoreItemByActID(actID){
+
+      },
   },
 };
 </script>

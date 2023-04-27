@@ -41,7 +41,7 @@
                 v-focus
                 v-model.trim="scope.row.name"
                 size="mini"
-                maxlength="50"
+                maxlength="500"
                 @focus="beforehandleEdit(scope.$index,scope.row,'name')"
                 @change="handleEdit(scope.$index,scope.row,'name')"
                 @blur="inputBlur"

@@ -62,6 +62,7 @@ public class ActivitiesService {
             if(current < total) result = true;
             else result = false;//说明达到上限 不能添加
             if (result){
+                employee.setScoreItemCount(0);
                 insertID = activitiesMapper.insert(employee);
                 activitiesMapper.insertScoreItem(employee);//原本是合并写的，改成分开写
                 activitiesMapper.insert_update(employee);

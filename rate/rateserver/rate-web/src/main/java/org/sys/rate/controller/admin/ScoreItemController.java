@@ -137,4 +137,5 @@ public class ScoreItemController {
         List<ScoreItem> scoreItems = scoreItemService.getScoreItemByActivityId(activityID);
         return RespBean.ok("success",scoreItems);
     }
+
 }
