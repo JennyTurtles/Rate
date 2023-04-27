@@ -384,7 +384,6 @@
           </div>
         </el-form-item>
         <el-form-item label="备 注: " prop="comment">
-          <!-- <textarea v-model="emp.comment" placeholder="备注" style="height:100px;width: 350px"></textarea> -->
           <el-input
               type="textarea"
               :rows="2"
@@ -531,7 +530,6 @@ export default {
   },
   methods: {
       assignPE(data) {
-          console.log(data)
           const _this = this;
           _this.$router.push({
               path: "/Expert/EassignPE",
@@ -612,16 +610,6 @@ export default {
       this.emp = data;
       this.dialogVisible_show = true;
     },
-    // showEditEmpView_show(row) {
-    //   let routeUrl = this.$router.resolve({
-    //     path:"/teacher/tperact/InformationDetails",
-    //     query: {
-    //       activityID: this.activityID,
-    //       IDNumber: row.student.idnumber,
-    //     },
-    //   })
-    //   window.open(routeUrl.href)
-    // },
     showScore(data){
       const _this = this;
       _this.$router.push({
@@ -699,6 +687,8 @@ export default {
       this.emp.haveSub = this.haveSub ? 1 : 0
       this.emp.haveComment = this.haveComment ? 1 : 0
       this.emp.requireGroup = this.requireGroup ? 1 : 0
+      this.$set(this.emp,"adminID",this.user.id)
+      this.emp.startDate = this.dateFormatFunc(new Date())
       if (this.emp.id) {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
@@ -723,6 +713,7 @@ export default {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
             this.$set(this.emp,"adminID",this.user.id)
+            this.emp.startDate = this.dateFormatFunc(new Date())
             // this.emp.adminID = this.user.id
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(
@@ -852,17 +843,6 @@ export default {
               },
           });
       }
-
-      // console.log(data)
-      // if (this.mode === "admin"){
-      //   _this.$router.push({
-      //     path: "/ActivitM/table",
-      //     query: {
-      //       keywords: data.id,
-      //       keyword_name: data.name,
-      //     },
-      //   });
-      // }
     },
     showInsertmanagement(data) {
       const _this = this;
