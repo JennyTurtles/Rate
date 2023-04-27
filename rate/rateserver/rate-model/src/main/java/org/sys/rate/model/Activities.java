@@ -40,6 +40,23 @@ public class Activities {
     public void setAdminID(Integer adminID) {
         this.adminID = adminID;
     }
+    private Integer haveComment;
+
+    public Integer getRequireGroup() {
+        return requireGroup;
+    }
+
+    public void setRequireGroup(Integer requireGroup) {
+        this.requireGroup = requireGroup;
+    }
+
+    public Integer getHaveComment() {
+        return haveComment;
+    }
+
+    public void setHaveComment(Integer haveComment) {
+        this.haveComment = haveComment;
+    }
 
     public Integer getHaveSub() {
         return haveSub;

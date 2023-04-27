@@ -304,7 +304,7 @@
         </span>
     </el-dialog>
     <!--弹窗-->
-    <el-dialog :title="title" :visible.sync="dialogVisible_checkbox" width="60%" center>
+    <el-dialog :title="title" :visible.sync="dialogVisible_checkbox" width="90%" center>
 <!--      <div style="font-size: 17px;">-->
 <!--        导入模板中必须包含身份证号和姓名，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。-->
 <!--        <br/>-->
@@ -327,11 +327,11 @@
 <!--        <el-checkbox label="密码" v-model="dymatic_list"  style="width: 150px">密码</el-checkbox>-->
       </div><br/>
       <div style="font-size: 16px;margin-left: 15%">信息项：<br/>
-        <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" v-model="infoitem" style="width: 150px">
+        <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" v-model="infoitem" style="width: 450px">
         </el-checkbox>
       </div><br/>
       <div style="font-size: 16px;margin-left: 15%">评分项：<br/>
-        <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: 150px">
+        <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: 450px">
         </el-checkbox>
       </div>
         <div style="font-size: 16px;margin-left: 15%;margin-top: 15px">模版中的列排列顺序如下：<br/></div>
