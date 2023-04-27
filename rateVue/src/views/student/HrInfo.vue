@@ -2,6 +2,9 @@
   <div class="box">
     <h1>个人中心</h1>
     <el-form :model="hr" label-width="70px" class="formbox">
+      <el-form-item label="身份证号">
+        <el-input v-model="hr.idnumber" disabled></el-input>
+      </el-form-item>
       <el-form-item label="姓名">
         <el-input v-model="hr.name" @input="infoChange"></el-input>
       </el-form-item>

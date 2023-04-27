@@ -128,17 +128,16 @@
             >编辑
             </el-button
             >
-<!--            <el-button-->
-<!--                @click="showScoreItem(scope.row)"-->
-<!--                v-show="mode==='admin' || mode==='adminSub'"-->
-<!--                style="padding: 4px"-->
-<!--                size="mini"-->
-<!--                icon="el-icon-tickets"-->
-<!--                type="primary"-->
-<!--                plain-->
-<!--            >活动授权-->
-<!--            </el-button-->
-<!--            >-->
+            <el-button
+                @click="activityPermission(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-tickets"
+                type="primary"
+                plain
+            >活动授权
+            </el-button
+            >
             <el-button
                 @click="showScoreItem(scope.row)"
                 v-show="mode==='admin' || mode==='adminSub'"
@@ -456,6 +455,8 @@ export default {
   props:["mode","activityID","actName","groupName","groupID"], // 四个地方复用组件
   data() {
     return {
+      dialogActivityPermission:false,//控制对话框
+      dialogActivityPermissionOfAdmin:[],//选择授权的管理员名单
       haveSub:false,
       haveComment:false,
       startDate: '',
@@ -516,9 +517,9 @@ export default {
     };
   },
   computed: {
-      fa() {
-          return fa
-      },
+    fa() {
+        return fa
+    },
     user() {
       return JSON.parse(localStorage.getItem('user')); //object信息
     },
@@ -529,33 +530,37 @@ export default {
     this.initEmps();
   },
   methods: {
-      assignPE(data) {
-          const _this = this;
-          _this.$router.push({
-              path: "/Expert/EassignPE",
-              query: {
-                  activityIDParent: this.$route.query.id,
-                  activityID: data.id,
-                  groupIDParent: this.$route.query.groupID, // 这里有问题
-                  groupID: data.groupID,
-                  mode:this.mode
-              }
-          })
-      },
-    changeCheckGroup(row){
-        this.postRequest("/activities/basic/changeRequireGroup?activityID="+row.id+"&requireGroup="+(row.requireGroup?1:0)).then(res=>{
-            if(res.status === 200){
-                this.$message({
-                    type: 'success',
-                    message: '修改成功!'
-                });
-            }else{
-                this.$message({
-                    type: 'error',
-                    message: '修改失败!'
-                });
+    //活动进行授权给其他的管理员
+    activityPermission(data){
+
+    },
+    assignPE(data) {
+        const _this = this;
+        _this.$router.push({
+            path: "/Expert/EassignPE",
+            query: {
+                activityIDParent: this.$route.query.id,
+                activityID: data.id,
+                groupIDParent: this.$route.query.groupID, // 这里有问题
+                groupID: data.groupID,
+                mode:this.mode
             }
         })
+    },
+    changeCheckGroup(row){
+      this.postRequest("/activities/basic/changeRequireGroup?activityID="+row.id+"&requireGroup="+(row.requireGroup?1:0)).then(res=>{
+        if(res.status === 200){
+            this.$message({
+                type: 'success',
+                message: '修改成功!'
+            });
+        }else{
+            this.$message({
+                type: 'error',
+                message: '修改失败!'
+            });
+        }
+      })
     },
     rowClass() {
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
