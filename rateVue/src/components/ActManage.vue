@@ -128,6 +128,17 @@
             >编辑
             </el-button
             >
+<!--            <el-button-->
+<!--                @click="showScoreItem(scope.row)"-->
+<!--                v-show="mode==='admin' || mode==='adminSub'"-->
+<!--                style="padding: 4px"-->
+<!--                size="mini"-->
+<!--                icon="el-icon-tickets"-->
+<!--                type="primary"-->
+<!--                plain-->
+<!--            >活动授权-->
+<!--            </el-button-->
+<!--            >-->
             <el-button
                 @click="showScoreItem(scope.row)"
                 v-show="mode==='admin' || mode==='adminSub'"
@@ -709,6 +720,8 @@ export default {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
+            this.$set(this.emp,"adminID",this.user.id)
+            // this.emp.adminID = this.user.id
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(
                 (resp) => {
@@ -742,7 +755,7 @@ export default {
     initEmps() { // 在此适配不同的组件
       this.loading = true;
       if (this.mode === "admin"){ // 管理员活动管理
-        let url = "/activities/basic/?page=" + this.page + "&size=" + this.size + "&institutionID=" + this.user.institutionID;
+        let url = "/activities/basic/?page=" + this.page + "&size=" + this.size + "&institutionID=" + this.user.institutionID + "&adminID=" + this.user.id;
         this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {

@@ -6,7 +6,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.ActivitiesMapper;
+import org.sys.rate.mapper.AdminActivityMapper;
 import org.sys.rate.model.Activities;
+import org.sys.rate.model.RespBean;
 import org.sys.rate.model.RespPageBean;
 import org.sys.rate.model.ScoreDetail;
 
@@ -24,6 +26,8 @@ public class ActivitiesService {
     RabbitTemplate rabbitTemplate;
     @Autowired
     MailSendLogService mailSendLogService;
+    @Autowired
+    AdminActivityMapper adminActivityMapper;
 
     public final static Logger logger = LoggerFactory.getLogger(ActivitiesService.class);
     SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
@@ -31,11 +35,11 @@ public class ActivitiesService {
     DecimalFormat decimalFormat = new DecimalFormat("##.00");
 
     // 获得主活动
-    public RespPageBean getActivitiesPage(Integer page, Integer size, Activities employee, Integer institutionID) {
+    public RespPageBean getActivitiesPage(Integer page, Integer size, Activities employee, Integer institutionID,Integer ID) {
         if (page != null && size != null) {
             page = (page - 1) * size;
         }
-        List<Activities> data = activitiesMapper.getActivitiesByPage(page, size, institutionID);
+        List<Activities> data = activitiesMapper.getActivitiesByPage(page, size, institutionID,ID);
         Long total = (long) data.size();
         RespPageBean bean = new RespPageBean();
         bean.setData(data);
@@ -47,19 +51,27 @@ public class ActivitiesService {
         return activitiesMapper.getAllActivity_info();
     }
 
-    public Integer addActivities(Activities employee) {
-        int result;
-        int current=activitiesMapper.getInstitution_Current_Total(employee);
-        int total=activitiesMapper.getInstitution_Total(employee);
-        if(current<total)
-        {result=1;}
-        else
-        {result=2;}
-        if (result == 1)
-            result = activitiesMapper.insert(employee);
-        if (result == 1)
-            activitiesMapper.insert_update(employee);
-        return result;
+    public RespBean addActivities(Activities employee) {
+        //写这样的代码你在公司会被骂死 cao 简直就是依托答辩
+        //我是不可能重写的，所以我改成我看着顺眼的  --by lyr
+        boolean result;
+        int insertID;
+        try {
+            int current = activitiesMapper.getInstitution_Current_Total(employee);
+            int total = activitiesMapper.getInstitution_Total(employee);
+            if(current < total) result = true;
+            else result = false;//说明达到上限 不能添加
+            if (result){
+                insertID = activitiesMapper.insert(employee);
+                activitiesMapper.insert_update(employee);
+                //在管理员_活动表中添加记录
+                adminActivityMapper.insertRecordOfAddActivity(employee.getAdminID(),employee.getId());
+            }
+        }catch (Exception e){
+            return RespBean.error("添加失败",null);
+        }
+        if(!result) return RespBean.error("活动达到上限",null);
+        return RespBean.ok("添加成功",null);
     }
 
     public Integer predeleteActivities(Activities activities) {

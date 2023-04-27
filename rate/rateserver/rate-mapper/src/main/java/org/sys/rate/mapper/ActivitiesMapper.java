@@ -35,7 +35,7 @@ public interface ActivitiesMapper {
     Integer selectByActivityId(Integer id);
 
 
-    List<Activities> getActivitiesByPage(@Param("page") Integer page, @Param("size") Integer size, Integer institutionID);
+    List<Activities> getActivitiesByPage(@Param("page") Integer page, @Param("size") Integer size, Integer institutionID,Integer ID);
 
     @Select("SELECT * FROM activities WHERE parentID = #{activityID}")
     List<Activities> getSubActivities(Integer activityID);

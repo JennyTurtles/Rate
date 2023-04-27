@@ -39,8 +39,9 @@ public class ActivitiesBasicController {
     public RespPageBean getActivitiesByPage(@RequestParam(defaultValue = "1") Integer page,
                                             @RequestParam(defaultValue = "10") Integer size,
                                             @RequestParam(defaultValue = "1") Integer institutionID,
+                                            @RequestParam Integer adminID,
                                             Activities employee) {
-        return activitiesService.getActivitiesPage(page, size, employee, institutionID);
+        return activitiesService.getActivitiesPage(page, size, employee, institutionID,adminID);
     }
 
     @GetMapping("/sub")
@@ -61,31 +62,7 @@ public class ActivitiesBasicController {
 
     @PostMapping("/insert")
     public RespBean addActivities(@RequestBody Activities activities) throws ParseException {
-        int result=activitiesService.addActivities(activities);
-        if (result == 1) {
-            Log log=new Log();
-            SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
-            Timestamp nousedate = new Timestamp(date.getTime());
-            log.setLog(nousedate,activities.getinstitutionID(),"活动","添加成功");
-            logService.addLogs(log);
-            return RespBean.ok("添加成功!");
-        }
-        else if(result == 2)
-        {Log log=new Log();
-            SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
-            Timestamp nousedate = new Timestamp(date.getTime());
-            log.setLog(nousedate,activities.getinstitutionID(),"活动","活动到达上限无法添加");
-            logService.addLogs(log);
-            return RespBean.error("活动到达上限无法添加!");}
-        Log log=new Log();
-        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
-        Timestamp nousedate = new Timestamp(date.getTime());
-        log.setLog(nousedate,activities.getinstitutionID(),"活动","添加失败");
-        logService.addLogs(log);
-        return RespBean.error("添加失败!");
+         return activitiesService.addActivities(activities);
     }
 
     @PostMapping("/predelete")

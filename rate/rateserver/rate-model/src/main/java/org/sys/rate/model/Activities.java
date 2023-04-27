@@ -31,6 +31,15 @@ public class Activities {
     private Integer parentID;
     private Integer requireGroup;
     private Integer haveSub;
+    private Integer adminID;
+
+    public Integer getAdminID() {
+        return adminID;
+    }
+
+    public void setAdminID(Integer adminID) {
+        this.adminID = adminID;
+    }
 
     public Integer getHaveSub() {
         return haveSub;

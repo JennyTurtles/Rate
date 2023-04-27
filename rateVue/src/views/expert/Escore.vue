@@ -189,6 +189,14 @@
             >详细信息
             </el-button>
             <el-button
+                @click="showAddComment(scope.row, scope.$index)"
+                style="padding: 4px"
+                size="mini"
+                type="primary"
+                plain
+            >添加评语
+            </el-button>
+            <el-button
                 v-show="scope.row.showSave"
                 style="padding: 4px; margin: 2px"
                 size="mini"
@@ -202,6 +210,31 @@
         </el-table-column>
       </el-table>
     </div>
+<!--    添加评语-->
+    <el-dialog title="添加评语"
+               :visible.sync="dialogOfAddComment" width="30%" center>
+      <el-form
+          label-width="80px"
+          style="margin-left: 40px"
+      >
+<!--        <el-form-item label="学生ID:" prop="id">-->
+<!--          <span>{{ emp.id }}</span>-->
+<!--        </el-form-item>-->
+        <el-form-item label="评语:">
+          <el-input
+              type="textarea"
+              :rows="4"
+              v-model="addComment"
+              placeholder="请输入评语"
+          >
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <!-- <el-button @click="dialogVisible_pass = false">取 消</el-button> -->
+        <el-button type="primary" @click="auditing_commit('tea_reject')">确 定</el-button>
+      </span>
+    </el-dialog>
     <el-dialog
         :title="title_show"
         :visible.sync="dialogVisible_show"
@@ -294,6 +327,8 @@ export default {
   inject: ["reload"],
   data() {
     return {
+      addComment:'',
+      dialogOfAddComment:false,//添加评语对话框
       successTimer:null,
       Aname: "",
       groupName: "",
@@ -349,6 +384,9 @@ export default {
     }
   },
   methods: {
+    showAddComment(){//点击添加评语按钮
+
+    },
     //拖拽调整列宽触发的事件
     changeColWidth(){
       let that = this
