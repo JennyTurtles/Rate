@@ -189,6 +189,7 @@
             >详细信息
             </el-button>
             <el-button
+                v-show="addCommentIsShow"
                 @click="showAddComment(scope.row, scope.$index)"
                 style="padding: 4px"
                 size="mini"
@@ -212,14 +213,11 @@
     </div>
 <!--    添加评语-->
     <el-dialog title="添加评语"
-               :visible.sync="dialogOfAddComment" width="30%" center>
+               :visible.sync="dialogOfAddComment" width="60%" center>
       <el-form
           label-width="80px"
           style="margin-left: 40px"
       >
-<!--        <el-form-item label="学生ID:" prop="id">-->
-<!--          <span>{{ emp.id }}</span>-->
-<!--        </el-form-item>-->
         <el-form-item label="评语:">
           <el-input
               type="textarea"
@@ -231,10 +229,11 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <!-- <el-button @click="dialogVisible_pass = false">取 消</el-button> -->
-        <el-button type="primary" @click="auditing_commit('tea_reject')">确 定</el-button>
+        <el-button type="primary" @click="doAddComment">确 定</el-button>
+        <el-button @click="dialogOfAddComment = false">取 消</el-button>
       </span>
     </el-dialog>
+
     <el-dialog
         :title="title_show"
         :visible.sync="dialogVisible_show"
@@ -327,6 +326,14 @@ export default {
   inject: ["reload"],
   data() {
     return {
+      addCommentUserInfo:{
+        activityID: null,
+        teacherID: null,
+        participantID: null,
+        content:'',
+        date:null
+      },
+      addCommentIsShow:false,
       addComment:'',
       dialogOfAddComment:false,//添加评语对话框
       successTimer:null,
@@ -381,17 +388,32 @@ export default {
         var arr= data.split('/')
         return  arr.reverse()[0]
       }
-    }
+    },
   },
   methods: {
-    showAddComment(){//点击添加评语按钮
-
+    doAddComment(){
+      this.addCommentUserInfo.content = this.addComment
+      this.addCommentUserInfo.date = this.dateFormatFunc(new Date())
+      this.postRequest('/comment/basic/addCommentByExpert',this.addCommentUserInfo).then((response)=>{
+        if(response){
+            if(response.status == 200){
+              this.dialogOfAddComment = false
+              this.addComment = ''
+              this.$message.success(response.msg)
+            }else this.$message.error(response.msg)
+        }
+      })
+    },
+    showAddComment(data){//点击添加评语按钮
+      this.addCommentUserInfo.participantID = data.id
+      this.addCommentUserInfo.activityID = this.Adata.Aid
+      this.addCommentUserInfo.teacherID = this.user.id
+      this.dialogOfAddComment = true
     },
     //拖拽调整列宽触发的事件
     changeColWidth(){
       let that = this
       this.$nextTick(()=>{
-        console.log('changeColWidth')
         that.$refs.table.doLayout()
       })
     },
@@ -782,6 +804,7 @@ export default {
       this.Adata.Auserid = this.user.id;
       let num = this.$route.query.keywords;
       let listActivityTemp = this.list.activitiesList;
+      this.addCommentIsShow = listActivityTemp[num].activityLists[0].haveComment
       this.Adata.Aid = listActivityTemp[num].activityID;
       this.Adata.AgroupId = listActivityTemp[num].groupId;
       this.Aname = listActivityTemp[num].activityLists[0].name;

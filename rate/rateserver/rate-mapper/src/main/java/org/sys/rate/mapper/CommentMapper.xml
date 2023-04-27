@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.sys.rate.mapper.CommentMapper">
+    <resultMap id="BaseResultMap" type="org.sys.rate.model.Comment">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <result column="activityID" property="activityID" jdbcType="INTEGER"></result>
+        <result column="teacherID" property="teacherID" jdbcType="INTEGER"></result>
+        <result column="participantID" property="participantID" jdbcType="INTEGER"></result>
+        <result column="content" property="content" jdbcType="VARCHAR"></result>
+        <result column="date" property="date" jdbcType="DATE"></result>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    ID, teacherID,activityID,participantID,content,date
+    </sql>
+
+    <insert id="insertCommentByExpert" parameterType="org.sys.rate.model.Comment">
+        insert into comment (teacherID,activityID,participantID,content,date)
+        values (#{teacherID,jdbcType=INTEGER},
+                #{activityID,jdbcType=INTEGER},
+                #{participantID,jdbcType=INTEGER},
+                #{content,jdbcType=VARCHAR},
+                #{date})
+    </insert>
+    <select id="selectHaveComment" resultMap="BaseResultMap" >
+        select * from comment
+        where activityID = #{activityID} and participantID = #{participantID} and teacherID = #{teacherID}
+    </select>
+    <update id="updateCommentByExpert">
+        update comment set content = #{content},
+                           date = #{date}
+        where ID = #{ID}
+    </update>
+</mapper>

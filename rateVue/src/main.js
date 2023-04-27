@@ -249,6 +249,24 @@ Vue.filter('dataFormat', function (originVal) {
     // 拼接时间数据
     return `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`;
 });
+Vue.prototype.dateFormatFunc = function (originVal){
+    const dt = new Date(originVal);
+    // 年
+    const year = dt.getFullYear();
+    // 转换出来的month默认是从0开始的,设置显示为两位数，不足的就用0来填充
+    // 月
+    const month = (dt.getMonth() + 1 + '').padStart(2, '0');
+    // 日
+    const day = (dt.getDate() + '').padStart(2, '0');
+    // 时
+    const hour = (dt.getHours() + '').padStart(2, '0');
+    // 分
+    const minutes = (dt.getMinutes() + '').padStart(2, '0');
+    // 秒
+    const seconds = (dt.getSeconds() + '').padStart(2, '0');
+    // 拼接时间数据
+    return `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`;
+}
 let vue = new Vue({
     router,
     store,
