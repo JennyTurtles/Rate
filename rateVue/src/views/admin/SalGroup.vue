@@ -918,8 +918,22 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
+        if (data.groupID === null)
+            data.groupID = -1
         this.postRequest("/participants/basic/delete?groupID="+data.groupID,data).then(resp => {
           if (resp) {
+            if (resp.status === 200) {
+              this.$message({
+                type: 'success',
+                message: '删除成功!'
+              });
+              this.initEmps();
+            } else {
+              this.$message({
+                type: 'error',
+                message: '删除失败!'
+              });
+            }
             this.dialogVisible = false;
             this.initEmps();
           }
