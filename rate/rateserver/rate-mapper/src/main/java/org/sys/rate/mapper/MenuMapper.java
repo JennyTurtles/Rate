@@ -6,6 +6,7 @@ import org.sys.rate.model.Menu;
 import java.util.List;
 
 public interface MenuMapper {
+    List<Menu> selectEspecialMenuID();
     int deleteByPrimaryKey(Integer id);
 
     int insert(Menu record);

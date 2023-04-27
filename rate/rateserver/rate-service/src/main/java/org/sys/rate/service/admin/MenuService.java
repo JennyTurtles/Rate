@@ -163,4 +163,13 @@ public class MenuService {
         Integer result = menuRoleMapper.insertRecord(rid, mids);
         return result==mids.length;
     }
+    public RespBean getEspecialMenusOfAdmin(){
+        List<Menu> menusOfAdmin = new ArrayList<>();
+        try{
+            menusOfAdmin = menuMapper.selectEspecialMenuID();
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        return RespBean.ok("ok",menusOfAdmin);
+    }
 }

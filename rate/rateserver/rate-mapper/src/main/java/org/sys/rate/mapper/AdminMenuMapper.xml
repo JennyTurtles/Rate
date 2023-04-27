@@ -22,4 +22,12 @@
         select * from admin_menu
         where adminID = #{adminID} and menuID = #{menuID}
     </select>
+    <select id="judgeAdminPermission" resultType="INTEGER">
+        select menuID
+        from admin_menu
+        where adminID = #{adminID} and menuID in
+        <foreach collection="menuIdList" item="item" close=")" open="(" separator=",">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

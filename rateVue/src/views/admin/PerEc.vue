@@ -392,18 +392,17 @@ export default {
     return {
       menuPermissionSelected:[],
       menuPermissionList:[
-          //为了避免组件有重名的情况，所以用id做标识，但是也不是好办法
         {
           name:"本科生管理权限",
-          id:97
+          id:-1,
         },
         {
           name:"研究生管理权限",
-          id:98
+          id:-2,
         },
         {
           name:"教师管理权限",
-          id:96
+          id:-3,
         }],
       labelPosition: "left",
       searchValue: {
@@ -541,6 +540,20 @@ export default {
       this.title = "添加管理员";
       this.menuPermissionSelected = []//数据清空
       this.dialogVisible = true;
+      if(this.menuPermissionList[0].id == -1){//如果菜单的id是初始值，说明没有做查询和赋值
+        this.getRequest('/system/config/getEspecialMenusOfAdmin').then((resp) => {
+          if(resp){
+            if(resp.status == 200){
+              resp.obj.map(item => {
+                //id进行赋值
+                if(item.name == '本科生管理') this.menuPermissionList[0].id = item.id
+                else if(item.name == '研究生管理') this.menuPermissionList[1].id = item.id
+                else if(item.name == '教师管理') this.menuPermissionList[2].id = item.id
+              })
+            }
+          }
+        })
+      }
     },
     initHrs() {
       this.getRequest(

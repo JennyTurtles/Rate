@@ -8,5 +8,5 @@ import java.util.List;
 public interface AdminMenuMapper {
     int insertRecordsOfAddAdmin(List<AdminMenu> list);
     List<AdminMenu> selectHaveAdminMenuRecord(Integer adminID,List<Integer> menuID);
-
+    List<Integer> judgeAdminPermission(Integer adminID,List<Integer> menuIdList);
 }
