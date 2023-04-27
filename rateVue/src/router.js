@@ -87,7 +87,20 @@ export default new Router({
           name: 'SalDetail',
           component: () => import('./views/admin/SalDetail'),
           meta: { title: 'SalDetail' },
-        }, {
+        },
+        {
+          path: '/per/emp',
+          name: '查看所有单位',
+          component: () => import('./views/admin/PerEmp'),
+          meta: { title: '查看所有单位' },
+        },
+        {
+          path: '/per/ec',
+          name: '查看各个单位管理员列表',
+          component: () => import('./views/admin/PerEc'),
+          meta: { title: '查看各个单位管理员列表' },
+        },
+        {
           path: '/ActivitM/total',
           name: 'SalTotal',
           component: () => import('./views/admin/SalTotal'),

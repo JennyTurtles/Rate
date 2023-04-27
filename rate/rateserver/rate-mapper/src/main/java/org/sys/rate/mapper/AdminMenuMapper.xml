@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.sys.rate.mapper.AdminMenuMapper">
+    <resultMap id="BaseResultMap" type="org.sys.rate.model.AdminMenu">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <result column="adminID" property="adminID" jdbcType="INTEGER"></result>
+        <result column="menuID" property="menuID" jdbcType="INTEGER"></result>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    ID, adminID,menuID
+    </sql>
+
+    <insert id="insertRecordsOfAddAdmin" parameterType="org.sys.rate.model.AdminMenu">
+        insert into admin_menu (adminID,menuID) values
+        <foreach collection="list" separator="," item="list">
+            (#{list.adminID,jdbcType=INTEGER},
+            #{list.menuID,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+    <select id="selectHaveAdminMenuRecord" resultMap="BaseResultMap" >
+        select * from admin_menu
+        where adminID = #{adminID} and menuID = #{menuID}
+    </select>
+</mapper>

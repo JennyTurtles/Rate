@@ -126,9 +126,9 @@
     delete from hr
     where id = #{id,jdbcType=INTEGER}
   </delete>
-    <insert id="insert" parameterType="org.sys.rate.model.Admin">
-    insert into admin (id, institutionID,name, phone, email, enabled, username, password, role, comment)
-    values (#{id,jdbcType=INTEGER},
+    <insert id="insert" parameterType="org.sys.rate.model.Admin" useGeneratedKeys="true" keyProperty="ID">
+    insert into admin (ID, institutionID,name, phone, email, enabled, username, password, role, comment)
+    values (#{ID,jdbcType=INTEGER},
             #{institutionID,jdbcType=INTEGER},
             #{name,jdbcType=VARCHAR}, #{phone,jdbcType=CHAR},
       #{email,jdbcType=VARCHAR}, #{enabled,jdbcType=BIT},

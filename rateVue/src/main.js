@@ -41,6 +41,7 @@ import {
     Collapse,
     FormItem,
     Checkbox,
+    CheckboxGroup,
     Header,
     DropdownMenu,
     DropdownItem,
@@ -74,6 +75,7 @@ Vue.component(Message);
 Vue.use(CollapseItem);
 Vue.use(Radio);
 Vue.use(RadioGroup);
+Vue.use(CheckboxGroup);
 Vue.use(DatePicker);
 Vue.use(Upload);
 Vue.use(Row);

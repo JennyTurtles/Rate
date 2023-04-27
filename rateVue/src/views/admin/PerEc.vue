@@ -272,24 +272,11 @@
               placeholder="请输入登录password"
           ></el-input>
         </el-form-item>
-<!--        <el-form-item label="单位编号:" prop="institutionID">
-          <el-input
-              size="mini"
-              style="width: 30%"
-              prefix-icon="el-icon-edit"
-              v-model="hr_info_new.institutionID"
-              placeholder="请输入单位编号"
-          ></el-input>
-        </el-form-item>-->
-<!--        <el-form-item label="角色:" prop="role">
-          <el-input
-              size="mini"
-              style="width: 30%"
-              prefix-icon="el-icon-edit"
-              v-model="hr_info_new.role"
-              placeholder="请输入角色"
-          ></el-input>
-        </el-form-item>-->
+        <el-form-item label=" 添加权限:" prop="comment">
+          <el-checkbox-group v-model="menuPermissionSelected">
+            <el-checkbox v-for="item in menuPermissionList" :key="item.id" :label="item.id">{{item.name}}</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
         <el-form-item label=" 备 注:" prop="comment">
           <el-input
               prefix-icon="el-icon-edit"
@@ -403,6 +390,21 @@ export default {
   name: "PerEc",
   data() {
     return {
+      menuPermissionSelected:[],
+      menuPermissionList:[
+          //为了避免组件有重名的情况，所以用id做标识，但是也不是好办法
+        {
+          name:"本科生管理权限",
+          id:97
+        },
+        {
+          name:"研究生管理权限",
+          id:98
+        },
+        {
+          name:"教师管理权限",
+          id:96
+        }],
       labelPosition: "left",
       searchValue: {
         compnayName: null,
@@ -434,6 +436,7 @@ export default {
         password: "123",
         role: 1,
         comment: null,
+        menuPermission:[]
       },
       hr_info_new: {
         id: null,
@@ -447,6 +450,7 @@ export default {
         password: "123",
         role: 1,
         comment: null,
+        menuPermission:[]
       },
       rules: {
         compnayName: {
@@ -535,6 +539,7 @@ export default {
     },
     showAddEmpView() {
       this.title = "添加管理员";
+      this.menuPermissionSelected = []//数据清空
       this.dialogVisible = true;
     },
     initHrs() {
@@ -599,10 +604,10 @@ export default {
     },
     doAddHr() {
       if (this.hr_info.id) {
-        //console.log(this.hr_info);
         const _this = this;
         this.$refs["adminForm"].validate((valid) => {
           if (valid) {
+            this.hr_info.menuPermission = this.menuPermissionSelected
             this.postRequest("/system/admin/update", _this.hr_info).then(
                 (resp) => {
                   if (resp) {
@@ -618,22 +623,19 @@ export default {
           }
         });
       } else {
-        //console.log(this.hr_info_new);
         this.$refs["adminForm"].validate((valid) => {
           // const _this = this;
           this.hr_info_new.institutionID=this.keywords_id;
+          this.hr_info_new.menuPermission = this.menuPermissionSelected//设置菜单权限
           if (valid) {
             const _this = this;
-            this.putRequest("/system/admin/insert", _this.hr_info_new).then(
-                (resp) => {
+            this.putRequest("/system/admin/insert", _this.hr_info_new).then((resp) => {
                   if (resp) {
-                    this.dialogVisible = false;
-                    this.initHrs();
-
-                    if(resp.msg==='添加成功!')
-                    {Message.success(resp.msg)}
-                    else
-                    {Message.error(resp.msg)}
+                    if(resp.status == 200){
+                      this.dialogVisible = false;
+                      this.initHrs();
+                      this.$message.success(resp.msg)
+                    } else this.$message.error(resp.msg)
                   }
                 }
             );

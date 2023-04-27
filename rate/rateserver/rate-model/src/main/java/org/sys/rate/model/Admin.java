@@ -14,47 +14,20 @@ import java.util.Objects;
 public class Admin extends Account {
     private Integer ID;
     private String companyName;
-//    private Integer institutionID;
-    //private String name;
-
     private String phone;
-    //private Boolean enabled;
     private String telephone;
-
     private String email;
-
-    //private Boolean deleteFlag;
-
-    //private String username;
-
-    //private String password;
-
     private String comment;
+    private List<Integer> menuPermission;//具体到每个管理员是否有具体某个菜单的权限
 
-    //private String role;
-    //private List<Role> roles;
-
-    /*@Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Admin hr = (Admin) o;
-        return Objects.equals(username, hr.username);
+    public List<Integer> getMenuPermission() {
+        return menuPermission;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(username);
+    public void setMenuPermission(List<Integer> menuPermission) {
+        this.menuPermission = menuPermission;
     }
 
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
-    }
-*/
     public Integer getID() {
         return ID;
     }
@@ -70,22 +43,6 @@ public class Admin extends Account {
     public void setcompanyName(String companyName) {
         this.companyName = companyName == null ? null : companyName.trim();
     }
-
-//    public Integer getinstitutionID() {
-//        return institutionID;
-//    }
-//
-//    public void setinstitutionID(Integer institutionID) {
-//        this.institutionID = institutionID;
-//    }
-
-/*    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name == null ? null : name.trim();
-    }*/
 
     public String getPhone() {
         return phone;
@@ -111,11 +68,6 @@ public class Admin extends Account {
         this.email = email == null ? null : email.trim();
     }
 
-
-    /*public String getUsername() {
-        return username;
-    }*/
-
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -130,41 +82,6 @@ public class Admin extends Account {
     public boolean isCredentialsNonExpired() {
         return true;
     }
-
-/*
-
-    public void setUsername(String username) {
-        this.username = username == null ? null : username.trim();
-    }
-*/
-
-    /*@Override
-    @JsonIgnore
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        System.out.println("GrantedAuthority获得角色的list");
-        List<SimpleGrantedAuthority> authorities = new ArrayList<>(roles.size());
-        for (Role role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role.getName()));
-        }
-        return authorities;
-    }*/
-
-   /* public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password == null ? null : password.trim();
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role == null ? null : role.trim();
-    }
-*/
     public String getComment() {
         return comment;
     }
@@ -173,11 +90,4 @@ public class Admin extends Account {
         this.comment = comment == null ? null : comment.trim();
     }
 
-   /* public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
-    }
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }*/
 }

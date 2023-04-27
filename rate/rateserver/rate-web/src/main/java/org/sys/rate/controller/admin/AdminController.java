@@ -77,9 +77,6 @@ public class AdminController {
 
     @PutMapping("/insert")
     public RespBean addAdmin(@RequestBody Admin admin) {
-        if (adminService.addNew(admin) == 1) {
-            return RespBean.ok("添加成功!");
-        }
-        return RespBean.error("添加失败!");
+        return adminService.addNew(admin);
     }
 }
