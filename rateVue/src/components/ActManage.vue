@@ -504,7 +504,8 @@
                   <el-select
                      style="width: 80%"
                      v-model="gradeForm.instructorScoreItemsActID"
-                     placeholder="请选择对应的子活动">
+                     placeholder="请选择对应的子活动"
+                     @change="gradeForm.instructorScoreItems=[]">
                       <el-option
                               v-for="item in subActs"
                               :key="item.id"
@@ -518,7 +519,8 @@
                   <el-select
                     style="width: 80%"
                     v-model="gradeForm.reviewScoreItemsActID"
-                    placeholder="请选择对应的子活动">
+                    placeholder="请选择对应的子活动"
+                    @change="gradeForm.reviewScoreItems=[]">
                       <el-option
                          v-for="item in subActs"
                          :key="item.id"
@@ -532,7 +534,8 @@
                   <el-select
                     style="width: 80%"
                     v-model="gradeForm.defenseScoreItemsActID"
-                    placeholder="请选择对应的子活动">
+                    placeholder="请选择对应的子活动"
+                    @change="gradeForm.defenseScoreItems=[]">
                       <el-option
                          v-for="item in subActs"
                          :key="item.id"
@@ -583,7 +586,7 @@
         </el-table>
         <el-button type="success" style="margin-top: 10px" @click="scoreItemSelected.push({})">新增</el-button>
         <span slot="footer" class="dialog-footer">
-            <el-button @click="innerVisible = false">取 消</el-button>
+<!--            <el-button @click="innerVisible = false;scoreItemSelected=[]">取 消</el-button>-->
             <el-button type="primary" @click="innerVisible = false;confirmScoreItem()">确 定</el-button>
         </span>
       </el-dialog>
@@ -750,6 +753,7 @@ export default {
         })
     },
       goExportGradeForm(){
+          // 懒得封装成函数了
           for (var i = 0; i < this.gradeForm.defenseScoreItems.length; i++) {
               if (typeof this.gradeForm.defenseScoreItems[i].id === 'undefined')
                   this.gradeForm.defenseScoreItems.splice(i, 1);
@@ -762,6 +766,7 @@ export default {
               if (typeof this.gradeForm.instructorScoreItems[i].id === 'undefined')
                   this.gradeForm.instructorScoreItems.splice(i, 1);
           }
+          this.gradeForm.teacherID = this.user.id
           console.log(this.gradeForm)
       },
     changeCheckGroup(row){
@@ -1246,6 +1251,7 @@ export default {
           this.getRequest("/activities/basic/sub?activityID="+data.id).then((resp)=>{
               this.subActs = resp.obj
           })
+          this.gradeForm.activityID = data.id
         this.exportGradeFormVisible = true;
       },
       showScoreItemByActID(actID){
