@@ -1,5 +1,6 @@
 package org.sys.rate.controller.expert;
 
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -310,6 +311,14 @@ public class ExpertController {
 //        ExportFileUtils.createPdf(document, map);
 //        return new ModelAndView(new ViewPDF(), model);
 
+    }
+    @PostMapping("/exportGradeForm")
+    public RespBean exportGradeForm(@RequestBody ExportGradeMapper exportGradeMapper){
+        List<GradeForm> gradeForms = expertService.getGradeForms(exportGradeMapper);
+        // 基于gradeForms导出word
+
+
+        return RespBean.ok("success");
     }
 }
 

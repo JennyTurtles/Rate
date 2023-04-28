@@ -462,7 +462,7 @@
               <el-form-item label="指导教师评语:">
                   <el-select
                      style="width: 100%"
-                     v-model="gradeForm.instructorComment"
+                     v-model="gradeForm.instructorCommentActID"
                      placeholder="请选择对应的子活动"
                   >
                     <el-option
@@ -476,7 +476,7 @@
               <el-form-item label="评阅教师评语:" prop="startDate">
                   <el-select
                      style="width: 100%"
-                     v-model="gradeForm.reviewComment"
+                     v-model="gradeForm.reviewCommentActID"
                      placeholder="请选择对应的子活动">
                      <el-option
                        v-for="item in subActs"
@@ -489,7 +489,7 @@
               <el-form-item label="答辩评语:" prop="startDate">
                  <el-select
                     style="width: 100%"
-                    v-model="gradeForm.defenseComment"
+                    v-model="gradeForm.defenseCommentActID"
                     placeholder="请选择对应的子活动">
                     <el-option
                       v-for="item in subActs"
@@ -626,9 +626,9 @@ export default {
       emps: [],
       emp_edit:{},
       gradeForm:{
-          instructorComment: '',
-          reviewComment: '',
-          defenseComment: '',
+          instructorCommentActID: '',
+          reviewCommentActID: '',
+          defenseCommentActID: '',
           instructorScoreItemsActID: '',
           reviewScoreItemsActID: '',
           defenseScoreItemsActID: '',
@@ -752,21 +752,35 @@ export default {
             }
         })
     },
+      // 转换为map
+      scoreItemsConvert(scoreItems){
+          var res = {}
+          for (var i in scoreItems) {
+              const scoreItem = scoreItems[i]
+              if (typeof scoreItem.id === 'undefined' || scoreItem.id === '' || typeof scoreItem.coef === 'undefined' || scoreItem.coef === '')
+                  continue
+              res[scoreItem.id] = scoreItem.coef
+          }
+          return res
+      },
       goExportGradeForm(){
-          // 懒得封装成函数了
-          for (var i = 0; i < this.gradeForm.defenseScoreItems.length; i++) {
-              if (typeof this.gradeForm.defenseScoreItems[i].id === 'undefined')
-                  this.gradeForm.defenseScoreItems.splice(i, 1);
-          }
-          for (var i = 0; i < this.gradeForm.reviewScoreItems.length; i++) {
-              if (typeof this.gradeForm.reviewScoreItems[i].id === 'undefined')
-                  this.gradeForm.reviewScoreItems.splice(i, 1);
-          }
-          for (var i = 0; i < this.gradeForm.instructorScoreItems.length; i++) {
-              if (typeof this.gradeForm.instructorScoreItems[i].id === 'undefined')
-                  this.gradeForm.instructorScoreItems.splice(i, 1);
-          }
           this.gradeForm.teacherID = this.user.id
+          this.gradeForm.instructorScoreItems = this.scoreItemsConvert(this.gradeForm.instructorScoreItems)
+          this.gradeForm.reviewScoreItems = this.scoreItemsConvert(this.gradeForm.reviewScoreItems)
+          this.gradeForm.defenseScoreItems = this.scoreItemsConvert(this.gradeForm.defenseScoreItems)
+          this.postRequest("/system/Experts/exportGradeForm",this.gradeForm).then(res=>{
+              if(res.status === 200){
+                  this.$message({
+                      type: 'success',
+                      message: '导出成绩评定表成功!'
+                  });
+              }else{
+                  this.$message({
+                      type: 'error',
+                      message: '导出成绩评定表失败!'
+                  });
+              }
+          })
           console.log(this.gradeForm)
       },
     changeCheckGroup(row){
