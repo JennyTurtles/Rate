@@ -649,7 +649,8 @@ public class ExpertService implements UserDetailsService {
 		List<GradeForm> result = new ArrayList<>();
 		for (Integer studentID : studentIDs) {
 			GradeForm gradeForm = underGraduateMapper.getGradeFormByStuID(studentID);
-
+			if (gradeForm == null) // 本科生表中没有记录，或毕设表中没有记录
+				continue;
 			// 获取评语，后续可以将将数据库操作合并
 			Map<Integer,List<Comment>> comments = new HashMap<>();
 			comments.put(GradeForm.Type.INSTRUCTOR.ordinal(),commentMapper.getGradeFormComment(exportGradeMapper.instructorCommentActID,studentID));

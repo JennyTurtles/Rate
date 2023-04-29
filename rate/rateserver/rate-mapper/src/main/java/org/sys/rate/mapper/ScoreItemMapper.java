@@ -85,6 +85,6 @@ public interface ScoreItemMapper {
 
     @Select("SELECT sa.scoreItemID as id,s.name,sa.score\n" +
             "FROM participants p,score_average sa,scoreitem s\n" +
-            "WHERE p.studentID = 2465 AND sa.participantID = p.ID AND sa.scoreItemID = s.ID")
+            "WHERE p.studentID = #{studentID} AND sa.participantID = p.ID AND sa.scoreItemID = s.ID")
     List<ScoreItem> getScoreItemsByStuID(Integer studentID);
 }
