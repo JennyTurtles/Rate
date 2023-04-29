@@ -11,10 +11,10 @@ public class Comment {
     private Integer ID;
     private Integer activityID;
     private Integer teacherID;
+    private String  teacherName;
     private Integer participantID;
     private String content;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date date;
-    private Integer type;
 }

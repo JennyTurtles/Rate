@@ -19,8 +19,6 @@ public class ScoreItem {
 
     private Boolean byexpert;
 
-    private Integer type;
-
     public Integer getId() {
         return id;
     }

@@ -17,10 +17,8 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service("expertService")
 public class ExpertService implements UserDetailsService {
@@ -36,6 +34,10 @@ public class ExpertService implements UserDetailsService {
 	ScoreItemMapper scoreItemMapper;
 	@Resource
 	GroupsMapper groupsMapper;
+	@Resource
+	UnderGraduateMapper underGraduateMapper;
+	@Resource
+	CommentMapper commentMapper;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -643,6 +645,40 @@ public class ExpertService implements UserDetailsService {
 
 
 	public List<GradeForm> getGradeForms(ExportGradeMapper exportGradeMapper) {
-	    return null;
+		List<Integer> studentIDs = participatesMapper.getStudentIDbyGroupID(exportGradeMapper.getGroupID());
+		List<GradeForm> result = new ArrayList<>();
+		for (Integer studentID : studentIDs) {
+			GradeForm gradeForm = underGraduateMapper.getGradeFormByStuID(studentID);
+
+			// 获取评语，后续可以将将数据库操作合并
+			Map<Integer,List<Comment>> comments = new HashMap<>();
+			comments.put(GradeForm.Type.INSTRUCTOR.ordinal(),commentMapper.getGradeFormComment(exportGradeMapper.instructorCommentActID,studentID));
+			comments.put(GradeForm.Type.REVIEWER.ordinal(),commentMapper.getGradeFormComment(exportGradeMapper.reviewCommentActID,studentID));
+			comments.put(GradeForm.Type.DEFENSE.ordinal(),commentMapper.getGradeFormComment(exportGradeMapper.defenseCommentActID,studentID));
+			gradeForm.setComments(comments);
+
+			// 获取评分项
+			Map<Integer,List<ScoreItem>> scoreItems = new HashMap<>();
+			List<ScoreItem> allScoreItem = scoreItemMapper.getScoreItemsByStuID(studentID); // 从score_average中获取
+			for (ScoreItem scoreItem : allScoreItem){
+				if (exportGradeMapper.instructorScoreItems.containsKey(scoreItem.getId())){
+					scoreItem.setCoef(exportGradeMapper.instructorScoreItems.get(scoreItem.getId()));
+					scoreItems.computeIfAbsent(GradeForm.Type.INSTRUCTOR.ordinal(), k -> new ArrayList<>()).add(scoreItem);
+				}
+				if (exportGradeMapper.reviewScoreItems.containsKey(scoreItem.getId())){
+					scoreItem.setCoef(exportGradeMapper.reviewScoreItems.get(scoreItem.getId()));
+					scoreItems.computeIfAbsent(GradeForm.Type.REVIEWER.ordinal(), k -> new ArrayList<>()).add(scoreItem);
+				}
+				if (exportGradeMapper.defenseScoreItems.containsKey(scoreItem.getId())){
+					scoreItem.setCoef(exportGradeMapper.defenseScoreItems.get(scoreItem.getId()));
+					scoreItems.computeIfAbsent(GradeForm.Type.DEFENSE.ordinal(), k -> new ArrayList<>()).add(scoreItem);
+				}
+			}
+			gradeForm.setScoreItems(scoreItems);
+
+			// 该学生的成绩评定表获取完毕
+			result.add(gradeForm);
+		}
+		return result;
 	}
 }

@@ -635,6 +635,7 @@ export default {
           instructorScoreItems: [],
           reviewScoreItems: [],
           defenseScoreItems: [],
+          groupID: -1,
       },
       loading: false,
       dialogVisible: false,
@@ -1262,6 +1263,7 @@ export default {
        })
      },
       exportGradeForm(data){
+          this.gradeForm.groupID = data.groupID
           this.getRequest("/activities/basic/sub?activityID="+data.id).then((resp)=>{
               this.subActs = resp.obj
           })
