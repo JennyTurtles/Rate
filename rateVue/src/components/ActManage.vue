@@ -932,7 +932,7 @@ export default {
       this.emp.haveComment = this.haveComment ? 1 : 0
       this.emp.requireGroup = this.requireGroup ? 1 : 0
       this.$set(this.emp,"adminID",this.user.id)
-      this.emp.startDate = this.dateFormatFunc(new Date())
+      this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
       if (this.emp.id) {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
@@ -957,7 +957,7 @@ export default {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
             this.$set(this.emp,"adminID",this.user.id)
-            this.emp.startDate = this.dateFormatFunc(new Date())
+            this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
             // this.emp.adminID = this.user.id
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(
