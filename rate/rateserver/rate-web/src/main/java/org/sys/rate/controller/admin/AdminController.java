@@ -1,15 +1,19 @@
 package org.sys.rate.controller.admin;
 
-import org.sys.rate.model.Admin;
-import org.sys.rate.model.RespBean;
-import org.sys.rate.model.RespPageBean;
-import org.sys.rate.model.Role;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.sys.rate.mapper.AdminActivityMapper;
+import org.sys.rate.mapper.AdminMapper;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.HrService;
 import org.sys.rate.service.admin.AdminService;
 import org.sys.rate.service.admin.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,6 +34,10 @@ public class AdminController {
     AdminService adminService;
     @Autowired
     RoleService roleService;
+    @Resource
+    AdminMapper adminMapper;
+    @Resource
+    AdminActivityMapper adminActivityMapper;
     @GetMapping("/")
     public RespPageBean getAllAds(@RequestParam String keywords, @RequestParam Integer ID,@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
         return adminService.getAllHrs(keywords,ID,page, size);
@@ -78,5 +86,27 @@ public class AdminController {
     @PutMapping("/insert")
     public RespBean addAdmin(@RequestBody Admin admin) {
         return adminService.addNew(admin);
+    }
+    @GetMapping("/selectAdminOfCurrentInstitution")
+    public Msg selectAdminOfCurrentInstitution(@RequestParam("dialogAddTeaPermissionPage") Integer dialogAddTeaPermissionPage,
+                                               @RequestParam("dialogAddTeaPermissionSize") Integer dialogAddTeaPermissionSize,
+                                               @RequestParam("activityID") Integer activityID, @RequestParam("institutionID") Integer institutionID){
+        //因为要考虑分页情况，但是两者又不太能联合查询，前端也要添加属性判断状态，所以先用Msg吧
+        List<Admin> adm = new ArrayList<>();
+        Object[] res = null;
+        List<AdminActivity> adminActivities = new ArrayList<>();
+        try{
+            //拿到关于这个活动已经存在的管理员名单
+            adminActivities = adminActivityMapper.selectAllOfCurrentActivity(activityID,institutionID);
+            //拿到关于这个单位下的所有管理员名单，并做分页处理
+            Page page = PageHelper.startPage(dialogAddTeaPermissionPage, dialogAddTeaPermissionSize);
+             adm = adminMapper.selectCurrentInstitutionAdmins(institutionID);
+            PageInfo info = new PageInfo<>(page.getResult());
+             res = new Object[]{adm, info.getTotal()};
+        }catch (Exception e){
+            return Msg.fail();
+        }
+        return Msg.success().add("adm",res).add("aa",adminActivities);//返回形式不太好
+
     }
 }

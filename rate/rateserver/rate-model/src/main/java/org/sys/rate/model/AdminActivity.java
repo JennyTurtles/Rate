@@ -6,6 +6,15 @@ public class AdminActivity {
     private Integer adminID;
 
     private Integer activityID;
+    private Integer institutionID;
+
+    public Integer getInstitutionID() {
+        return institutionID;
+    }
+
+    public void setInstitutionID(Integer institutionID) {
+        this.institutionID = institutionID;
+    }
 
     public Integer getID() {
         return ID;

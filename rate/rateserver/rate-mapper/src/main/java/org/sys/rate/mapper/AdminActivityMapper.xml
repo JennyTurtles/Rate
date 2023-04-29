@@ -5,6 +5,7 @@
         <id column="ID" property="ID" jdbcType="INTEGER"/>
         <result column="adminID" property="adminID" jdbcType="INTEGER"></result>
         <result column="activityID" property="activityID" jdbcType="INTEGER"></result>
+        <result column="institutionID" property="institutionID" jdbcType="INTEGER"></result>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -12,8 +13,29 @@
     </sql>
 
     <insert id="insertRecordOfAddActivity">
-        insert into admin_activity (adminID,activityID)
+        insert into admin_activity (adminID,activityID,institutionID)
         values (#{adminID,jdbcType=INTEGER},
-                #{activityID,jdbcType=INTEGER})
+                #{activityID,jdbcType=INTEGER},
+                (select institutionID from admin where ID = #{adminID}))
     </insert>
+    <insert id="insertRecordListOfAddActivity">
+        insert into admin_activity (adminID,activityID,institutionID) values
+                <foreach collection="adminID" item="item" separator=",">
+                    (#{item,jdbcType=INTEGER},
+                    #{activityID,jdbcType=INTEGER},
+                    #{institutionID,jdbcType=INTEGER})
+                </foreach>
+    </insert>
+    <select id="selectAllOfCurrentActivity" resultMap="BaseResultMap">
+        select *
+        from admin_activity
+        where activityID = #{activityID} and institutionID = #{institutionID};
+    </select>
+    <delete id="deletePermissions">
+        delete from admin_activity where adminID in
+        <foreach item="ID" collection="adminID" open="(" separator="," close=")">
+            #{ID}
+        </foreach>
+        and activityID = #{activityID} and institutionID = #{institutionID};
+    </delete>
 </mapper>

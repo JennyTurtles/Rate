@@ -22,8 +22,8 @@
         </collection>
     </resultMap>
     <sql id="Base_Column_List">
-    ID, companyName,institutionID,name, phone, email, enabled, username, password, role, comment
-  </sql>
+        ID, companyName,institutionID,name, phone, email, enabled, username, password, role, comment
+    </sql>
     <select id="getAllHrsExceptCurrentHr" resultMap="BaseResultMap">
         select * from admin where ID !=#{id};
     </select>
@@ -106,10 +106,6 @@
                          comment=#{comment,jdbcType=VARCHAR}
         where ID=#{ID,jdbcType=INTEGER}
     </update>
-
-
-
-
     <select id="getAdminRolesById" resultType="org.sys.rate.model.Role">
     select r.* from role r,admin a where a.`role`=r.`id` and a.`id`=#{id}
   </select>
@@ -237,4 +233,9 @@
       remark = #{remark,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+    <select id="selectCurrentInstitutionAdmins"  resultMap="BaseResultMap">
+        select *
+        from admin
+        where institutionID = #{institutionID}
+    </select>
 </mapper>

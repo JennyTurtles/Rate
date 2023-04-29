@@ -339,19 +339,6 @@
                              @change="changeCheckGroup(scope.row)"></el-checkbox>
             </template>
         </el-table-column>
-<!--          <el-table-column-->
-<!--                  v-if="mode === 'secretarySub'"-->
-<!--                  prop="group"-->
-<!--                  label="是否分组"-->
-<!--                  align="center"-->
-<!--                  width="75"-->
-<!--          >-->
-<!--              <template slot-scope="scope">-->
-<!--                  <el-checkbox v-model="scope.row.requireGroup"-->
-<!--                               disabled-->
-<!--                               @change="changeCheckGroup(scope.row)"></el-checkbox>-->
-<!--              </template>-->
-<!--          </el-table-column>-->
       </el-table>
 
       <div style="display: flex; justify-content: flex-end; margin: 10px 0">
@@ -451,6 +438,27 @@
         >关 闭</el-button
         >
       </span>
+    </el-dialog>
+    <el-dialog title="添加老师" :visible.sync="dialogActivityPermission" width="70%" center @close="closeDialogOfAddPermission">
+      <el-table @selection-change="handleSelectionChange" :data="currentInstitutionAdminList" ref="addPermissionTable">
+        <el-table-column type="selection" width="35px" ></el-table-column>
+        <el-table-column label="姓名" prop="name"></el-table-column>
+        <el-table-column label="电话" prop="phone"></el-table-column>
+      </el-table>
+      <div style="margin-top: 10px;text-align:right">
+        <el-pagination @size-change="dialogAddTeaPermissionSizeChange"
+                       @current-change="dialogAddTeaPermissionPageChange"
+                       :current-page="dialogAddTeaPermissionPage"
+                       :page-size="dialogAddTeaPermissionSize" layout="total, sizes, prev, pager, next, jumper"
+                       :total="dialogAddTeaPermissionTotal"
+                       :page-sizes="[15,15,20,20,20]"
+                       background
+        >
+        </el-pagination>
+      </div>
+      <el-button @click="doAddAdminPermission">确定</el-button>
+      <el-button>取消</el-button>
+
     </el-dialog>
     <el-dialog title="成绩评定表导出设置" :visible.sync="exportGradeFormVisible" width="35%">
           <el-form
@@ -552,7 +560,7 @@
         <el-button type="primary" @click="goExportGradeForm();exportGradeFormVisible = false">下 载</el-button>
       </span>
       </el-dialog>
-      <el-dialog
+    <el-dialog
         width="80%"
         :title="innerDialogType"
         :visible.sync="innerVisible"
@@ -602,9 +610,15 @@ export default {
   props:["mode","activityID","actName","groupName","groupID"], // 四个地方复用组件
   data() {
     return {
+      currentActivity:{},
+      dialogAddTeaPermissionPage:1,//给老师授权对话框中的分页控制
+      dialogAddTeaPermissionSize:15,
+      dialogAddTeaPermissionTotal:0,
+      selectedAddAdminList:[],//选择的需要授权管理员的列表
+      currentInstitutionAdminList:[],//当前单位下的所有管理员
       scoreItems:[],
       dialogActivityPermission:false,//控制对话框
-      dialogActivityPermissionOfAdmin:[],//选择授权的管理员名单
+      activityPermissionOfAdmin:[],//选择授权的管理员名单
       scoreItemSelected:[[]],
       innerDialogType: '',
       innerVisible:false,
@@ -696,20 +710,53 @@ export default {
     this.initEmps();
   },
   methods: {
-      confirmScoreItem(){
-          if (this.innerDialogType === '指导教师评分项'){
-              this.gradeForm.instructorScoreItems = this.scoreItemSelected
-          }else if (this.innerDialogType === '评阅教师评分项'){
-              this.gradeForm.reviewScoreItems = this.scoreItemSelected
-          }else
-              this.gradeForm.defenseScoreItems = this.scoreItemSelected
-      },
-      deleteRow(row){
-          const index = this.scoreItemSelected.indexOf(row);
-          if (index !== -1) {
-              this.scoreItemSelected.splice(index, 1);
+    closeDialogOfAddPermission(){
+      this.dialogActivityPermission = false
+      this.currentInstitutionAdminList = []
+    },
+    doAddAdminPermission(){//点击对话框中的确定按钮
+      let url = '/adminactivity/basic/changePermissionList'
+      let data = this.selectedAddAdminList.map((item) => {
+        let temp = {
+          adminID:item.id,
+          activityID:this.currentActivity.id,
+          institutionID:this.user.institutionID
+        }
+        return temp
+      })
+      this.postRequest(url,data).then((response) => {
+        if(response){
+          if(response.status === 200){
+            this.$message.success(response.msg)
+            this.closeDialogOfAddPermission()
           }
-      },
+        }
+      })
+    },
+    dialogAddTeaPermissionPageChange(){
+
+    },
+    dialogAddTeaPermissionSizeChange(){
+
+    },
+    handleSelectionChange(selection){//选择某行数据调用的函数 selection - 存储当前被选中的所有行数据
+      console.log(selection)
+      this.selectedAddAdminList = selection
+    },
+    confirmScoreItem(){
+        if (this.innerDialogType === '指导教师评分项'){
+            this.gradeForm.instructorScoreItems = this.scoreItemSelected
+        }else if (this.innerDialogType === '评阅教师评分项'){
+            this.gradeForm.reviewScoreItems = this.scoreItemSelected
+        }else
+            this.gradeForm.defenseScoreItems = this.scoreItemSelected
+    },
+    deleteRow(row){
+        const index = this.scoreItemSelected.indexOf(row);
+        if (index !== -1) {
+            this.scoreItemSelected.splice(index, 1);
+        }
+    },
     getScoreItems(id){
         if (id === ""){
             // 弹出提示框
@@ -738,7 +785,45 @@ export default {
     },
     //活动进行授权给其他的管理员
     activityPermission(data){
-
+      this.currentActivity = data
+      this.dialogActivityPermission = true
+      let url = '/system/admin/selectAdminOfCurrentInstitution?dialogAddTeaPermissionPage=' + this.dialogAddTeaPermissionPage +
+          '&dialogAddTeaPermissionSize=' + this.dialogAddTeaPermissionSize + '&activityID=' + data.id + '&institutionID=' + this.user.institutionID
+      this.getRequest(url).then((resp)=>{
+        if(resp){
+          if(resp.code == 200){
+            let adm = resp.extend.adm
+            let aa = resp.extend.aa
+            this.currentInstitutionAdminList = resp.extend.adm
+            for(let i = 0;i < adm[0].length;i ++){
+              for(let j = 0;j < aa.length; j++){
+                if(adm[0][i].id == aa[j].id){//说明本单位下的该管理员已经有了这个活动的权限
+                  this.$set(
+                      adm[0][i],
+                      "isPermission",
+                      true
+                  )
+                }else {
+                  this.$set(
+                      adm[0][i],
+                      "isPermission",
+                      false
+                  )
+                }
+              }
+            }
+            this.currentInstitutionAdminList = adm[0]
+            this.dialogAddTeaPermissionTotal = adm[1]//找到本单位下的管理员的总数量
+            this.$nextTick(()=>{
+              for(let i = 0;i < this.currentInstitutionAdminList.length;i ++){//已经有权限的,加载数据后默认勾选
+                if(this.currentInstitutionAdminList[i].isPermission){
+                  this.$refs.addPermissionTable.toggleRowSelection(this.currentInstitutionAdminList[i],true)
+                }
+              }
+            })
+          }
+        }
+      })
     },
     assignPE(data) {
         const _this = this;
@@ -819,9 +904,6 @@ export default {
       this.importDataBtnIcon = "el-icon-loading";
       this.importDataDisabled = true;
     },
-    // exportData() {
-    //   window.open("/employee/basic/export", "_parent");
-    // },
     emptyEmp() {
       this.emp = {
         id: null,
@@ -957,7 +1039,7 @@ export default {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
             this.$set(this.emp,"adminID",this.user.id)
-            this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
+            this.emp.startDate = this.dateFormatFunc(new Date())
             // this.emp.adminID = this.user.id
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(

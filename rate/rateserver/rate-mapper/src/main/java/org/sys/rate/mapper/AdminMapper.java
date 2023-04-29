@@ -48,4 +48,5 @@ public interface AdminMapper {
     Integer updatePasswd(@Param("adminid") Integer adminid, @Param("encodePass") String encodePass);
 
     Integer updateUserface(@Param("url") String url, @Param("id") Integer id);
+    List<Admin> selectCurrentInstitutionAdmins(Integer institutionID);
 }
