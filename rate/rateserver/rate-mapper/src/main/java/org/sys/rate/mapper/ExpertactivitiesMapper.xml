@@ -94,7 +94,7 @@
   </select>
 
   <select id="checkByIDandActivityID" resultType="java.lang.Integer">
-    select groupID from expertactivities where teacherID=#{id} and activityID=#{activityid}
+    select groupID from expertactivities where teacherID=#{id} and activityID=#{activityid} LIMIT 1
   </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
