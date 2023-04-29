@@ -398,7 +398,7 @@
               type="textarea"
               :rows="2"
               v-model="emp_edit.comment"
-              placeholder="备注"
+              placeholder="活动备注example：关于xxx的活动。备注信息将显示在专家评分表的活动标题下方。"
           >
           </el-input>
         </el-form-item>
@@ -991,6 +991,7 @@ export default {
     },
     initEmps() { // 在此适配不同的组件
       this.loading = true;
+      this.emp_edit = {};
       if (this.mode === "admin"){ // 管理员活动管理
         let url = "/activities/basic/?page=" + this.page + "&size=" + this.size + "&institutionID=" + this.user.institutionID + "&adminID=" + this.user.id;
         this.getRequest(url).then((resp) => {
