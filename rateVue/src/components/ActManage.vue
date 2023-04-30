@@ -129,7 +129,7 @@
             </el-button
             >
             <el-button
-                @click="activityPermission(scope.row)"
+                @click="initAdminListofPermission(scope.row)"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
@@ -439,9 +439,9 @@
         >
       </span>
     </el-dialog>
-    <el-dialog title="添加老师" :visible.sync="dialogActivityPermission" width="70%" center @close="closeDialogOfAddPermission">
-      <el-table @selection-change="handleSelectionChange" :data="currentInstitutionAdminList" ref="addPermissionTable">
-        <el-table-column type="selection" width="35px" ></el-table-column>
+    <el-dialog title="活动授权" :visible.sync="dialogActivityPermission" width="70%" center @close="closeDialogOfAddPermission">
+      <el-table @selection-change="handleSelectionChange" :data="currentInstitutionAdminList" ref="addPermissionTable" row-key="id" >
+        <el-table-column type="selection" width="35px" :reserve-selection="true"></el-table-column>
         <el-table-column label="姓名" prop="name"></el-table-column>
         <el-table-column label="电话" prop="phone"></el-table-column>
       </el-table>
@@ -451,14 +451,15 @@
                        :current-page="dialogAddTeaPermissionPage"
                        :page-size="dialogAddTeaPermissionSize" layout="total, sizes, prev, pager, next, jumper"
                        :total="dialogAddTeaPermissionTotal"
-                       :page-sizes="[15,15,20,20,20]"
+                       :page-sizes="[20,20,20,20,20]"
                        background
         >
         </el-pagination>
       </div>
-      <el-button @click="doAddAdminPermission">确定</el-button>
-      <el-button>取消</el-button>
-
+      <span slot="footer">
+        <el-button @click="doAddAdminPermission" type="primary">确定</el-button>
+        <el-button @click="closeDialogOfAddPermission">取消</el-button>
+      </span>
     </el-dialog>
     <el-dialog title="成绩评定表导出设置" :visible.sync="exportGradeFormVisible" width="35%">
           <el-form
@@ -612,9 +613,10 @@ export default {
     return {
       currentActivity:{},
       dialogAddTeaPermissionPage:1,//给老师授权对话框中的分页控制
-      dialogAddTeaPermissionSize:15,
+      dialogAddTeaPermissionSize:20,
       dialogAddTeaPermissionTotal:0,
-      selectedAddAdminList:[],//选择的需要授权管理员的列表
+      selectedAddAdminListAllPage:[],//所有管理员名单不考虑分页
+      selectedAddAdminList:[],//选择的需要授权管理员的列表---当前页
       currentInstitutionAdminList:[],//当前单位下的所有管理员
       scoreItems:[],
       dialogActivityPermission:false,//控制对话框
@@ -712,17 +714,19 @@ export default {
   methods: {
     closeDialogOfAddPermission(){
       this.dialogActivityPermission = false
+      this.dialogAddTeaPermissionPage = 1
       this.currentInstitutionAdminList = []
     },
     doAddAdminPermission(){//点击对话框中的确定按钮
       let url = '/adminactivity/basic/changePermissionList'
-      let data = this.selectedAddAdminList.map((item) => {
+      let data = [];
+      this.selectedAddAdminList.map((item) => {
         let temp = {
           adminID:item.id,
           activityID:this.currentActivity.id,
           institutionID:this.user.institutionID
         }
-        return temp
+        data.push(temp)
       })
       this.postRequest(url,data).then((response) => {
         if(response){
@@ -733,14 +737,15 @@ export default {
         }
       })
     },
-    dialogAddTeaPermissionPageChange(){
-
+    dialogAddTeaPermissionPageChange(val){
+      this.dialogAddTeaPermissionPage = val
+      this.activityPermission(this.currentActivity)
     },
-    dialogAddTeaPermissionSizeChange(){
-
+    dialogAddTeaPermissionSizeChange(val){
+      this.dialogAddTeaPermissionSize = val
+      this.activityPermission(this.currentActivity)
     },
     handleSelectionChange(selection){//选择某行数据调用的函数 selection - 存储当前被选中的所有行数据
-      console.log(selection)
       this.selectedAddAdminList = selection
     },
     confirmScoreItem(){
@@ -783,8 +788,8 @@ export default {
             }
         })
     },
-    //活动进行授权给其他的管理员
-    activityPermission(data){
+    //活动进行授权给其他的管理员，在后端处理需要添加类字段，所以纯前端处理
+    initAdminListofPermission(data){//点击按钮进行初始化本单位下所有管理员的数据列表，并做属性赋值，用于在界面做回显
       this.currentActivity = data
       this.dialogActivityPermission = true
       let url = '/system/admin/selectAdminOfCurrentInstitution?dialogAddTeaPermissionPage=' + this.dialogAddTeaPermissionPage +
@@ -792,17 +797,50 @@ export default {
       this.getRequest(url).then((resp)=>{
         if(resp){
           if(resp.code == 200){
+            let aaAllList = resp.extend.allAdmList
+            let aa = resp.extend.aa
+            for(let i = 0;i < aaAllList.length;i ++){
+              for(let j = 0;j < aa.length; j++){
+                if(aaAllList[i].id == aa[j].adminID){//说明本单位下的该管理员已经有了这个活动的权限,使用响应式数据isPermission做判断
+                  this.$set(
+                      aaAllList[i],
+                      "isPermission",
+                      true
+                  )
+                  break;
+                }else {
+                  this.$set(
+                      aaAllList[i],
+                      "isPermission",
+                      false
+                  )
+                }
+              }
+            }
+            this.selectedAddAdminListAllPage = aaAllList
+            this.activityPermission(data)//初始化本页数据
+          }
+        }
+      })
+    },
+    activityPermission(data){//分页+selection勾选 有点复杂
+      this.currentActivity = data
+      let url = '/system/admin/selectAdminOfCurrentInstitution?dialogAddTeaPermissionPage=' + this.dialogAddTeaPermissionPage +
+          '&dialogAddTeaPermissionSize=' + this.dialogAddTeaPermissionSize + '&activityID=' + data.id + '&institutionID=' + this.user.institutionID
+      this.getRequest(url).then((resp)=>{
+        if(resp){
+          if(resp.code == 200){
             let adm = resp.extend.adm
             let aa = resp.extend.aa
-            this.currentInstitutionAdminList = resp.extend.adm
-            for(let i = 0;i < adm[0].length;i ++){
+            for(let i = 0;i < adm[0].length;i ++){//adm是本页需要展示的数据，同样做响应式属性赋值
               for(let j = 0;j < aa.length; j++){
-                if(adm[0][i].id == aa[j].id){//说明本单位下的该管理员已经有了这个活动的权限
+                if(adm[0][i].id == aa[j].adminID){
                   this.$set(
                       adm[0][i],
                       "isPermission",
                       true
                   )
+                  break;
                 }else {
                   this.$set(
                       adm[0][i],
@@ -814,10 +852,20 @@ export default {
             }
             this.currentInstitutionAdminList = adm[0]
             this.dialogAddTeaPermissionTotal = adm[1]//找到本单位下的管理员的总数量
-            this.$nextTick(()=>{
+            this.$nextTick(()=>{//用于处理勾选状态
               for(let i = 0;i < this.currentInstitutionAdminList.length;i ++){//已经有权限的,加载数据后默认勾选
-                if(this.currentInstitutionAdminList[i].isPermission){
-                  this.$refs.addPermissionTable.toggleRowSelection(this.currentInstitutionAdminList[i],true)
+                for(let j = 0;j < this.selectedAddAdminListAllPage.length;j ++){
+                  if(this.selectedAddAdminListAllPage[j].id == this.currentInstitutionAdminList[i].id){//需要在所有数据在找到本页的数据，id标识
+                    if(this.selectedAddAdminListAllPage[j].isPermission){//初始化数据中需要勾选上的某行
+                      this.$set(
+                          this.currentInstitutionAdminList[i],
+                          "isPermission",
+                          true
+                      )
+                      this.$refs.addPermissionTable.toggleRowSelection(this.currentInstitutionAdminList[i],true)
+                    }
+                    break;
+                  }
                 }
               }
             })
@@ -867,7 +915,6 @@ export default {
                   });
               }
           })
-          console.log(this.gradeForm)
       },
     changeCheckGroup(row){
       this.postRequest("/activities/basic/changeRequireGroup?activityID="+row.id+"&requireGroup="+(row.requireGroup?1:0)).then(res=>{
@@ -1039,7 +1086,7 @@ export default {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
             this.$set(this.emp,"adminID",this.user.id)
-            this.emp.startDate = this.dateFormatFunc(new Date())
+            this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
             // this.emp.adminID = this.user.id
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(

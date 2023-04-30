@@ -93,20 +93,22 @@ public class AdminController {
                                                @RequestParam("activityID") Integer activityID, @RequestParam("institutionID") Integer institutionID){
         //因为要考虑分页情况，但是两者又不太能联合查询，前端也要添加属性判断状态，所以先用Msg吧
         List<Admin> adm = new ArrayList<>();
+        List<Admin> allAdmList = new ArrayList<>();
         Object[] res = null;
         List<AdminActivity> adminActivities = new ArrayList<>();
         try{
             //拿到关于这个活动已经存在的管理员名单
             adminActivities = adminActivityMapper.selectAllOfCurrentActivity(activityID,institutionID);
+            allAdmList = adminMapper.selectCurrentInstitutionAdmins(institutionID);//先拿到所有数据，因为前端是selection和分页结合,但可以做些优化，这样写不好
             //拿到关于这个单位下的所有管理员名单，并做分页处理
             Page page = PageHelper.startPage(dialogAddTeaPermissionPage, dialogAddTeaPermissionSize);
-             adm = adminMapper.selectCurrentInstitutionAdmins(institutionID);
+            adm = adminMapper.selectCurrentInstitutionAdmins(institutionID);
             PageInfo info = new PageInfo<>(page.getResult());
-             res = new Object[]{adm, info.getTotal()};
+            res = new Object[]{adm, info.getTotal()};
         }catch (Exception e){
             return Msg.fail();
         }
-        return Msg.success().add("adm",res).add("aa",adminActivities);//返回形式不太好
+        return Msg.success().add("adm",res).add("aa",adminActivities).add("allAdmList",allAdmList);//返回形式不太好
 
     }
 }
