@@ -1,5 +1,7 @@
 package org.sys.rate.controller.admin;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -40,13 +42,10 @@ public class PaperController {
     @Resource
     IndicatorService indicatorService;
     @Resource
-    PaperOperService paperoperService;
-    @Resource
     MailToTeacherService mailToTeacherService;
-    @Resource
-    StudentService studentService;
-    @Resource
-    TeacherService teacherService;
+
+    private static final Logger logger = LoggerFactory.getLogger(PaperController.class);
+
 
     private String uploadFileName;
 

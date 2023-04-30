@@ -1,56 +1,61 @@
 package org.sys.rate.service.mail;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class PropertiesService {
 
-    private String host;
-    private String username;
-    private String password;
-    private String sendHost;
+    private String IMAPHost;
+    private String emailAddress;
+    private String IMAPVerifyCode;
+    private String SMTPHost;
 
-    private Map<String, Object> cachedProperties; // 添加一个 Map 来保存检索的数据
+    private Map<String, Object> cachedProperties;
+    private static final Logger logger = LoggerFactory.getLogger(PropertiesService.class);
 
-    public String getSendHost() {
-        return sendHost;
+    public String getSMTPHost() {
+        return SMTPHost;
     }
 
-    public void setSendHost(String sendHost) {
-        this.sendHost = sendHost;
+    public void setSMTPHost(String SMTPHost) {
+        this.SMTPHost = SMTPHost;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public void setIMAPHost(String IMAPHost) {
+        this.IMAPHost = IMAPHost;
     }
 
-    public String getHost() {
-        return host;
+    public String getIMAPHost() {
+        return IMAPHost;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 
-    public String getUsername() {
-        if(cachedProperties != null && cachedProperties.get("username") != null) {
-            return (String) cachedProperties.get("username"); // 从缓存中获取
+    public String getEmailAddress() {
+        if (cachedProperties != null && cachedProperties.get("emailAddress") != null) {
+            return (String) cachedProperties.get("emailAddress");
         } else {
             return null;
         }
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setIMAPVerifyCode(String IMAPVerifyCode) {
+        this.IMAPVerifyCode = IMAPVerifyCode;
     }
 
-    public String getPassword() {
-        if(cachedProperties != null && cachedProperties.get("password") != null) {
-            return (String) cachedProperties.get("password"); // 从缓存中获取
+    public String getIMAPVerifyCode() {
+        if (cachedProperties != null && cachedProperties.get("IMAPVerifyCode") != null) {
+            return (String) cachedProperties.get("IMAPVerifyCode");
         } else {
             return null;
         }
@@ -60,14 +65,37 @@ public class PropertiesService {
     private JdbcTemplate jdbcTemplate;
 
     public void setMyPropertyFromDatabase() {
-        String sql = "SELECT host, username, password, sendHost FROM properties WHERE id = (SELECT MAX(id) FROM properties)";
+        String sql = "SELECT `email` emailAddress,`comment` IMAPVerifyCode FROM `admin` WHERE role=6";
         cachedProperties = jdbcTemplate.queryForMap(sql);
 
-        setHost((String) cachedProperties.get("host"));
-        setUsername((String) cachedProperties.get("username"));
-        setPassword((String) cachedProperties.get("password"));
-        setSendHost((String) cachedProperties.get("sendHost"));
+        String email = (String) cachedProperties.get("emailAddress");
+        if (isEmailValid(email)) {
+            int atIndex = email.indexOf('@');
+            int dotIndex = email.indexOf('.');
+            String emailService = email.substring(atIndex + 1, dotIndex);
+            cachedProperties.put("IMAPHost", "imap." + emailService + ".com");
+            cachedProperties.put("SMTPHost", "smtp." + emailService + ".com");
+        } else {
+            logger.error("邮箱地址不合法！！！");
+        }
+        setEmailAddress(email);
+        // Kuwubuwula ngempela ukwenza lokhu, futhi angifuni, akudingekile ngempela
+        setIMAPVerifyCode((String) cachedProperties.get("IMAPVerifyCode"));
+        setIMAPHost((String) cachedProperties.get("IMAPHost"));
+        setSMTPHost((String) cachedProperties.get("SMTPHost"));
+
+        logger.info("更新了超级管理员的邮箱信息！" + getEmailAddress());
+
+
     }
+
+    public static boolean isEmailValid(String email) {
+        String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(email);
+        return matcher.matches();
+    }
+
 
     public PropertiesService() {
 

@@ -4,9 +4,7 @@ package org.sys.rate.service.mail;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.Productions;
 import org.sys.rate.model.Student;
@@ -15,13 +13,19 @@ import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.TeacherService;
 
+import javax.activation.DataHandler;
+import javax.activation.FileDataSource;
 import javax.annotation.Resource;
-import javax.mail.MessagingException;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -45,6 +49,9 @@ public class MailToTeacherService {
     PublicationService publicationService;
 
     private static final Logger logger = LoggerFactory.getLogger(MailToTeacherService.class);
+    private String from = null;
+    private String password = null;
+    private String sendHost = null;
 
     private final String greetingToUser = "亲爱的用户：<br>";
     private final String greetingToTeacher = "尊敬的老师：<br>";
@@ -53,14 +60,23 @@ public class MailToTeacherService {
     private final String solution = "解决方法：";
     private final String formatMessage = "请使用标题为<b>请在教学系统中审核XX的论文成果，成果编号：XX</b>的邮件要求的回信格式。<br><br>";
     private final String systemMessage = "本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！<br><br>";
-    private String from = null;
 
 
-    private void getFrom() {
-        this.from = propertiesService.getUsername();
+    private void handleNullPointerException() {
+        this.from = propertiesService.getEmailAddress();
+        this.password = propertiesService.getIMAPVerifyCode();
+        this.sendHost = propertiesService.getSMTPHost();
 
         if (this.from == null) {
             throw new NullPointerException("from is null");
+        }
+
+        if (this.password == null) {
+            throw new NullPointerException("password is null");
+        }
+
+        if (this.sendHost == null) {
+            throw new NullPointerException("sendHost is null");
         }
     }
 
@@ -113,28 +129,50 @@ public class MailToTeacherService {
 
     }
 
-    public void sendMailAsync(final String to, final String subject, final String content, final String fileName, final File file) {
-        if (StringUtils.isEmpty(to) || StringUtils.isEmpty(subject) || StringUtils.isEmpty(content) || StringUtils.isEmpty(fileName) || file == null) {
+    public void sendMailAsync(final String to, final String subject, final String content, final String fileName, final File attachment) {
+        if (StringUtils.isEmpty(to) || StringUtils.isEmpty(subject) || StringUtils.isEmpty(content) || StringUtils.isEmpty(fileName) || attachment == null) {
             throw new IllegalArgumentException("One or more parameters required for sending email is empty or null.");
         }
 
-        getFrom();
+        handleNullPointerException();
 
         CompletableFuture.runAsync(() -> {
-            try {
-                MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message, true);
-                helper.setFrom(this.from);
-                helper.setTo(to);
-                helper.setSubject(subject);
-                helper.setText(content, true);
-                helper.addAttachment(fileName, file);
+            Properties props = new Properties();
+            props.setProperty("mail.host", this.sendHost);
+            props.setProperty("mail.transport.protocol", "SMTP");
+            props.setProperty("mail.smtp.auth", "true");
+            Authenticator authenticator = new Authenticator() {
+                @Override
+                public PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(from, password);
+                }
+            };
 
-                mailSender.send(message);
+            Session session = Session.getInstance(props, authenticator);
+            MimeMessage message = new MimeMessage(session);
+            try {
+                message.setFrom(new InternetAddress(from));
+                message.setRecipients(Message.RecipientType.TO, to);
+                message.setSubject(subject);
+//                message.setContent(content, "text/html;charset=utf-8");
+                Multipart multipart = new MimeMultipart();
+                MimeBodyPart messageBodyPart = new MimeBodyPart();
+                messageBodyPart.setContent(content,"text/html;charset=utf-8");
+                multipart.addBodyPart(messageBodyPart);
+
+                MimeBodyPart filePart = new MimeBodyPart();
+                FileDataSource fileDataSource = new FileDataSource(attachment);
+                filePart.setDataHandler(new DataHandler(fileDataSource));
+                filePart.setFileName(attachment.getName());
+                multipart.addBodyPart(filePart);
+
+                message.setContent(multipart);
+
+                Transport.send(message);
                 logger.info("Email sent to {}", to);
             } catch (MessagingException e) {
+                e.printStackTrace();
                 logger.error("Failed to send email: {}", e.getMessage(), e);
-                throw new MailSendException("Error sending email", e);
             }
         });
     }
@@ -144,22 +182,32 @@ public class MailToTeacherService {
             throw new IllegalArgumentException("One or more parameters required for sending email is empty or null.");
         }
 
-        getFrom();
+        handleNullPointerException();
 
         CompletableFuture.runAsync(() -> {
-            try {
-                MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message, true);
-                helper.setFrom(this.from);
-                helper.setTo(to);
-                helper.setSubject(subject);
-                helper.setText(content, true);
+            Properties props = new Properties();
+            props.setProperty("mail.host", this.sendHost);
+            props.setProperty("mail.transport.protocol", "SMTP");
+            props.setProperty("mail.smtp.auth", "true");
+            Authenticator authenticator = new Authenticator() {
+                @Override
+                public PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(from, password);
+                }
+            };
 
-                mailSender.send(message);
+            Session session = Session.getInstance(props, authenticator);
+            MimeMessage message = new MimeMessage(session);
+            try {
+                message.setFrom(new InternetAddress(from));
+                message.setRecipients(Message.RecipientType.TO, to);
+                message.setSubject(subject);
+                message.setContent(content, "text/html;charset=utf-8");
+                Transport.send(message);
                 logger.info("Email sent to {}", to);
             } catch (MessagingException e) {
+                e.printStackTrace();
                 logger.error("Failed to send email: {}", e.getMessage(), e);
-                throw new MailSendException("Error sending email", e);
             }
         });
     }
@@ -301,7 +349,6 @@ public class MailToTeacherService {
 
         if (mailState.equals("editPassSuccess") || mailState.equals("editRejectSuccess")) {
             contentBuilder.append(infoProduction)
-                    .append(this.formatMessage)
                     .append(this.systemMessage);
 
         } else {

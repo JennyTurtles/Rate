@@ -67,7 +67,7 @@ public class ReceiveMails {
     public void readMails() throws Exception {
         handleNullPointerException();
         if (StringUtils.isBlank(this.from) || StringUtils.isBlank(this.password)) {
-            logger.warn("账号或密码不能为空！");
+            logger.error("账号或密码不能为空！");
             return;
         }
 
@@ -117,9 +117,9 @@ public class ReceiveMails {
     }
 
     private void handleNullPointerException() {
-        this.from = propertiesService.getUsername();
-        this.password = propertiesService.getPassword();
-        this.host = propertiesService.getHost();
+        this.from = propertiesService.getEmailAddress();
+        this.password = propertiesService.getIMAPVerifyCode();
+        this.host = propertiesService.getIMAPHost();
 
         if (this.from == null) {
             throw new NullPointerException("from is null");

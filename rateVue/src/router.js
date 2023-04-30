@@ -39,6 +39,15 @@ export default new Router({
           },
         },
         {
+          path:'/superAdmin/PersonalCenter',
+          name: '超级管理员个人中心',
+          hidden: true,
+          component: () => import('./views/admin/SuperInfo.vue'),
+          meta: {
+            title: '超级管理员个人中心',
+          },
+        },
+        {
           path: '/student/PersonalCenter',
           name: '学生个人中心',
           hidden: true,

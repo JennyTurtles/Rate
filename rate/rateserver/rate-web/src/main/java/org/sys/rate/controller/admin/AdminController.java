@@ -3,14 +3,15 @@ package org.sys.rate.controller.admin;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.AdminActivityMapper;
 import org.sys.rate.mapper.AdminMapper;
 import org.sys.rate.model.*;
-import org.sys.rate.service.admin.HrService;
 import org.sys.rate.service.admin.AdminService;
+import org.sys.rate.service.admin.HrService;
 import org.sys.rate.service.admin.RoleService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.sys.rate.service.mail.PropertiesService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -38,6 +39,9 @@ public class AdminController {
     AdminMapper adminMapper;
     @Resource
     AdminActivityMapper adminActivityMapper;
+    @Resource
+    PropertiesService propertiesService;
+
     @GetMapping("/")
     public RespPageBean getAllAds(@RequestParam String keywords, @RequestParam Integer ID,@RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
         return adminService.getAllHrs(keywords,ID,page, size);
@@ -51,6 +55,9 @@ public class AdminController {
     @PostMapping("/update")
     public RespBean updateInstitution(@RequestBody Admin admin) {
         if (adminService.updateAdmin(admin) == 1) {
+            if(admin.getRole().equals("6")){
+                propertiesService.setMyPropertyFromDatabase();
+            }
             return RespBean.ok("更新成功!");
         }
         return RespBean.error("更新失败!");

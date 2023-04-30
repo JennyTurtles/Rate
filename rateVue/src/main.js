@@ -197,7 +197,7 @@ router.beforeEach((to, from, next) => {
                 next()
                 return;
             }
-            if (to.path == '/admin/PersonalCenter' || to.path == '/teacher/PersonalCenter' || to.path == '/student/PersonalCenter') {
+            if (to.path == '/admin/PersonalCenter' || to.path == '/teacher/PersonalCenter' || to.path == '/student/PersonalCenter' || to.path == '/superAdmin/PersonalCenter') {
                 next()
                 return;
             }
