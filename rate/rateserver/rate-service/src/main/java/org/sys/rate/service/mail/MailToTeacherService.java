@@ -1,10 +1,8 @@
 package org.sys.rate.service.mail;
 
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.Productions;
 import org.sys.rate.model.Student;
@@ -13,20 +11,12 @@ import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.TeacherService;
 
-import javax.activation.DataHandler;
-import javax.activation.FileDataSource;
 import javax.annotation.Resource;
-import javax.mail.*;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
+import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,9 +27,6 @@ public class MailToTeacherService {
     PropertiesService propertiesService;
 
     @Resource
-    private JavaMailSender mailSender;
-
-    @Resource
     StudentService studentService;
 
     @Resource
@@ -47,6 +34,9 @@ public class MailToTeacherService {
 
     @Resource
     PublicationService publicationService;
+
+    @Resource
+    SendMails sendMails;
 
     private static final Logger logger = LoggerFactory.getLogger(MailToTeacherService.class);
     private String from = null;
@@ -121,7 +111,7 @@ public class MailToTeacherService {
 
             String content = contentBuilder.toString();
 
-            sendMailAsync(to, subject, content, uploadFileName, file);
+            sendMails.sendMailAsync(to, subject, content, uploadFileName, file);
         } catch (Exception e) {
             // 处理发送异常的情况
             logger.error("Exception occurred during sending email: " + e.getMessage(), e);
@@ -129,94 +119,11 @@ public class MailToTeacherService {
 
     }
 
-    public void sendMailAsync(final String to, final String subject, final String content, final String fileName, final File attachment) {
-        if (StringUtils.isEmpty(to) || StringUtils.isEmpty(subject) || StringUtils.isEmpty(content) || StringUtils.isEmpty(fileName) || attachment == null) {
-            throw new IllegalArgumentException("One or more parameters required for sending email is empty or null.");
-        }
-
-        handleNullPointerException();
-
-        CompletableFuture.runAsync(() -> {
-            Properties props = new Properties();
-            props.setProperty("mail.host", this.sendHost);
-            props.setProperty("mail.transport.protocol", "SMTP");
-            props.setProperty("mail.smtp.auth", "true");
-            Authenticator authenticator = new Authenticator() {
-                @Override
-                public PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(from, password);
-                }
-            };
-
-            Session session = Session.getInstance(props, authenticator);
-            MimeMessage message = new MimeMessage(session);
-            try {
-                message.setFrom(new InternetAddress(from));
-                message.setRecipients(Message.RecipientType.TO, to);
-                message.setSubject(subject);
-//                message.setContent(content, "text/html;charset=utf-8");
-                Multipart multipart = new MimeMultipart();
-                MimeBodyPart messageBodyPart = new MimeBodyPart();
-                messageBodyPart.setContent(content,"text/html;charset=utf-8");
-                multipart.addBodyPart(messageBodyPart);
-
-                MimeBodyPart filePart = new MimeBodyPart();
-                FileDataSource fileDataSource = new FileDataSource(attachment);
-                filePart.setDataHandler(new DataHandler(fileDataSource));
-                filePart.setFileName(attachment.getName());
-                multipart.addBodyPart(filePart);
-
-                message.setContent(multipart);
-
-                Transport.send(message);
-                logger.info("Email sent to {}", to);
-            } catch (MessagingException e) {
-                e.printStackTrace();
-                logger.error("Failed to send email: {}", e.getMessage(), e);
-            }
-        });
-    }
-
-    public void sendMailAsync(final String to, final String subject, final String content) {
-        if (StringUtils.isEmpty(to) || StringUtils.isEmpty(subject) || StringUtils.isEmpty(content)) {
-            throw new IllegalArgumentException("One or more parameters required for sending email is empty or null.");
-        }
-
-        handleNullPointerException();
-
-        CompletableFuture.runAsync(() -> {
-            Properties props = new Properties();
-            props.setProperty("mail.host", this.sendHost);
-            props.setProperty("mail.transport.protocol", "SMTP");
-            props.setProperty("mail.smtp.auth", "true");
-            Authenticator authenticator = new Authenticator() {
-                @Override
-                public PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(from, password);
-                }
-            };
-
-            Session session = Session.getInstance(props, authenticator);
-            MimeMessage message = new MimeMessage(session);
-            try {
-                message.setFrom(new InternetAddress(from));
-                message.setRecipients(Message.RecipientType.TO, to);
-                message.setSubject(subject);
-                message.setContent(content, "text/html;charset=utf-8");
-                Transport.send(message);
-                logger.info("Email sent to {}", to);
-            } catch (MessagingException e) {
-                e.printStackTrace();
-                logger.error("Failed to send email: {}", e.getMessage(), e);
-            }
-        });
-    }
-
     // Handle error messages that don't require entity classes
     public void sendTeaFeedbackMail(String to, String mailState, String originalMessage) {
         String subject = getFeedbackMailSubject(originalMessage);
         String content = getFeedbackMailContent(originalMessage, mailState);
-        sendMailAsync(to, subject, content);
+        sendMails.sendMailAsync(to, subject, content);
     }
 
     private String getFeedbackMailContent(String originalMessage, String mailState) {
@@ -311,7 +218,7 @@ public class MailToTeacherService {
             subject = "教学系统审核论文成果：论文编号" + production.getID() + "审核成功！";
         }
         String content = getFeedbackMailContent(production, correctFormat, type, infoProduction, originalMessage, mailState);
-        sendMailAsync(to, subject, content);
+        sendMails.sendMailAsync(to, subject, content);
     }
 
     private <T extends Productions> String getFeedbackMailContent(T production, String correctFormat, String type, String infoProduction, String originalMessage, String mailState) {

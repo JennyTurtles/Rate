@@ -14,7 +14,7 @@ import javax.annotation.Resource;
 @Service
 public class MailToStuService {
     @Resource
-    MailToTeacherService mailToTeacherService;
+    SendMails sendMails;
 
     @Resource
     StudentService studentService;
@@ -68,7 +68,7 @@ public class MailToStuService {
 
         // 设置邮件主题
         subject = subject!=null?subject:"东华大学计算机学院教学系统邮件";
-        mailToTeacherService.sendMailAsync(student.getEmail(), subject, content);
+        sendMails.sendMailAsync(student.getEmail(), subject, content);
     }
 
 
