@@ -1,23 +1,21 @@
 package org.sys.rate.controller.expert;
 
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.*;
 import org.sys.rate.service.expert.ExpertService;
-import org.sys.rate.service.expert.TeacherService;
 import org.sys.rate.service.expert.ExpertactivitiesService;
+import org.sys.rate.service.expert.TeacherService;
 import org.sys.rate.utils.PDFUtils;
 import org.sys.rate.utils.POIUtils;
+import org.sys.rate.utils.ExportWord;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.beans.Transient;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -51,6 +49,8 @@ public class ExpertController {
     LogService logService;
     @Autowired
     ExpertService expertService;
+    @Resource
+    ExportWord exportWord;
 
     @ResponseBody
     @GetMapping(value = "/activities")
@@ -61,7 +61,7 @@ public class ExpertController {
             Integer activityID = e.getActivityid();
             Integer groupId = e.getGroupid();
             String groupName = expertactivitiesService.getgroupNameById(activityID, groupId);
-            List<Activities> activitys= activitiesService.getActivity(activityID);
+            List<Activities> activitys = activitiesService.getActivity(activityID);
             ActivityList activityList = new ActivityList();
             activityList.setActivityID(activityID);
             activityList.setActivityLists(activitys);
@@ -69,33 +69,35 @@ public class ExpertController {
             activityList.setGroupName(groupName);
             ac.add(activityList);
         }
-        return Msg.success().add("activitiesList",ac).add("count",ac.size());
+        return Msg.success().add("activitiesList", ac).add("count", ac.size());
     }
+
     @GetMapping("/getState")
     public Msg getState(@RequestParam(value = "activitiesID") Integer activitiesID,
-                              @RequestParam(value = "expertID") Integer expertID,
-                              @RequestParam(value = "groupId") Integer groupId){
+                        @RequestParam(value = "expertID") Integer expertID,
+                        @RequestParam(value = "groupId") Integer groupId) {
         Boolean finished = false;
         try {
-            finished = expertactivitiesService.getState(activitiesID, expertID,groupId);
-        }catch (Exception e){
-            return Msg.fail().add("error",e);
+            finished = expertactivitiesService.getState(activitiesID, expertID, groupId);
+        } catch (Exception e) {
+            return Msg.fail().add("error", e);
         }
-        return Msg.success().add("success",finished);
+        return Msg.success().add("success", finished);
     }
+
     @ResponseBody
     @GetMapping("/score")
     public Msg getParticiants(@RequestParam(value = "activitiesID") Integer activitiesID,
                               @RequestParam(value = "expertID") Integer expertID,
                               @RequestParam(value = "groupId") Integer groupId) {
 //        返回 participant的p.ID,p.displaySequence,p.code,学生姓名s.name,p.studentID 多个学生记录
-        List<Participates> participatesL = participatesService.getParticipantsByGroupId(activitiesID,groupId);
+        List<Participates> participatesL = participatesService.getParticipantsByGroupId(activitiesID, groupId);
 //        返回分数 查找的expertid是null
-        List<Scores> scoresListNoBy = scoresService.getScoreListNoExpert(activitiesID,groupId);
+        List<Scores> scoresListNoBy = scoresService.getScoreListNoExpert(activitiesID, groupId);
         //返回分数 查找的expertid是null
-        List<Scores> scoresListByExpert = scoresService.getScoreListByExpert(expertID,activitiesID,groupId);
+        List<Scores> scoresListByExpert = scoresService.getScoreListByExpert(expertID, activitiesID, groupId);
         //获得专家活动评分状态 是否已经完成评分
-        Boolean finished = expertactivitiesService.getState(activitiesID, expertID,groupId);
+        Boolean finished = expertactivitiesService.getState(activitiesID, expertID, groupId);
         //获得评分项的个数根据活动id 分数项
         Integer scoreItemCount = activitiesService.getScoreItemCount(activitiesID);
         //System.out.println(scoreItemCount);
@@ -104,11 +106,11 @@ public class ExpertController {
         //获得inforItem项列表
         List<InfoItem> infoItems = infoItemService.getInforItemByActivityIdAndPars(activitiesID);
 
-        List<Infos> infosList = infosService.getInforsList(activitiesID,groupId);
+        List<Infos> infosList = infosService.getInforsList(activitiesID, groupId);
 
         return Msg.success().add("finished", finished).add("scoreitems", scoreitems).add("scoreItemCount", scoreItemCount)
-                .add("participatesList", participatesL).add("scoresListByExpert",scoresListByExpert)
-                .add("scoresListNoExpert", scoresListNoBy ).add("infoItems",infoItems).add("infosList",infosList);
+                .add("participatesList", participatesL).add("scoresListByExpert", scoresListByExpert)
+                .add("scoresListNoExpert", scoresListNoBy).add("infoItems", infoItems).add("infosList", infosList);
     }
 
     @ResponseBody
@@ -121,7 +123,7 @@ public class ExpertController {
         List<ScoreItem> scoreList = scoreWithEP.getScoreList();
         for (ScoreItem s : scoreList) {
             Integer activityID = s.getActivityid();
-            AID=activityID;
+            AID = activityID;
             Integer scoreItemID = s.getId();
             Double score = s.getScore();
             //判断是否有该项，有就更新，没有就插入
@@ -137,15 +139,15 @@ public class ExpertController {
         }
         reentrantLock.lock(); // 不清楚为什么要加锁，别人写的，暂时留着吧 by grz
         try {
-            Integer i =participatesService.saveAvgscore(participantID, AID); // 找到所有的“活动得分”，更新选手表里的平均分
+            Integer i = participatesService.saveAvgscore(participantID, AID); // 找到所有的“活动得分”，更新选手表里的平均分
             // 所有评分项都需要计算平均分，保存在score_average表。若存在则更新，不存在则插入
             Integer j = participatesService.saveAvgScores(participantID, AID);
-            if(i == 0 || j == 0){return Msg.fail().add("msg", "保存失败");}
-        }
-        catch(Exception e) {
+            if (i == 0 || j == 0) {
+                return Msg.fail().add("msg", "保存失败");
+            }
+        } catch (Exception e) {
             return Msg.fail().add("msg", "保存失败");
-        }
-        finally {
+        } finally {
             reentrantLock.unlock();
         }
         return Msg.success().add("msg", "保存成功");
@@ -157,23 +159,23 @@ public class ExpertController {
                            @RequestParam(value = "expertID") Integer expertID,
                            @RequestParam(value = "groupId") Integer groupId,
                            @RequestParam(value = "finished") Boolean finished) {
-        expertactivitiesService.updateState(activityId, expertID,groupId, finished); //更新状态
+        expertactivitiesService.updateState(activityId, expertID, groupId, finished); //更新状态
         return Msg.success().add("msg", "更新成功");
     }
 
     @ResponseBody
     @PostMapping("/revert")
     public Msg revert(@RequestParam(value = "activityId") Integer activityId,
-                           @RequestParam(value = "expertID") Integer expertID,
-                           @RequestParam(value = "groupId") Integer groupId,
+                      @RequestParam(value = "expertID") Integer expertID,
+                      @RequestParam(value = "groupId") Integer groupId,
                       @RequestParam(value = "institutionID") Integer institutionID,
-                           @RequestParam(value = "finished") Boolean finished) throws ParseException {
-        expertactivitiesService.updateState(activityId, expertID,groupId, finished); //更新状态
-        Log log=new Log();
-        SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                      @RequestParam(value = "finished") Boolean finished) throws ParseException {
+        expertactivitiesService.updateState(activityId, expertID, groupId, finished); //更新状态
+        Log log = new Log();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
         Timestamp nousedate = new Timestamp(date.getTime());
-        log.setLog(nousedate,institutionID,"专家评分状态","撤回成功");
+        log.setLog(nousedate, institutionID, "专家评分状态", "撤回成功");
         logService.addLogs(log);
         return Msg.success().add("msg", "更新成功");
     }
@@ -184,16 +186,16 @@ public class ExpertController {
                                                    @RequestParam Integer expertID,
                                                    @RequestParam Integer activitiesID) {
         List<Activities> Act = activitiesService.getActivity(activitiesID);
-        List<Participates> participatesL = participatesService.getParticipantsByGroupId(activitiesID,groupId);
+        List<Participates> participatesL = participatesService.getParticipantsByGroupId(activitiesID, groupId);
 
-        List<Scores> scoresList = scoresService.getScoreListExpert(expertID,activitiesID,groupId);
+        List<Scores> scoresList = scoresService.getScoreListExpert(expertID, activitiesID, groupId);
 
         //获得该活动的评分项列表
         List<ScoreItem> scoreItems = scoreItemService.getScoreItemByActivityId(activitiesID);
         //获得inforItem项列表
         List<InfoItem> infoItemsShow = infoItemService.getInforItemByActivityIdIsShow(activitiesID);
-        List<Infos> infosList = infosService.getInforsList(activitiesID,groupId);
-        return POIUtils.ExportRate(Act,participatesL,scoresList,scoreItems,infoItemsShow,infosList);
+        List<Infos> infosList = infosService.getInforsList(activitiesID, groupId);
+        return POIUtils.ExportRate(Act, participatesL, scoresList, scoreItems, infoItemsShow, infosList);
     }
 
     @PostMapping("/importRate")
@@ -203,37 +205,37 @@ public class ExpertController {
 //        System.out.println("POIUtils.check(file)");
         //获得该活动的评分项列表
         List<ScoreItem> scoreItemsByE = scoreItemService.getScoreItemByEActivityId(activitiesID);
-        List<Participates> participatesL = participatesService.getParticipantsByGroupId(activitiesID,groupId);
+        List<Participates> participatesL = participatesService.getParticipantsByGroupId(activitiesID, groupId);
 
         List<Scores> scoresList = new ArrayList<>();
         Scores scoreOne;
-        Msg ecxelres= POIUtils.readExcel_rate(file,scoreItemsByE);
+        Msg ecxelres = POIUtils.readExcel_rate(file, scoreItemsByE);
         List<Map<String, String>> rateList = (List<Map<String, String>>) ecxelres.getExtend().get("rateList");
         ArrayList nullRow = (ArrayList) ecxelres.getExtend().get("nullRow");
-        if(rateList == null){
+        if (rateList == null) {
             return RespBean.error("未读取到有效导入数据！");
-        }else {
-            for(int i=0;i<rateList.size();i++){
+        } else {
+            for (int i = 0; i < rateList.size(); i++) {
                 Map<String, String> list = rateList.get(i);
-                for(String k: list.keySet()){
+                for (String k : list.keySet()) {
                     Integer pID = null;
-                    for(Participates p:participatesL){
-                        if(p.getCode().equals(list.get("编号"))){
+                    for (Participates p : participatesL) {
+                        if (p.getCode().equals(list.get("编号"))) {
                             pID = p.getID();
                         }
                     }
-                    for(ScoreItem s:scoreItemsByE){
-                        if(s.getName().equals(k)){
+                    for (ScoreItem s : scoreItemsByE) {
+                        if (s.getName().equals(k)) {
                             scoreOne = new Scores();
                             //在处理excel时，没有打分的统一设置为了null,某个选手有某一项分数，其余设置为0
-                            if(list.get(k)!=null) {
+                            if (list.get(k) != null) {
                                 //判断某个单元格是否超过该评分项的满分
-                                if(new Double(list.get(k)) > s.getScore()){
-                                    return RespBean.error("fail","有分数超过满分！");
-                                }else {
+                                if (new Double(list.get(k)) > s.getScore()) {
+                                    return RespBean.error("fail", "有分数超过满分！");
+                                } else {
                                     scoreOne.setScore(new Double(list.get(k)));
                                 }
-                            }else {
+                            } else {
                                 //专家对这项评分项没打分,保持null值，excel需要重新覆盖所有数据
                                 scoreOne.setScore(null);
                             }
@@ -246,20 +248,20 @@ public class ExpertController {
                     }
                 }
             }
-            List<String> res = teacherService.addScores(expertID,activitiesID,scoresList);
-            if (res.size()==0) {
+            List<String> res = teacherService.addScores(expertID, activitiesID, scoresList);
+            if (res.size() == 0) {
                 //没有评分为空的行
-                if(nullRow.size() == 0){
+                if (nullRow.size() == 0) {
                     return RespBean.ok("success");
-                }else {
+                } else {
                     String nullr = "";
-                    for(Object item : nullRow){
+                    for (Object item : nullRow) {
                         nullr += item + ",";
                     }
-                    return RespBean.ok("nullRow",nullr);
+                    return RespBean.ok("nullRow", nullr);
                 }
             }
-            return RespBean.error("fail",res);
+            return RespBean.error("fail", res);
         }
     }
 
@@ -274,32 +276,32 @@ public class ExpertController {
         //活动信息
         List<Activities> Act = activitiesService.getActivity(activitiesID);
         //人员信息
-        List<Participates> participatesL = participatesService.getParticipantsByGroupId(activitiesID,groupId);
+        List<Participates> participatesL = participatesService.getParticipantsByGroupId(activitiesID, groupId);
         //评分
-        List<Scores> scoresList = scoresService.getScoreListExpert(expertID,activitiesID,groupId);
+        List<Scores> scoresList = scoresService.getScoreListExpert(expertID, activitiesID, groupId);
 
         //获得该活动的评分项列表
         List<ScoreItem> scoreItems = scoreItemService.getScoreItemByActivityId(activitiesID);
         //获得inforItem项列表
         List<InfoItem> infoItemsShow = infoItemService.getInforItemByActivityIdIsShow(activitiesID);
 
-        List<Infos> infosList = infosService.getInforsList(activitiesID,groupId);
+        List<Infos> infosList = infosService.getInforsList(activitiesID, groupId);
 
         Map<String, Object> model = new HashMap<>();
-        model.put("name",expertName);
+        model.put("name", expertName);
         model.put("Act", Act);
         model.put("participatesL", participatesL);
         model.put("scoresList", scoresList);
         model.put("scoreItems", scoreItems);
         model.put("infoItemsShow", infoItemsShow);
         model.put("infosList", infosList);
-        try{
+        try {
             // 设置response方式,使执行此controller时候自动出现下载页面,而非直接使用excel打开
-            String fileName =Act.get(0).getName()+"评分表"+".pdf";
+            String fileName = Act.get(0).getName() + "评分表" + ".pdf";
             response.setCharacterEncoding("UTF-8");
             response.setContentType("application/pdf");
             //打开浏览器窗口预览文件
-            response.setHeader("Content-Disposition","filename=" + new String(fileName.getBytes(), "iso8859-1"));
+            response.setHeader("Content-Disposition", "filename=" + new String(fileName.getBytes(), "iso8859-1"));
             //直接下载
             //response.setHeader("Content-Disposition","attachment;filename=" + new String(fileName.getBytes(), "iso8859-1"));
             PDFUtils.ExportPDF(response,model);
@@ -312,13 +314,17 @@ public class ExpertController {
 //        return new ModelAndView(new ViewPDF(), model);
 
     }
+
+    @ResponseBody
     @PostMapping("/exportGradeForm")
-    public RespBean exportGradeForm(@RequestBody ExportGradeMapper exportGradeMapper){
+    public RespBean exportGradeForm(HttpServletResponse response, @RequestBody ExportGradeMapper exportGradeMapper) throws Exception {
         List<GradeForm> gradeForms = expertService.getGradeForms(exportGradeMapper);
         // 基于gradeForms导出word
-
-
-        return RespBean.ok("success");
+        if(exportWord.generateListWord(response, gradeForms)) {
+            return RespBean.ok("success");
+        }else{
+            return RespBean.error("error");
+        }
     }
 }
 

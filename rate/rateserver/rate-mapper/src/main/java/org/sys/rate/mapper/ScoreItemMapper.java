@@ -1,14 +1,13 @@
 package org.sys.rate.mapper;
 
-import java.util.List;
-
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.sys.rate.model.InfoItemValue;
 import org.sys.rate.model.ScoreAverage;
 import org.sys.rate.model.ScoreItem;
 import org.sys.rate.model.ScoreItemValue;
+
+import java.util.List;
 
 @Mapper
 public interface ScoreItemMapper {

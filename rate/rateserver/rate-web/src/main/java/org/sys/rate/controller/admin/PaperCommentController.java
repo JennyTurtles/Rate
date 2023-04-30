@@ -5,7 +5,7 @@ import org.sys.rate.config.JsonResult;
 import org.sys.rate.model.PaperComment;
 import org.sys.rate.model.Student;
 import org.sys.rate.service.underFunction.PaperCommentService;
-import org.sys.rate.utils.Download;
+import org.sys.rate.utils.ExportPDF;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -19,7 +19,8 @@ public class PaperCommentController {
     PaperCommentService paperCommentService;
 
     @Resource
-    Download download;
+    ExportPDF exportPDF;
+
 
     // 根据stuID和thesisID和num获取某一次评论
     @GetMapping("/getOneComment")
@@ -118,8 +119,8 @@ public class PaperCommentController {
      */
     @ResponseBody
     @GetMapping("/exportPDF")
-    public void exportDataPDF(HttpServletResponse response, @RequestParam Integer thesisID) {
-        download.preDownload(response, thesisID);
+    public void exportDataPDF(HttpServletResponse response, @RequestParam Integer thesisID) throws Exception {
+        exportPDF.generatePDF(response, thesisID);
     }
 
 
