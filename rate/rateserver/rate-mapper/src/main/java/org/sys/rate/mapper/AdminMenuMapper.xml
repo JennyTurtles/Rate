@@ -30,4 +30,22 @@
             #{item}
         </foreach>
     </select>
+    <select id="getMenusOfAdminPermission" resultMap="BaseResultMap" >
+        select * from admin_menu
+        where adminID = #{adminID}
+    </select>
+    <insert id="insertRecordListOfAddMenuPermission">
+        insert into admin_menu (adminID,menuID) values
+        <foreach collection="menuID" item="item" separator=",">
+            (#{adminID,jdbcType=INTEGER},
+            #{item,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+    <delete id="deletePermissions">
+        delete from admin_menu where menuID in
+        <foreach item="ID" collection="menuID" open="(" separator="," close=")">
+            #{ID}
+        </foreach>
+        and adminID = #{adminID}
+    </delete>
 </mapper>

@@ -174,7 +174,7 @@
             label="备注"
         >
         </el-table-column>
-        <el-table-column align="left" min-width="4%" label="操作">
+        <el-table-column align="left" min-width="6%" label="操作">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"
@@ -184,6 +184,15 @@
                 icon="el-icon-edit"
                 plain
             >编辑</el-button
+            >
+            <el-button
+                @click="initAdminListofPermission(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                type="primary"
+                icon="el-icon-edit"
+                plain
+            >菜单授权</el-button
             >
             <el-button
                 @click="deleteHr(scope.row)"
@@ -211,8 +220,8 @@
               background
               @current-change="currentChange"
               @size-change="sizeChange"
-              layout="sizes, prev, pager, next, jumper, ->, total, slot"
               :total="total"
+              layout="sizes, prev, pager, next, jumper, ->, total, slot"
           >
           </el-pagination>
         </div>
@@ -272,7 +281,7 @@
               placeholder="请输入登录password"
           ></el-input>
         </el-form-item>
-        <el-form-item label=" 添加权限:" prop="comment">
+        <el-form-item label=" 添加权限:">
           <el-checkbox-group v-model="menuPermissionSelected">
             <el-checkbox v-for="item in menuPermissionList" :key="item.id" :label="item.id">{{item.name}}</el-checkbox>
           </el-checkbox-group>
@@ -294,7 +303,15 @@
         <el-button type="primary" @click="doAddHr">确 定</el-button>
       </span>
     </el-dialog>
-
+    <el-dialog title="菜单授权" :visible.sync="dialogShowChangeAdminPermission" width="40%" center @close="closeDialogOfChangePermission">
+      <el-checkbox-group v-model="changeAdminPermissionsList" @change="changeCheckBox">
+        <el-checkbox v-for="item in menuPermissionList" :key="item.id" :label="item.id">{{item.name}}</el-checkbox>
+      </el-checkbox-group>
+      <span slot="footer">
+        <el-button @click="doChangeAdminPermission" type="primary">确定</el-button>
+        <el-button @click="closeDialogOfChangePermission">取消</el-button>
+      </span>
+    </el-dialog>
     <el-dialog
         :title="title"
         :visible.sync="dialogVisible_edit"
@@ -390,23 +407,30 @@ export default {
   name: "PerEc",
   data() {
     return {
+      dialogShowChangeAdminPermission:false,
       menuPermissionSelected:[],
+      currentAdmin:{},//标识当前点开的管理员
+      changeAdminPermissionsList:[],//单独修改某个管理员的菜单权限的绑定值
       menuPermissionList:[
         {
           name:"本科生管理权限",
           id:-1,
+          isPermission:true
         },
         {
           name:"研究生管理权限",
           id:-2,
+          isPermission:false
         },
         {
           name:"教师管理权限",
           id:-3,
+          isPermission:false
         },
         {
           name:"活动管理权限",
           id:-4,
+          isPermission:false
         }],
       labelPosition: "left",
       searchValue: {
@@ -455,6 +479,7 @@ export default {
         comment: null,
         menuPermission:[]
       },
+      user:{},
       rules: {
         compnayName: {
           required: true,
@@ -484,6 +509,7 @@ export default {
     };
   },
   created() {
+    this.user = JSON.parse(localStorage.getItem("user"))
     //this.keywords = this.$route.query.keywords;
   },
   mounted() {
@@ -494,6 +520,56 @@ export default {
     //this.initAd();
   },
   methods: {
+    closeDialogOfChangePermission(){
+      this.dialogShowChangeAdminPermission = false
+    },
+    doChangeAdminPermission(){
+      let url = '/adminmenu/basic/changePermissionList'
+      let param = []
+      if(this.changeAdminPermissionsList.length == 0){
+        param.push({//可以传递空。，如果传递空值，又因为adminID是必需的，所以用-1作为menuid的标识
+          menuID:-1,
+          adminID:this.currentAdmin.id
+        })
+      }else {
+        this.changeAdminPermissionsList.map(item => {
+          let temp = {
+            menuID:item,
+            adminID:this.currentAdmin.id
+          }
+          param.push(temp)
+        })
+      }
+      this.postRequest(url,param).then(response => {
+        if(response){
+          if(response.status == 200){
+            this.$message.success("修改成功")
+            this.dialogShowChangeAdminPermission = false
+          }
+        }
+      })
+    },
+    changeCheckBox(){
+      console.log(this.changeAdminPermissionsList)
+    },
+    async initAdminListofPermission(data){
+      this.changeAdminPermissionsList = []
+      await this.initPermissionMenuList()
+      this.currentAdmin = data
+      this.dialogShowChangeAdminPermission = true
+      let url = '/adminmenu/basic/getMenusOfAdminPermission?adminID=' + data.id
+      this.getRequest(url).then((resp)=>{
+        if(resp){
+          if(resp.status == 200){
+            let exsistList = resp.obj
+            exsistList.map(item => {
+              this.changeAdminPermissionsList.push(item.menuID)
+            })
+
+          }
+        }
+      })
+    },
     deleteHr(hr) {
       this.$confirm("此操作将永久删除【" + hr.name + "】, 是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -543,6 +619,9 @@ export default {
       this.title = "添加管理员";
       this.menuPermissionSelected = []//数据清空
       this.dialogVisible = true;
+      this.initPermissionMenuList()//初始化权限菜单，主要是id
+    },
+    initPermissionMenuList(){
       if(this.menuPermissionList[0].id == -1){//如果菜单的id是初始值，说明没有做查询和赋值
         this.getRequest('/system/config/getEspecialMenusOfAdmin').then((resp) => {
           if(resp){
@@ -558,6 +637,7 @@ export default {
           }
         })
       }
+
     },
     initHrs() {
       this.getRequest(
