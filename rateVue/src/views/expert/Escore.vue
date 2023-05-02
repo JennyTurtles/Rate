@@ -221,7 +221,7 @@
         <el-form-item label="评语:">
           <el-input
               type="textarea"
-              :rows="4"
+              :rows="5"
               v-model="addComment"
               placeholder="请输入评语"
           >
@@ -392,7 +392,7 @@ export default {
   },
   methods: {
     doAddComment(){
-      this.addCommentUserInfo.content = this.addComment
+      this.addCommentUserInfo.content = this.addComment.replace(/\r\n/g, '<br/>').replace(/\n/g, '<br/>').replace(/\s/g, ' ');
       this.addCommentUserInfo.date = this.dateFormatFunc(new Date())
       this.postRequest('/comment/basic/addCommentByExpert',this.addCommentUserInfo).then((response)=>{
         if(response){
@@ -409,6 +409,13 @@ export default {
       this.addCommentUserInfo.activityID = this.Adata.Aid
       this.addCommentUserInfo.teacherID = this.user.id
       this.dialogOfAddComment = true
+      this.postRequest('/comment/basic/getComment',this.addCommentUserInfo).then(response => {
+        if(response){
+          if(response.status == 200){
+            this.addComment = response.obj.content.replace(/<br\/>/g,"\n").replace(/' '/g,"\s")
+          }
+        }
+      })
     },
     //拖拽调整列宽触发的事件
     changeColWidth(){
@@ -788,8 +795,6 @@ export default {
           JSON.stringify(this.outdata)
       ).then((resp) => {
         if (resp) {
-            console.log("score")
-            console.log(JSON.stringify(this.outdata))
           this.$message({
             type: "success",
             message: "保存成功!",

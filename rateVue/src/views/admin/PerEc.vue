@@ -174,7 +174,7 @@
             label="备注"
         >
         </el-table-column>
-        <el-table-column align="left" min-width="6%" label="操作">
+        <el-table-column align="left" min-width="7%" label="操作">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"

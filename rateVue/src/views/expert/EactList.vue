@@ -84,6 +84,7 @@ export default {
           width: "180px",
         },
         {
+            // ? activityLists[0].name + '(' + activityLists[0].parentName + ')' : activityLists[0].name
           prop: "activityLists[0].name",
           align: "center",
           label: "活动名称",
@@ -125,6 +126,11 @@ export default {
   methods: {
     tableDataHandle(){
       var temp = JSON.parse(sessionStorage.getItem("peract")).activitiesList
+      temp.map(item => {
+        if(item.activityLists[0].parentName != '' && item.activityLists[0].parentName != null){
+          item.activityLists[0].name = item.activityLists[0].name + '(' + item.activityLists[0].parentName + ')'
+        }
+      })
       for(var i = 0;i < temp.length; i++){
         var time = new Date(temp[i].activityLists[0].startDate)
         let time1 = time.getTime()

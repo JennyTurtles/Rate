@@ -51,4 +51,14 @@ public class CommentController {
         if(res == 0)RespBean.error("添加失败",null);
         return RespBean.ok("添加成功",null);
     }
+    @PostMapping("/getComment")
+    public RespBean getComment(@RequestBody Comment comment){
+        Comment res = new Comment();
+        try{
+            res = commentMapper.selectHaveComment(comment);
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        return RespBean.ok("ok",res);
+    }
 }

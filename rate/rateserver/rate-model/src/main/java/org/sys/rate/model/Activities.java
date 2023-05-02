@@ -29,9 +29,18 @@ public class Activities {
     private Integer groupID;
     private String groupName;
     private Integer parentID;
+    private String parentName;
     private Integer requireGroup;
     private Integer haveSub;
     private Integer adminID;
+
+    public String getParentName() {
+        return parentName;
+    }
+
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
+    }
 
     public Integer getAdminID() {
         return adminID;

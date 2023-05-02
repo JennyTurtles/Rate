@@ -13,12 +13,18 @@
         <result column="comment" property="comment" jdbcType="VARCHAR"/>
         <result column="deleteFlag" property="deleteFlag" jdbcType="BIT"/>
         <result column="institutionID" property="institutionID" jdbcType="INTEGER"/>
+        <result column="parentID" property="parentID" jdbcType="INTEGER"/>
         <result column="haveSub" property="haveSub" jdbcType="INTEGER"/>
         <result column="haveComment" property="haveComment" jdbcType="INTEGER"/>
     </resultMap>
+<!--    <resultMap id="activities2" type="org.sys.rate.model.Activities" extends="BaseResultMap">-->
+<!--        <collection property="parentName" ofType="java.lang.String">-->
+<!--            <result column="parentName" property="parentName" jdbcType="VARCHAR"/>-->
+<!--        </collection>-->
+<!--    </resultMap>-->
 
     <sql id="Base_Column_List">
-        id, name, startDate, scoreItemCount, score, groupCount, expertCount, participantCount, comment, deleteFlag, institutionID
+        id, name, startDate, scoreItemCount, score, groupCount, expertCount, participantCount, comment, deleteFlag, institutionID,parentID
     </sql>
     <select id="maxWorkID" resultType="java.lang.Integer">
     select max(workID) from employee
@@ -43,21 +49,6 @@
         <if test="page !=null and size!=null">
             limit #{page},#{size}
         </if>
-        <!--<if test="emp.company !=null and emp.company!=''">
-            and e.company like concat('%',#{emp.company},'%')
-        </if>
-        <if test="emp.activityCount !=null">
-            and e.activityCount =#{emp.activityCount}
-        </if>
-        <if test="emp.uplimit !=null">
-            and e.uplimit =#{emp.uplimit}
-        </if>
-        <if test="emp.comment !=null">
-            and e.comment =#{emp.comment}
-        </if>
-        <if test="page !=null and size!=null">
-            limit #{page},#{size}
-        </if>-->
     </select>
     <select id="getTotal" resultType="java.lang.Long">
         select count(*) from activities e
@@ -160,7 +151,11 @@
     </select>
 
     <select id="selectActivity" parameterType="java.lang.Integer" resultType="org.sys.rate.model.Activities">
-        select * from activities where ID = #{activityID};
+        select a1.* ,a2.name as parentName
+        from activities a1
+        left join activities a2
+        on a1.parentID = a2.ID
+        where a1.ID = #{activityID}
     </select>
     <select id="getActivityScore" resultType="org.sys.rate.model.ScoreDetail">
         SELECT

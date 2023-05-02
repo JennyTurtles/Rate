@@ -439,8 +439,10 @@
         >
       </span>
     </el-dialog>
-    <el-dialog title="活动授权" :visible.sync="dialogActivityPermission" width="70%" center @close="closeDialogOfAddPermission">
-      <el-table @selection-change="handleSelectionChange" :data="currentInstitutionAdminList" ref="addPermissionTable" row-key="id" >
+    <el-dialog :visible.sync="dialogActivityPermission" width="70%" center @close="closeDialogOfAddPermission">
+      <div style="font-size: 17px">将此活动授权给以下管理员：</div>
+      <el-table @selection-change="handleSelectionChange" :data="currentInstitutionAdminList" ref="addPermissionTable" row-key="id"
+          :header-cell-style="{background:'#E6E6FA'}">
         <el-table-column type="selection" width="35px" :reserve-selection="true"></el-table-column>
         <el-table-column label="姓名" prop="name"></el-table-column>
         <el-table-column label="电话" prop="phone"></el-table-column>
