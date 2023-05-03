@@ -52,8 +52,8 @@ public class ActivitiesService {
     }
 
     public RespBean addActivities(Activities employee) {
-        //写这样的代码你在公司会被骂死 cao 简直就是依托答辩
-        //我是不可能重写的，所以我改成我看着顺眼的  --by lyr
+        //写这样的代码你在公司会被骂shi  简直就是依托答辩
+        //我是不可能重写的，所以我改成我看着顺眼的
         boolean result;
         int insertID;
         try {

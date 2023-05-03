@@ -29,10 +29,12 @@ public class Activities {
     private Integer groupID;
     private String groupName;
     private Integer parentID;
-    private String parentName;
+    private String parentName;//父活动名字
     private Integer requireGroup;
     private Integer haveSub;
-    private Integer adminID;
+    private Integer adminID;//这个应该是和管理员-活动表相关联
+    private Integer creatorID;//活动创建者id
+
 
     public String getParentName() {
         return parentName;

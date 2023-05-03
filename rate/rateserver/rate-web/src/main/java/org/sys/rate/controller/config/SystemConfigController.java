@@ -1,9 +1,6 @@
 package org.sys.rate.controller.config;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.sys.rate.mapper.AdminMenuMapper;
-import org.sys.rate.mapper.MenuMapper;
 import org.sys.rate.mapper.RoleMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.LoginService;

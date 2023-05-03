@@ -129,6 +129,7 @@
             </el-button
             >
             <el-button
+                v-show="scope.row.isShowPermissionBtn"
                 @click="initAdminListofPermission(scope.row)"
                 style="padding: 4px"
                 size="mini"
@@ -440,7 +441,7 @@
       </span>
     </el-dialog>
     <el-dialog :visible.sync="dialogActivityPermission" width="70%" center @close="closeDialogOfAddPermission">
-      <div style="font-size: 17px">将此活动授权给以下管理员：</div>
+      <div style="font-size: 17px;margin-bottom: 8px">将此活动授权给以下管理员：</div>
       <el-table @selection-change="handleSelectionChange" :data="currentInstitutionAdminList" ref="addPermissionTable" row-key="id"
           :header-cell-style="{background:'#E6E6FA'}">
         <el-table-column type="selection" width="35px" :reserve-selection="true"></el-table-column>
@@ -675,8 +676,9 @@ export default {
         expertCount: "0",
         participantCount: "0",
         comment: "javaboy",
-          parentId: null,
-          requireGroup: true,
+        parentId: null,
+        requireGroup: true,
+        isShowPermissionBtn:false
       },
       defaultProps: {
         children: "children",
@@ -1130,6 +1132,11 @@ export default {
           if (resp) {
             this.emps = resp.data;
             this.total = resp.total;
+            this.emps.map(item => {
+              if(item.creatorID != this.user.id){
+                this.$set(item,'isShowPermissionBtn',false)
+              }else this.$set(item,'isShowPermissionBtn',true)
+            })
           }
         });
       }else if (this.mode === "secretary"){ // 秘书活动管理
@@ -1258,7 +1265,6 @@ export default {
     },
     showFinalScore(data){
       const _this = this;
-        console.log(data)
       if (this.mode === "admin" || this.mode === "adminSub"){
           _this.$router.push({
               path: "/ActivitM/final",

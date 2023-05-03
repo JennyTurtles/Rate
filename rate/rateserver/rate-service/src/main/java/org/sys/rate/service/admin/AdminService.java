@@ -1,20 +1,15 @@
 package org.sys.rate.service.admin;
 import org.sys.rate.mapper.AdminMapper;
-import org.sys.rate.mapper.AdminMenuMapper;
 import org.sys.rate.mapper.HrRoleMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.expert.ExpertService;
-import org.sys.rate.utils.HrUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service("adminService")
@@ -23,8 +18,6 @@ public class AdminService implements UserDetailsService {
     HrRoleMapper hrRoleMapper;
     @Autowired
     AdminMapper adminMapper;
-    @Resource
-    AdminMenuMapper adminMenuMapper;
 
     public Admin getById(Integer ID){
         Admin adm = adminMapper.getById(ID);

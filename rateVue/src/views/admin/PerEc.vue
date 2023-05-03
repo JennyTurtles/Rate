@@ -638,6 +638,10 @@ export default {
       }
     },
     doAddHr() {
+      if(this.changeAdminPermissionsList.length == 0){
+        this.$message.warning('请至少选择一个权限')
+        return
+      }
       if (this.hr_info.id) {//编辑管理员
         const _this = this;
         this.$refs["adminForm"].validate((valid) => {
