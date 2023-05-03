@@ -71,4 +71,9 @@
       nameZh = #{nameZh,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <select id="selectEspecialRoleID" resultMap="BaseResultMap">
+    select *
+    from role
+    where (nameZh = "研究生管理" or nameZh = "本科生管理" or nameZh = "教师管理" or nameZh = "活动管理")
+  </select>
 </mapper>

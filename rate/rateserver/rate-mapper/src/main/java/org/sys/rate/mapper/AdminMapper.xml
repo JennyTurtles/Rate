@@ -32,7 +32,7 @@
     </select>
 
     <select id="getAllHrs" resultMap="HrWithRoles">
-        select admin.id, insti.company as companyName, admin.institutionID,admin.name, admin.phone, admin.email, admin.username, admin.comment,admin.enabled,r.`id` as rid,r.`name` as rname,r.`nameZh` as rnameZh
+        select admin.id, insti.company as companyName, admin.institutionID,admin.name, admin.phone, admin.email, admin.username, admin.comment,admin.enabled,r.`id` as rid,r.`name` as rname,r.`nameZh` as rnameZh,admin.role
         from admin
         left join institution insti
         on admin.`institutionID`=insti.`id`
@@ -40,7 +40,7 @@
         on admin.`id`=hrr.`hrid`
         left join role r on hrr.`rid`=r.`id`
         where admin.`id`!=#{hrid}
-        and admin.role = 1
+--         and admin.role = 1
         <if test="keywords!=null">
             and insti.company like concat('%',#{keywords},'%')
         </if>
@@ -103,7 +103,8 @@
                          phone=#{phone,jdbcType=VARCHAR},
                          email=#{email,jdbcType=INTEGER},
                          username=#{username,jdbcType=INTEGER},
-                         comment=#{comment,jdbcType=VARCHAR}
+                         comment=#{comment,jdbcType=VARCHAR},
+                         role=#{role,jdbcType=VARCHAR}
         where ID=#{ID,jdbcType=INTEGER}
     </update>
     <select id="getAdminRolesById" resultType="org.sys.rate.model.Role">

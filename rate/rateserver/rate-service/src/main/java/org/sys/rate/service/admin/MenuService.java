@@ -67,7 +67,7 @@ public class MenuService {
         }
         else {
             res = menuMapper.getMenusById(Integer.parseInt(role));
-            return res;
+//            return res;
         }
         List<Menu> newMenu=new ArrayList<>();
         for (int i = 0 ;i<res.size();i++){
@@ -162,14 +162,5 @@ public class MenuService {
         }
         Integer result = menuRoleMapper.insertRecord(rid, mids);
         return result==mids.length;
-    }
-    public RespBean getEspecialMenusOfAdmin(){
-        List<Menu> menusOfAdmin = new ArrayList<>();
-        try{
-            menusOfAdmin = menuMapper.selectEspecialMenuID();
-        }catch (Exception e){
-            return RespBean.error("error",null);
-        }
-        return RespBean.ok("ok",menusOfAdmin);
     }
 }

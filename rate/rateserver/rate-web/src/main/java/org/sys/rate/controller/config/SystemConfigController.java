@@ -4,6 +4,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.AdminMenuMapper;
 import org.sys.rate.mapper.MenuMapper;
+import org.sys.rate.mapper.RoleMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.LoginService;
 import org.sys.rate.service.admin.MenuService;
@@ -21,33 +22,13 @@ public class SystemConfigController {
     @Resource
     LoginService loginService;
     @Resource
-    AdminMenuMapper adminMenuMapper;
-    @Resource
-    MenuMapper menuMapper;
+    RoleMapper roleMapper;
 
     @GetMapping("/menu")
     public Msg getMenusByAdminId(Integer id, String role) {
         //获得具有特殊权限的菜单和id列表
-//        List<Menu> menusOfAdmin = menuMapper.selectEspecialMenuID();
-//        List<Integer> menusOfAdminID = new ArrayList<>();
-//        for(int j = 0;j < menusOfAdmin.size();j ++){
-//            menusOfAdminID.add(menusOfAdmin.get(j).getId());
-//        }
         List<Menu> res = menuService.getMenusByAdminId(id,role);
         //如果是管理员，则需要对菜单进行具体判断，看是否有权限
-//        if(role.equals("1")){
-//            //判断当前管理员有没有本科生、研究生、教师管理这三个菜单的权限
-//            List<Integer> permissionListMenu = adminMenuMapper.judgeAdminPermission(id,menusOfAdminID);
-//            menusOfAdminID.removeAll(permissionListMenu);//数组相减，得到不应该有的菜单id
-//            for(int j = 0;j < menusOfAdminID.size();j ++){
-//                for(int i = 0; i < res.size() ; i ++){
-//                    if(res.get(i).getId() == menusOfAdminID.get(j)){//不应该有的菜单，在res中存在了
-//                        res.remove(i);
-//                        break;
-//                    }
-//                }
-//            }
-//        }
 
         //调成一样的形式是因为前端需要进行判断，但同时又不想失去菜单之间父子关系的结构，更不想在前端进行三重循环判断
         List<String> res_same = new ArrayList<>();
@@ -79,7 +60,13 @@ public class SystemConfigController {
     }
     @GetMapping("/getEspecialMenusOfAdmin")
     public RespBean getEspecialMenusOfAdmin(){
-        return menuService.getEspecialMenusOfAdmin();
+        List<Role> roles;
+        try {
+            roles = roleMapper.selectEspecialRoleID();
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        return RespBean.ok("ok",roles);
     }
 
     // 接受前端POST的密码，修改密码

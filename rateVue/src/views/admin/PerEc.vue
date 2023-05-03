@@ -185,15 +185,15 @@
                 plain
             >编辑</el-button
             >
-            <el-button
-                @click="initAdminListofPermission(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                type="primary"
-                icon="el-icon-edit"
-                plain
-            >菜单授权</el-button
-            >
+<!--            <el-button-->
+<!--                @click="initAdminListofPermission(scope.row)"-->
+<!--                style="padding: 4px"-->
+<!--                size="mini"-->
+<!--                type="primary"-->
+<!--                icon="el-icon-edit"-->
+<!--                plain-->
+<!--            >菜单授权</el-button-->
+<!--            >-->
             <el-button
                 @click="deleteHr(scope.row)"
                 style="padding: 4px"
@@ -303,15 +303,16 @@
         <el-button type="primary" @click="doAddHr">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="菜单授权" :visible.sync="dialogShowChangeAdminPermission" width="40%" center @close="closeDialogOfChangePermission">
-      <el-checkbox-group v-model="changeAdminPermissionsList" @change="changeCheckBox">
-        <el-checkbox v-for="item in menuPermissionList" :key="item.id" :label="item.id">{{item.name}}</el-checkbox>
-      </el-checkbox-group>
-      <span slot="footer">
-        <el-button @click="doChangeAdminPermission" type="primary">确定</el-button>
-        <el-button @click="closeDialogOfChangePermission">取消</el-button>
-      </span>
-    </el-dialog>
+<!--    <el-dialog title="菜单授权" :visible.sync="dialogShowChangeAdminPermission" width="40%" center @close="closeDialogOfChangePermission">-->
+<!--      <el-checkbox-group v-model="changeAdminPermissionsList" @change="changeCheckBox">-->
+<!--        <el-checkbox v-for="item in menuPermissionList" :key="item.id" :label="item.id">{{item.name}}</el-checkbox>-->
+<!--      </el-checkbox-group>-->
+<!--      <span slot="footer">-->
+<!--        <el-button @click="doChangeAdminPermission" type="primary">确定</el-button>-->
+<!--        <el-button @click="closeDialogOfChangePermission">取消</el-button>-->
+<!--      </span>-->
+<!--    </el-dialog>-->
+<!--    编辑框-->
     <el-dialog
         :title="title"
         :visible.sync="dialogVisible_edit"
@@ -362,24 +363,11 @@
               placeholder="请输入登录username"
           ></el-input>
         </el-form-item>
-<!--        <el-form-item label="单位编号:" prop="institutionID">
-          <el-input
-              size="mini"
-              style="width: 30%"
-              prefix-icon="el-icon-edit"
-              v-model="hr_info.institutionID"
-              placeholder="请输入单位编号"
-          ></el-input>
-        </el-form-item>-->
-<!--        <el-form-item label="单位名称:" prop="companyName">
-          <el-input
-              size="mini"
-              style="width: 90%"
-              prefix-icon="el-icon-edit"
-              v-model="hr_info.companyName"
-              placeholder="请输入单位名称"
-          ></el-input>
-        </el-form-item>-->
+        <el-form-item label="菜单授权">
+          <el-checkbox-group v-model="changeAdminPermissionsList" @change="changeCheckBox">
+            <el-checkbox v-for="item in menuPermissionList" :key="item.id" :label="item.id">{{item.name}}</el-checkbox>
+          </el-checkbox-group>
+        </el-form-item>
         <el-form-item label="备 注:" prop="comment">
           <el-input
               prefix-icon="el-icon-edit"
@@ -475,7 +463,7 @@ export default {
         enabled: 1,
         username: "test123",
         password: "123",
-        role: 1,
+        role: -1,
         comment: null,
         menuPermission:[]
       },
@@ -516,59 +504,9 @@ export default {
     this.keywords = this.$route.query.keywords;
     this.keywords_id=this.$route.query.keywords_id;
     this.initHrs();
-    this.initData();
-    //this.initAd();
   },
   methods: {
-    closeDialogOfChangePermission(){
-      this.dialogShowChangeAdminPermission = false
-    },
-    doChangeAdminPermission(){
-      let url = '/adminmenu/basic/changePermissionList'
-      let param = []
-      if(this.changeAdminPermissionsList.length == 0){
-        param.push({//可以传递空。，如果传递空值，又因为adminID是必需的，所以用-1作为menuid的标识
-          menuID:-1,
-          adminID:this.currentAdmin.id
-        })
-      }else {
-        this.changeAdminPermissionsList.map(item => {
-          let temp = {
-            menuID:item,
-            adminID:this.currentAdmin.id
-          }
-          param.push(temp)
-        })
-      }
-      this.postRequest(url,param).then(response => {
-        if(response){
-          if(response.status == 200){
-            this.$message.success("修改成功")
-            this.dialogShowChangeAdminPermission = false
-          }
-        }
-      })
-    },
     changeCheckBox(){
-      console.log(this.changeAdminPermissionsList)
-    },
-    async initAdminListofPermission(data){
-      this.changeAdminPermissionsList = []
-      await this.initPermissionMenuList()
-      this.currentAdmin = data
-      this.dialogShowChangeAdminPermission = true
-      let url = '/adminmenu/basic/getMenusOfAdminPermission?adminID=' + data.id
-      this.getRequest(url).then((resp)=>{
-        if(resp){
-          if(resp.status == 200){
-            let exsistList = resp.obj
-            exsistList.map(item => {
-              this.changeAdminPermissionsList.push(item.menuID)
-            })
-
-          }
-        }
-      })
     },
     deleteHr(hr) {
       this.$confirm("此操作将永久删除【" + hr.name + "】, 是否继续?", "提示", {
@@ -628,10 +566,10 @@ export default {
             if(resp.status == 200){
               resp.obj.map(item => {
                 //id进行赋值
-                if(item.name == '本科生管理') this.menuPermissionList[0].id = item.id
-                else if(item.name == '研究生管理') this.menuPermissionList[1].id = item.id
-                else if(item.name == '教师管理') this.menuPermissionList[2].id = item.id
-                else if(item.name == '活动管理') this.menuPermissionList[3].id = item.id
+                if(item.nameZh == '本科生管理') this.menuPermissionList[0].id = item.id
+                else if(item.nameZh == '研究生管理') this.menuPermissionList[1].id = item.id
+                else if(item.nameZh == '教师管理') this.menuPermissionList[2].id = item.id
+                else if(item.nameZh == '活动管理') this.menuPermissionList[3].id = item.id
               })
             }
           }
@@ -685,26 +623,26 @@ export default {
       this.page = currentPage;
       this.initHrs("advanced");
     },
-    showEditEmpView(data) {
-      this.initPositions();
+    showEditEmpView(data) {//点击编辑按钮
+      this.initPermissionMenuList()
       this.title = "编辑管理员信息";
       this.hr_info = data;
+      this.changeAdminPermissionsList = []
       this.inputDepName = data.company;
       this.dialogVisible_edit = true;
-    },
-    initPositions() {
-      /*this.getRequest('/employee/basic/positions').then(resp => {
-        if (resp) {
-          this.positions = resp;
-        }
-      })*/
+      if (data.role != '' && data.role != null){
+        let temp = data.role.split(';')
+        temp.map(item => {
+          if(item != '') this.changeAdminPermissionsList.push(parseInt(item))
+        })
+      }
     },
     doAddHr() {
-      if (this.hr_info.id) {
+      if (this.hr_info.id) {//编辑管理员
         const _this = this;
         this.$refs["adminForm"].validate((valid) => {
           if (valid) {
-            this.hr_info.menuPermission = this.menuPermissionSelected
+            this.hr_info.role = this.changeAdminPermissionsList.join(';')
             this.postRequest("/system/admin/update", _this.hr_info).then(
                 (resp) => {
                   if (resp) {
@@ -723,7 +661,7 @@ export default {
         this.$refs["adminForm"].validate((valid) => {
           // const _this = this;
           this.hr_info_new.institutionID=this.keywords_id;
-          this.hr_info_new.menuPermission = this.menuPermissionSelected//设置菜单权限
+          this.hr_info_new.role = this.changeAdminPermissionsList.join(';')//设置菜单权限
           if (valid) {
             const _this = this;
             this.putRequest("/system/admin/insert", _this.hr_info_new).then((resp) => {
@@ -764,19 +702,6 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    initData() {
-      //if (!window.sessionStorage.getItem("institutions")) {
-      /* this.getRequest('/employee/basic/nations').then(resp => {
-          if (resp) {
-            //console.log(resp)
-            this.institutions = resp;
-            window.sessionStorage.setItem("institutions", JSON.stringify(resp));
-          }
-        })*/
-      //} else {
-      // this.institutions = JSON.parse(window.sessionStorage.getItem("institutions"));
-      //}
-    }, //
   },
 };
 </script>

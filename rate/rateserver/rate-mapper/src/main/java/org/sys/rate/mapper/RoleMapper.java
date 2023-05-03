@@ -5,6 +5,7 @@ import org.sys.rate.model.Role;
 import java.util.List;
 
 public interface RoleMapper {
+    List<Role> selectEspecialRoleID();
     int deleteByPrimaryKey(Integer id);
 
     int insert(Role record);

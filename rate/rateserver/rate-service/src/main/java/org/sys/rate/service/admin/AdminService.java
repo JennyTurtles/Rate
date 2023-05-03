@@ -110,18 +110,6 @@ public class AdminService implements UserDetailsService {
             result = adminMapper.insert(hr);//添加管理员
             //需要在管理员_菜单表中添加记录
             if(result == 0) return RespBean.error("添加失败",null);
-            //赋予多个菜单权限就添加多个记录
-            List<AdminMenu> amList = new ArrayList<>();
-            //查看是否有记录已经存在 有已经存在的先不进行更新操作
-            List<AdminMenu> updateList = adminMenuMapper.selectHaveAdminMenuRecord(hr.getID(),hr.getMenuPermission());
-            for(int i = 0;i < hr.getMenuPermission().size();i ++){
-                AdminMenu am = new AdminMenu();
-                am.setAdminID(hr.getID());
-                am.setMenuID(hr.getMenuPermission().get(i));
-                amList.add(am);
-            }
-            if(updateList.size() != 0) amList.removeAll(updateList);//两个数组去重
-            adminMenuMapper.insertRecordsOfAddAdmin(amList);
         }catch (Exception e){
             return RespBean.error("添加失败",null);
         }

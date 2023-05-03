@@ -18,15 +18,6 @@ public class Admin extends Account {
     private String telephone;
     private String email;
     private String comment;
-    private List<Integer> menuPermission;//具体到每个管理员是否有具体某个菜单的权限
-
-    public List<Integer> getMenuPermission() {
-        return menuPermission;
-    }
-
-    public void setMenuPermission(List<Integer> menuPermission) {
-        this.menuPermission = menuPermission;
-    }
 
     public Integer getID() {
         return ID;

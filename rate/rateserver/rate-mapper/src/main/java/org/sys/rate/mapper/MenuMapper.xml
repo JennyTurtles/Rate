@@ -230,9 +230,4 @@
       enabled = #{enabled,jdbcType=BIT}
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select id="selectEspecialMenuID" resultMap="BaseResultMap">
-    select *
-    from menu
-    where parentId = 1 and (name = "研究生管理" or name = "本科生管理" or name = "教师管理" or name = "活动管理")
-  </select>
 </mapper>
