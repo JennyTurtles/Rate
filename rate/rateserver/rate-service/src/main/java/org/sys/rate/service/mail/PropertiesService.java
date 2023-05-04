@@ -100,4 +100,16 @@ public class PropertiesService {
     public PropertiesService() {
 
     }
+
+    public String getUsername() {
+        return "";
+    }
+
+    public String getPassword() {
+        return "";
+    }
+
+    public String getHost() {
+        return "";
+    }
 }
