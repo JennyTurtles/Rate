@@ -10,6 +10,7 @@ import org.sys.rate.model.ScoreItem;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -27,13 +28,19 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class ExportWord {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);
-    private static final String TEMPLATE_PATH = "upload/templete/11.docx";
+    private static final String TEMPLATE_PATH = "upload/templete/GradingTable.docx";
     private static final String DEST = "upload/exportFiles/";
     private static final SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
     private static final SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
     private static final SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
     private static final String[] GRADELEVELARRAY = {"优", "良", "中", "及格", "不及格"};
     private static final double[] SCORES = {85.0, 75.0, 67.0, 60.0, 0.0};
+    private static final int wordTitlePageRowLength = 40;
+    private static final int commentMaxLength = 230;
+    private static final int commentMinLength = 180;
+    private static final int commentMaxRows = 8;
+    private static final int commentMinRows = 4;
+    private static final int perRowMaxCount = 30 * 2;
     private boolean necessaryFilesAndDirectoriesExist;
 
     public ExportWord() {
@@ -61,16 +68,78 @@ public class ExportWord {
         return true;
     }
 
+    public static int calculateChars(String sentence) {
+        int count = 0;
+        for (int i = 0; i < sentence.length(); i++) {
+            char c = sentence.charAt(i);
+            if (Character.isDigit(c) || Character.isLowerCase(c) || c == 'I' || c == 'J') {
+                // 这里实际上算的字符个数肯定是大于原有的
+                count += 1;
+            } else {
+                count += 2;
+            }
+        }
+        return count;
+    }
+
+    // 格式化扉页
+    public static String formatTitlePageContent(String s) {
+        if (calculateChars(s) >= wordTitlePageRowLength) {
+            return s;
+        }
+        int numSpaces = wordTitlePageRowLength - calculateChars(s);
+        String padding = String.join("", Collections.nCopies(numSpaces / 2, " "));
+        return String.format("%s%s%s", padding, s, padding + (numSpaces % 2 == 1 ? " " : ""));
+    }
+
+
     private Map<String, Object> createGeneralModel(GradeForm gradeForm) {
         Map<String, Object> generalModel = new HashMap<>(5);
-        generalModel.put("ThesisName", gradeForm.getThesisName());
-        generalModel.put("Major", gradeForm.getSpecialty());
-        generalModel.put("Class", gradeForm.getClassName());
-        generalModel.put("StuName", gradeForm.getName());
-        generalModel.put("StuID", gradeForm.getStuNumber());
+        int thesisNameCount = calculateChars(gradeForm.getThesisName());
+        if (thesisNameCount > wordTitlePageRowLength) {
+            generalModel.put("ThesisName", gradeForm.getThesisName().substring(0, wordTitlePageRowLength / 2));
+            String padding = String.join("", Collections.nCopies(2*wordTitlePageRowLength-thesisNameCount, " "));
+            generalModel.put("AdditionalName", String.format("%s%s", gradeForm.getThesisName().substring(wordTitlePageRowLength / 2), padding));
+        } else {
+            generalModel.put("ThesisName", formatTitlePageContent(gradeForm.getThesisName()));
+        }
+        generalModel.put("Major", formatTitlePageContent(gradeForm.getSpecialty()));
+        generalModel.put("Class", formatTitlePageContent(gradeForm.getClassName()));
+        generalModel.put("StuName", formatTitlePageContent(gradeForm.getName()));
+        generalModel.put("StuID", formatTitlePageContent(gradeForm.getStuNumber()));
         return generalModel;
     }
 
+    private static String countRows(String comment, int commentRows) {
+        int rows = 0, count = 0;
+        comment = comment.trim().replace("\n\n", "\n");
+        for (int i = 0; i < comment.length(); i++) {
+            if (count > perRowMaxCount || comment.charAt(i) == '\n') {
+                count = 2;
+                rows++;
+            } else {
+                char c = comment.charAt(i);
+                if (Character.isDigit(c) || Character.isLowerCase(c) || c == 'I' || c == 'J') {
+                    // 这里实际上算的字符个数肯定是大于原有的
+                    count += 1;
+                } else {
+                    count += 2;
+                }
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append(comment);
+        for (int i = 0; i < commentRows - rows; i++) {
+            sb.append(" \r\n");
+        }
+
+        return rows <= commentRows ? sb.toString() : sb.toString().replace("\n", "");
+    }
+
+    // 格式化comment
+    public static String formatComment(String comment, int commentLength, int commentRows) {
+        return countRows(comment, commentRows);
+    }
 
     private Map<String, Object> createCommentModel(Map<Integer, List<Comment>> comments) {
         Map<String, Object> commentModel = new HashMap<>();
@@ -81,9 +150,7 @@ public class ExportWord {
 
         List<Comment> instructors = comments.get(GradeForm.Type.INSTRUCTOR.ordinal());
         if (instructors.size() > 0) {
-            commentModel.put("instructorComment", instructors.get(0).getContent());
-            commentModel.put("reviewerComment", instructors.get(0).getContent());
-            commentModel.put("leaderComment", instructors.get(0).getContent());
+            commentModel.put("instructorComment", formatComment(instructors.get(0).getContent(), commentMaxLength, commentMaxRows));
             Date instructorDate = instructors.get(0).getDate();
             commentModel.put("instructorYear", sdfYear.format(instructorDate));
             commentModel.put("instructorMonth", sdfMonth.format(instructorDate));
@@ -91,9 +158,7 @@ public class ExportWord {
         }
         List<Comment> reviewers = comments.get(GradeForm.Type.REVIEWER.ordinal());
         if (reviewers.size() > 0) {
-            commentModel.put("instructorComment", reviewers.get(0).getContent());
-            commentModel.put("reviewerComment", reviewers.get(0).getContent());
-            commentModel.put("leaderComment", reviewers.get(0).getContent());
+            commentModel.put("reviewerComment", formatComment(reviewers.get(0).getContent(), commentMaxLength, commentMaxRows));
             Date reviewDate = reviewers.get(0).getDate();
             commentModel.put("reviewerYear", sdfYear.format(reviewDate));
             commentModel.put("reviewerMonth", sdfMonth.format(reviewDate));
@@ -101,9 +166,7 @@ public class ExportWord {
         }
         List<Comment> leaders = comments.get(GradeForm.Type.DEFENSE.ordinal());
         if (leaders.size() > 0) {
-            commentModel.put("instructorComment", leaders.get(0).getContent());
-            commentModel.put("reviewerComment", leaders.get(0).getContent());
-            commentModel.put("leaderComment", leaders.get(0).getContent());
+            commentModel.put("leaderComment", formatComment(leaders.get(0).getContent(), commentMinLength, commentMinRows));
             Date leaderDate = leaders.get(0).getDate();
             commentModel.put("leaderYear", sdfYear.format(leaderDate));
             commentModel.put("leaderMonth", sdfMonth.format(leaderDate));
@@ -124,12 +187,13 @@ public class ExportWord {
         double tmpScore = 0.0;
         double tmpScoreCoef = 0.0;
         double tmpScoreCoefSum = 0.0;
+        DecimalFormat df = new DecimalFormat("#.00");
         String suffixShort = "";
         String suffixLong = "";
 
         int typeInstructor = GradeForm.Type.INSTRUCTOR.ordinal();
         List<ScoreItem> instructors = scoreItems.get(typeInstructor);
-        if(!instructors.isEmpty()) {
+        if (!instructors.isEmpty()) {
             for (int i = 0; i < instructors.size(); i++) {
                 tmpCoef = instructors.get(i).getCoef();
                 tmpScore = instructors.get(i).getScore();
@@ -138,7 +202,7 @@ public class ExportWord {
                 scoreModel.put("coef" + suffixShort, tmpCoef);
                 // 计算单项折合后分数
                 tmpScoreCoef = tmpCoef * tmpScore;
-                scoreModel.put("scoreCoef" + suffixShort, tmpScoreCoef);
+                scoreModel.put("scoreCoef" + suffixShort, df.format(tmpScoreCoef));
                 // 为分数挑一个位置
                 gradeLevelIndex = getGradeLevelIndex(tmpScore);
                 suffixLong = suffixShort + String.valueOf(gradeLevelIndex);
@@ -150,7 +214,7 @@ public class ExportWord {
 
         int typeReviewers = GradeForm.Type.REVIEWER.ordinal();
         List<ScoreItem> reviewers = scoreItems.get(typeReviewers);
-        if(!reviewers.isEmpty()) {
+        if (!reviewers.isEmpty()) {
             for (int i = 0; i < reviewers.size(); i++) {
                 tmpCoef = reviewers.get(i).getCoef();
                 tmpScore = reviewers.get(i).getScore();
@@ -159,7 +223,7 @@ public class ExportWord {
                 scoreModel.put("coef" + suffixShort, tmpCoef);
                 // 计算单项折合后分数
                 tmpScoreCoef = tmpCoef * tmpScore;
-                scoreModel.put("scoreCoef" + suffixShort, tmpScoreCoef);
+                scoreModel.put("scoreCoef" + suffixShort, df.format(tmpScoreCoef));
                 // 为分数挑一个位置
                 gradeLevelIndex = getGradeLevelIndex(tmpScore);
                 suffixLong = suffixShort + String.valueOf(gradeLevelIndex);
@@ -171,7 +235,7 @@ public class ExportWord {
 
         int typeLeader = GradeForm.Type.DEFENSE.ordinal();
         List<ScoreItem> leaders = scoreItems.get(typeLeader);
-        if(!leaders.isEmpty()) {
+        if (!leaders.isEmpty()) {
             for (int i = 0; i < leaders.size(); i++) {
                 tmpCoef = leaders.get(i).getCoef();
                 tmpScore = leaders.get(i).getScore();
@@ -180,7 +244,7 @@ public class ExportWord {
                 scoreModel.put("coef" + suffixShort, tmpCoef);
                 // 计算单项折合后分数
                 tmpScoreCoef = tmpCoef * tmpScore;
-                scoreModel.put("scoreCoef" + suffixShort, tmpScoreCoef);
+                scoreModel.put("scoreCoef" + suffixShort, df.format(tmpScoreCoef));
                 // 为分数挑一个位置
                 gradeLevelIndex = getGradeLevelIndex(tmpScore);
                 suffixLong = suffixShort + String.valueOf(gradeLevelIndex);
@@ -243,15 +307,13 @@ public class ExportWord {
         ins.close();
     }
 
-
-
-
     public boolean generateListWord(HttpServletResponse response, List<GradeForm> gradeForms) throws Exception {
         if (!necessaryFilesAndDirectoriesExist) {
             return false;
         }
 
         String tmpDirName = DEST + UUID.randomUUID().toString();
+//        logger.info("成绩评定表文件夹正在导出：" + tmpDirName);
         File tmpDir = new File(tmpDirName);
         if (!tmpDir.exists()) {
             tmpDir.mkdirs();
@@ -331,7 +393,5 @@ public class ExportWord {
         }
         dir.delete();
     }
-
-
 
 }

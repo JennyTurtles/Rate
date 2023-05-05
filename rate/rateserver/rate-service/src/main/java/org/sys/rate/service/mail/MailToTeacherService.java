@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 public class MailToTeacherService {
 
     @Resource
-    PropertiesService propertiesService;
+    MailService propertiesService;
 
     @Resource
     StudentService studentService;

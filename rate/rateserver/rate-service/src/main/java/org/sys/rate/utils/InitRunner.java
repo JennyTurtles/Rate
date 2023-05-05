@@ -5,7 +5,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.sys.rate.service.mail.PropertiesService;
+import org.sys.rate.service.mail.MailService;
 import org.sys.rate.service.mail.ReceiveMails;
 
 import javax.annotation.Resource;
@@ -19,11 +19,11 @@ public class InitRunner implements ApplicationRunner {
     public ReceiveMails receiveMails;
 
     @Resource
-    PropertiesService propertiesService;
+    MailService mailService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        propertiesService.setMyPropertyFromDatabase();
+        mailService.setMail();
     }
 
     @Scheduled(fixedRateString = "120000")

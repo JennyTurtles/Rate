@@ -35,7 +35,7 @@ import java.util.regex.Pattern;
 @Service
 public class ReceiveMails {
     @Resource
-    PropertiesService propertiesService;
+    MailService propertiesService;
 
     @Resource
     MailToTeacherService mailToTeacherService;

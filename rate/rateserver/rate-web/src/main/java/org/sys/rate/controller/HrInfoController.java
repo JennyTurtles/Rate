@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.util.Map;
 
 /**
@@ -43,6 +44,8 @@ public class HrInfoController {
     AdminService adminService;
     @Autowired
     AdminMapper adminMapper;
+    @Resource
+    MailMapper mailMapper;
 
     @Value("${fastdfs.nginx.host}")
     String nginxHost;
@@ -50,6 +53,19 @@ public class HrInfoController {
     @GetMapping("/hr/info")
     public Account getCurrentHr(Authentication authentication) {
         return ((Account) authentication.getPrincipal());//直接注入 Authentication，注入成功后，就能直接使用
+    }
+    @GetMapping("/mail")
+    public RespBean getMailInfo() {
+        Mail res = null;
+        try {
+            res = mailMapper.getMail();
+            if(res != null){
+                return RespBean.ok("ok",res);
+            }
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        return RespBean.error("error",null);
     }
     @GetMapping("/admin")
     public RespBean getAdminInfo(Integer id) {

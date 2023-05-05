@@ -258,7 +258,7 @@ public class ExportPDF {
         origin = origin.trim().replace("\n\n", "\n");
         for (int i = 0; i < origin.length(); ++i) {
             if (count > ONEROWMAXCOUNT || origin.charAt(i) == '\n') {
-                count = 0;
+                count = 1;
                 rows++;
             } else {
                 count++;

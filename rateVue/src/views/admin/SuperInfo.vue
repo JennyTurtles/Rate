@@ -1,7 +1,7 @@
 <template>
   <div class="box">
     <h1>个人中心</h1>
-    <el-form :model="superAdmin" label-width="100px" class="formbox">
+    <el-form :model="superAdmin" label-width="160px" class="formbox">
       <el-form-item label="姓名">
         <el-input v-model="superAdmin.name" @input="infoChange"></el-input>
       </el-form-item>
@@ -9,10 +9,16 @@
         <el-input v-model="superAdmin.phone" @input="infoChange"></el-input>
       </el-form-item>
       <el-form-item label="邮箱">
-        <el-input v-model="superAdmin.email" @input="infoChange"></el-input>
+        <el-input v-model="mail.emailAddress" @input="infoChange"></el-input>
       </el-form-item>
       <el-form-item label="IMAP验证码">
-        <el-input v-model="superAdmin.comment" @input="infoChange"></el-input>
+        <el-input v-model="mail.imapverifyCode" @input="infoChange"></el-input>
+      </el-form-item>
+      <el-form-item label="接收(IMAP)邮件服务器">
+        <el-input v-model="mail.imaphost" @input="infoChange"></el-input>
+      </el-form-item>
+      <el-form-item label="发送(SMTP)邮件服务器">
+        <el-input v-model="mail.smtphost" @input="infoChange"></el-input>
       </el-form-item>
 
       <div class="footer">
@@ -33,37 +39,74 @@ export default {
       infoIsChanged: false,
       user: {},
       superAdmin: {},
+      mail: {},
     };
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem("user"));
-    this.initSuperAdmin();
+    this.init();
   },
   methods: {
     infoChange() {
       this.infoIsChanged = true;
     },
     saveInfo() {
-      let url = "/system/admin/update";
-      this.postRequest(url, this.superAdmin).then((response) => {
-        if (response.status == 200) {
-          this.$message.success(response.msg);
-          this.infoIsChanged = false;
-          this.user.name = this.superAdmin.name;
-          localStorage.setItem("user", JSON.stringify(this.user));
-          this.reload();
-        } else {
-          this.$message.fail("更新失败");
-        }
+      this.superAdmin.email = this.mail.emailAddress;
+
+      const url1 = '/system/admin/update';
+      const adminData = this.superAdmin;
+
+      const url2 = '/system/admin/updateMail';
+      const mailData = this.mail;
+
+      const that = this;
+
+      let promise1 = new Promise((resolve, reject) => {
+        // console.log('正在发送请求 1，参数为：', adminData);
+        this.postRequest(url1, adminData).then((response) => {
+          // console.log('请求 1 的响应结果为：', response);
+          if (response && response.status === 200) {
+            resolve();
+          } else {
+            that.$message.fail('错误：更新管理员信息失败')
+            reject(Error('错误：更新管理员信息失败'));
+          }
+        });
+      });
+
+      promise1.then(() => {
+        // console.log('请求 1 执行成功，即将发送请求 2，参数为：', mailData);
+        this.postRequest(url2, mailData).then((response) => {
+          // console.log('请求 2 的响应结果为：', response);
+          if (response && response.status === 200) {
+            that.$message.success(response.msg)
+            that.infoIsChanged = false;
+            that.user.name = this.superAdmin.name;
+            sessionStorage.setItem('user', JSON.stringify(this.user));
+            that.reload();
+          } else {
+            // console.error('错误：更新邮箱地址信息失败');
+            that.$message.fail('错误：更新邮箱地址信息失败');
+          }
+        });
+      }).catch((error) => {
+        // console.error(error.message);
+        that.$message.fail(error.message);
       });
     },
-    initSuperAdmin() {
-      this.getRequest("/info/admin?id=" + this.user.id).then((resp) => {
-        if (resp) {
-          if (resp.status == 200) this.superAdmin = resp.obj;
-        }
-      });
-    },
+    async init() {
+      try {
+        const superAdminResp = await this.getRequest(`/info/admin?id=${this.user.id}`);
+        this.superAdmin = superAdminResp.obj;
+
+        const mailResp = await this.getRequest("/info/mail");
+        this.mail = mailResp.obj;
+      } catch (error) {
+        console.error(error);
+        throw new Error("Error initializing the app");
+      }
+    }
+
   },
 };
 </script>
