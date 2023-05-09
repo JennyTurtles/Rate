@@ -144,7 +144,7 @@ public class ExportWord {
     private Map<String, Object> createCommentModel(Map<Integer, List<Comment>> comments) {
         Map<String, Object> commentModel = new HashMap<>();
 
-        if (comments.isEmpty() || comments.size() == 0) {
+        if (comments.isEmpty()) {
             return commentModel;
         }
 
@@ -178,22 +178,22 @@ public class ExportWord {
     private Map<String, Object> createScoreModel(Map<Integer, List<ScoreItem>> scoreItems) {
         Map<String, Object> scoreModel = new HashMap<>();
 
-        if (scoreItems.isEmpty() || scoreItems.size() == 0) {
+        if (scoreItems.isEmpty()) {
             return scoreModel;
         }
 
-        int gradeLevelIndex = 0;
-        double tmpCoef = 0.0;
-        double tmpScore = 0.0;
-        double tmpScoreCoef = 0.0;
+        int gradeLevelIndex;
+        double tmpCoef;
+        double tmpScore;
+        double tmpScoreCoef;
         double tmpScoreCoefSum = 0.0;
         DecimalFormat df = new DecimalFormat("#.00");
-        String suffixShort = "";
-        String suffixLong = "";
+        String suffixShort;
+        String suffixLong;
 
         int typeInstructor = GradeForm.Type.INSTRUCTOR.ordinal();
         List<ScoreItem> instructors = scoreItems.get(typeInstructor);
-        if (!instructors.isEmpty()) {
+        if (instructors != null) {
             for (int i = 0; i < instructors.size(); i++) {
                 tmpCoef = instructors.get(i).getCoef();
                 tmpScore = instructors.get(i).getScore();
@@ -214,7 +214,7 @@ public class ExportWord {
 
         int typeReviewers = GradeForm.Type.REVIEWER.ordinal();
         List<ScoreItem> reviewers = scoreItems.get(typeReviewers);
-        if (!reviewers.isEmpty()) {
+        if (reviewers != null) {
             for (int i = 0; i < reviewers.size(); i++) {
                 tmpCoef = reviewers.get(i).getCoef();
                 tmpScore = reviewers.get(i).getScore();
@@ -235,7 +235,7 @@ public class ExportWord {
 
         int typeLeader = GradeForm.Type.DEFENSE.ordinal();
         List<ScoreItem> leaders = scoreItems.get(typeLeader);
-        if (!leaders.isEmpty()) {
+        if (leaders != null) {
             for (int i = 0; i < leaders.size(); i++) {
                 tmpCoef = leaders.get(i).getCoef();
                 tmpScore = leaders.get(i).getScore();
@@ -339,10 +339,10 @@ public class ExportWord {
                 e.printStackTrace();
             }
         }
-        byte[] bytes = baos.toByteArray();
-        zos.close();
-        baos.close();
 
+        zos.close();
+        byte[] bytes = baos.toByteArray();
+        baos.close();
         return bytes;
     }
 
