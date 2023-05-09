@@ -206,13 +206,10 @@ router.beforeEach((to, from, next) => {
                 return
             }
             initMenu(router, store).then((data) => {
-                console.log(to.path)
                 if (data.indexOf(to.path) == -1) {
-                    // Message.warning('无权限！请重新登录')
                     next('/')
                     return
                 } else {
-                    console.log('next')
                     next()
                 }
             })

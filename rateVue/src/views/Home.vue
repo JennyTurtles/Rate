@@ -9,8 +9,8 @@
               您好，{{ user.name
               }}<a
                 v-show="
-                  user.role.indexOf('3') !== -1 ||
-                  user.role.indexOf('4') !== -1 ||
+                  (user.role.indexOf('3') !== -1 && user.role.indexOf('13') == -1) ||
+                  (user.role.indexOf('4') !== -1 && user.role.indexOf('14') == -1) ||
                   user.role.indexOf('8') !== -1 ||
                   user.role.indexOf('9') !== -1
                 "
@@ -210,7 +210,7 @@ export default {
         var url;
         Message.warning("无权限！请重新登录");
         if (this.role == "8" || this.role == "9") url = "/Teacher/Login";
-        else if (this.role == "1") url = "/Admin/Login";
+        else if (this.role == "13" || this.role == "14" || this.role == "15" || this.role == "16") url = "/Admin/Login";
         else url = "/";
         this.$router.replace(url);
       }
@@ -245,7 +245,7 @@ export default {
               this.role == "4"
             )
               url = "/Teacher/Login";
-            else if (this.role == "1") url = "/Admin/Login";
+            else if (this.role.indexOf("13") >= 0 || this.role.indexOf("14") >= 0 || this.role .indexOf("15") >= 0 || this.role.indexOf("16") >= 0) url = "/Admin/Login";
             else url = "/";
             this.getRequest("/system/config/logout").then(() => {
               if (localStorage.getItem("user")) {
@@ -270,7 +270,7 @@ export default {
       } else if (cmd == "changePassword") {
         this.showPassword = true;
       } else if (cmd == "userInfo") {
-        if (this.user.role == "1") {
+        if (this.user.role.indexOf("13") >= 0 || this.user.role.indexOf("14") >= 0 || this.user.role .indexOf("15") >= 0 || this.user.role.indexOf("16") >= 0) {
           this.$router.push({
             path: "/admin/PersonalCenter",
           });
