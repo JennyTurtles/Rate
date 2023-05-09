@@ -318,39 +318,6 @@ public class ExpertController {
 
     }
 
-//    @ResponseBody
-//    @PostMapping("/exportGradeForm")
-//    public RespBean exportGradeForm(HttpServletResponse response, @RequestBody ExportGradeMapper exportGradeMapper) throws Exception {
-//        List<GradeForm> gradeForms = expertService.getGradeForms(exportGradeMapper);
-//        // 基于gradeForms导出word
-//        if(exportWord.generateListWord(response, gradeForms)) {
-//            return RespBean.ok("success");
-//        }else{
-//            return RespBean.error("error");
-//        }
-//    }
-
-//    @ResponseBody
-//    @GetMapping("/exportGradeForm")
-//    public ResponseEntity<byte[]> download() throws IOException {
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        ZipOutputStream zos = new ZipOutputStream(baos);
-//        ZipEntry entry = new ZipEntry("test.txt");
-//        zos.putNextEntry(entry);
-//        zos.write("Hello, world!".getBytes());
-//        zos.closeEntry();
-//        zos.close();
-//
-//        byte[] bytes = baos.toByteArray();
-//
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-//        headers.setContentDisposition(ContentDisposition.attachment().filename("myzip.zip").build());
-//        headers.setContentLength(bytes.length);
-//
-//        return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
-//    }
-
     @ResponseBody
     @PostMapping("/exportGradeForm")
     public ResponseEntity<byte[]> exportGradeForm(HttpServletResponse response, @RequestBody ExportGradeMapper exportGradeMapper) throws Exception {
