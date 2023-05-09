@@ -197,7 +197,7 @@ public class ExportWord {
             for (int i = 0; i < instructors.size(); i++) {
                 tmpCoef = instructors.get(i).getCoef();
                 tmpScore = instructors.get(i).getScore();
-                suffixShort = String.valueOf(typeInstructor) + String.valueOf(i);
+                suffixShort = typeInstructor + String.valueOf(i);
                 // 获得coef
                 scoreModel.put("coef" + suffixShort, tmpCoef);
                 // 计算单项折合后分数
@@ -205,7 +205,7 @@ public class ExportWord {
                 scoreModel.put("scoreCoef" + suffixShort, df.format(tmpScoreCoef));
                 // 为分数挑一个位置
                 gradeLevelIndex = getGradeLevelIndex(tmpScore);
-                suffixLong = suffixShort + String.valueOf(gradeLevelIndex);
+                suffixLong = suffixShort + gradeLevelIndex;
                 scoreModel.put("s" + suffixLong, tmpScore);
                 // 计算总分
                 tmpScoreCoefSum += tmpScoreCoef;
@@ -218,7 +218,7 @@ public class ExportWord {
             for (int i = 0; i < reviewers.size(); i++) {
                 tmpCoef = reviewers.get(i).getCoef();
                 tmpScore = reviewers.get(i).getScore();
-                suffixShort = String.valueOf(typeReviewers) + String.valueOf(i);
+                suffixShort = typeReviewers + String.valueOf(i);
                 // 获得coef
                 scoreModel.put("coef" + suffixShort, tmpCoef);
                 // 计算单项折合后分数
@@ -226,7 +226,7 @@ public class ExportWord {
                 scoreModel.put("scoreCoef" + suffixShort, df.format(tmpScoreCoef));
                 // 为分数挑一个位置
                 gradeLevelIndex = getGradeLevelIndex(tmpScore);
-                suffixLong = suffixShort + String.valueOf(gradeLevelIndex);
+                suffixLong = suffixShort + gradeLevelIndex;
                 scoreModel.put("s" + suffixLong, tmpScore);
                 // 计算总分
                 tmpScoreCoefSum += tmpScoreCoef;
@@ -239,7 +239,7 @@ public class ExportWord {
             for (int i = 0; i < leaders.size(); i++) {
                 tmpCoef = leaders.get(i).getCoef();
                 tmpScore = leaders.get(i).getScore();
-                suffixShort = String.valueOf(typeLeader) + String.valueOf(i);
+                suffixShort = typeLeader + String.valueOf(i);
                 // 获得coef
                 scoreModel.put("coef" + suffixShort, tmpCoef);
                 // 计算单项折合后分数
@@ -247,7 +247,7 @@ public class ExportWord {
                 scoreModel.put("scoreCoef" + suffixShort, df.format(tmpScoreCoef));
                 // 为分数挑一个位置
                 gradeLevelIndex = getGradeLevelIndex(tmpScore);
-                suffixLong = suffixShort + String.valueOf(gradeLevelIndex);
+                suffixLong = suffixShort + gradeLevelIndex;
                 scoreModel.put("s" + suffixLong, tmpScore);
                 // 计算总分
                 tmpScoreCoefSum += tmpScoreCoef;
@@ -307,7 +307,7 @@ public class ExportWord {
 //        ins.close();
 //    }
 
-    public byte[] generateListWord(HttpServletResponse response, List<GradeForm> gradeForms) throws Exception {
+    public byte[] generateListWord(List<GradeForm> gradeForms) throws Exception {
         if (!necessaryFilesAndDirectoriesExist) {
             return null;
         }

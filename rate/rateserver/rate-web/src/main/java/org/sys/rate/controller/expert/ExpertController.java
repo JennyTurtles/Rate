@@ -323,7 +323,7 @@ public class ExpertController {
     public ResponseEntity<byte[]> exportGradeForm(HttpServletResponse response, @RequestBody ExportGradeMapper exportGradeMapper) throws Exception {
         List<GradeForm> gradeForms = expertService.getGradeForms(exportGradeMapper);
         // 基于gradeForms导出word
-        byte[] res = exportWord.generateListWord(response, gradeForms);
+        byte[] res = exportWord.generateListWord(gradeForms);
         if(res != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
