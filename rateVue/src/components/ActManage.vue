@@ -608,6 +608,7 @@
 <script>
 import {Message} from "element-ui";
 import fa from "element-ui/src/locale/lang/fa";
+import axios from "axios";
 
 export default {
   name: "ActManage",
@@ -901,23 +902,24 @@ export default {
           }
           return res
       },
-      goExportGradeForm(){
+      goExportGradeForm(row){
           this.gradeForm.teacherID = this.user.id
           this.gradeForm.instructorScoreItems = this.scoreItemsConvert(this.gradeForm.instructorScoreItems)
           this.gradeForm.reviewScoreItems = this.scoreItemsConvert(this.gradeForm.reviewScoreItems)
           this.gradeForm.defenseScoreItems = this.scoreItemsConvert(this.gradeForm.defenseScoreItems)
-          this.postRequest("/system/Experts/exportGradeForm",this.gradeForm).then(res=>{
-              if(res.status === 200){
-                  this.$message({
-                      type: 'success',
-                      message: '导出成绩评定表成功!'
-                  });
-              }else{
-                  this.$message({
-                      type: 'error',
-                      message: '导出成绩评定表失败!'
-                  });
-              }
+          axios({url:"/system/Experts/exportGradeForm",method:'post',data:this.gradeForm,
+              headers: {'Content-Type': 'application/json'},
+              responseType: 'blob'}).then(res=>{
+              if (new Blob([res]) !== null)
+                  this.$message({type: 'success', message: '导出成绩评定表成功!'});
+              else
+                  this.$message({type: 'error', message: '导出成绩评定表失败!'});
+              const url = window.URL.createObjectURL(new Blob([res]));
+              const link = document.createElement('a');
+              link.href = url;
+              link.setAttribute('download', this.gradeForm.groupName + '成绩评定表.zip');
+              document.body.appendChild(link);
+              link.click();
           })
       },
     changeCheckGroup(row){
@@ -1402,6 +1404,7 @@ export default {
      },
       exportGradeForm(data){
           this.gradeForm.groupID = data.groupID
+          this.gradeForm.groupName = data.groupName
           this.getRequest("/activities/basic/sub?activityID="+data.id).then((resp)=>{
               this.subActs = resp.obj
           })

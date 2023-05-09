@@ -280,118 +280,108 @@ public class ExportWord {
         return 4;
     }
 
-    public void getDownload(HttpServletResponse response, String filePath, boolean isOnLine) throws Exception {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            // 判断文件是否存在
-            throw new Exception("文件不存在！");
-        }
-        String fileName = "成绩评定表.zip";
-        InputStream ins = new FileInputStream(filePath);
-        OutputStream os = response.getOutputStream();
-        byte[] buffer = new byte[4096];
-        int len = 0;
-        response.reset();
-        if (isOnLine) {
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "inline; filename=" + fileName);
-        } else {
-            response.setContentType("application/x-msdownload");
-            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-        }
-        while ((len = ins.read(buffer)) > 0) {
-            os.write(buffer, 0, len);
-        }
-        os.flush();
-        os.close();
-        ins.close();
-    }
+//    public void getDownload(HttpServletResponse response, String filePath, boolean isOnLine) throws Exception {
+//        File file = new File(filePath);
+//        if (!file.exists()) {
+//            // 判断文件是否存在
+//            throw new Exception("文件不存在！");
+//        }
+//        String fileName = "成绩评定表.zip";
+//        InputStream ins = new FileInputStream(filePath);
+//        OutputStream os = response.getOutputStream();
+//        byte[] buffer = new byte[4096];
+//        int len = 0;
+//        response.reset();
+//        if (isOnLine) {
+//            response.setContentType("application/octet-stream");
+//            response.setHeader("Content-Disposition", "inline; filename=" + fileName);
+//        } else {
+//            response.setContentType("application/x-msdownload");
+//            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+//        }
+//        while ((len = ins.read(buffer)) > 0) {
+//            os.write(buffer, 0, len);
+//        }
+//        os.flush();
+//        os.close();
+//        ins.close();
+//    }
 
-    public boolean generateListWord(HttpServletResponse response, List<GradeForm> gradeForms) throws Exception {
+    public byte[] generateListWord(HttpServletResponse response, List<GradeForm> gradeForms) throws Exception {
         if (!necessaryFilesAndDirectoriesExist) {
-            return false;
+            return null;
         }
-
-        String tmpDirName = DEST + UUID.randomUUID().toString();
-//        logger.info("成绩评定表文件夹正在导出：" + tmpDirName);
-        File tmpDir = new File(tmpDirName);
-        if (!tmpDir.exists()) {
-            tmpDir.mkdirs();
-        }
-
-        List<File> fileList = new ArrayList<>();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(baos);
 
         for (GradeForm gradeForm : gradeForms) {
             Map<String, Object> params = new HashMap<>();
             params.putAll(createGeneralModel(gradeForm));
             params.putAll(createCommentModel(gradeForm.getComments()));
             params.putAll(createScoreModel(gradeForm.getScoreItems()));
+            try (XWPFDocument doc = WordExportUtil.exportWord07(TEMPLATE_PATH, params)) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                doc.write(out); // 将word写入byte流
+                byte[] xwpfDocumentBytes = out.toByteArray();
+                ByteArrayInputStream bis = new ByteArrayInputStream(xwpfDocumentBytes);
 
-            String tmpFileName = tmpDirName + "/" + gradeForm.getName() + "成绩评定表.docx";
-            XWPFDocument doc = null;
-            FileOutputStream fos = null;
-            try {
-                doc = WordExportUtil.exportWord07(TEMPLATE_PATH, params);
-                fos = new FileOutputStream(tmpFileName);
-                doc.write(fos);
+                ZipEntry zipEntry = new ZipEntry(gradeForm.getName() + "成绩评定表.docx");
+                zos.putNextEntry(zipEntry);
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = bis.read(buffer)) >= 0) {
+                    zos.write(buffer, 0, length);
+                }
+                out.close();
+                zos.closeEntry();
+                bis.close();
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                if (fos != null) {
-                    fos.close();
-                }
-                if (doc != null) {
-                    doc.close();
-                }
             }
-
-            fileList.add(new File(tmpFileName));
         }
+        byte[] bytes = baos.toByteArray();
+        zos.close();
+        baos.close();
 
-        String zipFileName = DEST + UUID.randomUUID() + ".zip";
-        File zipFile = compressFiles(fileList, zipFileName);
-        getDownload(response, zipFileName, false);
-//        File directory = new File(DEST);
-//        deleteDir(directory);
-        return true;
+        return bytes;
     }
 
-    public static File compressFiles(List<File> fileList, String zipFileName) {
-        File zipFile = new File(zipFileName);
-        try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(zipFile))) {
-            for (File file : fileList) {
-                ZipEntry zipEntry = new ZipEntry(file.getName());
-                zipOutputStream.putNextEntry(zipEntry);
+//    public static File compressFiles(List<File> fileList, String zipFileName) {
+//        File zipFile = new File(zipFileName);
+//        try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(zipFile))) {
+//            for (File file : fileList) {
+//                ZipEntry zipEntry = new ZipEntry(file.getName());
+//                zipOutputStream.putNextEntry(zipEntry);
+//
+//                FileInputStream fileInputStream = new FileInputStream(file);
+//                byte[] buffer = new byte[1024];
+//                int len;
+//                while ((len = fileInputStream.read(buffer)) > 0) {
+//                    zipOutputStream.write(buffer, 0, len);
+//                }
+//
+//                fileInputStream.close();
+//                zipOutputStream.closeEntry();
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return zipFile;
+//    }
 
-                FileInputStream fileInputStream = new FileInputStream(file);
-                byte[] buffer = new byte[1024];
-                int len;
-                while ((len = fileInputStream.read(buffer)) > 0) {
-                    zipOutputStream.write(buffer, 0, len);
-                }
-
-                fileInputStream.close();
-                zipOutputStream.closeEntry();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return zipFile;
-    }
-
-    public static void deleteDir(File dir) {
-        if (!dir.exists()) {
-            return;
-        }
-        if (dir.isFile()) {
-            dir.delete();
-            return;
-        }
-        File[] subFiles = dir.listFiles();
-        for (File sub : subFiles) {
-            deleteDir(sub);
-        }
-        dir.delete();
-    }
+//    public static void deleteDir(File dir) {
+//        if (!dir.exists()) {
+//            return;
+//        }
+//        if (dir.isFile()) {
+//            dir.delete();
+//            return;
+//        }
+//        File[] subFiles = dir.listFiles();
+//        for (File sub : subFiles) {
+//            deleteDir(sub);
+//        }
+//        dir.delete();
+//    }
 
 }

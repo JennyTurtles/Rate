@@ -1,7 +1,7 @@
 package org.sys.rate.controller.expert;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +16,7 @@ import org.sys.rate.utils.ExportWord;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -23,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 //@RestController("ratesystemExperts")
 @RestController
@@ -315,15 +318,53 @@ public class ExpertController {
 
     }
 
+//    @ResponseBody
+//    @PostMapping("/exportGradeForm")
+//    public RespBean exportGradeForm(HttpServletResponse response, @RequestBody ExportGradeMapper exportGradeMapper) throws Exception {
+//        List<GradeForm> gradeForms = expertService.getGradeForms(exportGradeMapper);
+//        // 基于gradeForms导出word
+//        if(exportWord.generateListWord(response, gradeForms)) {
+//            return RespBean.ok("success");
+//        }else{
+//            return RespBean.error("error");
+//        }
+//    }
+
+//    @ResponseBody
+//    @GetMapping("/exportGradeForm")
+//    public ResponseEntity<byte[]> download() throws IOException {
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        ZipOutputStream zos = new ZipOutputStream(baos);
+//        ZipEntry entry = new ZipEntry("test.txt");
+//        zos.putNextEntry(entry);
+//        zos.write("Hello, world!".getBytes());
+//        zos.closeEntry();
+//        zos.close();
+//
+//        byte[] bytes = baos.toByteArray();
+//
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+//        headers.setContentDisposition(ContentDisposition.attachment().filename("myzip.zip").build());
+//        headers.setContentLength(bytes.length);
+//
+//        return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+//    }
+
     @ResponseBody
     @PostMapping("/exportGradeForm")
-    public RespBean exportGradeForm(HttpServletResponse response, @RequestBody ExportGradeMapper exportGradeMapper) throws Exception {
+    public ResponseEntity<byte[]> exportGradeForm(HttpServletResponse response, @RequestBody ExportGradeMapper exportGradeMapper) throws Exception {
         List<GradeForm> gradeForms = expertService.getGradeForms(exportGradeMapper);
         // 基于gradeForms导出word
-        if(exportWord.generateListWord(response, gradeForms)) {
-            return RespBean.ok("success");
+        byte[] res = exportWord.generateListWord(response, gradeForms);
+        if(res != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDisposition(ContentDisposition.attachment().build());
+            headers.setContentLength(res.length);
+            return new ResponseEntity<>(res, headers, HttpStatus.OK);
         }else{
-            return RespBean.error("error");
+            return new ResponseEntity<>(null, null, HttpStatus.OK);
         }
     }
 }
