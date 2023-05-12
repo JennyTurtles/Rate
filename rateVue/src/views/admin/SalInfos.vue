@@ -10,7 +10,7 @@
       </div>
     </div>
     <div v-if="mode === 'secretary' || mode==='secretarySub'"><br/>单元格内容只可查看不可编辑</div>
-    <div><br/>大小限制：对文件大小或输入内容字数的限制（0到2000的整数）</div>
+    <div><br/>名称不能为基本信息名，包括：姓名，身份证号，编号，序号，手机号，邮箱，组名</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -24,6 +24,12 @@
           element-loading-background="rgba(0, 0, 0, 0.08)"
           style="width: 100%"
           @cell-mouse-enter="handleCellMouseEnter"
+          @cell-mouse-leave="()=>{
+            if(this.editing === false){
+              this.tabClickIndex = -1;
+              this.tabClickLabel = '';
+            }
+          }"
       >
         <el-table-column type="selection" width="35"></el-table-column>
         <el-table-column
@@ -211,6 +217,7 @@ export default {
   name: "SalInfos",
   data() {
     return {
+      basicNameList: ['姓名','身份证号','编号','序号','手机号','邮箱','组名'],
       editing: false,
       //当前焦点数据
       currentfocusdata: "",
@@ -550,6 +557,8 @@ export default {
         } else {
           if (label === 'sizelimit' && (parseFloat(row.sizelimit).toString() === 'NaN' || row.sizelimit < 0 || row.sizelimit > 2000)){
             Message.warning('更新失败！大小限制需要为0到2000的数字！')
+          }else if (label === 'name' && this.basicNameList.indexOf(row.name) !== -1){
+            Message.warning('更新失败！名称不能为基本信息名！')
           }
           else
             this.UpdateOrNew(row)
@@ -560,10 +569,6 @@ export default {
     },
     // 失去焦点初始化
     inputBlur() {
-      //console.log(this.hrs);
-      // if (this.currentfocusdata == null) {
-      //   Message.error('输入内容不能为空！操作未保存！')
-      // }
       if (this.mode!=='secretary'){
         this.tabClickIndex = null;
         this.tabClickLabel = "";
