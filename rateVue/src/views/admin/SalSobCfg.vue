@@ -10,8 +10,8 @@
     </div>
     <div style="display: flex; justify-content: left;margin-top:10px">
       <div v-if="flag==0">
-        <span v-show="mode==='admin'|| mode==='adminSub'" style="font-weight:600;">导入新数据</span> <a v-show="mode==='admin'|| mode==='adminSub'">第一步：</a>
-        <el-button v-show="mode==='admin'|| mode==='adminSub'"
+        <span  style="font-weight:600;">导入新数据</span> <a>第一步：</a>
+        <el-button
             type="primary"
             @click="exportMo"
             icon="el-icon-upload"
@@ -19,7 +19,7 @@
         >
           下载模板
         </el-button>
-        <a v-show="mode==='admin'|| mode==='adminSub'">第二步：</a>
+        <a >第二步：</a>
         <el-upload
             :show-file-list="false"
             :before-upload="beforeUpload"
@@ -28,7 +28,6 @@
             :disabled="importDataDisabled"
             style="display: inline-flex; margin-right: 8px"
             :action="UploadUrl()"
-            v-show="mode==='admin'|| mode==='adminSub'"
         >
           <el-button
               :disabled="importDataDisabled"
@@ -41,7 +40,7 @@
       </div>
 
     </div>
-    <div v-show="mode==='admin'|| mode==='adminSub' && flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。
+    <div v-show="flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。
         <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。
     </div>
 
@@ -216,6 +215,7 @@
                 size="mini"
                 icon="el-icon-refresh-right"
                 type="primary"
+                v-show="haveSub!=1"
                 plain
             >查看专家评分
             </el-button>
@@ -226,6 +226,7 @@
                 icon="el-icon-refresh-right"
                 type="primary"
                 :disabled="scope.row.finished==0"
+                v-show="haveSub!=1"
                 plain
             >退回评分
             </el-button>
@@ -386,6 +387,7 @@ export default {
       editing: false,
       activityID:-1,
       flag:0,
+      haveSub:0,
       //当前焦点数据
       currentfocusdata: "",
       currentrole:"",
@@ -495,6 +497,8 @@ export default {
     this.groupID = this.$route.query.groupID;
     this.ACNAME = this.$route.query.keywords_name;
     this.mode = this.$route.query.mode;
+    this.haveSub = this.$route.query.haveSub;
+    console.log(this.haveSub);
     this.flag = this.$route.query.flag == 1 ? 1 : 0;
     this.initHrs();
   },

@@ -97,7 +97,6 @@
             >
               <el-button
                       @click="assignPE(scope.row)"
-                      v-show="mode === 'secretarySub'"
                       style="padding: 4px"
                       size="mini"
                       icon="el-icon-tickets"
@@ -106,17 +105,17 @@
               >分配选手和专家
               </el-button
               >
-            <el-button
-                @click="showGroups(scope.row)"
-                v-show="mode !== 'secretarySub'"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-tickets"
-                type="primary"
-                plain
-            >专家和选手管理
-            </el-button
-            >
+<!--            <el-button-->
+<!--                @click="showGroups(scope.row)"-->
+<!--                v-show="mode !== 'secretarySub'"-->
+<!--                style="padding: 4px"-->
+<!--                size="mini"-->
+<!--                icon="el-icon-tickets"-->
+<!--                type="primary"-->
+<!--                plain-->
+<!--            >专家和选手管理-->
+<!--            </el-button-->
+<!--            >-->
 <!--            <el-button-->
 <!--                @click="showParticipantsM(scope.row)"-->
 <!--                v-show="mode !== 'secretarySub'"-->
@@ -160,6 +159,17 @@
                 type="primary"
                 plain
             >导出本组专家打分
+            </el-button
+            >
+            <el-button
+                @click="showSubActivity(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-plus"
+                type="primary"
+                plain
+                v-show="haveSub == 1 && mode==='admin'"
+            >子活动管理
             </el-button
             >
             <el-button
@@ -219,6 +229,7 @@ export default {
       //当前焦点数据
       currentfocusdata: "",
       mode:'',
+      haveSub:0,
       groupID:-1,
       searchValue: {
         compnayName: null,
@@ -300,6 +311,7 @@ export default {
     this.keywords_name = this.$route.query.keyword_name;
     this.groupID = this.$route.query.groupID;
     this.mode = this.$route.query.mode;
+    this.haveSub = this.$route.query.haveSub;
     this.initHrs();
     //this.initAd();
   },
@@ -535,17 +547,25 @@ export default {
     },
       assignPE(data) {
           const _this = this;
-          _this.$router.push({
+          if (this.mode === 'secretary'||this.mode === 'admin'){
+            _this.$router.push({
               path: "/Expert/EassignPE",
               query: {
-                  activityIDParent: this.$route.query.backID,
-                  activityID: data.activityID,
-                  groupIDParent: this.$route.query.groupID,
-                  groupID: data.id,
-                  mode:this.mode
+                activityIDParent: this.$route.query.backID,
+                activityID: data.activityID,
+                groupIDParent: this.$route.query.groupID,
+                groupID: data.id,
+                mode:this.mode
               }
-          })
+            })
+          }
       },
+    showSubActivity(data) {
+      const _this = this;
+        _this.$router.push({
+          query :{id:data.activityID,keywords:this.keywords,actName:this.keywords_name,groupName:data.name,groupID:data.id,isGroup:true,haveSub:this.haveSub},
+          path: "/secretary/SubActManage",});
+    },
     showParticipantsM(data) {
       const _this = this;
       _this.$router.push({

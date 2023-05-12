@@ -141,7 +141,7 @@
             >
             <el-button
                 @click="showScoreItem(scope.row)"
-                v-show="mode==='admin' || mode==='adminSub'"
+                v-show="(mode==='admin' || mode==='adminSub') && scope.row.haveSub!==1"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
@@ -152,7 +152,7 @@
             >
             <el-button
                 @click="showScoreItem(scope.row)"
-                v-show="mode==='secretary' || mode==='secretarySub'"
+                v-show="(mode==='secretary' || mode==='secretarySub') && scope.row.haveSub!==1"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-tickets"
@@ -196,7 +196,7 @@
             >
             <el-button
                 @click="showGroupmanagement(scope.row)"
-                v-show="mode !== 'secretary' && mode !== 'secretarySub' || scope.row.requireGroup === true"
+                v-show="mode !== 'secretary' && mode !== 'secretarySub' && mode !== 'adminSub'|| scope.row.requireGroup === true"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-s-operation"
@@ -207,7 +207,7 @@
             >
             <el-button
                 @click="showInsertmanagement(scope.row)"
-                v-show="mode==='admin' || mode==='adminSub'"
+                v-show="mode==='admin'"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-plus"
@@ -233,13 +233,14 @@
                       size="mini"
                       icon="el-icon-tickets"
                       type="primary"
+                      v-show="mode==='admin' || mode==='secretary'"
                       plain
               >专家管理
               </el-button
               >
             <el-button
                 @click="showScore(scope.row)"
-                v-show="true"
+                v-show="scope.row.haveSub !== 1"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-plus"
@@ -250,7 +251,7 @@
             >
               <el-button
                       @click="assignPE(scope.row)"
-                      v-show="mode === 'secretarySub' &&scope.row.requireGroup === false"
+                      v-show="mode === 'secretarySub' && scope.row.requireGroup === false"
                       style="padding: 4px"
                       size="mini"
                       icon="el-icon-tickets"
@@ -262,6 +263,7 @@
             <el-button
                 @click="exportEx(scope.row)"
                 :loading="loading"
+                v-show="scope.row.haveSub !== 1"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-download"
@@ -299,7 +301,7 @@
                       icon="el-icon-download"
                       type="primary"
                       plain
-                      v-show="mode === 'secretary' && scope.row.haveSub === 1"
+                      v-show="scope.row.haveSub === 1"
               >导出成绩评定表
               </el-button
               >
@@ -714,6 +716,7 @@ export default {
   created() {
   },
   mounted() {
+    this.isGroup = this.$route.query.isGroup;
     this.initEmps();
   },
   methods: {
@@ -1191,6 +1194,7 @@ export default {
             keywords: data.id,
             keyword_name: data.name,
             mode:this.mode,
+            haveSub:data.haveSub,
           },
         });
       }else if (this.mode === "secretary"){
@@ -1363,16 +1367,28 @@ export default {
           const _this = this;
           var url = ""
           var query = ""
-          if (this.mode === 'adminSub'){
-            {
-                url = "/ActivitM/search"
-            }
-          }else if (this.mode === "secretarySub"){
-              url = "/secretary/ActManage"
+          if (this.isGroup){
+            console.log(this.keywords);
+            _this.$router.push({
+              path: "/ActivitM/table",
+              query:{
+                 keywords:this.$route.query.keywords,
+                 keywords_name:this.actName,
+                 mode:"admin",
+                 haveSub:this.$route.query.haveSub,
+              }
+            });
           }
-          _this.$router.push({
+          else{
+            if (this.mode === 'adminSub'){
+              url = "/ActivitM/search"
+            }else if (this.mode === "secretarySub"){
+              url = "/secretary/ActManage"
+            }
+            _this.$router.push({
               path: url,
-          });
+            });
+          }
       },
       showGroups(data) {
           const _this = this;
@@ -1385,7 +1401,8 @@ export default {
                   keywords_name:this.keywords_name,
                   groupID: data.groupID,
                   backID: this.activityID,
-                  mode:this.mode
+                  mode:this.mode,
+                  haveSub:data.haveSub
               }
           })
       },
