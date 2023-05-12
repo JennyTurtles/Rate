@@ -58,6 +58,12 @@
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%"
           @cell-mouse-enter="handleCellMouseEnter"
+          @cell-mouse-leave="()=>{
+            if(this.editing === false){
+              this.tabClickIndex = -1;
+              this.tabClickLabel = '';
+            }
+          }"
       >
         <el-table-column prop="name" fixed label="专家姓名" min-width="3%">
           <template slot-scope="scope">
