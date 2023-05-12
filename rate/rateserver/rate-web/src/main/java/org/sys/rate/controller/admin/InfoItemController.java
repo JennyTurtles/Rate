@@ -67,6 +67,8 @@ public class InfoItemController {
     public RespBean updateInfoItem(@RequestBody InfoItem infoItem,@RequestParam Integer institutionID) throws ParseException {
         Integer ID = infoItem.getID();
         StringBuffer str5 = new StringBuffer();
+        if (infoItem.getShuZuType() == null)
+            infoItem.setShuZuType(new String[0]);
         for (String s : infoItem.getShuZuType()) {
             str5.append(s).append(',');
         }

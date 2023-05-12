@@ -59,7 +59,7 @@ import {
     CollapseItem,
     Switch, Popconfirm,Divider
 } from 'element-ui';
-
+Dialog.props.closeOnClickModal.default = false // 点击空白处不关闭弹窗
 Vue.directive('focus', {
     inserted(el, binding, vnode) {
         // 聚焦元素

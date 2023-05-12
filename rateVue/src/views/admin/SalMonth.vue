@@ -9,7 +9,6 @@
         </el-button>
       </div>
     </div>
-    <div v-if="mode !== 'secretary' && mode!=='secretarySub'"><br/>单元格中内容双击后可编辑</div>
     <div v-if="mode === 'secretary' || mode==='secretarySub'"><br/>单元格内容只可查看不可编辑</div>
     <div style="margin-top: 10px">
       <el-table
@@ -18,12 +17,12 @@
           stripe
           border
           v-loading="loading"
-          @cell-dblclick="tabClick"
           :row-class-name="tableRowClassName"
           element-loading-text="正在加载..."
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.08)"
           style="width: 100%"
+          @cell-mouse-enter="handleCellMouseEnter"
       >
         <el-table-column type="selection" width="35"></el-table-column>
         <el-table-column
@@ -38,10 +37,10 @@
                 v-if="
                   scope.row.index === tabClickIndex && tabClickLabel === '名称'
                 "
-                v-focus
                 v-model.trim="scope.row.name"
                 size="mini"
                 maxlength="500"
+                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row,'name')"
                 @change="handleEdit(scope.$index,scope.row,'name')"
                 @blur="inputBlur"
@@ -65,9 +64,9 @@
                   scope.row.index === tabClickIndex && tabClickLabel === '分数'
                 "
                 maxlength="5"
-                v-focus
                 v-model="scope.row.score"
                 size="mini"
+                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row,'score')"
                 @change="handleEdit(scope.$index,scope.row,'score')"
                 @blur="inputBlur"
@@ -92,11 +91,11 @@
                   scope.row.index === tabClickIndex &&
                   tabClickLabel === '折算系数'
                 "
-                v-focus
                 v-model="scope.row.coef"
                 maxlength="5"
                 placeholder="请输入折算系数"
                 size="mini"
+                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row,'coef')"
                 @change="handleEdit(scope.$index,scope.row,'coef')"
                 @blur="inputBlur"
@@ -140,7 +139,7 @@
                   scope.row.index === tabClickIndex &&
                   tabClickLabel === '详细描述'
                 "
-                v-focus
+                @input="editing = true"
                 v-model="scope.row.comment"
                 maxlength="2000"
                 placeholder="请输入详细描述"
@@ -212,6 +211,7 @@ export default {
   name: "SalMonth",
   data() {
     return {
+      editing: false,
       //当前焦点数据
       currentfocusdata: "",
       searchValue: {
@@ -298,6 +298,32 @@ export default {
     this.initData();
   },
   methods: {
+    handleCellMouseEnter(row, column, cell, event) {
+      if (this.editing === true)
+        return;
+      if (this.mode!=="secretary" && this.mode!=='secretarySub'){
+        switch (column.label) {
+          case "折算系数":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "分数":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "名称":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "详细描述":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          default:
+            return;
+        }
+      }
+    },
     Delete_Score_Item(si) {
       this.$confirm("此操作将永久删除【" + si.name + "】, 是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -429,7 +455,6 @@ export default {
       }
     },
     handleEdit(index, row, label) {
-      //console.log(row);
       if (this.mode!=="secretary"&& this.mode!=='secretarySub'){
         if (row[label] == ''&&label !== 'comment') {
           Message.warning('输入内容不能为空!')
@@ -446,6 +471,7 @@ export default {
           row[label] = this.currentfocusdata
         } else {
           this.UpdateOrNew(row)
+          this.editing = false
           // this.newScoring(row)
         }
       }

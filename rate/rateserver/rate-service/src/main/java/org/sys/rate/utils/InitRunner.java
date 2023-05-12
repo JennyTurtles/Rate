@@ -23,14 +23,14 @@ public class InitRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        mailService.setMail();
+//        mailService.setMail();
     }
 
     @Scheduled(fixedRateString = "120000")
     public void readMails() {
         try {
-            TimeUnit.SECONDS.sleep(2);
-            receiveMails.readMails();
+//            TimeUnit.SECONDS.sleep(2);
+//            receiveMails.readMails();
         } catch (Exception e) {
             e.printStackTrace();
         }

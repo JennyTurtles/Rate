@@ -9,7 +9,6 @@
         </el-button>
       </div>
     </div>
-    <div v-if="mode !== 'secretary' &&mode!=='secretarySub'"><br/>单元格中内容双击后可编辑</div>
     <div v-if="mode === 'secretary' || mode==='secretarySub'"><br/>单元格内容只可查看不可编辑</div>
     <div><br/>是否展示：该信息项是否在展示给专家打分。大小限制：对文件大小或输入内容字数的限制</div>
     <div style="margin-top: 10px">
@@ -19,12 +18,12 @@
           stripe
           border
           v-loading="loading"
-          @cell-dblclick="tabClick"
           :row-class-name="tableRowClassName"
           element-loading-text="正在加载..."
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.08)"
           style="width: 100%"
+          @cell-mouse-enter="handleCellMouseEnter"
       >
         <el-table-column type="selection" width="35"></el-table-column>
         <el-table-column
@@ -39,10 +38,10 @@
                 v-if="
                   scope.row.index === tabClickIndex && tabClickLabel === '名称'
                 "
-                v-focus
                 v-model.trim="scope.row.name"
                 size="mini"
                 maxlength="80"
+                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row,'name')"
                 @change="handleEdit(scope.$index,scope.row,'name')"
                 @blur="inputBlur"
@@ -113,10 +112,10 @@
           <template slot-scope="scope">
             <el-input
                 v-if="scope.row.index === tabClickIndex && tabClickLabel === '大小限制(字节默认为M，字为字数)' && scope.row.byParticipant === true "
-                v-focus
                 v-model="scope.row.sizelimit"
                 placeholder="请输入sizelimit"
                 size="mini"
+                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row,'sizelimit')"
                 @change="handleEdit(scope.$index,scope.row,'sizelimit')"
                 @blur="inputBlur"
@@ -211,6 +210,7 @@ export default {
   name: "SalInfos",
   data() {
     return {
+      editing: false,
       //当前焦点数据
       currentfocusdata: "",
       searchValue: {
@@ -316,6 +316,28 @@ export default {
     this.initData();
   },
   methods: {
+    handleCellMouseEnter(row, column, cell, event) {
+      if (this.editing === true)
+        return;
+      if (this.mode!=="secretary" && this.mode!=='secretarySub'){
+        switch (column.label) {
+          case "contentType":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "大小限制(字节默认为M，字为字数)":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "名称":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          default:
+            return;
+        }
+      }
+    },
     // 点击下拉框对显示的选项进行筛选。已选中文本类型则不允许选其他所有类型；已选中文件类型则不允许选本文类型。
     handleVisible(row){
       if (this.mode==='secretary'){
@@ -527,6 +549,7 @@ export default {
           row[label] = this.currentfocusdata
         } else {
           this.UpdateOrNew(row)
+          this.editing = false
           // this.newScoring(row)
         }
       }
@@ -572,11 +595,13 @@ export default {
     },
     UpdateCheckbox(infoItem,mode) {
       const _this = this;
+      console.log(infoItem)
       if (mode === 'byParticipan')
       {
         if (infoItem.byParticipant === false){
           infoItem.shuZuType = ['label']
           infoItem.contentType = 'label'
+          infoItem.sizelimit = ''
         }else
         {
           infoItem.shuZuType = []
