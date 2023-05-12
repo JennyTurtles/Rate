@@ -10,7 +10,7 @@
       </div>
     </div>
     <div v-if="mode === 'secretary' || mode==='secretarySub'"><br/>单元格内容只可查看不可编辑</div>
-    <div><br/>是否展示：该信息项是否在展示给专家打分。大小限制：对文件大小或输入内容字数的限制</div>
+    <div><br/>大小限制：对文件大小或输入内容字数的限制（0到2000的整数）</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -31,7 +31,7 @@
             fixed
             align="name"
             label="名称"
-            width="100px"
+            width="200px"
         >
           <template slot-scope="scope">
             <el-input
@@ -83,6 +83,7 @@
         >
           <template slot-scope="scope">
             <el-select v-model="scope.row.shuZuType" placeholder="请输入类型"
+                       v-if="scope.row.byParticipant === true"
                        multiple
                        min-width="10%"
                        v-focus
@@ -91,7 +92,6 @@
                        @blur="inputBlur"
                        @visible-change="handleVisible(scope.row)"
                        prefix-icon="el-icon-edit"
-
             >
               <el-option
                   v-for="x in shuju"
@@ -101,17 +101,18 @@
                   :disabled="x.disabled">
               </el-option>
             </el-select>
+            <span v-else>{{scope.row.shuZuType[0]}}</span>
           </template>
         </el-table-column>
         <el-table-column
             prop="sizelimit"
-            label="大小限制(字节默认为M，字为字数)"
+            label="大小限制"
             align="center"
             min-width="5%"
         >
           <template slot-scope="scope">
             <el-input
-                v-if="scope.row.index === tabClickIndex && tabClickLabel === '大小限制(字节默认为M，字为字数)' && scope.row.byParticipant === true "
+                v-if="scope.row.index === tabClickIndex && tabClickLabel === '大小限制' && scope.row.byParticipant === true "
                 v-model="scope.row.sizelimit"
                 placeholder="请输入sizelimit"
                 size="mini"
@@ -122,14 +123,15 @@
             />
             <span
                 style="width: 100%; height: 100%; display: inline-block"
-                v-else
-            >{{ scope.row.sizelimit }}</span
+                v-else-if="scope.row.byParticipant === true"
+            >{{ scope.row.sizelimit }}{{JSON.stringify(scope.row.shuZuType).indexOf('textbox') !== -1
+            || JSON.stringify(scope.row.shuZuType).indexOf('textarea') !== -1 ? '字' : 'M'}}</span
             >
           </template>
         </el-table-column>
         <el-table-column
             prop="comment"
-            label="是否展示"
+            label="是否显示在打分表中"
             align="center"
             min-width="3%"
         >
@@ -204,7 +206,6 @@
 
 <script>
 import {Message} from 'element-ui'
-import ro from "element-ui/src/locale/lang/ro";
 
 export default {
   name: "SalInfos",
@@ -233,7 +234,6 @@ export default {
         {name:"pdf",famname:"字节",disabled:false},
         {name:"jpg",famname:"字节",disabled:false},
         {name:"zip",famname:"字节",disabled:false},
-        {name:"label",famname:"",disabled:false},
       ],
       activitydata: [],
       keywords_name: "",
@@ -325,7 +325,7 @@ export default {
             this.tabClickIndex = row.index;
             this.tabClickLabel = column.label;
             break;
-          case "大小限制(字节默认为M，字为字数)":
+          case "大小限制":
             this.tabClickIndex = row.index;
             this.tabClickLabel = column.label;
             break;
@@ -366,11 +366,11 @@ export default {
           if (row.shuZuType.length !== 0){ // 有文件类型
             this.shuju[0].disabled = true
             this.shuju[1].disabled = true
-            this.shuju[5].disabled = true
+            // this.shuju[5].disabled = true
           }
         }
         if (row.byParticipant === true){ // 选手填写打了个勾，label类型就要被禁止
-          this.shuju[5].disabled = true
+          // this.shuju[5].disabled = true
         }
         else{
           for (let i = 0; i < this.shuju.length - 1; i++) {
@@ -532,10 +532,10 @@ export default {
             if (row.shuZuType.length !== 0){ // 有文件类型
               this.shuju[0].disabled = true
               this.shuju[1].disabled = true
-              this.shuju[5].disabled = true
+              // this.shuju[5].disabled = true
             }
-            if (row.byParticipant === true)
-              this.shuju[5].disabled = true
+            // if (row.byParticipant === true)
+            //   this.shuju[5].disabled = true
           }
         }
         if (row[label] == ''&&label !== 'sizelimit'&&label !== 'contentType') {
@@ -548,7 +548,11 @@ export default {
           Message.warning('输入内容不能为空！')
           row[label] = this.currentfocusdata
         } else {
-          this.UpdateOrNew(row)
+          if (label === 'sizelimit' && (parseFloat(row.sizelimit).toString() === 'NaN' || row.sizelimit < 0 || row.sizelimit > 2000)){
+            Message.warning('更新失败！大小限制需要为0到2000的数字！')
+          }
+          else
+            this.UpdateOrNew(row)
           this.editing = false
           // this.newScoring(row)
         }
@@ -636,7 +640,7 @@ export default {
       obj.contentType = 'label';
       obj.shuZuType = ['label']
       obj.name = '请输入信息项名称';
-      obj.sizelimit='500';
+      obj.sizelimit='';
       obj.display = true;
       obj.byParticipant = false;
       this.hrs.push(obj);
