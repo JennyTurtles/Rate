@@ -153,9 +153,19 @@ public class GroupsController {
         return RespBean.ok("success", groupsMapper.getGroupPars(groupID));
     }
 
+    @GetMapping("/parsByActID")
+    public RespBean getParsByID(@RequestParam Integer activityID) {
+        return RespBean.ok("success", groupsMapper.getParsByID(activityID));
+    }
+
     @GetMapping("/experts")
     public RespBean getGroupExperts(@RequestParam Integer groupID) {
         return RespBean.ok("success", groupsMapper.getGroupExperts(groupID));
+    }
+
+    @GetMapping("/expertsByActID")
+    public RespBean getGroupExpertsByActID(@RequestParam Integer activityID) {
+        return RespBean.ok("success", groupsMapper.getGroupExpertsByActID(activityID));
     }
 
     @GetMapping("/subGroups")

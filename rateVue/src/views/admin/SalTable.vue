@@ -8,7 +8,6 @@
         </el-button>
       </div>
     </div>
-    <div ><br/>单元格中内容双击后可编辑</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -16,12 +15,18 @@
           stripe
           border
           v-loading="loading"
-          @cell-dblclick="tabClick"
           :row-class-name="tableRowClassName"
           element-loading-text="正在加载..."
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%"
+          @cell-mouse-enter="handleCellMouseEnter"
+          @cell-mouse-leave="()=>{
+            if(this.editing === false){
+              this.tabClickIndex = -1;
+              this.tabClickLabel = '';
+            }
+          }"
       >
         <el-table-column type="selection" min-width="1%"></el-table-column>
         <el-table-column
@@ -47,10 +52,10 @@
                   scope.row.index === tabClickIndex &&
                   tabClickLabel === '分组名称'
                 "
-                v-focus
                 v-model.trim="scope.row.name"
                 maxlength="50"
                 size="mini"
+                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row)"
                 @change="UpdateOrNew(scope.row)"
                 @blur="inputBlur"
@@ -226,6 +231,7 @@ export default {
   name: "SalTable",
   data() {
     return {
+      editing:false,
       //当前焦点数据
       currentfocusdata: "",
       mode:'',
@@ -507,6 +513,18 @@ export default {
       // 把每一行的索引放进row
       row.index = rowIndex;
     },
+    handleCellMouseEnter(row, column, cell, event) {
+      if (this.editing === true)
+        return;
+      switch (column.label) {
+        case "分组名称":
+          this.tabClickIndex = row.index;
+          this.tabClickLabel = column.label;
+          break;
+        default:
+          return;
+      }
+    },
     // 添加明细原因 row 当前行 column 当前列
     tabClick(row, column, cell, event) {
       switch (column.label) {
@@ -547,7 +565,7 @@ export default {
     },
       assignPE(data) {
           const _this = this;
-          if (this.mode === 'secretary'||this.mode === 'admin'){
+          if (this.mode === 'secretary'){
             _this.$router.push({
               path: "/Expert/EassignPE",
               query: {
@@ -558,7 +576,18 @@ export default {
                 mode:this.mode
               }
             })
+          }else if (this.mode === 'admin'){
+            console.log(data)
+            _this.$router.push({
+              path: "/Admin/AssignPE",
+              query: {
+                activityID: data.activityID,
+                groupID: data.id,
+                mode:this.mode
+              }
+            })
           }
+
       },
     showSubActivity(data) {
       const _this = this;
@@ -602,6 +631,7 @@ export default {
           this.reset();
         }
       });
+      this.editing = false
     },
   },
 };
