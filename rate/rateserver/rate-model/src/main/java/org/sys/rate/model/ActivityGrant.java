@@ -1,6 +1,6 @@
 package org.sys.rate.model;
 
-public class AdminActivity {
+public class ActivityGrant {
     private Integer ID;
 
     private Integer adminID;

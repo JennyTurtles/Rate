@@ -412,7 +412,9 @@ export default {
       this.postRequest('/comment/basic/getComment',this.addCommentUserInfo).then(response => {
         if(response){
           if(response.status == 200){
-            this.addComment = response.obj.content.replace(/<br\/>/g,"\n").replace(/' '/g,"\s")
+            if(response.obj != null && response.obj != ''){
+              this.addComment = response.obj.content.replace(/<br\/>/g,"\n").replace(/' '/g,"\s")
+            }
           }
         }
       })

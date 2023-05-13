@@ -5,7 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.sys.rate.mapper.AdminActivityMapper;
+import org.sys.rate.mapper.ActivityGrantMapper;
 import org.sys.rate.mapper.AdminMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.AdminService;
@@ -39,7 +39,7 @@ public class AdminController {
     @Resource
     AdminMapper adminMapper;
     @Resource
-    AdminActivityMapper adminActivityMapper;
+    ActivityGrantMapper activityGrantMapper;
     @Resource
     MailService mailService;
 
@@ -117,10 +117,10 @@ public class AdminController {
         List<Admin> adm = new ArrayList<>();
         List<Admin> allAdmList = new ArrayList<>();
         Object[] res = null;
-        List<AdminActivity> adminActivities = new ArrayList<>();
+        List<ActivityGrant> adminActivities = new ArrayList<>();
         try {
             //拿到关于这个活动已经存在的管理员名单
-            adminActivities = adminActivityMapper.selectAllOfCurrentActivity(activityID, institutionID);
+            adminActivities = activityGrantMapper.selectAllOfCurrentActivity(activityID, institutionID);
             allAdmList = adminMapper.selectCurrentInstitutionAdmins(institutionID);//先拿到所有数据，因为前端是selection和分页结合,但可以做些优化，这样写不好
             //拿到关于这个单位下的所有管理员名单，并做分页处理
             Page page = PageHelper.startPage(dialogAddTeaPermissionPage, dialogAddTeaPermissionSize);

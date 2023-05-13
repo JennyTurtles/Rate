@@ -1,25 +1,21 @@
 package org.sys.rate.controller.admin;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.sys.rate.mapper.AdminActivityMapper;
+import org.sys.rate.mapper.ActivityGrantMapper;
 import org.sys.rate.mapper.AdminMapper;
 import org.sys.rate.model.*;
-import org.sys.rate.service.admin.AdminActivityService;
+import org.sys.rate.service.admin.ActivityGrantService;
 import org.sys.rate.service.admin.AdminService;
 import org.sys.rate.service.admin.HrService;
 import org.sys.rate.service.admin.RoleService;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/adminactivity/basic")
-public class AdminActivityController {
+@RequestMapping("/activitygrant/basic")
+public class ActivityGrantController {
     @Autowired
     HrService hrService;
     @Autowired
@@ -29,12 +25,12 @@ public class AdminActivityController {
     @Resource
     AdminMapper adminMapper;
     @Resource
-    AdminActivityMapper adminActivityMapper;
+    ActivityGrantMapper activityGrantMapper;
     @Resource
-    AdminActivityService adminActivityService;
+    ActivityGrantService activityGrantService;
 
     @PostMapping("/changePermissionList")
-    public RespBean changePermissionList(@RequestBody List<AdminActivity> aaList) {
-        return adminActivityService.changePermissionList(aaList);
+    public RespBean changePermissionList(@RequestBody List<ActivityGrant> aaList) {
+        return activityGrantService.changePermissionList(aaList);
     }
 }

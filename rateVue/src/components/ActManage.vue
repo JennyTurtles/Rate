@@ -722,7 +722,7 @@ export default {
       this.currentInstitutionAdminList = []
     },
     doAddAdminPermission(){//点击对话框中的确定按钮
-      let url = '/adminactivity/basic/changePermissionList'
+      let url = '/activitygrant/basic/changePermissionList'
       let data = [];
       this.selectedAddAdminList.map((item) => {
         let temp = {

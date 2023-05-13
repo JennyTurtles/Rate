@@ -36,7 +36,7 @@
     </select>
     <select id="getActivitiesByPage" resultMap="BaseResultMap">
         select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID,e.status,e.haveSub,aa.adminID,aa.activityID,aa.ID,e.haveComment,e.creatorID
-        from activities e,admin_activity aa
+        from activities e,activitygrant aa
         where e.deleteFlag = '0'
         and e.institutionID = #{institutionID}
         and e.parentID is null

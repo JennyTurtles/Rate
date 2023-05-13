@@ -1,23 +1,19 @@
 package org.sys.rate.service.admin;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.ActivitiesMapper;
-import org.sys.rate.mapper.AdminActivityMapper;
+import org.sys.rate.mapper.ActivityGrantMapper;
 import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 
 @Service
-public class AdminActivityService {
+public class ActivityGrantService {
     @Autowired
     ActivitiesMapper activitiesMapper;
     @Autowired
@@ -25,12 +21,12 @@ public class AdminActivityService {
     @Autowired
     MailSendLogService mailSendLogService;
     @Resource
-    AdminActivityMapper adminActivityMapper;
+    ActivityGrantMapper activityGrantMapper;
 
-    public RespBean changePermissionList(List<AdminActivity> aaList){
+    public RespBean changePermissionList(List<ActivityGrant> aaList){
         try{
             //已经存在该活动权限的管理员名单
-            List<AdminActivity> exsistlist = adminActivityMapper.selectAllOfCurrentActivity(aaList.get(0).getActivityID(),aaList.get(0).getInstitutionID());
+            List<ActivityGrant> exsistlist = activityGrantMapper.selectAllOfCurrentActivity(aaList.get(0).getActivityID(),aaList.get(0).getInstitutionID());
             //多的删除 少的添加
             List<Integer> aaListCopy = new ArrayList<>();
             List<Integer> aaListCopyC = new ArrayList<>();//因为后面移除操作会改变原数组，所以拷贝一个
@@ -44,11 +40,11 @@ public class AdminActivityService {
             }
             aaListCopy.removeAll(exsistlistCopy);
             if(aaListCopy.size() > 0){//有需要添加的
-                adminActivityMapper.insertRecordListOfAddActivity(aaListCopy,aaList.get(0).getActivityID(),aaList.get(0).getInstitutionID());
+                activityGrantMapper.insertRecordListOfAddActivity(aaListCopy,aaList.get(0).getActivityID(),aaList.get(0).getInstitutionID());
             }
             exsistlistCopy.removeAll(aaListCopyC);
             if(exsistlistCopy.size() > 0){//有需要删除的
-                adminActivityMapper.deletePermissions(exsistlistCopy,aaList.get(0).getActivityID(),aaList.get(0).getInstitutionID());
+                activityGrantMapper.deletePermissions(exsistlistCopy,aaList.get(0).getActivityID(),aaList.get(0).getInstitutionID());
             }
         }catch (Exception e){
             return RespBean.error("修改失败",null);

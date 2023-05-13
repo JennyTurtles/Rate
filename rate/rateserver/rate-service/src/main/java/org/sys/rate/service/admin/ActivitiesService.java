@@ -6,7 +6,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.ActivitiesMapper;
-import org.sys.rate.mapper.AdminActivityMapper;
+import org.sys.rate.mapper.ActivityGrantMapper;
 import org.sys.rate.model.Activities;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.model.RespPageBean;
@@ -14,7 +14,6 @@ import org.sys.rate.model.ScoreDetail;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 
@@ -27,7 +26,7 @@ public class ActivitiesService {
     @Autowired
     MailSendLogService mailSendLogService;
     @Autowired
-    AdminActivityMapper adminActivityMapper;
+    ActivityGrantMapper activityGrantMapper;
 
     public final static Logger logger = LoggerFactory.getLogger(ActivitiesService.class);
     SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
@@ -67,7 +66,7 @@ public class ActivitiesService {
                 activitiesMapper.insertScoreItem(employee);//原本是合并写的，改成分开写
                 activitiesMapper.insert_update(employee);
                 //在管理员_活动表中添加记录
-                adminActivityMapper.insertRecordOfAddActivity(employee.getAdminID(),employee.getId());
+                activityGrantMapper.insertRecordOfAddActivity(employee.getAdminID(),employee.getId());
             }
         }catch (Exception e){
             return RespBean.error("添加失败",null);

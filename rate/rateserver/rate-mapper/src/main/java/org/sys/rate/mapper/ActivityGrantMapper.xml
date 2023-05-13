@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="org.sys.rate.mapper.AdminActivityMapper">
-    <resultMap id="BaseResultMap" type="org.sys.rate.model.AdminActivity">
+<mapper namespace="org.sys.rate.mapper.ActivityGrantMapper">
+    <resultMap id="BaseResultMap" type="org.sys.rate.model.ActivityGrant">
         <id column="ID" property="ID" jdbcType="INTEGER"/>
         <result column="adminID" property="adminID" jdbcType="INTEGER"></result>
         <result column="activityID" property="activityID" jdbcType="INTEGER"></result>
@@ -12,12 +12,12 @@
     </sql>
 
     <insert id="insertRecordOfAddActivity">
-        insert into admin_activity (adminID,activityID)
+        insert into activitygrant (adminID,activityID)
         values (#{adminID,jdbcType=INTEGER},
                 #{activityID,jdbcType=INTEGER})
     </insert>
     <insert id="insertRecordListOfAddActivity">
-        insert into admin_activity (adminID,activityID) values
+        insert into activitygrant (adminID,activityID) values
                 <foreach collection="adminID" item="item" separator=",">
                     (#{item,jdbcType=INTEGER},
                     #{activityID,jdbcType=INTEGER})
@@ -25,11 +25,11 @@
     </insert>
     <select id="selectAllOfCurrentActivity" resultMap="BaseResultMap">
         select *
-        from admin_activity
+        from activitygrant
         where activityID = #{activityID} and (select a.institutionID from admin a where a.ID = adminID) = #{institutionID};
     </select>
     <delete id="deletePermissions">
-        delete from admin_activity where adminID in
+        delete from activitygrant where adminID in
         <foreach item="ID" collection="adminID" open="(" separator="," close=")">
             #{ID}
         </foreach>
