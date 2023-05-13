@@ -1018,7 +1018,7 @@ export default {
       this.haveSub = data.haveSub === 1;
       this.haveComment = data.haveComment === 1;
       this.dialogVisible = true;
-      if(data.visibleDate) this.visibleDateSelected = false
+      if(data.visibleDate) this.visibleDateSelected = false//判断是否有时间数据 不然就默认选择不限
       else this.visibleDateSelected = true
       if(data.enterDate) this.enterDateSelected = false
       else this.enterDateSelected = true
@@ -1106,7 +1106,7 @@ export default {
          this.emp.parentID = this.activityID;
       if(this.visibleDateSelected) {//不限
         this.emp.visibleDate = null
-      }else {
+      }else {//即使用户选择了不限，datapicker也可以进行删除数据，判断是否为空 不为空修改时间格式
         if(this.emp.visibleDate !== '' && this.emp.visibleDate != null){
           if(this.emp.enterDate !== '' && this.emp.enterDate != null){
             if(this.emp.visibleDate > this.emp.enterDate){
@@ -1161,11 +1161,6 @@ export default {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
             this.$set(this.emp,"adminID",this.user.id)
-            this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
-            // if(this.emp.visibleDate != '' && this.emp.visibleDate != null)
-            //   this.emp.visibleDate = this.dateFormatFunc(this.emp.visibleDate)
-            // if(this.emp.enterDate != '' && this.emp.enterDate != null)
-            //   this.emp.enterDate = this.dateFormatFunc(this.emp.enterDate)
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(
                 (resp) => {
