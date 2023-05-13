@@ -1432,7 +1432,6 @@ export default {
           var url = ""
           var query = ""
           if (this.isGroup){
-            console.log(this.keywords);
             _this.$router.push({
               path: "/ActivitM/table",
               query:{

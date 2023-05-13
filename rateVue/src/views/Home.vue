@@ -207,7 +207,6 @@ export default {
         this.role != JSON.parse(localStorage.getItem("user")).role ||
         this.name != JSON.parse(localStorage.getItem("user")).name
       ) {
-        console.log(this.role)
         var url;
         Message.warning("无权限！请重新登录");
         if (this.role == "8" || this.role == "9") url = "/Teacher/Login";
