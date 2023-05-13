@@ -1,4 +1,5 @@
 <template>
+<!--    在主活动中分配选手和专家   -->
     <div>
         <div style="display: flex; justify-content: left">
             <div style="width: 100%;text-align: center;font-size: 20px;margin-left: 80px">分配选手和专家</div>
@@ -100,7 +101,7 @@
 import eltTransfer from '../../utils/eltTransfer'
 import {Message} from "element-ui";
 import axios from "axios";
-import eassignE from "@/views/expert/EassignE.vue";
+import eassignE from "@/views/admin/AssignE.vue";
 import de from "element-ui/src/locale/lang/de";
 export default {
     name: 'app',
@@ -141,9 +142,7 @@ export default {
         }
     },
     mounted() {
-        this.activityIDParent=this.$route.query.activityIDParent;
         this.activityID=this.$route.query.activityID;
-        this.groupIDParent=this.$route.query.groupIDParent;
         this.groupID=this.$route.query.groupID;
         this.mode=this.$route.query.mode;
         this.init();
@@ -196,28 +195,18 @@ export default {
             })
         },
         init(){
-           this.getRequest("/groups/basic/pars?groupID="+this.groupIDParent).then(res=>{ // 获取大组内的选手(左边的框：所有选手)
+           this.getRequest("/groups/basic/parsByActID?activityID="+this.activityID).then(res=>{ // 获取主活动内的选手
                this.pars = res.obj;
-               if (this.groupID === null) { // 处理不进行分组的情况，将分组的时机选在秘书点进来的时候，而不是管理员创建子活动的时候，类似于COW的思路
-                   this.getRequest("/groups/basic/parsForUniqueGroupSubActivity?activityID="+this.activityID+"&groupIDParent="+this.groupIDParent).then(res=>{ // 获取当前组内的选手
-                       this.groupID = res.obj[0];
-                       this.tableData = res.obj[1];
-                       this.clearTransfer();
-                       for (let i = 0; i < this.tableData.length; i++) {
-                           this.$refs.eltTransfer.rightTableData.push(this.tableData[i])
-                       }
-                   })
-               }else{
-                   this.getRequest("/groups/basic/pars?groupID="+this.groupID).then(res=>{ // 获取当前组内的选手
-                       this.tableData = res.obj;
-                       this.clearTransfer();
-                       for (let i = 0; i < this.tableData.length; i++) {
-                           this.$refs.eltTransfer.rightTableData.push(this.tableData[i])
-                       }
-                   })
-               }
-
+               this.getRequest("/groups/basic/pars?groupID="+this.groupID).then(res=>{ // 获取当前组内的选手
+                   this.tableData = res.obj;
+                   console.log(this.tableData)
+                   this.clearTransfer();
+                   for (let i = 0; i < this.tableData.length; i++) {
+                       this.$refs.eltTransfer.rightTableData.push(this.tableData[i])
+                   }
+               })
            })
+
         },
         checkInOtherGroup(){
             this.getRequest("/participants/basic/checkInOtherGroup?groupID="+this.groupIDParent).then(res=>{

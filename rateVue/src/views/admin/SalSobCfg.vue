@@ -10,8 +10,8 @@
     </div>
     <div style="display: flex; justify-content: left;margin-top:10px">
       <div v-if="flag==0">
-        <span v-show="mode==='admin'|| mode==='adminSub'" style="font-weight:600;">导入新数据</span> <a v-show="mode==='admin'|| mode==='adminSub'">第一步：</a>
-        <el-button v-show="mode==='admin'|| mode==='adminSub'"
+        <span  style="font-weight:600;">导入新数据</span> <a>第一步：</a>
+        <el-button
             type="primary"
             @click="exportMo"
             icon="el-icon-upload"
@@ -19,7 +19,7 @@
         >
           下载模板
         </el-button>
-        <a v-show="mode==='admin'|| mode==='adminSub'">第二步：</a>
+        <a >第二步：</a>
         <el-upload
             :show-file-list="false"
             :before-upload="beforeUpload"
@@ -28,7 +28,6 @@
             :disabled="importDataDisabled"
             style="display: inline-flex; margin-right: 8px"
             :action="UploadUrl()"
-            v-show="mode==='admin'|| mode==='adminSub'"
         >
           <el-button
               :disabled="importDataDisabled"
@@ -41,9 +40,8 @@
       </div>
 
     </div>
-    <div v-show="mode==='admin'|| mode==='adminSub' && flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。
+    <div v-show="flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。
         <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。
-        <br/>单元格中内容双击后可编辑
     </div>
 
     <div style="margin-top: 10px">
@@ -59,6 +57,13 @@
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%"
+          @cell-mouse-enter="handleCellMouseEnter"
+          @cell-mouse-leave="()=>{
+            if(this.editing === false){
+              this.tabClickIndex = -1;
+              this.tabClickLabel = '';
+            }
+          }"
       >
         <el-table-column prop="name" fixed label="专家姓名" min-width="3%">
           <template slot-scope="scope">
@@ -67,7 +72,7 @@
                   scope.row.index === tabClickIndex &&
                   tabClickLabel === '专家姓名' && flag==0
                 "
-                v-focus
+                @input="editing = true"
                 v-model.trim="scope.row.name"
                 maxlength="20"
                 size="mini"
@@ -97,7 +102,7 @@
                   scope.row.index === tabClickIndex &&
                   tabClickLabel === '证件号码'
                 "
-                v-focus
+                @input="editing = true"
                 v-model.trim="scope.row.idnumber"
                 maxlength="18"
                 size="mini"
@@ -134,7 +139,7 @@
                 v-if="
                   scope.row.index === tabClickIndex && tabClickLabel === '电话' && flag==0
                 "
-                v-focus
+                @input="editing = true"
                 v-model.trim="scope.row.phone"
                 maxlength="15"
                 size="mini"
@@ -151,7 +156,7 @@
                 v-if="
                   scope.row.index === tabClickIndex && tabClickLabel === '邮箱' && flag==0
                 "
-                v-focus
+                @input="editing = true"
                 v-model.trim="scope.row.email"
                 size="mini"
                 maxlength="25"
@@ -216,6 +221,7 @@
                 size="mini"
                 icon="el-icon-refresh-right"
                 type="primary"
+                v-show="haveSub!=1"
                 plain
             >查看专家评分
             </el-button>
@@ -226,6 +232,7 @@
                 icon="el-icon-refresh-right"
                 type="primary"
                 :disabled="scope.row.finished==0"
+                v-show="haveSub!=1"
                 plain
             >退回评分
             </el-button>
@@ -383,8 +390,10 @@ export default {
   name: "SalSobCfg",
   data() {
     return {
-        activityID:-1,
+      editing: false,
+      activityID:-1,
       flag:0,
+      haveSub:0,
       //当前焦点数据
       currentfocusdata: "",
       currentrole:"",
@@ -494,6 +503,8 @@ export default {
     this.groupID = this.$route.query.groupID;
     this.ACNAME = this.$route.query.keywords_name;
     this.mode = this.$route.query.mode;
+    this.haveSub = this.$route.query.haveSub;
+    console.log(this.haveSub);
     this.flag = this.$route.query.flag == 1 ? 1 : 0;
     this.initHrs();
   },
@@ -697,6 +708,36 @@ export default {
       // 把每一行的索引放进row
       row.index = rowIndex;
     },
+    handleCellMouseEnter(row, column, cell, event) {
+      if (this.editing === true)
+        return;
+      if (this.mode!=="secretary" && this.mode!=='secretarySub'){
+        switch (column.label) {
+          case "专家姓名":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "证件号码":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "邮箱":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "部门":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "电话":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          default:
+            return;
+        }
+      }
+    },
     // 添加明细原因 row 当前行 column 当前列
     tabClick(row, column, cell, event) {
       switch (column.label) {
@@ -749,6 +790,7 @@ export default {
         row[label] = this.currentfocusdata
       } else {
         this.save(row)
+        this.editing = false
       }
     },
     // 失去焦点初始化

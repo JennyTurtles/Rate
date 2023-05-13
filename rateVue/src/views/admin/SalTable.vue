@@ -8,7 +8,6 @@
         </el-button>
       </div>
     </div>
-    <div ><br/>单元格中内容双击后可编辑</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -16,12 +15,18 @@
           stripe
           border
           v-loading="loading"
-          @cell-dblclick="tabClick"
           :row-class-name="tableRowClassName"
           element-loading-text="正在加载..."
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%"
+          @cell-mouse-enter="handleCellMouseEnter"
+          @cell-mouse-leave="()=>{
+            if(this.editing === false){
+              this.tabClickIndex = -1;
+              this.tabClickLabel = '';
+            }
+          }"
       >
         <el-table-column type="selection" min-width="1%"></el-table-column>
         <el-table-column
@@ -47,10 +52,10 @@
                   scope.row.index === tabClickIndex &&
                   tabClickLabel === '分组名称'
                 "
-                v-focus
                 v-model.trim="scope.row.name"
                 maxlength="50"
                 size="mini"
+                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row)"
                 @change="UpdateOrNew(scope.row)"
                 @blur="inputBlur"
@@ -97,7 +102,6 @@
             >
               <el-button
                       @click="assignPE(scope.row)"
-                      v-show="mode === 'secretarySub'"
                       style="padding: 4px"
                       size="mini"
                       icon="el-icon-tickets"
@@ -106,17 +110,17 @@
               >分配选手和专家
               </el-button
               >
-            <el-button
-                @click="showGroups(scope.row)"
-                v-show="mode !== 'secretarySub'"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-tickets"
-                type="primary"
-                plain
-            >专家和选手管理
-            </el-button
-            >
+<!--            <el-button-->
+<!--                @click="showGroups(scope.row)"-->
+<!--                v-show="mode !== 'secretarySub'"-->
+<!--                style="padding: 4px"-->
+<!--                size="mini"-->
+<!--                icon="el-icon-tickets"-->
+<!--                type="primary"-->
+<!--                plain-->
+<!--            >专家和选手管理-->
+<!--            </el-button-->
+<!--            >-->
 <!--            <el-button-->
 <!--                @click="showParticipantsM(scope.row)"-->
 <!--                v-show="mode !== 'secretarySub'"-->
@@ -160,6 +164,17 @@
                 type="primary"
                 plain
             >导出本组专家打分
+            </el-button
+            >
+            <el-button
+                @click="showSubActivity(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-plus"
+                type="primary"
+                plain
+                v-show="haveSub == 1 && mode==='admin'"
+            >子活动管理
             </el-button
             >
             <el-button
@@ -216,9 +231,11 @@ export default {
   name: "SalTable",
   data() {
     return {
+      editing:false,
       //当前焦点数据
       currentfocusdata: "",
       mode:'',
+      haveSub:0,
       groupID:-1,
       searchValue: {
         compnayName: null,
@@ -300,6 +317,7 @@ export default {
     this.keywords_name = this.$route.query.keyword_name;
     this.groupID = this.$route.query.groupID;
     this.mode = this.$route.query.mode;
+    this.haveSub = this.$route.query.haveSub;
     this.initHrs();
     //this.initAd();
   },
@@ -495,6 +513,18 @@ export default {
       // 把每一行的索引放进row
       row.index = rowIndex;
     },
+    handleCellMouseEnter(row, column, cell, event) {
+      if (this.editing === true)
+        return;
+      switch (column.label) {
+        case "分组名称":
+          this.tabClickIndex = row.index;
+          this.tabClickLabel = column.label;
+          break;
+        default:
+          return;
+      }
+    },
     // 添加明细原因 row 当前行 column 当前列
     tabClick(row, column, cell, event) {
       switch (column.label) {
@@ -535,17 +565,36 @@ export default {
     },
       assignPE(data) {
           const _this = this;
-          _this.$router.push({
+          if (this.mode === 'secretary'){
+            _this.$router.push({
               path: "/Expert/EassignPE",
               query: {
-                  activityIDParent: this.$route.query.backID,
-                  activityID: data.activityID,
-                  groupIDParent: this.$route.query.groupID,
-                  groupID: data.id,
-                  mode:this.mode
+                activityIDParent: this.$route.query.backID,
+                activityID: data.activityID,
+                groupIDParent: this.$route.query.groupID,
+                groupID: data.id,
+                mode:this.mode
               }
-          })
+            })
+          }else if (this.mode === 'admin'){
+            console.log(data)
+            _this.$router.push({
+              path: "/Admin/AssignPE",
+              query: {
+                activityID: data.activityID,
+                groupID: data.id,
+                mode:this.mode
+              }
+            })
+          }
+
       },
+    showSubActivity(data) {
+      const _this = this;
+        _this.$router.push({
+          query :{id:data.activityID,keywords:this.keywords,actName:this.keywords_name,groupName:data.name,groupID:data.id,isGroup:true,haveSub:this.haveSub},
+          path: "/secretary/SubActManage",});
+    },
     showParticipantsM(data) {
       const _this = this;
       _this.$router.push({
@@ -582,6 +631,7 @@ export default {
           this.reset();
         }
       });
+      this.editing = false
     },
   },
 };

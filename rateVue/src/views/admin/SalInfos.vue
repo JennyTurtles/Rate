@@ -2,16 +2,16 @@
 <!--评分项设置-->
   <div>
     <div style="display: flex; justify-content: left">
-      <div style="width: 100%;text-align: center">{{ keywords_name }}信息项设置</div>
+      <div style="width: 100%;text-align: center" v-if="mode==='admin' || mode==='adminSub'">{{ keywords_name }}信息项设置</div>
+      <div style="width: 100%;text-align: center" v-if="mode==='secretary' || mode==='secretarySub'">{{ keywords_name }}信息项查看</div>
       <div style="margin-left: auto">
         <el-button icon="el-icon-back" type="primary" @click="back">
           返回
         </el-button>
       </div>
     </div>
-    <div v-if="mode !== 'secretary' &&mode!=='secretarySub'"><br/>单元格中内容双击后可编辑</div>
     <div v-if="mode === 'secretary' || mode==='secretarySub'"><br/>单元格内容只可查看不可编辑</div>
-    <div><br/>是否展示：该信息项是否在展示给专家打分。大小限制：对文件大小或输入内容字数的限制</div>
+    <div><br/>名称不能为基本信息名，包括：姓名，身份证号，编号，序号，手机号，邮箱，组名</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -19,12 +19,18 @@
           stripe
           border
           v-loading="loading"
-          @cell-dblclick="tabClick"
           :row-class-name="tableRowClassName"
           element-loading-text="正在加载..."
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.08)"
           style="width: 100%"
+          @cell-mouse-enter="handleCellMouseEnter"
+          @cell-mouse-leave="()=>{
+            if(this.editing === false){
+              this.tabClickIndex = -1;
+              this.tabClickLabel = '';
+            }
+          }"
       >
         <el-table-column type="selection" width="35"></el-table-column>
         <el-table-column
@@ -32,17 +38,17 @@
             fixed
             align="name"
             label="名称"
-            width="100px"
+            width="200px"
         >
           <template slot-scope="scope">
             <el-input
                 v-if="
                   scope.row.index === tabClickIndex && tabClickLabel === '名称'
                 "
-                v-focus
                 v-model.trim="scope.row.name"
                 size="mini"
                 maxlength="80"
+                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row,'name')"
                 @change="handleEdit(scope.$index,scope.row,'name')"
                 @blur="inputBlur"
@@ -84,6 +90,7 @@
         >
           <template slot-scope="scope">
             <el-select v-model="scope.row.shuZuType" placeholder="请输入类型"
+                       v-if="scope.row.byParticipant === true"
                        multiple
                        min-width="10%"
                        v-focus
@@ -92,7 +99,6 @@
                        @blur="inputBlur"
                        @visible-change="handleVisible(scope.row)"
                        prefix-icon="el-icon-edit"
-
             >
               <el-option
                   v-for="x in shuju"
@@ -102,35 +108,37 @@
                   :disabled="x.disabled">
               </el-option>
             </el-select>
+            <span v-else>{{scope.row.shuZuType[0]}}</span>
           </template>
         </el-table-column>
         <el-table-column
             prop="sizelimit"
-            label="大小限制(字节默认为M，字为字数)"
+            label="大小限制"
             align="center"
             min-width="5%"
         >
           <template slot-scope="scope">
             <el-input
-                v-if="scope.row.index === tabClickIndex && tabClickLabel === '大小限制(字节默认为M，字为字数)' && scope.row.byParticipant === true "
-                v-focus
+                v-if="scope.row.index === tabClickIndex && tabClickLabel === '大小限制' && scope.row.byParticipant === true "
                 v-model="scope.row.sizelimit"
                 placeholder="请输入sizelimit"
                 size="mini"
+                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row,'sizelimit')"
                 @change="handleEdit(scope.$index,scope.row,'sizelimit')"
                 @blur="inputBlur"
             />
             <span
                 style="width: 100%; height: 100%; display: inline-block"
-                v-else
-            >{{ scope.row.sizelimit }}</span
+                v-else-if="scope.row.byParticipant === true"
+            >{{ scope.row.sizelimit }}{{JSON.stringify(scope.row.shuZuType).indexOf('textbox') !== -1
+            || JSON.stringify(scope.row.shuZuType).indexOf('textarea') !== -1 ? '字' : 'M'}}</span
             >
           </template>
         </el-table-column>
         <el-table-column
             prop="comment"
-            label="是否展示"
+            label="是否显示在打分表中"
             align="center"
             min-width="3%"
         >
@@ -205,12 +213,13 @@
 
 <script>
 import {Message} from 'element-ui'
-import ro from "element-ui/src/locale/lang/ro";
 
 export default {
   name: "SalInfos",
   data() {
     return {
+      basicNameList: ['姓名','身份证号','编号','序号','手机号','邮箱','组名'],
+      editing: false,
       //当前焦点数据
       currentfocusdata: "",
       searchValue: {
@@ -233,7 +242,6 @@ export default {
         {name:"pdf",famname:"字节",disabled:false},
         {name:"jpg",famname:"字节",disabled:false},
         {name:"zip",famname:"字节",disabled:false},
-        {name:"label",famname:"",disabled:false},
       ],
       activitydata: [],
       keywords_name: "",
@@ -316,6 +324,28 @@ export default {
     this.initData();
   },
   methods: {
+    handleCellMouseEnter(row, column, cell, event) {
+      if (this.editing === true)
+        return;
+      if (this.mode!=="secretary" && this.mode!=='secretarySub'){
+        switch (column.label) {
+          case "contentType":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "大小限制":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "名称":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          default:
+            return;
+        }
+      }
+    },
     // 点击下拉框对显示的选项进行筛选。已选中文本类型则不允许选其他所有类型；已选中文件类型则不允许选本文类型。
     handleVisible(row){
       if (this.mode==='secretary'){
@@ -344,11 +374,11 @@ export default {
           if (row.shuZuType.length !== 0){ // 有文件类型
             this.shuju[0].disabled = true
             this.shuju[1].disabled = true
-            this.shuju[5].disabled = true
+            // this.shuju[5].disabled = true
           }
         }
         if (row.byParticipant === true){ // 选手填写打了个勾，label类型就要被禁止
-          this.shuju[5].disabled = true
+          // this.shuju[5].disabled = true
         }
         else{
           for (let i = 0; i < this.shuju.length - 1; i++) {
@@ -510,10 +540,10 @@ export default {
             if (row.shuZuType.length !== 0){ // 有文件类型
               this.shuju[0].disabled = true
               this.shuju[1].disabled = true
-              this.shuju[5].disabled = true
+              // this.shuju[5].disabled = true
             }
-            if (row.byParticipant === true)
-              this.shuju[5].disabled = true
+            // if (row.byParticipant === true)
+            //   this.shuju[5].disabled = true
           }
         }
         if (row[label] == ''&&label !== 'sizelimit'&&label !== 'contentType') {
@@ -526,17 +556,20 @@ export default {
           Message.warning('输入内容不能为空！')
           row[label] = this.currentfocusdata
         } else {
-          this.UpdateOrNew(row)
+          if (label === 'sizelimit' && (parseFloat(row.sizelimit).toString() === 'NaN' || row.sizelimit < 0 || row.sizelimit > 2000)){
+            Message.warning('更新失败！大小限制需要为0到2000的数字！')
+          }else if (label === 'name' && this.basicNameList.indexOf(row.name) !== -1){
+            Message.warning('更新失败！名称不能为基本信息名！')
+          }
+          else
+            this.UpdateOrNew(row)
+          this.editing = false
           // this.newScoring(row)
         }
       }
     },
     // 失去焦点初始化
     inputBlur() {
-      //console.log(this.hrs);
-      // if (this.currentfocusdata == null) {
-      //   Message.error('输入内容不能为空！操作未保存！')
-      // }
       if (this.mode!=='secretary'){
         this.tabClickIndex = null;
         this.tabClickLabel = "";
@@ -572,11 +605,13 @@ export default {
     },
     UpdateCheckbox(infoItem,mode) {
       const _this = this;
+      console.log(infoItem)
       if (mode === 'byParticipan')
       {
         if (infoItem.byParticipant === false){
           infoItem.shuZuType = ['label']
           infoItem.contentType = 'label'
+          infoItem.sizelimit = ''
         }else
         {
           infoItem.shuZuType = []
@@ -611,7 +646,7 @@ export default {
       obj.contentType = 'label';
       obj.shuZuType = ['label']
       obj.name = '请输入信息项名称';
-      obj.sizelimit='500';
+      obj.sizelimit='';
       obj.display = true;
       obj.byParticipant = false;
       this.hrs.push(obj);

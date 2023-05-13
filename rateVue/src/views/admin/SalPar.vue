@@ -18,7 +18,7 @@
             搜索
           </el-button>
         </div> -->
-        <div v-show="mode==='admin'">
+        <div>
           <span style="font-weight:600;">导入新数据</span> 第一步：
 <!--          <a href="/participants/basic/exportMoPar?activityid=15">Test ResponseEntity</a>-->
           <el-button type="primary" @click="exportCheckbox" icon="el-icon-upload" style="margin-right: 8px">
@@ -572,6 +572,7 @@ export default {
         if (resp) {
           //console.log("aha",resp);
           this.emps = resp.data;
+          console.log(this.emps);
           this.total = resp.total;
           //console.log("total",this.total);
         }

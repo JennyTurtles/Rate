@@ -65,6 +65,10 @@ public interface GroupsMapper {
             "WHERE s.ID = p.studentID AND groupID = #{groupID}")
     List<Participates> getGroupPars(Integer groupID);
 
+    @Select("SELECT p.ID,name,IDNumber,code,activityID,groupID,studentID,s.institutionID,telephone,username,email,password FROM student s,participants p\n" +
+            "WHERE s.ID = p.studentID AND activityID = #{activityID}")
+    List<Participates> getParsByID(Integer activityID);
+
     @Update("UPDATE `groups` SET participantCount = (\n" +
             "SELECT count(*) FROM participants WHERE activityID = #{activityID} and groupID = #{groupID})\n" +
             "WHERE activityID = #{activityID} AND ID = #{groupID}")
@@ -86,6 +90,11 @@ public interface GroupsMapper {
             "WHERE e.teacherID = t.ID AND deleteFlag = 0 AND groupID = #{groupID}")
     List<Experts> getGroupExperts(Integer groupID);
 
+    @Select("SELECT e.ID,teacherID,name,jobnumber,institutionID,sex,department,IDNumber,phone,email,e.role,activityID,groupID\n" +
+            "FROM expertactivities e, teacher t\n" +
+            "WHERE e.teacherID = t.ID AND deleteFlag = 0 AND activityID = #{groupID}")
+    List<Experts> getGroupExpertsByActID(Integer activityID);
+
     @Update("UPDATE `groups` SET expertCount = (\n" +
             "SELECT count(*) FROM expertactivities WHERE activityID = #{activityID} and groupID = #{groupID})\n" +
             "WHERE activityID = #{activityID} AND ID = #{groupID}")
@@ -93,4 +102,6 @@ public interface GroupsMapper {
 
     @Select("SELECT ID FROM `groups` WHERE activityID = #{activityID} AND name = #{groupName} LIMIT 1")
     Integer selectIDByActivityIdAndGroupName(@Param("activityID") Integer activityID, @Param("groupName") String groupName);
+
+
 }

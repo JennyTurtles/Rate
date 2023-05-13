@@ -30,6 +30,13 @@ export default new Router({
           meta: { title: '分配人员' },
         },
         {
+          path: '/Admin/AssignPE',
+          name: '分配人员(主活动)',
+          hidden: true,
+          component: () => import('./views/admin/AssignPE.vue'),
+          meta: { title: '分配人员(主活动)' },
+        },
+        {
           path: '/admin/PersonalCenter',
           name: '管理员个人中心',
           hidden: true,
@@ -591,6 +598,12 @@ export default new Router({
       name: '分配专家',
       component: () => import('./views/expert/EassignE'),
       meta: { title: '分配专家' },
+    },
+    {
+      path: '/AssignE',
+      name: '分配专家(主活动)',
+      component: () => import('./views/admin/AssignE'),
+      meta: { title: '分配专家(主活动)' },
     },
   ],
 })
