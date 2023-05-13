@@ -108,7 +108,7 @@
                   :disabled="x.disabled">
               </el-option>
             </el-select>
-            <span v-else>{{scope.row.shuZuType[0]}}</span>
+            <span v-else>/</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -132,8 +132,9 @@
                 style="width: 100%; height: 100%; display: inline-block"
                 v-else-if="scope.row.byParticipant === true"
             >{{ scope.row.sizelimit }}{{JSON.stringify(scope.row.shuZuType).indexOf('textbox') !== -1
-            || JSON.stringify(scope.row.shuZuType).indexOf('textarea') !== -1 ? '字' : 'M'}}</span
+            || JSON.stringify(scope.row.shuZuType).indexOf('textarea') !== -1 ? '字' : 'MB'}}</span
             >
+            <span v-else>/</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -556,8 +557,8 @@ export default {
           Message.warning('输入内容不能为空！')
           row[label] = this.currentfocusdata
         } else {
-          if (label === 'sizelimit' && (parseFloat(row.sizelimit).toString() === 'NaN' || row.sizelimit < 0 || row.sizelimit > 2000)){
-            Message.warning('更新失败！大小限制需要为0到2000的数字！')
+          if (label === 'sizelimit' && (parseFloat(row.sizelimit).toString() === 'NaN' || row.sizelimit < 0 || row.sizelimit > 1000)){
+            Message.warning('更新失败！大小限制需要为0到1000的数字！')
           }else if (label === 'name' && this.basicNameList.indexOf(row.name) !== -1){
             Message.warning('更新失败！名称不能为基本信息名！')
           }

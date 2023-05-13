@@ -94,4 +94,7 @@ public interface ActivitiesMapper {
             "    ) AS tmp\n" +
             ") WHERE id = #{subID};")
     Integer fixParCount(Integer parID, Integer subID);
+
+    @Select("SELECT ID FROM activities WHERE parentID = #{activityID} AND deleteFlag = FALSE LIMIT 1")
+    Integer checkHaveSub(Integer activityID);
 }

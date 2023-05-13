@@ -356,7 +356,8 @@
       </div>
     </div>
 
-    <el-dialog :title="title" :visible.sync="dialogVisible" width="30%" center>
+    <el-dialog :title="title" :visible.sync="dialogVisible" width="30%"
+               @close="emp_edit={};haveComment = false;haveSub = false" center>
       <el-form
           :label-position="labelPosition"
           label-width="100px"
@@ -416,8 +417,8 @@
           >
           </el-input>
         </el-form-item>
-        <el-form-item label="存在子活动: " v-show="mode === 'admin'">
-            <el-checkbox v-model="haveSub"></el-checkbox>
+        <el-form-item  label="存在子活动: " v-show="mode === 'admin'">
+            <el-checkbox @change="checkHaveSub" v-model="haveSub"></el-checkbox>
         </el-form-item>
         <el-form-item label="是否写评语: ">
             <el-checkbox v-model="haveComment"></el-checkbox>
@@ -426,7 +427,7 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="doAddEmp">确 定</el-button>
+        <el-button type="primary" @click="doAddEmp();dialogVisible = false">确 定</el-button>
       </span>
     </el-dialog>
     <el-dialog
@@ -750,6 +751,16 @@ export default {
     this.initEmps();
   },
   methods: {
+    checkHaveSub(checkbox){
+      if (checkbox === false && this.emp.id !== null){ // 取消“存在子活动”的时候，必须保证当前活动没有子活动
+        this.getRequest('/activities/basic/checkHaveSub?activityID='+this.emp.id).then(res => {
+          if (res.obj){
+            this.$message.warning('取消失败，当前活动存在子活动，请手动删除所有子活动后再试');
+            this.haveSub = true
+          }
+        })
+      }
+    },
     permissionSelectable(raw,index){//活动授权对话框中用于控制创建者不可把自己的权限取消
       if(this.currentActivity.creatorID == raw.id) return false
       else return true
