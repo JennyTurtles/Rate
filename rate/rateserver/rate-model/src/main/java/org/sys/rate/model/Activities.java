@@ -34,6 +34,12 @@ public class Activities {
     private Integer haveSub;
     private Integer adminID;//这个应该是和管理员-活动表相关联
     private Integer creatorID;//活动创建者id
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date enterDate;//专家能进入活动打分页面的时间
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date visibleDate;//专家能看到该活动的时间
 
 
     public String getParentName() {

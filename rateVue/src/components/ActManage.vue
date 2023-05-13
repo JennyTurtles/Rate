@@ -383,6 +383,28 @@
             </el-date-picker>
           </div>
         </el-form-item>
+        <el-form-item label="可见时间:" prop="visibleDate">
+          <div class="block">
+            <el-date-picker
+                :picker-options="visibleDateOptions"
+                v-model="emp_edit.visibleDate"
+                type="datetime"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="选择日期和时间">
+            </el-date-picker>
+          </div>
+        </el-form-item>
+        <el-form-item label="可进入时间:" prop="enterDate">
+          <div class="block">
+            <el-date-picker
+                :picker-options="enterDateOptions"
+                v-model="emp_edit.enterDate"
+                type="datetime"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                placeholder="选择日期和时间">
+            </el-date-picker>
+          </div>
+        </el-form-item>
         <el-form-item label="备 注: " prop="comment">
           <el-input
               type="textarea"
@@ -446,7 +468,7 @@
       <div style="font-size: 17px;margin-bottom: 8px">将此活动授权给以下管理员：</div>
       <el-table @selection-change="handleSelectionChange" :data="currentInstitutionAdminList" ref="addPermissionTable" row-key="id"
           :header-cell-style="{background:'#E6E6FA'}">
-        <el-table-column type="selection" width="35px" :reserve-selection="true"></el-table-column>
+        <el-table-column type="selection" width="35px" :reserve-selection="true" :selectable="permissionSelectable"></el-table-column>
         <el-table-column label="姓名" prop="name"></el-table-column>
         <el-table-column label="电话" prop="phone"></el-table-column>
       </el-table>
@@ -617,6 +639,8 @@ export default {
   props:["mode","activityID","actName","groupName","groupID"], // 四个地方复用组件
   data() {
     return {
+      enterDateOptions: {},
+      visibleDateOptions: {},
       currentActivity:{},
       dialogAddTeaPermissionPage:1,//给老师授权对话框中的分页控制
       dialogAddTeaPermissionSize:20,
@@ -673,6 +697,8 @@ export default {
         institutionID: null,
         name: null,
         startDate: "",
+        enterDate: "",
+        visibleDate: "",
         scoreItemCount: "0",
         score: "100",
         groupCount: "0",
@@ -720,6 +746,10 @@ export default {
     this.initEmps();
   },
   methods: {
+    permissionSelectable(raw,index){//活动授权对话框中用于控制创建者不可把自己的权限取消
+      if(this.currentActivity.creatorID == raw.id) return false
+      else return true
+    },
     closeDialogOfAddPermission(){
       this.dialogActivityPermission = false
       this.dialogAddTeaPermissionPage = 1
@@ -1063,14 +1093,37 @@ export default {
       });
     },
     doAddEmp() {
-        this.emp = this.emp_edit
+      this.emp = this.emp_edit
       if(this.mode === 'adminSub')
          this.emp.parentID = this.activityID;
+      if(this.emp.visibleDate !== '' && this.emp.visibleDate != null){
+        if(this.emp.enterDate !== '' && this.emp.enterDate != null){
+          if(this.emp.visibleDate > this.emp.enterDate){
+            this.$message.warning('可见时间应不大于进入时间!')
+            return
+          }
+        }
+        if(this.emp.visibleDate > this.emp.startDate){
+          this.$message.warning('可见时间应不大于开始时间!')
+          return
+        }
+      }
+      if(this.emp.enterDate !== '' && this.emp.enterDate != null){
+        if(this.emp.enterDate > this.emp.startDate){
+          this.$message.warning('进入时间应不大于开始时间!')
+          return
+        }
+      }
       this.emp.haveSub = this.haveSub ? 1 : 0
       this.emp.haveComment = this.haveComment ? 1 : 0
       this.emp.requireGroup = this.requireGroup ? 1 : 0
       this.$set(this.emp,"adminID",this.user.id)
       this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
+      if(this.emp.visibleDate != '' && this.emp.visibleDate != null)
+        this.emp.visibleDate = this.dateFormatFunc(this.emp.visibleDate)
+      if(this.emp.enterDate != '' && this.emp.enterDate != null)
+        this.emp.enterDate = this.dateFormatFunc(this.emp.enterDate)
+
       if (this.emp.id) {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
@@ -1090,13 +1143,16 @@ export default {
             );
           }
         });
-      } else { //添加活动
+      } else { //添加活动 能看见的小于能进入的小于开始时间
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
             this.$set(this.emp,"adminID",this.user.id)
-            this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
-            // this.emp.adminID = this.user.id
+            // this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
+            // if(this.emp.visibleDate != '' && this.emp.visibleDate != null)
+            //   this.emp.visibleDate = this.dateFormatFunc(this.emp.visibleDate)
+            // if(this.emp.enterDate != '' && this.emp.enterDate != null)
+            //   this.emp.enterDate = this.dateFormatFunc(this.emp.enterDate)
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(
                 (resp) => {

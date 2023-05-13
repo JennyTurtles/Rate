@@ -5,6 +5,8 @@
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="ACname" property="name" jdbcType="VARCHAR"/>
         <result column="startDate" property="startDate" jdbcType="TIMESTAMP"/>
+        <result column="enterDate" property="enterDate" jdbcType="TIMESTAMP"/>
+        <result column="visibleDate" property="visibleDate" jdbcType="TIMESTAMP"/>
         <result column="scoreItemCount" property="scoreItemCount" jdbcType="INTEGER"/>
         <result column="score" property="score" jdbcType="DOUBLE"/>
         <result column="groupCount" property="groupCount" jdbcType="INTEGER"/>
@@ -35,7 +37,7 @@
         e.`departmentId`=d.`id` and e.`jobLevelId`=j.`id` and e.`posId`=pos.`id` and e.`id`=#{id}
     </select>
     <select id="getActivitiesByPage" resultMap="BaseResultMap">
-        select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID,e.status,e.haveSub,aa.adminID,aa.activityID,aa.ID,e.haveComment,e.creatorID
+        select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID,e.status,e.haveSub,aa.adminID,aa.activityID,aa.ID,e.haveComment,e.creatorID,e.enterDate,e.visibleDate
         from activities e,activitygrant aa
         where e.deleteFlag = '0'
         and e.institutionID = #{institutionID}
@@ -86,11 +88,11 @@
         </where>
     </select>
     <insert id="insert" parameterType="org.sys.rate.model.Activities" useGeneratedKeys="true" keyProperty="id">
-        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID,parentID,haveSub,haveComment,creatorID
+        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID,parentID,haveSub,haveComment,creatorID,enterDate,visibleDate
         )
         values  (#{name,jdbcType=VARCHAR}, #{startDate,jdbcType=TIMESTAMP}, #{scoreItemCount,jdbcType=INTEGER},
-                #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER},#{parentID,jdbcType=INTEGER},#{haveSub,jdbcType=INTEGER},#{haveComment,jdbcType=INTEGER},#{adminID,jdbcType=INTEGER});
-
+                #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER},#{parentID,jdbcType=INTEGER},#{haveSub,jdbcType=INTEGER},#{haveComment,jdbcType=INTEGER},
+                 #{adminID,jdbcType=INTEGER},#{enterDate,jdbcType=TIMESTAMP},#{visibleDate,jdbcType=TIMESTAMP});
     </insert>
     <insert id="insertScoreItem" parameterType="org.sys.rate.model.Activities">
         insert into scoreitem (activityID,name,score,coef,byExpert)
@@ -119,13 +121,18 @@
     </update>
 
     <update id="update" parameterType="org.sys.rate.model.Activities">
-        UPDATE activities SET name=#{name,jdbcType=VARCHAR},
-                              startDate=#{startDate,jdbcType=TIMESTAMP},
-                              scoreItemCount=#{scoreItemCount,jdbcType=INTEGER},
-                               comment=#{comment,jdbcType=VARCHAR},
-                               parentID=#{parentID,jdbcType=INTEGER},
-                              haveSub=#{haveSub,jdbcType=INTEGER},
-                              haveComment=#{haveComment,jdbcType=INTEGER}
+        UPDATE activities
+        <trim prefix="SET" suffixOverrides=",">
+            name=#{name,jdbcType=VARCHAR},
+            startDate=#{startDate,jdbcType=TIMESTAMP},
+            scoreItemCount=#{scoreItemCount,jdbcType=INTEGER},
+            comment=#{comment,jdbcType=VARCHAR},
+            parentID=#{parentID,jdbcType=INTEGER},
+            haveSub=#{haveSub,jdbcType=INTEGER},
+            haveComment=#{haveComment,jdbcType=INTEGER},
+            enterDate=#{enterDate,jdbcType=TIMESTAMP},
+            visibleDate=#{visibleDate,jdbcType=TIMESTAMP}
+        </trim>
         where ID=#{id,jdbcType=INTEGER}
     </update>
 
