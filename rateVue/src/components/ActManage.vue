@@ -385,8 +385,9 @@
         </el-form-item>
         <el-form-item label="可见时间:" prop="visibleDate">
           <div class="block">
+            <el-checkbox v-model="visibleDateSelected">不限</el-checkbox>
             <el-date-picker
-                :picker-options="visibleDateOptions"
+                :disabled="visibleDateSelected"
                 v-model="emp_edit.visibleDate"
                 type="datetime"
                 value-format="yyyy-MM-dd HH:mm:ss"
@@ -396,8 +397,9 @@
         </el-form-item>
         <el-form-item label="可进入时间:" prop="enterDate">
           <div class="block">
+            <el-checkbox v-model="enterDateSelected">不限</el-checkbox>
             <el-date-picker
-                :picker-options="enterDateOptions"
+                :disabled="enterDateSelected"
                 v-model="emp_edit.enterDate"
                 type="datetime"
                 value-format="yyyy-MM-dd HH:mm:ss"
@@ -639,6 +641,8 @@ export default {
   props:["mode","activityID","actName","groupName","groupID"], // 四个地方复用组件
   data() {
     return {
+      visibleDateSelected:true,
+      enterDateSelected:true,
       enterDateOptions: {},
       visibleDateOptions: {},
       currentActivity:{},
@@ -1014,6 +1018,10 @@ export default {
       this.haveSub = data.haveSub === 1;
       this.haveComment = data.haveComment === 1;
       this.dialogVisible = true;
+      if(data.visibleDate) this.visibleDateSelected = false
+      else this.visibleDateSelected = true
+      if(data.enterDate) this.enterDateSelected = false
+      else this.enterDateSelected = true
       this.emp_edit = JSON.parse(JSON.stringify(data));
     },
     showEditEmpView_show(data) {
@@ -1096,22 +1104,32 @@ export default {
       this.emp = this.emp_edit
       if(this.mode === 'adminSub')
          this.emp.parentID = this.activityID;
-      if(this.emp.visibleDate !== '' && this.emp.visibleDate != null){
-        if(this.emp.enterDate !== '' && this.emp.enterDate != null){
-          if(this.emp.visibleDate > this.emp.enterDate){
-            this.$message.warning('可见时间应不大于进入时间!')
+      if(this.visibleDateSelected) {//不限
+        this.emp.visibleDate = null
+      }else {
+        if(this.emp.visibleDate !== '' && this.emp.visibleDate != null){
+          if(this.emp.enterDate !== '' && this.emp.enterDate != null){
+            if(this.emp.visibleDate > this.emp.enterDate){
+              this.$message.warning('可见时间应不大于进入时间!')
+              return
+            }
+          }
+          if(this.emp.visibleDate > this.emp.startDate){
+            this.$message.warning('可见时间应不大于开始时间!')
             return
           }
         }
-        if(this.emp.visibleDate > this.emp.startDate){
-          this.$message.warning('可见时间应不大于开始时间!')
-          return
-        }
+        this.emp.visibleDate = this.dateFormatFunc(this.emp.visibleDate)
       }
-      if(this.emp.enterDate !== '' && this.emp.enterDate != null){
-        if(this.emp.enterDate > this.emp.startDate){
-          this.$message.warning('进入时间应不大于开始时间!')
-          return
+      if(this.enterDateSelected) {
+        this.emp.enterDate = null
+      }else {
+        if(this.emp.enterDate !== '' && this.emp.enterDate != null){
+          if(this.emp.enterDate > this.emp.startDate){
+            this.$message.warning('进入时间应不大于开始时间!')
+            return
+          }
+          this.emp.enterDate = this.dateFormatFunc(this.emp.enterDate)
         }
       }
       this.emp.haveSub = this.haveSub ? 1 : 0
@@ -1119,11 +1137,6 @@ export default {
       this.emp.requireGroup = this.requireGroup ? 1 : 0
       this.$set(this.emp,"adminID",this.user.id)
       this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
-      if(this.emp.visibleDate != '' && this.emp.visibleDate != null)
-        this.emp.visibleDate = this.dateFormatFunc(this.emp.visibleDate)
-      if(this.emp.enterDate != '' && this.emp.enterDate != null)
-        this.emp.enterDate = this.dateFormatFunc(this.emp.enterDate)
-
       if (this.emp.id) {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
@@ -1148,7 +1161,7 @@ export default {
           if (valid) {
             this.emp.institutionID = this.user.institutionID;
             this.$set(this.emp,"adminID",this.user.id)
-            // this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
+            this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
             // if(this.emp.visibleDate != '' && this.emp.visibleDate != null)
             //   this.emp.visibleDate = this.dateFormatFunc(this.emp.visibleDate)
             // if(this.emp.enterDate != '' && this.emp.enterDate != null)

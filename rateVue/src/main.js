@@ -205,6 +205,10 @@ router.beforeEach((to, from, next) => {
                 next()
                 return
             }
+            if (JSON.parse(localStorage.getItem('user')).role.indexOf("3") >= 0 && (to.path == '/Expert/peract/actList' || to.path == '/Expert/peract/score')) {
+                next()
+                return
+            }
             initMenu(router, store).then((data) => {
                 if (data.indexOf(to.path) == -1) {
                     next('/')
