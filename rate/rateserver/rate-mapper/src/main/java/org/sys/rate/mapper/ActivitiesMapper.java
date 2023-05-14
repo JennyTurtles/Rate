@@ -97,4 +97,10 @@ public interface ActivitiesMapper {
 
     @Select("SELECT ID FROM activities WHERE parentID = #{activityID} AND deleteFlag = FALSE LIMIT 1")
     Integer checkHaveSub(Integer activityID);
+
+    @Select("SELECT * FROM activities WHERE parentID = #{activityID} AND haveComment = TRUE")
+    List<Activities> getSubActivitiesWithComment(Integer activityID);
+
+    @Select("SELECT * FROM activities WHERE ID = #{activityID}")
+    Activities getByID(Integer id);
 }
