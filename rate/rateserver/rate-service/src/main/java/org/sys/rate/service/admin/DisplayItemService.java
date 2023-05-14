@@ -63,7 +63,17 @@ public class DisplayItemService {
 
         // 评分项：建立table，(pID,sID):score
         Table<Integer, Integer,Double> tableScoreItem = getScoreAverageTable(activityID,pars);
-
+        List<Activities> subActivities = activitiesMapper.getSubActivities(activityID);
+        for (Activities activities:subActivities) {//循环遍历子活动
+            if (!tableInfoItem.containsRow(activities.getId())){
+                Table<Integer, Integer,String> tableInfoItem1 = getInfoContentTable(activities.getId(),pars);
+                tableInfoItem.putAll(tableInfoItem1);
+            }
+            if (!tableScoreItem.containsRow(activities.getId())){
+                Table<Integer, Integer,Double> tableScoreItem1 = getScoreAverageTable(activities.getId(),pars);
+                tableScoreItem.putAll(tableScoreItem1);
+            }
+        }
         // 展示项：建立map，ID:displayItem
         List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItem(activityID); // 获取所有列信息
         Map<Integer, DisplayItem> displayItemMap = new HashMap<>();
