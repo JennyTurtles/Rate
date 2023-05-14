@@ -505,7 +505,7 @@
                      placeholder="请选择对应的子活动"
                   >
                     <el-option
-                      v-for="item in subActs"
+                      v-for="item in subActsWithComment"
                       :key="item.id"
                       :label="item.name"
                       :value="item.id">
@@ -518,7 +518,7 @@
                      v-model="gradeForm.reviewCommentActID"
                      placeholder="请选择对应的子活动">
                      <el-option
-                       v-for="item in subActs"
+                       v-for="item in subActsWithComment"
                        :key="item.id"
                        :label="item.name"
                        :value="item.id">
@@ -531,7 +531,7 @@
                     v-model="gradeForm.defenseCommentActID"
                     placeholder="请选择对应的子活动">
                     <el-option
-                      v-for="item in subActs"
+                      v-for="item in subActsWithComment"
                       :key="item.id"
                       :label="item.name"
                       :value="item.id">
@@ -660,6 +660,7 @@ export default {
       innerDialogType: '',
       innerVisible:false,
       subActs:[],
+      subActsWithComment:[],
       haveSub:false,
       haveComment:false,
       startDate: '',
@@ -1494,16 +1495,16 @@ export default {
        })
      },
       exportGradeForm(data){
-          this.gradeForm.groupID = data.groupID
-          this.gradeForm.groupName = data.groupName
-          this.getRequest("/activities/basic/sub?activityID="+data.id).then((resp)=>{
-              this.subActs = resp.obj
-          })
+        this.gradeForm.groupID = data.groupID
+        this.gradeForm.groupName = data.groupName
+        this.getRequest("/activities/basic/sub?activityID="+data.id).then((resp)=>{
+          this.subActs = resp.obj
+        })
+        this.getRequest("/activities/basic/subWithComment?activityID="+data.id).then((resp)=>{
+          this.subActsWithComment = resp.obj
+        })
           this.gradeForm.activityID = data.id
         this.exportGradeFormVisible = true;
-      },
-      showScoreItemByActID(actID){
-
       },
   },
 };

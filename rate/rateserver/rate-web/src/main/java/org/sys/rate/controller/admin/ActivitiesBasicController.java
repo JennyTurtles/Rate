@@ -47,6 +47,16 @@ public class ActivitiesBasicController {
     @GetMapping("/sub")
     public RespBean getSubActivities(Integer activityID) {
         List<Activities> res = activitiesMapper.getSubActivities(activityID);
+//        res.add(activitiesMapper.getByID(activityID));
+        return RespBean.ok("success",res);
+    }
+
+    @GetMapping("/subWithComment")
+    public RespBean getSubActivitiesWithComment(Integer activityID) {
+        List<Activities> res = activitiesMapper.getSubActivitiesWithComment(activityID);
+//        Activities self = activitiesMapper.getByID(activityID);
+//        if (self.getHaveComment() == 1)
+//            res.add(self);
         return RespBean.ok("success",res);
     }
 
