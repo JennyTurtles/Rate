@@ -34,7 +34,7 @@ public class DisplayItemController {
 
     @GetMapping("/first") // 获取所有第一类展示项
     public RespBean getFirst(@RequestParam Integer activityID) {
-        List<DisplayItem> res = displayItemService.getFirstDisplayItem(activityID,0);
+        List<DisplayItem> res = displayItemService.getFirstDisplayItem(activityID,1);
         Collections.sort(res); // 按照sourceName排序，方便前端查看
         return RespBean.ok("success",res);
     }
@@ -94,25 +94,65 @@ public class DisplayItemController {
         List<Activities> subActivities = activitiesMapper.getSubActivities(activityID);
         subActivities.add(0,activitiesMapper.queryById(activityID)); //添加主活动
         HashMap<Integer,HashMap<String,DisplayItem>> map = new LinkedHashMap<>();//<activityID,<displayName,displayItem>>
-        for (Activities activities:subActivities){
-            List<DisplayItem> displayItems=displayItemService.getFirstDisplayItem(activities.getId(),1);
-            Collections.sort(displayItems);
-            for (DisplayItem item:displayItems){
-                if (map.get(activities.getId())==null){
+        for (Activities activities:subActivities){//循环遍历子活动
+            List<DisplayItem> displayItems;
+            if(activities.getId()==activityID)
+                displayItems=displayItemService.getFirstDisplayItem(activities.getId(),1);
+            else
+                displayItems=displayItemService.getFirstDisplayItem(activities.getId(),0);
+            Collections.sort(displayItems);//按展示项名称排序
+            for (DisplayItem item:displayItems){//循环遍历展示项，获得展示项哈希表
+                if (map.get(activities.getId())==null){//未添加当前活动，进行插入
                     HashMap<String,DisplayItem> value = new LinkedHashMap<>();
                     value.put(item.getSourceName(),item);
                     map.put(activities.getId(),value);
                 }
-                else {
+                else {//已添加当前活动，进行添加
                     map.get(activities.getId()).put(item.getSourceName(),item);
                 }
             }
         }
         HashPEexport hashPEexport = new HashPEexport();
-        hashPEexport.setDmap(map);
+        hashPEexport.setDmap(map);//封装哈希表
         List<Object> res = new ArrayList<>();
         res.add(subActivities);
-        res.add(hashPEexport);
+        res.add(hashPEexport);//将子活动和展示项哈希表都添加到返回值中
         return RespBean.ok("success",res);
+    }
+
+    @GetMapping("/subSecond") //获取子活动的第一类展示项
+    public RespBean getSubSecond(@RequestParam Integer activityID){
+        List<Activities> subActivities = activitiesMapper.getSubActivities(activityID);
+        subActivities.add(0,activitiesMapper.queryById(activityID)); //添加主活动
+        HashMap<Integer,HashMap<String,DisplayItem>> map = new LinkedHashMap<>();//<activityID,<displayName,displayItem>>
+        for (Activities activities:subActivities){//循环遍历子活动
+            List<DisplayItem> displayItems;
+            if(activities.getId()==activityID)
+                displayItems=displayItemService.getFirstDisplayItem(activities.getId(),1);
+            else
+                displayItems=displayItemService.getFirstDisplayItem(activities.getId(),0);
+            List<DisplayItem> all = displayItemMapper.getAllDisplayItem(activities.getId());
+            for (DisplayItem displayItem : all)
+                // 如果displayItem的source包含"*"则加到res中，包含"*"的都是第二类展示项
+                if (displayItem.getSource() != null && displayItem.getSource().contains("*")){
+                    DisplayItem displayItem1 = new DisplayItem(displayItem.getName(),displayItem.getSource());
+                    displayItem1.setID(displayItem.getID());
+                    displayItems.add(displayItem1);
+                }
+            Collections.sort(displayItems);//按展示项名称排序
+            for (DisplayItem item:displayItems){//循环遍历展示项，获得展示项哈希表
+                if (map.get(activities.getId())==null){//未添加当前活动，进行插入
+                    HashMap<String,DisplayItem> value = new LinkedHashMap<>();
+                    value.put(item.getSourceName(),item);
+                    map.put(activities.getId(),value);
+                }
+                else {//已添加当前活动，进行添加
+                    map.get(activities.getId()).put(item.getSourceName(),item);
+                }
+            }
+        }
+        HashPEexport hashPEexport = new HashPEexport();
+        hashPEexport.setDmap(map);//封装哈希表
+        return RespBean.ok("success",hashPEexport);
     }
 }
