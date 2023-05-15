@@ -177,17 +177,7 @@
         <el-form-item label="已有信息选择" :label-width="formLabelWidth" center :model="item" v-if="currentActivity!==null">
           <el-select v-model="currentfirst" placeholder="请选择" @change="firstChange($event)">
             <el-option
-                v-for="x in subInfo"
-                :key="x.sourceName"
-                :label="x.sourceName"
-                :value="x.source">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="已有信息选择" :label-width="formLabelWidth" center :model="item" v-if="subActivities.length===1">
-          <el-select v-model="currentfirst" placeholder="请选择" @change="firstChange($event)">
-            <el-option
-                v-for="x in first"
+                v-for="x in subFirst"
                 :key="x.sourceName"
                 :label="x.sourceName"
                 :value="x.source">
@@ -201,40 +191,34 @@
                :inline="true"
                :model="form"
                class="demo-form-inline">
-        <!-- 固定项  -->
-        <el-form-item label="项名" :label-width="formLabelWidth">
-          <el-select v-model="dispalyname" placeholder="请选择" @change="sourceChange($event)">
-            <el-option
-                v-for="x in second"
-                :key="x.sourceName"
-                :label="x.sourceName"
-                :value="x.source">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="系数" :label-width="formLabelWidth">
-          <el-input  v-model="currenttimes" placeholder="请输入系数" @change="timesChange($event)"></el-input>
-        </el-form-item>
-        <!-- 固定项  -->
-
         <!-- 动态增加项目 -->
         <!-- 不止一个项目，用div包裹起来 -->
-        <div v-if="radio===2" v-for="(i, index) in form.dynamicItem" :key="index">
-          <el-form-item label="项名" :label-width="formLabelWidth">
-            <el-select v-model="source[index]" placeholder="请选择" @change="dynamicName($event,i,index)">
+        <div v-if="radio===2" v-for="(i, index) in dynamicItem" :key="index">
+          <el-form-item label="选择活动" label-width="80px" center :model="item" v-if="subActivities.length>1" >
+            <el-select v-model="dynamicItem[index].activity" placeholder="请选择" @change="dynamicActivity($event,i,index)" style="width: 150px">
               <el-option
-                  v-for="x in second"
+                  v-for="x in subActivities"
+                  :key="x.name"
+                  :label="x.name"
+                  :value="x.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="项名" label-width="80px">
+            <el-select v-model="dynamicItem[index].source" placeholder="请选择" @change="dynamicName($event,i,index)" style="width: 150px">
+              <el-option
+                  v-for="x in dynamicItem[index].info"
                   :key="x.sourceName"
                   :label="x.sourceName"
                   :value="x.source">
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="系数" :label-width="formLabelWidth">
-            <el-input  v-model="times[index]" placeholder="请输入系数" @change="dynamicTimes($event,i,index)"></el-input>
+          <el-form-item label="系数" label-width="80px">
+            <el-input  v-model="dynamicItem[index].times" placeholder="请输入系数" @change="dynamicTimes($event,i,index)" style="width: 100px"></el-input>
           </el-form-item>
           <el-form-item>
-            <i class="el-icon-delete" @click="deleteSecond(i, index)"></i>
+            <i class="el-icon-delete" @click="deleteSecond(i, index)" v-show="index>0"></i>
           </el-form-item>
         </div>
         <!-- 动态增加项目 -->
@@ -274,7 +258,6 @@ export default {
       first:[],
       second:[],
       subActivities:[],
-      subMap:[],
       dialogVisible: false,
       item:{
         id: null,
@@ -285,24 +268,23 @@ export default {
         source: null,
         sourceName: null,
       },
-      form: {
-        source: '',
-        times: '',
-        dynamicItem: [],
-      },
+      dynamicItem: [{
+        activity:'',
+        info:[],
+        source:'',
+        times:'',
+      }],
       radio: 1,
       formLabelWidth:'120px',
+      activity:[], //展示动态项的活动
       times: [],     //展示动态项的系数
       source:[], //展示动态项的source
       tabClickIndex: null, // 点击的单元格
       tabClickLabel: "", // 当前点击的列名
       currentfocusdata: "",
       currentfirst:"", //展示第一类source
-      currentsecond:"", //存储第二类固定项的source
-      currenttimes:"", //存储第二类固定项的系数
-      dispalyname:"",//展示第二类固定项的source
       currentActivity:null,//当前选择的活动
-      subInfo:[],
+      subFirst:[],
       mode:'',
     };
   },
@@ -332,33 +314,8 @@ export default {
       });
       this.initFirst();
       this.initSecond();
-      this.initSubInformation();
     },
     initFirst(){
-      this.loading = true;
-      this.getRequest(
-          "/displayItem/first?activityID=" +
-          this.keywords
-      ).then((resp) => {
-        if (resp) {
-          this.loading = false;
-          this.first = resp.obj;
-        }
-      });
-    },
-    initSecond(){
-      this.loading = true;
-      this.getRequest(
-          "/displayItem/second?activityID=" +
-          this.keywords
-      ).then((resp) => {
-        if (resp) {
-          this.loading = false;
-          this.second = resp.obj;
-        }
-      });
-    },
-    initSubInformation(){
       this.loading = true;
       this.getRequest(
           "/displayItem/subFirst?activityID=" +
@@ -368,7 +325,19 @@ export default {
           console.log(resp);
           this.loading = false;
           this.subActivities = resp.obj[0];
-          this.subMap=resp.obj[1].dmap;
+          this.first=resp.obj[1].dmap;
+        }
+      });
+    },
+    initSecond(){
+      this.loading = true;
+      this.getRequest(
+          "/displayItem/subSecond?activityID=" +
+          this.keywords
+      ).then((resp) => {
+        if (resp) {
+          this.loading = false;
+          this.second = resp.obj.dmap;
         }
       });
     },
@@ -455,10 +424,11 @@ export default {
         this.reset();
       });
     },
-    findSouceID(source){
+    findSourceID(activityID,source){
       var id;
-      for(var i in this.second){
-        var value=this.second[i];
+      var single=this.second[activityID];
+      for(var i in single){
+        var value=single[i];
         if (value.source===source) {
           id=value.id;
         }
@@ -468,10 +438,11 @@ export default {
     findSource(source){
       var result;
       if (source.includes("displayitem")){
-        var all=source.split(".")
+        var all=source.split(".");
         var id=all[1];
-        for(var i in this.second){
-          var value=this.second[i];
+        var single = this.second[this.findActivityID(source,'second')];
+        for(var i in single){
+          var value=single[i];
           if (value.id==id) {
             result=value.source;
             break;
@@ -483,76 +454,93 @@ export default {
       }
       return result;
     },
-    findActivityID(source){
+    findActivityID(source,kind){
       var id;
-      for(var i in this.subMap){
-        var value = this.subMap[i];
-        for (var j in value){
-          if (source==value[j].source){
-            id=i;
-            break;
+      if (kind==='first'){
+        for(var i in this.first){
+          var value = this.first[i];
+          for (var j in value){
+            if (source==value[j].source){
+              id=i;
+              break;
+            }
+          }
+        }
+      }
+      else if (kind==='second'){
+        if (source.includes("displayitem")){
+          var items=source.split(".");
+          for(var i in this.second){
+            var value = this.second[i];
+            for (var j in value){
+              if (items[1]==value[j].id){
+                id=i;
+                break;
+              }
+            }
+          }
+        }
+        else {
+          for(var i in this.second){
+            var value = this.second[i];
+            for (var j in value){
+              if (source==value[j].source){
+                id=i;
+                break;
+              }
+            }
           }
         }
       }
       return id;
     },
-    firstChange(event){
-       this.currentfirst=event;
-    },
-    sourceChange(event){
-      this.dispalyname=event;
-      if(event.includes("*")){
-        var id=this.findSouceID(event);
-        this.currentsecond="displayitem."+id;
+    findInfos(activityID){
+      var value = this.second[activityID];
+      var subSecond=[];
+      for (var i in value){
+        subSecond.push(value[i]);
       }
-      else {
-        this.currentsecond=event;
-      }
-    },
-    timesChange(event){
-      this.currenttimes=event;
-    },
-    dynamicName(event,item,index){
-      if (event.includes("*")){
-        var id=this.findSouceID(event);
-        this.form.dynamicItem[index].source="displayitem."+id;
-        this.source[index]=event;
-      }
-      else{
-        this.form.dynamicItem[index].source=event;
-        this.source[index]=event;
-      }
+      return subSecond;
     },
     activityChange(event){
       this.currentActivity=event;
-      var value = this.subMap[event];
-      this.subInfo.splice(0,this.subInfo.length);
+      var value = this.first[event];
+      this.subFirst.splice(0);
       for (var i in value){
-        this.subInfo.push(value[i]);
+        this.subFirst.push(value[i]);
       }
       this.currentfirst="";
-      for (var i = 0;i<this.subInfo.length;i++){
-        if (this.subInfo[i].source===this.item.source){
+      for (var i = 0;i<this.subFirst.length;i++){
+        if (this.subFirst[i].source===this.item.source){
           this.currentfirst=this.item.source;
         }
       }
     },
+    firstChange(event){
+       this.currentfirst=event;
+    },
+    dynamicActivity(event,item,index){
+       this.dynamicItem[index].activity=event;
+       this.dynamicItem[index].info=this.findInfos(event);
+       this.activity.push(event);
+    },
+    dynamicName(event,item,index){
+      this.dynamicItem[index].source=event;
+    },
+
     dynamicTimes(event,item,index){
-      this.form.dynamicItem[index].times=event;
-      this.times[index]=event;
+      this.dynamicItem[index].times=event;
     },
     newSecond(){
-      this.form.dynamicItem.push({
+      this.dynamicItem.push({
+        activity:'',
+        info: [],
         source: '',
         times: '',
       })
-      this.source.push("");
-      this.times.push("");
     },
     deleteSecond (item, index) {
-      this.form.dynamicItem.splice(index, 1);
-      this.times.splice(index,1);
-      this.source.splice(index,1);
+      this.dynamicItem.splice(index, 1);
     },
     deleteItem(row){
       this.$confirm("是否删除此展示项?", "提示", {
@@ -589,44 +577,45 @@ export default {
           for (let i=0;i<items.length;i++){
             var all=items[i].split("*");
             if (i===0){
-              this.currenttimes=all[0];
-              this.currentsecond=all[1];
-              this.dispalyname=this.findSource(all[1]);
+              this.dynamicItem[0].activity=this.findActivityID(all[1],'second')*1;
+              this.dynamicItem[0].info=this.findInfos(this.findActivityID(all[1],'second')*1);
+              this.dynamicItem[0].times=all[0];
+              this.dynamicItem[0].source=this.findSource(all[1]);
             }
             else{
-              this.form.dynamicItem.push({
+              this.dynamicItem.push({
+                activity: this.findActivityID(all[1],'second')*1,
+                info: this.findInfos(this.findActivityID(all[1],'second')*1),
                 source: this.findSource(all[1]),
                 times: all[0],
               })
-              this.times.push(all[0]);
-              this.source.push(this.findSource(all[1]));
             }
           }
         }
         else{
           this.radio=1;
           this.currentfirst=row.source;
-          this.currentActivity=this.findActivityID(this.currentfirst)*1;
-          var value = this.subMap[this.currentActivity];
+          this.currentActivity=this.findActivityID(this.currentfirst,'first')*1;
+          if (this.subActivities.length===1){
+            this.dynamicItem[0].info=this.findInfos(this.keywords);
+          }
+          var value = this.first[this.currentActivity];
           for (var i in value){
-            this.subInfo.push(value[i]);
+            this.subFirst.push(value[i]);
           }
         }
       }
       else {
           this.radio=1;
-          if (this.subActivities.length===1)
-            this.currentActivity=null;
-          else {
-            this.currentActivity=this.keywords*1;
-            var value = this.subMap[this.currentActivity];
-            for (var i in value){
-              this.subInfo.push(value[i]);
-            }
+          this.currentActivity=this.keywords*1;
+          var value = this.first[this.currentActivity];
+          if (this.subActivities.length===1){
+            this.dynamicItem[0].info=this.findInfos(this.keywords);
+          }
+          for (var i in value){
+            this.subFirst.push(value[i]);
           }
       }
-      if (this.subActivities.length===1)
-        this.currentActivity=null;
       this.dialogVisible = true;
     },
     doAdd(){
@@ -636,8 +625,8 @@ export default {
         }
         else{
           if (this.currentActivity!==null){
-            for(var i in this.subInfo){
-              var value=this.subInfo[i];
+            for(var i in this.subFirst){
+              var value=this.subFirst[i];
               if (value.source===this.currentfirst)
                 this.dispalyname=value.sourceName;
             }
@@ -651,38 +640,54 @@ export default {
           }
           this.item.source=this.currentfirst;
           this.item.name=this.dispalyname;
+          this.UpdateOrNew(this.item);
+          this.quit();
         }
       }
       else if (this.radio===2){
-        if (this.currentsecond===""||this.currenttimes==="")
-          Message.warning('输入内容不能为空!')
-        else {
-          this.item.source=this.currenttimes+"*"+this.currentsecond;
-          if (this.form.dynamicItem.length>0){
-            for(let i=0; i<this.form.dynamicItem.length; i++){
-              this.item.source+="+"+this.form.dynamicItem[i].times+"*"+this.form.dynamicItem[i].source;
+        var flag=true;
+        for (let i=0;i<this.dynamicItem.length;i++){
+          if (this.dynamicItem[i].source===''||this.dynamicItem[i].times===''){
+            Message.warning('输入内容不能为空!')
+            flag=false;
+            break;
+          }
+        }
+        if (flag) {
+          if (this.dynamicItem.length>0){
+            for(let i=0; i<this.dynamicItem.length; i++){
+              if (this.dynamicItem[i].source.includes("*")){
+                var name="displayitem."+this.findSourceID(this.dynamicItem[i].activity*1,this.dynamicItem[i].source);
+                if (this.item.source===null)
+                  this.item.source=this.dynamicItem[i].times+"*"+name;
+                else
+                  this.item.source+="+"+this.dynamicItem[i].times+"*"+name;
+              }
+              else{
+                if (this.item.source===null)
+                  this.item.source=this.dynamicItem[i].times+"*"+this.dynamicItem[i].source;
+                else
+                  this.item.source+="+"+this.dynamicItem[i].times+"*"+this.dynamicItem[i].source;
+              }
             }
           }
           this.item.name="请输入显示名称";
           this.item.passScore=null;
+          this.UpdateOrNew(this.item);
+          this.quit();
         }
       }
-      this.UpdateOrNew(this.item);
-      this.quit();
     },
     quit(){
       this.dialogVisible=false;
       this.currentfirst="";
-      this.currenttimes="";
-      this.currentsecond="";
       this.radio=1;
-      this.dispalyname="";
       this.currentActivity=null;
-      let len=this.form.dynamicItem.length;
-      this.source.splice(0,len);
-      this.times.splice(0,len);
-      this.form.dynamicItem.splice(0,len);
-      this.subInfo.splice(0,this.subInfo.length);
+      this.source.splice(0);
+      this.times.splice(0);
+      this.dynamicItem.splice(0);
+      this.newSecond();
+      this.subFirst.splice(0);
     },
     newItem() {
       let obj = {};

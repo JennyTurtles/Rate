@@ -32,7 +32,7 @@ public class DisplayItemService {
     public List<DisplayItem> getFirstDisplayItem(Integer activityID, Integer flag) {
         List<DisplayItem> res = new ArrayList<>();
         // 首先获取基础信息（非信息项）
-        if (flag==0){ //flag=0:子活动管理中设置 flag=1:主活动中设置子活动的
+        if (flag==1){ //flag=0:不添加基础信息 flag=1:添加基础信息
             res.add(new DisplayItem("编号", "code"));
             res.add(new DisplayItem("组名", "group"));
             res.add(new DisplayItem("专家打分", "scores"));
@@ -63,7 +63,17 @@ public class DisplayItemService {
 
         // 评分项：建立table，(pID,sID):score
         Table<Integer, Integer,Double> tableScoreItem = getScoreAverageTable(activityID,pars);
-
+        List<Activities> subActivities = activitiesMapper.getSubActivities(activityID);
+        for (Activities activities:subActivities) {//循环遍历子活动
+            if (!tableInfoItem.containsRow(activities.getId())){
+                Table<Integer, Integer,String> tableInfoItem1 = getInfoContentTable(activities.getId(),pars);
+                tableInfoItem.putAll(tableInfoItem1);
+            }
+            if (!tableScoreItem.containsRow(activities.getId())){
+                Table<Integer, Integer,Double> tableScoreItem1 = getScoreAverageTable(activities.getId(),pars);
+                tableScoreItem.putAll(tableScoreItem1);
+            }
+        }
         // 展示项：建立map，ID:displayItem
         List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItem(activityID); // 获取所有列信息
         Map<Integer, DisplayItem> displayItemMap = new HashMap<>();
@@ -293,21 +303,17 @@ public class DisplayItemService {
                     return "success";
                 // 修改的显示序号不能大于最大的显示序号
                 if (displayItem.getDisplaySequence() <= maxDisplaySequence) {
-                    if (displayItem.getDisplaySequence() > old
-                            .getDisplaySequence()) {
+                    if (displayItem.getDisplaySequence() > old.getDisplaySequence()) {
                         // 修正显示顺序
-                        displayItemMapper.subDisplaySequence(activityID,old.getDisplaySequence(),displayItem
-                                .getDisplaySequence());
+                        displayItemMapper.subDisplaySequence(activityID,old.getDisplaySequence(),displayItem.getDisplaySequence());
                         // 保存
                         displayItemMapper.saveDisplaySequence(activityID,displayItem.getDisplaySequence(),displayItem.getID());
                         return "success";
 
                     }
-                    if (displayItem.getDisplaySequence() < old
-                            .getDisplaySequence()) {
+                    if (displayItem.getDisplaySequence() < old.getDisplaySequence()) {
                         // 修正显示顺序
-                        displayItemMapper.addDisplaySequence(activityID,displayItem.getDisplaySequence(),old
-                                .getDisplaySequence());
+                        displayItemMapper.addDisplaySequence(activityID,displayItem.getDisplaySequence(),old.getDisplaySequence());
                         // 保存
                         displayItemMapper.saveDisplaySequence(activityID,displayItem.getDisplaySequence(),displayItem.getID());
                         return "success";
