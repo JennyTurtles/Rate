@@ -284,13 +284,12 @@ export default {
                 .then((res1) => {
                     if(res1.length===0)
                     {
-                        url = "/participants/basic/subImport?groupid="+this.groupID+"&activityid="+this.activityID+"&insititutionID="+this.user.institutionID+"&actIDParent="+this.activityIDParent+"&groupIDParent="+this.groupIDParent;
+                        url = "/participants/basic/import?groupid="+this.groupID+"&activityid="+this.activityID+"&insititutionID="+this.user.institutionID;
                         axios.post(url, fd, {
                             headers: {
                                 "Content-Type": "multipart/form-data",
                             },
                         }).then((res) => {
-                            this.fixCount(this.activityIDParent,this.activityID)
                             this.init()
                             this.$message(res.msg);
                         })
@@ -308,14 +307,13 @@ export default {
                             cancelButtonText: '取消',
                             type: 'warning'
                         }).then(() => {
-                            url = "/participants/basic/subImport?groupid="+this.groupID+"&activityid="+this.activityID+"&insititutionID="+this.user.institutionID+"&actIDParent="+this.activityIDParent+"&groupIDParent="+this.groupIDParent;
+                            url = "/participants/basic/import?groupid="+this.groupID+"&activityid="+this.activityID+"&insititutionID="+this.user.institutionID;
                             axios.post(url, fd, {
                                 headers: {
                                     "Content-Type": "multipart/form-data",
                                 },
                             }).then((res) => {
                                 this.onSuccess(res);
-                                this.fixCount(this.activityIDParent,this.activityID)
                                 this.init();
                                 this.$message(res.msg);
                             })

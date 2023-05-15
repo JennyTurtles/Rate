@@ -1761,6 +1761,7 @@ export default {
                         this.$message({type: 'error', message: '保存成绩评定表失败!'});
                 })
             }
+
             this.exportGradeFormVisible = false;
             return gradeFormConverted
         },

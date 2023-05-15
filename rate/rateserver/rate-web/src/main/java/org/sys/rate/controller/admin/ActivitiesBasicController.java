@@ -197,12 +197,10 @@ public class ActivitiesBasicController {
 
     @GetMapping("/checkHaveSub")
     public RespBean checkHaveSub(@RequestParam Integer activityID) {
-        if (activitiesMapper.checkHaveSub(activityID) > 0) {
+        if (activitiesMapper.checkHaveSub(activityID) != null) {
             return RespBean.ok("有子活动", true);
         } else
-            return RespBean.error("无子活动",false);
+            return RespBean.ok("无子活动",false);
     }
-
-
 }
 

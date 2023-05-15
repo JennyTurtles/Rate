@@ -111,28 +111,26 @@ export default {
         'elt-transfer': eltTransfer,
     },
     methods: {
-        fixCount(parID,subID){ // 确保子活动的选手数和和专家数和父活动一致
-          this.postRequest("/activities/basic/fixCount?parID="+parID+"&subID="+subID).then(res=>{
-              if(res.status!==200){
-                  this.$message.fail('计数更新失败')
-              }
-          })
-        },
+        // fixCount(parID,subID){ // 确保子活动的选手数和和专家数和父活动一致
+        //   this.postRequest("/activities/basic/fixCount?parID="+parID+"&subID="+subID).then(res=>{
+        //       if(res.status!==200){
+        //           this.$message.fail('计数更新失败')
+        //       }
+        //   })
+        // },
         UploadUrl() {
-            let url = "/systemM/Experts/subImport?groupid=" + this.groupID + "&activityid=" + this.activityID+"&insititutionID="+
-                this.user.institutionID+"&actIDParent="+this.activityIDParent+"&groupIDParent="+this.groupIDParent;
+            let url = "/systemM/Experts/import?groupid=" + this.groupID + "&activityid=" + this.activityID+"&insititutionID="+
+                this.user.institutionID;
             return url;
         },
         delete(delList){
             this.postRequest("/systemM/Experts/deleteExperts",delList).then(res=>{
                 if(res.status==200){
                     this.$message.success('删除成功')
-                    this.fixCount(this.activityIDParent,this.activityID)
                     this.init();
                 }else
                 {
                     this.$message.fail('删除失败')
-                    this.fixCount(this.activityIDParent,this.activityID)
                 }
             })
         },
