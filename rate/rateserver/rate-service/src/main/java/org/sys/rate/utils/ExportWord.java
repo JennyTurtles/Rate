@@ -1,15 +1,16 @@
 package org.sys.rate.utils;
 
 import cn.afterturn.easypoi.word.WordExportUtil;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.Comment;
 import org.sys.rate.model.GradeForm;
 import org.sys.rate.model.ScoreItem;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -36,11 +37,11 @@ public class ExportWord {
     private static final String[] GRADELEVELARRAY = {"优", "良", "中", "及格", "不及格"};
     private static final double[] SCORES = {85.0, 75.0, 67.0, 60.0, 0.0};
     private static final int wordTitlePageRowLength = 40;
-    private static final int commentMaxLength = 230;
-    private static final int commentMinLength = 180;
-    private static final int commentMaxRows = 8;
-    private static final int commentMinRows = 4;
-    private static final int perRowMaxCount = 30 * 2;
+    private static final int[] maxWordsCountPerRow = {33, 37, 42, 47, 52}; // 分别对应12号字体，11号字体，10号字体，9号字体，8号字体
+    private static final int[] commentRowslimit = {11, 8}; // 分别对应指导&评阅老师，答辩老师
+    private static final String[] commentStart = {"指导教师评语", "评阅教师评语", "答辩评语"};
+    private static final String[] commentEnd = {"指导教师（签名）", "评阅教师（签名）", "答辩小组组长（签名）"};
+    private int[] commentFontSize = {12, 12, 12};
     private boolean necessaryFilesAndDirectoriesExist;
 
     public ExportWord() {
@@ -98,7 +99,7 @@ public class ExportWord {
         int thesisNameCount = calculateChars(gradeForm.getThesisName());
         if (thesisNameCount > wordTitlePageRowLength) {
             generalModel.put("ThesisName", gradeForm.getThesisName().substring(0, wordTitlePageRowLength / 2));
-            String padding = String.join("", Collections.nCopies(2*wordTitlePageRowLength-thesisNameCount, " "));
+            String padding = String.join("", Collections.nCopies(2 * wordTitlePageRowLength - thesisNameCount, " "));
             generalModel.put("AdditionalName", String.format("%s%s", gradeForm.getThesisName().substring(wordTitlePageRowLength / 2), padding));
         } else {
             generalModel.put("ThesisName", formatTitlePageContent(gradeForm.getThesisName()));
@@ -110,12 +111,11 @@ public class ExportWord {
         return generalModel;
     }
 
-    private static String countRows(String comment, int commentRows) {
+    private boolean isProperFontSize(String comment, int fontsize, boolean isLeaderComment) {
         int rows = 0, count = 0;
-        comment = comment.trim().replace("\n\n", "\n");
         for (int i = 0; i < comment.length(); i++) {
-            if (count > perRowMaxCount || comment.charAt(i) == '\n') {
-                count = 2;
+            if (count > (fontsize << 1) || comment.charAt(i) == '\n') {
+                count = 4;
                 rows++;
             } else {
                 char c = comment.charAt(i);
@@ -127,18 +127,23 @@ public class ExportWord {
                 }
             }
         }
-        StringBuilder sb = new StringBuilder();
-        sb.append(comment);
-        for (int i = 0; i < commentRows - rows; i++) {
-            sb.append(" \r\n");
-        }
+        return rows <= (isLeaderComment ? commentRowslimit[1] : commentRowslimit[0]);
 
-        return rows <= commentRows ? sb.toString() : sb.toString().replace("\n", "");
     }
 
+    private int chooseProperFontSize(String comment, boolean isLeaderComment) {
+        for (int i = 0; i < maxWordsCountPerRow.length; ++i) {
+            if (isProperFontSize(comment, maxWordsCountPerRow[i], isLeaderComment)) {
+                return 12 - i;
+            }
+        }
+        return 7;
+    }
+
+
     // 格式化comment
-    public static String formatComment(String comment, int commentLength, int commentRows) {
-        return countRows(comment, commentRows);
+    public String formatComment(String comment) {
+        return comment.replaceAll("\r?\n[ ]*", "\r\n    ").replaceAll("\n\n", "\n").trim();
     }
 
     private Map<String, Object> createCommentModel(Map<Integer, List<Comment>> comments) {
@@ -150,7 +155,8 @@ public class ExportWord {
 
         List<Comment> instructors = comments.get(GradeForm.Type.INSTRUCTOR.ordinal());
         if (instructors.size() > 0) {
-            commentModel.put("instructorComment", formatComment(instructors.get(0).getContent(), commentMaxLength, commentMaxRows));
+            commentModel.put("instructorComment", formatComment(instructors.get(0).getContent()));
+            commentFontSize[0] = chooseProperFontSize(instructors.get(0).getContent(), false);
             Date instructorDate = instructors.get(0).getDate();
             commentModel.put("instructorYear", sdfYear.format(instructorDate));
             commentModel.put("instructorMonth", sdfMonth.format(instructorDate));
@@ -158,7 +164,8 @@ public class ExportWord {
         }
         List<Comment> reviewers = comments.get(GradeForm.Type.REVIEWER.ordinal());
         if (reviewers.size() > 0) {
-            commentModel.put("reviewerComment", formatComment(reviewers.get(0).getContent(), commentMaxLength, commentMaxRows));
+            commentModel.put("reviewerComment", formatComment(reviewers.get(0).getContent()));
+            commentFontSize[1] = chooseProperFontSize(reviewers.get(0).getContent(), false);
             Date reviewDate = reviewers.get(0).getDate();
             commentModel.put("reviewerYear", sdfYear.format(reviewDate));
             commentModel.put("reviewerMonth", sdfMonth.format(reviewDate));
@@ -166,7 +173,8 @@ public class ExportWord {
         }
         List<Comment> leaders = comments.get(GradeForm.Type.DEFENSE.ordinal());
         if (leaders.size() > 0) {
-            commentModel.put("leaderComment", formatComment(leaders.get(0).getContent(), commentMinLength, commentMinRows));
+            commentModel.put("leaderComment", formatComment(leaders.get(0).getContent()));
+            commentFontSize[2] = chooseProperFontSize(leaders.get(0).getContent(), false);
             Date leaderDate = leaders.get(0).getDate();
             commentModel.put("leaderYear", sdfYear.format(leaderDate));
             commentModel.put("leaderMonth", sdfMonth.format(leaderDate));
@@ -289,33 +297,6 @@ public class ExportWord {
         return 4;
     }
 
-//    public void getDownload(HttpServletResponse response, String filePath, boolean isOnLine) throws Exception {
-//        File file = new File(filePath);
-//        if (!file.exists()) {
-//            // 判断文件是否存在
-//            throw new Exception("文件不存在！");
-//        }
-//        String fileName = "成绩评定表.zip";
-//        InputStream ins = new FileInputStream(filePath);
-//        OutputStream os = response.getOutputStream();
-//        byte[] buffer = new byte[4096];
-//        int len = 0;
-//        response.reset();
-//        if (isOnLine) {
-//            response.setContentType("application/octet-stream");
-//            response.setHeader("Content-Disposition", "inline; filename=" + fileName);
-//        } else {
-//            response.setContentType("application/x-msdownload");
-//            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-//        }
-//        while ((len = ins.read(buffer)) > 0) {
-//            os.write(buffer, 0, len);
-//        }
-//        os.flush();
-//        os.close();
-//        ins.close();
-//    }
-
     public byte[] generateListWord(List<GradeForm> gradeForms) throws Exception {
         if (!necessaryFilesAndDirectoriesExist) {
             return null;
@@ -328,7 +309,49 @@ public class ExportWord {
             params.putAll(createGeneralModel(gradeForm));
             params.putAll(createCommentModel(gradeForm.getComments()));
             params.putAll(createScoreModel(gradeForm.getScoreItems()));
+
+            // 获取字号是否需要改变；
+            boolean isChangeInstCommentFont = (commentFontSize[0] != 12);
+            boolean isChangeReviewerCommentFont = (commentFontSize[1] != 12);
+            boolean isChangeLeaderCommentFont = (commentFontSize[2] != 12);
+
+            boolean[] inRange = {false, false, false};
             try (XWPFDocument doc = WordExportUtil.exportWord07(TEMPLATE_PATH, params)) {
+                // change the size of comment
+                if (isChangeInstCommentFont || isChangeReviewerCommentFont || isChangeLeaderCommentFont) {
+                    loop: for (XWPFTable table : doc.getTables()) {
+                        for (XWPFTableRow row : table.getRows()) {
+                            for (XWPFTableCell cell : row.getTableCells()) {
+                                for (XWPFParagraph para : cell.getParagraphs()) {
+                                    for (XWPFRun run : para.getRuns()) {
+                                        String text = run.getText(0);
+
+                                        if (text == null) {
+                                            continue;
+                                        }
+                                        for (int i = 0; i < commentStart.length; ++i) {
+                                            if (text.contains(commentStart[i])) {
+                                                inRange[i] = true;
+                                            } else if (inRange[i] && text.contains(commentEnd[i])) {
+                                                inRange[i] = false;
+                                                break;
+                                            } else if (inRange[i] && !text.contains(commentEnd[i])) {
+                                                run.setFontSize(commentFontSize[i]);
+                                                break;
+                                            }
+                                            if(text.contains(commentEnd[2])){
+                                                break loop;
+                                            }
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 doc.write(out); // 将word写入byte流
                 byte[] xwpfDocumentBytes = out.toByteArray();
@@ -355,42 +378,5 @@ public class ExportWord {
         return bytes;
     }
 
-//    public static File compressFiles(List<File> fileList, String zipFileName) {
-//        File zipFile = new File(zipFileName);
-//        try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(zipFile))) {
-//            for (File file : fileList) {
-//                ZipEntry zipEntry = new ZipEntry(file.getName());
-//                zipOutputStream.putNextEntry(zipEntry);
-//
-//                FileInputStream fileInputStream = new FileInputStream(file);
-//                byte[] buffer = new byte[1024];
-//                int len;
-//                while ((len = fileInputStream.read(buffer)) > 0) {
-//                    zipOutputStream.write(buffer, 0, len);
-//                }
-//
-//                fileInputStream.close();
-//                zipOutputStream.closeEntry();
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        return zipFile;
-//    }
-
-//    public static void deleteDir(File dir) {
-//        if (!dir.exists()) {
-//            return;
-//        }
-//        if (dir.isFile()) {
-//            dir.delete();
-//            return;
-//        }
-//        File[] subFiles = dir.listFiles();
-//        for (File sub : subFiles) {
-//            deleteDir(sub);
-//        }
-//        dir.delete();
-//    }
 
 }

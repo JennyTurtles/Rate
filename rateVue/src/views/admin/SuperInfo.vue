@@ -9,7 +9,7 @@
         <el-input v-model="superAdmin.phone" @input="infoChange"></el-input>
       </el-form-item>
       <el-form-item label="邮箱">
-        <el-input v-model="mail.emailAddress" @input="infoChange"></el-input>
+        <el-input v-model="mail.emailAddress"  @input="handleEmailInput"></el-input>
       </el-form-item>
       <el-form-item label="IMAP验证码">
         <el-input v-model="mail.imapverifyCode" @input="infoChange"></el-input>
@@ -47,6 +47,20 @@ export default {
     this.init();
   },
   methods: {
+    handleEmailInput() {
+      this.infoChange()
+      const email = this.mail.emailAddress.toLowerCase()
+      if (email.endsWith('@163.com')) {
+        this.mail.imaphost = 'imap.163.com'
+        this.mail.smtphost = 'smtp.163.com'
+      } else if (email.endsWith('@qq.com')) {
+        this.mail.imaphost = 'imap.qq.com'
+        this.mail.smtphost = 'smtp.qq.com'
+      } else if (email.endsWith('@126.com')) {
+        this.mail.imaphost = 'imap.126.com'
+        this.mail.smtphost = 'smtp.126.com'
+      }
+    },
     infoChange() {
       this.infoIsChanged = true;
     },
