@@ -219,6 +219,11 @@ public class ExpertService implements UserDetailsService {
 			expertactivities.setActivityid(activityid);
 			// 此处基于活动ID和小组名获取小组ID
 			Integer groupID = groupsMapper.selectIDByActivityIdAndGroupName(activityid, experts.getGroupName());
+//			Integer haveLeader = groupsMapper.checkLeader(groupID); // 性能有待优化
+//			if (haveLeader == null){
+//				experts.setRole("组长");
+//				result.add(experts.getGroupName() + "无组长，已指定组长为：" + experts.getName());
+//			}
 			expertactivities.setGroupid(groupID);
 			expertactivities.setFinished(false);
 			//如果是1，则为本单位，再设置为管理员的instituteId，否则为null
@@ -283,9 +288,9 @@ public class ExpertService implements UserDetailsService {
 				}
 			}
 		}
-		if(result.size()!=0){
-			result.add("请将以上用户名重复的专家更正后再导入,其他专家已经导入成功！");
-		}
+//		if(result.size() > 1 || !result.get(0).contains("无组长")){
+//			result.add("请将以上用户名重复的专家更正后再导入,其他专家已经导入成功！");
+//		}
 		return result;
 	}
 

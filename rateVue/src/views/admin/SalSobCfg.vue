@@ -842,6 +842,11 @@ export default {
     },
     onSuccess(res) {
       console.log("res", res);
+      if (typeof res.obj !== 'undefined'){
+        Message.warning(res.obj)
+        return
+      }
+
       if (res.msg === 'file error') {
         Message.error("文件内容或者格式有误，请不要修改表头，信息按格式填写！")
       } else if (res.msg === 'success') {
@@ -863,7 +868,7 @@ export default {
       this.importDataDisabled = true;
     },
     UploadUrl() {
-      if (typeof this.activityID !== "undefined") { // 从主活动进入
+      if (typeof this.keywords !== "undefined") { // 从主活动进入
         return "/systemM/Experts/importWithGroupName?activityid=" + this.keywords+"&insititutionID="+this.user.institutionID;
       }else{
         return "/systemM/Experts/import?groupid=" + this.groupID + "&activityid=" + this.keywords+"&insititutionID="+this.user.institutionID;
@@ -871,7 +876,8 @@ export default {
     },
     exportMo() {
       Message.success("正在下载模板");
-        if (typeof this.activityID !== "undefined") {
+
+        if (typeof this.keywords !== "undefined") {
             window.open("/participants/basic/exportMoWithGroupName", "_parent");
         }else{
             window.open("/participants/basic/exportMo", "_parent");

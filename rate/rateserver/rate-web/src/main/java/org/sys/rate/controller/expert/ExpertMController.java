@@ -139,6 +139,15 @@ public class ExpertMController {
                 logService.addLogs(log);
                 return RespBean.ok("success");
             }
+//            else if (res.size()==1 && res.get(0).contains("无组长")){
+//                Log log=new Log();
+//                SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
+//                Timestamp nousedate = new Timestamp(date.getTime());
+//                log.setLog(nousedate,insititutionID,"专家管理","导入成功,自动指定了组长");
+//                logService.addLogs(log);
+//                return RespBean.ok("success",res.get(0));
+//            }
             Log log=new Log();
             SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date date = sdf.parse(sdf.format(System.currentTimeMillis()));

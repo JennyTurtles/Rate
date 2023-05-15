@@ -104,4 +104,6 @@ public interface GroupsMapper {
     Integer selectIDByActivityIdAndGroupName(@Param("activityID") Integer activityID, @Param("groupName") String groupName);
 
 
+    @Select("SELECT ID FROM `expertactivities` WHERE groupID = #{groupID} AND role = '组长'")
+    Integer checkLeader(Integer groupID);
 }
