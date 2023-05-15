@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -61,4 +62,13 @@ public interface ExpertsMapper {
             "from teacher t,expertactivities e,`groups` g\n" +
             "where e.`teacherID`=t.`id` and e.activityID = #{activityID} and g.ID = e.groupID")
     List<Experts> getExpertsByActID(Integer activityID);
+
+    @Select("SELECT * from grade_form WHERE activityID = #{activityID}")
+    List<GradeFormEntry> getGradeForm(Integer activityID);
+
+    @Insert("INSERT INTO grade_form(activityID,typeID,targetID,coef) \n" +
+            "VALUES(#{activityID},#{typeID},#{targetID},#{coef}) ON DUPLICATE KEY UPDATE\n" +
+            "activityID = VALUES(activityID),typeID = VALUES(typeID),\n" +
+            "targetID = VALUES(targetID),coef = VALUES(coef)")
+    void saveGradeForm(GradeFormEntry gradeFormEntry);
 }

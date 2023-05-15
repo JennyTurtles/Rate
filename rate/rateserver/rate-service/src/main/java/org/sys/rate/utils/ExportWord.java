@@ -196,7 +196,10 @@ public class ExportWord {
         if (instructors != null) {
             for (int i = 0; i < instructors.size(); i++) {
                 tmpCoef = instructors.get(i).getCoef();
-                tmpScore = instructors.get(i).getScore();
+                if (instructors.get(i).getScore() == null)
+                    tmpScore = 0.0;
+                else
+                    tmpScore = instructors.get(i).getScore();
                 suffixShort = typeInstructor + String.valueOf(i);
                 // 获得coef
                 scoreModel.put("coef" + suffixShort, tmpCoef);
@@ -217,7 +220,10 @@ public class ExportWord {
         if (reviewers != null) {
             for (int i = 0; i < reviewers.size(); i++) {
                 tmpCoef = reviewers.get(i).getCoef();
-                tmpScore = reviewers.get(i).getScore();
+                if (reviewers.get(i).getScore() == null)
+                    tmpScore = 0.0;
+                else
+                    tmpScore = reviewers.get(i).getScore();
                 suffixShort = typeReviewers + String.valueOf(i);
                 // 获得coef
                 scoreModel.put("coef" + suffixShort, tmpCoef);
@@ -238,7 +244,10 @@ public class ExportWord {
         if (leaders != null) {
             for (int i = 0; i < leaders.size(); i++) {
                 tmpCoef = leaders.get(i).getCoef();
-                tmpScore = leaders.get(i).getScore();
+                if (leaders.get(i).getScore() == null)
+                    tmpScore = 0.0;
+                else
+                    tmpScore =leaders.get(i).getScore();
                 suffixShort = typeLeader + String.valueOf(i);
                 // 获得coef
                 scoreModel.put("coef" + suffixShort, tmpCoef);

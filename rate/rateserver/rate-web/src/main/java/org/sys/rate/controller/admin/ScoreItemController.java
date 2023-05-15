@@ -5,11 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.CSVReader;
+import org.sys.rate.mapper.ScoreItemMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.LogService;
 import org.sys.rate.service.admin.ScoreItemService;
 import org.sys.rate.utils.POIUtils;
 
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -26,6 +28,9 @@ public class ScoreItemController {
 
     @Autowired
     LogService logService;
+
+    @Resource
+    ScoreItemMapper scoreItemMapper;
 
 
     @GetMapping("/")
@@ -138,4 +143,15 @@ public class ScoreItemController {
         return RespBean.ok("success",scoreItems);
     }
 
+    @GetMapping("/SubScoreItem")
+    public RespBean getSubScoreItem(@RequestParam Integer activityID){
+        List<ScoreItem> scoreItems = scoreItemMapper.selectSubScoreItemByActId(activityID);
+        List<ScoreItem> scoreItem = scoreItemMapper.selectScoreItemByActId(activityID);
+        if (scoreItems != null){
+            scoreItems.addAll(scoreItem);
+            return RespBean.ok("success",scoreItems);
+        }
+        else // 无子活动
+            return RespBean.ok("success",scoreItem);
+    }
 }

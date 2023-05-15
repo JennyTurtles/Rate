@@ -183,4 +183,7 @@ public interface ParticipatesMapper {
 
     @Select("SELECT studentID FROM participants WHERE groupID = #{groupID}")
     List<Integer> getStudentIDbyGroupID(Integer groupID);
+
+    @Select("SELECT studentID FROM participants WHERE activityID = #{activityID}")
+    List<Integer> getStudentIDbyActID(Integer activityID);
 }

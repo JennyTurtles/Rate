@@ -86,4 +86,12 @@ public interface ScoreItemMapper {
             "FROM participants p,score_average sa,scoreitem s\n" +
             "WHERE p.studentID = #{studentID} AND sa.participantID = p.ID AND sa.scoreItemID = s.ID")
     List<ScoreItem> getScoreItemsByStuID(Integer studentID);
+
+
+    @Select("SELECT s.ID,activityID,s.name FROM scoreitem s, activities a\n" +
+            "WHERE s.activityID = a.ID AND parentID = #{activityID}")
+    List<ScoreItem> selectSubScoreItemByActId(Integer activityID);
+
+    @Select("SELECT ID,activityID,name FROM scoreitem s WHERE activityID = #{activityID}")
+    List<ScoreItem> selectScoreItemByActId(Integer activityID);
 }

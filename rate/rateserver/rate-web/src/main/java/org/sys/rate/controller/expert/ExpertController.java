@@ -5,6 +5,7 @@ import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.sys.rate.mapper.ExpertsMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.*;
 import org.sys.rate.service.expert.ExpertService;
@@ -54,6 +55,8 @@ public class ExpertController {
     ExpertService expertService;
     @Resource
     ExportWord exportWord;
+    @Resource
+    ExpertsMapper expertsMapper;
 
     @ResponseBody
     @GetMapping(value = "/activities")
@@ -320,7 +323,7 @@ public class ExpertController {
 
     @ResponseBody
     @PostMapping("/exportGradeForm")
-    public ResponseEntity<byte[]> exportGradeForm(HttpServletResponse response, @RequestBody ExportGradeMapper exportGradeMapper) throws Exception {
+    public ResponseEntity<byte[]> exportGradeForm(@RequestBody ExportGradeMapper exportGradeMapper) throws Exception {
         List<GradeForm> gradeForms = expertService.getGradeForms(exportGradeMapper);
         // 基于gradeForms导出word
         byte[] res = exportWord.generateListWord(gradeForms);
@@ -333,6 +336,31 @@ public class ExpertController {
         }else{
             return new ResponseEntity<>(null, null, HttpStatus.OK);
         }
+    }
+
+    @ResponseBody
+    @GetMapping("/getGradeForm")
+    public RespBean getGradeForm(@RequestParam Integer activityID){
+        List<GradeFormEntry> gradeFormEntries = expertsMapper.getGradeForm(activityID);
+        if (gradeFormEntries == null){
+            gradeFormEntries = new ArrayList<>();
+        }
+        Collections.sort(gradeFormEntries);
+        for (int i = 0; i < 13; i++){ // 确保有13项，且typeID从小到大排序
+            if (gradeFormEntries.size() == i) {
+                gradeFormEntries.add(new GradeFormEntry(i + 1));
+                continue;
+            }
+            if (gradeFormEntries.get(i).getTypeID() != i + 1)
+                gradeFormEntries.add(i,new GradeFormEntry(i + 1));
+        }
+        return RespBean.ok("success",gradeFormEntries);
+    }
+
+    @PostMapping("/saveGradeForm")
+    public RespBean saveGradeForm(@RequestBody ExportGradeMapper exportGradeMapper){
+        expertService.saveGradeForm(exportGradeMapper);
+        return RespBean.ok("success",true);
     }
 }
 

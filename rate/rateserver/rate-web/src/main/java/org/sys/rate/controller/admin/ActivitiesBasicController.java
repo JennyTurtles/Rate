@@ -202,5 +202,7 @@ public class ActivitiesBasicController {
         } else
             return RespBean.error("无子活动",false);
     }
+
+
 }
 

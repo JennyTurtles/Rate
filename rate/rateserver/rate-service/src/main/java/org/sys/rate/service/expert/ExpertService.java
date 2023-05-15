@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.sys.rate.utils.PasswordUtils;
@@ -645,7 +646,11 @@ public class ExpertService implements UserDetailsService {
 
 
 	public List<GradeForm> getGradeForms(ExportGradeMapper exportGradeMapper) {
-		List<Integer> studentIDs = participatesMapper.getStudentIDbyGroupID(exportGradeMapper.getGroupID());
+		List<Integer> studentIDs;
+		if (exportGradeMapper.getGroupID() == null)
+			studentIDs = participatesMapper.getStudentIDbyActID(exportGradeMapper.getActivityID());
+		else
+			studentIDs = participatesMapper.getStudentIDbyGroupID(exportGradeMapper.getGroupID());
 		List<GradeForm> result = new ArrayList<>();
 		for (Integer studentID : studentIDs) {
 			GradeForm gradeForm = underGraduateMapper.getGradeFormByStuID(studentID);
@@ -664,14 +669,29 @@ public class ExpertService implements UserDetailsService {
 			for (ScoreItem scoreItem : allScoreItem){
 				if (exportGradeMapper.instructorScoreItems.containsKey(scoreItem.getId())){
 					scoreItem.setCoef(exportGradeMapper.instructorScoreItems.get(scoreItem.getId()));
+					exportGradeMapper.instructorScoreName2ID.forEach((k,v)->{ // 快速开发，有待改进
+						if (Objects.equals(scoreItem.getId(), v)){
+							scoreItem.setName(k);
+						}
+					});
 					scoreItems.computeIfAbsent(GradeForm.Type.INSTRUCTOR.ordinal(), k -> new ArrayList<>()).add(scoreItem);
 				}
 				if (exportGradeMapper.reviewScoreItems.containsKey(scoreItem.getId())){
 					scoreItem.setCoef(exportGradeMapper.reviewScoreItems.get(scoreItem.getId()));
+					exportGradeMapper.reviewScoreName2ID.forEach((k,v)->{ // 快速开发，有待改进
+						if (Objects.equals(scoreItem.getId(), v)){
+							scoreItem.setName(k);
+						}
+					});
 					scoreItems.computeIfAbsent(GradeForm.Type.REVIEWER.ordinal(), k -> new ArrayList<>()).add(scoreItem);
 				}
 				if (exportGradeMapper.defenseScoreItems.containsKey(scoreItem.getId())){
 					scoreItem.setCoef(exportGradeMapper.defenseScoreItems.get(scoreItem.getId()));
+					exportGradeMapper.defenseScoreName2ID.forEach((k,v)->{ // 快速开发，有待改进
+						if (Objects.equals(scoreItem.getId(), v)){
+							scoreItem.setName(k);
+						}
+					});
 					scoreItems.computeIfAbsent(GradeForm.Type.DEFENSE.ordinal(), k -> new ArrayList<>()).add(scoreItem);
 				}
 			}
@@ -681,5 +701,28 @@ public class ExpertService implements UserDetailsService {
 			result.add(gradeForm);
 		}
 		return result;
+	}
+
+	@Transactional
+	public void saveGradeForm(ExportGradeMapper exportGradeMapper){
+		Integer activityID = exportGradeMapper.getActivityID();
+		if (exportGradeMapper.getInstructorCommentActID() != null)
+			expertsMapper.saveGradeForm(new GradeFormEntry(activityID,1,exportGradeMapper.getInstructorCommentActID()));
+		if (exportGradeMapper.getReviewCommentActID() != null)
+			expertsMapper.saveGradeForm(new GradeFormEntry(activityID,2,exportGradeMapper.getReviewCommentActID()));
+		if (exportGradeMapper.getDefenseCommentActID() != null)
+			expertsMapper.saveGradeForm(new GradeFormEntry(activityID,3,exportGradeMapper.getDefenseCommentActID()));
+		exportGradeMapper.instructorScoreName2ID.forEach((k,v)->{
+			int index = exportGradeMapper.orderList.indexOf(k);
+			expertsMapper.saveGradeForm(new GradeFormEntry(activityID,index + 1,v,exportGradeMapper.instructorScoreItems.get(v)));
+		});
+		exportGradeMapper.reviewScoreName2ID.forEach((k,v)->{
+			int index = exportGradeMapper.orderList.indexOf(k);
+			expertsMapper.saveGradeForm(new GradeFormEntry(activityID,index + 1,v,exportGradeMapper.reviewScoreItems.get(v)));
+		});
+		exportGradeMapper.defenseScoreName2ID.forEach((k,v)->{
+			int index = exportGradeMapper.orderList.indexOf(k);
+			expertsMapper.saveGradeForm(new GradeFormEntry(activityID,index + 1,v,exportGradeMapper.defenseScoreItems.get(v)));
+		});
 	}
 }
