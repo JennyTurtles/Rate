@@ -16,7 +16,15 @@ public class Expertactivities {
     private Integer groupid;
 
     private Boolean finished;
+    private String role;
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     public Integer getId() {
         return id;

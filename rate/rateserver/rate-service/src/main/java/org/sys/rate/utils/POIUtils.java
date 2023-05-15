@@ -1414,6 +1414,7 @@ public class POIUtils {
                     String username=null;
                     String password=null;
                     String groupName=null;
+                    String role=null;
                     for (int k = 0; k < Cells; k++) {
                         HSSFCell cell = row.getCell(k);
                         //cell.setCellType(CellType.STRING);
@@ -1455,6 +1456,9 @@ public class POIUtils {
                                 case "组名":
                                     groupName=cellValue;
                                     break;
+                                case "角色":
+                                    role=cellValue;
+                                    break;
                                 default:
                                     break;
                             }
@@ -1477,6 +1481,7 @@ public class POIUtils {
                     expert.setUsername(username);
                     expert.setPassword(password);
                     expert.setGroupName(groupName);
+                    expert.setRole(role);
                     if(jobNumber != null){ // 有工号就是本单位的
                         expert.setInstitutionid(1);
                     }else {

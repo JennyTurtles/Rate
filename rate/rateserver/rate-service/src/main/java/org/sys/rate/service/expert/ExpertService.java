@@ -269,6 +269,7 @@ public class ExpertService implements UserDetailsService {
 			}
 			//在活动组中加入专家
 			expertactivities.setTeacherID(expertsMapper.getID(experts.getIdnumber()));
+			expertactivities.setRole(experts.getRole());
 			Integer expertId = expertsMapper.getID(experts.getIdnumber());
 			Integer pend = expertactivitiesMapper.checkByIDandActivityID(expertId, activityid);
 			if (pend != null && pend.equals(groupID)) {

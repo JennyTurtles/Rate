@@ -130,9 +130,9 @@
 
   <update id="insert" parameterType="org.sys.rate.model.Expertactivities">
     INSERT into expertactivities (ID, teacherID, activityID,
-      groupID, finished)
+      groupID, finished,role)
 VALUES (#{id,jdbcType=INTEGER}, #{expertid,jdbcType=INTEGER}, #{activityid,jdbcType=INTEGER},
-    #{groupid,jdbcType=INTEGER}, #{finished,jdbcType=BOOLEAN}) ON DUPLICATE KEY UPDATE groupID =values(groupID);
+    #{groupid,jdbcType=INTEGER}, #{finished,jdbcType=BOOLEAN},#{role}) ON DUPLICATE KEY UPDATE groupID =values(groupID);
     UPDATE activities set expertCount=expertCount+1 where ID=#{activityid,jdbcType=INTEGER};
     UPDATE `groups` set expertCount=expertCount+1 where ID=#{groupid,jdbcType=INTEGER}
   </update>

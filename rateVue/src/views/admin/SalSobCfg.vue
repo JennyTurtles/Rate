@@ -617,6 +617,11 @@ export default {
     // },
 
     changeRole(index,data){
+      if (data.groupID === null)
+      {
+        Message.warning("请先为该专家分组后再设置角色！")
+        return
+      }
       this.currentrole = data.role;
         this.getRequest("/secretary/setRole?teacherID=" + data.id + "&activityID=" + this.keywords + "&groupID=" + data.groupID + "&role=" + this.currentrole)
             .then((resp) => {
