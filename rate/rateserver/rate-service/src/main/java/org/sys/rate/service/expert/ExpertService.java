@@ -370,6 +370,8 @@ public class ExpertService implements UserDetailsService {
 
 	public Integer deleteExActivityTable(Integer groupid, Integer activityid, Experts teacher) {
 		Integer id = expertsMapper.getID(teacher.getIdnumber());
+		if (groupid == -1)
+			return expertactivitiesMapper.deleteNogroupid(activityid,id);
 		return expertactivitiesMapper.deletegroupid(groupid, activityid, id);
 	}
 

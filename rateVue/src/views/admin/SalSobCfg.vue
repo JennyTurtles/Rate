@@ -526,8 +526,14 @@ export default {
       })
           .then(() => {
             si.institutionid=this.user.institutionID;
+            if (si.groupID === null)
+              si.groupID = -1
             this.postRequest("/systemM/Experts/delete?groupid=" + si.groupID + "&activityid=" + this.keywords, si).then(resp => {
               if (resp) {
+                this.$message({
+                  type: "success",
+                  message: "删除成功",
+                });
                 this.initHrs();
               }
             });

@@ -275,6 +275,8 @@ public class DisplayItemService {
         for (ScoreAverage scoreAverage : scoreAverages) {
             if (scoreAverage.getParticipantID() == null)
                 continue;
+            if (scoreAverage.getScore() == null)
+                scoreAverage.setScore(0.0);
             table.put(scoreAverage.getParticipantID(), scoreAverage.getScoreItemID(), scoreAverage.getScore()*scoreAverage.getCoef());
         }
         // 查漏补缺

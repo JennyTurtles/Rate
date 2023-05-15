@@ -121,7 +121,7 @@
             min-width="10%"
         >
           <template slot-scope="scope" >
-              <span v-if="mode!=='secretary'">
+              <span v-if="mode!=='secretary' && mode!=='secretarySub'">
                  <el-checkbox
                     :true-label="1"
                     :false-label="0"
@@ -361,6 +361,12 @@ export default {
         if (resp) {
           this.loading = false;
           this.hrs = resp.data;
+          for (var i = 0; i < this.hrs.length; i++){
+            if (this.hrs[i].byexpert)
+              this.hrs[i].byexpert = 1
+            else
+              this.hrs[i].byexpert = 0
+          }
           this.total = resp.total;
         }
       });
@@ -506,6 +512,7 @@ export default {
           });
     },
     UpdateCheckbox(scoreItem) {
+      console.log(scoreItem)
       const _this = this;
       _this
           .postRequest("/scoreItem/basic/UpdateOrNew?institutionID="+this.user.institutionID, scoreItem)

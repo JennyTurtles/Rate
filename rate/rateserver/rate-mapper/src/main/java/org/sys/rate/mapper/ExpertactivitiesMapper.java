@@ -25,6 +25,8 @@ public interface ExpertactivitiesMapper {
 
     Integer deletegroupid(@Param("groupid") Integer groupid, @Param("activityid") Integer activityid,@Param("id") Integer id);
 
+    Integer deleteNogroupid(@Param("activityid") Integer activityid,@Param("id") Integer id);
+
     Integer checkByIDandActivityID(@Param("id") Integer id, @Param("activityid") Integer activityid);
 
     Integer getOldGroupByIDandActivityID(@Param("id") Integer id, @Param("activityid") Integer activityid);
