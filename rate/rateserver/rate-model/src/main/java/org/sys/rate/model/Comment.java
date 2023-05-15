@@ -14,6 +14,7 @@ public class Comment {
     private String  teacherName;
     private Integer participantID;
     private String content;
+    private String role;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date date;
