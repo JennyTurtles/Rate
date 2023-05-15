@@ -565,7 +565,8 @@ export default {
     },
       assignPE(data) {
           const _this = this;
-          if (this.mode === 'secretary'){
+        console.log(this.mode)
+          if (this.mode === 'secretary' || this.mode === 'secretarySub'){
             _this.$router.push({
               path: "/Expert/EassignPE",
               query: {

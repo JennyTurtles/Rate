@@ -314,28 +314,29 @@ export default {
       this.initHrs("advanced");
     },
     back() {
-      const _this = this;
-      if (this.mode === 'admin'){
-        _this.$router.push({
-          path: "/ActivitM/search",
-        });
-    }else if (this.mode ==='adminSub'){
-          _this.$router.push({
-              path: '/ActivitM/SubActManage',
-              query: {
-                  id: _this.$route.query.backID,
-                  mode: _this.mode,
-              }
-          })
-      }else if (this.mode ==='secretary'){
-        _this.$router.push({
-          path: '/secretary/ActManage',
-          query: {
-            id: _this.$route.query.backID,
-            mode: _this.mode,
-          }
-        })
-      }
+      this.$router.go(-1);
+    //   const _this = this;
+    //   if (this.mode === 'admin'){
+    //     _this.$router.push({
+    //       path: "/ActivitM/search",
+    //     });
+    // }else if (this.mode ==='adminSub'){
+    //       _this.$router.push({
+    //           path: '/ActivitM/SubActManage',
+    //           query: {
+    //               id: _this.$route.query.backID,
+    //               mode: _this.mode,
+    //           }
+    //       })
+    //   }else if (this.mode ==='secretary'){
+    //     _this.$router.push({
+    //       path: '/secretary/ActManage',
+    //       query: {
+    //         id: _this.$route.query.backID,
+    //         mode: _this.mode,
+    //       }
+    //     })
+    //   }
     },
     tableRowClassName({row, rowIndex}) {
       // 把每一行的索引放进row
