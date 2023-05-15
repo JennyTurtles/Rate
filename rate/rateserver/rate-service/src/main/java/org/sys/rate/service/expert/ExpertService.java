@@ -1,6 +1,8 @@
 package org.sys.rate.service.expert;
 
+import cn.hutool.core.lang.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -732,5 +734,42 @@ public class ExpertService implements UserDetailsService {
 			int index = exportGradeMapper.orderList.indexOf(k);
 			expertsMapper.saveGradeForm(new GradeFormEntry(activityID,index + 1,v,exportGradeMapper.defenseScoreItems.get(v)));
 		});
+	}
+
+	public List<GradeForm> adjustLeader(List<GradeForm> gradeForms) {
+		if (gradeForms == null)
+			return gradeForms;
+		boolean haveLeader = false;
+		List<Comment> defenseComment = gradeForms.get(0).getComments().get(GradeForm.Type.DEFENSE.ordinal());
+		for (Comment comment : defenseComment) {
+			if (comment.getRole().equals("组长")) {
+				haveLeader = true;
+				break;
+			}
+		}
+		if (haveLeader)
+			return gradeForms;
+		for (GradeForm gradeForm : gradeForms){
+			if (gradeForm.getComments().get(GradeForm.Type.DEFENSE.ordinal()).isEmpty())
+				continue;
+			gradeForm.getComments().get(GradeForm.Type.DEFENSE.ordinal()).get(0).setRole("组长"); // 第一个人设置为组长
+		}
+		return gradeForms;
+	}
+
+	public String checkLeader(List<GradeForm> gradeForms) {
+		if (gradeForms == null)
+			return "";
+		boolean haveLeader = false;
+		List<Comment> defenseComment = gradeForms.get(0).getComments().get(GradeForm.Type.DEFENSE.ordinal());
+		for (Comment comment : defenseComment) {
+			if (comment.getRole().equals("组长")) {
+				haveLeader = true;
+				break;
+			}
+		}
+		if (haveLeader)
+			return "";
+		return defenseComment.get(0).getTeacherName();
 	}
 }

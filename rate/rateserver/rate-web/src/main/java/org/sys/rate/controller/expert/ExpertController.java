@@ -1,5 +1,6 @@
 package org.sys.rate.controller.expert;
 
+import cn.hutool.core.lang.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -325,13 +326,15 @@ public class ExpertController {
     @PostMapping("/exportGradeForm")
     public ResponseEntity<byte[]> exportGradeForm(@RequestBody ExportGradeMapper exportGradeMapper) throws Exception {
         List<GradeForm> gradeForms = expertService.getGradeForms(exportGradeMapper);
+        // 答辩评语中需要确保仅有一位组长
+        gradeForms = expertService.adjustLeader(gradeForms);
         // 基于gradeForms导出word
         byte[] res = exportWord.generateListWord(gradeForms);
         if(res != null) {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             headers.setContentDisposition(ContentDisposition.attachment().build());
-            headers.setContentLength(res.length);
+            headers.setContentLength(-1);
             return new ResponseEntity<>(res, headers, HttpStatus.OK);
         }else{
             return new ResponseEntity<>(null, null, HttpStatus.OK);
@@ -361,6 +364,14 @@ public class ExpertController {
     public RespBean saveGradeForm(@RequestBody ExportGradeMapper exportGradeMapper){
         expertService.saveGradeForm(exportGradeMapper);
         return RespBean.ok("success",true);
+    }
+
+    @ResponseBody
+    @PostMapping("/checkLeader")
+    public RespBean checkLeader(@RequestBody ExportGradeMapper exportGradeMapper){
+        List<GradeForm> gradeForms = expertService.getGradeForms(exportGradeMapper);
+        String res = expertService.checkLeader(gradeForms);
+        return RespBean.ok(res);
     }
 }
 

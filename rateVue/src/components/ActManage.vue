@@ -648,7 +648,7 @@
 
             <span slot="footer" class="dialog-footer">
         <el-button @click="exportGradeFormVisible = false">取 消</el-button>
-         <el-button v-show="mode==='admin'" type="primary" @click="saveGradeForm()">保 存</el-button>
+         <el-button v-show="mode==='admin'" type="primary" @click="saveGradeForm(true)">保 存</el-button>
         <el-button type="success" @click="goExportGradeForm()">下 载</el-button>
       </span>
         </el-dialog>
@@ -1066,13 +1066,18 @@ export default {
             return res
         },
         goExportGradeForm(row){
-            var gradeFormConverted = this.saveGradeForm()
+            var gradeFormConverted = this.saveGradeForm(false)
             if (gradeFormConverted === null)
                 return
             gradeFormConverted.teacherID = this.user.id
+            this.postRequest("/system/Experts/checkLeader",gradeFormConverted).then((res)=>{ // 接收文件的时候无法同时接收信息，因此单独请求一次后端
+                if (res.msg !== null)
+                    this.$message({type: 'warning', message: "当前小组没有组长，" + res.msg + " 被设置为答辩小组组长"});
+            })
             axios({url:"/system/Experts/exportGradeForm",method:'post',data:gradeFormConverted,
                 headers: {'Content-Type': 'application/json'},
                 responseType: 'blob'}).then(res=>{
+
                 if (new Blob([res]) !== null)
                     this.$message({type: 'success', message: '导出成绩评定表成功!'});
                 else
@@ -1749,14 +1754,16 @@ export default {
             })
             return flag === 0 ? form : null
         },
-        saveGradeForm(){
+        saveGradeForm(display){
             var gradeFormConverted = this.convertGradeForm(this.gradeForm)
             if (gradeFormConverted === null)
                 return null
             if (this.mode === 'admin'){
                 this.postRequest("/system/Experts/saveGradeForm",gradeFormConverted).then((resp)=>{
-                    if (resp.obj)
-                        this.$message({type: 'success', message: '保存成绩评定表成功!'});
+                    if (resp.obj){
+                        if (display)
+                            this.$message({type: 'success', message: '保存成绩评定表成功!'});
+                    }
                     else
                         this.$message({type: 'error', message: '保存成绩评定表失败!'});
                 })
