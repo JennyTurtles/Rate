@@ -356,11 +356,11 @@
             </div>
         </div>
 
-        <el-dialog :title="title" :visible.sync="dialogVisible" width="30%"
+        <el-dialog :title="title" :visible.sync="dialogVisible" width="46%"
                    @close="emp_edit={};haveComment = false;haveSub = false" center>
             <el-form
                     :label-position="labelPosition"
-                    label-width="100px"
+                    label-width="120px"
                     :model="emp_edit"
                     :rules="rules"
                     ref="empForm"
@@ -374,6 +374,42 @@
                             placeholder="请输入活动名称"
                     ></el-input>
                 </el-form-item>
+              <el-form-item label="专家可见时间:" prop="visibleDate">
+                <div class="block">
+                  <div>
+                    <el-checkbox v-model="visibleDateSelected">不限</el-checkbox>
+                  </div>
+                  <div>
+                    <el-date-picker
+                        :disabled="visibleDateSelected"
+                        v-model="emp_edit.visibleDate"
+                        type="datetime"
+                        style="margin-left: 8px;"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        placeholder="选择日期和时间">
+                    </el-date-picker>
+                    <span class="tip-title">专家在活动列表中可以看到该活动的时间</span>
+                  </div>
+                </div>
+              </el-form-item>
+              <el-form-item label="专家可进入时间:" prop="enterDate">
+                <div class="block">
+                  <div>
+                    <el-checkbox v-model="enterDateSelected">不限</el-checkbox>
+                  </div>
+                  <div>
+                    <el-date-picker
+                        :disabled="enterDateSelected"
+                        v-model="emp_edit.enterDate"
+                        type="datetime"
+                        style="margin-left: 8px;"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        placeholder="选择日期和时间">
+                    </el-date-picker>
+                    <span class="tip-title">专家可进入到该活动中的时间</span>
+                  </div>
+                </div>
+              </el-form-item>
                 <el-form-item label="开始时间:" prop="startDate">
                     <div class="block">
                         <el-date-picker
@@ -384,30 +420,7 @@
                         </el-date-picker>
                     </div>
                 </el-form-item>
-                <el-form-item label="可见时间:" prop="visibleDate">
-                    <div class="block">
-                        <el-checkbox v-model="visibleDateSelected">不限</el-checkbox>
-                        <el-date-picker
-                                :disabled="visibleDateSelected"
-                                v-model="emp_edit.visibleDate"
-                                type="datetime"
-                                value-format="yyyy-MM-dd HH:mm:ss"
-                                placeholder="选择日期和时间">
-                        </el-date-picker>
-                    </div>
-                </el-form-item>
-                <el-form-item label="可进入时间:" prop="enterDate">
-                    <div class="block">
-                        <el-checkbox v-model="enterDateSelected">不限</el-checkbox>
-                        <el-date-picker
-                                :disabled="enterDateSelected"
-                                v-model="emp_edit.enterDate"
-                                type="datetime"
-                                value-format="yyyy-MM-dd HH:mm:ss"
-                                placeholder="选择日期和时间">
-                        </el-date-picker>
-                    </div>
-                </el-form-item>
+
                 <el-form-item label="备 注: " prop="comment">
                     <el-input
                             type="textarea"
@@ -417,14 +430,14 @@
                     >
                     </el-input>
                 </el-form-item>
-                <el-form-item  label="存在子活动: " v-show="mode === 'admin'">
+                <el-form-item  label="包含子活动: " v-show="mode === 'admin'">
                     <el-checkbox @change="checkHaveSub" v-model="haveSub"></el-checkbox>
                 </el-form-item>
                 <el-form-item label="是否写评语: ">
                     <el-checkbox v-model="haveComment"></el-checkbox>
+                  <span class="tip-title" style="margin-left: 10px">专家在评分时是否需要写评语</span>
                 </el-form-item>
             </el-form>
-
             <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="doAddEmp();dialogVisible = false">确 定</el-button>
@@ -1849,5 +1862,10 @@ export default {
 {
     transform: translateX(10px);
     opacity: 0;
+}
+.tip-title{
+  margin-left: 3px;
+  font-size: 9px;
+  color: darkgray;
 }
 </style>
