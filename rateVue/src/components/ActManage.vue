@@ -491,13 +491,15 @@
         <el-button @click="closeDialogOfAddPermission">取消</el-button>
       </span>
         </el-dialog>
-        <el-dialog title="成绩评定表导出设置" :visible.sync="exportGradeFormVisible" width="70%">
+        <el-dialog  title="成绩评定表导出设置" :visible.sync="exportGradeFormVisible" width="70%" >
             <el-form
                     label-position="left"
                     label-width="120px"
                     :model="gradeForm"
+                    element-loading-body="element-loading-body"
+                    v-loading="exportGradeFormLoading" element-loading-text="导出中..."
             >
-                <el-divider>评语设置
+                <el-divider >评语设置
                     <el-button type="danger"
                                @click="gradeForm.instructorCommentActID='';gradeForm.reviewCommentActID='';gradeForm.defenseCommentActID='';disableComment()"
                                size="mini" style="margin: 5px;padding: 5px">清空</el-button>
@@ -776,6 +778,7 @@ export default {
             keyword: "",
             size: 10,
             positions: [],
+            exportGradeFormLoading: false,
             emp: {
                 id: null,
                 institutionID: null,
@@ -814,6 +817,18 @@ export default {
                 comment: [{required: true, message: "请输入备注", trigger: "blur"}],
             },
         };
+    },
+    watch: {
+        loading (v) {
+            if (v) {
+                let dialogPanel = this.$refs.dialog.$refs.dialog // dialog面板的dom节点
+                this.loadingInstance = this.$loading({
+                    target: dialogPanel
+                })
+            } else if (this.loadingInstance) {
+                this.loadingInstance.close()
+            }
+        },
     },
     computed: {
         index() {
@@ -1066,6 +1081,7 @@ export default {
             return res
         },
         goExportGradeForm(row){
+            this.exportGradeFormLoading = true
             var gradeFormConverted = this.saveGradeForm(false)
             if (gradeFormConverted === null)
                 return
@@ -1077,7 +1093,6 @@ export default {
             axios({url:"/system/Experts/exportGradeForm",method:'post',data:gradeFormConverted,
                 headers: {'Content-Type': 'application/json'},
                 responseType: 'blob'}).then(res=>{
-
                 if (new Blob([res]) !== null)
                     this.$message({type: 'success', message: '导出成绩评定表成功!'});
                 else
@@ -1088,6 +1103,7 @@ export default {
                 link.setAttribute('download', (this.gradeForm.groupName !== null ? this.gradeForm.groupName : this.gradeForm.actName) + '成绩评定表.zip');
                 document.body.appendChild(link);
                 link.click();
+                this.exportGradeFormLoading = false
                 this.exportGradeFormVisible = false
             })
         },
@@ -1776,8 +1792,8 @@ export default {
                         this.$message({type: 'error', message: '保存成绩评定表失败!'});
                 })
             }
-
-            this.exportGradeFormVisible = false;
+            if (display)
+                this.exportGradeFormVisible = false;
             return gradeFormConverted
         },
         emptyScoreItem(mode){
