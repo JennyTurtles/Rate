@@ -532,12 +532,22 @@ export default {
       this.dynamicItem[index].times=event;
     },
     newSecond(){
-      this.dynamicItem.push({
-        activity:'',
-        info: [],
-        source: '',
-        times: '',
-      })
+      if(this.subActivities.length>1){
+        this.dynamicItem.push({
+          activity:'',
+          info: [],
+          source: '',
+          times: '',
+        })
+      }
+      else {
+        this.dynamicItem.push({
+          activity:this.keywords,
+          info: this.findInfos(this.keywords),
+          source: '',
+          times: '',
+        })
+      }
     },
     deleteSecond (item, index) {
       this.dynamicItem.splice(index, 1);
@@ -570,19 +580,19 @@ export default {
       this.title = "设置数据来源";
       this.item = row;
       if (row.source!==null){
-        if (row.source.includes("*")){
+        if (row.source.includes("*")){ //来源于公式计算
           this.radio=2;
           var s=row.source;
-          var items=s.split("+");
+          var items=s.split("+"); //根据“+”分割，获得每一项的系数*项名
           for (let i=0;i<items.length;i++){
-            var all=items[i].split("*");
-            if (i===0){
+            var all=items[i].split("*"); //分割每一项的系数与项名
+            if (i===0){ //添加到默认有的第一项中
               this.dynamicItem[0].activity=this.findActivityID(all[1],'second')*1;
               this.dynamicItem[0].info=this.findInfos(this.findActivityID(all[1],'second')*1);
               this.dynamicItem[0].times=all[0];
               this.dynamicItem[0].source=this.findSource(all[1]);
             }
-            else{
+            else{ //插入数组中
               this.dynamicItem.push({
                 activity: this.findActivityID(all[1],'second')*1,
                 info: this.findInfos(this.findActivityID(all[1],'second')*1),
@@ -592,7 +602,7 @@ export default {
             }
           }
         }
-        else{
+        else{ //来源于已有数据选择
           this.radio=1;
           this.currentfirst=row.source;
           this.currentActivity=this.findActivityID(this.currentfirst,'first')*1;
@@ -645,7 +655,7 @@ export default {
         }
       }
       else if (this.radio===2){
-        var flag=true;
+        var flag=true; //判断输入是否合法
         for (let i=0;i<this.dynamicItem.length;i++){
           if (this.dynamicItem[i].source===''||this.dynamicItem[i].times===''){
             Message.warning('输入内容不能为空!')
@@ -654,21 +664,19 @@ export default {
           }
         }
         if (flag) {
-          if (this.dynamicItem.length>0){
-            for(let i=0; i<this.dynamicItem.length; i++){
-              if (this.dynamicItem[i].source.includes("*")){
-                var name="displayitem."+this.findSourceID(this.dynamicItem[i].activity*1,this.dynamicItem[i].source);
-                if (this.item.source===null)
-                  this.item.source=this.dynamicItem[i].times+"*"+name;
-                else
-                  this.item.source+="+"+this.dynamicItem[i].times+"*"+name;
-              }
-              else{
-                if (this.item.source===null)
-                  this.item.source=this.dynamicItem[i].times+"*"+this.dynamicItem[i].source;
-                else
-                  this.item.source+="+"+this.dynamicItem[i].times+"*"+this.dynamicItem[i].source;
-              }
+          for(let i=0; i<this.dynamicItem.length; i++){
+            if (this.dynamicItem[i].source.includes("*")){
+              var name="displayitem."+this.findSourceID(this.dynamicItem[i].activity*1,this.dynamicItem[i].source);
+              if (this.item.source===null)
+                this.item.source=this.dynamicItem[i].times+"*"+name;
+              else
+                this.item.source+="+"+this.dynamicItem[i].times+"*"+name;
+            }
+            else{
+              if (this.item.source===null)
+                this.item.source=this.dynamicItem[i].times+"*"+this.dynamicItem[i].source;
+              else
+                this.item.source+="+"+this.dynamicItem[i].times+"*"+this.dynamicItem[i].source;
             }
           }
           this.item.name="请输入显示名称";
