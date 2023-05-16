@@ -1729,12 +1729,14 @@ export default {
                 {
                     flag = 1
                     this.$message({type: 'warning', message: '评分项不能为空'});
+                    this.exportGradeFormLoading = false;
                     return
                 }
                 if (value.id !== null){
                     if (regNumber.test(value.coef) === false){
                         flag = 1
                         this.$message({type: 'warning', message: '系数不合法'});
+                        this.exportGradeFormLoading = false;
                     }
                     form.instructorScoreItems[value.id]=value.coef
                     form.instructorScoreName2ID[key] = value.id
@@ -1747,11 +1749,13 @@ export default {
                 {
                     flag = 1
                     this.$message({type: 'warning', message: '评分项不能为空'});
+                    this.exportGradeFormLoading = false;
                     return
                 }
                 if (value.id !== null){
                     if (regNumber.test(value.coef) === false){
                         this.$message({type: 'warning', message: '系数不合法'});
+                        this.exportGradeFormLoading = false;
                         flag = 1
                     }
                     form.reviewScoreItems[value.id]=value.coef
@@ -1765,11 +1769,13 @@ export default {
                 {
                     flag = 1
                     this.$message({type: 'warning', message: '评分项不能为空'});
+                    this.exportGradeFormLoading = false;
                     return
                 }
                 if (value.id !== null){
                     if (regNumber.test(value.coef) === false){
                         this.$message({type: 'warning', message: '系数不合法'});
+                        this.exportGradeFormLoading = false;
                         flag = 1
                     }
                     form.defenseScoreItems[value.id]=value.coef
