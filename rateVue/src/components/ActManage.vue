@@ -1415,16 +1415,20 @@ export default {
                     },
                 });
             }else if (this.mode === "secretarySub") {
+                var id = data.id
+                if (id === null)
+                    id = this.$route.query.id
                 _this.$router.push({
                     path: "/ActivitM/table",
                     query: {
-                        keywords: data.id,
+                        keywords: id,
                         keyword_name: data.name,
                         groupID: this.groupID, // 用于读取主活动的组内的选手
                         groupName: this.groupName,
                         mode: this.mode,
                         backID: this.activityID,
                         backActName: this.actName,
+                        isGroup:this.$route.query.isGroup,
                     },
                 });
             }
@@ -1564,13 +1568,17 @@ export default {
             var url = ""
             var query = ""
             if (this.isGroup){
+                var id = this.$route.query.keywords
+                if (typeof id === "undefined")
+                    id = this.$route.query.id
                 _this.$router.push({
                     path: "/ActivitM/table",
                     query:{
-                        keywords:this.$route.query.keywords,
-                        keywords_name:this.actName,
+                        keywords:id,
+                        keyword_name:this.$route.query.actName,
                         mode:"admin",
                         haveSub:this.$route.query.haveSub,
+                        actName:this.$route.query.actName,
                     }
                 });
             }

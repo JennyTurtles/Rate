@@ -504,6 +504,7 @@ export default {
             actName: this.$route.query.backActName,
             groupName: this.$route.query.groupName,
             groupID: this.$route.query.groupID,
+            isGroup:this.$route.query.isGroup,
           }
         });
       }
@@ -565,7 +566,7 @@ export default {
     },
       assignPE(data) {
           const _this = this;
-        console.log(this.mode)
+        // console.log(this.mode)
           if (this.mode === 'secretary' || this.mode === 'secretarySub'){
             _this.$router.push({
               path: "/Expert/EassignPE",
@@ -578,7 +579,7 @@ export default {
               }
             })
           }else if (this.mode === 'admin'){
-            console.log(data)
+            // console.log(data)
             _this.$router.push({
               path: "/Admin/AssignPE",
               query: {
@@ -593,7 +594,8 @@ export default {
     showSubActivity(data) {
       const _this = this;
         _this.$router.push({
-          query :{id:data.activityID,keywords:this.keywords,actName:this.keywords_name,groupName:data.name,groupID:data.id,isGroup:true,haveSub:this.haveSub},
+          query :{id:data.activityID,keywords:this.keywords,actName:this.keywords_name,groupName:data.name,
+            groupID:data.id,isGroup:true,haveSub:this.haveSub},
           path: "/secretary/SubActManage",});
     },
     showParticipantsM(data) {

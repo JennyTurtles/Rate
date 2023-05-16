@@ -691,8 +691,8 @@ export default {
       var url = '/info/basic/getPartipicantIDByInfos'
       this.postRequest(url,data).then((res)=>{
         if(res){
-          console.log('没有分组的选手:')
-          console.log(res.obj)
+          // console.log('没有分组的选手:')
+          // console.log(res.obj)
           this.filterNoGroupPar = res.obj//存放没有分好组的选手，但是不显示在页面上
           if(this.filterNoGroupPar.length == 0){
             this.$message.warning('该信息项下已分组!')
@@ -714,7 +714,7 @@ export default {
       this.getRequest(url).then((resp)=>{
         if(resp.code == 200){
           //存放infoItem
-          console.log(resp)
+          // console.log(resp)
           var infoItems = resp.extend.infoItems
           if(infoItems.length === 0){
             this.$message.warning('该活动下没有未分组的选手！')
@@ -874,7 +874,7 @@ export default {
             }
           })
           .catch((err) => {
-            console.log(err);
+            // console.log(err);
           });
 
     },
@@ -891,8 +891,8 @@ export default {
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
-            console.log("resp")
-            console.log(resp)
+            // console.log("resp")
+            // console.log(resp)
           this.scoreitem_from_back=resp.extend.ScoreItem;
           this.infoitem_from_back=resp.extend.InfoItem;
         }
@@ -963,7 +963,7 @@ export default {
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
-          console.log("aha",resp);
+          // console.log("aha",resp);
           this.emps = resp.data;
           this.total = resp.total;
           //console.log("total",this.total);

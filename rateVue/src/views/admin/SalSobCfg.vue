@@ -504,7 +504,7 @@ export default {
     this.ACNAME = this.$route.query.keywords_name;
     this.mode = this.$route.query.mode;
     this.haveSub = this.$route.query.haveSub;
-    console.log(this.haveSub);
+    // console.log(this.haveSub);
     this.flag = this.$route.query.flag == 1 ? 1 : 0;
     this.initHrs();
   },
@@ -580,7 +580,7 @@ export default {
                   if (resp) {
                       this.hrs = resp.obj;
                       this.total = this.hrs;
-                      console.log(this.hrs)
+                      // console.log(this.hrs)
                   }
               });
           }
@@ -589,7 +589,7 @@ export default {
     },
     jumperInToS(data){
       const _this = this;
-      console.log(this.user)
+      // console.log(this.user)
       _this.$router.push({
         path: "/ActivitM/situation",
         query: {
@@ -679,7 +679,7 @@ export default {
     back() {
       const _this = this;
       if (this.mode === "admin"){
-          console.log(this.activityID)
+          // console.log(this.activityID)
           if (typeof this.activityID !== "undefined") { // 从主活动进入
               _this.$router.push({
                   path: "/ActivitM/search",
@@ -841,7 +841,7 @@ export default {
       this.importDataDisabled = false;
     },
     onSuccess(res) {
-      console.log("res", res);
+      // console.log("res", res);
       if (typeof res.obj !== 'undefined'){
         Message.warning(res.obj)
         return

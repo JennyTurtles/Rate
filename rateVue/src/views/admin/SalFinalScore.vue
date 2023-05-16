@@ -214,8 +214,8 @@ export default {
         if (resp) {
           this.displayPars = resp.obj[0];
           this.displayItem = resp.obj[1];
-          console.log(this.displayPars) // 行信息
-          console.log(this.displayItem) // 列信息
+          // console.log(this.displayPars) // 行信息
+          // console.log(this.displayItem) // 列信息
           this.initFitler()
         }
       });
@@ -326,7 +326,7 @@ export default {
     exportExcel () {
       let xlsxParam = { raw: true }
       var wb = XLSX.utils.table_to_book(document.querySelector('#outTable'),xlsxParam)
-      console.log(wb)
+      // console.log(wb)
       var wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
       try {
         FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), '选手积分表.xlsx')

@@ -322,7 +322,7 @@ export default {
           this.keywords
       ).then((resp) => {
         if (resp) {
-          console.log(resp);
+          // console.log(resp);
           this.loading = false;
           this.subActivities = resp.obj[0];
           this.first=resp.obj[1].dmap;
@@ -397,7 +397,7 @@ export default {
       }
     },
     UpdateOrNew(displayItem) {
-      console.log(displayItem);
+      // console.log(displayItem);
       const _this = this;
       _this
           .postRequest("/displayItem/save",displayItem)
