@@ -124,27 +124,29 @@ export default {
   methods: {
     tableDataHandle(){
       var temp = JSON.parse(sessionStorage.getItem("peract")).activitiesList
-      temp.map(item => {
+      temp.map(item => { //判断是否有父活动 显示名字
         if(item.activityLists[0].parentName != '' && item.activityLists[0].parentName != null){
           item.activityLists[0].name = item.activityLists[0].name + '(' + item.activityLists[0].parentName + ')'
         }
       })
+      //根据时间做筛选 isShow控制是否显示在专家活动列表中 isenter控制是否可进入（按钮可点）
       for(var i = 0;i < temp.length; i++){
         var time = new Date(temp[i].activityLists[0].startDate)
-        let time1 = time.getTime()
+        let time1 = time.getTime() //开始时间
         let time2 = this.nowTime.getTime()//当前时间
         let visibleTime = new Date(temp[i].activityLists[0].visibleDate).getTime()//可见时间
         let enterTime = new Date(temp[i].activityLists[0].enterDate).getTime()//可进入时间
-
+        temp[i].isShow = true//控制进入按钮是否显示
         if((time1 - time2) / (1000) < 0){//已经开始了
           temp[i].remainder = ''
+          temp[i].isEnter = true
           continue;
         }
-        temp[i].isShow = true//控制进入按钮是否显示
         if(visibleTime == '' || visibleTime == null){//任何时候都可见
           temp[i].isShow = true
         }else if(visibleTime - time2 > 0){//可见时间大于当前时间，说明不可见
           temp[i].isShow = false
+          temp[i].isEnter = false
           continue;
         }
         temp[i].isEnter = false//可见不可进
