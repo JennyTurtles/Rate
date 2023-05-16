@@ -22,14 +22,14 @@ import java.util.concurrent.CompletableFuture;
  * @package: org.sys.rate.service.mail
  * @className: SendMail
  * @author: ZYK
- * @description: TODO
+ * @description: 完成发送邮件的单功能模块
  * @date: 2023/4/30 22:45
  * @version: 1.0
  */
 @Service
 public class SendMails {
     @Resource
-    MailService propertiesService;
+    MailService mailService;
 
     private static final Logger logger = LoggerFactory.getLogger(SendMails.class);
 
@@ -38,9 +38,9 @@ public class SendMails {
     private String sendHost = null;
 
     private void handleNullPointerException() {
-        this.from = propertiesService.getEmailAddress();
-        this.password = propertiesService.getIMAPVerifyCode();
-        this.sendHost = propertiesService.getSMTPHost();
+        this.from = mailService.getEmailAddress();
+        this.password = mailService.getIMAPVerifyCode();
+        this.sendHost = mailService.getSMTPHost();
 
         if (this.from == null) {
             throw new NullPointerException("from is null");

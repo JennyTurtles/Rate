@@ -132,12 +132,15 @@ public class ExportWord {
     }
 
     private int chooseProperFontSize(String comment, boolean isLeaderComment) {
+        if(comment.length()>11*maxWordsCountPerRow[maxWordsCountPerRow.length-1]){
+            return 6;
+        }
         for (int i = 0; i < maxWordsCountPerRow.length; ++i) {
             if (isProperFontSize(comment, maxWordsCountPerRow[i], isLeaderComment)) {
                 return 12 - i;
             }
         }
-        return 7;
+        return 6;
     }
 
 

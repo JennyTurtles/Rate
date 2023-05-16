@@ -27,7 +27,7 @@ public class MailToStuService {
 
     private String from = null;
 
-    public <T extends Productions> void sendStuMail(String state, T production) {
+    public <T extends Productions> void sendStuMail(String state, T production, String type) {
         if (state.equals("commit")) {
             return;
         }
@@ -44,19 +44,19 @@ public class MailToStuService {
 
         switch (state) {
             case "tea_pass":
-                subject = "恭喜你，你的论文已经被导师通过！";
+                subject = "恭喜你，你的"+type+"已经被导师通过！";
                 contentBuilder.append("已经被").append(teacher.getName()).append("老师通过！</b><br>");
                 break;
             case "tea_reject":
-                subject = "你的论文已经被导师驳回！";
+                subject = "你的"+type+"已经被导师驳回！";
                 contentBuilder.append("已经被").append(teacher.getName()).append("老师驳回！</b><br>");
                 break;
             case "adm_pass":
-                subject = "恭喜你，你的论文已经被管理员通过！";
+                subject = "恭喜你，你的"+type+"已经被管理员通过！";
                 contentBuilder.append("已经被管理员通过！</b><br>");
                 break;
             case "adm_reject":
-                subject = "你的论文已经被管理员驳回！";
+                subject = "你的"+type+"已经被管理员驳回！";
                 contentBuilder.append("已经被管理员驳回！</b><br>");
                 break;
             default:
