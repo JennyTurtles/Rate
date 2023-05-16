@@ -664,6 +664,7 @@ export default {
           }
         }
         if (flag) {
+          this.item.source=null;
           for(let i=0; i<this.dynamicItem.length; i++){
             if (this.dynamicItem[i].source.includes("*")){
               var name="displayitem."+this.findSourceID(this.dynamicItem[i].activity*1,this.dynamicItem[i].source);
