@@ -172,8 +172,14 @@ public class ExportWord {
             commentModel.put("reviewerDay", sdfDay.format(reviewDate));
         }
         List<Comment> leaders = comments.get(GradeForm.Type.DEFENSE.ordinal());
+        int leaderIndex = 0;
+        for(int i=0;i<leaders.size();++i){
+            if(leaders.get(i).getRole().equals("组长")){
+                leaderIndex=i;
+            }
+        }
         if (leaders.size() > 0) {
-            commentModel.put("leaderComment", formatComment(leaders.get(0).getContent()));
+            commentModel.put("leaderComment", formatComment(leaders.get(leaderIndex).getContent()));
             commentFontSize[2] = chooseProperFontSize(leaders.get(0).getContent(), false);
             Date leaderDate = leaders.get(0).getDate();
             commentModel.put("leaderYear", sdfYear.format(leaderDate));
@@ -306,6 +312,7 @@ public class ExportWord {
 
         for (GradeForm gradeForm : gradeForms) {
             Map<String, Object> params = new HashMap<>();
+            // 对gradeForm进行排序，将role="组长"
             params.putAll(createGeneralModel(gradeForm));
             params.putAll(createCommentModel(gradeForm.getComments()));
             params.putAll(createScoreModel(gradeForm.getScoreItems()));
