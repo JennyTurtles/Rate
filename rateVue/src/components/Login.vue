@@ -1,7 +1,6 @@
 <template>
   <div>
-    <el-form @submit.native.prevent
-             :rules="rules"
+    <el-form :rules="rules"
              ref="loginForm"
              v-loading="loading"
              element-loading-text="正在登录..."
@@ -24,31 +23,16 @@
                   auto-complete="off"
                   placeholder="请输入密码"></el-input>
       </el-form-item>
-      <div class="setPassword" v-show="loginForm.role !== 'admin'">
-        <span @click="forgetPassword">忘记密码?</span>
-      </div>
-      <div class="footer">
-        <div>
-          <el-button size="normal"
-                     type="primary"
-                     style="width: 100%;"
-                     native-type="submit"
-                     @click="submitLogin">登录</el-button>
-        </div>
-        <div style="margin-top: 15px" v-show="loginForm.role !== 'admin'">
-          <el-button size="normal"
-                     type="primary"
-                     style="width: 100%;"
-                     native-type="submit"
-                     @click="submitRegist">注册</el-button>
-        </div>
-      </div>
+      <el-button size="normal"
+                 type="primary"
+                 style="width: 100%;"
+                 @click="submitLogin">登录</el-button>
     </el-form>
   </div>
 </template>
 
 <script>
-import store from '../store'
+import store from '../store/index.js'
 import router from '../router.js'
 import sha1 from "sha1";
 import { initMenu } from "../utils/menus.js";
@@ -72,36 +56,17 @@ export default {
     }
   },
   mounted () {
+    // // 向后端获取公钥
+    // this.getRequest('/getPublicKey').then(resp => {
+    //   this.publicKey = resp.obj
+    // })
     this.loginForm = this.inf
   },
   methods: {
-    forgetPassword(){//忘记密码选项
-      this.$router.push({
-        path:'/ResetPassword',
-        query:{
-          key:this.loginForm.role//把角色传递过去
-        }
-      })
-    },
-    //只有学生和teacher才有注册功能 专家不注册
-    submitRegist(){
-      //因为老师注册和学生注册有些地方不一样所以先弄成两个组件
-      if(this.loginForm.role == 'student'){
-        this.$router.replace({
-          path:'/Student/Register'
-        })
-      }else if(this.loginForm.role == 'teacher'){
-        this.$router.replace({
-          path:'/Teacher/Register'
-        })
-      }
-    },
     submitLogin () {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {//判断是否符合prop要求
           this.loading = true;
-          sessionStorage.clear();
-          localStorage.clear()
           // 发送加密后的密码
           var that = this
           var loginFormPost = {username: this.loginForm.username, password: sha1(this.loginForm.password),role: this.loginForm.role}
@@ -124,11 +89,6 @@ export default {
         }
       });
     },
-
-    destroyed() {
-      window.onkeydown = undefined;
-    },
-
     // // // 放入公钥，构建加密器
     // encrypt(obj){
     //   let encrypt = new JsEncrypt()
@@ -140,21 +100,6 @@ export default {
 </script>
 
 <style>
-.footer{
-  margin-top: 8px;
-  text-align: center;
-}
-.setPassword span:hover{
-  color: #4b8ffe;
-}
-.setPassword{
-  cursor: pointer;
-  margin-top: -10px;
-  margin-bottom: 5px;
-  font-size: 12px;
-  color: gray;
-  text-decoration: none;
-}
 .loginContainer {
   border-radius: 15px;
   background-clip: padding-box;

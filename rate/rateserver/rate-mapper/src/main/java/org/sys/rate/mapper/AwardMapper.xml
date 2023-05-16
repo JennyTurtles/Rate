@@ -3,7 +3,7 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.sys.rate.mapper.AwardMapper">
-    
+
     <resultMap type="org.sys.rate.model.Award" id="AwardResult">
         <result property="ID"    column="ID"    />
         <result property="name"    column="name"    />
@@ -13,11 +13,41 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="unit"    column="unit"    />
         <result property="total"    column="total"    />
         <result property="rank"    column="rank"    />
-        <result property="awardID"    column="awardID"    />
+        <result property="awardTypeID"    column="awardTypeID"    />
+        <result property="state"    column="state"    />
+        <result property="url"    column="url"    />
+        <result property="studentID"    column="studentID"    />
+        <association property="student" javaType="org.sys.rate.model.Student">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="name" column="sname"/>
+        </association>
+        <association property="awardtype" javaType="org.sys.rate.model.Awardtype">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="name" column="pname"/>
+        </association>
+        <collection property="awardOperList" ofType="org.sys.rate.model.AwardOper" column="pID">
+            <result property="remark" column="remark"/>
+            <result property="operatorRole" column="operatorRole"/>
+            <result property="operation" column="operation"/>
+            <result property="time" column="time"/>
+        </collection>
     </resultMap>
 
     <sql id="selectAwardVo">
-        select ID, name, awardname, year, member, unit, total, `rank`, awardID from award
+        SELECT
+            a.*,
+            b.`name` AS sname,
+            c.`name` AS pname,
+            d.remark,
+            d.operatorRole,
+            d.operation,
+            d.time,
+            d.ID as pID
+        FROM
+            award a
+        LEFT JOIN student b ON a.studentID = b.ID
+        LEFT JOIN awardtype c ON a.awardTypeID = c.ID
+        LEFT JOIN award_oper d ON a.ID = d.awardID
     </sql>
 
     <select id="selectList" resultMap="AwardResult">
@@ -27,23 +57,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectAwardList" parameterType="org.sys.rate.model.Award" resultMap="AwardResult">
         <include refid="selectAwardVo"/>
         <where>
-            <if test="ID !=null and ID !=''">and ID =#{ID}</if>
-            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
-            <if test="awardname != null  and awardname != ''"> and awardname like concat('%', #{awardname}, '%')</if>
-            <if test="year != null "> and year = #{year}</if>
-            <if test="member != null  and member != ''"> and member = #{member}</if>
-            <if test="unit != null  and unit != ''"> and unit = #{unit}</if>
-            <if test="total != null "> and total = #{total}</if>
-            <if test="rank != null "> and rank = #{rank}</if>
-            <if test="awardID != null "> and awardID = #{awardID}</if>
+            <if test="ID !=null and ID !=''">and a.ID =#{ID}</if>
+            <if test="stuName !=null and stuName !=''">and b.name like concat('%',#{stuName},'%')</if>
+            <if test="zcName !=null and zcName !=''">and a.name like concat('%',#{zcName},'%')</if>
+            <if test="sScore !=null and sScore !='全部' and sScore !=''">and a.point >= #{sScore}</if>
+            <if test="eScore !=null and eScore !='全部' and eScore !=''">and a.point &lt;= #{eScore}</if>
+            <if test="sState !=null and sState !=''">and a.state = #{sState}</if>
         </where>
     </select>
-    
+
     <select id="selectAwardById" parameterType="Long" resultMap="AwardResult">
         <include refid="selectAwardVo"/>
-        where ID = #{ID}
+        where a.ID = #{ID}
     </select>
-        
+
     <insert id="insertAward" parameterType="org.sys.rate.model.Award">
         insert into award
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -69,6 +96,45 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="awardID != null">#{awardID},</if>
          </trim>
     </insert>
+    <insert id="insertPaperoper" parameterType="org.sys.rate.model.AwardOper">
+        insert into award_oper (ID, operatorRole,operatorID, operatorName,
+        awardID, awardName,operation,state,remark)
+        values (#{ID},
+        #{operatorRole},
+        #{operatorID,jdbcType=INTEGER}, #{operatorName,jdbcType=VARCHAR},
+        #{awardID,jdbcType=INTEGER}, #{awardName,jdbcType=VARCHAR},
+        #{operation,jdbcType=VARCHAR},
+        #{state},#{remark})
+        <!--        insert into paper_oper-->
+        <!--        <trim prefix="(" suffix=")" suffixOverrides=",">-->
+        <!--            <if test="ID != null">ID,</if>-->
+        <!--            <if test="operatorRole != null">operatorRole,</if>-->
+        <!--            <if test="operatorID != null ">operatorID,</if>-->
+        <!--            <if test="operatorName != null">operatorName,</if>-->
+        <!--            <if test="paperID != null">paperID,</if>-->
+        <!--            <if test="paperName != null">paperName,</if>-->
+        <!--            <if test="pubID != null">pubID,</if>-->
+        <!--            <if test="pubName != null">pubName,</if>-->
+        <!--            <if test="time != null">time,</if>-->
+        <!--            <if test="operation != null">operation,</if>-->
+        <!--            <if test="state != null">state,</if>-->
+        <!--            <if test="remark != null">remark,</if>-->
+        <!--         </trim>-->
+        <!--        <trim prefix="values (" suffix=")" suffixOverrides=",">-->
+        <!--            <if test="ID != null">#{ID},</if>-->
+        <!--            <if test="operatorRole != null">#{studentID},</if>-->
+        <!--            <if test="operatorID != null and name != ''">#{name},</if>-->
+        <!--            <if test="operatorName != null">#{operatorName},</if>-->
+        <!--            <if test="paperID != null">#{paperID},</if>-->
+        <!--            <if test="paperName != null">#{paperName},</if>-->
+        <!--            <if test="pubID != null">#{pubID},</if>-->
+        <!--            <if test="pubName != null">#{pubName},</if>-->
+        <!--            <if test="time != null">#{time},</if>-->
+        <!--            <if test="operation != null">#{operation},</if>-->
+        <!--            <if test="state != null">#{state},</if>-->
+        <!--            <if test="remark != null">#{remark},</if>-->
+        <!--         </trim>-->
+    </insert>
 
     <update id="updateAward" parameterType="org.sys.rate.model.Award">
         update award
@@ -84,13 +150,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </trim>
         where ID = #{ID}
     </update>
+    <update id="editState">
+        update award
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null">state=#{state},</if>
+        </trim>
+        where ID = #{ID}
+    </update>
 
     <delete id="deleteAwardById" parameterType="Long">
         delete from award where ID = #{ID}
     </delete>
 
     <delete id="deleteAwardByIds" parameterType="String">
-        delete from award where ID in 
+        delete from award where ID in
         <foreach item="ID" collection="array" open="(" separator="," close=")">
             #{ID}
         </foreach>

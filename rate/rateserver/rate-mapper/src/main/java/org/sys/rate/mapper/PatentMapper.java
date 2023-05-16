@@ -2,20 +2,22 @@ package org.sys.rate.mapper;
 
 import java.util.List;
 
-import org.sys.rate.model.Award;
-import org.sys.rate.model.Patent;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+import org.sys.rate.model.*;
 
 /**
  * 著作Mapper接口
- * 
+ *
  * @author system
  * @date 2022-03-13
  */
-public interface PatentMapper 
+public interface PatentMapper
 {
     /**
      * 查询著作
-     * 
+     *
      * @param ID 著作ID
      * @return 著作
      */
@@ -23,7 +25,7 @@ public interface PatentMapper
 
     /**
      * 查询著作列表
-     * 
+     *
      * @param patent 著作
      * @return 著作集合
      */
@@ -31,7 +33,7 @@ public interface PatentMapper
 
     /**
      * 新增著作
-     * 
+     *
      * @param patent 著作
      * @return 结果
      */
@@ -39,7 +41,7 @@ public interface PatentMapper
 
     /**
      * 修改著作
-     * 
+     *
      * @param patent 著作
      * @return 结果
      */
@@ -47,7 +49,7 @@ public interface PatentMapper
 
     /**
      * 删除著作
-     * 
+     *
      * @param ID 著作ID
      * @return 结果
      */
@@ -55,11 +57,29 @@ public interface PatentMapper
 
     /**
      * 批量删除著作
-     * 
+     *
      * @param IDs 需要删除的数据ID
      * @return 结果
      */
     public int deletePatentByIds(String[] IDs);
 
-    public List<Patent> selectList();
+    public List<Patent> selectList(Integer id);
+
+    @Select("SELECT * FROM patent WHERE  ID = #{ID}")
+    public Paper selectByID(Long ID);
+
+    @Select("SELECT ID FROM patent WHERE studentID = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
+    public Integer checkScore(Long stuID);
+
+    @Update("UPDATE patent SET state = #{state},have_score = #{valid} WHERE ID = #{ID}")
+    public Integer editState2(String state, Long ID, Integer valid);
+
+    @Update("UPDATE student SET score = score + #{score} WHERE ID = #{stuID}")
+    public int updateScore(Long stuID,Long score);
+
+    int editState(@Param("state") String state, @Param("ID") Long id);
+
+    int insertPaper(Paper paper);
+
+    int insertPaperoper(PatentOper paperoper);
 }

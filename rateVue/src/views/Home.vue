@@ -5,25 +5,12 @@
         <div class="title">教学辅助系统</div>
         <div>
           <el-dropdown class="userInfo" @command="commandHandler">
-            <span class="el-dropdown-link">
-              您好，{{ user.name
-              }}<a
-                v-show="
-                  (user.role.indexOf('3') !== -1 && user.role.indexOf('13') == -1) ||
-                  (user.role.indexOf('4') !== -1 && user.role.indexOf('14') == -1) ||
-                  user.role.indexOf('8') !== -1 ||
-                  user.role.indexOf('9') !== -1
-                "
-                >老师</a
-              >
-            </span>
+            <span class="el-dropdown-link"> 你好，{{ user.name }}<i></i> </span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="changePassword"
-                >修改密码</el-dropdown-item
-              >
-              <el-dropdown-item command="userInfo">个人中心</el-dropdown-item>
+              <el-dropdown-item command="userinfo">个人中心</el-dropdown-item>
+              <!--                            <el-dropdown-item command="setting">设置</el-dropdown-item>-->
               <el-dropdown-item command="logout" divided
-                >注销登录</el-dropdown-item
+              >注销登录</el-dropdown-item
               >
             </el-dropdown-menu>
           </el-dropdown>
@@ -33,84 +20,44 @@
         <el-aside width="15%" class="aside">
           <el-menu router unique-opened class="menu" @open="handleOpen">
             <!-- <template> -->
-            <template
-              v-for="(item, index) in routes"
-              v-if="item.enabled && item.name != '隐藏显示'"
-            >
-              <el-menu-item
-                :index="item.path"
-                v-if="!item.children && item.enabled"
-                :key="index"
-                @click="handleOpen"
-              >
-                {{ item.name }}
+            <template v-for="(item,index) in routes" v-if="item.enabled && item.name != '隐藏显示'">
+              <el-menu-item :index="item.path" v-if="!item.children && item.enabled" :key="index" @click="handleOpen">
+                {{item.name}}
               </el-menu-item>
               <template v-else-if="item.children && item.enabled">
-                <el-submenu :index="index + ''" :key="index" @open="handleOpen">
+                <el-submenu :index="index+''" :key="index" @open="handleOpen">
                   <template slot="title">
                     <i
-                      style="color: #409eff; margin-right: 5px"
-                      :class="item.iconCls"
-                    ></i>
-                    <span>{{ item.name }}</span>
+                        style="color: #409eff; margin-right: 5px"
+                        :class="item.iconCls"></i>
+                    <span >{{ item.name }}</span>
                   </template>
                   <!-- 第二层 -->
-                  <template
-                    v-for="(subItem, indexSub) in item.children"
-                    v-if="subItem.enabled"
-                  >
+                  <template v-for="(subItem,indexSub) in item.children" v-if="subItem.enabled">
                     <!-- 如果第二层有子菜单，则继续循环 -->
-                    <el-menu-item
-                      :index="subItem.path"
-                      v-if="!subItem.children && subItem.enabled"
-                      :key="indexSub"
-                      class="submenu"
-                      @click="handleOpen(subItem)"
-                    >
-                      {{ subItem.name }}
+                    <el-menu-item :index="subItem.path" v-if="!subItem.children && subItem.enabled" :key="indexSub" class="submenu" @click="handleOpen">
+                      {{subItem.name}}
                     </el-menu-item>
                     <template v-else-if="subItem.enabled && subItem.children">
-                      <el-submenu
-                        :index="subItem.name"
-                        :key="indexSub"
-                        class="submenu"
-                        @open="handleOpen"
-                      >
+                      <el-submenu :index="subItem.name" :key="indexSub" class="submenu" @open="handleOpen">
                         <template slot="title">
                           <i
-                            style="color: #409eff; margin-right: 5px"
-                            :class="subItem.iconCls"
-                          ></i>
+                              style="color: #409eff; margin-right: 5px"
+                              :class="subItem.iconCls"></i>
                           <span slot="title">{{ subItem.name }}</span>
                         </template>
-                        <template
-                          v-for="(subItem2, indexsub2) in subItem.children"
-                          v-if="subItem2.enabled"
-                        >
+                        <template v-for="(subItem2,indexsub2) in subItem.children" v-if="subItem2.enabled">
                           <!-- 如果第三层有子菜单，则继续循环 -->
-                          <el-menu-item
-                            :index="subItem2.path"
-                            v-if="!subItem2.children && subItem2.enabled"
-                            :key="indexsub2"
-                            @click="handleOpen"
-                            class="submenu"
-                          >
-                            {{ subItem2.name }}
+                          <el-menu-item :index="subItem2.path" v-if="!subItem2.children && subItem2.enabled" :key="indexsub2" @click="handleOpen"
+                                        class="submenu">
+                            {{subItem2.name}}
                           </el-menu-item>
-                          <template
-                            v-else-if="subItem2.enable && subItem2.children"
-                          >
-                            <el-submenu
-                              :index="subItem2.path"
-                              :key="indexsub2"
-                              class="submenu"
-                              @open="handleOpen"
-                            >
+                          <template v-else-if="subItem2.enable && subItem2.children">
+                            <el-submenu :index="subItem2.path" :key="indexsub2" class="submenu" @open="handleOpen">
                               <template slot="title">
                                 <i
-                                  style="color: #409eff; margin-right: 5px"
-                                  :class="subItem2.iconCls"
-                                ></i>
+                                    style="color: #409eff; margin-right: 5px"
+                                    :class="subItem2.iconCls"></i>
                                 <span slot="title">{{ subItem2.name }}</span>
                               </template>
                             </el-submenu>
@@ -123,12 +70,14 @@
               </template>
             </template>
             <!-- </template> -->
+
           </el-menu>
         </el-aside>
         <el-main>
+
           <div
-            class="homeWelcome"
-            v-if="this.$router.currentRoute.path == '/home'"
+              class="homeWelcome"
+              v-if="this.$router.currentRoute.path == '/home'"
           >
             {{ user.name }}欢迎来到评分管理系统!
           </div>
@@ -136,61 +85,35 @@
         </el-main>
       </el-container>
     </el-container>
-    <!--    一个对话框，让用户输入密码，并确认密码，输入的内容用*表示，"新密码"和"确认密码"靠左对齐-->
-    <el-dialog title="修改密码" :visible.sync="showPassword" width="30%">
-      <el-form :model="password" label-width="80px">
-        <el-form-item label="新密码">
-          <el-input
-            type="password"
-            v-model="password"
-            placeholder="请输入新密码"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="确认密码">
-          <el-input
-            type="password"
-            v-model="password_confirm"
-            placeholder="请再次输入新密码"
-          ></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="showPassword = false">取 消</el-button>
-        <el-button type="primary" @click="submitPassword">确 定</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 
 <script>
-import { Message } from "element-ui";
-import sha1 from "sha1";
+import {Message} from "element-ui";
 
 export default {
   name: "Home",
   data() {
     return {
-      routes: [],
-      role: "",
-      name: "",
+      routes:[],
+      role:'',
+      name:"",
       //获取页面高度
       clientHeight: "",
-      showPassword: false,
-      password: "",
-      password_confirm: "",
     };
   },
   computed: {
     user() {
-      return JSON.parse(localStorage.getItem("user"));
+      return JSON.parse(localStorage.getItem("user"))
     },
   },
   mounted() {
-    this.routes = JSON.parse(sessionStorage.getItem("initRoutes"));
+    this.routes = JSON.parse(sessionStorage.getItem('initRoutes'))
+    console.log(this.routes)
     // 获取浏览器可视区域高度
     this.clientHeight = `${document.documentElement.clientHeight}`;
-    this.role = JSON.parse(localStorage.getItem("user")).role;
-    this.name = JSON.parse(localStorage.getItem("user")).name;
+    this.role = JSON.parse(localStorage.getItem("user")).role
+    this.name = JSON.parse(localStorage.getItem("user")).name
     window.onresize = function temp() {
       this.clientHeight = `${document.documentElement.clientHeight}`;
     };
@@ -202,26 +125,17 @@ export default {
     },
   },
   methods: {
-    handleOpen(subItem) {
-      if (
-        this.role != JSON.parse(localStorage.getItem("user")).role ||
-        this.name != JSON.parse(localStorage.getItem("user")).name
-      ) {
-        var url;
-        Message.warning("无权限！请重新登录");
-        if (this.role == "8" || this.role == "9") url = "/Teacher/Login";
-        else if (this.role == "13" || this.role == "14" || this.role == "15" || this.role == "16") url = "/Admin/Login";
-        else url = "/";
+    handleOpen() {
+      if (this.role != JSON.parse(localStorage.getItem("user")).role || this.name != JSON.parse(localStorage.getItem("user")).name) {
+        var url
+        Message.warning('无权限！请重新登录')
+        if (this.role == '8' || this.role == '9')
+          url = "/Teacher/Login"
+        else if (this.role == '1')
+          url = "/Admin/Login"
+        else
+          url = "/"
         this.$router.replace(url);
-      }
-      if (
-        subItem.name == "活动列表" &&
-        subItem.path == "/teacher/tperact/actList"
-      ) {
-        let routeUrl = this.$router.resolve({
-          path: "/Expert/peract/actList",
-        });
-        window.open(routeUrl.href);
       }
     },
     changeFixed(clientHeight) {
@@ -234,99 +148,32 @@ export default {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning",
-        })
-          .then(() => {
-            let role = JSON.parse(localStorage.getItem("user")).role;
-            var url = "/";
-            if (
-              this.role == "8" ||
-              this.role == "9" ||
-              this.role == "3" ||
-              this.role == "4"
-            )
-              url = "/Teacher/Login";
-            else if (this.role.indexOf("13") >= 0 || this.role.indexOf("14") >= 0 || this.role .indexOf("15") >= 0 || this.role.indexOf("16") >= 0) url = "/Admin/Login";
-            else url = "/";
-            this.getRequest("/system/config/logout").then(() => {
-              if (localStorage.getItem("user")) {
-                localStorage.removeItem("user");
-              }
-              if (sessionStorage.removeItem("score")) {
-                sessionStorage.removeItem("score");
-              }
-              sessionStorage.removeItem("initRoutes");
-              sessionStorage.removeItem("initRoutes_AllSameForm");
-              this.$store.commit("initRoutes", []); //清空路由
-              this.$store.commit("initRoutesAllSameForm", []); //清空路由
+        }).then(() => {
+              var url = '/'
+              // console.log(this.role)
+              // if (this.role == '8' || this.role == '9')
+              //   url = "/Teacher/Login"
+              // else if (this.role == 1)
+              //   url = "/Admin/Login"
+              // else if (this.role == 7)
+              //   url = "/"
+              this.getRequest("/logout");
+              // window.sessionStorage.removeItem("user"); //清楚session
+              localStorage.clear('user')
+              sessionStorage.clear('initRoutes')
+              sessionStorage.clear('initRoutes_AllSameForm')
+          this.$store.commit("initRoutes", []); //清空路由
               this.$router.replace(url);
+            })
+            .catch(() => {
+              this.$message({
+                type: "info",
+                message: "已取消操作",
+              });
             });
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消操作",
-            });
-          });
-      } else if (cmd == "changePassword") {
-        this.showPassword = true;
-      } else if (cmd == "userInfo") {
-        if (this.user.role.indexOf("13") >= 0 || this.user.role.indexOf("14") >= 0 || this.user.role .indexOf("15") >= 0 || this.user.role.indexOf("16") >= 0) {
-          this.$router.push({
-            path: "/admin/PersonalCenter",
-          });
-        } //如果是专家，研究生导师 本科生导师去相同的个人中心界面
-        else if (
-          this.user.role.indexOf("3") >= 0 ||
-          this.user.role.indexOf("8") >= 0 ||
-          this.user.role.indexOf("9") >= 0
-        ) {
-          this.$router.push({
-            path: "/teacher/PersonalCenter",
-          });
-        } else if (
-          this.user.role.indexOf("10") >= 0 ||
-          this.user.role.indexOf("11") >= 0 ||
-          this.user.role.indexOf("7") >= 0
-        ) {
-          this.$router.push({
-            path: "/student/PersonalCenter",
-          });
-        } else if (this.user.role == "6") {
-          this.$router.push({
-            path: "/superAdmin/PersonalCenter",
-          });
-        }
+      } else if (cmd == "userinfo") {
+        this.$router.push("/hrinfo");
       }
-    },
-    submitPassword() {
-      if (this.password == "" || this.password_confirm == "") {
-        this.$message({
-          type: "warning",
-          message: "密码不能为空!",
-        });
-        return;
-      }
-      if (this.password !== this.password_confirm) {
-        this.$message({
-          type: "warning",
-          message: "两次密码不一致!",
-        });
-        return;
-      }
-      this.postRequest(
-        "/system/config/updatePassword?ID=" +
-          this.user.id +
-          "&password=" +
-          sha1(this.password)
-      ).then((res) => {
-        if (res) {
-          this.$message({
-            type: "success",
-            message: "修改成功!",
-          });
-          this.showPassword = false;
-        }
-      });
     },
   },
 };
@@ -365,9 +212,6 @@ export default {
 .homeHeader .userInfo {
   cursor: pointer;
 }
-.el-form-item__label-wrap {
-  margin-left: 0px !important;
-}
 
 .homeContainer .aside {
   background-color: #ecf5ff;
@@ -397,7 +241,7 @@ export default {
   color: #333;
   border-radius: 10px;
   margin-left: 0.25%;
-  /*box-shadow: 15px 0 15px -15px rgb(119, 117, 117)*/
+  box-shadow: 15px 0 15px -15px rgb(119, 117, 117),
   /* 0px 15px 15px -15px rgb(119, 117, 117), */
   /* 0px 15px 15px -15px rgb(119, 117, 117); */
 }
@@ -408,6 +252,6 @@ export default {
   border-radius: 10px;
   margin-right: 0.25%;
   box-shadow: 15px 0 15px -15px rgb(117, 119, 119),
-    -15px 0 15px -15px rgb(119, 117, 117);
+  -15px 0 15px -15px rgb(119, 117, 117);
 }
 </style>

@@ -102,6 +102,9 @@ public class PaperController {
             Paper x = list.get(i);
             Timestamp maxtime;
             List<PaperOper> x_p = x.getPaperoperList();
+            if (x_p == null || x_p.size() == 0){
+                continue;
+            }
             int j;
             Timestamp timeCommit = x_p.get(0).getTime();
             Timestamp timeReject = x_p.get(0).getTime();

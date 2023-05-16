@@ -183,16 +183,16 @@
             >取消选择</el-button
           >
         </div> -->
-<!--        <div style="margin-left: auto">-->
-<!--          <el-pagination-->
-<!--              background-->
-<!--              @current-change="currentChange"-->
-<!--              @size-change="sizeChange"-->
-<!--              layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
-<!--              :total="total"-->
-<!--          >-->
-<!--          </el-pagination>-->
-<!--        </div>-->
+        <div style="margin-left: auto">
+          <el-pagination
+              background
+              @current-change="currentChange"
+              @size-change="sizeChange"
+              layout="sizes, prev, pager, next, jumper, ->, total, slot"
+              :total="total"
+          >
+          </el-pagination>
+        </div>
       </div>
     </div>
   </div>
@@ -200,13 +200,11 @@
 
 <script>
 import {Message} from 'element-ui'
-import da from "element-ui/src/locale/lang/da";
 
 export default {
   name: "SalScore",
   data() {
     return {
-      mode: '',
       //当前焦点数据
       currentfocusdata: "",
       searchValue: {
@@ -239,7 +237,6 @@ export default {
   mounted() {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
-    this.mode = this.$route.query.mode;
     this.initHrs();
     this.initActivity();
     // this.initData();
@@ -285,9 +282,9 @@ export default {
           "/groups/basic/score?keywords=" +
           this.keywords +
           "&page=" +
-          1 +
+          this.page +
           "&size=" +
-          1000
+          this.size
       ).then((resp) => {
         if (resp) {
           this.hrs = resp.data;
@@ -314,29 +311,10 @@ export default {
       this.initHrs("advanced");
     },
     back() {
-      this.$router.go(-1);
-    //   const _this = this;
-    //   if (this.mode === 'admin'){
-    //     _this.$router.push({
-    //       path: "/ActivitM/search",
-    //     });
-    // }else if (this.mode ==='adminSub'){
-    //       _this.$router.push({
-    //           path: '/ActivitM/SubActManage',
-    //           query: {
-    //               id: _this.$route.query.backID,
-    //               mode: _this.mode,
-    //           }
-    //       })
-    //   }else if (this.mode ==='secretary'){
-    //     _this.$router.push({
-    //       path: '/secretary/ActManage',
-    //       query: {
-    //         id: _this.$route.query.backID,
-    //         mode: _this.mode,
-    //       }
-    //     })
-    //   }
+      const _this = this;
+      _this.$router.push({
+        path: "/ActivitM/search",
+      });
     },
     tableRowClassName({row, rowIndex}) {
       // 把每一行的索引放进row
@@ -354,53 +332,29 @@ export default {
       }
     },
     showParticipantsM(data) {
-      console.log(data)
       const _this = this;
       _this.$router.push({
-        path: "/ActivitM/final",
+        path: "/ActivitM/detail",
         query: {
-          keywords: data.activityID,
-          keyword_name: this.keywords_name,
-          groupID: data.groupID,
-          mode:this.mode,
-          groupName: data.groupname,
-          flag:1, // 1表示从"分数统计进入"。同一个界面被多处引用，逻辑不够清晰。以后再优化。
-        },
-      })
-      // _this.$router.push({
-      //   path: "/ActivitM/detail",
-      //   query: {
-      //     keyword_name: data.groupname,
-      //     keywords_name:this.keywords_name,
-      //     groupID: data.groupID,
-      //     activityID: data.activityID
-      //   },
-      // });
-    },
-    showExpertScore(data) {
-      console.log(data)
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/sobcfg",
-        query: {
-          keywords: data.activityID,
           keyword_name: data.groupname,
           keywords_name:this.keywords_name,
           groupID: data.groupID,
-          mode:this.mode,
-          flag:1, // 1表示从"分数统计进入"。同一个界面被多处引用，逻辑不够清晰。以后再优化。
-        }
-      })
-      // _this.$router.push({
-      //   path: "/ActivitM/expertScore",
-      //   query: {
-      //     keywords: data.groupID,
-      //     keyword_name: data.groupname,
-      //     keywords_name:this.keywords_name,
-      //     groupID: data.groupID,
-      //     activityID: data.activityID
-      //   },
-      // });
+          activityID: data.activityID
+        },
+      });
+    },
+    showExpertScore(data) {
+      const _this = this;
+      _this.$router.push({
+        path: "/ActivitM/expertScore",
+        query: {
+          keywords: data.groupID,
+          keyword_name: data.groupname,
+          keywords_name:this.keywords_name,
+          groupID: data.groupID,
+          activityID: data.activityID
+        },
+      });
     },
     reset(){
       this.initHrs();

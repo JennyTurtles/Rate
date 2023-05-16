@@ -163,19 +163,9 @@
                         this.ruleForm.id = this.hr.id;
                         this.putRequest("/admin/pass", this.ruleForm).then(resp => {
                             if (resp) {
-                              this.getRequest('/system/config/logout').then(()=>{
-
-                                if(localStorage.getItem('user')){
-                                  localStorage.removeItem('user')
-                                }
-                                if(sessionStorage.removeItem('score')){
-                                  sessionStorage.removeItem('score')
-                                }
-                                sessionStorage.removeItem('initRoutes')
-                                sessionStorage.removeItem('initRoutes_AllSameForm')
-                                this.$store.commit("initRoutes", []); //清空路由
-                                this.$store.commit("initRoutesAllSameForm", []); //清空路由
-                              })
+                                this.getRequest("/logout");
+                                window.sessionStorage.removeItem("user")
+                                this.$store.commit('initRoutes', []);
                                 this.$router.replace("/");
                             }
                         })

@@ -7,13 +7,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="org.sys.rate.model.Projectstype" id="ProjectstypeResult">
         <result property="ID"    column="ID"    />
         <result property="name"    column="name"    />
-        <result property="indicaterID"    column="indicaterID"    />
-        <result property="type"    column="type"    />
+        <result property="indicatorId"    column="indicaterID"    />
     </resultMap>
 
     <sql id="selectProjectstypeVo">
-        select ID, name, indicaterID, type from projectstype
+        select ID, name, indicatorId from projecttype
     </sql>
+
+    <select id="selectListByTypeName" resultMap="ProjectstypeResult" parameterType="String">
+        select t.ID, t.name, t.indicatorID,ind.score
+        from projecttype t,indicator ind
+        where t.name != '' and t.name like concat('%', #{publicationName}, '%') and t.indicatorID=ind.ID
+    </select>
 
     <select id="selectList" resultMap="ProjectstypeResult">
         <include refid="selectProjectstypeVo"></include>
@@ -35,7 +40,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
         
     <insert id="insertProjectstype" parameterType="org.sys.rate.model.Projectstype">
-        insert into projectstype
+        insert into projecttype
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="ID != null">ID,</if>
             <if test="name != null and name != ''">name,</if>
@@ -51,7 +56,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
 
     <update id="updateProjectstype" parameterType="org.sys.rate.model.Projectstype">
-        update projectstype
+        update projecttype
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="indicaterID != null">indicaterID = #{indicaterID},</if>
@@ -61,11 +66,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteProjectstypeById" parameterType="Long">
-        delete from projectstype where ID = #{ID}
+        delete from projecttype where ID = #{ID}
     </delete>
 
     <delete id="deleteProjectstypeByIds" parameterType="String">
-        delete from projectstype where ID in 
+        delete from projecttype where ID in
         <foreach item="ID" collection="array" open="(" separator="," close=")">
             #{ID}
         </foreach>

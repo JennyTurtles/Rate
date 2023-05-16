@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.sys.rate.mapper.ProjectsMapper">
-    
+
     <resultMap type="org.sys.rate.model.Projects" id="ProjectsResult">
         <result property="ID"    column="ID"    />
         <result property="name"    column="name"    />
+        <result property="studentID"    column="studentID"    />
         <result property="source"    column="source"    />
         <result property="sub"    column="sub"    />
         <result property="head"    column="head"    />
@@ -15,44 +16,106 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="way"    column="way"    />
         <result property="starttime"    column="starttime"    />
         <result property="endtime"    column="endtime"    />
-        <result property="typeId"    column="typeId"    />
+        <result property="projectTypeId" column="projectTypeId"/>
+        <result property="state"    column="state"    />
+        <result property="url"    column="url"    />
+        <association property="student" javaType="org.sys.rate.model.Student">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="sname" column="sname"/>
+        </association>
+        <association property="Type" javaType="org.sys.rate.model.Projectstype">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="name" column="pname"/>
+        </association>
+        <collection property="projectsOperList" ofType="org.sys.rate.model.ProjectsOper" column="pID">
+            <result property="remark" column="remark"/>
+            <result property="operatorRole" column="operatorRole"/>
+            <result property="operation" column="operation"/>
+            <result property="time" column="time"/>
+        </collection>
     </resultMap>
 
     <sql id="selectProjectsVo">
-        select ID, name, source, sub, head, division, year, way, starttime, endtime, typeId from projects
+        select ID, name, studentID, source, sub, head, division, year, way, starttime, endtime, projectTypeId, state, url from project
     </sql>
 
-    <select id="selectList" resultMap="ProjectsResult">
-        <include refid="selectProjectsVo"></include>
-    </select>
 
-    <select id="selectProjectsList" parameterType="org.sys.rate.model.Projects" resultMap="ProjectsResult">
-        <include refid="selectProjectsVo"/>
+    <select id="selectListById" resultMap="ProjectsResult">
+        <include refid="selectProjectsVo"></include>
         <where>
-            <if test="ID !=null and ID !=''">and ID =#{ID}</if>
-            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
-            <if test="source != null  and source != ''"> and source = #{source}</if>
-            <if test="sub != null  and sub != ''"> and sub = #{sub}</if>
-            <if test="head != null  and head != ''"> and head = #{head}</if>
-            <if test="division != null  and division != ''"> and division = #{division}</if>
-            <if test="year != null "> and year = #{year}</if>
-            <if test="way != null  and way != ''"> and way = #{way}</if>
-            <if test="starttime != null "> and starttime = #{starttime}</if>
-            <if test="endtime != null "> and endtime = #{endtime}</if>
-            <if test="typeId != null "> and typeId = #{typeId}</if>
+            <if test="studentID != null  and studentID != ''"> and studentID = #{studentID}</if>
         </where>
     </select>
-    
-    <select id="selectProjectsById" parameterType="Long" resultMap="ProjectsResult">
+
+    <select id="selectListByIds" resultMap="ProjectsResult" parameterType="Integer">
+        select p.ID,p.studentID,p.name,p.source,p.sub,p.projectTypeID,p.division,p.year,p.way,p.head,p.starttime,p.endtime,p.url,
+               p.state,type.name as pname,
+               typeoper.remark,typeoper.operatorRole,typeoper.time,
+               typeoper.operation
+        from project p,student s,projecttype type,project_oper typeoper
+        where p.studentID=#{studentID} and p.projectTypeId=type.ID and p.ID=typeoper.projectID
+    </select>
+
+    <select id="selectProjectList" resultMap="ProjectsResult">
+--         select p.ID, p.studentID,p.name,p.source,p.sub,p.projectTypeID,p.division,p.year,p.way,p.head,p.starttime,p.endtime,p.url,
+--                p.state,type.name as pname, s.name as sname,type.name as tname,
+--                typeoper.remark,typeoper.operatorRole,typeoper.time,
+--                typeoper.operation
+--         from project p,student s,projecttype type,project_oper typeoper
+--         where p.studentID=s.ID and p.projectTypeId=type.ID and p.ID=typeoper.projectID
+
+SELECT
+    p.ID,
+    p.studentID,
+    p.NAME,
+    p.source,
+    p.sub,
+    p.projectTypeID,
+    p.division,
+    p.YEAR,
+    p.way,
+    p.head,
+    p.starttime,
+    p.endtime,
+    p.url,
+    p.state,
+    type.NAME AS pname,
+    s.NAME AS sname,
+    type.NAME AS tname,
+    typeoper.remark,
+    typeoper.operatorRole,
+    typeoper.time,
+    typeoper.operation,
+    typeoper.ID as pID
+FROM
+    project p
+        LEFT JOIN	student s on p.studentID = s.ID
+        LEFT JOIN projecttype type on p.projectTypeID = type.ID
+        LEFT JOIN project_oper typeoper on p.ID = typeoper.projectID
+    <where>
+        <if test="ID != null">
+            and p.ID = #{ID}
+        </if>
+        <if test="stuName !=null and stuName !=''">and s.name like concat('%',#{stuName},'%')</if>
+        <if test="zcName !=null and zcName !=''">and p.name like concat('%',#{zcName},'%')</if>
+        <if test="sScore !=null and sScore !='全部' and sScore !=''">and p.point >= #{sScore}</if>
+        <if test="eScore !=null and eScore !='全部' and eScore !=''">and p.point &lt;= #{eScore}</if>
+        <if test="sState !=null and sState !=''">and p.state = #{sState}</if>
+    </where>
+    </select>
+
+    <select id="selectProjectById" parameterType="Long" resultMap="ProjectsResult">
         <include refid="selectProjectsVo"/>
         where ID = #{ID}
     </select>
-        
-    <insert id="insertProjects" parameterType="org.sys.rate.model.Projects">
-        insert into projects
+
+
+    <insert id="insertProjects" parameterType="org.sys.rate.model.Projects" useGeneratedKeys="true" keyProperty="ID">
+        insert into project
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="ID != null">ID,</if>
             <if test="name != null and name != ''">name,</if>
+            <if test="studentID != null">studentID,</if>
             <if test="source != null">source,</if>
             <if test="sub != null">sub,</if>
             <if test="head != null">head,</if>
@@ -61,11 +124,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="way != null">way,</if>
             <if test="starttime != null">starttime,</if>
             <if test="endtime != null">endtime,</if>
-            <if test="typeId != null">typeId,</if>
-         </trim>
+            <if test="projectTypeId != null">projectTypeId,</if>
+            <if test="state != null ">state,</if>
+            <if test="url != null">url,</if>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="ID != null">#{ID},</if>
             <if test="name != null and name != ''">#{name},</if>
+            <if test="studentID != null">#{studentID},</if>
             <if test="source != null">#{source},</if>
             <if test="sub != null">#{sub},</if>
             <if test="head != null">#{head},</if>
@@ -74,14 +140,56 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="way != null">#{way},</if>
             <if test="starttime != null">#{starttime},</if>
             <if test="endtime != null">#{endtime},</if>
-            <if test="typeId != null">#{typeId},</if>
-         </trim>
+            <if test="projectTypeId != null">#{projectTypeId},</if>
+            <if test="state != null">#{state},</if>
+            <if test="url != null">#{url},</if>
+        </trim>
+    </insert>
+    <insert id="insertPaperoper" parameterType="org.sys.rate.model.ProjectsOper">
+        insert into project_oper (ID, operatorRole,operatorID, operatorName,
+        projectID, projectName,operation,state,remark)
+        values (#{ID},
+        #{operatorRole},
+        #{operatorID,jdbcType=INTEGER}, #{operatorName,jdbcType=VARCHAR},
+        #{projectID,jdbcType=INTEGER}, #{projectName,jdbcType=VARCHAR},
+        #{operation,jdbcType=VARCHAR},
+        #{state},#{remark})
+        <!--        insert into paper_oper-->
+        <!--        <trim prefix="(" suffix=")" suffixOverrides=",">-->
+        <!--            <if test="ID != null">ID,</if>-->
+        <!--            <if test="operatorRole != null">operatorRole,</if>-->
+        <!--            <if test="operatorID != null ">operatorID,</if>-->
+        <!--            <if test="operatorName != null">operatorName,</if>-->
+        <!--            <if test="paperID != null">paperID,</if>-->
+        <!--            <if test="paperName != null">paperName,</if>-->
+        <!--            <if test="pubID != null">pubID,</if>-->
+        <!--            <if test="pubName != null">pubName,</if>-->
+        <!--            <if test="time != null">time,</if>-->
+        <!--            <if test="operation != null">operation,</if>-->
+        <!--            <if test="state != null">state,</if>-->
+        <!--            <if test="remark != null">remark,</if>-->
+        <!--         </trim>-->
+        <!--        <trim prefix="values (" suffix=")" suffixOverrides=",">-->
+        <!--            <if test="ID != null">#{ID},</if>-->
+        <!--            <if test="operatorRole != null">#{studentID},</if>-->
+        <!--            <if test="operatorID != null and name != ''">#{name},</if>-->
+        <!--            <if test="operatorName != null">#{operatorName},</if>-->
+        <!--            <if test="paperID != null">#{paperID},</if>-->
+        <!--            <if test="paperName != null">#{paperName},</if>-->
+        <!--            <if test="pubID != null">#{pubID},</if>-->
+        <!--            <if test="pubName != null">#{pubName},</if>-->
+        <!--            <if test="time != null">#{time},</if>-->
+        <!--            <if test="operation != null">#{operation},</if>-->
+        <!--            <if test="state != null">#{state},</if>-->
+        <!--            <if test="remark != null">#{remark},</if>-->
+        <!--         </trim>-->
     </insert>
 
     <update id="updateProjects" parameterType="org.sys.rate.model.Projects">
-        update projects
+        update project
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
+            <if test="studentID != null">studentID = #{studentID},</if>
             <if test="source != null">source = #{source},</if>
             <if test="sub != null">sub = #{sub},</if>
             <if test="head != null">head = #{head},</if>
@@ -90,17 +198,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="way != null">way = #{way},</if>
             <if test="starttime != null">starttime = #{starttime},</if>
             <if test="endtime != null">endtime = #{endtime},</if>
-            <if test="typeId != null">typeId = #{typeId},</if>
+            <if test="projectTypeId != null">projectTypeId = #{projectTypeId},</if>
+            <if test="state != null">state=#{state},</if>
+            <if test="url != null">url = #{url},</if>
+        </trim>
+        where ID = #{ID}
+    </update>
+
+    <update id="editState" parameterType="org.sys.rate.model.Projects">
+        update project
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null">state=#{state},</if>
+            <!--  <if test="reason != null">reason=#{reason},</if>-->
+            <!--            <if test="url != null">url=#{url},</if>-->
         </trim>
         where ID = #{ID}
     </update>
 
     <delete id="deleteProjectsById" parameterType="Long">
-        delete from projects where ID = #{ID}
+        delete from project where ID = #{ID}
     </delete>
 
     <delete id="deleteProjectsByIds" parameterType="String">
-        delete from projects where ID in 
+        delete from project where ID in
         <foreach item="ID" collection="array" open="(" separator="," close=")">
             #{ID}
         </foreach>

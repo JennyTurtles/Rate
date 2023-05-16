@@ -1,5 +1,6 @@
 package org.sys.rate.controller.admin;
 
+import java.io.FileNotFoundException;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -7,12 +8,17 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
 import org.sys.rate.config.JsonResult;
-import org.sys.rate.model.Patent;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.PatentService;
+import org.sys.rate.service.admin.PatentTypeService;
+import org.sys.rate.service.admin.StudentService;
+import org.sys.rate.service.mail.MailToTeacherService;
+
+import javax.mail.MessagingException;
 
 /**
  * 著作Controller
- * 
+ *
  * @author system
  * @date 2022-03-13
  */
@@ -24,9 +30,21 @@ public class PatentController
     @Autowired
     private PatentService patentService;
 
+    @Autowired
+    private StudentService studentService;
+
+    @Autowired
+    private PatentTypeService patentTypeService;
+
     @GetMapping("/List")
-    public JsonResult<List> getCollect(){
-        return new JsonResult<>(patentService.selectList());
+    public JsonResult<List> getCollect(@RequestParam(value = "ID", required = false) Integer id){
+        List<Patent> patents = patentService.selectList(id);
+        return new JsonResult<>(patents);
+    }
+    @PostMapping("/List")
+    public JsonResult<List> postList(@RequestBody Patent patent){
+        List<Patent> patents = patentService.selectPatentList(patent);
+        return new JsonResult<>(patents);
     }
 
     @PostMapping("/list")
@@ -34,21 +52,18 @@ public class PatentController
     public JsonResult list(Patent patent)
     {
         List<Patent> list = patentService.selectPatentList(patent);
+        for (Patent patent1 : list) {
+            Student byId = studentService.getById(patent1.getStudentID());
+            patent1.setStudent(byId);
+
+        }
         return new JsonResult(list);
     }
 
 
 
 
-    /**
-     * 新增保存著作
-     */
-    @PostMapping("/add")
-    @ResponseBody
-    public JsonResult addSave(Patent patent)
-    {
-        return new JsonResult(patentService.insertPatent(patent));
-    }
+
 
 
     /**
@@ -70,4 +85,28 @@ public class PatentController
     {
         return new JsonResult(patentService.deletePatentById(ids));
     }
+
+
+    //    修改论文状态
+    @GetMapping("/edit_state")
+    public JsonResult getById(String state, Long ID) throws MessagingException {
+        return new JsonResult(patentService.editState(state, ID));
+    }
+
+    @PostMapping("/add")
+    @ResponseBody
+    public JsonResult addSave(PatentOper paperoper)
+    {
+        return new JsonResult(patentService.insertPaperOper(paperoper));
+//        return new JsonResult();
+    }
+
+
+    private String uploadFileName;
+
+    @Autowired
+    private MailToTeacherService mailToTeacherService;
+
+
+
 }

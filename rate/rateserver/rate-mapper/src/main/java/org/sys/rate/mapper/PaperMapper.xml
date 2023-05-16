@@ -3,7 +3,7 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.sys.rate.mapper.PaperMapper">
-    
+
     <resultMap type="org.sys.rate.model.Paper" id="PaperResult">
         <id property="ID"    column="ID"  jdbcType="INTEGER"/>
         <result property="studentID"    column="studentID" />
@@ -42,13 +42,32 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectList" resultMap="PaperResult">
 -- 老师查询所有学生的论文
-        select p.ID,p.studentID,p.name,p.point,p.publicationID,p.state,p.pubPage,p.rank,p.total,p.year,p.month,p.author,p.url,p.have_score,
-               s.name as sname,
-               pub.name as pname,
-               paperoper.remark,paperoper.operatorRole,paperoper.time,
-               paperoper.operation
-        from paper p,student s,publication pub,paper_oper paperoper
-        where p.studentID=s.ID and p.publicationID=pub.ID and p.ID=paperoper.paperID
+SELECT
+    p.ID,
+    p.studentID,
+    p.NAME,
+    p.point,
+    p.publicationID,
+    p.state,
+    p.pubPage,
+    p.rank,
+    p.total,
+    p.YEAR,
+    p.MONTH,
+    p.author,
+    p.url,
+    p.have_score,
+    s.NAME AS sname,
+    pub.NAME AS pname,
+    paperoper.remark,
+    paperoper.operatorRole,
+    paperoper.time,
+    paperoper.operation
+FROM
+    paper p
+        LEFT JOIN student s ON p.studentID = s.ID
+        LEFT JOIN publication pub ON p.publicationID = pub.ID
+        LEFT JOIN paper_oper paperoper ON p.ID = paperoper.paperID
 
     </select>
 
@@ -86,12 +105,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="url != null "> and url = #{url}</if>
         </where>
     </select>
-    
+
     <select id="selectPaperById" parameterType="Long" resultMap="PaperResult">
         <include refid="selectPaperVo"/>
         where ID = #{ID}
     </select>
-        
+
     <insert id="insertPaper" parameterType="org.sys.rate.model.Paper" useGeneratedKeys="true" keyProperty="ID">
         insert into paper
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -164,7 +183,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deletePaperByIds" parameterType="String">
-        delete from paper where ID in 
+        delete from paper where ID in
         <foreach item="ID" collection="array" open="(" separator="," close=")">
             #{ID}
         </foreach>

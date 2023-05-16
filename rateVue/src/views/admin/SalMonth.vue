@@ -2,15 +2,14 @@
 <!--评分项设置-->
   <div>
     <div style="display: flex; justify-content: left">
-      <div style="width: 100%;text-align: center" v-if="mode==='admin' || mode==='adminSub'">{{ keywords_name }}评分项设置</div>
-      <div style="width: 100%;text-align: center" v-if="mode==='secretary' || mode==='secretarySub'">{{ keywords_name }}评分项查看</div>
+      <div style="width: 100%;text-align: center">{{ keywords_name }}评分项设置</div>
       <div style="margin-left: auto">
         <el-button icon="el-icon-back" type="primary" @click="back">
           返回
         </el-button>
       </div>
     </div>
-    <div v-if="mode === 'secretary' || mode==='secretarySub'"><br/>单元格内容只可查看不可编辑</div>
+    <div><br/>单元格中内容双击后可编辑</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -18,18 +17,12 @@
           stripe
           border
           v-loading="loading"
+          @cell-dblclick="tabClick"
           :row-class-name="tableRowClassName"
           element-loading-text="正在加载..."
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.08)"
           style="width: 100%"
-          @cell-mouse-enter="handleCellMouseEnter"
-          @cell-mouse-leave="()=>{
-            if(this.editing === false){
-              this.tabClickIndex = -1;
-              this.tabClickLabel = '';
-            }
-          }"
       >
         <el-table-column type="selection" width="35"></el-table-column>
         <el-table-column
@@ -37,17 +30,17 @@
             fixed
             align="name"
             label="名称"
-            min-width="10%"
+            width="80px"
         >
           <template slot-scope="scope">
             <el-input
                 v-if="
                   scope.row.index === tabClickIndex && tabClickLabel === '名称'
                 "
+                v-focus
                 v-model.trim="scope.row.name"
                 size="mini"
-                maxlength="500"
-                @input="editing = true"
+                maxlength="50"
                 @focus="beforehandleEdit(scope.$index,scope.row,'name')"
                 @change="handleEdit(scope.$index,scope.row,'name')"
                 @blur="inputBlur"
@@ -63,7 +56,7 @@
             prop="score"
             label="分数"
             align="center"
-            min-width="10%"
+            width="80px"
         >
           <template slot-scope="scope">
             <el-input
@@ -71,9 +64,9 @@
                   scope.row.index === tabClickIndex && tabClickLabel === '分数'
                 "
                 maxlength="5"
+                v-focus
                 v-model="scope.row.score"
                 size="mini"
-                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row,'score')"
                 @change="handleEdit(scope.$index,scope.row,'score')"
                 @blur="inputBlur"
@@ -90,7 +83,7 @@
             prop="coef"
             label="折算系数"
             align="center"
-            min-width="10%"
+            width="80px"
         >
           <template slot-scope="scope">
             <el-input
@@ -98,11 +91,11 @@
                   scope.row.index === tabClickIndex &&
                   tabClickLabel === '折算系数'
                 "
+                v-focus
                 v-model="scope.row.coef"
                 maxlength="5"
                 placeholder="请输入折算系数"
                 size="mini"
-                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row,'coef')"
                 @change="handleEdit(scope.$index,scope.row,'coef')"
                 @blur="inputBlur"
@@ -118,27 +111,23 @@
             prop="byexpert"
             label="是否需要专家打分"
             align="center"
-            min-width="10%"
+            width="120px"
         >
-          <template slot-scope="scope" >
-              <span v-if="mode!=='secretary' && mode!=='secretarySub'">
-                 <el-checkbox
-                    :true-label="1"
-                    :false-label="0"
-                    v-model.trim="scope.row.byexpert"
-                    @change="UpdateCheckbox(scope.row)"
-                 ></el-checkbox>
+          <template slot-scope="scope">
+            <el-checkbox
+                :true-label="1"
+                :false-label="0"
+                v-model.trim="scope.row.byexpert"
+                @change="UpdateCheckbox(scope.row)"
+            ></el-checkbox>
             专家打分
-              </span>
-              <span v-else-if="scope.row.byexpert">是</span>
-              <span v-else>否</span>
           </template>
         </el-table-column>
         <el-table-column
             prop="comment"
             label="详细描述"
             align="center"
-            min-width="10%"
+            min-width="3%"
         >
           <template slot-scope="scope">
             <el-input
@@ -146,7 +135,7 @@
                   scope.row.index === tabClickIndex &&
                   tabClickLabel === '详细描述'
                 "
-                @input="editing = true"
+                v-focus
                 v-model="scope.row.comment"
                 maxlength="2000"
                 placeholder="请输入详细描述"
@@ -162,7 +151,7 @@
             >
           </template>
         </el-table-column>
-        <el-table-column align="center" min-width="20%" label="操作" v-if="mode!=='secretary' && this.mode!=='secretarySub'">
+        <el-table-column align="center" min-width="5%" label="操作">
           <template slot-scope="scope">
             <el-button
                 @click="UpdateOrNew(scope.row)"
@@ -186,7 +175,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div style="margin: 20px 0; display: flex; justify-content: left" v-show="mode!=='secretary' &&mode!=='secretarySub'">
+      <div style="margin: 20px 0; display: flex; justify-content: left">
         <div style="margin-left: 8px">
           <el-button
               @click="newScoring()"
@@ -196,16 +185,16 @@
           </el-button
           >
         </div>
-<!--        <div style="margin-left: auto">-->
-<!--          <el-pagination-->
-<!--              background-->
-<!--              @current-change="currentChange"-->
-<!--              @size-change="sizeChange"-->
-<!--              layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
-<!--              :total="total"-->
-<!--          >-->
-<!--          </el-pagination>-->
-<!--        </div>-->
+        <div style="margin-left: auto">
+          <el-pagination
+              background
+              @current-change="currentChange"
+              @size-change="sizeChange"
+              layout="sizes, prev, pager, next, jumper, ->, total, slot"
+              :total="total"
+          >
+          </el-pagination>
+        </div>
       </div>
     </div>
   </div>
@@ -218,7 +207,6 @@ export default {
   name: "SalMonth",
   data() {
     return {
-      editing: false,
       //当前焦点数据
       currentfocusdata: "",
       searchValue: {
@@ -235,7 +223,6 @@ export default {
       total: 0,
       loading: false,
       hrs: [],
-      mode:"",
       selectedRoles: [],
       allroles: [],
       hr_info: {
@@ -290,9 +277,19 @@ export default {
       },
     };
   },
+  //自动聚焦自定义组件
+  // directives: {
+  //   focus: {
+  //     // 当绑定元素插入到 DOM 中。
+  //     inserted: function (el) {
+  //       // 聚焦元素
+  //       el.focus()
+  //     }
+  //   }
+  // },
   computed: {
     user() {
-      return JSON.parse(localStorage.getItem("user")); //object信息
+      return this.$store.state.currentHr; //object信息
     },
   },
   created() {
@@ -300,37 +297,10 @@ export default {
   mounted() {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
-    this.mode = this.$route.query.mode;
     this.initHrs();
     this.initData();
   },
   methods: {
-    handleCellMouseEnter(row, column, cell, event) {
-      if (this.editing === true)
-        return;
-      if (this.mode!=="secretary" && this.mode!=='secretarySub'){
-        switch (column.label) {
-          case "折算系数":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          case "分数":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          case "名称":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          case "详细描述":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          default:
-            return;
-        }
-      }
-    },
     Delete_Score_Item(si) {
       this.$confirm("此操作将永久删除【" + si.name + "】, 是否继续?", "提示", {
         confirmButtonText: "确定",
@@ -347,6 +317,28 @@ export default {
               }
             });
           })
+          // .catch(() => {
+          //   this.$message({
+          //     type: "info",
+          //     message: "已取消删除",
+          //   });
+          // });
+    },
+
+    enabledChange(hr) {
+      //delete hr.roles;
+      this.putRequest("/system/admin/", hr).then((resp) => {
+        if (resp) {
+          this.initHrs();
+        }
+      });
+    },
+    initAllRoles() {
+      this.getRequest("/system/hr/roles").then((resp) => {
+        if (resp) {
+          this.allroles = resp;
+        }
+      });
     },
     initHrs() {
       this.loading = true;
@@ -354,19 +346,31 @@ export default {
           "/scoreItem/basic/?keywords=" +
           this.keywords +
           "&page=" +
-          1 +
+          this.page +
           "&size=" +
-          1000
+          this.size
       ).then((resp) => {
         if (resp) {
           this.loading = false;
           this.hrs = resp.data;
-          for (var i = 0; i < this.hrs.length; i++){
-            if (this.hrs[i].byexpert)
-              this.hrs[i].byexpert = 1
-            else
-              this.hrs[i].byexpert = 0
-          }
+          this.total = resp.total;
+        }
+      });
+    },
+
+    advancedSearch() {
+      this.getRequest(
+          "/scoreItem/basic/advanced/?keywords=" +
+          this.keywords +
+          "&keywords_name=" +
+          this.keywords_name +
+          "&page=" +
+          this.page +
+          "&size=" +
+          this.size
+      ).then((resp) => {
+        if (resp) {
+          this.hrs = resp.data;
           this.total = resp.total;
         }
       });
@@ -394,35 +398,10 @@ export default {
       this.hrs.push(obj);
     },
     back() {
-      this.$router.go(-1);
-      // const _this = this;
-      // if (this.mode === "admin"){
-      //     _this.$router.push({
-      //         path: "/ActivitM/search",
-      //     });
-      // }else if (this.mode === "adminSub"){
-      //     _this.$router.push({
-      //         path: "/ActivitM/SubActManage",
-      //         query:{
-      //             id: this.$route.query.backID,
-      //         }
-      //     });
-      // }else if (this.mode==="secretary"){
-      //   _this.$router.push({
-      //     path: "/secretary/ActManage",
-      //     query:{
-      //       id: this.$route.query.backID,
-      //     }
-      //   });
-      // }else if (this.mode==="secretarySub"){
-      //   _this.$router.push({
-      //     path: "/secretary/SubActManage",
-      //     query:{
-      //       id: this.$route.query.backID,
-      //       groupID :this.$route.query.groupID,
-      //     }
-      //   });
-      // }
+      const _this = this;
+      _this.$router.push({
+        path: "/ActivitM/search",
+      });
     },
     tableRowClassName({row, rowIndex}) {
       // 把每一行的索引放进row
@@ -430,64 +409,58 @@ export default {
     },
     // 添加明细原因 row 当前行 column 当前列
     tabClick(row, column, cell, event) {
-      if (this.mode!=="secretary" && this.mode!=='secretarySub'){
-        switch (column.label) {
-          case "折算系数":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          case "分数":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          case "名称":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          case "详细描述":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          default:
-            return;
-        }
+      switch (column.label) {
+        case "折算系数":
+          this.tabClickIndex = row.index;
+          this.tabClickLabel = column.label;
+          break;
+        case "分数":
+          this.tabClickIndex = row.index;
+          this.tabClickLabel = column.label;
+          break;
+        case "名称":
+          this.tabClickIndex = row.index;
+          this.tabClickLabel = column.label;
+          break;
+        case "详细描述":
+          this.tabClickIndex = row.index;
+          this.tabClickLabel = column.label;
+          break;
+        default:
+          return;
       }
     },
     beforehandleEdit(index, row, label) {
-      if (this.mode!=="secretary"&& this.mode!=='secretarySub'){
-        if (label === 'name') {
-          this.currentfocusdata = row.name
-        } else if (label === 'score') {
-          // console.log('222222222222222222')
-          this.currentfocusdata = row.score
-        } else if (label === 'coef') {
-          this.currentfocusdata = row.coef
-        } else if (label === 'comment') {
-          this.currentfocusdata = row.comment
-        }
-        this.currentfocusdata = row[label]
+      if (label === 'name') {
+        this.currentfocusdata = row.name
+      } else if (label === 'score') {
+        // console.log('222222222222222222')
+        this.currentfocusdata = row.score
+      } else if (label === 'coef') {
+        this.currentfocusdata = row.coef
+      } else if (label === 'comment') {
+        this.currentfocusdata = row.comment
       }
+      this.currentfocusdata = row[label]
     },
     handleEdit(index, row, label) {
-      if (this.mode!=="secretary"&& this.mode!=='secretarySub'){
-        if (row[label] == ''&&label !== 'comment') {
-          Message.warning('输入内容不能为空!')
-          if (label === 'name') {
-            row.name = this.currentfocusdata
-          } else if (label === 'score') {
-            row.score = this.currentfocusdata
-          } else if (label === 'coef') {
-            row.coef = this.currentfocusdata
-          }else if (label === 'comment') {
-            row.comment = this.currentfocusdata
-          }
-          Message.warning('输入内容不能为空！')
-          row[label] = this.currentfocusdata
-        } else {
-          this.UpdateOrNew(row)
-          this.editing = false
-          // this.newScoring(row)
+      //console.log(row);
+      if (row[label] == ''&&label !== 'comment') {
+        Message.warning('输入内容不能为空!')
+        if (label === 'name') {
+          row.name = this.currentfocusdata
+        } else if (label === 'score') {
+          row.score = this.currentfocusdata
+        } else if (label === 'coef') {
+          row.coef = this.currentfocusdata
+        }else if (label === 'comment') {
+          row.comment = this.currentfocusdata
         }
+        Message.warning('输入内容不能为空！')
+        row[label] = this.currentfocusdata
+      } else {
+        this.UpdateOrNew(row)
+        // this.newScoring(row)
       }
     },
     // 失去焦点初始化
@@ -512,7 +485,6 @@ export default {
           });
     },
     UpdateCheckbox(scoreItem) {
-      console.log(scoreItem)
       const _this = this;
       _this
           .postRequest("/scoreItem/basic/UpdateOrNew?institutionID="+this.user.institutionID, scoreItem)
@@ -531,6 +503,7 @@ export default {
       this.initHrs();
     },
     newScoring() {
+      //console.log("creating")
       let obj = {};
       obj.activityid = this.keywords;
       obj.score = 100;
@@ -538,7 +511,27 @@ export default {
       obj.coef = 1;
       obj.byexpert = 1;
       this.hrs.push(obj);
+      /*this.postRequest("/scoreItem/basic/insert", obj)
+          .then((resp) => {
+            this.initHrs();
+          });*/
     },
+    // shiftScoring(scoreItem) {
+    //   console.log("modifying")
+    //   console.log(scoreItem);
+    //   // console.log(need);
+    //   // need:1->需要专家打分
+    //   this.currentfocusdata = scoreItem.name;
+    //   if (this.currentfocusdata == null) {
+    //     Message.error('输入内容不能为空！操作未保存！')
+    //     return
+    //   }
+    //   this.postRequest("/scoreItem/basic/modify", scoreItem)
+    //       .then(res => {
+    //         if (res.msg != "修改成功！")
+    //           scoreItem.name = this.currentfocusdata;
+    //       })
+    // }, //
     initData() {
       this.getRequest("/activities/basic/get_activity_info").then((resp) => {
         if (resp) {

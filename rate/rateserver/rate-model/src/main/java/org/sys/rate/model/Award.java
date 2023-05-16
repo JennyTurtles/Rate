@@ -1,9 +1,11 @@
 package org.sys.rate.model;
 
 
+import java.util.List;
+
 /**
  * 回答对象 award
- * 
+ *
  * @author system
  * @date 2022-03-13
  */
@@ -37,6 +39,133 @@ public class Award
 
     /** 奖项id */
     private Long awardID;
+
+    private int point;
+
+    private int awardTypeID;
+    private String state;
+    private String url;
+
+    private int studentID;
+
+    private Student student;
+
+    private Awardtype awardtype;
+
+    private List<AwardOper> awardOperList;
+
+    private String stuName;
+
+    private String zcName;
+
+    private String sState;
+
+    private String sScore;
+    private String eScore;
+
+    public String getStuName() {
+        return stuName;
+    }
+
+    public void setStuName(String stuName) {
+        this.stuName = stuName;
+    }
+
+    public String getZcName() {
+        return zcName;
+    }
+
+    public void setZcName(String zcName) {
+        this.zcName = zcName;
+    }
+
+    public String getsState() {
+        return sState;
+    }
+
+    public void setsState(String sState) {
+        this.sState = sState;
+    }
+
+    public String getsScore() {
+        return sScore;
+    }
+
+    public void setsScore(String sScore) {
+        this.sScore = sScore;
+    }
+
+    public String geteScore() {
+        return eScore;
+    }
+
+    public void seteScore(String eScore) {
+        this.eScore = eScore;
+    }
+
+    public List<AwardOper> getAwardOperList() {
+        return awardOperList;
+    }
+
+    public void setAwardOperList(List<AwardOper> awardOperList) {
+        this.awardOperList = awardOperList;
+    }
+
+    public int getStudentID() {
+        return studentID;
+    }
+
+    public void setStudentID(int studentID) {
+        this.studentID = studentID;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    public Awardtype getAwardtype() {
+        return awardtype;
+    }
+
+    public void setAwardtype(Awardtype awardtype) {
+        this.awardtype = awardtype;
+    }
+
+    public int getPoint() {
+        return point;
+    }
+
+    public void setPoint(int point) {
+        this.point = point;
+    }
+
+    public int getAwardTypeID() {
+        return awardTypeID;
+    }
+
+    public void setAwardTypeID(int awardTypeID) {
+        this.awardTypeID = awardTypeID;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public void setID(Long ID)
     {

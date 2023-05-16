@@ -6,7 +6,7 @@
         <div>
           <el-dropdown class="userInfo" @command="commandHandler">
             <span class="el-dropdown-link"
-              >您好，{{ teacher.name }}专家<i></i
+              >你好，{{ teacher.name }}<i></i
             ></span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="userinfo">个人中心</el-dropdown-item>
@@ -33,7 +33,7 @@ export default {
     }
   },
   created() {
-    this.teacher = JSON.parse(localStorage.getItem('user'))
+    this.teacher = JSON.parse(localStorage.getItem('teacher'))
   },
   mounted(){
   },
@@ -46,16 +46,8 @@ export default {
           type: "warning",
         })
           .then(() => {
-            this.getRequest('/system/config/logout').then(()=>{
-              if(localStorage.getItem('user')){
-                localStorage.removeItem('user')
-              }
-              sessionStorage.removeItem('initRoutes')
-              sessionStorage.removeItem('initRoutes_AllSameForm')
-              sessionStorage.removeItem('score')
-              this.$store.commit("initRoutes", []); //清空路由
-              this.$store.commit("initRoutesAllSameForm", []); //清空路由
-            })
+            this.getRequest("/logout");
+            sessionStorage.clear(); //清session
             this.$router.replace("/Expert/Login");
           })
           .catch(() => {

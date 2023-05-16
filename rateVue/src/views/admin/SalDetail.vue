@@ -54,15 +54,15 @@
 
         </el-table-column>
       </el-table>
-<!--      <div style="display: flex;justify-content: flex-end;margin:10px 0">-->
-<!--        <el-pagination-->
-<!--            background-->
-<!--            @current-change="currentChange"-->
-<!--            @size-change="sizeChange"-->
-<!--            layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
-<!--            :total="total">-->
-<!--        </el-pagination>-->
-<!--      </div>-->
+      <div style="display: flex;justify-content: flex-end;margin:10px 0">
+        <el-pagination
+            background
+            @current-change="currentChange"
+            @size-change="sizeChange"
+            layout="sizes, prev, pager, next, jumper, ->, total, slot"
+            :total="total">
+        </el-pagination>
+      </div>
     </div>
 
   </div>
@@ -112,7 +112,7 @@ export default {
     initEmps() {
       this.loading = true;
       //console.log(this.groupID);
-      let url = '/participants/basic/?page=' + 1 + '&size=' + 1000 + '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
+      let url = '/participants/basic/?page=' + this.page + '&size=' + this.size+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
       //console.log(url);
       this.getRequest(url).then(resp => {
         this.loading = false;

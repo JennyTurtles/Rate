@@ -1,16 +1,9 @@
 <template>
   <div>
-    <div style="display: flex; justify-content: left">
-    {{ keywords_name }} <a v-show="flag===0">专家名单</a> <a v-show="flag==1">专家打分</a>
-      <div style="margin-left: auto">
-        <el-button icon="el-icon-back" type="primary" @click="back">
-          返回
-        </el-button>
-      </div>
-    </div>
+    {{ ACNAME }}活动 {{ keywords_name }} 专家名单
     <div style="display: flex; justify-content: left;margin-top:10px">
-      <div v-if="flag==0">
-        <span  style="font-weight:600;">导入新数据</span> <a>第一步：</a>
+      <div>
+        <span style="font-weight:600;">导入新数据</span> 第一步：
         <el-button
             type="primary"
             @click="exportMo"
@@ -19,7 +12,7 @@
         >
           下载模板
         </el-button>
-        <a >第二步：</a>
+        第二步：
         <el-upload
             :show-file-list="false"
             :before-upload="beforeUpload"
@@ -37,13 +30,21 @@
             {{ importDataBtnText }}
           </el-button>
         </el-upload>
+
       </div>
+      <div style="margin-left: auto">
+        <el-button icon="el-icon-back" type="primary" @click="back">
 
+          返回
+        </el-button>
+      </div>
+      <!--      <div style="margin-left:auto;">
+        <el-button icon="el-icon-back" type="primary" @click="back">
+          返回
+        </el-button>
+      </div>-->
     </div>
-    <div v-show="flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。
-        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。
-    </div>
-
+    <div><br/>专家导入后的初始用户名为手机号，密码为身份证后六位<br/>单元格中内容双击后可编辑</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -57,22 +58,15 @@
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%"
-          @cell-mouse-enter="handleCellMouseEnter"
-          @cell-mouse-leave="()=>{
-            if(this.editing === false){
-              this.tabClickIndex = -1;
-              this.tabClickLabel = '';
-            }
-          }"
       >
         <el-table-column prop="name" fixed label="专家姓名" min-width="3%">
           <template slot-scope="scope">
             <el-input
                 v-if="
                   scope.row.index === tabClickIndex &&
-                  tabClickLabel === '专家姓名' && flag==0
+                  tabClickLabel === '专家姓名'
                 "
-                @input="editing = true"
+                v-focus
                 v-model.trim="scope.row.name"
                 maxlength="20"
                 size="mini"
@@ -84,13 +78,7 @@
             <span class="spanscoped" v-else>{{ scope.row.name }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="name" fixed label="组名" min-width="3%">
-              <template slot-scope="scope">
-                  <span class="spanscoped">{{ scope.row.groupName }}</span>
-              </template>
-          </el-table-column>
         <el-table-column
-            v-if="flag==0"
             prop="idnumber"
             label="证件号码"
             align="center"
@@ -102,7 +90,7 @@
                   scope.row.index === tabClickIndex &&
                   tabClickLabel === '证件号码'
                 "
-                @input="editing = true"
+                v-focus
                 v-model.trim="scope.row.idnumber"
                 maxlength="18"
                 size="mini"
@@ -137,9 +125,9 @@
           <template slot-scope="scope">
             <el-input
                 v-if="
-                  scope.row.index === tabClickIndex && tabClickLabel === '电话' && flag==0
+                  scope.row.index === tabClickIndex && tabClickLabel === '电话'
                 "
-                @input="editing = true"
+                v-focus
                 v-model.trim="scope.row.phone"
                 maxlength="15"
                 size="mini"
@@ -154,9 +142,9 @@
           <template slot-scope="scope">
             <el-input
                 v-if="
-                  scope.row.index === tabClickIndex && tabClickLabel === '邮箱' && flag==0
+                  scope.row.index === tabClickIndex && tabClickLabel === '邮箱'
                 "
-                @input="editing = true"
+                v-focus
                 v-model.trim="scope.row.email"
                 size="mini"
                 maxlength="25"
@@ -165,30 +153,6 @@
                 @blur="inputBlur"
             />
             <span class="spanscoped" v-else>{{ scope.row.email }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-            v-if="mode === 'admin' || mode==='adminSub' && flag == 0"
-            prop="role"
-            label="角色设置"
-            align="center"
-            min-width="3%"
-        >
-          <template slot-scope="scope">
-            <el-select v-model="scope.row.role"
-                       placeholder="请选择"
-                       v-focus
-                       @focus="beforehandleEdit(scope.$index,scope.row,'role')"
-                       @change="changeRole(scope.$index,scope.row)"
-                       @blur="inputBlur"
-                       >
-              <el-option
-                  v-for="item in options"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
-              </el-option>
-            </el-select>
           </template>
         </el-table-column>
         <el-table-column
@@ -205,7 +169,16 @@
         <el-table-column align="center" min-width="10%" label="操作">
           <template slot-scope="scope">
             <el-button
-                v-if="flag==0"
+                @click="save(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-collection"
+                type="primary"
+                plain
+            >保存
+            </el-button
+            >
+            <el-button
                 @click="reset_password(scope.row)"
                 style="padding: 4px"
                 size="mini"
@@ -221,7 +194,6 @@
                 size="mini"
                 icon="el-icon-refresh-right"
                 type="primary"
-                v-show="haveSub!=1"
                 plain
             >查看专家评分
             </el-button>
@@ -232,7 +204,6 @@
                 icon="el-icon-refresh-right"
                 type="primary"
                 :disabled="scope.row.finished==0"
-                v-show="haveSub!=1"
                 plain
             >退回评分
             </el-button>
@@ -240,8 +211,8 @@
                 @click="Delete_ExActivity(scope.row)"
                 style="padding: 4px"
                 size="mini"
-                icon="el-icon-refresh-right"
                 type="danger"
+                icon="el-icon-delete"
                 plain
             >删除
             </el-button>
@@ -267,17 +238,16 @@
           >保存</el-button
           >-->
         </div>
-<!--        <div style="margin-left: auto">-->
-<!--          <el-pagination-->
-<!--              v-show="mode==='admin'"-->
-<!--              background-->
-<!--              @current-change="currentChange"-->
-<!--              @size-change="sizeChange"-->
-<!--              layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
-<!--              :total="total"-->
-<!--          >-->
-<!--          </el-pagination>-->
-<!--        </div>-->
+        <div style="margin-left: auto">
+          <el-pagination
+              background
+              @current-change="currentChange"
+              @size-change="sizeChange"
+              layout="sizes, prev, pager, next, jumper, ->, total, slot"
+              :total="total"
+          >
+          </el-pagination>
+        </div>
       </div>
 
       <el-dialog :title="err_title "  :visible.sync="err_dialogVisible_edit" width="40%" >
@@ -384,19 +354,13 @@
 
 <script>
 import {Message} from 'element-ui'
-import {log} from "@/utils/sockjs";
 
 export default {
   name: "SalSobCfg",
   data() {
     return {
-      editing: false,
-      activityID:-1,
-      flag:0,
-      haveSub:0,
       //当前焦点数据
       currentfocusdata: "",
-      currentrole:"",
       searchValue: {
         compnayName: null,
       },
@@ -420,17 +384,6 @@ export default {
       dialogVisible_edit: false,
       selectedRoles: [],
       allroles: [],
-      options: [{
-        value: '专家',
-        label: '专家'
-      }, {
-        value: '秘书',
-        label: '秘书'
-      }, {
-        value: '组长',
-        label: '组长'
-      }],
-      value: '',
       hr_info: {
         id: null,
         compnayName: null,
@@ -484,8 +437,7 @@ export default {
 
       err_dialogVisible_edit: false,
       err_title: '',
-      err_msg: '',
-      mode:"",
+      err_msg: ''
     };
   },
   computed: {
@@ -498,27 +450,18 @@ export default {
   },
   mounted() {
     this.keywords = this.$route.query.keywords;
-    this.activityID = this.$route.query.activityID;
     this.keywords_name = this.$route.query.keyword_name;
     this.groupID = this.$route.query.groupID;
     this.ACNAME = this.$route.query.keywords_name;
-    this.mode = this.$route.query.mode;
-    this.haveSub = this.$route.query.haveSub;
-    // console.log(this.haveSub);
-    this.flag = this.$route.query.flag == 1 ? 1 : 0;
+    //console.log(this.keywords_name);
+    // console.log("groupID", this.groupID);
     this.initHrs();
+    // this.initData();
+    //this.initAd();
   },
   methods: {
 
     Delete_ExActivity(si) {
-      if (si.finished)
-      {
-        this.$message({
-          type: "info",
-          message: "无法删除评分已提交的专家",
-        });
-        return;
-      }
       this.$confirm("此操作将永久删除【" + si.name + "】, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -526,14 +469,8 @@ export default {
       })
           .then(() => {
             si.institutionid=this.user.institutionID;
-            if (si.groupID === null)
-              si.groupID = -1
-            this.postRequest("/systemM/Experts/delete?groupid=" + si.groupID + "&activityid=" + this.keywords, si).then(resp => {
+            this.postRequest("/systemM/Experts/delete?groupid=" + this.groupID + "&activityid=" + this.keywords, si).then(resp => {
               if (resp) {
-                this.$message({
-                  type: "success",
-                  message: "删除成功",
-                });
                 this.initHrs();
               }
             });
@@ -561,35 +498,23 @@ export default {
       });
     },
     initHrs() {
-      if (typeof this.activityID == "undefined" || this.mode === 'secretary') { // 此时是从分组管理进入的
-          this.getRequest(
-              "/systemM/Experts/?keywords=" + this.groupID +
-              "&page=" + 1 +
-              "&size=" + 1000 // 避免分页
-          ).then((resp) => {
-              if (resp) {
-                  this.hrs = resp;
-                  this.total = resp.length;
-              }
-          });
-      }else {  // 从活动或子活动进入
-          if (this.mode === 'admin' || this.mode === 'adminSub'){ // 直接基于活动ID返回所有专家
-              this.getRequest(
-                  "/systemM/Experts/allByActID?activityID=" + this.activityID
-              ).then((resp) => {
-                  if (resp) {
-                      this.hrs = resp.obj;
-                      this.total = this.hrs;
-                      // console.log(this.hrs)
-                  }
-              });
-          }
-      }
-
+      this.getRequest(
+          "/systemM/Experts/?keywords=" +
+          this.groupID +
+          "&page=" +
+          this.page +
+          "&size=" +
+          this.size
+      ).then((resp) => {
+        if (resp) {
+          this.hrs = resp;
+          this.total = resp.length;
+          //console.log(this.hrs);
+        }
+      });
     },
     jumperInToS(data){
       const _this = this;
-      // console.log(this.user)
       _this.$router.push({
         path: "/ActivitM/situation",
         query: {
@@ -599,37 +524,9 @@ export default {
           groupID: this.groupID,
           expertID:data.id,
           expertName:data.name,
-          institutionID:this.user.institutionID,
-          isFinished:data.finished,
-          mode:this.mode,
-          flag:this.flag,
+          institutionID:this.user.institutionID
         },
       });
-    },
-    // UpdateCheckbox(data){
-    //   this.getRequest("/secretary/setSecretary?teacherID=" + data.id + "&activityID=" + this.keywords + "&groupID=" + this.groupID + "&target=" + data.isSecretary)
-    //       .then((resp) => {
-    //         if(resp)
-    //         {Message.success("更新成功");}
-    //         else
-    //         {Message.error("更新失败");}
-    //       });
-    // },
-
-    changeRole(index,data){
-      if (data.groupID === null)
-      {
-        Message.warning("请先为该专家分组后再设置角色！")
-        return
-      }
-      this.currentrole = data.role;
-        this.getRequest("/secretary/setRole?teacherID=" + data.id + "&activityID=" + this.keywords + "&groupID=" + data.groupID + "&role=" + this.currentrole)
-            .then((resp) => {
-              if(resp)
-              {Message.success("更新成功");}
-              else
-              {Message.error("更新失败");}
-            });
     },
     advancedSearch() {
       this.getRequest(
@@ -638,9 +535,9 @@ export default {
           "&keywords_name=" +
           this.keywords_name +
           "&page=" +
-          1 +
+          this.page +
           "&size=" +
-          1000
+          this.size
       ).then((resp) => {
         if (resp) {
           this.hrs = resp.data;
@@ -678,76 +575,17 @@ export default {
     },
     back() {
       const _this = this;
-      if (this.mode === "admin"){
-          // console.log(this.activityID)
-          if (typeof this.activityID !== "undefined") { // 从主活动进入
-              _this.$router.push({
-                  path: "/ActivitM/search",
-              });
-              return
-          }
-        _this.$router.push({
-          path: this.flag ? "/ActivitM/score" : "/ActivitM/table",
-          query: {
-            keywords: this.keywords,
-            keyword_name: this.ACNAME,
-            mode:this.mode,
-          },
-        });
-      }
-      else if (this.mode === "secretary"){
-        _this.$router.push({
-          path: '/secretary/ActManage',
-          query: {
-            keywords: this.keywords,
-            keyword_name: this.ACNAME,
-            groupID:this.groupID,
-            mode:this.mode,
-          },
-        });
-      }
-      else if (this.mode === "adminSub"){
-          _this.$router.push({
-              path: "/ActivitM/SubActManage",
-              query: {
-                  id: this.$route.query.backID,
-              },
-          });
-      }
+      _this.$router.push({
+        path: "/ActivitM/table",
+        query: {
+          keywords: this.keywords,
+          keyword_name: this.ACNAME,
+        },
+      });
     },
     tableRowClassName({row, rowIndex}) {
       // 把每一行的索引放进row
       row.index = rowIndex;
-    },
-    handleCellMouseEnter(row, column, cell, event) {
-      if (this.editing === true)
-        return;
-      if (this.mode!=="secretary" && this.mode!=='secretarySub'){
-        switch (column.label) {
-          case "专家姓名":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          case "证件号码":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          case "邮箱":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          case "部门":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          case "电话":
-            this.tabClickIndex = row.index;
-            this.tabClickLabel = column.label;
-            break;
-          default:
-            return;
-        }
-      }
     },
     // 添加明细原因 row 当前行 column 当前列
     tabClick(row, column, cell, event) {
@@ -788,12 +626,7 @@ export default {
       });
     },
     beforehandleEdit(index, row, label) {
-      if(label === 'role') {
-        this.currentrole = row.role
-      }
-      else {
-        this.currentfocusdata = row[label]
-      }
+      this.currentfocusdata = row[label]
     },
     handleEdit(index, row, label) {
       if (row[label] === '') {
@@ -801,7 +634,6 @@ export default {
         row[label] = this.currentfocusdata
       } else {
         this.save(row)
-        this.editing = false
       }
     },
     // 失去焦点初始化
@@ -809,7 +641,6 @@ export default {
       this.tabClickIndex = null;
       this.tabClickLabel = "";
       this.currentfocusdata = "";
-      this.currentrole = "";
     },
     save(si) {
       si.institutionid=this.user.institutionID;
@@ -842,11 +673,6 @@ export default {
     },
     onSuccess(res) {
       // console.log("res", res);
-      if (typeof res.obj !== 'undefined'){
-        Message.warning(res.obj)
-        return
-      }
-
       if (res.msg === 'file error') {
         Message.error("文件内容或者格式有误，请不要修改表头，信息按格式填写！")
       } else if (res.msg === 'success') {
@@ -855,7 +681,7 @@ export default {
         this.err_dialogVisible_edit = true;
         this.err_msg = res.obj;
         this.err_title = "以下专家用户名重复：";
-        Message.error("上传失败！",res.msg)
+        //Message.error("上传失败！")
       }
       this.importDataBtnText = "导入数据";
       this.importDataBtnIcon = "el-icon-upload2";
@@ -868,20 +694,12 @@ export default {
       this.importDataDisabled = true;
     },
     UploadUrl() {
-      if (typeof this.keywords !== "undefined") { // 从主活动进入
-        return "/systemM/Experts/importWithGroupName?activityid=" + this.keywords+"&insititutionID="+this.user.institutionID;
-      }else{
-        return "/systemM/Experts/import?groupid=" + this.groupID + "&activityid=" + this.keywords+"&insititutionID="+this.user.institutionID;
-      }
+      let url = "/systemM/Experts/import?groupid=" + this.groupID + "&activityid=" + this.keywords+"&insititutionID="+this.user.institutionID;
+      return url;
     },
     exportMo() {
       Message.success("正在下载模板");
-
-        if (typeof this.keywords !== "undefined") {
-            window.open("/participants/basic/exportMoWithGroupName", "_parent");
-        }else{
-            window.open("/participants/basic/exportMo", "_parent");
-        }
+      window.open("/participants/basic/exportMo", "_parent");
     },
     reset_password(row) {
       row.institutionid=this.user.institutionID;
@@ -900,18 +718,19 @@ export default {
       });
     },
     changeFinished(row){
-      this.$confirm("是否确定退回打分", "提示", {
+      this.$confirm("是否确定撤销打分", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
           .then(() => {
-            this.postRequest("/systemM/Experts/withdraw?activityID=" + this.keywords + "&groupID=" + this.groupID +"&expertID=" + row.id).then(resp => {
+            row.institutionid=this.user.institutionID;
+            this.postRequest("/systemM/Experts/withdraw?activityID=" + this.keywords + "&groupID=" + this.groupID , row).then(resp => {
               if (resp) {
                 this.initHrs();
                 this.$message({
                   type: 'success',
-                  message: '退回成功!'
+                  message: '撤销成功!'
                 });
               }
             });
@@ -919,7 +738,7 @@ export default {
           .catch(() => {
             this.$message({
               type: "info",
-              message: "已取消退回",
+              message: "已取消撤销",
             });
           });
     }

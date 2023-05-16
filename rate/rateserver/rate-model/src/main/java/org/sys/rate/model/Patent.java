@@ -1,10 +1,11 @@
 package org.sys.rate.model;
 
 
+import java.util.List;
 
 /**
  * 著作对象 patent
- * 
+ *
  * @author system
  * @date 2022-03-13
  */
@@ -12,114 +13,210 @@ public class Patent
 {
     private static final long serialVersionUID = 1L;
 
-    /**  */
-    private Long ID;
-
-    /** 专利名称 */
-    private String name;
-
-    /** 类别 */
-    private String type;
-
-    /** 年 */
-    private String year;
-
-    /** 本人排名 */
-    private Long rank;
-
-    /** 总人数 */
-    private Long total;
-
-    /** 权力类别 */
-    private String rights;
-
-    /** 指标点id */
-    private Long indicaterID;
-
-    /** 月 */
+    private int ID ;
+    private int studentID ;
+    private String typename ;
     private String month;
+    private int rank;
+    private String rights;
+    private String patentee;
+    private int point ;
+    private String state;
+    private String url;
 
-    public void setID(Long ID)
-    {
-        this.ID = ID;
-    }
+    private int total;
 
-    public Long getID()
-    {
-        return ID;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
+    private int patentTypeID;
 
-    public String getName()
-    {
-        return name;
-    }
-    public void setType(String type)
-    {
-        this.type = type;
-    }
+    private Student student;
+    private Publication publication;
+    private PatentType patentType;
+    private List<PatentOper> patentList;
 
-    public String getType()
-    {
-        return type;
-    }
-    public void setYear(String year)
-    {
-        this.year = year;
+    private String stuName;
+
+    private String zcName;
+
+    private String sState;
+
+    private String sScore;
+    private String eScore;
+
+    public String getStuName() {
+        return stuName;
     }
 
-    public String getYear()
-    {
-        return year;
-    }
-    public void setRank(Long rank)
-    {
-        this.rank = rank;
+    public void setStuName(String stuName) {
+        this.stuName = stuName;
     }
 
-    public Long getRank()
-    {
-        return rank;
+    public String getZcName() {
+        return zcName;
     }
-    public void setTotal(Long total)
-    {
+
+    public void setZcName(String zcName) {
+        this.zcName = zcName;
+    }
+
+    public String getsState() {
+        return sState;
+    }
+
+    public void setsState(String sState) {
+        this.sState = sState;
+    }
+
+    public String getsScore() {
+        return sScore;
+    }
+
+    public void setsScore(String sScore) {
+        this.sScore = sScore;
+    }
+
+    public String geteScore() {
+        return eScore;
+    }
+
+    public void seteScore(String eScore) {
+        this.eScore = eScore;
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
         this.total = total;
     }
 
-    public Long getTotal()
-    {
-        return total;
-    }
-    public void setRights(String rights)
-    {
-        this.rights = rights;
+    public int getPatentTypeID() {
+        return patentTypeID;
     }
 
-    public String getRights()
-    {
-        return rights;
-    }
-    public void setIndicaterID(Long indicaterID)
-    {
-        this.indicaterID = indicaterID;
+    public void setPatentTypeID(int patentTypeID) {
+        this.patentTypeID = patentTypeID;
     }
 
-    public Long getIndicaterID()
-    {
-        return indicaterID;
-    }
-    public void setMonth(String month)
-    {
-        this.month = month;
+    public PatentType getPatentType() {
+        return patentType;
     }
 
-    public String getMonth()
-    {
+    public void setPatentType(PatentType patentType) {
+        this.patentType = patentType;
+    }
+
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
+    }
+
+    public int getStudentID() {
+        return studentID;
+    }
+
+    public void setStudentID(int studentID) {
+        this.studentID = studentID;
+    }
+
+    public String getTypename() {
+        return typename;
+    }
+
+    public void setTypename(String typename) {
+        this.typename = typename;
+    }
+
+    public String getMonth() {
         return month;
     }
 
+    public void setMonth(String month) {
+        this.month = month;
+    }
 
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+
+    public String getRights() {
+        return rights;
+    }
+
+    public void setRights(String rights) {
+        this.rights = rights;
+    }
+
+    public String getPatentee() {
+        return patentee;
+    }
+
+    public void setPatentee(String patentee) {
+        this.patentee = patentee;
+    }
+
+    public int getPoint() {
+        return point;
+    }
+
+    public void setPoint(int point) {
+        this.point = point;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    public Publication getPublication() {
+        return publication;
+    }
+
+    public void setPublication(Publication publication) {
+        this.publication = publication;
+    }
+
+    public List<PatentOper> getPatentList() {
+        return patentList;
+    }
+
+    public void setPatentList(List<PatentOper> patentList) {
+        this.patentList = patentList;
+    }
 }

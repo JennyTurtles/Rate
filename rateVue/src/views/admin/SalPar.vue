@@ -1,13 +1,11 @@
 <template>
   <div>
-    <div >
-      <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
-      <a>
+    <div>
       选手导入到本组<br/><br/>
       选手第一次导入时，可先不分组。此时可以将导入表格中的“分组名称”留空，进行导入操作。待分组后，再导入一次，从而实现分组。
       选手的信息项以及评分项，也可在选手第一次导入时留空，待第二次、第三次（或之后）导入时填入那些信息。<br/>
-      </a>
       <div style="display: flex;justify-content: space-between;">
+
         <!-- <div>
           <el-input placeholder="请输入单位名进行搜索，可以直接回车搜索..." prefix-icon="el-icon-search"
                     clearable
@@ -73,9 +71,7 @@
             fixed
             align="left"
             label="序号"
-            min-width="25%"
-            v-if="mode === 'admin'"
-        >
+            width="200px">
           <template slot-scope="scope">
             <el-input-number v-model="scope.row.displaySequence" :min="1" :max="total"
                              controls-position="right"
@@ -84,45 +80,36 @@
             ></el-input-number>
             <el-button icon="" type="primary" @click="alterDisplay(scope.row)" size="mini"
                        style="padding: 4px"
-                       plain >更改
+                       plain>
+              更改
             </el-button>
           </template>
-        </el-table-column>
-        <el-table-column
-            prop="displaySequence"
-            fixed
-            align="center"
-            label="序号"
-            min-width="3%"
-            v-if="mode !== 'admin'"
-            >
         </el-table-column>
         <el-table-column
             prop="code"
             align="left"
             label="编号"
-            min-width="10%">
+            width="200px">
         </el-table-column>
         <el-table-column
             prop="idnumber"
             align="left"
             label="身份证号码"
-            min-width="10%">
+            width="200px">
         </el-table-column>
         <el-table-column
             prop="name"
             align="left"
             label="姓名"
-            min-width="10%">
+            width="100px">
         </el-table-column>
         <el-table-column
-            sortable
             prop="score"
-            label="活动得分"
+            label="得分"
             align="center"
-            min-width="10%">
+            width="80px">
         </el-table-column>
-        <el-table-column align="left" label="操作" min-width="30%">
+        <el-table-column align="left" min-width="10%" label="操作">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"
@@ -145,15 +132,15 @@
           </template>
         </el-table-column>
       </el-table>
-<!--      <div v-show="mode==='admin'" style="display: flex;justify-content: flex-end;margin:10px 0">-->
-<!--        <el-pagination-->
-<!--            background-->
-<!--            @current-change="currentChange"-->
-<!--            @size-change="sizeChange"-->
-<!--            layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
-<!--            :total="total">-->
-<!--        </el-pagination>-->
-<!--      </div>-->
+      <div style="display: flex;justify-content: flex-end;margin:10px 0">
+        <el-pagination
+            background
+            @current-change="currentChange"
+            @size-change="sizeChange"
+            layout="sizes, prev, pager, next, jumper, ->, total, slot"
+            :total="total">
+        </el-pagination>
+      </div>
     </div>
 
 
@@ -304,17 +291,12 @@
         </span>
     </el-dialog>
     <!--弹窗-->
-    <el-dialog :title="title" :visible.sync="dialogVisible_checkbox" width="90%" center>
-<!--      <div style="font-size: 17px;">-->
-<!--        导入模板中必须包含身份证号和姓名，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。-->
-<!--        <br/>-->
-<!--        首次导入请注意！如果student表中已有该选手的记录，则手机号、邮箱、属于本单位三列可为空，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为编号和手机号，其余必须填写。-->
-<!--          <br/>模版内的列顺序为点击顺序。-->
-<!--      </div><br/>-->
-        <div style="font-size: 17px;">
-            导入模板中必须包含姓名和身份证号，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。
-            <br/>
-        </div><br/>
+    <el-dialog :title="title" :visible.sync="dialogVisible_checkbox" width="60%" center>
+      <div style="font-size: 17px;">
+        导入模板中必须包含身份证号和姓名，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。
+        <br/>
+        首次导入请注意！如果student表中已有该选手的记录，则手机号、邮箱、属于本单位三列可为空，“属于本单位”列填是或否。用户名密码可以不填写，若不填写第一次导入将默认为编号和手机号，其余必须填写。
+      </div><br/>
       <div style="font-size: 16px;margin-left: 15%">基本信息：<br/>
         <el-checkbox label="姓名" key="姓名" v-model="dymatic_list" disabled style="width: 150px">姓名</el-checkbox>
         <el-checkbox label="身份证号码" v-model="dymatic_list" disabled style="width: 150px">身份证号码</el-checkbox>
@@ -322,20 +304,18 @@
         <el-checkbox label="序号" v-model="dymatic_list"  style="width: 150px">序号</el-checkbox>
         <el-checkbox label="手机号" v-model="dymatic_list"  style="width: 150px">手机号</el-checkbox>
         <el-checkbox label="邮箱" v-model="dymatic_list"  style="width: 150px">邮箱</el-checkbox>
-<!--        <el-checkbox label="属于本单位" v-model="dymatic_list"  style="width: 150px">属于本单位</el-checkbox>-->
-<!--        <el-checkbox label="用户名" v-model="dymatic_list"  style="width: 150px">用户名</el-checkbox>-->
-<!--        <el-checkbox label="密码" v-model="dymatic_list"  style="width: 150px">密码</el-checkbox>-->
+        <el-checkbox label="属于本单位" v-model="dymatic_list"  style="width: 150px">属于本单位</el-checkbox>
+        <el-checkbox label="用户名" v-model="dymatic_list"  style="width: 150px">用户名</el-checkbox>
+        <el-checkbox label="密码" v-model="dymatic_list"  style="width: 150px">密码</el-checkbox>
       </div><br/>
       <div style="font-size: 16px;margin-left: 15%">信息项：<br/>
-        <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" v-model="infoitem" style="width: 450px">
+        <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" v-model="infoitem" style="width: 150px">
         </el-checkbox>
       </div><br/>
       <div style="font-size: 16px;margin-left: 15%">评分项：<br/>
-        <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: 450px">
+        <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: 150px">
         </el-checkbox>
       </div>
-        <div style="font-size: 16px;margin-left: 15%;margin-top: 15px">模版中的列排列顺序如下：<br/></div>
-        <div style="font-size: 16px;margin-left: 15%">{{preview(dymatic_list,scoreitem,infoitem)}}</div>
       <span slot="footer" class="dialog-footer">
           <el-button type="primary" @click="exportMo">下载</el-button>
           <el-button @click="dialogVisible_checkbox = false">关闭</el-button>
@@ -378,7 +358,6 @@ export default {
       keyword: '',
       activityID: '',
       groupID: '',
-      mode:'',
       size: 10,
       positions: [],
       emp: {
@@ -407,7 +386,7 @@ export default {
   },
   computed: {
     user() {
-      return JSON.parse(localStorage.getItem('user')); //object信息
+      return this.$store.state.currentHr;//object信息
     }
   },
   created() {
@@ -416,19 +395,12 @@ export default {
     //this.init();//先获得评分项
     this.groupID = this.$route.query.groupID;
     this.activityID = this.$route.query.activityID;
-    this.mode = this.$route.query.mode
+    this.initEmps();
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
     this.ACNAME=this.$route.query.keywords_name;
-    this.initEmps();
   },
   methods: {
-      preview(dymatic_list,infoitem,scoreitem){
-          // 拼接3个list，然后转换为不带有引号的字符串
-          var list = dymatic_list.concat(scoreitem).concat(infoitem);
-          var str = list.join()
-          return str
-      },
     /** 查询角色列表 */
     onError(err, file, fileList) {
       this.importDataBtnText = '导入选手';
@@ -472,18 +444,17 @@ export default {
                   "Content-Type": "multipart/form-data",
                 },
               }).then((res) => {
-                this.refreshact()
                 this.$message(res.msg);
               })
             }
             else{
               let newD=[],h=this.$createElement;
-              newD.push(h('span',null,'导入数据中'));
+              newD.push(h('p',null,'导入数据中'));
               for(const i in res1)
               {
-                newD.push(h('span',null,res1[i]))
+                newD.push(h('p',null,res1[i]))
               }
-              newD.push(h('span',null,'，以上列数据会被置空，是否确认继续?'));
+              newD.push(h('p',null,'为空，以上列数据会被置空，是否确认继续?'));
               this.$confirm(h('div',null,newD), '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
@@ -503,7 +474,7 @@ export default {
             }
           })
           .catch((err) => {
-            // console.log(err);
+            console.log(err);
           });
 
     },
@@ -566,13 +537,14 @@ export default {
     },
     initEmps() {
       this.loading = true;
-      let url = '/participants/basic/?page=' + 1 + '&size=' + 1000+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
+      //console.log(this.groupID);
+      let url = '/participants/basic/?page=' + this.page + '&size=' + this.size+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
+      //console.log(url);
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
           //console.log("aha",resp);
           this.emps = resp.data;
-          // console.log(this.emps);
           this.total = resp.total;
           //console.log("total",this.total);
         }
@@ -580,18 +552,11 @@ export default {
     },
     back(){
       const _this = this;
-      var url;
-      if (this.mode==='admin')
-        url="/ActivitM/table"
-      else if (this.mode==='secretary')
-        url="/secretary/ActManage"
       _this.$router.push({
-        path: url,
+        path: "/ActivitM/table",
         query: {
           keywords: this.activityID,
-          keyword_name: this.ACNAME,
-          groupID:this.groupID,
-          mode:this.mode,
+          keyword_name: this.ACNAME
         },
       });
     },

@@ -17,10 +17,8 @@ public class Projectstype
     private String name;
 
     /** 指标点id */
-    private Long indicaterID;
+    private Long indicatorId;
 
-    /** 类别 */
-    private String type;
 
     public void setID(Long ID)
     {
@@ -40,23 +38,12 @@ public class Projectstype
     {
         return name;
     }
-    public void setIndicaterID(Long indicaterID)
-    {
-        this.indicaterID = indicaterID;
+
+    public Long getIndicatorId() {
+        return indicatorId;
     }
 
-    public Long getIndicaterID()
-    {
-        return indicaterID;
+    public void setIndicatorId(Long indicatorId) {
+        this.indicatorId = indicatorId;
     }
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
-    public String getType()
-    {
-        return type;
-    }
-
 }

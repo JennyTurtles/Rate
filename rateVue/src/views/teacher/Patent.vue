@@ -1,235 +1,185 @@
 <template>
   <div>
-    <div>
-      <div
+    <div
         style="display: flex; justify-content: space-between; margin: 15px 0"
-      >
-        <div>
-          <el-input
-            placeholder="请输入专利名称进行搜索，可以直接回车搜索..."
-            prefix-icon="el-icon-search"
+    >
+      <div>
+        <label style="fontSize:10px">学生姓名：</label>
+        <input type="text"
+               style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
+                border:1px solid lightgrey;color:lightgrey;
+                border-radius:4px;color:grey"
+               placeholder="学生姓名"
+               id="select_stuname">
+        <label style="fontSize:10px;margin-left:16px">专利名称：</label>
+        <input type="text"
+               style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
+                border:1px solid lightgrey;color:lightgrey;
+                border-radius:4px;color:grey"
+               placeholder="专利名称"
+               id="select_paperName">
+
+        <label style="fontSize:10px;margin-left:40px;">专利状态：</label>
+        <el-select
+            v-model="tmp1"
+            style="margin-left:3px;width:120px"
+            prefix-icon="el-icon-edit"
             clearable
-            @clear="searchEmps"
-            style="width: 350px; margin-right: 10px"
-            v-model="keyword"
-            @keydown.enter.native="searchEmps"
-            :disabled="showAdvanceSearchView"
-          ></el-input>
-          <el-button
+            filterable
+            placeholder="状态筛选"
+            @change="((val) => filter(val,'select_state'))"
+            id="select_state"
+        >
+          <el-option
+              v-for="val in option"
+              :key="val"
+              :value="val"
+          >
+          </el-option>
+        </el-select>
+        <label style="fontSize:10px;margin-left:16px">积分范围：</label>
+        <el-select
+            v-model="tmp2"
+            style="margin-left:3px;width:60px"
+            prefix-icon="el-icon-edit"
+            clearable
+            filterable
+            placeholder="1"
+            @change="((val) => filter(val,'select_point1'))"
+            id="select_point1"
+        >
+          <el-option
+              style=""
+              v-for="val in select_point"
+              :key="val"
+              :value="val"
+          >
+          </el-option>
+        </el-select>
+        <label >&nbsp; - &nbsp;</label>
+        <el-select
+            v-model="tmp3"
+            style="margin-left:3px;width:60px"
+            prefix-icon="el-icon-edit"
+            clearable
+            filterable
+            placeholder="12"
+            @change="((val) => filter(val,'select_point2'))"
+            id="select_point2"
+        >
+          <el-option
+              style=""
+              v-for="val in select_point"
+              :key="val"
+              :value="val"
+          >
+          </el-option>
+        </el-select>
+        <el-button
             icon="el-icon-search"
             type="primary"
             @click="searchEmps"
             :disabled="showAdvanceSearchView"
-          >
-            搜索
-          </el-button>
-          <el-button
-            icon="el-icon-refresh"
-            type="primary"
-            @click="initEmps"
-            :disabled="showAdvanceSearchView"
-          >
-            重置
-          </el-button>
-          <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
-            添加专利
-          </el-button>
-        </div>
-        <!-- <div>
-          <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
-          添加专利
-          </el-button>
-        </div> -->
-        <div>
-          <el-upload
-            :show-file-list="false"
-            :before-upload="beforeUpload"
-            :on-success="onSuccess"
-            :on-error="onError"
-            :disabled="importDataDisabled"
-            style="display: inline-flex; margin-right: 8px"
-            action="/employee/basic/import"
-          >
-            <el-button
-              :disabled="importDataDisabled"
-              type="primary"
-              :icon="importDataBtnIcon"
-            >
-              {{ importDataBtnText }}
-            </el-button>
-          </el-upload>
-          <el-button type="primary" @click="exportData" icon="el-icon-download">
-            导出数据
-          </el-button>
-        </div>
+            style="margin-left:30px"
+        >
+          搜索
+        </el-button>
       </div>
     </div>
     <div style="margin-top: 10px">
       <el-table
-        :data="emps"
-        stripe
-        border
-        v-loading="loading"
-        :header-cell-style="rowClass"
-        element-loading-text="正在加载..."
-        element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.12)"
-        style="width: 100%"
+          :data="emps"
+          stripe
+          border
+          v-loading="loading"
+          :header-cell-style="rowClass"
+          element-loading-text="正在加载..."
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(0, 0, 0, 0.12)"
+          style="width: 100%"
       >
-        <el-table-column type="selection" width="35px"> </el-table-column>
-
         <el-table-column
-          prop="id"
-          fixed
-          align="center"
-          label="编号"
-          width="150"
+            prop="student.name"
+            align="center"
+            label="学生姓名"
+            width="75"
         >
         </el-table-column>
-        <!-- width="70" -->
         <el-table-column
-          prop="name"
-          fixed
-          align="center"
-          label="专利名称"
-          width="200"
+            prop="name"
+            align="center"
+            label="专利名称"
+            width="230"
         >
         </el-table-column>
         <!-- width="200" -->
         <el-table-column
-          prop="institutionID"
-          fixed
-          align="center"
-          label="所属人Id"
-          width="200"
-        >
-        </el-table-column>
-        <!-- width="200" -->
-        <el-table-column
-          prop="total"
-          label="人数"
-          align="center"
-          width="130"
-        >
-        </el-table-column>
-        <!-- width="100" -->
-        <el-table-column
-          prop="scoreItemCount"
-          label="简介"
-          align="left"
-          width="500"
-        >
-        </el-table-column>
-         <el-table-column
-          prop="type"
-          label="专利类别"
-          align="center"
-          width="250"
-        >
-        </el-table-column>
-        <!-- width="70" -->
-        <el-table-column
-          prop="score"
-          label="评分"
-          align="center"
-          width="75"
-        >
-        </el-table-column>
-        <!-- width="60" -->
-        <el-table-column
-          prop="comment"
-          width="90"
-          align="center"
-          label="备注"
+            prop="state"
+            label="状态"
+            width="110"
+            align="center"
         >
           <template slot-scope="scope">
-            <el-button
-              @click="showEditEmpView_show(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              >查看详情</el-button
-            >
-          </template>
-        </el-table-column>
-        <!-- width="80" -->
-        <!-- width="550" -->
-        <el-table-column align="center" width="650" label="操 作">
-          <template slot-scope="scope">
-            <el-button
-              @click="showEditEmpView(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              icon="el-icon-edit"
-              type="primary"
-              plain
-              >编辑</el-button
-            >
-            <!-- <el-button
-              @click="showScoreItem(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              icon="el-icon-tickets"
-              type="primary"
-              plain
-              >评分项设置</el-button
-            >
-            <el-button
-              @click="showGroupmanagement(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              icon="el-icon-s-operation"
-              type="primary"
-              plain
-              >分组管理</el-button
-            >
-            <el-button
-              @click="showInsertmanagement(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              icon="el-icon-plus"
-              type="primary"
-              plain
-              >导入选手</el-button
-            >
-            <el-button
-                @click="showteachermanagement(scope.row)"
+            <span
                 style="padding: 4px"
                 size="mini"
-                icon="el-icon-plus"
-                type="primary"
-                plain
-            >导入专家</el-button
+                :model="emp.state"
+                :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
             >
-
+              {{scope.row.state=="commit"
+                ? "学生提交"
+                :scope.row.state=="tea_pass"
+                    ? "导师通过"
+                    :scope.row.state=="tea_reject"
+                        ? "导师驳回"
+                        :scope.row.state=="adm_pass"
+                            ? "管理员通过"
+                            :"管理员驳回"}}
+              </span>
+          </template>
+        </el-table-column>
+        <el-table-column
+            prop="patentType.name"
+            label="专利类别"
+            align="center"
+            width="240"
+        >
+        </el-table-column>
+        <el-table-column
+            prop="point"
+            label="积分"
+            align="center"
+            width="80"
+        >
+        </el-table-column>
+        <el-table-column
+            prop="remark"
+            label="备注"
+            align="center"
+        >
+        </el-table-column>
+        <el-table-column
+            width="130"
+            align="center"
+            label="详情"
+        >
+          <template slot-scope="scope">
             <el-button
-              @click="deleteEmp(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              type="danger"
-              icon="el-icon-circle-close"
-              plain
-              >结束专利</el-button
-            > -->
-            <el-button
-              @click="deleteEmp(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              type="danger"
-              icon="el-icon-delete"
-              plain
-              >删除</el-button
+                @click="showEditEmpView_show(scope.row)"
+                style="padding: 4px"
+                size="mini"
+            >查看详情</el-button
             >
           </template>
         </el-table-column>
       </el-table>
-
       <div style="display: flex; justify-content: flex-end; margin: 10px 0">
         <el-pagination
-          background
-          @current-change="currentChange"
-          @size-change="sizeChange"
-          layout="sizes, prev, pager, next, jumper, ->, total, slot"
-          :total="total"
+            background
+            @current-change="currentChange"
+            @size-change="sizeChange"
+            layout="sizes, prev, pager, next, jumper, ->, total, slot"
+            :total="total"
         >
         </el-pagination>
       </div>
@@ -237,47 +187,21 @@
 
     <el-dialog :title="title" :visible.sync="dialogVisible" width="30%" center>
       <el-form
-        :label-position="labelPosition"
-        label-width="100px"
-        :model="emp"
-        :rules="rules"
-        ref="empForm"
-        
+          :label-position="labelPosition"
+          label-width="100px"
+          :model="emp"
+          :rules="rules"
+          ref="empForm"
       >
         <el-form-item label="专利名称:" prop="name">
           <el-input
-            size="mini"
-            style="width: 200px"
-            prefix-icon="el-icon-edit"
-            v-model="emp.name"
-            placeholder="请输入单位名称"
+              size="mini"
+              style="width: 200px"
+              prefix-icon="el-icon-edit"
+              v-model="emp.name"
+              placeholder="请输入单位名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="开始日期:" prop="startDate">
-          <el-input
-            size="mini"
-            style="width: 200px"
-            prefix-icon="el-icon-edit"
-            v-model="emp.startDate"
-            type="date"
-            placeholder="开始日期"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="备 注: " prop="comment">
-          <!-- <textarea v-model="emp.comment" placeholder="备注" style="height:100px;width: 350px"></textarea> -->
-          <el-input
-            type="textarea"
-            :rows="2"
-            v-model="emp.comment"
-            placeholder="备注"
-          >
-          </el-input>
-        </el-form-item>
-
-        <!-- <el-form-item label="评分项数:" prop="scoreItemCount">
-                <el-input size="mini" style="width: 200px" prefix-icon="el-icon-edit" v-model="emp.scoreItemCount"
-                          placeholder="评分项数"></el-input>
-              </el-form-item> -->
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -286,51 +210,201 @@
       </span>
     </el-dialog>
 
-    <el-dialog
-      :title="title_show"
-      :visible.sync="dialogVisible_show"
-      width="25%"
-      center
-    >
+    <!-- 对话框 老师审核通过专利 -->
+    <el-dialog :title="title"
+               :visible.sync="dialogVisible_pass" width="30%" center>
+      <!-- 确定审核通过该学生专利？ -->
       <el-form
-        :label-position="labelPosition"
-        label-width="80px"
-        :model="emp"
-        :rules="rules"
-        ref="empForm"
-        style="margin-left: 60px"
+          :label-position="labelPosition"
+          label-width="80px"
+          :model="emp"
+          :rules="rules"
+          ref="empForm"
+          style="margin-left: 60px"
       >
-        <el-form-item label="分组数:" prop="groupCount">
-          <span>{{ emp.groupCount }}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="专家数:" prop="expertCount">
-          <span>{{ emp.expertCount }}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="选手数:" prop="participantCount">
-          <span>{{ emp.participantCount }}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="备 注:">
-          <span>{{ emp.comment }}</span>
+        <el-form-item label="专利ID:" prop="id">
+          <span>{{ emp.id }}</span>
         </el-form-item>
       </el-form>
-
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogVisible_show = false"
-          >关 闭</el-button
-        >
+        <!-- <el-button @click="dialogVisible_pass = false">取 消</el-button> -->
+        <el-button type="primary" @click="auditing_commit('tea_pass')">确 定</el-button>
       </span>
+    </el-dialog>
+    <!-- 对话框 老师驳回该学生专利 -->
+    <el-dialog :title="title"
+               :visible.sync="dialogVisible_reject" width="30%" center>
+
+      <el-form
+          :label-position="labelPosition"
+          label-width="80px"
+          :model="emp"
+          :rules="rules"
+          ref="empForm"
+          style="margin-left: 40px"
+      >
+        <el-form-item label="专利ID:" prop="id">
+          <span>{{ emp.id }}</span>
+        </el-form-item>
+        <el-form-item label="驳回理由:">
+          <el-input
+              type="textarea"
+              :rows="4"
+              v-model="reason"
+              placeholder="驳回理由"
+          >
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <!-- <el-button @click="dialogVisible_pass = false">取 消</el-button> -->
+        <el-button type="primary" @click="auditing_commit('tea_reject')">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 查看详情按钮 -->
+    <el-dialog
+        class="showInfo_dialog"
+        :title="title_show"
+        :visible.sync="dialogVisible_show"
+        width="520px"
+        center>
+      <el-form
+          :label-position="labelPosition"
+          label-width="80px"
+          :model="emp"
+          :rules="rules"
+          ref="empForm"
+          style="margin-left: 20px"
+      >
+        <el-form-item label="专利名:" prop="name">
+          <span>{{ emp.name }}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="学生姓名:" prop="student.name">
+          <span>{{ emp.student.name }}</span
+          ><br />
+        </el-form-item>
+
+
+        <el-form-item label="专利状态:" prop="state">
+          <span>{{emp.state}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者人数:" prop="total">
+          <span>{{emp.total}}</span
+          ><br />
+        </el-form-item>
+<!--        <el-form-item label="作者列表:" prop="author">-->
+<!--          <span>{{emp.author}}</span-->
+<!--          ><br />-->
+<!--        </el-form-item>-->
+        <el-form-item label="排名:" prop="rank">
+          <span>{{emp.rank}}</span
+          ><br />
+        </el-form-item>
+<!--        <el-form-item label="受理日期:" prop="year">-->
+<!--          <span>{{emp.year}}</span-->
+<!--          ><br />-->
+<!--        </el-form-item>-->
+        <el-form-item label="受理日期:" prop="month">
+          <span>{{emp.month}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="证明材料:" prop="url">
+          <!-- <el-button @click="download(emp)" type="primary">下载材料</el-button> -->
+          &nbsp;&nbsp;&nbsp;&nbsp;
+          <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
+          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(emp)"
+             onmouseover="this.style.color = 'blue'"
+             onmouseleave="this.style.color = 'gray'">
+            {{emp.url|fileNameFilter}}</a>
+          <br />
+        </el-form-item>
+        <div >
+          <span>历史操作:</span>
+          <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
+            <div  v-for="item in emp.patentList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
+              <div style="font-size: 10px;">
+                <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operation}}</p>
+                <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-form>
+      <span slot="footer" class="dialog-footer" :model="emp">
+            <el-button
+                id="but_pass"
+                v-show="(emp.state=='commit' || (emp.state=='tea_pass' && role == 1)) ? true:false"
+                @click="(()=>{
+                  if (this.role.indexOf('8') != -1)
+                   auditing_commit('tea_pass')
+                  else if (this.role.indexOf('1') != -1)
+                   auditing_commit('adm_pass')
+                }) "
+                type="primary"
+            >审核通过</el-button>
+            <el-button
+                id="but_reject"
+                v-show="(emp.state=='commit' || (emp.state=='tea_pass' && role == 1)) ? true:false"
+                @click="isShowInfo = true"
+                type="primary"
+            >审核不通过</el-button>
+            <el-button
+                id="but_reject"
+                v-show="(emp.state=='tea_reject' || emp.state=='adm_reject' || emp.state == 'adm_pass' || (emp.state=='tea_pass' && role == 8))? true:false"
+                @click="dialogVisible_show = false"
+                type="primary"
+            >关闭</el-button>
+
+        <!--                      <el-button-->
+        <!--                          id="but_reject"-->
+        <!--                          @click="dialogVisible_show = false"-->
+        <!--                          type="primary"-->
+        <!--                      >关闭</el-button>-->
+        </span>
+    </el-dialog>
+    <el-dialog v-model="emp" :visible.sync="isShowInfo">
+      <el-input
+          type="textarea"
+          :rows="4"
+          v-model="reason"
+          placeholder="请输入专利驳回理由"
+      >
+      </el-input>
+      <span slot="footer">
+          <el-button @click=" (()=>{
+            if (this.role.indexOf('8') != -1)
+              auditing_commit('tea_reject')
+            else if (this.role.indexOf('1') != -1)
+              auditing_commit('adm_reject')
+            isShowInfo = false
+          })"
+                     type="primary">确定</el-button>
+          <el-button @click="isShowInfo = false">取消</el-button>
+        </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import { set } from 'vue';
 export default {
   name: "SalSearch",
   data() {
     return {
+      tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
+      ispubFlag:false,
+      ispubShow:false,
+      select_pub_option:'',
+      operList:[],
+      isShowInfo:false,
+      select_stuName:["全部"],//筛选框
+      select_paperName:["全部"],
+      select_point:['全部',1,3,4,6,9,12,15],
+      select_pubName:[],
+      option:["全部","学生提交","导师通过","管理员通过","导师驳回","管理员驳回"],
       labelPosition: "left",
       title: "",
       title_show: "",
@@ -339,15 +413,32 @@ export default {
       importDataDisabled: false,
       showAdvanceSearchView: false,
       allDeps: [],
+      copyemps:[],
       emps: [],
+      role:-1,
       loading: false,
       dialogVisible: false,
+      dialogVisible_pass: false,
+      dialogVisible_reject: false,
       dialogVisible_show: false,
       total: 0,
       page: 1,
       keyword: "",
       size: 10,
       positions: [],
+      reason:"",
+      oper:{
+        operatorRole:"teacher",
+        operatorID:JSON.parse(localStorage.getItem('user')).id,
+        operatorName:JSON.parse(localStorage.getItem('user')).name,
+        paperID:null,
+        paperName:null,
+        pubID:null,
+        pubName:null,
+        operation:"",
+        state:"",
+        remark:""
+      },
       emp: {
         id: null,
         institutionID: null,
@@ -359,6 +450,11 @@ export default {
         expertCount: "0",
         participantCount: "0",
         comment: "javaboy",
+        state:"",
+        student:{},
+        total:0,
+        rank:0
+        // reason:"",
       },
       defaultProps: {
         children: "children",
@@ -386,13 +482,134 @@ export default {
     user() {
       return this.$store.state.currentHr; //object信息
     },
+    menuHeight() {
+      return this.select_pubName.length * 50 > 150
+          ? 150 + 'px'
+          : '${this.select_pubName.length * 50}px'
+    },
   },
   created() {},
   mounted() {
     this.initEmps();
     this.initPositions();
   },
+  filters:{
+    fileNameFilter:function(data){//将证明材料显示出来
+      if(data == null || data == ''){
+        return '无证明材料'
+      }else{
+        var arr= data.split('/')
+        return  arr.reverse()[0]
+      }
+    }
+  },
+  watch:{
+    //期刊输入框变化
+    select_pub_option:{
+      handler(val){
+        let url = "/publication/basic/listByName?publicationName=" + val
+        console.log(url);
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.select_pubName=[]
+            if(resp.data != null){
+              for(var i=0;i<resp.data.length;i++){
+                this.select_pubName.push(
+                    {
+                      index:resp.data[i].id,
+                      value:resp.data[i].name,
+                      point:resp.data[i].indicator.score
+                    }
+                )
+              }
+            }else{
+              this.$message.error(`请检查期刊名称的拼写`);
+            }
+          }
+        });
+      }
+
+    }
+  },
   methods: {
+    download(data){//下载证明材料
+      var fileName = data.url.split('/').reverse()[0]
+      console.log(fileName);
+      if(localStorage.getItem("user")){
+        var url="/paper/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
+        window.location.href = encodeURI(url);
+      }else{
+        this.$message.error("请重新登录！");
+      }
+    },
+    filter(val,options){
+      document.getElementById(options).value=val
+    },
+    filter_pub(val){//选择期刊
+      this.select_pub_option=val
+      this.ispubFlag=false
+      this.ispubShow=false
+    },
+    //点击对话框中的确定按钮 触发事件
+    auditing_commit(num){
+      debugger
+      console.log(this.role)
+      this.loading = true;
+      let url;
+      const _this=this
+      this.dialogVisible_show=false
+      url= "/patent/basic/edit_state?state="+num
+          +"&ID="+this.emp.id
+      if(false){
+        this.loading = false;
+        this.$message.success('专利已通过，无法驳回')
+      }else{
+        this.getRequest(url).then((resp) => {
+          debugger
+          this.loading = false;
+          if (resp) {
+            this.emp.state=num
+            this.total = resp.total;
+            // this.emp.pubid = this.emp.publicationID;
+            // this.emp.pubName = this.emp.publication.name;
+            this.$message({
+              type: 'success',
+              message: '操作成功'
+            })
+            this.doAddOper(num,this.reason,
+                this.emp.id,this.emp.name,
+                this.emp.pubName,this.emp.pubid);
+          }
+        }).finally(()=>{
+
+          this.initEmps();
+        });
+      }
+    },
+    doAddOper(state,reamrk,paperID,paperName,pubName,pubID) {
+
+      debugger
+      this.oper.state=state
+      this.oper.remark=reamrk,
+          this.oper.patentID=paperID,
+          this.oper.patentName=paperName,
+          this.oper.pubName=pubName,
+          this.oper.pubID=pubID
+      if(this.oper.state=="tea_pass" || this.oper.state=="adm_pass"){
+        this.oper.operation="审核通过"
+      }else{
+        this.oper.operation="审核驳回"
+      }
+      this.postRequest1("/patent/basic/add", this.oper).then(
+          (resp) => {
+            if (resp) {
+              console.log(resp)
+              this.initEmps()
+            }
+          }
+      );
+    },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
@@ -422,10 +639,11 @@ export default {
         startDate: null,
         name: "",
         scoreItemCount: "0",
-        comment: "专利备注example：关于xxx的专利",
+        comment: "备注example：关于xxx的专利",
       };
     },
-    showEditEmpView(data) {
+    showEditEmpView(data) {//修改论文
+      console.log(data.id)
       this.initPositions();
       this.title = "编辑单位信息";
       this.emp = data;
@@ -435,20 +653,33 @@ export default {
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
+      this.getRequest("/patent/basic/List?ID="+data.id).then((resp) => {
+        this.loading = false;
+        if (resp) {
+          console.log("/paperoper/basic/List?ID=");
+          console.log(resp);
+          this.isShowInfo=false
+          this.operList=resp.data
+          this.operList.sort(function(a,b){
+            return a.time > b.time ? -1 : 1
+          })
+        }
+      });
     },
     deleteEmp(data) {
       console.log(data);
       this.$confirm(
-        "此操作将永久删除【" + data.company + "】, 是否继续?",
-        "提示",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
+          "此操作将永久删除【" + data.name + "】, 是否继续?",
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          }
       ).then(() => {
-        this.postRequest("/institution/basic/delete", data).then((resp) => {
+        this.postRequest("/paper/basic/remove", {ID:data.id}).then((resp) => {
           if (resp) {
+            console.log(resp)
             this.dialogVisible = false;
             this.initEmps();
           }
@@ -462,12 +693,12 @@ export default {
           if (valid) {
             const _this = this;
             this.postRequest("/activities/basic/update", _this.emp).then(
-              (resp) => {
-                if (resp) {
-                  this.dialogVisible = false;
-                  this.initEmps();
+                (resp) => {
+                  if (resp) {
+                    this.dialogVisible = false;
+                    this.initEmps();
+                  }
                 }
-              }
             );
           }
         });
@@ -479,12 +710,12 @@ export default {
             console.log(this.user.id);
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(
-              (resp) => {
-                if (resp) {
-                  this.dialogVisible = false;
-                  this.initEmps();
+                (resp) => {
+                  if (resp) {
+                    this.dialogVisible = false;
+                    this.initEmps();
+                  }
                 }
-              }
             );
           }
         });
@@ -512,17 +743,33 @@ export default {
     },
     initEmps() {
       this.loading = true;
+      this.role = JSON.parse(localStorage.getItem('user')).role
       let url = "/patent/basic/List";
       console.log(url);
-      console.log(this.user.companyName);
-      console.log(this.user.id);
       this.getRequest(url).then((resp) => {
-        console.log(resp)
         this.loading = false;
         if (resp) {
           console.log(resp);
           this.emps = resp.data;
+          this.copyemps=this.emps
           this.total = resp.total;
+          for(var i=0;i<this.emps.length;i++){
+            var papername=this.emps[i].name
+            if(this.select_paperName.indexOf(papername)==-1){
+              this.select_paperName.push(papername)
+            }
+            var judge=this.emps[i].student.sname
+            if(this.select_stuName.indexOf(judge)==-1){
+              this.select_stuName.push(judge)
+            }
+            var pub=this.emps[i].publication.name
+            if(this.select_pubName.indexOf(pub)==-1){
+              this.select_pubName.push(pub)
+            }
+          }
+          this.emps.sort(function(a,b){
+            return a.time > b.time ? -1 : 1
+          })
         }
       });
     },
@@ -566,25 +813,50 @@ export default {
         },
       });
     },
-    searchEmps() {
-      this.loading = true;
-      console.log('---------',this.keyword);
-      const _this = this;
-      //let url =
-      this.getRequest(
-        "/activities/basic/search?company=" +
-          this.keyword +
-          "&page=" +
-          this.page +
-          "&size=" +
-          this.size
-      ).then((resp) => {
+    searchEmps() {//根据条件搜索论文
+      var newemps=new Set()
+      // var copyemps=this.emps
+      var stuname=document.getElementById("select_stuname").value
+      var select_paperName=document.getElementById("select_paperName").value
+      var state = null
+      if(this.tmp1 == '导师通过'){
+        state = 'tea_pass'
+      }else if(this.tmp1 == '导师驳回'){
+        state = 'tea_reject'
+      }else if(this.tmp1 == '学生提交'){
+        state = 'commit'
+      }else if (this.tmp1 == '管理员通过'){
+        state = 'adm_pass'
+      }else if (this.tmp1 == '管理员驳回') {
+        state = 'adm_reject'
+      }
+      this.postRequest("/patent/basic/List", {'stuName':stuname,'zcName':select_paperName,'sState':state,'sScore':this.tmp2,'eScore':this.tmp3}).then((resp) => {
         this.loading = false;
         if (resp) {
+          console.log(resp);
           this.emps = resp.data;
+          this.copyemps=this.emps
           this.total = resp.total;
+          for(var i=0;i<this.emps.length;i++){
+            var papername=this.emps[i].name
+            if(this.select_paperName.indexOf(papername)==-1){
+              this.select_paperName.push(papername)
+            }
+            var judge=this.emps[i].student.sname
+            if(this.select_stuName.indexOf(judge)==-1){
+              this.select_stuName.push(judge)
+            }
+            var pub=this.emps[i].publication.name
+            if(this.select_pubName.indexOf(pub)==-1){
+              this.select_pubName.push(pub)
+            }
+          }
+          this.emps.sort(function(a,b){
+            return a.time > b.time ? -1 : 1
+          })
         }
       });
+      console.log({'stuName':stuname,'zcName':select_paperName,'sState':this.tmp1,'sScore':this.tmp2,'eScore':this.tmp3})
     },
   },
 };
@@ -593,6 +865,38 @@ export default {
 <style>
 /* 可以设置不同的进入和离开动画 */
 /* 设置持续时间和动画函数 */
+/* .selectInput { */
+/* position: relative; */
+/* display: inline-block; */
+
+/* } */
+.showInfo_dialog .el-form-item{
+  margin-bottom: 5px;
+}
+.select_div_input{
+  margin-left:3px;
+  width:120px;
+  height:32px;
+  position:relative;
+  display:inline-block
+}
+.select_div{
+  border-radius: 3px;
+  margin-top: 5px;
+  font-size: 14px;
+  position: absolute;
+  background-color: #fff;
+  z-index: 999;
+  overflow: auto;
+  width: 300px;
+  cursor: pointer;
+}
+input[type=text]::placeholder {
+  color:lightgrey;
+}
+input:focus{
+  border:1px solid lightblue;
+}
 .slide-fade-enter-active {
   transition: all 0.8s ease;
 }
@@ -605,5 +909,27 @@ export default {
   /* .slide-fade-leave-active for below version 2.1.8 */ {
   transform: translateX(10px);
   opacity: 0;
+}
+div::-webkit-scrollbar {
+  /* 隐藏默认的滚动条 */
+  -webkit-appearance: none;
+}
+div::-webkit-scrollbar:vertical {
+  /* 设置垂直滚动条宽度 */
+  width: 6px;
+}
+
+
+/* 这里不需要用到这个 */
+/* div::-webkit-scrollbar:horizontal{ */
+/* 设置水平滚动条厚度 */
+/* height: 2px; */
+/* } */
+
+div::-webkit-scrollbar-thumb {
+  /* 滚动条的其他样式定制，注意，这个一定也要定制，否则就是一个透明的滚动条 */
+  border-radius: 8px;
+  border: 3px solid rgba(255,255,255,.4);
+  background-color: rgba(0, 0, 0, .5);
 }
 </style>

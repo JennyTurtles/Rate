@@ -174,7 +174,7 @@
             label="备注"
         >
         </el-table-column>
-        <el-table-column align="left" min-width="7%" label="操作">
+        <el-table-column align="left" min-width="4%" label="操作">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"
@@ -185,15 +185,6 @@
                 plain
             >编辑</el-button
             >
-<!--            <el-button-->
-<!--                @click="initAdminListofPermission(scope.row)"-->
-<!--                style="padding: 4px"-->
-<!--                size="mini"-->
-<!--                type="primary"-->
-<!--                icon="el-icon-edit"-->
-<!--                plain-->
-<!--            >菜单授权</el-button-->
-<!--            >-->
             <el-button
                 @click="deleteHr(scope.row)"
                 style="padding: 4px"
@@ -220,8 +211,8 @@
               background
               @current-change="currentChange"
               @size-change="sizeChange"
-              :total="total"
               layout="sizes, prev, pager, next, jumper, ->, total, slot"
+              :total="total"
           >
           </el-pagination>
         </div>
@@ -281,11 +272,24 @@
               placeholder="请输入登录password"
           ></el-input>
         </el-form-item>
-        <el-form-item label=" 添加权限:">
-          <el-checkbox-group v-model="menuPermissionSelected">
-            <el-checkbox v-for="item in menuPermissionList" :key="item.id" :label="item.id">{{item.name}}</el-checkbox>
-          </el-checkbox-group>
-        </el-form-item>
+<!--        <el-form-item label="单位编号:" prop="institutionID">
+          <el-input
+              size="mini"
+              style="width: 30%"
+              prefix-icon="el-icon-edit"
+              v-model="hr_info_new.institutionID"
+              placeholder="请输入单位编号"
+          ></el-input>
+        </el-form-item>-->
+<!--        <el-form-item label="角色:" prop="role">
+          <el-input
+              size="mini"
+              style="width: 30%"
+              prefix-icon="el-icon-edit"
+              v-model="hr_info_new.role"
+              placeholder="请输入角色"
+          ></el-input>
+        </el-form-item>-->
         <el-form-item label=" 备 注:" prop="comment">
           <el-input
               prefix-icon="el-icon-edit"
@@ -303,16 +307,7 @@
         <el-button type="primary" @click="doAddHr">确 定</el-button>
       </span>
     </el-dialog>
-<!--    <el-dialog title="菜单授权" :visible.sync="dialogShowChangeAdminPermission" width="40%" center @close="closeDialogOfChangePermission">-->
-<!--      <el-checkbox-group v-model="changeAdminPermissionsList" @change="changeCheckBox">-->
-<!--        <el-checkbox v-for="item in menuPermissionList" :key="item.id" :label="item.id">{{item.name}}</el-checkbox>-->
-<!--      </el-checkbox-group>-->
-<!--      <span slot="footer">-->
-<!--        <el-button @click="doChangeAdminPermission" type="primary">确定</el-button>-->
-<!--        <el-button @click="closeDialogOfChangePermission">取消</el-button>-->
-<!--      </span>-->
-<!--    </el-dialog>-->
-<!--    编辑框-->
+
     <el-dialog
         :title="title"
         :visible.sync="dialogVisible_edit"
@@ -363,11 +358,24 @@
               placeholder="请输入登录username"
           ></el-input>
         </el-form-item>
-        <el-form-item label="菜单授权">
-          <el-checkbox-group v-model="changeAdminPermissionsList" @change="changeCheckBox">
-            <el-checkbox v-for="item in menuPermissionList" :key="item.id" :label="item.id">{{item.name}}</el-checkbox>
-          </el-checkbox-group>
-        </el-form-item>
+<!--        <el-form-item label="单位编号:" prop="institutionID">
+          <el-input
+              size="mini"
+              style="width: 30%"
+              prefix-icon="el-icon-edit"
+              v-model="hr_info.institutionID"
+              placeholder="请输入单位编号"
+          ></el-input>
+        </el-form-item>-->
+<!--        <el-form-item label="单位名称:" prop="companyName">
+          <el-input
+              size="mini"
+              style="width: 90%"
+              prefix-icon="el-icon-edit"
+              v-model="hr_info.companyName"
+              placeholder="请输入单位名称"
+          ></el-input>
+        </el-form-item>-->
         <el-form-item label="备 注:" prop="comment">
           <el-input
               prefix-icon="el-icon-edit"
@@ -395,31 +403,6 @@ export default {
   name: "PerEc",
   data() {
     return {
-      dialogShowChangeAdminPermission:false,
-      menuPermissionSelected:[],
-      currentAdmin:{},//标识当前点开的管理员
-      changeAdminPermissionsList:[],//单独修改某个管理员的菜单权限的绑定值
-      menuPermissionList:[
-        {
-          name:"本科生管理权限",
-          id:-1,
-          isPermission:true
-        },
-        {
-          name:"研究生管理权限",
-          id:-2,
-          isPermission:false
-        },
-        {
-          name:"教师管理权限",
-          id:-3,
-          isPermission:false
-        },
-        {
-          name:"活动管理权限",
-          id:-4,
-          isPermission:false
-        }],
       labelPosition: "left",
       searchValue: {
         compnayName: null,
@@ -451,7 +434,6 @@ export default {
         password: "123",
         role: 1,
         comment: null,
-        menuPermission:[]
       },
       hr_info_new: {
         id: null,
@@ -463,11 +445,9 @@ export default {
         enabled: 1,
         username: "test123",
         password: "123",
-        role: -1,
+        role: 1,
         comment: null,
-        menuPermission:[]
       },
-      user:{},
       rules: {
         compnayName: {
           required: true,
@@ -497,23 +477,23 @@ export default {
     };
   },
   created() {
-    this.user = JSON.parse(localStorage.getItem("user"))
     //this.keywords = this.$route.query.keywords;
   },
   mounted() {
     this.keywords = this.$route.query.keywords;
     this.keywords_id=this.$route.query.keywords_id;
     this.initHrs();
+    this.initData();
+    //this.initAd();
   },
   methods: {
-    changeCheckBox(){
-    },
     deleteHr(hr) {
       this.$confirm("此操作将永久删除【" + hr.name + "】, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
-      }).then(() => {
+      })
+          .then(() => {
             this.postRequest("/system/admin/delete", hr).then((resp) => {
               if (resp) {
                 this.initHrs();
@@ -555,34 +535,12 @@ export default {
     },
     showAddEmpView() {
       this.title = "添加管理员";
-      this.menuPermissionSelected = []//数据清空
       this.dialogVisible = true;
-      this.initPermissionMenuList()//初始化权限菜单，主要是id
-    },
-    initPermissionMenuList(){
-      if(this.menuPermissionList[0].id == -1){//如果菜单的id是初始值，说明没有做查询和赋值
-        this.getRequest('/system/config/getEspecialMenusOfAdmin').then((resp) => {
-          if(resp){
-            if(resp.status == 200){
-              resp.obj.map(item => {
-                //id进行赋值
-                if(item.nameZh == '本科生管理') this.menuPermissionList[0].id = item.id
-                else if(item.nameZh == '研究生管理') this.menuPermissionList[1].id = item.id
-                else if(item.nameZh == '教师管理') this.menuPermissionList[2].id = item.id
-                else if(item.nameZh == '活动管理') this.menuPermissionList[3].id = item.id
-              })
-            }
-          }
-        })
-      }
-
     },
     initHrs() {
       this.getRequest(
           "/system/admin/?keywords=" +
           this.keywords +
-          "&ID=" +
-          JSON.parse(localStorage.getItem("user")).id +
           "&page=" +
           this.page +
           "&size=" +
@@ -623,30 +581,26 @@ export default {
       this.page = currentPage;
       this.initHrs("advanced");
     },
-    showEditEmpView(data) {//点击编辑按钮
-      this.initPermissionMenuList()
+    showEditEmpView(data) {
+      this.initPositions();
       this.title = "编辑管理员信息";
       this.hr_info = data;
-      this.changeAdminPermissionsList = []
       this.inputDepName = data.company;
       this.dialogVisible_edit = true;
-      if (data.role != '' && data.role != null){
-        let temp = data.role.split(';')
-        temp.map(item => {
-          if(item != '') this.changeAdminPermissionsList.push(parseInt(item))
-        })
-      }
+    },
+    initPositions() {
+      /*this.getRequest('/employee/basic/positions').then(resp => {
+        if (resp) {
+          this.positions = resp;
+        }
+      })*/
     },
     doAddHr() {
-      if(this.changeAdminPermissionsList.length == 0){
-        this.$message.warning('请至少选择一个权限')
-        return
-      }
-      if (this.hr_info.id) {//编辑管理员
+      if (this.hr_info.id) {
+        //console.log(this.hr_info);
         const _this = this;
         this.$refs["adminForm"].validate((valid) => {
           if (valid) {
-            this.hr_info.role = this.changeAdminPermissionsList.join(';')
             this.postRequest("/system/admin/update", _this.hr_info).then(
                 (resp) => {
                   if (resp) {
@@ -662,19 +616,22 @@ export default {
           }
         });
       } else {
+        //console.log(this.hr_info_new);
         this.$refs["adminForm"].validate((valid) => {
           // const _this = this;
           this.hr_info_new.institutionID=this.keywords_id;
-          this.hr_info_new.role = this.changeAdminPermissionsList.join(';')//设置菜单权限
           if (valid) {
             const _this = this;
-            this.putRequest("/system/admin/insert", _this.hr_info_new).then((resp) => {
+            this.putRequest("/system/admin/insert", _this.hr_info_new).then(
+                (resp) => {
                   if (resp) {
-                    if(resp.status == 200){
-                      this.dialogVisible = false;
-                      this.initHrs();
-                      this.$message.success(resp.msg)
-                    } else this.$message.error(resp.msg)
+                    this.dialogVisible = false;
+                    this.initHrs();
+
+                    if(resp.msg==='添加成功!')
+                    {Message.success(resp.msg)}
+                    else
+                    {Message.error(resp.msg)}
                   }
                 }
             );
@@ -706,6 +663,19 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
+    initData() {
+      //if (!window.sessionStorage.getItem("institutions")) {
+      /* this.getRequest('/employee/basic/nations').then(resp => {
+          if (resp) {
+            //console.log(resp)
+            this.institutions = resp;
+            window.sessionStorage.setItem("institutions", JSON.stringify(resp));
+          }
+        })*/
+      //} else {
+      // this.institutions = JSON.parse(window.sessionStorage.getItem("institutions"));
+      //}
+    }, //
   },
 };
 </script>

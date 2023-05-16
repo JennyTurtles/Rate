@@ -5,21 +5,21 @@
       >
         <div>
               <label style="fontSize:10px">学生姓名：</label>
-              <input type="text" 
+              <input type="text"
                 style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
                 placeholder="学生姓名"
                 id="select_stuname">
               <label style="fontSize:10px;margin-left:16px">论文名称：</label>
-              <input type="text" 
+              <input type="text"
                 style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
                 placeholder="论文名称"
                 id="select_paperName">
               <label style="fontSize:10px;margin-left:16px">期刊：</label>
-              <div class="select_div_input">                  
+              <div class="select_div_input">
                   <input
                     style="margin-left:5px;width:120px;line-height:28px;
                             border:1px solid lightgrey;padding:0 10px 1px 15px;
@@ -153,7 +153,7 @@
               :model="emp.state"
               :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
               >
-              {{scope.row.state=="commit" 
+              {{scope.row.state=="commit"
               ? "学生提交"
               :scope.row.state=="tea_pass"
               ? "导师通过"
@@ -170,11 +170,10 @@
           label="发表刊物"
           align="center"
           width="240"
-          :formatter="checkScoreComent"
         >
         </el-table-column>
         <el-table-column
-
+            :formatter="checkScore"
           prop="point"
           label="积分"
           align="center"
@@ -220,7 +219,7 @@
         label-width="100px"
         :model="emp"
         :rules="rules"
-        ref="empForm"      
+        ref="empForm"
       >
         <el-form-item label="论文名称:" prop="name">
           <el-input
@@ -240,7 +239,7 @@
     </el-dialog>
 
 <!-- 对话框 老师审核通过论文 -->
-    <el-dialog :title="title" 
+    <el-dialog :title="title"
     :visible.sync="dialogVisible_pass" width="30%" center>
         <!-- 确定审核通过该学生论文？ -->
         <el-form
@@ -261,9 +260,9 @@
       </span>
     </el-dialog>
 <!-- 对话框 老师驳回该学生论文 -->
-    <el-dialog :title="title" 
+    <el-dialog :title="title"
     :visible.sync="dialogVisible_reject" width="30%" center>
-        
+
         <el-form
         :label-position="labelPosition"
         label-width="80px"
@@ -370,9 +369,9 @@
                   id="but_pass"
                   v-show="(emp.state=='commit' || (emp.state=='tea_pass' && role == 1)) ? true:false"
                   @click="(()=>{
-                  if (this.role == 8)
+                  if (this.role.indexOf('8') != -1)
                    auditing_commit('tea_pass')
-                  else if (this.role == 1)
+                  else if (this.role.indexOf('1') != -1)
                    auditing_commit('adm_pass')
                 }) "
                   type="primary"
@@ -395,7 +394,7 @@
 <!--                          @click="dialogVisible_show = false"-->
 <!--                          type="primary"-->
 <!--                      >关闭</el-button>-->
-        </span>     
+        </span>
     </el-dialog>
     <el-dialog v-model="emp" :visible.sync="isShowInfo">
         <el-input
@@ -407,9 +406,9 @@
         </el-input>
         <span slot="footer">
           <el-button @click=" (()=>{
-            if (this.role == 8)
+            if (this.role.indexOf('8') != -1)
               auditing_commit('tea_reject')
-            else if (this.role == 1)
+            else if (this.role.indexOf('1') != -1)
               auditing_commit('adm_reject')
             isShowInfo = false
           })"
@@ -647,7 +646,7 @@ export default {
             this.initEmps()
           }
         }
-      );    
+      );
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
@@ -689,7 +688,7 @@ export default {
       this.dialogVisible = true;
     },
     showEditEmpView_show(data) {
-      console.log(data.url)
+      console.log(this.role)
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
@@ -712,7 +711,7 @@ export default {
         {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
-          type: "warning",  
+          type: "warning",
         }
       ).then(() => {
         this.postRequest("/paper/basic/remove", {ID:data.id}).then((resp) => {
@@ -883,12 +882,8 @@ export default {
       }
       this.emps=Array.from(newemps)
     },
-    checkScoreComent(row){
-      if (row.state === "adm_pass" && row.point === 2 && row.have_score === 0)
-      {
-        return (row.remark === null ? "" : row.remark+";") + "本类别论文只计算一篇，本论文积分不计入总分"
-      }
-      return row.remark
+    checkScore(row){
+      return row.no_score == 1 ? "0（2分论文只能计算一次）" : row.point;
     },
   },
 };
@@ -942,11 +937,11 @@ export default {
   transform: translateX(10px);
   opacity: 0;
 }
-div::-webkit-scrollbar { 
+div::-webkit-scrollbar {
 	/* 隐藏默认的滚动条 */
 	-webkit-appearance: none;
 }
-div::-webkit-scrollbar:vertical { 
+div::-webkit-scrollbar:vertical {
 	/* 设置垂直滚动条宽度 */
 	width: 6px;
 }
@@ -958,10 +953,10 @@ div::-webkit-scrollbar:vertical {
 	/* height: 2px; */
 /* } */
 
-div::-webkit-scrollbar-thumb { 
+div::-webkit-scrollbar-thumb {
 	/* 滚动条的其他样式定制，注意，这个一定也要定制，否则就是一个透明的滚动条 */
-	border-radius: 8px; 
-	border: 3px solid rgba(255,255,255,.4); 
+	border-radius: 8px;
+	border: 3px solid rgba(255,255,255,.4);
 	background-color: rgba(0, 0, 0, .5);
 }
 </style>

@@ -1,6 +1,11 @@
 package org.sys.rate.mapper;
 
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+import org.sys.rate.model.BookOper;
 import org.sys.rate.model.Books;
+import org.sys.rate.model.ProjectsOper;
 
 import java.util.List;
 
@@ -61,4 +66,18 @@ public interface BooksMapper
     public int deleteBookByIds(String[] IDs);
 
     public List<Books> selectList();
+
+
+    @Select("SELECT ID FROM book WHERE studentID = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
+    public Integer checkScore(Long stuID);
+
+    @Update("UPDATE book SET state = #{state},have_score = #{valid} WHERE ID = #{ID}")
+    public Integer editState2(String state, Long ID, Integer valid);
+
+    int editState(@Param("state") String state, @Param("ID") Long id);
+
+    @Update("UPDATE student SET score = score + #{score} WHERE ID = #{stuID}")
+    public int updateScore(int stuID,int score);
+
+    int insertPaperoper(BookOper paperoper);
 }

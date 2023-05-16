@@ -6,8 +6,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.model.BookOper;
 import org.sys.rate.model.Books;
+import org.sys.rate.model.ProjectsOper;
 import org.sys.rate.service.admin.BooksService;
+
+import javax.mail.MessagingException;
 
 /**
  * 著作Controller
@@ -31,9 +35,21 @@ public class BooksController
     /**
      * 查询著作列表
      */
-    @PostMapping("/list")
+    @GetMapping("/list")
     @ResponseBody
     public JsonResult list(Books book)
+    {
+        List<Books> list = bookService.selectBookList(book);
+        return new JsonResult(list);
+    }
+
+
+    /**
+     * 查询著作列表
+     */
+    @PostMapping("/list")
+    @ResponseBody
+    public JsonResult postList(@RequestBody Books book)
     {
         List<Books> list = bookService.selectBookList(book);
         return new JsonResult(list);
@@ -69,5 +85,20 @@ public class BooksController
     public JsonResult remove(Long ids)
     {
         return new JsonResult(bookService.deleteBookById(ids));
+    }
+
+
+    //    修改论文状态
+    @GetMapping("/edit_state")
+    public JsonResult getById(String state, Long ID) throws MessagingException {
+        return new JsonResult(bookService.editState(state, ID));
+    }
+
+    @PostMapping("/addOper")
+    @ResponseBody
+    public JsonResult addSave(BookOper paperoper)
+    {
+        return new JsonResult(bookService.insertPaperOper(paperoper));
+//        return new JsonResult();
     }
 }

@@ -79,7 +79,7 @@ export const putRequest = (url, params) => {
         method: 'put',
         url: `${base}${url}`,
         data: params,
-		
+
     })
 }
 export const getRequest = (url, params) => {
