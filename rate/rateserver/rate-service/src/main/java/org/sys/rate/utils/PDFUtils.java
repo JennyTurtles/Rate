@@ -138,7 +138,9 @@ public class PDFUtils {
                             if(scoreL.getExpertID() != null){
                                 tableData[3+infoItemsShow.size()+j] = scoreL.getScore() + "";
                             }else {
-                                tableData[3+infoItemsShow.size()+j] = "";
+                                //遍历到的专家id为空，但是表格的cell已经有值了，说明已经赋过值了，就不再赋空值
+                                if(tableData[3+infoItemsShow.size()+j].equals(""))
+                                    tableData[3+infoItemsShow.size()+j] = "";
                             }
                         }
 //                        break;
