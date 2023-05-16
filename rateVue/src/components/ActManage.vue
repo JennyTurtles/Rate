@@ -1080,16 +1080,17 @@ export default {
             }
             return res
         },
-        goExportGradeForm(row){
+        goExportGradeForm(){
             this.exportGradeFormLoading = true
-            var gradeFormConverted = this.saveGradeForm(false)
+            if (this.mode === 'admin') // 如果为管理员，下载的时候也会保存
+                var gradeFormConverted = this.saveGradeForm(false)
             if (gradeFormConverted === null)
                 return
             gradeFormConverted.teacherID = this.user.id
-            this.postRequest("/system/Experts/checkLeader",gradeFormConverted).then((res)=>{ // 接收文件的时候无法同时接收信息，因此单独请求一次后端
-                if (res.msg !== null)
-                    this.$message({type: 'warning', message: "当前小组没有组长，" + res.msg + " 被设置为答辩小组组长"});
-            })
+            // this.postRequest("/system/Experts/checkLeader",gradeFormConverted).then((res)=>{ // 接收文件的时候无法同时接收信息，因此单独请求一次后端
+            //     if (res.msg !== null)
+            //         this.$message({type: 'warning', message: "当前小组没有组长，" + res.msg + " 被设置为答辩小组组长"});
+            // })
             axios({url:"/system/Experts/exportGradeForm",method:'post',data:gradeFormConverted,
                 headers: {'Content-Type': 'application/json'},
                 responseType: 'blob'}).then(res=>{
