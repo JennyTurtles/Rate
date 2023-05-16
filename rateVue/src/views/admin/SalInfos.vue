@@ -320,7 +320,7 @@ export default {
     this.mode = this.$route.query.mode;
     this.groupID = this.$route.query.groupID;
     this.groupName = this.$route.query.groupName;
-    console.log(this.groupID);
+    // console.log(this.groupID);
     this.initHrs();
     this.initData();
   },
@@ -442,7 +442,7 @@ export default {
         if (resp) {
           this.loading = false;
           this.hrs = resp.data;
-          console.log(this.hrs);
+          // console.log(this.hrs);
           this.total = resp.total;
         }
       });
@@ -607,7 +607,7 @@ export default {
     },
     UpdateCheckbox(infoItem,mode) {
       const _this = this;
-      console.log(infoItem)
+      // console.log(infoItem)
       if (mode === 'byParticipan')
       {
         if (infoItem.byParticipant === false){

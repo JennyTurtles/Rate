@@ -572,7 +572,7 @@ export default {
         if (resp) {
           //console.log("aha",resp);
           this.emps = resp.data;
-          console.log(this.emps);
+          // console.log(this.emps);
           this.total = resp.total;
           //console.log("total",this.total);
         }

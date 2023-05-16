@@ -297,7 +297,7 @@
                     )
                     .then((resp) => {
                         if (resp) {
-                            console.log(resp.data);
+                            // console.log(resp.data);
                             for (var name in resp.data) {
                                 var value = resp.data[name];
 
