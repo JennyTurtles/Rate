@@ -442,8 +442,8 @@ export default {
       reason:"",
       oper:{
         operatorRole:"teacher",
-        operatorID:JSON.parse(sessionStorage.getItem('user')).id,
-        operatorName:JSON.parse(sessionStorage.getItem('user')).name,
+        operatorID:JSON.parse(localStorage.getItem('user')).id,
+        operatorName:JSON.parse(localStorage.getItem('user')).name,
         paperID:null,
         paperName:null,
         pubID:null,
