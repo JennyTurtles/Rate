@@ -1083,7 +1083,7 @@ export default {
         },
         goExportGradeForm(){
             this.exportGradeFormLoading = true
-            if (this.mode === 'admin') // 如果为管理员，下载的时候也会保存
+            if (this.user.id !== 3) // 如果为秘书，下载时不会保存
                 var gradeFormConverted = this.saveGradeForm(false)
             if (gradeFormConverted === null)
                 return
