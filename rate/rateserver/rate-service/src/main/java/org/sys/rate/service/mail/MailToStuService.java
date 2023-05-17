@@ -44,19 +44,19 @@ public class MailToStuService {
 
         switch (state) {
             case "tea_pass":
-                subject = "恭喜你，你的"+type+"已经被导师通过！";
+                subject = "恭喜你，你的" + type + "已经被导师通过！";
                 contentBuilder.append("已经被").append(teacher.getName()).append("老师通过！</b><br>");
                 break;
             case "tea_reject":
-                subject = "你的"+type+"已经被导师驳回！";
+                subject = "你的" + type + "已经被导师驳回！";
                 contentBuilder.append("已经被").append(teacher.getName()).append("老师驳回！</b><br>");
                 break;
             case "adm_pass":
-                subject = "恭喜你，你的"+type+"已经被管理员通过！";
+                subject = "恭喜你，你的" + type + "已经被管理员通过！";
                 contentBuilder.append("已经被管理员通过！</b><br>");
                 break;
             case "adm_reject":
-                subject = "你的"+type+"已经被管理员驳回！";
+                subject = "你的" + type + "已经被管理员驳回！";
                 contentBuilder.append("已经被管理员驳回！</b><br>");
                 break;
             default:
@@ -67,7 +67,7 @@ public class MailToStuService {
         content = contentBuilder.toString();
 
         // 设置邮件主题
-        subject = subject!=null?subject:"东华大学计算机学院教学系统邮件";
+        subject = subject != null ? subject : "东华大学计算机学院教学系统邮件";
         sendMails.sendMailAsync(student.getEmail(), subject, content);
     }
 

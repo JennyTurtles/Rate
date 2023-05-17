@@ -48,14 +48,6 @@ export default {
     this.init();
   },
   methods: {
-    extractEmail(str) {
-      const result = this.pattern.exec(str);
-      if (result && result[1]) {
-        return result[1];
-      } else {
-        return '';
-      }
-    },
     handleEmailInput() {
       this.infoChange()
       const email = this.mail.emailAddress
@@ -68,10 +60,10 @@ export default {
       } else if (email.endsWith('@126.com')) {
         this.mail.imaphost = 'imap.126.com'
         this.mail.smtphost = 'smtp.126.com'
-      } else if (email.endsWith('edu.cn')) {
+      } else if (email.endsWith('dhu.edu.cn')) {
         let university = this.extractEmail(email);
-        this.mail.imaphost = 'imap.'+university+'.edu.cn'
-        this.mail.smtphost = 'smtp.'+university+'.edu.cn'
+        this.mail.imaphost = 'imap.dhu.edu.cn'
+        this.mail.smtphost = 'smtp.dhu.edu.cn'
       }
     },
     infoChange() {

@@ -37,8 +37,9 @@ public class ExportWord {
     private static final String[] GRADELEVELARRAY = {"优", "良", "中", "及格", "不及格"};
     private static final double[] SCORES = {85.0, 75.0, 67.0, 60.0, 0.0};
     private static final int wordTitlePageRowLength = 40;
-    private static final int[] maxWordsCountPerRow = {33, 37, 42, 47, 52}; // 分别对应12号字体，11号字体，10号字体，9号字体，8号字体
-    private static final int[] commentRowslimit = {11, 8}; // 分别对应指导&评阅老师，答辩老师
+    private static final int[] maxWordsCountPerRow = {30, 30, 35, 40, 45, 50}; // 分别对应12号字体22磅，12号字体单倍，11号字体单倍，10号字体，9号字体，8号字体
+    private static final int[] commentRowslimit = {11, 16}; // 对应22磅行距可使用的行数，单倍行距可使用的行数
+    private static final int[] commentRowslimitLeader = {7, 9}; // 对应答辩组长，22磅行距可使用的行数，单倍行距可使用的行数
     private static final String[] commentStart = {"指导教师评语", "评阅教师评语", "答辩评语"};
     private static final String[] commentEnd = {"指导教师（签名）", "评阅教师（签名）", "答辩小组组长（签名）"};
     private int[] commentFontSize = {12, 12, 12};
@@ -111,10 +112,14 @@ public class ExportWord {
         return generalModel;
     }
 
-    private boolean isProperFontSize(String comment, int fontsize, boolean isLeaderComment) {
+    // 格式化评语项
+
+    // 1. 获取评论在word中显示的行数
+    private int getCommentRowsInWord(String comment, int maxNumsPerRow) {
         int rows = 0, count = 0;
+        maxNumsPerRow = maxNumsPerRow << 1;
         for (int i = 0; i < comment.length(); i++) {
-            if (count > (fontsize << 1) || comment.charAt(i) == '\n') {
+            if (count > maxNumsPerRow || comment.charAt(i) == '\n') {
                 count = 4;
                 rows++;
             } else {
@@ -127,27 +132,40 @@ public class ExportWord {
                 }
             }
         }
-        return rows <= (isLeaderComment ? commentRowslimit[1] : commentRowslimit[0]);
-
+        return rows;
     }
 
+    // 2. 选择合适的字体大小
+    // so, there is a trick, because you have 2 type of 12 font size, so I make when font size = 12 && spaceline = 22, font size = 13
     private int chooseProperFontSize(String comment, boolean isLeaderComment) {
-        if(comment.length()>11*maxWordsCountPerRow[maxWordsCountPerRow.length-1]){
-            return 6;
+        //  when font size = 12 && spaceline = 22, set font size = 13
+        int maxRows = isLeaderComment ? commentRowslimitLeader[0] : commentRowslimit[0];
+        if (getCommentRowsInWord(comment, maxWordsCountPerRow[0]) <= maxRows) {
+            return 13;
         }
-        for (int i = 0; i < maxWordsCountPerRow.length; ++i) {
-            if (isProperFontSize(comment, maxWordsCountPerRow[i], isLeaderComment)) {
-                return 12 - i;
+
+        maxRows = isLeaderComment ? commentRowslimitLeader[1] : commentRowslimit[1];
+        for (int i = 1; i < maxWordsCountPerRow.length; ++i) {
+            if (getCommentRowsInWord(comment, maxWordsCountPerRow[i]) <= maxRows) {
+                return 13 - i;
             }
         }
-        return 6;
+        return 7;
     }
 
 
     // 格式化comment
-    public String formatComment(String comment) {
-        return comment.replaceAll("\r?\n[ ]*", "\r\n    ").replaceAll("\n\n", "\n").trim();
+    private String formatComment(String comment, int fontSize, boolean isLeaderComment) {
+        comment = comment.replaceAll("\r?\n[ ]*", "\r\n    ").replaceAll("\n\n", "\n").trim();
+        // 加上空白行
+        int maxRows = isLeaderComment ? commentRowslimitLeader[fontSize == 13 ? 0 : 1] : commentRowslimit[fontSize == 13 ? 0 : 1];
+        int blankRows = maxRows - getCommentRowsInWord(comment, fontSize == 7 ? 52 : maxWordsCountPerRow[13 - fontSize]) - 1;
+        for (int i = 0; i < blankRows; i++) {
+            comment += "\r\n ";
+        }
+        return comment;
     }
+
 
     private Map<String, Object> createCommentModel(Map<Integer, List<Comment>> comments) {
         Map<String, Object> commentModel = new HashMap<>();
@@ -158,8 +176,8 @@ public class ExportWord {
 
         List<Comment> instructors = comments.get(GradeForm.Type.INSTRUCTOR.ordinal());
         if (instructors.size() > 0) {
-            commentModel.put("instructorComment", formatComment(instructors.get(0).getContent()));
             commentFontSize[0] = chooseProperFontSize(instructors.get(0).getContent(), false);
+            commentModel.put("instructorComment", formatComment(instructors.get(0).getContent(), commentFontSize[0], false));
             Date instructorDate = instructors.get(0).getDate();
             commentModel.put("instructorYear", sdfYear.format(instructorDate));
             commentModel.put("instructorMonth", sdfMonth.format(instructorDate));
@@ -167,8 +185,8 @@ public class ExportWord {
         }
         List<Comment> reviewers = comments.get(GradeForm.Type.REVIEWER.ordinal());
         if (reviewers.size() > 0) {
-            commentModel.put("reviewerComment", formatComment(reviewers.get(0).getContent()));
             commentFontSize[1] = chooseProperFontSize(reviewers.get(0).getContent(), false);
+            commentModel.put("reviewerComment", formatComment(reviewers.get(0).getContent(), commentFontSize[1], false));
             Date reviewDate = reviewers.get(0).getDate();
             commentModel.put("reviewerYear", sdfYear.format(reviewDate));
             commentModel.put("reviewerMonth", sdfMonth.format(reviewDate));
@@ -176,14 +194,14 @@ public class ExportWord {
         }
         List<Comment> leaders = comments.get(GradeForm.Type.DEFENSE.ordinal());
         int leaderIndex = 0;
-        for(int i=0;i<leaders.size();++i){
-            if(leaders.get(i).getRole().equals("组长")){
-                leaderIndex=i;
+        for (int i = 0; i < leaders.size(); ++i) {
+            if (leaders.get(i).getRole().equals("组长")) {
+                leaderIndex = i;
             }
         }
         if (leaders.size() > 0) {
-            commentModel.put("leaderComment", formatComment(leaders.get(leaderIndex).getContent()));
             commentFontSize[2] = chooseProperFontSize(leaders.get(0).getContent(), false);
+            commentModel.put("leaderComment", formatComment(leaders.get(leaderIndex).getContent(), commentFontSize[2], true));
             Date leaderDate = leaders.get(0).getDate();
             commentModel.put("leaderYear", sdfYear.format(leaderDate));
             commentModel.put("leaderMonth", sdfMonth.format(leaderDate));
@@ -264,7 +282,7 @@ public class ExportWord {
                 if (leaders.get(i).getScore() == null)
                     tmpScore = 0.0;
                 else
-                    tmpScore =leaders.get(i).getScore();
+                    tmpScore = leaders.get(i).getScore();
                 suffixShort = typeLeader + String.valueOf(i);
                 // 获得coef
                 scoreModel.put("coef" + suffixShort, tmpCoef);
@@ -326,10 +344,13 @@ public class ExportWord {
             boolean isChangeLeaderCommentFont = (commentFontSize[2] != 12);
 
             boolean[] inRange = {false, false, false};
+            boolean changeLineSpace = false;
+
             try (XWPFDocument doc = WordExportUtil.exportWord07(TEMPLATE_PATH, params)) {
                 // change the size of comment
                 if (isChangeInstCommentFont || isChangeReviewerCommentFont || isChangeLeaderCommentFont) {
-                    loop: for (XWPFTable table : doc.getTables()) {
+                    loop:
+                    for (XWPFTable table : doc.getTables()) {
                         for (XWPFTableRow row : table.getRows()) {
                             for (XWPFTableCell cell : row.getTableCells()) {
                                 for (XWPFParagraph para : cell.getParagraphs()) {
@@ -342,18 +363,26 @@ public class ExportWord {
                                         for (int i = 0; i < commentStart.length; ++i) {
                                             if (text.contains(commentStart[i])) {
                                                 inRange[i] = true;
+                                                if (commentFontSize[i] < 13) {
+                                                    changeLineSpace = true;
+                                                    para.setSpacingBetween(1, LineSpacingRule.AUTO);
+                                                }
                                             } else if (inRange[i] && text.contains(commentEnd[i])) {
                                                 inRange[i] = false;
+                                                changeLineSpace = false;
                                                 break;
                                             } else if (inRange[i] && !text.contains(commentEnd[i])) {
-                                                run.setFontSize(commentFontSize[i]);
+                                                run.setFontSize(commentFontSize[i] == 13 ? 12 : commentFontSize[i]);
                                                 break;
                                             }
-                                            if(text.contains(commentEnd[2])){
+                                            if (text.contains(commentEnd[2])) {
                                                 break loop;
                                             }
                                         }
 
+                                    }
+                                    if (changeLineSpace) {
+                                        para.setSpacingBetween(1, LineSpacingRule.AUTO);
                                     }
                                 }
                             }
