@@ -9,14 +9,14 @@ import java.util.List;
  * @author system
  * @date 2022-03-13
  */
-public class Patent
+public class Patent extends Productions
 {
     private static final long serialVersionUID = 1L;
 
-    private int ID ;
-    private int studentID ;
+    private Long ID ;
+    private Long studentID ;
     private String typename ;
-    private String month;
+    private Long month;
     private int rank;
     private String rights;
     private String patentee;
@@ -116,19 +116,23 @@ public class Patent
         this.name = name;
     }
 
-    public int getID() {
+    @Override
+    public Long getID() {
         return ID;
     }
 
-    public void setID(int ID) {
+    @Override
+    public void setID(Long ID) {
         this.ID = ID;
     }
 
-    public int getStudentID() {
+    @Override
+    public Long getStudentID() {
         return studentID;
     }
 
-    public void setStudentID(int studentID) {
+    @Override
+    public void setStudentID(Long studentID) {
         this.studentID = studentID;
     }
 
@@ -140,11 +144,13 @@ public class Patent
         this.typename = typename;
     }
 
-    public String getMonth() {
+    @Override
+    public Long getMonth() {
         return month;
     }
 
-    public void setMonth(String month) {
+    @Override
+    public void setMonth(Long month) {
         this.month = month;
     }
 

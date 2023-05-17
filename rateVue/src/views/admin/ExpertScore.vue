@@ -1,3 +1,4 @@
+vue.prototype.$logs = window.console.log;
 <template>
   <div>
     <div style="display: flex; justify-content: left">
@@ -8,7 +9,9 @@
         </el-button>
       </div>
     </div>
-    <div><br/><br/></div>
+    <div><br/>
+      标红分数：小于该项分数满分的60%
+      <br/></div>
     <div style="margin-top: 10px">
       <el-table
           :data="Scores"
@@ -24,7 +27,11 @@
             align="left"
             label="专家姓名"
             min-width="10%">
-
+          <template slot-scope="scope">
+            <div v-for="(value,key) in scope.row.scoremap" v-if="value.name==='活动得分'">
+              {{value.expertName}}
+            </div>
+          </template>
         </el-table-column>
         <el-table-column
             prop="displaySequence"
@@ -45,7 +52,8 @@
             min-width="10%">
         </el-table-column>
         <el-table-column
-            v-for="(v, i) in this.smap"
+            v-for="(v, i) in this.snotByEmap"
+            prop="v"
             :label="v"
             min-width="10%" align="center">
           <template slot-scope="scope">
@@ -55,25 +63,32 @@
           </template>
         </el-table-column>
         <el-table-column
-            v-for="(v, i) in this.snotByEmap"
-            prop="v"
+            v-for="(v, i) in this.smap"
+            v-if="v!=='活动得分'"
             :label="v"
             min-width="10%" align="center">
-
+          <template slot-scope="scope">
+            <div v-for="(value,key) in scope.row.scoremap" v-if="key===i">
+              {{value.score}}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+            v-for="(v, i) in this.smap"
+            v-if="v==='活动得分'"
+            :label="v"
+            min-width="10%" align="center">
+          <template slot-scope="scope">
+            <div v-for="(value,key) in scope.row.scoremap" v-if="key===i">
+              <span v-if="value.score<scope.row.fullScore*0.6" style="color: red">{{value.score}}</span>
+              <span v-else>{{value.score}}</span>
+            </div>
+          </template>
         </el-table-column>
         <!--        <el-table-column align="left" min-width="10%" label="操作">-->
 
         <!--        </el-table-column>-->
       </el-table>
-      <div style="display: flex;justify-content: flex-end;margin:10px 0">
-        <el-pagination
-            background
-            @current-change="currentChange"
-            @size-change="sizeChange"
-            layout="sizes, prev, pager, next, jumper, ->, total, slot"
-            :total="total">
-        </el-pagination>
-      </div>
     </div>
 
   </div>
@@ -83,7 +98,7 @@
 import axios from 'axios'
 import {Message} from "element-ui";
 export default {
-  name: "SalPar",
+  name: "ExpertScore",
   data() {
     return{
       title: '',
@@ -124,9 +139,9 @@ export default {
     initEmps() {
       this.loading = true;
       let url =  "/participants/basic/parscore?page=" +
-          this.page +
+          1 +
           "&size=" +
-          this.size +
+          1000 +
           "&groupID=" +
           this.groupID +
           "&activityID=" +
@@ -147,9 +162,6 @@ export default {
                 for (var i in parexpert) {
                   this.Scores.push(parexpert[i]);//pid
                 }
-                for (var j in value.emap){
-                  this.expertmap.push(value.emap[j]);
-                }
                 for (var v2 in value.null_map) {
                   var vv2 = value.null_map[v2]; //activityid
                   //  console.log(vv2);
@@ -159,9 +171,12 @@ export default {
                 }
               }
             }
-            // console.log(this.Scores);
-            // console.log(this.expertmap);
-            // console.log(this.null_map);
+            this.expertmap = value.emap;
+            console.log(this.Scores);
+            console.log(this.expertmap);
+            // this.map=Object.value(this.expertmap)[1034];
+            // console.log(this.map);
+            console.log(this.null_map);
             this.smap = value.smap;
             this.snotByEmap = value.snotByEmap;
             this.total = resp.total;
@@ -187,6 +202,9 @@ export default {
       this.page = currentPage;
       this.initEmps("advanced");
     },
+    getExpertname(key){
+
+    }
   }
 }
 </script>

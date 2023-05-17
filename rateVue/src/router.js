@@ -4,9 +4,6 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 export default new Router({
-  // mode:'hash',
-  // mode:'history',
-  // base: '/',
   routes: [
     {
       path: '/Admin/Login', //管理员路由跳转路径
@@ -26,21 +23,53 @@ export default new Router({
       },
       children: [
         {
-          path: '/hrinfo',
-          name: '个人中心1',
+          path: '/Expert/EassignPE', //路由跳转路径
+          name: '分配人员', //路由名称
           hidden: true,
-          component: () => import('./views/HrInfo.vue'),
+          component: () => import('./views/expert/EassignPE.vue'),
+          meta: { title: '分配人员' },
+        },
+        {
+          path: '/Admin/AssignPE',
+          name: '分配人员(主活动)',
+          hidden: true,
+          component: () => import('./views/admin/AssignPE.vue'),
+          meta: { title: '分配人员(主活动)' },
+        },
+        {
+          path: '/admin/PersonalCenter',
+          name: '管理员个人中心',
+          hidden: true,
+          component: () => import('./views/admin/HrInfo.vue'),
           meta: {
-            title: '个人中心',
+            title: '管理员个人中心',
           },
         },
         {
-          path: '/UserInfo',
-          name: '个人中心2',
+          path:'/superAdmin/PersonalCenter',
+          name: '超级管理员个人中心',
           hidden: true,
-          component: () => import('./views/expert/userInfo.vue'),
+          component: () => import('./views/admin/SuperInfo.vue'),
           meta: {
-            title: '个人中心',
+            title: '超级管理员个人中心',
+          },
+        },
+        {
+          path: '/student/PersonalCenter',
+          name: '学生个人中心',
+          hidden: true,
+          component: () => import('./views/student/HrInfo.vue'),
+          meta: {
+            title: '学生个人中心',
+          },
+        },
+        {
+          path: '/teacher/PersonalCenter',
+          name: '老师个人中心',
+          hidden: true,
+          component: () => import('./views/HrInfo.vue'),
+          meta: {
+            title: '老师个人中心',
           },
         },
         {//管理员下的
@@ -75,17 +104,33 @@ export default new Router({
           component: () => import('./views/admin/SalDetail'),
           meta: { title: 'SalDetail' },
         },
-        {//管理员下的
-          path: '/ActivitM/SalPartipicantGroup',
-          name: 'SalPartipicantGroup',
-          component: () => import('./views/admin/SalPartipicantGroup'),
-          meta: { title: 'SalPartipicantGroup' },
-
-        },{//管理员下的
+        {
+          path: '/per/emp',
+          name: '查看所有单位',
+          component: () => import('./views/admin/PerEmp'),
+          meta: { title: '查看所有单位' },
+        },
+        {
+          path: '/per/ec',
+          name: '查看各个单位管理员列表',
+          component: () => import('./views/admin/PerEc'),
+          meta: { title: '查看各个单位管理员列表' },
+        },
+        {
+          path: '/ActivitM/total',
+          name: 'SalTotal',
+          component: () => import('./views/admin/SalTotal'),
+          meta: { title: 'SalTotal' },
+        },{
+          path: '/ActivitM/final',
+          name: 'SalFinalScore',
+          component: () => import('./views/admin/SalFinalScore'),
+          meta: { title: 'SalFinalScore' },
+        }, {//管理员下的
           path: '/ActivitM/search',
-          name: 'SalSearch',
-          component: () => import('./views/admin/SalSearch'),
-          meta: { title: 'SalSearch' },
+          name: 'ActManage',
+          component: () => import('./views/admin/ActManage.vue'),
+          meta: { title: 'ActManage' },
         },{//管理员下的
           path: '/ActivitM/situation',
           name: 'SalSituation',
@@ -97,11 +142,17 @@ export default new Router({
           component: () => import('./views/admin/ExpertScore.vue'),
           meta: {title: 'expertScore'},
         },
-        {
-          path: '/ActivitM/subActivity',
-          name: 'SalSubActivity',
-          component: () => import('./views/admin/SalSubActivity'),
-          meta: { title: 'SalSubActivity' },
+        { // 管理员子活动
+          path: '/ActivitM/SubActManage',
+          name: 'SubActManage',
+          component: () => import('./views/admin/SubActManage.vue'),
+          meta: { title: 'SubActManage' },
+        },
+        { // 秘书子活动
+          path: '/secretary/SubActManage',
+          name: 'SecSubActManage',
+          component: () => import('./views/secretary/SubActManage.vue'),
+          meta: { title: 'SecSubActManage' },
         },
         {//管理员下的
           path: '/ActivitM/month',
@@ -135,7 +186,8 @@ export default new Router({
           component: () => import('./views/admin/SalGroup'),
           meta: { title: 'SalGroup' },
 
-        },  {//管理员下的
+        },
+        {//管理员下的
           path: '/ActivitM/infos',
           name: 'SalInfos',
           component: () => import('./views/admin/SalInfos'),
@@ -148,15 +200,6 @@ export default new Router({
           component: () => import('./views/admin/SalPar'),
           meta: { title: 'SalPar' },
 
-        },
-        {
-          path: '/student/Product',
-          name: '制造或设计的产品1',
-          hidden: true,
-          component: () => import('./views/student/Product'),
-          meta: {
-            title: '制造或设计的产品1',
-          },
         },
         {
           path: '/student/AcademicMonograph',
@@ -204,7 +247,7 @@ export default new Router({
           },
         },
         {
-          path: '/student/Infos',
+          path: '/student/infos',
           name: '信息填写',
           hidden: true,
           component: () => import('./views/student/Infos'),
@@ -240,15 +283,6 @@ export default new Router({
           },
         },
         {
-          path: '/teacher/tProduct',
-          name: '制造或设计的产品2',
-          hidden: true,
-          component: () => import('./views/teacher/Product'),
-          meta: {
-            title: '制造或设计的产品2',
-          },
-        },
-        {
           path: '/teacher/tAcademicMonograph',
           name: '学术专著和教材2',
           hidden: true,
@@ -258,6 +292,16 @@ export default new Router({
           },
         },
         {
+          path: '/teacher/tProduct',
+          name: '科研项目2',
+          hidden: true,
+          component: () => import('./views/teacher/Research-Project'),
+          meta: {
+            title: '科研项目2',
+          },
+        },
+
+        {
           path: '/teacher/tperact/actList',
           name: '教师活动列表',
           hidden: true,
@@ -266,7 +310,22 @@ export default new Router({
             title: '教师活动列表',
           },
         },
-
+        {
+          path: 'ActManage',
+          name: 'ActManage',
+          hidden: true,
+          component: () => import('./components/ActManage.vue'),
+          meta: { title: 'ActManage' },
+        },
+        {
+          path: '/secretary/ActManage',
+          name: '秘书管理',
+          hidden: true,
+          component: () => import('./views/secretary/ActManage.vue'),
+          meta: {
+            title: '秘书管理',
+          },
+        },
         {
           path: '/teacher/tResearchProject11111',
           name: '科研项目2',
@@ -313,6 +372,33 @@ export default new Router({
           },
         },
         {
+          path: '/teacher/stulist',
+          name: '研究生导师的研究生列表',
+          hidden: true,
+          component: () => import('./views/teacher/StuList'),
+          meta: {
+            title: '研究生导师的研究生列表',
+          },
+        },
+        {
+          path: '/teacher/tPaperComment',
+          name: '教师毕业论文评审记录',
+          hidden: true,
+          component: () => import('./views/teacher/PaperComment'),
+          meta: {
+            title: '教师毕业论文评审记录',
+          },
+        },
+        {
+          path: '/teacher/stuPaperComment',
+          name: '教师毕业论文评审记录详情界面',
+          hidden: true,
+          component: () => import('./views/teacher/stuPaperComment'),
+          meta: {
+            title: '教师毕业论文评审记录',
+          },
+        },
+        {
           path: '/teacher/tAchievements',
           name: '学生所有成果',
           hidden: true,
@@ -346,6 +432,33 @@ export default new Router({
           component: () => import('./views/admin/Examine'),
           meta: {
             title: '待审核列表',
+          },
+        },
+        {
+          path: '/admin/TeacherM',
+          name: '教师管理',
+          hidden: true,
+          component: () => import('./views/admin/SalTeacherM'),
+          meta: {
+            title: '教师管理',
+          },
+        },
+        {
+          path: '/admin/GraduateM',
+          name: '研究生管理',
+          hidden: true,
+          component: () => import('./views/admin/SalGraduateM'),
+          meta: {
+            title: '研究生管理',
+          },
+        },
+        {
+          path: '/admin/UnderGraduateM',
+          name: '本科生管理',
+          hidden: true,
+          component: () => import('./views/admin/SalUnderGraduateM'),
+          meta: {
+            title: '本科生管理',
           },
         },
       ],
@@ -409,6 +522,27 @@ export default new Router({
       alias: '/',
     },
     {
+      path: '/Student/Register',
+      name: 'StuRegister',
+      hidden: true,
+      component: () => import('./views/student/Register'),
+      meta: { title: '学生注册' },
+    },
+    {
+      path: '/ResetPassword',
+      name: 'ResetPassword',
+      hidden: true,
+      component: () => import('./components/ResetPassword'),
+      meta: { title: '找回密码' },
+    },
+    {
+      path: '/Teacher/Register',
+      name: 'TeaRegister',
+      hidden: true,
+      component: () => import('./views/teacher/Register'),
+      meta: { title: '教师注册' },
+    },
+    {
       //教师登录页
       path: '/Teacher/Login', //路由跳转路径
       name: '教师登录', //路由名称
@@ -449,13 +583,19 @@ export default new Router({
           meta: { title: '评分列表' },
         },
       ],
-    },
 
-    // {
-    //   path: '/test',
-    //   name: 'test',
-    //   component: () => import('./views/test'),
-    //   meta: { title: 'test' },
-    // },
+    },
+    {
+      path: '/EassignE',
+      name: '分配专家',
+      component: () => import('./views/expert/EassignE'),
+      meta: { title: '分配专家' },
+    },
+    {
+      path: '/AssignE',
+      name: '分配专家(主活动)',
+      component: () => import('./views/admin/AssignE'),
+      meta: { title: '分配专家(主活动)' },
+    },
   ],
 })

@@ -1,11 +1,12 @@
 <template>
-  <div>
+  <div class="body-home">
     <div class="expertLogin">
       <div class="expertLoginTxt">
         <img src="../../assets/dzlogo.png" alt="东华大学" class="imageLogo" />
         <h1>我们一起建设更美好的世界！</h1>
       </div>
       <el-form
+          @submit.native.prevent
         :rules="rules"
         ref="loginForm"
         v-loading="loading"
@@ -40,7 +41,7 @@
             placeholder="请输入密码"
           ></el-input>
         </el-form-item>
-        <el-button type="primary" class="loginBtn" @click="submitLogin"
+        <el-button type="primary" class="loginBtn" native-type="submit" @click="submitLogin()"
           >登录</el-button
         >
       </el-form>
@@ -79,38 +80,25 @@ export default {
       this.$refs.loginForm.validate(async (valid) => {
         if (valid) {
           this.loading = true;
+          sessionStorage.clear();
+          localStorage.clear()
           this.loginForm.password = sha1(this.loginForm.password)
-          this.loginResult = await postRequest("/doLogin", this.loginForm);
-
-          if (this.loginResult.status === 200) {
-            // let user = JSON.parse(window.sessionStorage.getItem("teacher"));
-            await this.$store.dispatch("initsize", this.loginResult.obj.id); //需要去掉
-            // let path = this.$route.query.redirect;
-            // if (this.$store.state.peract.count == 0) {
-            //   this.$router.replace(
-            //     path == "/Expert/Login" || path == undefined? "/Expert/peract/warn": path
-            //   );
-            // } else {
-            //   this.$router.replace(path == "/Expert/Login" || path == undefined? "/Expert/peract/actList": path
-            //   );
-            // }
-            // this.$router.replace(
-            //   path == "/Expert/peract" || path == undefined? "/Expert/peract/warn": path
-            // );
-            this.initActivityList(this.loginResult.obj);
-
-            this.$store.commit("INIT_CURRENTHR", this.loginResult.obj); //需要去掉
-            // console.log(resp)
-            localStorage.setItem(
-              "teacher",
-              JSON.stringify(this.loginResult.obj)
-            ); //存用户session
-          } else {
-            this.$message({
-              message: this.loginResult.msg,
-              type: "error",
-            });
-          }
+          postRequest("/doLogin", this.loginForm).then((response)=>{
+            if (response.status === 200) {
+              this.$store.dispatch("initsize", response.obj.id); //需要去掉
+              this.initActivityList(response.obj);
+              this.$store.commit("INIT_CURRENTHR",response.obj); //需要去掉
+              localStorage.setItem(
+                  "user",
+                  JSON.stringify(response.obj)
+              ); //存用户session
+            }
+          }).catch((error)=>{
+            // console.log(error)
+          })
+          .finally(()=>{
+            this.loading = false;
+          })
         }
       });
     },
@@ -123,7 +111,7 @@ export default {
       if (result.code === 200) {
         this.loading = false;
         this.$message({
-          message: this.loginResult.msg,
+          message: result.msg,
           type: "success",
         });
         if (result.extend.count !== 0) {
@@ -152,9 +140,20 @@ export default {
   //添加登录背景图片
   created() {
     document.body.classList.add("body-home");
+    // window.addEventListener('keydown', this.handkeyCode, true)//开启监听键盘按下事件
+    document.onkeypress = (e)=>{
+      var keycode = document.all ? event.keyCode : e.which;
+      if (keycode == 13) {
+        this.submitLogin();// 登录方法名
+        return false;
+      }
+    };
   },
   beforeDestroy() {
     document.body.classList.remove("body-home");
+  },
+  destroyed() {
+    window.onkeydown = undefined;
   },
 };
 </script>

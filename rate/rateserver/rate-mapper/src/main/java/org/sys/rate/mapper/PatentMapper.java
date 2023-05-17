@@ -1,11 +1,13 @@
 package org.sys.rate.mapper;
 
-import java.util.List;
-
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import org.sys.rate.model.*;
+import org.sys.rate.model.Paper;
+import org.sys.rate.model.Patent;
+import org.sys.rate.model.PatentOper;
+
+import java.util.List;
 
 /**
  * 著作Mapper接口
@@ -66,7 +68,7 @@ public interface PatentMapper
     public List<Patent> selectList(Integer id);
 
     @Select("SELECT * FROM patent WHERE  ID = #{ID}")
-    public Paper selectByID(Long ID);
+    public Patent selectByID(Long ID);
 
     @Select("SELECT ID FROM patent WHERE studentID = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
     public Integer checkScore(Long stuID);

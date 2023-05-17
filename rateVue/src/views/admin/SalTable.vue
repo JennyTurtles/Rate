@@ -8,7 +8,6 @@
         </el-button>
       </div>
     </div>
-    <div><br/>单元格中内容双击后可编辑</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -16,12 +15,18 @@
           stripe
           border
           v-loading="loading"
-          @cell-dblclick="tabClick"
           :row-class-name="tableRowClassName"
           element-loading-text="正在加载..."
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%"
+          @cell-mouse-enter="handleCellMouseEnter"
+          @cell-mouse-leave="()=>{
+            if(this.editing === false){
+              this.tabClickIndex = -1;
+              this.tabClickLabel = '';
+            }
+          }"
       >
         <el-table-column type="selection" min-width="1%"></el-table-column>
         <el-table-column
@@ -47,10 +52,10 @@
                   scope.row.index === tabClickIndex &&
                   tabClickLabel === '分组名称'
                 "
-                v-focus
                 v-model.trim="scope.row.name"
                 maxlength="50"
                 size="mini"
+                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row)"
                 @change="UpdateOrNew(scope.row)"
                 @blur="inputBlur"
@@ -95,35 +100,59 @@
             >保存
             </el-button
             >
+              <el-button
+                      @click="assignPE(scope.row)"
+                      style="padding: 4px"
+                      size="mini"
+                      icon="el-icon-tickets"
+                      type="primary"
+                      plain
+              >分配选手和专家
+              </el-button
+              >
+<!--            <el-button-->
+<!--                @click="showGroups(scope.row)"-->
+<!--                v-show="mode !== 'secretarySub'"-->
+<!--                style="padding: 4px"-->
+<!--                size="mini"-->
+<!--                icon="el-icon-tickets"-->
+<!--                type="primary"-->
+<!--                plain-->
+<!--            >专家和选手管理-->
+<!--            </el-button-->
+<!--            >-->
+<!--            <el-button-->
+<!--                @click="showParticipantsM(scope.row)"-->
+<!--                v-show="mode !== 'secretarySub'"-->
+<!--                style="padding: 4px"-->
+<!--                size="mini"-->
+<!--                icon="el-icon-s-operation"-->
+<!--                type="primary"-->
+<!--                plain-->
+<!--            >选手管理-->
+<!--            </el-button-->
+<!--            >-->
+<!--            <el-button-->
+<!--                @click="output_group(scope.row)"-->
+<!--                v-show="mode==='admin'"-->
+<!--                :loading="loading"-->
+<!--                style="padding: 4px"-->
+<!--                size="mini"-->
+<!--                icon="el-icon-plus"-->
+<!--                type="primary"-->
+<!--                plain-->
+<!--            >导出本组选手分数-->
+<!--            </el-button-->
+<!--            >-->
             <el-button
-                @click="showGroups(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-tickets"
-                type="primary"
-                plain
-            >专家管理
-            </el-button
-            >
-            <el-button
-                @click="showParticipantsM(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-s-operation"
-                type="primary"
-                plain
-            >选手管理
-            </el-button
-            >
-            <el-button
-                @click="output_group(scope.row)"
+                @click="showFinalScore(scope.row)"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-plus"
                 type="primary"
                 plain
-            >导出本组选手分数
+            >查看选手成绩
             </el-button
             >
             <el-button
@@ -135,6 +164,17 @@
                 type="primary"
                 plain
             >导出本组专家打分
+            </el-button
+            >
+            <el-button
+                @click="showSubActivity(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-plus"
+                type="primary"
+                plain
+                v-show="haveSub == 1 && mode==='admin'"
+            >子活动管理
             </el-button
             >
             <el-button
@@ -167,16 +207,16 @@
           </el-button
           >
         </div>
-        <div style="margin-left: auto">
-          <el-pagination
-              background
-              @current-change="currentChange"
-              @size-change="sizeChange"
-              layout="sizes, prev, pager, next, jumper, ->, total, slot"
-              :total="total"
-          >
-          </el-pagination>
-        </div>
+<!--        <div style="margin-left: auto">-->
+<!--          <el-pagination-->
+<!--              background-->
+<!--              @current-change="currentChange"-->
+<!--              @size-change="sizeChange"-->
+<!--              layout="sizes, prev, pager, next, jumper, ->, total, slot"-->
+<!--              :total="total"-->
+<!--          >-->
+<!--          </el-pagination>-->
+<!--        </div>-->
       </div>
     </div>
   </div>
@@ -184,13 +224,19 @@
 
 <script>
 import {Message} from 'element-ui'
+import da from "element-ui/src/locale/lang/da";
+import el from "element-ui/src/locale/lang/el";
 
 export default {
   name: "SalTable",
   data() {
     return {
+      editing:false,
       //当前焦点数据
       currentfocusdata: "",
+      mode:'',
+      haveSub:0,
+      groupID:-1,
       searchValue: {
         compnayName: null,
       },
@@ -199,7 +245,6 @@ export default {
       tabClickIndex: null, // 点击的单元格
       tabClickLabel: "", // 当前点击的列名
       keywords: "",
-      activitydata: [],
       keywords_name: "",
       size: 10,
       total: 0,
@@ -261,7 +306,7 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.currentHr; //object信息
+      return JSON.parse(localStorage.getItem("user")); //object信息
     },
   },
   created() {
@@ -270,12 +315,16 @@ export default {
   mounted() {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
+    this.groupID = this.$route.query.groupID;
+    this.mode = this.$route.query.mode;
+    this.haveSub = this.$route.query.haveSub;
     this.initHrs();
-    this.initData();
     //this.initAd();
   },
   methods: {
     Delete_Score_Item(si) {
+        // console.log("si")
+        // console.log(si)
       this.$confirm("此操作将永久删除【" + si.name + "】, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -332,21 +381,56 @@ export default {
       });
     },
     initHrs() {
-      this.getRequest(
-          "/groups/basic/?keywords=" +
-          this.keywords +
-          "&page=" +
-          this.page +
-          "&size=" +
-          this.size
-      ).then((resp) => {
-        if (resp) {
-          this.hrs = resp.data;
-          this.total = resp.total;
+        if (this.mode !== "secretarySub"){
+            this.getRequest("/groups/basic/?keywords=" + this.keywords + "&page=" + 1 + "&size=" + 1000).then((resp) => {
+                if (resp) {
+                    this.hrs = resp.data;
+                    this.total = this.hrs.length;
+                }
+            });
+        }else
+        {
+            this.getRequest("/groups/basic/subGroups?activityID="+this.$route.query.keywords+"&groupID="+this.groupID).then((resp) => {
+                if (resp) {
+                    this.hrs = resp.obj;
+                }
+            });
         }
+
+      // if (this.mode === "admin") {
+      //     this.getRequest("/groups/basic/?keywords=" + this.keywords + "&page=" + 1 + "&size=" + 1000).then((resp) => {
+      //         if (resp) {
+      //             this.hrs = resp.data;
+      //             this.total = this.hrs.length;
+      //         }
+      //     });
+      // }
+      // else if (this.mode === "secretarySub"){
+      //   this.getRequest("/groups/basic/sec?groupID="+this.groupID).then((resp) => {
+      //     if (resp) {
+      //       this.hrs = resp.obj;
+      //       this.total = this.hrs.length;
+      //     }
+      //   });
+      // }
+    },
+    showFinalScore(data){
+      const _this = this;
+      _this.$router.push({
+        path: "/ActivitM/final",
+        query: {
+          keywords: data.activityID,
+          groupID:data.id,
+          keyword_name: this.keywords_name,
+          groupName:data.name,
+          mode:this.mode,
+          backGroupName:this.$route.query.groupName,
+          backGroupID:this.$route.query.groupID,
+          backBackID:this.$route.query.backID,
+          backActName:this.$route.query.backActName,
+        },
       });
     },
-
     advancedSearch() {
       this.getRequest(
           "/groups/basic/advanced/?keywords=" +
@@ -354,9 +438,9 @@ export default {
           "&keywords_name=" +
           this.keywords_name +
           "&page=" +
-          this.page +
+          1 +
           "&size=" +
-          this.size
+          1000
       ).then((resp) => {
         if (resp) {
           this.hrs = resp.data;
@@ -395,13 +479,52 @@ export default {
     },
     back() {
       const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/search",
-      });
+      if (this.mode === "admin"){
+        _this.$router.push({
+          path: "/ActivitM/search",
+        });
+      }else if (this.mode === "secretary"){
+        _this.$router.push({
+          path: "/secretary/ActManage",
+        });
+      }else if (this.mode === "adminSub"){
+        _this.$router.push({
+          path: "/ActivitM/SubActManage",
+          query:{
+              id: this.$route.query.backID,
+              mode: this.$route.query.mode,
+          }
+        });
+      }else if (this.mode === "secretarySub"){
+        _this.$router.push({
+          path: "/secretary/SubActManage",
+          query:{
+            id: this.$route.query.backID,
+            mode: this.$route.query.mode,
+            actName: this.$route.query.backActName,
+            groupName: this.$route.query.groupName,
+            groupID: this.$route.query.groupID,
+            isGroup:this.$route.query.isGroup,
+          }
+        });
+      }
+
     },
     tableRowClassName({row, rowIndex}) {
       // 把每一行的索引放进row
       row.index = rowIndex;
+    },
+    handleCellMouseEnter(row, column, cell, event) {
+      if (this.editing === true)
+        return;
+      switch (column.label) {
+        case "分组名称":
+          this.tabClickIndex = row.index;
+          this.tabClickLabel = column.label;
+          break;
+        default:
+          return;
+      }
     },
     // 添加明细原因 row 当前行 column 当前列
     tabClick(row, column, cell, event) {
@@ -436,9 +559,44 @@ export default {
           keywords: data.activityID,
           keyword_name: data.name,
           keywords_name:this.keywords_name,
-          groupID: data.id
+          groupID: data.id,
+          mode:this.mode
         }
       })
+    },
+      assignPE(data) {
+          const _this = this;
+        // console.log(this.mode)
+          if (this.mode === 'secretary' || this.mode === 'secretarySub'){
+            _this.$router.push({
+              path: "/Expert/EassignPE",
+              query: {
+                activityIDParent: this.$route.query.backID,
+                activityID: data.activityID,
+                groupIDParent: this.$route.query.groupID,
+                groupID: data.id,
+                mode:this.mode
+              }
+            })
+          }else if (this.mode === 'admin'){
+            // console.log(data)
+            _this.$router.push({
+              path: "/Admin/AssignPE",
+              query: {
+                activityID: data.activityID,
+                groupID: data.id,
+                mode:this.mode
+              }
+            })
+          }
+
+      },
+    showSubActivity(data) {
+      const _this = this;
+        _this.$router.push({
+          query :{id:data.activityID,keywords:this.keywords,actName:this.keywords_name,groupName:data.name,
+            groupID:data.id,isGroup:true,haveSub:this.haveSub},
+          path: "/secretary/SubActManage",});
     },
     showParticipantsM(data) {
       const _this = this;
@@ -449,7 +607,8 @@ export default {
           keyword_name: data.name,
           keywords_name:this.keywords_name,
           groupID: data.id,
-          activityID: data.activityID
+          activityID: data.activityID,
+          mode:this.mode,
         },
       });
     },
@@ -458,6 +617,10 @@ export default {
     },
     UpdateOrNew(groups) {
       const _this = this;
+
+      if (this.mode === "secretarySub"){
+          groups.parentID = this.$route.query.groupID;
+      }
       this.postRequest("/groups/basic/UpdateOrNew?institutionID="+this.user.institutionID, groups).then((resp) => {
         if(resp==='更新成功!')
         {Message.success(resp);
@@ -471,14 +634,8 @@ export default {
           this.reset();
         }
       });
+      this.editing = false
     },
-    initData() {
-      this.getRequest("/activities/basic/get_activity_info").then((resp) => {
-        if (resp) {
-          this.activitydata = resp;
-        }
-      });
-    }, //
   },
 };
 </script>

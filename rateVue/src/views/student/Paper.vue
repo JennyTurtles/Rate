@@ -65,12 +65,12 @@
         <el-table-column
           prop="remark"
           label="备注"
+          :formatter="checkScoreComent"
           align="center"
           style="width:220px"
         >
         </el-table-column>
         <el-table-column
-            :formatter="checkScore"
           prop="point"
           label="积分"
           align="center"
@@ -455,7 +455,7 @@ export default {
   methods: {
     delayInputTimer(val){//期刊输入框，根据name查找全称 每隔300ms发送请求
       if(this.timer){
-        clearInterval(this.timer)
+        clearTimeout(this.timer)
       }
       if(!val){
         return
@@ -463,9 +463,8 @@ export default {
       var publication={}
       publication.year = this.emp.year
       publication.name = this.publicationName
-      this.timer = setInterval(()=>{
+      this.timer = setTimeout(()=>{
         let url = "/publication/getInfByNameYear"
-        console.log("id")
         this.postRequest(url,publication).then((resp) => {
           this.loading = false;
           if (resp) {
@@ -480,14 +479,12 @@ export default {
                     }
                 )
               }
-              console.log(this.select_pubName)
             }else{
               this.$message.error(`请检查期刊名称的拼写`);
             }
           }
-          clearInterval(this.timer)
         });
-      },300)
+      },400)
     },
     inputPubFocus(){//input获取焦点判断是否有下拉框，是否可输入
       if(this.emp.year){
@@ -813,21 +810,6 @@ export default {
                     this.initEmps();
                     this.$message.success('编辑成功');
                   }});
-                // if (this.emp.point == 2){ // 检查该学生是否存在审核中或已通过的2分指标点
-                //   this.getRequest("/publication/checkScore/"+this.emp.studentID).then((resp) =>{
-                //     if (resp.obj != -1 && resp.obj != this.emp.ID)
-                //     {
-                //       this.$message.error('已经存在审核中或已通过的2积分指标点，无法继续提交');
-                //       return
-                //     }
-                //     this.postRequest1("/paper/basic/edit", _this.emp).then((resp) => {
-                //       if (resp) {
-                //         this.dialogVisible = false;
-                //         this.initEmps();
-                //         this.$message.success('编辑成功');
-                //       }});
-                //   })
-                // }
               }
           });
       } else {
@@ -857,23 +839,6 @@ export default {
                   }
                 }
             );
-            // this.getRequest("/publication/checkScore/"+this.emp.studentID).then((resp)=>{
-            //   console.log(resp)
-            //   if (resp.obj == -1){
-            //     this.postRequest1("/paper/basic/add",_this.emp).then(
-            //         (resp) => {
-            //           if (resp) {
-            //             this.dialogVisible = false;
-            //             this.doAddOper("commit",this.emp.name,this.publicationName,
-            //                 this.emp.publicationID,resp.data)
-            //           }
-            //         }
-            //     );
-            //   }else{
-            //     this.$message.error('已经存在审核中或已通过的2积分指标点，无法继续提交');
-            //   }
-            // })
-
           }
         });
       }
@@ -940,8 +905,6 @@ export default {
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          console.log("论文resp:..")
-          console.log(resp);
           this.emps = resp.data;
           this.total = 11;
           // this.remarksort=this.emps.remark
@@ -1025,9 +988,19 @@ export default {
           }
       });
     },
-    checkScore(row){
-      return row.no_score == 1 ? "0（2分论文只能计算一次）" : row.point;
-    }
+    checkScoreComent(row){
+      if (row.state === "adm_pass" && row.point === 2 && row.have_score === 0)
+      {
+        return (row.remark === null ? "" : row.remark+";") + "本类别论文只计算一篇，本论文积分不计入总分"
+      }
+      return row.remark
+    },
+    // checkScore(row){
+    //   if (row.state === "adm_pass" && row.point === 2 && row.have_score === 0)
+    //     return 0
+    //   return row.point
+    //   // return row.no_score == 1 ? "0（2分论文只能计算一次）" : row.point;
+    // }
   },
 };
 </script>

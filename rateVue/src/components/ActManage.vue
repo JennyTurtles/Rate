@@ -831,6 +831,18 @@ export default {
             },
         };
     },
+    watch: {
+        loading (v) {
+            if (v) {
+                let dialogPanel = this.$refs.dialog.$refs.dialog // dialog面板的dom节点
+                this.loadingInstance = this.$loading({
+                    target: dialogPanel
+                })
+            } else if (this.loadingInstance) {
+                this.loadingInstance.close()
+            }
+        },
+    },
     computed: {
         index() {
             return index

@@ -31,9 +31,9 @@
     </div>
     <div style="margin-top: 10px">
       <el-table
-        >
+      >
         <el-table-column
-          label="">
+            label="">
 
         </el-table-column>
       </el-table>
@@ -63,12 +63,12 @@ export default {
     this.initData()
   },
   methods:{
-      initData(){
-        var url = '/infoItem/basic/getAll/' + this.keywords
-        this.getRequest(url).then((resp)=>{
-          if(resp)
-            this.groupInfoNums = resp.obj
-        })
+    initData(){
+      var url = '/infoItem/basic/getAll/' + this.keywords
+      this.getRequest(url).then((resp)=>{
+        if(resp)
+          this.groupInfoNums = resp.obj
+      })
     },
     creatGroup(){
 

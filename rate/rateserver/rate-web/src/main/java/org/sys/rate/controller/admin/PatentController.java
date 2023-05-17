@@ -1,20 +1,18 @@
 package org.sys.rate.controller.admin;
 
-import java.io.FileNotFoundException;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
-
 import org.sys.rate.config.JsonResult;
-import org.sys.rate.model.*;
+import org.sys.rate.model.Patent;
+import org.sys.rate.model.PatentOper;
+import org.sys.rate.model.Student;
 import org.sys.rate.service.admin.PatentService;
 import org.sys.rate.service.admin.PatentTypeService;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.mail.MessagingException;
+import java.util.List;
 
 /**
  * 著作Controller
@@ -53,7 +51,7 @@ public class PatentController
     {
         List<Patent> list = patentService.selectPatentList(patent);
         for (Patent patent1 : list) {
-            Student byId = studentService.getById(patent1.getStudentID());
+            Student byId = studentService.getById(Math.toIntExact(patent1.getStudentID()));
             patent1.setStudent(byId);
 
         }

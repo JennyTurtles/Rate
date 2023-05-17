@@ -259,12 +259,25 @@ export default {
       this.loading = true;
       console.log("init")
       console.log(this.user);
-      let url = "/activities/basic/?page=" + this.page + "&size=" + this.size + "&institutionID=" + this.user.institutionID;
+      let url = "/activities/basic/getActivityOfStudent?page=" + this.page + "&size=" + this.size + "&studentID=" + this.user.id;
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.emps = resp.data;
-          this.total = resp.total;
+          for(var i = 0;i < resp.length; i++){
+            var time = new Date(resp[i].startDate)
+            var year = time.getFullYear()
+            var month = time.getMonth() + 1
+            var date = time.getDate()
+            if(month < 10){
+              month = "0" + month
+            }
+            if(date < 10){
+              date = "0" + date
+            }
+            resp[i].startDate = year + "-" + month + "-" + date
+          }
+          this.emps = resp;
+          this.total = resp.length;
         }
       });
     },
@@ -279,27 +292,6 @@ export default {
         },
       });
     },
-    // searchEmps() {
-    //   this.loading = true;
-    //   //console.log('---------', this.user.institutionID);
-    //   const _this = this;
-    //   //let url =
-    //   this.getRequest(
-    //       "/activities/basic/search?company=" +
-    //       this.keyword +
-    //       "&page=" +
-    //       this.page +
-    //       "&size=" +
-    //       this.size +
-    //       "&institutionID=" + this.user.institutionID
-    //   ).then((resp) => {
-    //     this.loading = false;
-    //     if (resp) {
-    //       this.emps = resp.data;
-    //       this.total = resp.total;
-    //     }
-    //   });
-    // },
   },
 };
 </script>

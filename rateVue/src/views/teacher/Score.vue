@@ -1,7 +1,7 @@
 <template>
-  <div style="margin: 20px">
+  <div>
     <!-- 表名 -->
-    <div class="content" >
+    <div class="content" v-if="datalist != ''">
       <div class="leftTitle">
         <el-form>
           <el-row>
@@ -41,8 +41,10 @@
                   :show-file-list="false"
                   :on-success="onSuccess"
                   :action="Upload()"
+                  ref="uploadExcel"
+                  :disabled="datalist.finished == true"
               >
-                <el-button type="primary" icon="el-icon-upload2"
+                <el-button type="primary" icon="el-icon-upload2" @click.stop="uploadButton" :disabled="datalist.finished == true"
                 >上传评分表
                 </el-button>
               </el-upload>
@@ -64,7 +66,6 @@
             <el-button
                 icon="el-icon-refresh"
                 type="primary"
-                :disabled="datalist.finished == true"
                 @click="refreshact(false)"
             >
               刷新</el-button
@@ -95,7 +96,7 @@
         <el-table-column
             prop="code"
             label="编号"
-            min-width="160px"
+            min-width="110px"
             align="center"
             fixed
         >
@@ -108,7 +109,7 @@
         <el-table-column
             prop="student.name"
             label="姓名"
-            min-width="150px"
+            min-width="75px"
             align="center"
             fixed
         >
@@ -117,22 +118,23 @@
         <el-table-column
             v-for="(v, i) in datalist.infoItems"
             :key="v.name"
-            v-if="v.display"
+            v-if="v.display == true"
             :label="v.name"
             min-width="150px"
             align="center"
         >
           <template slot-scope="scope">
-            <span v-if="((v.contentType.indexOf('pdf') >= 0 || v.contentType.indexOf('zip') >= 0
+            <span
+                v-if="((v.contentType.indexOf('pdf') >= 0 || v.contentType.indexOf('zip') >= 0
                             || v.contentType.indexOf('jpg') >= 0))">{{scope.row["info" + v.name] | fileNameFilter}}</span>
-            <span v-else>{{ scope.row["info" + v.name] }}</span>
+            <span v-else v-html="scope.row['info' + v.name]"></span>
           </template>
         </el-table-column>
         <el-table-column
             v-for="(value, idx) in datalist.scoreitems"
             ref="setTableRef"
             :key="idx"
-            v-if="value.name != '总分'"
+            v-if="value.name != '活动得分'"
             :label="
             value.name +
             '|(满分:' +
@@ -143,7 +145,7 @@
             (value.comment ? ',' + value.comment : '') +
             ')'
           "
-            min-width="150px"
+            min-width="84px"
             :render-header="renderheader"
         >
           <template slot-scope="scope">
@@ -152,7 +154,7 @@
                 v-model.trim="scope.row['score' + idx]"
                 :disabled="value.byexpert == false || datalist.finished == true"
                 clearable
-                @input="onInputConfirm(scope.row, scope.$index)"
+                @input="onInputConfirm(scope.row, scope.$index,value,idx)"
             ><span>{{ scope.row["score" + idx] }}</span>
             </el-input>
           </template>
@@ -160,9 +162,9 @@
         <el-table-column
             v-for="(value, idx) in datalist.scoreitems"
             :key="value.id"
-            v-if="value.name == '总分'"
-            :label="'总分'"
-            min-width="120px"
+            v-if="value.name == '活动得分'"
+            :label="'总评分'"
+            min-width="80px"
             align="center"
         >
           <template slot-scope="scope">
@@ -172,7 +174,7 @@
         <el-table-column
             label="操作"
             align="center"
-            min-width="160px"
+            min-width="150px"
             fixed="right"
         >
           <template slot-scope="scope">
@@ -198,28 +200,33 @@
         </el-table-column>
       </el-table>
     </div>
-    <!-- 查看详情按钮 -->
     <el-dialog
-        center
-        class="showInfo_dialog"
-        title="显示详情"
+        :title="title_show"
         :visible.sync="dialogVisible_show"
-        width="520px"
+        width="50%"
     >
+      <div class="dialog">
         <el-form
             label-position="left"
-            label-width="100px"
+            label-width="120px"
             :model="dialogdata"
             ref="dialogdataForm"
-            style="margin-left: 20px"
         >
           <template slot-scope="scope">
+            <el-row>
+              <el-col :span="10">
                 <el-form-item label="姓 名 :">
                   <span>{{ dialogdata.name }}</span>
                 </el-form-item>
+              </el-col>
+              <el-col :span="10" :offset="1">
                 <el-form-item label="编 号 :">
                   <span>{{ dialogdata.idCode }}</span>
                 </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="10">
                 <el-form-item
                     v-for="(val, idx) in datalist.infoItems"
                     :key="idx"
@@ -228,6 +235,8 @@
                 >
                   <span>{{ dialogdata["info" + val.name].content }}</span>
                 </el-form-item>
+              </el-col>
+              <el-col :span="10" :offset="1">
                 <el-form-item
                     v-for="(val, idx) in datalist.infoItems"
                     :key="idx"
@@ -236,21 +245,24 @@
                 >
                   <span>{{ dialogdata["info" + val.name].content }}</span>
                 </el-form-item>
+              </el-col>
+            </el-row>
             <el-form-item
                 v-for="(val, idx) in datalist.infoItems"
                 :key="idx"
                 :label="val.name + ' :'"
                 width="130px"
                 v-if="
-                  val.name != '报考专业' &&
-                  val.name != '毕业单位'"
+                val.name != '报考专业' &&
+                val.name != '毕业单位'
+              "
             >
               <span v-if="((val.contentType.indexOf('pdf') >= 0 || val.contentType.indexOf('zip') >= 0
                             || val.contentType.indexOf('jpg') >= 0)) && dialogdata['info' + val.name]"
-                 style="color:gray;font-size:14px;text-decoration:none;cursor:pointer;"
-                onmouseover="this.style.color = 'blue'"
-                onmouseleave="this.style.color = 'gray'"
-                @click="downloadInfoItems(val)">
+                    style="color:gray;font-size:14px;text-decoration:none;cursor:pointer;"
+                    onmouseover="this.style.color = 'blue'"
+                    onmouseleave="this.style.color = 'gray'"
+                    @click="downloadInfoItems(val)">
                 {{dialogdata["info" + val.name].content | fileNameFilter}}
               </span>
               <span v-else-if="(val.contentType.indexOf('textarea') >= 0 || val.contentType.indexOf('textbox') >= 0) && dialogdata['info' + val.name]">
@@ -259,15 +271,15 @@
             </el-form-item>
           </template>
         </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button
-            id="but_reject"
-            @click="dialogVisible_show= false"
-            type="primary"
-        >关闭</el-button>
-      </span>
-    </el-dialog>
+      </div>
 
+      <template slot="footer" class="dialog-footer">
+        <div class="divider"></div>
+        <el-button type="primary" @click="dialogVisible_show = false"
+        >关 闭</el-button
+        >
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -281,8 +293,7 @@ export default {
   inject: ["reload"],
   data() {
     return {
-      // list:{},
-      // datal:'',
+      successTimer:null,
       Aname: "",
       groupName: "",
       Adata: {
@@ -308,54 +319,26 @@ export default {
     };
   },
   created() {
+    this.user = JSON.parse(localStorage.getItem("user"));
     this.dataRefreh();
-
   },
   computed: {
-    // list() {
-    //   if (sessionStorage.getItem("peract")) {
-    //     let list = JSON.parse(sessionStorage.getItem("peract"));
-    //     console.log('sessionStorage')
-    //     return list;
-    //   } else if(this.$store.state.peract){
-    //     console.log('state')
-    //     return this.$store.state.peract;
-    //   }else{
-    //         this.$store.dispatch("initsize", this.user.id).then(()=>{
-    //           this.list = this.$store.state.peract
-    //         })
-    //       }
-    // },
+    list() {
+      if (sessionStorage.getItem("peract")) {
+        let list = JSON.parse(sessionStorage.getItem("peract"));
+        return list;
+      } else {
+        return this.$store.state.peract;
+      }
+    },
     datal() {
       return this.$store.state.score;
     },
   },
 
   mounted() {
-    this.user = JSON.parse(localStorage.getItem("user"));
-    this.$store.dispatch('initsize',this.user.id).then(()=>{
-      this.list = JSON.parse(sessionStorage.getItem("peract"));
-      this.initdata();
-      console.log(this.list)
-      this.$nextTick(() => {
-        this.windowScreenHeight = window.innerHeight - 210;
-      });
-      if (sessionStorage.getItem("score")) {
-        let initscore = JSON.parse(sessionStorage.getItem("score"));
-        this.datalist = initscore;
-      } else {
-        this.fullscreenLoading = true;
-        this.initAct();
-        setTimeout(() => {
-          this.datalist = this.datal;
-          this.initState();
-          sessionStorage.setItem("score", JSON.stringify(this.datalist));
-          if (!this.datalist.finished) {
-            this.reload();
-          }
-          this.fullscreenLoading = false;
-        }, 700);
-      }
+    this.$store.dispatch("initsize", this.user.id).then(()=>{
+      this.initPage()
     })
   },
   filters:{
@@ -369,22 +352,28 @@ export default {
     }
   },
   methods: {
-    // async initActivityList(teacher) {
-    //   const result = await getRequest(
-    //       "/system/Experts/activities?expertID=" + teacher.id
-    //   );
-    //   if (result.code === 200) {
-    //     this.loading = false;
-    //     if (result.extend.count !== 0) {
-    //       // 存活动列表session
-    //       sessionStorage.setItem(
-    //           "activitiesList",
-    //           JSON.stringify(result.extend.activitiesList)
-    //       );
-    //     }
-    //   }
-    // },
-
+    async initPage() {
+      this.initdata();
+      this.$nextTick(() => {
+        this.windowScreenHeight = window.innerHeight - 210;
+      });
+      if (sessionStorage.getItem("score")) {
+        let initscore = JSON.parse(sessionStorage.getItem("score"));
+        this.datalist = initscore;
+      } else {
+        this.fullscreenLoading = true;
+        this.initAct();
+        setTimeout(() => {
+          this.datalist = this.datal;
+          this.initState();
+          sessionStorage.setItem("score", JSON.stringify(this.datalist));
+          // if (!this.datalist.finished) {
+          this.reload();
+          // }
+          this.fullscreenLoading = false;
+        }, 1500);
+      }
+    },
     downloadInfoItems(data){//下载证明材料
       const fileName = data.content.split('/').reverse()[0]
       axios({
@@ -418,19 +407,70 @@ export default {
       this.loading = false;
       window.open(url, "_parent");
     },
-    onSuccess(res) {
+    uploadButton(){
+      this.$confirm('请注意计算好学生的总评分再导入，无总评分的行将被认为未评分。系统将使用excel里的数据覆盖浏览器界面上的数据，而不会融合两者的数据。请确保excel文件里包含所有评分。',{
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+        center: true,
+      }).then(()=>{
+        this.$refs['uploadExcel'].$refs['upload-inner'].handleClick()
+      }).catch(()=>{})
+    },
+    async onSuccess(res) {
       if (res.msg === "success") {
-        Message.success("数据导入成功！");
-        this.refreshact(true);
-        this.initState();
-      } else {
+        this.$confirm('您的评分已保存到数据库，为确保无误，请核对网页上显示的分数以及导出的pdf文件中的分数与上传的excel文件中分数是否一致，谢谢！',{
+          confirmButtonClass:'确认',
+          showCancelButton: false
+        })
+      }else if(res.obj == '有分数超过满分！'){
+        Message.error(`${res.obj}请重新上传！`);
+        return;
+      } else if(res.msg === "fail"){
         Message.error("导入失败，请检查文件格式！");
+        return;
+      }else if(res.msg === 'nullRow'){
+        var nullarr = res.obj.split(',')
+        nullarr.pop()
+        nullarr = nullarr.map(item=>{
+          if(item != ','){
+            return parseInt(item)
+          }
+        })
+        nullarr.push(-1)
+        var preFlag = 0
+        var str = ''
+        var addFlag = 0
+        for(var i = 0;i < nullarr.length - 1;i ++){
+          if(nullarr[i + 1] - nullarr[i] === 1 && addFlag == 0){
+            preFlag = i
+            addFlag = 1
+          }else if(addFlag == 1 && nullarr[i + 1] - nullarr[i] !== 1){//可以添加进去了
+            str += nullarr[preFlag] + '-' + nullarr[i] + ','
+            addFlag = 0
+          }else if(addFlag == 0 && nullarr[i + 1] - nullarr[i] !== 1){
+            str += nullarr[i] + ','
+          }
+        }
+        str = str.substr(0,str.length - 1)
+        this.$confirm(`部分学生由于无完整的分数，系统认为未评分，请确认。如果有误，请将分数填写完整重新上传。
+            序号为${str}的共计${nullarr.length - 1}个学生未评分，请确认。`,{
+          confirmButtonClass:'确认',
+          showCancelButton: false
+        })
       }
-      this.initAct();
+      sessionStorage.removeItem("score")
+      this.initAct()
+      if(this.successTimer){
+        this.successTimer = null
+      }
+      this.successTimer = setTimeout(()=>{
+        this.datalist = this.datal
+        // this.initState();
+      },300)
     },
     Upload() {
       this.loading = true;
-      // Message.success("正在导入");
       let url =
           "/system/Experts/importRate?activitiesID=" +
           this.Adata.Aid +
@@ -468,37 +508,11 @@ export default {
       }
     },
     showEditEmpView_show(row, index) {
-      this.dialogVisible_show = false;
-      let infoitems = this.datalist.infoItems.length;
-      let infolist = this.datalist.infosList.length;
-      this.dialogdata = {};
-      //mei每个该活动参与者的编号
-      this.dialogdata.idCode = this.datalist.participatesList[index].code;
-      this.dialogdata.name = this.datalist.participatesList[index].student.name;
-      for (var j = 0; j < infolist; j++) {
-        if (row["id"] == this.datalist.infosList[j]["participantID"]) {
-          for (var k = 0; k < infoitems; k++) {
-            if (this.datalist.infosList[j]["infoItemID"] ==
-                this.datalist.infoItems[k]["id"]) {
-              var name = this.datalist.infoItems[k]["name"];
-              var contentType = this.datalist.infoItems[k]["contentType"];
-              this.$set(
-                  this.dialogdata,
-                  "info" + name,
-                  {
-                    content:this.datalist.infosList[j]["content"],
-                    contentType:this.datalist.infoItems[k]["contentType"]
-                  }
-              );
-            }
-          }
-        }
-      }
       let routeUrl = this.$router.resolve({
         path:"/teacher/tperact/InformationDetails",
         query: {
-          datalist: JSON.stringify({datalist:this.datalist}),
-          dialogdata: JSON.stringify(this.dialogdata),
+          activityID: this.list.activitiesList[this.$route.query.keywords].activityID,
+          IDNumber: row.student.idnumber,
         },
       })
       window.open(routeUrl.href)
@@ -527,26 +541,18 @@ export default {
       return "text-align:center";
     },
     initState() {
-      console.log('initState')
-      console.log(this.datalist)
-      let n = this.datalist.participatesList.length;
-      let m = this.datalist.scoreitems.length;
-      let p = this.datalist.scoresListNoExpert.length;
-      let e = this.datalist.scoresListByExpert.length;
-      let q = this.datalist.infoItems.length;
-      let w = this.datalist.infosList.length;
-      if (this.datalist.finished == true) {
-        this.$alert("该活动已提交评分!", {
-          type: "warning",
-          center: true,
-        });
-      }
-      for (var i = 0; i < n; i++) {
+      let par = this.datalist.participatesList.length;
+      let score = this.datalist.scoreitems.length;
+      let scoreNoExpert = this.datalist.scoresListNoExpert.length;
+      let scoreByExpert = this.datalist.scoresListByExpert.length;
+      let infoitems = this.datalist.infoItems.length;
+      let infos = this.datalist.infosList.length;
+      for (var i = 0; i < par; i++) {
         this.datalist.participatesList[i]["showSave"] = false;
         this.datalist.participatesList[i]["sum"] = 0;
         var sum = 0;
-        for (var j = 0; j < m; j++) {
-          for (var k = 0; k < p; k++) {
+        for (var j = 0; j < score; j++) {
+          for (var k = 0; k < scoreNoExpert; k++) {
             if (
                 (this.datalist.scoreitems[j]["id"] ==
                     this.datalist.scoresListNoExpert[k]["scoreItemID"]) &
@@ -558,14 +564,14 @@ export default {
                   this.datalist.scoresListNoExpert[k]["score"];
             }
           }
-          for (var l = 0; l < e; l++) {
+          for (var l = 0; l < scoreByExpert; l++) {
             if (
                 (this.datalist.scoreitems[j]["id"] ==
                     this.datalist.scoresListByExpert[l]["scoreItemID"]) &
                 (this.datalist.participatesList[i]["id"] ==
                     this.datalist.scoresListByExpert[l]["participantID"])
             ) {
-              if (j == m - 1) {
+              if (j == score - 1) {
                 this.$set(
                     this.datalist.participatesList[i],
                     "sum",
@@ -582,7 +588,7 @@ export default {
           }
         }
         if (this.datalist.participatesList[i]["sum"] == 0) {
-          for (var l = 0; l < m; l++) {
+          for (var l = 0; l < score; l++) {
             if (this.datalist.participatesList[i]["score" + l]) {
               sum +=
                   (this.datalist.participatesList[i]["score" + l] - "0") *
@@ -591,12 +597,12 @@ export default {
           }
           this.$set(this.datalist.participatesList[i], "sum", sum);
         }
-        for (var s = 0; s < w; s++) {
+        for (var s = 0; s < infos; s++) {
           if (
               this.datalist.participatesList[i]["id"] ==
               this.datalist.infosList[s]["participantID"]
           ) {
-            for (var d = 0; d < q; d++) {
+            for (var d = 0; d < infoitems; d++) {
               if (
                   this.datalist.infosList[s]["infoItemID"] ==
                   this.datalist.infoItems[d]["id"]
@@ -606,7 +612,7 @@ export default {
                   this.$set(
                       this.datalist.participatesList[i],
                       "info" + name,
-                      this.datalist.infosList[s]["content"]
+                      this.datalist.infosList[s]["content"].replace(/<br>/g,"\n").replace(/' '/g,"\s")
                   );
                 }
               }
@@ -614,18 +620,63 @@ export default {
           }
         }
       }
+      if (this.datalist.finished == true) {
+        this.$alert("该活动已提交评分!", {
+          type: "warning",
+          center: true,
+        })
+      }
     },
-    onInputConfirm(row, index) {
+    onInputConfirm(row, index,value,idx) {//idx是scoreitem中的索引，index是选手所在的索引
       this.$set(this.datalist.participatesList[index], "showSave", true);
       let m = this.datalist.scoreitems.length;
+      //找到没修改前的分数
+      var firstscore = this.datalist.scoresListByExpert.find(
+          (cur) => {
+            if(cur.participantID == row.id && cur.scoreItemID == value.id){
+              return cur.score
+            }else {
+              return 0
+            }
+          })
       var sum = 0;
       for (var j = 0; j < m; j++) {
-        if (row["score" + j]) {
+        if (row["score" + j] && this.datalist.scoreitems[j].name != '活动得分') {
           sum += (row["score" + j] - "0") * this.datalist.scoreitems[j].coef;
         }
       }
-      row["sum"] = sum.toFixed(2);
-      this.$store.dispatch("setScoreParticipatesList", this.datalist);
+      //判断修改的单个评分项是否超过这个评分项的满分
+      if(this.judgeScore(this.datalist.participatesList[index]['score' + idx],idx)){
+        if(JSON.stringify(sum).indexOf('.') >= 0){
+          row["sum"] = sum.toFixed(2);
+        }else {
+          row["sum"] = sum
+        }
+        this.$store.dispatch("setScoreParticipatesList", this.datalist);
+      }else {
+        //如果超过满分就把之前的分数和sum重新展示在页面上
+        this.$message.warning('分数超过满分！')
+        this.datalist.participatesList[index]['score' + idx] = 0
+        var sumscore = 0;
+        for (var j = 0; j < m; j++) {
+          if (row["score" + j] && this.datalist.scoreitems[j].name != '活动得分') {
+            sumscore += (row["score" + j] - "0") * this.datalist.scoreitems[j].coef;
+          }
+        }
+        if(JSON.stringify(sumscore).indexOf('.') >= 0){
+          row["sum"] = sumscore.toFixed(2);
+        }else {
+          row["sum"] = sumscore
+        }
+      }
+    },
+    judgeScore(score,scoreitemidx){//判断分数有没有超过满分
+      //得到每一项评分项的满分 进行判断
+      if(score <= this.datalist.scoreitems[scoreitemidx].score){
+        return true
+      }else {
+        return false
+      }
     },
     async saveScore(index, row) {
       this.$forceUpdate();
@@ -666,12 +717,8 @@ export default {
       this.$store.dispatch("setScoreParticipatesList", this.datalist);
     },
     initdata() {
-      //获取activitiesList
       this.Tname = this.user.name;
-      //Act对象
       this.Adata.Auserid = this.user.id;
-      // 传来的参数
-      console.log(this.list)
       let num = this.$route.query.keywords;
       let listActivityTemp = this.list.activitiesList;
       this.Adata.Aid = listActivityTemp[num].activityID;
@@ -683,14 +730,7 @@ export default {
     },
      async initAct() {
       if (this.list.count != 0) {
-        // console.log(this.Adata)
         await this.$store.dispatch("initAct", this.Adata);
-        // const value =  await getRequest("/system/Experts/score?activitiesID=" + this.Adata.Aid + '&expertID=' + this.Adata.Auserid + '&groupId=' + this.Adata.AgroupId)
-        // if(value){
-        //   this.datalist = value.extend
-        //   console.log(this.datalist)
-        //   this.initState()
-        // }
       }
     },
     // 刷新
@@ -698,10 +738,13 @@ export default {
       this.initAct();
       // this.$store.dispatch("initAct", this.Adata);
       if (this.$store.state.changeList === true) {
-        this.clear();
-        this.reload();
-        // this.$store.state.changeList = false
+        // this.clear();
+        this.datalist = this.datal
+        // this.reload();
         this.$store.dispatch("initchangeList");
+      }
+      if(this.datalist.finished){//提交了
+        this.watchFinished()
       }
       if (auto === false) {
         Message.success("刷新成功！");
@@ -730,7 +773,7 @@ export default {
           center: true,
         })
             .then(async () => {
-              this.clear();
+              // this.clear();
               this.datalist.finished = true;
               sessionStorage.setItem("score", JSON.stringify(this.datalist));
               this.$forceUpdate();
@@ -762,6 +805,17 @@ export default {
             });
       }
     },
+    async watchFinished(){
+      this.getRequest("/system/Experts/getState?activitiesID=" +this.Adata.Aid + '&expertID=' + this.user.id + '&groupId=' + this.Adata.AgroupId).then((resp)=>{
+        if(resp.code == 200){
+          if (resp.extend.success === false){//被退回
+            this.$message.warning("评分被退回，页面将刷新")
+            sessionStorage.removeItem('score')
+            this.reload()
+          }
+        }
+      })
+    },
     // 定时刷新数据函数
     dataRefreh() {
       // 计时器正在进行中，退出函数
@@ -771,7 +825,10 @@ export default {
       // 计时器为空，操作
       this.intervalId = setInterval(() => {
         this.refreshact(true);
-      }, 120000);
+        if(this.datalist.finished){//提交了
+          this.watchFinished()
+        }
+      }, 2000);
     },
     // 停止定时器
     clear() {
@@ -786,6 +843,10 @@ export default {
 </script>
 
 <style lang="scss">
+*{
+  margin: 0;
+  padding: 0;
+}
 .content {
   width: 100%;
   height: 80px;
@@ -819,18 +880,20 @@ export default {
   font-size: 14px;
   margin: 20px 20px 10px 0;
 }
-.showInfo_dialog .el-form-item{
-  margin-bottom: 5px;
-}
-.el-form-item label{
-  text-align: justify;
-}
 
+.el-dialog {
+  border-radius: 8px;
+}
 .dialog {
   margin: 10px 10px 10px 40px;
 }
 .el-table-column {
   white-space: pre-line;
+}
+.el-dialog__header {
+  background-color: #4b8ffe;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 .el-dialog__title {
   color: white;

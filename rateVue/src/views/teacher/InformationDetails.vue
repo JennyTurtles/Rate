@@ -1,25 +1,25 @@
 <template>
   <div class="Information_box">
     <div class="Information_title">
-      {{IDNumber}}的详情信息
+      {{name}}的详情信息
     </div>
     <div style="padding-top: 16px;
                 margin-top:15px;
                 backgroundColor:white;
                 padding-bottom:20px;">
       <el-form
-          label-position="left"
-          label-width="100px"
+          :label-position="labelPosition"
+          label-width="auto"
           ref="dialogdataForm"
           style="margin-left: 20px"
       >
-
           <el-form-item
               v-for="(val, idx) in datalist"
               :key="idx"
-              :label="val.name + ' :'"
+              :label="val.name + ':'"
+              :label-width="labelWidth"
           >
-            <template v-if="val.contentType!='' && val.contentType!=',' && val.contentType!=null">
+            <template v-if="val.contentType!='' && val.contentType!=',' && val.contentType!=null" style="width: 100%">
               <span
                   v-if="((val.contentType.indexOf('pdf') >= 0 || val.contentType.indexOf('zip') >= 0
                             || val.contentType.indexOf('jpg') >= 0))"
@@ -29,74 +29,14 @@
                     onmouseleave="this.style.color = 'gray'">
                     {{val.content | fileNameFilter}}</a>
             </span>
-              <span v-else>{{ val.content }}</span>
+              <span v-else v-html="val.content" style="line-height: 14px;font-size: 14px;width: 100%"></span>
             </template>
             <template v-else>
-              <span>{{ val.content }}</span>
+              <span v-html="val.content"></span>
             </template>
           </el-form-item>
       </el-form>
     </div>
-<!--    <div class="Information_title">-->
-<!--      {{dialogdata.name}}的详情信息-->
-<!--    </div>-->
-<!--    <div style="padding-top: 16px;-->
-<!--                margin-top:15px;-->
-<!--                backgroundColor:white;-->
-<!--                padding-bottom:20px;">-->
-<!--      <el-form-->
-<!--          label-position="left"-->
-<!--          label-width="100px"-->
-<!--          :model="dialogdata"-->
-<!--          ref="dialogdataForm"-->
-<!--          style="margin-left: 20px"-->
-<!--      >-->
-<!--        <template slot-scope="scope">-->
-<!--          <el-form-item label="姓 名 :">-->
-<!--            <span>{{ dialogdata.name }}</span>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="编 号 :">-->
-<!--            <span>{{ dialogdata.idCode }}</span>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item-->
-<!--              v-for="(val, idx) in datalist.infoItems"-->
-<!--              :key="idx"-->
-<!--              :label="val.name + ' :'"-->
-<!--              v-if="dialogdata['info' + val.name] && val.name == '报考专业'"-->
-<!--          >-->
-<!--            <span>{{ dialogdata["info" + val.name].content }}</span>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item-->
-<!--              v-for="(val, idx) in datalist.infoItems"-->
-<!--              :key="idx"-->
-<!--              :label="val.name + ' :'"-->
-<!--              v-if="dialogdata['info' + val.name] && val.name == '毕业单位'"-->
-<!--          >-->
-<!--            <span>{{ dialogdata["info" + val.name].content }}</span>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item-->
-<!--              v-for="(val, idx) in datalist.infoItems"-->
-<!--              :key="idx"-->
-<!--              :label="val.name + ' :'"-->
-<!--              width="130px"-->
-<!--              v-if="-->
-<!--                  val.name != '报考专业' &&-->
-<!--                  val.name != '毕业单位'"-->
-<!--          >-->
-<!--              <span v-if="((val.contentType.indexOf('pdf') >= 0 || val.contentType.indexOf('zip') >= 0-->
-<!--                            || val.contentType.indexOf('jpg') >= 0)) && dialogdata['info' + val.name]">-->
-<!--                <a  style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(val)"-->
-<!--                   onmouseover="this.style.color = 'blue'"-->
-<!--                   onmouseleave="this.style.color = 'gray'">-->
-<!--                    {{dialogdata["info" + val.name].content | fileNameFilter}}</a>-->
-<!--              </span>-->
-<!--            <span v-else-if="(val.contentType.indexOf('textarea') >= 0 || val.contentType.indexOf('textbox') >= 0) && dialogdata['info' + val.name]">-->
-<!--                {{ dialogdata["info" + val.name].content }}-->
-<!--              </span>-->
-<!--          </el-form-item>-->
-<!--        </template>-->
-<!--      </el-form>-->
-<!--    </div>-->
   </div>
 
 </template>
@@ -108,10 +48,13 @@ export default {
   name: "InformationDetails",
   data(){
     return {
+      labelWidth:'',
+      labelPosition:"left",
       IDNumber:'',
       activityID:null,
       datalist:{},
-      dialogdata:{}
+      dialogdata:{},
+      name:''
     }
   },
   filters:{
@@ -127,21 +70,14 @@ export default {
   created() {
   },
   mounted() {
-
     this.urlAddress()
-    // this.datalist = JSON.parse(this.$route.query.datalist).datalist
-    // this.dialogdata = JSON.parse(this.$route.query.dialogdata)
-    // console.log(this.datalist)
-    // console.log(this.dialogdata)
   },
   methods:{
     urlAddress(){
       var con = 'http://localhost:8080/#/teacher/tperact/InformationDetails?activityID=26&IDNumber=310111111111111117'
-      // var con = 'http://localhost:8080/#/teacher/tperact/InformationDetails/26/310111111111111117'
       var str=location.href; //取得整个地址栏
       var num=str.indexOf("?")
       str=str.substr(num+1); //取得所有参数   stringvar.substr(start [, length ]
-
       var arr=str.split("&"); //各个参数放到数组里
       if(arr[0].indexOf("activity") == 0){
         num=arr[0].indexOf("=");
@@ -156,9 +92,14 @@ export default {
     getInfosDetails(IDNumber,activityID){
       var url = '/participants/basic/getParticipantIDByIdNumber?activityID=' + activityID +'&IDNumber=' + IDNumber.toString()
       this.getRequest(url).then((res)=>{
-        if(res){
-          this.datalist = res
-          console.log(this.datalist)
+        if(res.code == 200){
+          this.datalist = res.extend.infoitems
+          this.name = res.extend.name
+          document.title = this.name
+          var arr = this.datalist.map(item=>{
+            return item.name.length
+          })
+          this.labelWidth = Math.max.apply(null,arr) * 17 + 'px';
         }
       })
     },
@@ -188,6 +129,28 @@ export default {
 </script>
 
 <style scoped>
+.el-form-item__label-wrap{ float: left; }
+.el-form-item__label-wrap {
+  margin-left: 0px !important;
+}
+*{
+  margin: 0;
+  padding: 0;
+}
+
+.el-form-item{
+  margin-bottom: 0px;
+}
+.textarea_{
+  width: 450px;
+  /*height: 50px;*/
+  line-height: 20px;
+  overflow: scroll;
+  white-space: pre-wrap;
+  max-height: 90px;
+  border: 0.5px solid #333333;
+  border-radius: 3px;
+}
 .Information_title{
   width: 100%;
   font-size: 30px;
@@ -196,10 +159,25 @@ export default {
 .Information_box{
   border: .5px solid #888888;
   overflow: scroll;
-  width: 90%;
+  width: 80%;
   height: 100%;
   margin: auto;
   margin-top: 20px;
   border-radius: 5px;
 }
+/*div::-webkit-scrollbar {*/
+/*  !* 隐藏默认的滚动条 *!*/
+/*  -webkit-appearance: none;*/
+/*}*/
+/*div::-webkit-scrollbar:vertical {*/
+/*  !* 设置垂直滚动条宽度 *!*/
+/*  width: 6px;*/
+/*}*/
+/*div::-webkit-scrollbar-thumb {*/
+/*  !* 滚动条的其他样式定制，注意，这个一定也要定制，否则就是一个透明的滚动条 *!*/
+/*  border-radius: 6px;*/
+/*  border: 3px solid rgba(255,255,255,.4);*/
+/*  background-color: rgba(0, 0, 0, .5);*/
+/*}*/
+
 </style>
