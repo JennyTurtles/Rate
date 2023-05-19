@@ -540,7 +540,7 @@ export default {
       publicationName:'',//搜索中要搜索的期刊
       searchSelectType:'',
       importSelectType:'论文',
-      selectTypes:['论文','纵向科研项目','科技奖','决策咨询成果'],
+      selectTypes:['论文','纵向科研项目','科技奖','决策咨询成果','教材', '竞赛获奖', '软著专利', '其他'],
       importSelectYear:2023,
       years:[],
       year:0,

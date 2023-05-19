@@ -298,7 +298,7 @@ public class ExportWord {
             }
         }
 
-        scoreModel.put("totalSum", tmpScoreCoefSum);
+        scoreModel.put("totalSum", df.format(tmpScoreCoefSum));
         scoreModel.put("gradeLevel", getGradeLevel(tmpScoreCoefSum));
 
         return scoreModel;
