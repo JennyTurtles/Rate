@@ -67,43 +67,30 @@
       </span>
     </el-dialog>
     <!--添加到一级目录-->
-    <el-dialog :visible.sync="dialogVisibleRoot" width="40%">
+    <el-dialog :visible.sync="dialogVisibleRoot" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
         >请输入分类名和积分值</span
       >
-      <el-form :rules="rules" :model="ruleForm">
-        <el-form-item style="margin-top: 15px" prop="name">
-          <el-row type="flex">
-            <el-col :span="3">分类名：</el-col>
-            <el-col :span="20">
-              <el-input v-model="ruleForm.name" placeholder="请输入分类名" />
-            </el-col>
-          </el-row>
+      <el-form
+        :rules="rules"
+        :model="ruleForm"
+        label-width="60px"
+        :label-position="left"
+      >
+        <el-form-item style="margin-top: 15px" prop="name" label="类型">
+          <el-input v-model="ruleForm.name" placeholder="请输入分类名" />
         </el-form-item>
-        <el-form-item prop="score">
-          <el-row type="flex">
-            <el-col :span="3">积分值：</el-col>
-            <el-col :span="20">
-              <el-input-number
-                v-model="ruleForm.score"
-                :min="0"
-                :max="50"
-                :show-input-controls="false"
-                @input="onScoreInput"
-              />
-              <el-tooltip
-                effect="dark"
-                placement="top"
-                :content="scoreError"
-                v-if="!scoreValid"
-              >
-                <i class="el-icon-warning-outline"></i>
-              </el-tooltip>
-            </el-col>
-          </el-row>
+        <el-form-item prop="score" label="分值">
+          <el-input-number
+            v-model="ruleForm.score"
+            :min="0"
+            :max="50"
+            @input="onScoreInput"
+            inline
+          />
+          
         </el-form-item>
       </el-form>
-
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleRoot = false">取 消</el-button>
         <el-button type="primary" @click="submitFormAppend()">确 定</el-button>
@@ -174,35 +161,25 @@
       </span>
     </el-dialog>
     <!--修改一级目录的名字-->
-    <el-dialog :visible.sync="dialogVisibleUpdateRoot" width="30%">
+    <el-dialog :visible.sync="dialogVisibleUpdateRoot" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
         >请输入需要修改的分类名和积分值</span
       >
-      <el-form :rules="rules" :model="ruleForm">
-        <el-form-item style="margin-top: 15px" prop="name">
-          <el-row type="flex">
-            <el-col :span="3">分类名：</el-col>
-            <el-col :span="20">
-              <el-input
-                @input="$forceUpdate()"
-                v-model="ruleForm.name"
-                placeholder="请输入要修改的分类名"
-              />
-            </el-col>
-          </el-row>
+      <el-form :rules="rules" :model="ruleForm" label-width="60px">
+        <el-form-item style="margin-top: 15px" prop="name" label="类型">
+          <el-input
+            @input="$forceUpdate()"
+            v-model="ruleForm.name"
+            placeholder="请输入要修改的分类名"
+          />
         </el-form-item>
-        <el-form-item>
-          <el-row type="flex">
-            <el-col :span="3">积分值：</el-col>
-            <el-col :span="20">
-              <el-input-number
-                @input="$forceUpdate()"
-                v-model="ruleForm.score"
-                :min="0"
-                :max="50"
-              />
-            </el-col>
-          </el-row>
+        <el-form-item prop="score" label="分值">
+          <el-input-number
+            @input="$forceUpdate()"
+            v-model="ruleForm.score"
+            :min="0"
+            :max="50"
+          />
         </el-form-item>
       </el-form>
 

@@ -1,219 +1,222 @@
 <template>
   <div>
-    <div style="margin-top: 10px">
-      <span style="fontsize: 15px"> 学生姓名: </span>
-      <div class="select_div_input">
-        <input
-          autocomplete="off"
-          style="
-            line-height: 28px;
-            width: 80px;
-            height: 30px;
-            border: 1px solid lightgray;
-            padding: 0 10px 1px 15px;
-            border-radius: 4px;
-            color: gray;
-          "
-          placeholder="学生姓名"
-          v-model="selectGraduatesName"
-          @focus="inputSelectGraduatesNameFocus"
-          @blur="isSelectShow = isSelectFlag"
-        />
-        <div
-          class="select_div"
-          v-show="isSelectShow && selectGraduatesName ? true : false"
-          :style="'height:${menuHeight}'"
-          @mouseover="isSelectFlag = true"
-          @mouseleave="isSelectFlag = false"
-        >
+    <el-row>
+      <div style="margin-top: 10px">
+        <span style="fontsize: 15px"> 学生姓名: </span>
+        <div class="select_div_input">
+          <input
+            autocomplete="off"
+            style="
+              line-height: 28px;
+              width: 80px;
+              height: 30px;
+              border: 1px solid lightgray;
+              padding: 0 10px 1px 15px;
+              border-radius: 4px;
+              color: gray;
+            "
+            placeholder="学生姓名"
+            v-model="selectGraduatesName"
+            @focus="inputSelectGraduatesNameFocus"
+            @blur="isSelectShow = isSelectFlag"
+          />
           <div
-            class="select_div_div"
-            v-for="val in select_graduates"
-            :key="val"
-            :value="val"
-            @click="filter_graduates(val)"
+            class="select_div"
+            v-show="isSelectShow && selectGraduatesName ? true : false"
+            :style="'height:${menuHeight}'"
+            @mouseover="isSelectFlag = true"
+            @mouseleave="isSelectFlag = false"
           >
-            {{ val }}
-          </div>
-        </div>
-      </div>
-      <span style="fontsize: 15px; margin-left: 10px"> 入学年份: </span>
-      <div class="select_div_input">
-        <input
-          autocomplete="off"
-          style="
-            line-height: 28px;
-            width: 80px;
-            height: 30px;
-            border: 1px solid lightgray;
-            padding: 0 10px 1px 15px;
-            border-radius: 4px;
-            color: gray;
-          "
-          placeholder="入学年份"
-          v-model="selectYear"
-          @focus="inputSelectYearFocus"
-          @blur="isSelectYearShow = isSelectYearFlag"
-        />
-        <div
-          class="select_div"
-          v-show="isSelectYearShow"
-          style="height: 100px; overflow: scroll"
-          @mouseover="isSelectYearFlag = true"
-          @mouseleave="isSelectYearFlag = false"
-        >
-          <div
-            class="select_div_div"
-            v-for="val in selectYearsList"
-            :key="val"
-            :value="val"
-            @click="filter_year(val)"
-          >
-            {{ val }}
-          </div>
-        </div>
-      </div>
-      <span style="fontsize: 15px; margin-left: 10px"> 专业类型: </span>
-      <div class="select_div_input">
-        <input
-          autocomplete="off"
-          style="
-            line-height: 28px;
-            width: 80px;
-            height: 30px;
-            border: 1px solid lightgray;
-            padding: 0 10px 1px 15px;
-            border-radius: 4px;
-            color: gray;
-          "
-          placeholder="专业类型"
-          v-model="selectType"
-          @focus="inputSelectTypeFocus"
-          @blur="isSelectTypeShow = isSelectTypeFlag"
-        />
-        <div
-          class="select_div"
-          v-show="isSelectTypeShow"
-          style="height: 80px"
-          @mouseover="isSelectTypeFlag = true"
-          @mouseleave="isSelectTypeFlag = false"
-        >
-          <div
-            class="select_div_div"
-            v-for="val in selectTypeList"
-            :key="val"
-            :value="val"
-            @click="filter_type(val)"
-          >
-            {{ val }}
-          </div>
-        </div>
-      </div>
-
-      <span style="fontsize: 15px; margin-left: 10px"> 积分选择: </span>
-      <div class="select_point_input">
-        <input
-          type="number"
-          autocomplete="off"
-          v-model.number="point1"
-          :min="0"
-          :max="50"
-        />
-      </div>
-      <label>&nbsp;-&nbsp;</label>
-      <div class="select_point_input">
-        <input
-          type="number"
-          autocomplete="off"
-          v-model.number="point2"
-          :min="0"
-          :max="50"
-        />
-      </div>
-      <el-button
-        icon="el-icon-search"
-        @click="filterBtn"
-        style="margin-left: 30px"
-        type="primary"
-        >搜索</el-button
-      >
-      <el-button
-        icon="el-icon-search"
-        @click="reinitGraduateStudents()"
-        type="primary"
-        >重置</el-button
-      >
-    </div>
-    <div style="margin-top: 20px">
-      <el-table
-        class="table-with-shadow"
-        :data="graduateStudents"
-        stripe="stripe"
-        border="border"
-        :header-cell-style="rowClass"
-        style="width: 100%"
-      >
-        <el-table-column
-          prop="stuNumber"
-          label="学号"
-          align="center"
-          width="100px"
-        ></el-table-column>
-        <el-table-column
-          prop="name"
-          label="姓名"
-          align="center"
-          width="100px"
-        ></el-table-column>
-        <el-table-column
-          prop="year"
-          label="入学年份"
-          align="center"
-          width="80px"
-        ></el-table-column>
-        <el-table-column
-          prop="studentType"
-          label="学生类别"
-          align="center"
-          width="100px"
-        ></el-table-column>
-        <el-table-column
-          prop="telephone"
-          label="电话"
-          align="center"
-          width="150px"
-        ></el-table-column>
-        <el-table-column
-          prop="email"
-          label="邮箱"
-          align="center"
-        ></el-table-column>
-        <el-table-column
-          prop="point"
-          label="积分"
-          align="center"
-          width="80px"
-        ></el-table-column>
-        <el-table-column
-          prop="username"
-          label="用户名"
-          align="center"
-          width="100px"
-        ></el-table-column>
-        <el-table-column label="操作" align="center" width="100px">
-          <template slot-scope="scope">
-            <el-button
-              size="mini"
-              type="primary"
-              plain="plain"
-              @click="resetPasswordShow(scope.row)"
-              style="padding: 4px"
-              >重置密码</el-button
+            <div
+              class="select_div_div"
+              v-for="val in select_graduates"
+              :key="val"
+              :value="val"
+              @click="filter_graduates(val)"
             >
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
+              {{ val }}
+            </div>
+          </div>
+        </div>
+        <span style="fontsize: 15px; margin-left: 10px"> 入学年份: </span>
+        <div class="select_div_input">
+          <input
+            autocomplete="off"
+            style="
+              line-height: 28px;
+              width: 80px;
+              height: 30px;
+              border: 1px solid lightgray;
+              padding: 0 10px 1px 15px;
+              border-radius: 4px;
+              color: gray;
+            "
+            placeholder="入学年份"
+            v-model="selectYear"
+            @focus="inputSelectYearFocus"
+            @blur="isSelectYearShow = isSelectYearFlag"
+          />
+          <div
+            class="select_div"
+            v-show="isSelectYearShow"
+            style="height: 100px; overflow: scroll"
+            @mouseover="isSelectYearFlag = true"
+            @mouseleave="isSelectYearFlag = false"
+          >
+            <div
+              class="select_div_div"
+              v-for="val in selectYearsList"
+              :key="val"
+              :value="val"
+              @click="filter_year(val)"
+            >
+              {{ val }}
+            </div>
+          </div>
+        </div>
+        <span style="fontsize: 15px; margin-left: 10px"> 专业类型: </span>
+        <div class="select_div_input">
+          <input
+            autocomplete="off"
+            style="
+              line-height: 28px;
+              width: 80px;
+              height: 30px;
+              border: 1px solid lightgray;
+              padding: 0 10px 1px 15px;
+              border-radius: 4px;
+              color: gray;
+            "
+            placeholder="专业类型"
+            v-model="selectType"
+            @focus="inputSelectTypeFocus"
+            @blur="isSelectTypeShow = isSelectTypeFlag"
+          />
+          <div
+            class="select_div"
+            v-show="isSelectTypeShow"
+            style="height: 80px"
+            @mouseover="isSelectTypeFlag = true"
+            @mouseleave="isSelectTypeFlag = false"
+          >
+            <div
+              class="select_div_div"
+              v-for="val in selectTypeList"
+              :key="val"
+              :value="val"
+              @click="filter_type(val)"
+            >
+              {{ val }}
+            </div>
+          </div>
+        </div>
+
+        <span style="fontsize: 15px; margin-left: 10px"> 积分选择: </span>
+        <div class="select_point_input">
+          <input
+            type="number"
+            autocomplete="off"
+            v-model.number="point1"
+            :min="0"
+            :max="50"
+          />
+        </div>
+        <label>&nbsp;-&nbsp;</label>
+        <div class="select_point_input">
+          <input
+            type="number"
+            autocomplete="off"
+            v-model.number="point2"
+            :min="0"
+            :max="50"
+          />
+        </div>
+        <el-button
+          icon="el-icon-search"
+          @click="filterBtn"
+          style="margin-left: 30px"
+          type="primary"
+          >搜索</el-button
+        >
+        <el-button
+          icon="el-icon-search"
+          @click="reinitGraduateStudents()"
+          type="primary"
+          >重置</el-button
+        >
+      </div>
+    </el-row>
+      <div style="margin-top: 20px">
+        <el-table
+          class="table-with-shadow"
+          :data="graduateStudents"
+          stripe="stripe"
+          border="border"
+          :header-cell-style="rowClass"
+          style="width: 100%"
+        >
+          <el-table-column
+            prop="stuNumber"
+            label="学号"
+            align="center"
+            width="100px"
+          ></el-table-column>
+          <el-table-column
+            prop="name"
+            label="姓名"
+            align="center"
+            width="100px"
+          ></el-table-column>
+          <el-table-column
+            prop="year"
+            label="入学年份"
+            align="center"
+            width="80px"
+          ></el-table-column>
+          <el-table-column
+            prop="studentType"
+            label="学生类别"
+            align="center"
+            width="100px"
+          ></el-table-column>
+          <el-table-column
+            prop="telephone"
+            label="电话"
+            align="center"
+            width="150px"
+          ></el-table-column>
+          <el-table-column
+            prop="email"
+            label="邮箱"
+            align="center"
+          ></el-table-column>
+          <el-table-column
+            prop="point"
+            label="积分"
+            align="center"
+            width="80px"
+          ></el-table-column>
+          <el-table-column
+            prop="username"
+            label="用户名"
+            align="center"
+            width="100px"
+          ></el-table-column>
+          <el-table-column label="操作" align="center" width="100px">
+            <template slot-scope="scope">
+              <el-button
+                size="mini"
+                type="primary"
+                plain="plain"
+                @click="resetPasswordShow(scope.row)"
+                style="padding: 4px"
+                >重置密码</el-button
+              >
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    
     <el-dialog
       title="重置密码"
       :visible.sync="dialogResetPassword"
