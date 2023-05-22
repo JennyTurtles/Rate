@@ -396,7 +396,8 @@ public class ExportWord {
                 byte[] xwpfDocumentBytes = out.toByteArray();
                 ByteArrayInputStream bis = new ByteArrayInputStream(xwpfDocumentBytes);
 
-                ZipEntry zipEntry = new ZipEntry(gradeForm.getName() + "成绩评定表.docx");
+                ZipEntry zipEntry = new ZipEntry(gradeForm.getStuNumber() + gradeForm.getName() +
+                         "成绩评定表.docx");
                 zos.putNextEntry(zipEntry);
                 byte[] buffer = new byte[1024];
                 int length;
