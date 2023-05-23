@@ -196,7 +196,7 @@
                         >
                         <el-button
                                 @click="showGroupmanagement(scope.row)"
-                                v-show="mode !== 'secretary' && mode !== 'secretarySub' && mode !== 'adminSub'|| scope.row.requireGroup === true"
+                                v-show="mode !== 'secretary' && mode !== 'secretarySub' && mode !== 'adminSub'|| (scope.row.requireGroup === true && mode === 'secretarySub')"
                                 style="padding: 4px"
                                 size="mini"
                                 icon="el-icon-s-operation"
