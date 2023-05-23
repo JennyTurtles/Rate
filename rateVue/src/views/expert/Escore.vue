@@ -220,12 +220,14 @@
       >
         <el-form-item label="评语:">
           <el-input
+              @input="(val)=> {handleCommentLimit(val)}"
               type="textarea"
-              :rows="5"
+              :rows="10"
               v-model="addComment"
               placeholder="请输入评语"
           >
           </el-input>
+          <span style="position: absolute; right: 30px; bottom: 0;">{{ commentCharacterNums ? commentCharacterNums : 0 }}/500</span>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -326,6 +328,8 @@ export default {
   inject: ["reload"],
   data() {
     return {
+      commentCharacterNums: 0,
+      re: /[\u4E00-\u9FA5\uF900-\uFA2D]/,
       addCommentUserInfo:{
         activityID: null,
         teacherID: null,
@@ -391,7 +395,37 @@ export default {
     },
   },
   methods: {
+    judgeCharacterLimit(){
+      if (this.re.test(this.addComment)){
+        if(this.addComment.match(this.re).length > 500){
+          return false;
+        }
+      }
+      return true;
+    },
+    handleCommentLimit(content){ //处理评语限制字数问题
+      let selfValue = content.split('')
+      let sumChar = 0;
+      let index = 0;
+      for(var i = 0;i < selfValue.length; i ++){
+        if(this.re.test(selfValue[i])){ //正则匹配
+          sumChar ++;
+        }
+        if(sumChar > 500){ //固定限制的中文汉字为500个
+          index = i;
+          break;
+        }
+      }
+      this.commentCharacterNums = sumChar;
+      if(index){ //超过直接截取
+        this.addComment = this.addComment.substring(0,index)
+      }
+    },
     doAddComment(){
+      if(!this.judgeCharacterLimit()) {
+        this.$message.warning('不能超过500字！')
+        return
+      }
       this.addCommentUserInfo.content = this.addComment.replace(/\r\n/g, '<br/>').replace(/\n/g, '<br/>').replace(/\s/g, ' ');
       this.addCommentUserInfo.date = this.dateFormatFunc(new Date())
       this.postRequest('/comment/basic/addCommentByExpert',this.addCommentUserInfo).then((response)=>{
@@ -405,6 +439,7 @@ export default {
       })
     },
     showAddComment(data){//点击添加评语按钮
+      this.addComment = ''
       this.addCommentUserInfo.participantID = data.id
       this.addCommentUserInfo.activityID = this.Adata.Aid
       this.addCommentUserInfo.teacherID = this.user.id
@@ -414,6 +449,7 @@ export default {
           if(response.status == 200){
             if(response.obj != null && response.obj != ''){
               this.addComment = response.obj.content.replace(/<br\/>/g,"\n").replace(/' '/g,"\s")
+              this.handleCommentLimit(this.addComment)
             }
           }
         }
