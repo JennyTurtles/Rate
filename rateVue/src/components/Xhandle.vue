@@ -48,8 +48,8 @@
           v-on:click="visibleChange"
           class="btn-collapse"
         >
-          <i class="el-icon-arrow-right" v-if="visible"></i>
-          <i class="el-icon-arrow-left" v-else></i>
+          <i class="el-icon-arrow-left" v-if="visible"></i>
+          <i class="el-icon-arrow-right" v-else></i>
         </el-button>
       </div>
       <div v-if="shouldCloseWindow == 'right'">
@@ -89,8 +89,8 @@
           v-on:click="visibleChange"
           class="btn-collapse"
         >
-          <i class="el-icon-arrow-left" v-if="visible"></i>
-          <i class="el-icon-arrow-right" v-else></i>
+          <i class="el-icon-arrow-right" v-if="visible"></i>
+          <i class="el-icon-arrow-left" v-else></i>
         </el-button>
       </div>
     </el-header>
@@ -107,7 +107,7 @@ export default {
       visible: false,
       canMove: false,
       showTooltip: false,
-      shouldCloseWindow: "left",
+      shouldCloseWindow: "right",
     };
   },
 

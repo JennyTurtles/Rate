@@ -189,6 +189,7 @@ public class ExportPDF {
             // 在线打开方式
             URL u = new URL("file:///" + filePath);
             response.setContentType(u.openConnection().getContentType());
+            // 回头考虑使用GBK编码，防止文件名乱码，或者根据浏览器的类型返回各种编码
             response.setHeader("Content-Disposition", "inline; filename=" + java.net.URLEncoder.encode(filename, "UTF-8"));
         } else {
             // 纯下载方式

@@ -186,10 +186,10 @@
           label-width="80px"
           style="margin-left: 20px"
         >
-          <span class="isMust">*</span>
-          <div>
+          <!-- <span class="isMust">*</span> -->
+          <span>
             {{ emp.num }}
-          </div>
+          </span>
         </el-form-item>
 
         <el-row>
@@ -291,52 +291,6 @@
         >
       </span>
     </el-dialog>
-
-    <!-- 查看详情按钮 -->
-    <el-dialog
-      class="showInfo_dialog"
-      :title="title_show"
-      :visible.sync="dialogVisible_showInfo"
-      width="520px"
-      center="center"
-    >
-      <el-form
-        :label-position="labelPosition"
-        label-width="80px"
-        :model="emp"
-        ref="empForm"
-        style="margin-left: 20px"
-      >
-        <el-form-item label="提交次序:" prop="num">
-          <span>{{ emp.num }}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="指导时间:" prop="dateStu">
-          <span>{{ emp.dateStu }}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="上期总结:" prop="preSum">
-          <span>{{ emp.preSum }}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="下期计划:" prop="nextPlan">
-          <span>{{ emp.nextPlan }}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="导师评价:" prop="tutorComment">
-          <span>{{ emp.tutorComment }}</span
-          ><br />
-        </el-form-item>
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button
-          id="but_reject"
-          @click="dialogVisible_showInfo = false"
-          type="primary"
-          >关闭</el-button
-        >
-      </span>
-    </el-dialog>
   </div>
 </template>
 
@@ -363,6 +317,9 @@ export default {
       dialogVisible: false,
       dialogVisible_show: false,
       dialogVisible_showInfo: false,
+      labelPosition: "left",
+      title: "",
+      title_show: "",
 
       total: 0, // 现在显示的数据个数
       prePlan: "", // 上期安排
@@ -370,7 +327,7 @@ export default {
       nextDate: new Date(), // 下一条记录的时间
       thesisID: 0,
       timeChoose: 0,
-      // curIndex: 0,
+      curIndex: 0,
       showTooltip: true,
       pageMonth: new Date().getMonth(),
       showTimeSelect: true,
@@ -468,22 +425,16 @@ export default {
   filters: {},
   methods: {
     exportPDF() {
-      console.log("导出PDF");
       this.loading = true;
-      // Message.success("正在导出");
       let url = "/paperComment/basic/exportPDF?thesisID=" + this.thesisID;
       this.getRequest(url).then((resp) => {
         this.loading = false;
-        // window.open(url);
         window.location.href = url;
       });
     },
     handleCancel(event) {
-      // 阻止事件冒泡，避免点击其他元素也能关闭对话框
       event.stopPropagation();
-      // 阻止默认行为，避免触发其他元素的默认行为
       event.preventDefault();
-      // 关闭对话框
       this.dialogVisible = false;
       this.initEmps();
     },
@@ -495,7 +446,6 @@ export default {
         case 10:
         case 13:
           return false;
-          break;
         case 15:
         case 11:
           return (
@@ -503,16 +453,13 @@ export default {
             date.getTime() < sevenDaysAgo.getTime() ||
             date.getTime() > today.getTime()
           );
-          break;
         case 12:
           return date.getTime() >= new Date(this.nextDate).getTime();
-          break;
         case 14:
           return (
             date.getTime() >= new Date(this.nextDate).getTime() ||
             date.getTime() <= new Date(this.preDate).getTime()
           );
-          break;
         default:
           console.log("时间限制出现了其他的问题！请检查");
           return true;
@@ -537,7 +484,7 @@ export default {
     showEditEmpView(data) {
       // this.initPositions();
       this.title = "编辑记录信息";
-      console.log("编辑开始！");
+      // console.log("编辑开始！");
 
       this.emp = data;
       this.emp.id = 1;
@@ -593,7 +540,7 @@ export default {
       //确定是添加记录还是新增记录
       if (this.emp.id) {
         //emptyEmp中没有将id设置为空 所以可以判断
-        console.log("编辑记录：");
+        // console.log("编辑记录：");
         var empdata = this.emp;
         this.emptyEmp();
         this.$refs["empForm"].validate((valid) => {
@@ -609,8 +556,8 @@ export default {
             this.emp.isPass = null;
             this.emp.tutorComment = "";
             const _this = this;
-            console.log("_this.emp:");
-            console.log(_this.emp);
+            // console.log("_this.emp:");
+            // console.log(_this.emp);
 
             this.postRequest1("/paperComment/basic/edit", _this.emp).then(
               (resp) => {
@@ -624,7 +571,7 @@ export default {
         });
       } else {
         console.log("新增记录：");
-        console.log(this.total);
+        // console.log(this.emp);
         var empdata = this.emp;
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
@@ -639,11 +586,6 @@ export default {
             const _this = this;
 
             if (this.total > 0) {
-              // console.log("empdata.dateStu:" + Date.parse(this.emps[this.total
-              // -1].dateStu)); 为了兼容性考虑，火狐浏览器不直接支持2017-08-09格式，所以我现在给他转化为2017/08/09格式
-              console.log("debug:");
-              console.log(this.emps[this.total - 1].dateStu);
-              console.log(this.emp.dateStu);
               let date1 = Date.parse(this.emps[this.total - 1].dateStu);
               let date2 = Date.parse(this.emp.dateStu);
 
@@ -659,15 +601,6 @@ export default {
                   }
                 );
               }
-            } else {
-              this.postRequest1("/paperComment/basic/add", _this.emp).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                  }
-                }
-              );
             }
           }
         });
@@ -688,7 +621,6 @@ export default {
       if (this.total != 0) {
         this.showTooltip = true;
         this.prePlan = this.emps[this.total - 1].nextPlan;
-        // console.log(this.prePlan);
         this.timeChoose = 11;
         this.preDate = this.emps[this.total - 1].dateStu;
       } else {
