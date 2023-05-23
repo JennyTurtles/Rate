@@ -431,7 +431,7 @@
         <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" v-model="infoitem" style="width: 450px">
         </el-checkbox>
       </div><br/>
-      <div style="font-size: 16px;margin-left: 15%">评分项：<br/>
+      <div style="font-size: 16px;margin-left: 15%" class="formView">评分项：<br/>
         <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: 450px">
         </el-checkbox>
       </div>
@@ -1007,6 +1007,13 @@ export default {
 </script>
 
 <style scoped>
+.formView >>>.el-checkbox__label {
+  display: inline-grid;
+  white-space: pre-line;
+  word-wrap: break-word;
+  overflow: hidden;
+  line-height: 20px;
+}
 .inputOfGroupsBox{
   /*word-wrap: break-word;*/
   /*word-break: break-all;*/
