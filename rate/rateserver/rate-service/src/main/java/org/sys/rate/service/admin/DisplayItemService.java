@@ -64,14 +64,37 @@ public class DisplayItemService {
         // 评分项：建立table，(pID,sID):score
         Table<Integer, Integer,Double> tableScoreItem = getScoreAverageTable(activityID,pars);
         List<Activities> subActivities = activitiesMapper.getSubActivities(activityID);
-        for (Activities activities:subActivities) {//循环遍历子活动
-            if (!tableInfoItem.containsRow(activities.getId())){
-                Table<Integer, Integer,String> tableInfoItem1 = getInfoContentTable(activities.getId(),pars);
-                tableInfoItem.putAll(tableInfoItem1);
+
+        for (Activities subActivity:subActivities) {//循环遍历子活动
+            // 建立子活动的pID和父活动的pID的映射
+            List<subID2ParID> subID2ParIDs = participatesMapper.getSubID2ParID(subActivity.getId(),activityID);
+            if (subID2ParIDs == null) // 当前子活动无选手
+                continue;
+            Map<Integer,Integer> subID2ParIDMap = new HashMap<>();
+            for (subID2ParID subID2ParID:subID2ParIDs){
+                subID2ParIDMap.put(subID2ParID.getSubID(),subID2ParID.getParID());
             }
-            if (!tableScoreItem.containsRow(activities.getId())){
-                Table<Integer, Integer,Double> tableScoreItem1 = getScoreAverageTable(activities.getId(),pars);
-                tableScoreItem.putAll(tableScoreItem1);
+            if (!tableInfoItem.containsRow(subActivity.getId())){
+                Table<Integer, Integer,String> tableInfoItem1 = getInfoContentTable(subActivity.getId(),pars);
+                // 遍历tableInfoItem1，替换parID为父活动的parID
+                for (Table.Cell<Integer, Integer, String> cell : tableInfoItem1.cellSet()) {
+                    Integer parID = subID2ParIDMap.get(cell.getRowKey());
+                    if (parID == null)
+                        continue;
+                    tableInfoItem.put(parID,cell.getColumnKey(),cell.getValue());
+                }
+//                tableInfoItem.putAll(tableInfoItem1);
+            }
+            if (!tableScoreItem.containsRow(subActivity.getId())){
+                Table<Integer, Integer,Double> tableScoreItem1 = getScoreAverageTable(subActivity.getId(),pars);
+                // 遍历tableScoreItem1，替换parID为父活动的parID
+                for (Table.Cell<Integer, Integer, Double> cell : tableScoreItem1.cellSet()) {
+                    Integer parID = subID2ParIDMap.get(cell.getRowKey());
+                    if (parID == null)
+                        continue;
+                    tableScoreItem.put(parID,cell.getColumnKey(), cell.getValue());
+                }
+//                tableScoreItem.putAll(tableScoreItem1);
             }
         }
         // 展示项：建立map，ID:displayItem
@@ -268,8 +291,16 @@ public class DisplayItemService {
 
     // 对于评分项，还需要额外乘以系数
     private Table<Integer, Integer, Double> getScoreAverageTable(Integer activityID, List<ParticipantsDisplay> pars) {
+        // 哎，处理子活动的时候效率有点低，以后再优化吧TcT
+//        List<Integer> actIDs = activitiesMapper.getSubActivitiesID(activityID);
         List<ScoreItem> scoreItems = scoreItemMapper.getByActivityID(activityID);
         List<ScoreAverage> scoreAverages = scoreItemMapper.getScoreAverageByActivityID(activityID);
+//        if (actIDs != null){
+//            for (Integer actID : actIDs){
+//                scoreItems.addAll(scoreItemMapper.getByActivityID(actID));
+//                scoreAverages.addAll(scoreItemMapper.getScoreAverageByActivityID(actID));
+//            }
+//        }
         Table<Integer, Integer, Double> table = HashBasedTable.create();
         // 建立table
         for (ScoreAverage scoreAverage : scoreAverages) {

@@ -1,10 +1,7 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
-import org.sys.rate.model.FinalValue;
-import org.sys.rate.model.PEexport;
-import org.sys.rate.model.ParticipantsDisplay;
-import org.sys.rate.model.Participates;
+import org.sys.rate.model.*;
 
 import java.util.Date;
 import java.util.List;
@@ -186,4 +183,9 @@ public interface ParticipatesMapper {
 
     @Select("SELECT studentID FROM participants WHERE activityID = #{activityID}")
     List<Integer> getStudentIDbyActID(Integer activityID);
+
+    @Select("SELECT p1.ID as subID, p2.ID as parID\n" +
+            "FROM participants p1 LEFT JOIN participants p2 on p1.studentID = p2.studentID\n" +
+            "WHERE p1.activityID = #{subID} and p2.activityID = #{parID}")
+    List<subID2ParID> getSubID2ParID(Integer subID, Integer parID);
 }
