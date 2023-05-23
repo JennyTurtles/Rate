@@ -336,17 +336,15 @@ export default {
                 if(resp==='删除成功!')
                 {Message.success(resp)}
                 else
-                {Message.error(resp)}
+                {
+                  Message.error(resp)
+                }
                 this.initHrs();
+              }else {
+                Message.warning("请先确保组内无选手和专家。")
               }
             });
           })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消删除",
-            });
-          });
     },
     beforehandleEdit(index, row) {
       this.currentfocusdata = row.name
