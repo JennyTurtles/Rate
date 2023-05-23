@@ -131,6 +131,12 @@ export default {
       })
       //根据时间做筛选 isShow控制是否显示在专家活动列表中 isenter控制是否可进入（按钮可点）
       for(var i = 0;i < temp.length; i++){
+        //如果没有设置评分项 就不显示出来
+        var socreitemCount = temp[i].activityLists[0].scoreItemCount;
+        if(socreitemCount == 0){
+          temp[i].isShow = false;
+          continue;
+        }
         var time = new Date(temp[i].activityLists[0].startDate)
         let time1 = time.getTime() //开始时间
         let time2 = this.nowTime.getTime()//当前时间
