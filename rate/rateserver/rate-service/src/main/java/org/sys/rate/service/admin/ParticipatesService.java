@@ -207,7 +207,7 @@ public class ParticipatesService {
 //                student.setInstitutionid(null);
 //            }
             if (studentMapper.check(participants.getIDNumber())!=0) {
-                if(!participants.getUsername().equals(""))
+                if(participants.getUsername()!=null)
                 {//不为空
                     student.setUsername(participants.getUsername());
                 }
@@ -215,7 +215,7 @@ public class ParticipatesService {
                 {//如果没有用户名，更新的时候会被忽略，插入时在下面专门if-else里面
                     student.setUsername(null);
                 }
-                if(!participants.getPassword().equals(""))
+                if(participants.getPassword()!=null)
                 {//不为空
                     String encodePass = participants.getPassword();
                     student.setPassword(ExpertService.sh1(encodePass));
@@ -234,7 +234,7 @@ public class ParticipatesService {
                 }
                 flag=true;
             } else {
-                if(!participants.getUsername().equals(""))
+                if(participants.getUsername()!=null)
                 {//不为空
                     student.setUsername(participants.getUsername());
                 }
@@ -245,7 +245,7 @@ public class ParticipatesService {
                 }
 //                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
                 String encodePass;
-                if(!participants.getPassword().equals(""))
+                if(participants.getPassword()!=null)
                 {//不为空
                     encodePass = ExpertService.sh1(participants.getPassword());
                 }
@@ -476,12 +476,12 @@ public class ParticipatesService {
         return 1;
     }
 
-    public Integer updateinfoitem(Participates company) {
-        HashMap<Integer, InfoItemValue> mapinfo =company.getInfomap();
+    public Integer updateinfoitem(Participates participates) {
+        HashMap<Integer, InfoItemValue> mapinfo =participates.getInfomap();
         //HashMap<Integer, String> mapinfo = participants.getInfoItemMap();
         Infos infos=new Infos();
-        infos.setActivityID(company.getActivityID());
-        infos.setParticipantID(company.getID());
+        infos.setActivityID(participates.getActivityID());
+        infos.setParticipantID(participates.getID());
         Set<Integer> keys_info = mapinfo.keySet(); // 遍历键集 得到 每一个键//键是infoItemID值是content
         for (Integer key_info : keys_info) {
             //key 就是键 //获取对应值
