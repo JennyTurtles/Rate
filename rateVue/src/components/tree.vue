@@ -38,6 +38,7 @@
         :allow-drop="allowDrop"
         :allow-drag="allowDrag"
         :highlight-current="true"
+        :style="{ height: scrollerHeight, overflow: 'auto' }"
         default-expand-all
       ></el-tree>
     </el-tooltip>
@@ -88,7 +89,6 @@
             @input="onScoreInput"
             inline
           />
-          
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -358,7 +358,9 @@ export default {
     renderContent(h, { node, data, store }) {
       return (
         <span class="custom-tree-node">
-          <span>{node.label}</span>
+          <span class="tree-node-text" title={node.label}>
+            {node.label}
+          </span>
           <span class="inline-tree-node">
             <el-button
               class="plus-button"
@@ -809,8 +811,8 @@ body {
 }
 
 .plus-button {
-  background-color: #1e90ff; /* 设置背景色为蓝色 */
-  color: white; /* 设置字体颜色为白色 */
+  background-color: #1e90ff; 
+  color: white; 
   border-radius: 4px;
   padding: 8px 16px;
   font-size: 16px;
@@ -819,10 +821,18 @@ body {
 }
 
 .plus-button:hover {
-  background-color: #add8e6; /* 鼠标悬停时的背景色为淡蓝色 */
+  background-color: #add8e6; 
 }
 
 .plus-button:active {
-  background-color: #f0a020; /* 鼠标点击时的背景色为钢蓝色 */
+  background-color: #f0a020; 
+}
+
+.tree-node-text {
+  display: inline-block;
+  max-width: 400px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
