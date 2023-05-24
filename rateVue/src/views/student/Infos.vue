@@ -24,9 +24,9 @@
                 <el-input style="width:80%"
                           :maxlength="item.sizelimit"
                           show-word-limit
-                          @blur="saveTextbox(item,'textbox')"
+                          @blur="saveTextbox(item,'textbox',index)"
                           @change="judgeTextboxChange()"
-                          v-model="infoTextboxContent"
+                          v-model="infoTextboxContent[index]"
                           placeholder="请输入内容"
                 >
                 </el-input>
@@ -36,9 +36,9 @@
               <el-input
                   :maxlength="item.sizelimit"
                   show-word-limit
-                  @blur="saveTextbox(item,'textarea')"
+                  @blur="saveTextbox(item,'textarea',index)"
                   @change="judgeTextareaChange()"
-                  v-model="infoTextareaContent"
+                  v-model="infoTextareaContent[index]"
                   type="textarea"
                   :rows="8"
                   placeholder="请输入内容"
@@ -112,7 +112,7 @@ export default {
       fileDownloadList:{},//保存所有上传的文件，用索引标识
       fileUploadList:[],
       formData:{},
-      infoTextboxContent:"",//textbox的内容
+      infoTextboxContent:[],//textbox的内容
       isChangeTextbox:false,//判断textbox框的值是否改变
       isChangeTextarea:false,//判断textarea框的值是否改变
       currentfocusdata: "",//当前焦点数据
@@ -123,7 +123,7 @@ export default {
         infoitemid:null,
         content:""
       },
-      infoTextareaContent:"",//textarea数据的内容
+      infoTextareaContent:[],//textarea数据的内容
       files:[],//上传的文件
       urlFile:'',//文件路径
       headers: {
@@ -249,7 +249,6 @@ export default {
           e.url = URL.createObjectURL(e.raw);
       a.href = e.url;//路径前拼上前缀，完整路径
       a.dispatchEvent(event);
-      console.log(e.url)
     },
     upload(data,index){
       if(data.id != this.uploadInfoid){//渲染了多个upload，用每一个infoitem的id做标识，判断是哪个upload被点击了
@@ -314,11 +313,11 @@ export default {
           }else{
             this.isChangeTextbox = false//判断输入框是否变化的变量
           }
-          this.reset()
+          // this.reset()
         }
       },(error)=>{})
     },
-    saveTextbox(data,type){//textbox失去焦点保存内容
+    saveTextbox(data,type,idx){//textbox失去焦点保存内容
       var edit = {
         infoItemID:data.id,
         content:"",
@@ -328,7 +327,7 @@ export default {
       // var length
       if(type == "textbox"){
         if(this.isChangeTextbox){
-          edit.content = this.infoTextboxContent
+          edit.content = this.infoTextboxContent[idx]
         }//内容发生了改变
         else{
           return
@@ -336,7 +335,7 @@ export default {
         // length = this.judgeSize(this.infoTextboxContent)
       }else if(type == "textarea"){
         if(this.isChangeTextarea){
-          edit.content = this.infoTextareaContent
+          edit.content = this.infoTextareaContent[idx]
         }else{
           return
         }
@@ -373,8 +372,6 @@ export default {
 
     },
     handleChangeFiles(file,fileList,data,index){//文件列表数量改变
-      console.log('file:')
-      console.log(file)
       this.fileUploadList=[]
       this.files=[]
       var attachmentType = data.contentType.split(",")
@@ -414,6 +411,8 @@ export default {
           this.loading = false;
           var hrs = []
           var idx = 0;
+          this.infoTextareaContent = []
+          this.infoTextboxContent = []
           resp.data.forEach((element,index) => {
             if(element.contentType.indexOf('pdf') >= 0 || element.contentType.indexOf('jpg') >= 0 || element.contentType.indexOf('zip')>=0){
                 this.uploadListElement[index] = {//在所有infoitem中的索引值
@@ -424,12 +423,13 @@ export default {
                 }
                 idx ++;
             }
+            this.infoTextareaContent.push("")
+            this.infoTextboxContent.push("")
           });
           hrs = resp.data
           this.hrs = hrs
           this.total = hrs.length
           this.form_hrs.hrs = this.hrs
-          console.log(resp.data);
         }
       });
     },

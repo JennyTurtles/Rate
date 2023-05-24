@@ -232,8 +232,8 @@ public class ExpertService implements UserDetailsService {
 			if (experts.getInstitutionid() == 1) {
 				int instituteId = activitiesMapper.selectByActivityId(activityid);//通过活动号查找管理员组织号，新增的ActivitiesMapper方法
 				experts.setInstitutionid(instituteId);
-				experts.setUsername(null);
-				experts.setPassword(null); // 如果为本单位则忽略用户名和密码
+				//experts.setUsername(null);
+				//experts.setPassword(null); // 如果为本单位则忽略用户名和密码
 			} else {
 				experts.setInstitutionid(null);
 			}
@@ -243,7 +243,12 @@ public class ExpertService implements UserDetailsService {
 				int i = expertsMapper.updateByIdNumber(experts);
 				System.out.println("专家信息更新！条数：" + i + " id: " + experts.getName());
 			} else {
-				//不存在就直接插入，不设置默认用户名和密码
+				//对密码进行处理，默认身份证后六位。
+				if (experts.getPassword() == null || experts.getPassword().equals("")) {
+					experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
+				} else {
+					experts.setPassword(sh1(experts.getPassword()));
+				}
 				int insert = expertsMapper.insert(experts);
 				if (insert > 0) {
 					System.out.println("insert->" + experts.getName() + " 的信息插入成功");
@@ -251,11 +256,6 @@ public class ExpertService implements UserDetailsService {
 					System.out.println("insert->" + experts.getName() + " 的信息插入失败");
 				}
 //					//对密码进行处理，默认身份证后六位。
-//					if (experts.getPassword() == null || experts.getPassword().equals("")) {
-//						experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
-//					} else {
-//						experts.setPassword(sh1(experts.getPassword()));
-//					}
 //
 //				//对用户名进行处理，如果没有读到默认为电话号码
 //				experts.setUsername(experts.getUsername() == null || experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
@@ -307,7 +307,7 @@ public class ExpertService implements UserDetailsService {
 			expertactivities.setFinished(false);
 			//如果是1，则为本单位，再设置为管理员的instituteId，否则为null
 			if (experts.getInstitutionid() == 1) {
-				int instituteId = activitiesMapper.selectByActivityId(activityid);//通过活动号查找管理员组织号，新增的ActivitiesMapper方法
+				Integer instituteId = activitiesMapper.selectByActivityId(activityid);//通过活动号查找管理员组织号，新增的ActivitiesMapper方法
 				experts.setInstitutionid(instituteId);
 				experts.setUsername(null);
 				experts.setPassword(null); // 如果为本单位则忽略用户名和密码
@@ -328,12 +328,12 @@ public class ExpertService implements UserDetailsService {
 					System.out.println("insert->" + experts.getName() + " 的信息插入失败");
 				}
 //					//对密码进行处理，默认身份证后六位。
-//					if (experts.getPassword() == null || experts.getPassword().equals("")) {
-//						experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
-//					} else {
-//						experts.setPassword(sh1(experts.getPassword()));
-//					}
-//				//对用户名进行处理，如果没有读到默认为电话号码
+					if (experts.getPassword() == null || experts.getPassword().equals("")) {
+						experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
+					} else {
+						experts.setPassword(sh1(experts.getPassword()));
+					}
+				//对用户名进行处理，如果没有读到默认为电话号码
 //				experts.setUsername(experts.getUsername() == null || experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
 //				if (expertsMapper.checkUsername(experts.getUsername()) > 0) {//这里是username_check
 //					//用户名存在不导入

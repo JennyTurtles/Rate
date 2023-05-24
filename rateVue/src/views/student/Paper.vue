@@ -242,7 +242,7 @@
       center>
       <el-form
         :label-position="labelPosition"
-        label-width="80px"
+        label-width="100px"
         :model="emp"
         :rules="rules"
         ref="empForm"
@@ -318,7 +318,7 @@
 <script>
 // import { delete } from 'vue/types/umd';
 import axios from "axios";
-import {postRequest1} from "@/utils/api";
+import {deleteRequest, postRequest1} from "@/utils/api";
 export default {
   name: "SalSearch",
   data() {
@@ -341,14 +341,9 @@ export default {
       writer:'',//和输入的作者列表绑定
       options:[],//存储所有刊物对象
       data_picker:"",//选择时间
-      ulList:false,
       labelPosition: "left",
       title: "",
       title_show: "",
-      importDataBtnText: "导入数据",
-      importDataBtnIcon: "el-icon-upload2",
-      importDataDisabled: false,
-      showAdvanceSearchView: false,
       allDeps: [],
       emps: [],
       loading: false,
@@ -359,7 +354,6 @@ export default {
       page: 1,
       keyword: "",
       size: 10,
-      positions: [],
       publicationName:"",//所属期刊
       publicationID:-1,
       startPage:'',
@@ -367,8 +361,8 @@ export default {
       // tutorName:JSON.parse(sessionStorage.getItem('user')).teachers.name,//导师名字
       oper:{
         operatorRole:"student",
-        operatorID:JSON.parse(localStorage.getItem('user')).id,
-        operatorName:JSON.parse(localStorage.getItem('user')).name,
+        operatorID:'',
+        operatorName:'',
         paperID:null,
         paperName:null,
         pubID:null,
@@ -389,12 +383,7 @@ export default {
         url:'',
         state:'',
         pubPage:'',
-        publicationID:null,
-        
-      },
-      defaultProps: {
-        children: "children",
-        label: "name",
+        publicationID:null
       },
       rules: {
         name: [{ required: true, message: "请输入论文名", trigger: "blur" }],
@@ -430,7 +419,7 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.currentHr; //object信息
+      return JSON.parse(localStorage.getItem('user')); //object信息
     },
     menuHeight() {
       return this.publicationName.length * 50 > 150
@@ -441,6 +430,8 @@ export default {
   created() {},
   mounted() {
     this.initEmps();
+    this.oper.operatorID = this.user.id;
+    this.oper.operatorName = this.user.name;
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -510,7 +501,7 @@ export default {
           if (resp) {
             if(resp.obj){
               this.view_point = resp.obj
-              const id = JSON.parse(localStorage.getItem('user')).id
+              const id = this.user.id
               if (this.view_point === 2){
                 // that.getRequest("/publication/checkScore/"+id).then((resp)=>{
                 //
@@ -523,13 +514,12 @@ export default {
             }
             clearInterval(this.timer)
           }
-        console.log(this.view_point)
         });
     },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
       console.log(fileName);
-      if(localStorage.getItem("user")){
+      if(this.user){
         var url="/paper/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
         window.location.href = encodeURI(url);
       }else{
@@ -542,9 +532,11 @@ export default {
         filepath:this.urlFile
       }
       this.postRequest1("/paper/basic/deleteFile",file).then(
-        (response)=>{
-          console.log(response)
-        },()=>{}
+        (res)=>{
+          this.$message.success('删除成功！')
+        },()=>{
+          this.$message.success('删除失败！')
+        }
       )
     },
     handleExceed(){//超过限制数量
@@ -568,8 +560,7 @@ export default {
       formData.append("file",this.files[0].raw)
       axios.post("/paper/basic/upload",formData,{
         headers:{
-          // 'token': window.sessionStorage.getItem('user') ? JSON.parse(window.sessionStorage.getItem('user')).token : ''
-          'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
+          'token': this.user ? this.user.token : ''
         }
       }).then(
         (response)=>{
@@ -579,8 +570,6 @@ export default {
           this.addButtonState = true
           //获取文件路径
           this.urlFile=response.data
-          // console.log("response:");
-          // console.log(this.urlFile);
         },()=>{}
       )
     },
@@ -608,7 +597,7 @@ export default {
       }
       var num=null
       // var info=JSON.parse(window.sessionStorage.getItem("user"))
-      var info=JSON.parse(localStorage.getItem("user"))
+      var info = this.user
       if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
         num=val.split('；')          
       }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
@@ -662,36 +651,12 @@ export default {
       }
       this.emp.rank=num.indexOf(info.name)+1
       this.emp.author=this.writer 
-      console.log(this.writer);
-      console.log(this.emp.point);
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
-    /** 查询角色列表 */
-    onError(err, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-    },
-    onSuccess(response, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-      this.initEmps();
-    },
-    beforeUpload() {
-      this.importDataBtnText = "正在导入";
-      this.importDataBtnIcon = "el-icon-loading";
-      this.importDataDisabled = true;
-    },
-    exportData() {
-      window.open("/employee/basic/export", "_parent");
-    },
     emptyEmp() {
       this.emp = {
-        // ID: 6003,
-        // startDate: null,
         name: "",
         year: "",
         month: "",
@@ -700,26 +665,17 @@ export default {
         content: "",
         url:'',
         state:'',
-        // reason:"",
         pubPage:'',
         publicationID:''
-        // scoreItemCount: "0",
-        // comment: "论文备注example：关于xxx的论文",
       };
     },
      mail(e){
-      console.log(1);
       this.postRequest('/test/mail/mail?content='+e).then((resp) => {
-        console.log(resp)
-        // this.loading = false;
-        console.log(1)
-       
-        
+        console.log()
       });
     },
     //编辑按钮
     showEditEmpView(data) {
-      // this.initPositions();
       this.title = "编辑论文信息";
       this.emp = data;
       this.view_point = data.point
@@ -744,47 +700,33 @@ export default {
           }
         }
       })
-      // let url = "/publication/basic/List"
-      // this.getRequest(url).then((resp) => {
-      //   this.loading = false;
-      //   if (resp) {
-      //     this.options=[]
-      //     for(var i=0;i<resp.data[0].length;i++){ // 待修改
-      //       // console.log(resp.data)
-      //       this.options.push({index:resp.data[0][i].id,value:resp.data[0][i].name,point:resp.data[1][i]})
-      //     }
-      //   }
-      // });
     },
     showEditEmpView_show(data) {
       this.title_show = "显示详情";
-      console.log("详情")
-      console.log(this.emp)
       this.emp = data;
       this.dialogVisible_show = true;
     },
     deleteEmp(data) {//点击删除按钮
-      if(confirm(
-        "此操作将永久删除【" + data.name + "】, 是否继续?",)){
-        axios.delete("/paper/basic/remove/" + data.id).then((resp) => {
+      this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?",).then(() => {
+        this.deleteRequest("/paper/basic/remove/" + data.id).then((resp) => {
           if (resp) {
-            console.log(resp)
             this.dialogVisible = false;
+            this.$message.success('删除成功!')
             this.initEmps();
           }
+        }).catch(() => {
+          this.$message.error('删除失败!')
         })
-      }
+      }).catch(() => {})
     },
     doAddEmp() {//确定添加论文
       if (this.emp.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        console.log("编辑")
           var empdata=this.emp
           this.emptyEmp()
           this.$refs["empForm"].validate((valid) => {
               if (valid) {
                 this.emp.name=empdata.name
                 this.emp.ID=empdata.id
-                // this.emp.publication=empdata.publication
                 this.emp.publicationID=empdata.publicationID
                 this.emp.point = empdata.point
                 this.emp.year=empdata.year
@@ -792,11 +734,10 @@ export default {
                 this.emp.author=empdata.author
                 this.emp.total = empdata.total
                 this.emp.rank=empdata.rank
-                // this.publicationName=document.getElementById("input_publicationName").value
                 this.emp.pubPage=this.startPage+"-"+this.endPage
-                this.emp.url = this.urlFile;
+                this.emp.url = empdata.url;
                 this.emp.state="commit"
-                this.emp.studentID = JSON.parse(localStorage.getItem('user')).id
+                this.emp.studentID = this.urlFile
                 const _this = this;
                 if(this.emp.url == '' ||this.emp.url == null){
                   this.$message({
@@ -813,18 +754,15 @@ export default {
               }
           });
       } else {
-        console.log("添加")
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.publicationName=document.getElementById("input_publicationName").value
-            console.log("writer:"+this.emp.author);
             this.emp.pubPage=this.startPage+"-"+this.endPage
             this.emp.url = this.urlFile;
             this.emp.state="commit"
             this.emp.point = this.view_point
             this.emp.publicationID = this.publicationID
-            // this.emp.name=this.empPaperName
-            this.emp.studentID = JSON.parse(localStorage.getItem('user')).id
+            this.emp.studentID = this.user.id
             const _this = this;
             if(this.emp.url == '' ||this.emp.url == null){
               this.$message.error('请上传证明材料！')
@@ -850,7 +788,6 @@ export default {
       this.oper.pubID=pubID
       this.oper.operation="提交论文"
       this.oper.paperID=paperID
-      console.log("/paperoper/basic/add");
       this.postRequest1("/paperoper/basic/add", this.oper).then(
         (resp) => {
           if (resp) {
@@ -859,19 +796,11 @@ export default {
         }
       );    
     },
-    sizeChange(currentSize) {
-      this.size = currentSize;
-      this.initEmps();
-    },
-    currentChange(currentPage) {
-      this.page = currentPage;
-      this.initEmps("advanced");
-    },
     showAddEmpView() {//点击添加论文按钮
       this.addButtonState=true
       this.options=[]
       this.view_point = 0
-      this.emptyEmp();//532
+      this.emptyEmp();
       this.writer=''
       this.data_picker=''
       this.publicationName=''
@@ -880,82 +809,21 @@ export default {
       this.endPage=''
       this.urlFile=''
       this.title = "添加论文";
-      this.dialogVisible = true;//440
-      // this.loading = true;
-      // let url = "/publication/basic/List"
-      // this.getRequest(url).then((resp) => {
-      //   this.loading = false;
-      //   if (resp) {
-      //     for(var i=0;i<resp.data[0].length;i++){
-      //       console.log(resp.data)
-      //       this.options.push( //修改
-      //         {
-      //           index:resp.data[0][i].id,
-      //           value:resp.data[0][i].name,
-      //           point:resp.data[1][i]
-      //         }
-      //       )
-      //     }
-      //   }
-      // });
+      this.dialogVisible = true;
     },
     initEmps() {
       this.loading = true;
-      let url = "/paper/basic/studentID?studentID="+JSON.parse(localStorage.getItem('user')).id
+      let url = "/paper/basic/studentID?studentID=" + this.user.id
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
           this.emps = resp.data;
           this.total = 11;
-          // this.remarksort=this.emps.remark
         }
-      });
-    },
-    showGroupmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/table",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showInsertmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/group",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showteachermanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/sobcfg",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showScoreItem(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/month",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
       });
     },
     searchEmps() {
       this.loading = true;
-      console.log('---------',this.keyword);
-      const _this = this;
-      //let url =
       this.getRequest(
         "/paper/basic/byName?name=" +
           this.keyword +
@@ -975,15 +843,13 @@ export default {
     showInfo(data){
       this.title_show = "显示详情";
       this.emp=data
-      // console.log(data);
       this.dialogVisible_showInfo=true
       this.getRequest("/paperoper/basic/List?ID="+data.id).then((resp) => {
           this.loading = false;
           if (resp) {
-            // this.isShowInfo=false
             this.operList=resp.data
             this.operList.sort(function(a,b){
-            return a.time > b.time ? -1 : 1
+              return a.time > b.time ? -1 : 1
             })
           }
       });
@@ -995,12 +861,6 @@ export default {
       }
       return row.remark
     },
-    // checkScore(row){
-    //   if (row.state === "adm_pass" && row.point === 2 && row.have_score === 0)
-    //     return 0
-    //   return row.point
-    //   // return row.no_score == 1 ? "0（2分论文只能计算一次）" : row.point;
-    // }
   },
 };
 </script>

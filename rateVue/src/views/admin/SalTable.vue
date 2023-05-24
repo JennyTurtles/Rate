@@ -336,17 +336,15 @@ export default {
                 if(resp==='删除成功!')
                 {Message.success(resp)}
                 else
-                {Message.error(resp)}
+                {
+                  Message.error(resp)
+                }
                 this.initHrs();
+              }else {
+                Message.warning("请先确保组内无选手和专家。")
               }
             });
           })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消删除",
-            });
-          });
     },
     beforehandleEdit(index, row) {
       this.currentfocusdata = row.name
@@ -566,8 +564,7 @@ export default {
     },
       assignPE(data) {
           const _this = this;
-        // console.log(this.mode)
-          if (this.mode === 'secretary' || this.mode === 'secretarySub'){
+          if (this.mode === 'secretary' || this.mode === 'secretarySub'|| this.mode === 'adminSub'){
             _this.$router.push({
               path: "/Expert/EassignPE",
               query: {
@@ -579,7 +576,6 @@ export default {
               }
             })
           }else if (this.mode === 'admin'){
-            // console.log(data)
             _this.$router.push({
               path: "/Admin/AssignPE",
               query: {
