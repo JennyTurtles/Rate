@@ -207,7 +207,7 @@ export default {
       this.$router.push({
         path: "/Expert/peract/score",
         query: {
-          keywords: index,
+          keywords: data.activityID,
         },
       });
     },

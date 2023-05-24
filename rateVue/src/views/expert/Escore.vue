@@ -845,8 +845,15 @@ export default {
     initdata() {
       this.Tname = this.user.name;
       this.Adata.Auserid = this.user.id;
-      let num = this.$route.query.keywords;
+      let actID = this.$route.query.keywords;
       let listActivityTemp = this.list.activitiesList;
+      let num = 0;
+      for (let i = 0; i < listActivityTemp.length; i++) {
+        if (listActivityTemp[i].activityID == actID) {
+          num = i;
+          break;
+        }
+      }
       this.addCommentIsShow = listActivityTemp[num].activityLists[0].haveComment
       this.Adata.Aid = listActivityTemp[num].activityID;
       this.Adata.AgroupId = listActivityTemp[num].groupId;

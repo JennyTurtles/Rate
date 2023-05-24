@@ -29,8 +29,8 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class ExportWord {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);
-    private static final String TEMPLATE_PATH = "rate/rateserver/rate-service/src/main/java/org/sys/rate/utils/GradingTable.docx";
-//    private static final String TEMPLATE_PATH = "upload/templete/GradingTable.docx";
+//    private static final String TEMPLATE_PATH = "rate/rateserver/rate-service/src/main/java/org/sys/rate/utils/GradingTable.docx";
+    private static final String TEMPLATE_PATH = "upload/templete/GradingTable.docx";
 //    private static final String DEST = "upload/exportFiles/";
     private static final SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
     private static final SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
