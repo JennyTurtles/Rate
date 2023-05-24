@@ -98,18 +98,19 @@ public class ExportWord {
 
     private Map<String, Object> createGeneralModel(GradeForm gradeForm) {
         Map<String, Object> generalModel = new HashMap<>(5);
-        int thesisNameCount = calculateChars(gradeForm.getThesisName());
-        if (thesisNameCount > wordTitlePageRowLength) {
-            generalModel.put("ThesisName", gradeForm.getThesisName().substring(0, wordTitlePageRowLength / 2));
-            String padding = String.join("", Collections.nCopies(2 * wordTitlePageRowLength - thesisNameCount, " "));
-            generalModel.put("AdditionalName", String.format("%s%s", gradeForm.getThesisName().substring(wordTitlePageRowLength / 2), padding));
-        } else {
-            generalModel.put("ThesisName", formatTitlePageContent(gradeForm.getThesisName()));
-        }
-        generalModel.put("Major", formatTitlePageContent(gradeForm.getSpecialty()));
-        generalModel.put("Class", formatTitlePageContent(gradeForm.getClassName()));
-        generalModel.put("StuName", formatTitlePageContent(gradeForm.getName()));
-        generalModel.put("StuID", formatTitlePageContent(gradeForm.getStuNumber()));
+//        int thesisNameCount = calculateChars(gradeForm.getThesisName());
+//        if (thesisNameCount > wordTitlePageRowLength) {
+//            generalModel.put("ThesisName", gradeForm.getThesisName().isEmpty()?"":gradeForm.getThesisName().substring(0, wordTitlePageRowLength / 2));
+//            String padding = String.join("", Collections.nCopies(2 * wordTitlePageRowLength - thesisNameCount, " "));
+//            generalModel.put("AdditionalName", String.format("%s%s", gradeForm.getThesisName().substring(wordTitlePageRowLength / 2), padding));
+//        } else {
+//            generalModel.put("ThesisName", gradeForm.getThesisName().isEmpty()?"":formatTitlePageContent(gradeForm.getThesisName()));
+//        }
+        generalModel.put("ThesisName", formatTitlePageContent(" "));
+        generalModel.put("Major", gradeForm.getSpecialty().isEmpty()?"":formatTitlePageContent(gradeForm.getSpecialty()));
+        generalModel.put("Class",gradeForm.getClassName().isEmpty()?"":formatTitlePageContent(gradeForm.getClassName()));
+        generalModel.put("StuName", gradeForm.getName().isEmpty()?"":formatTitlePageContent(gradeForm.getName()));
+        generalModel.put("StuID", gradeForm.getStuNumber().isEmpty()?"":formatTitlePageContent(gradeForm.getStuNumber()));
         return generalModel;
     }
 

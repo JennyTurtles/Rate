@@ -1,7 +1,6 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.GradeForm;
 import org.sys.rate.model.Student;
@@ -30,6 +29,8 @@ public interface UnderGraduateMapper {
     @Select("SELECT COUNT(*) from undergraduate WHERE studentID = #{stuId}")
     int isUndergraduate(Integer stuId);
 
-    @Select("SELECT u.studentID,stuNumber,specialty,class as className,s.name,t.name as thesisName FROM undergraduate u,student s,thesis t WHERE u.studentID = #{studentID} AND s.ID = u.studentID AND t.studentID = u.studentID LIMIT 1")
+    // 由于tID暂时不存在所以先删除了
+//    @Select("SELECT u.studentID,stuNumber,specialty,class as className,s.name,t.name as thesisName FROM undergraduate u,student s WHERE u.studentID = #{studentID} AND s.ID = u.studentID  LIMIT 1")
+    @Select("SELECT u.studentID,stuNumber,specialty,class as className,s.name FROM undergraduate u,student s WHERE u.studentID = #{studentID} AND s.ID = u.studentID  LIMIT 1")
     GradeForm getGradeFormByStuID(Integer studentID);
 }
