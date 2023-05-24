@@ -192,7 +192,7 @@ public class DisplayItemService {
             }
         } else if (tableName.equals("scoreitem")) {
             if (!tableScoreItem.contains(par.getID(), ID))
-                return "error";
+                return "0";
             score = tableScoreItem.get(par.getID(), ID); // 必定为double类型
         }
         else
