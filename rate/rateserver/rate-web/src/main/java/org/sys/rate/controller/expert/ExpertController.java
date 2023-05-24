@@ -334,7 +334,7 @@ public class ExpertController {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             headers.setContentDisposition(ContentDisposition.attachment().build());
-            headers.setContentLength(-1);
+            headers.setContentLength(res.length);
             return new ResponseEntity<>(res, headers, HttpStatus.OK);
         }else{
             return new ResponseEntity<>(null, null, HttpStatus.OK);
@@ -370,8 +370,8 @@ public class ExpertController {
     @PostMapping("/checkLeader")
     public RespBean checkLeader(@RequestBody ExportGradeMapper exportGradeMapper){
         List<GradeForm> gradeForms = expertService.getGradeForms(exportGradeMapper);
-        String res = expertService.checkLeader(gradeForms);
-        return RespBean.ok(res);
+//        String res = expertService.checkLeader(gradeForms);
+        return RespBean.ok(String.valueOf(gradeForms.size()));
     }
 }
 

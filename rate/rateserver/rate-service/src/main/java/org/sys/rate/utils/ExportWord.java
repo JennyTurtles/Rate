@@ -29,8 +29,8 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class ExportWord {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);
-    private static final String TEMPLATE_PATH = "rate/rateserver/rate-service/src/main/java/org/sys/rate/utils/GradingTable.docx";
-//    private static final String DEST = "upload/exportFiles/";
+    private static final String TEMPLATE_PATH = "upload/templete/GradingTable.docx";
+    private static final String DEST = "upload/exportFiles/";
     private static final SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
     private static final SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
     private static final SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
@@ -51,16 +51,16 @@ public class ExportWord {
 
     private boolean checkIfNecessaryFilesAndDirectoriesExist() {
         // 检查目录是否存在
-//        File directory = new File(DEST);
-//        if (!directory.exists()) {
-//            boolean result = directory.mkdirs();
-//            if (result) {
-//                logger.info("目录 " + DEST + " 创建成功！");
-//            } else {
-//                logger.error("目录 " + DEST + " 创建失败！");
-//                return false;
-//            }
-//        }
+        File directory = new File(DEST);
+        if (!directory.exists()) {
+            boolean result = directory.mkdirs();
+            if (result) {
+                logger.info("目录 " + DEST + " 创建成功！");
+            } else {
+                logger.error("目录 " + DEST + " 创建失败！");
+                return false;
+            }
+        }
         // 检查TEMPLATE_PATH是否存在
         File file10 = new File(TEMPLATE_PATH);
         if (!file10.exists()) {

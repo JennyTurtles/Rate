@@ -1088,26 +1088,31 @@ export default {
             if (gradeFormConverted === null)
                 return
             gradeFormConverted.teacherID = this.user.id
-            // this.postRequest("/system/Experts/checkLeader",gradeFormConverted).then((res)=>{ // 接收文件的时候无法同时接收信息，因此单独请求一次后端
-            //     if (res.msg !== null)
-            //         this.$message({type: 'warning', message: "当前小组没有组长，" + res.msg + " 被设置为答辩小组组长"});
-            // })
-            axios({url:"/system/Experts/exportGradeForm",method:'post',data:gradeFormConverted,
-                headers: {'Content-Type': 'application/json'},
-                responseType: 'blob'}).then(res=>{
-                if (new Blob([res]) !== null)
-                    this.$message({type: 'success', message: '导出成绩评定表成功!'});
-                else
-                    this.$message({type: 'error', message: '导出成绩评定表失败!'});
-                const url = window.URL.createObjectURL(new Blob([res]));
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', (this.gradeForm.groupName !== null ? this.gradeForm.groupName : this.gradeForm.actName) + '成绩评定表.zip');
-                document.body.appendChild(link);
-                link.click();
+            this.postRequest("/system/Experts/checkLeader",gradeFormConverted).then((res)=>{ // 接收文件的时候无法同时接收信息，因此单独请求一次后端
+                if (res.msg == 0){
+                    this.$message({type: 'warning', message: '未获取到任何有效数据！'});
+                }
+                else {
+                    axios({url:"/system/Experts/exportGradeForm",method:'post',data:gradeFormConverted,
+                        headers: {'Content-Type': 'application/json'},
+                        responseType: 'blob'}).then(res=>{
+                        console.log(res)
+                        if (new Blob([res]) !== null)
+                            this.$message({type: 'success', message: '导出成绩评定表成功!'});
+                        else
+                            this.$message({type: 'error', message: '导出成绩评定表失败!'});
+                        const url = window.URL.createObjectURL(new Blob([res]));
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.setAttribute('download', (this.gradeForm.groupName !== null ? this.gradeForm.groupName : this.gradeForm.actName) + '成绩评定表.zip');
+                        document.body.appendChild(link);
+                        link.click();
+                    })
+                }
                 this.exportGradeFormLoading = false
                 this.exportGradeFormVisible = false
             })
+
         },
         changeCheckGroup(row){
             this.postRequest("/activities/basic/changeRequireGroup?activityID="+row.id+"&requireGroup="+(row.requireGroup?1:0)).then(res=>{
