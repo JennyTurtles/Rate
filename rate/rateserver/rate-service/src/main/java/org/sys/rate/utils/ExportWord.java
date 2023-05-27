@@ -107,10 +107,10 @@ public class ExportWord {
 //            generalModel.put("ThesisName", gradeForm.getThesisName().isEmpty()?"":formatTitlePageContent(gradeForm.getThesisName()));
 //        }
         generalModel.put("ThesisName", formatTitlePageContent(" "));
-        generalModel.put("Major", gradeForm.getSpecialty().isEmpty()?"":formatTitlePageContent(gradeForm.getSpecialty()));
-        generalModel.put("Class",gradeForm.getClassName().isEmpty()?"":formatTitlePageContent(gradeForm.getClassName()));
-        generalModel.put("StuName", gradeForm.getName().isEmpty()?"":formatTitlePageContent(gradeForm.getName()));
-        generalModel.put("StuID", gradeForm.getStuNumber().isEmpty()?"":formatTitlePageContent(gradeForm.getStuNumber()));
+        generalModel.put("Major", gradeForm.getSpecialty() == null ? "":formatTitlePageContent(gradeForm.getSpecialty()));
+        generalModel.put("Class",gradeForm.getClassName() == null? "":formatTitlePageContent(gradeForm.getClassName()));
+        generalModel.put("StuName", gradeForm.getName() == null? "":formatTitlePageContent(gradeForm.getName()));
+        generalModel.put("StuID", gradeForm.getStuNumber() == null? "":formatTitlePageContent(gradeForm.getStuNumber()));
         return generalModel;
     }
 
@@ -398,8 +398,10 @@ public class ExportWord {
                 byte[] xwpfDocumentBytes = out.toByteArray();
                 ByteArrayInputStream bis = new ByteArrayInputStream(xwpfDocumentBytes);
 
-                ZipEntry zipEntry = new ZipEntry(gradeForm.getStuNumber() + gradeForm.getName() +
-                         "成绩评定表.docx");
+//                ZipEntry zipEntry = new ZipEntry(gradeForm.getStuNumber() + gradeForm.getName() +
+//                         "成绩评定表.docx");
+                ZipEntry zipEntry = new ZipEntry(gradeForm.getName() +
+                        "成绩评定表.docx");
                 zos.putNextEntry(zipEntry);
                 byte[] buffer = new byte[1024];
                 int length;

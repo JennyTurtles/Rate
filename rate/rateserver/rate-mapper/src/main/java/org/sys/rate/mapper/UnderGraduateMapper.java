@@ -31,6 +31,7 @@ public interface UnderGraduateMapper {
 
     // 由于tID暂时不存在所以先删除了
 //    @Select("SELECT u.studentID,stuNumber,specialty,class as className,s.name,t.name as thesisName FROM undergraduate u,student s WHERE u.studentID = #{studentID} AND s.ID = u.studentID  LIMIT 1")
-    @Select("SELECT u.studentID,stuNumber,specialty,class as className,s.name FROM undergraduate u,student s WHERE u.studentID = #{studentID} AND s.ID = u.studentID  LIMIT 1")
+//    @Select("SELECT u.studentID,stuNumber,specialty,class as className,s.name FROM undergraduate u,student s WHERE u.studentID = #{studentID} AND s.ID = u.studentID  LIMIT 1")
+    @Select("SELECT name FROM student s WHERE s.ID = #{studentID} LIMIT 1")
     GradeForm getGradeFormByStuID(Integer studentID);
 }
