@@ -106,11 +106,11 @@ public class ExportWord {
 //        } else {
 //            generalModel.put("ThesisName", gradeForm.getThesisName().isEmpty()?"":formatTitlePageContent(gradeForm.getThesisName()));
 //        }
-        generalModel.put("ThesisName", formatTitlePageContent(" "));
-        generalModel.put("Major", gradeForm.getSpecialty() == null ? "":formatTitlePageContent(gradeForm.getSpecialty()));
-        generalModel.put("Class",gradeForm.getClassName() == null? "":formatTitlePageContent(gradeForm.getClassName()));
-        generalModel.put("StuName", gradeForm.getName() == null? "":formatTitlePageContent(gradeForm.getName()));
-        generalModel.put("StuID", gradeForm.getStuNumber() == null? "":formatTitlePageContent(gradeForm.getStuNumber()));
+        generalModel.put("ThesisName", gradeForm.getThesisName() == null ? formatTitlePageContent(" "):formatTitlePageContent(gradeForm.getThesisName()));
+        generalModel.put("Major", gradeForm.getSpecialty() == null ? formatTitlePageContent(" "):formatTitlePageContent(gradeForm.getSpecialty()));
+        generalModel.put("Class",gradeForm.getClassName() == null? formatTitlePageContent(" "):formatTitlePageContent(gradeForm.getClassName()));
+        generalModel.put("StuName", gradeForm.getName() == null? formatTitlePageContent(" "):formatTitlePageContent(gradeForm.getName()));
+        generalModel.put("StuID", gradeForm.getStuNumber() == null? formatTitlePageContent(" "):formatTitlePageContent(gradeForm.getStuNumber()));
         return generalModel;
     }
 

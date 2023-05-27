@@ -33,7 +33,7 @@ public class PaperCommentService {
         return paperCommentMapper.deleteCommentById(num, thesisID);
     }
 
-    public int getTIDbySID(int stuID) {
+    public Integer getTIDbySID(int stuID) {
         return paperCommentMapper.getTIDbySID(stuID);
     }
 

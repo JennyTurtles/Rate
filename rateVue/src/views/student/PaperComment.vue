@@ -638,7 +638,7 @@ export default {
         this.getRequest(
           "/paperComment/basic/getTID?stuID=" + this.studentID
         ).then((resp) => {
-          if (resp) {
+          if (resp.data) {
             this.thesisID = resp.data;
             resolve(this.thesisID);
           } else {
