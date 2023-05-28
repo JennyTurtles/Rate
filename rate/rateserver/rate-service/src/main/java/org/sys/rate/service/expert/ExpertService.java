@@ -672,8 +672,13 @@ public class ExpertService implements UserDetailsService {
 			comments.put(GradeForm.Type.INSTRUCTOR.ordinal(),commentMapper.getGradeFormComment(exportGradeMapper.instructorCommentActID,studentID));
 			comments.put(GradeForm.Type.REVIEWER.ordinal(),commentMapper.getGradeFormComment(exportGradeMapper.reviewCommentActID,studentID));
 			comments.put(GradeForm.Type.DEFENSE.ordinal(),commentMapper.getGradeFormComment(exportGradeMapper.defenseCommentActID,studentID));
+			// 遍历字典comments，把key中的<br/>删除
+			for (Map.Entry<Integer,List<Comment>> entry : comments.entrySet()){
+				for (Comment comment : entry.getValue()){
+					comment.setContent(comment.getContent().replace("<br/>",""));
+				}
+			}
 			gradeForm.setComments(comments);
-
 			// 获取评分项
 			Map<Integer,List<ScoreItem>> scoreItems = new HashMap<>();
 			List<ScoreItem> allScoreItem = scoreItemMapper.getScoreItemsByStuID(studentID); // 从score_average中获取
