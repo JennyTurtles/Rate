@@ -450,6 +450,8 @@ export default {
             if(response.obj != null && response.obj != ''){
               this.addComment = response.obj.content.replace(/<br\/>/g,"\n").replace(/' '/g,"\s")
               this.handleCommentLimit(this.addComment)
+            }else {
+              this.handleCommentLimit('')
             }
           }
         }
