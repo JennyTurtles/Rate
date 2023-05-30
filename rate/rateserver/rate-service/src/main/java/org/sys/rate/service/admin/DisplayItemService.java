@@ -35,7 +35,7 @@ public class DisplayItemService {
         if (flag==1){ //flag=0:不添加基础信息 flag=1:添加基础信息
             res.add(new DisplayItem("编号", "code"));
             res.add(new DisplayItem("组名", "group"));
-            res.add(new DisplayItem("专家打分", "scores"));
+        //    res.add(new DisplayItem("专家打分", "scores"));
             res.add(new DisplayItem("姓名", "name"));
         }
         // 获取信息项
@@ -157,8 +157,8 @@ public class DisplayItemService {
                 return split.length == 1 ? par.getCode() : null;
             case "group":
                 return split.length == 1 ? par.getGroupName() : null;
-            case "scores":
-                return split.length == 1 ? participatesService.getTotalscorewithdot(activityID, par.getID()) : null;
+//            case "scores":
+//                return split.length == 1 ? participatesService.getTotalscorewithdot(activityID, par.getID()) : null;
             case "name":
                 return split.length == 1 ? par.getName() : null;
         }
@@ -240,9 +240,9 @@ public class DisplayItemService {
             case "group":
                 name = "组名";
                 break;
-            case "scores":
-                name = "专家打分";
-                break;
+//            case "scores":
+//                name = "专家打分";
+//                break;
             case "name":
                 name = "姓名";
                 break;
