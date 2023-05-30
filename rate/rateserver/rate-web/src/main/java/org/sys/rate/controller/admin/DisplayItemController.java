@@ -7,6 +7,7 @@ import org.sys.rate.model.*;
 import org.sys.rate.service.admin.DisplayItemService;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
 
 @RestController
@@ -65,7 +66,9 @@ public class DisplayItemController {
     }
 
     @DeleteMapping("/")
-    public RespBean delete(@RequestParam Integer ID) {
+    public RespBean delete(@RequestParam Integer ID,@RequestParam Integer activityID,@RequestParam Integer total) {
+        Integer small = displayItemMapper.getDisplaySequenceByID(ID);
+        displayItemMapper.subDisplaySequence(activityID,small,total);
         int res = displayItemMapper.delete(ID);
         return RespBean.ok("success",res);
     }

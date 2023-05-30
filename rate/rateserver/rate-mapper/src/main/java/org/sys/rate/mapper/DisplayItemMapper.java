@@ -26,6 +26,9 @@ public interface DisplayItemMapper {
     @Select("select name from displayitem where ID = #{ID}")
     String getNameByID(Integer id);
 
+    @Select("select displaySequence from displayitem where ID = #{ID}")
+    Integer getDisplaySequenceByID(Integer id);
+
     @Select("select * from displayitem where ID = #{ID}")
     DisplayItem getDisplayItemByID(Integer id);
 
