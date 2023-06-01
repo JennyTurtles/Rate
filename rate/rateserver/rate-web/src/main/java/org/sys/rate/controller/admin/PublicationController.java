@@ -1,23 +1,16 @@
 package org.sys.rate.controller.admin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.PublicationMapper;
-import org.sys.rate.model.Indicator;
 import org.sys.rate.model.IndicatorPublication;
 import org.sys.rate.model.Publication;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.PublicationService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -30,7 +23,7 @@ import javax.annotation.Resource;
 public class PublicationController
 {
 
-    @Autowired
+    @Resource
     private PublicationService publicationService;
 
     @Resource
@@ -117,7 +110,6 @@ public class PublicationController
     public RespBean getNamesByNameYear(@RequestBody Publication publication){
         Integer year = publication.getYear();
         String name = publication.getName();
-//        Integer stuId = Math.toIntExact(publication.getID());
         List<Publication> res = publicationMapper.getNamesByNameYear(name,year);
         return RespBean.ok("success",res);
     }
