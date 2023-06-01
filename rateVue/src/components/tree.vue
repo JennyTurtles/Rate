@@ -397,7 +397,7 @@ export default {
               icon="el-icon-edit"
               on-click={() => {
                 this.data1 = data;
-                this.labelUpdate = data.label;
+                this.labelUpdate = data.label.substring(data.order.length + 1);
                 if (node.level > 2) this.dialogVisibleUpdate = true;
                 else if (node.level === 1) {
                   this.dialogVisibleUpdateRoot = true;
