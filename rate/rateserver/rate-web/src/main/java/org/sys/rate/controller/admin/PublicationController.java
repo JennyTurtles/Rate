@@ -1,5 +1,6 @@
 package org.sys.rate.controller.admin;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.PublicationMapper;
@@ -15,7 +16,7 @@ import java.util.List;
 
 /**
  * 刊物Controller
- * 
+ *
  * @author system
  * @date 2022-03-13
  */
@@ -23,7 +24,7 @@ import java.util.List;
 public class PublicationController
 {
 
-    @Resource
+    @Autowired
     private PublicationService publicationService;
 
     @Resource
@@ -110,6 +111,7 @@ public class PublicationController
     public RespBean getNamesByNameYear(@RequestBody Publication publication){
         Integer year = publication.getYear();
         String name = publication.getName();
+//        Integer stuId = Math.toIntExact(publication.getID());
         List<Publication> res = publicationMapper.getNamesByNameYear(name,year);
         return RespBean.ok("success",res);
     }
