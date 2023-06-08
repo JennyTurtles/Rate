@@ -7,7 +7,6 @@ import org.sys.rate.mapper.AdminMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.ActivityGrantService;
 import org.sys.rate.service.admin.AdminService;
-import org.sys.rate.service.admin.HrService;
 import org.sys.rate.service.admin.RoleService;
 
 import javax.annotation.Resource;

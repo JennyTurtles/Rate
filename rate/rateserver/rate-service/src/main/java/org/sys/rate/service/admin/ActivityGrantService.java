@@ -18,8 +18,6 @@ public class ActivityGrantService {
     ActivitiesMapper activitiesMapper;
     @Autowired
     RabbitTemplate rabbitTemplate;
-    @Autowired
-    MailSendLogService mailSendLogService;
     @Resource
     ActivityGrantMapper activityGrantMapper;
 

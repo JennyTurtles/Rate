@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 /**
  * 刊物对象 publication
  *
@@ -15,12 +17,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Publication {
-    private static final long serialVersionUID = 1L;
 
-    /**
-     *
-     */
-    private Integer ID;
+    private Integer id;
 
     /**
      * 刊物全称
@@ -43,24 +41,8 @@ public class Publication {
     private String url;
 
     /**
-     * 类型
+     * 一个期刊可以对应多个指标点
      */
-    private String type;
-
-    /**
-     * 级别
-     */
-    private String level;
-
-    private Integer score;
-    private Integer year;
-
-    /**
-     * 指标点id
-     */
-    private Integer indicatorID;
-
-    private Indicator indicator;
-    private String indicatorName;
+    private List<Indicator> indicatorList;
 
 }

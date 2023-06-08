@@ -9,7 +9,6 @@ import org.sys.rate.mapper.ActivityGrantMapper;
 import org.sys.rate.mapper.AdminMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.AdminService;
-import org.sys.rate.service.admin.HrService;
 import org.sys.rate.service.admin.RoleService;
 import org.sys.rate.service.mail.MailService;
 

@@ -1,6 +1,5 @@
 package org.sys.rate.service.admin;
 import org.sys.rate.mapper.AdminMapper;
-import org.sys.rate.mapper.HrRoleMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.expert.ExpertService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service("adminService")
+@Service
 public class AdminService implements UserDetailsService {
-    @Autowired
-    HrRoleMapper hrRoleMapper;
     @Autowired
     AdminMapper adminMapper;
 
@@ -76,10 +73,6 @@ public class AdminService implements UserDetailsService {
         return adminMapper.updateByPrimaryKeySelective(hr);
     }
 
-    public boolean updateHrRole(Integer hrid, Integer[] rids) {
-        hrRoleMapper.deleteByHrid(hrid);
-        return hrRoleMapper.addRole(hrid, rids) == rids.length;
-    }
 
     public boolean updateAdminPasswd(String oldpass, String pass, Integer adminid) {
         Admin admin = adminMapper.selectByPrimaryKey(adminid);

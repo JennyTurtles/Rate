@@ -11,7 +11,7 @@ import org.sys.rate.model.Teacher;
 import org.sys.rate.model.Thesis;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.TeacherService;
-import org.sys.rate.service.underFunction.PaperCommentService;
+import org.sys.rate.service.admin.PaperCommentService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;

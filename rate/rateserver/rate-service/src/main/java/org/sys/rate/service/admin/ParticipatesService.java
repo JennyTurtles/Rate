@@ -38,8 +38,7 @@ public class ParticipatesService {
     GroupsMapper groupsMapper;
     @Autowired
     RabbitTemplate rabbitTemplate;
-    @Autowired
-    MailSendLogService mailSendLogService;
+
     public final static Logger logger = LoggerFactory.getLogger(ParticipatesService.class);
     SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
     SimpleDateFormat monthFormat = new SimpleDateFormat("MM");

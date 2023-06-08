@@ -20,12 +20,7 @@
         ></el-button>
       </div>
     </div>
-    <el-tooltip
-      class="item"
-      effect="dark"
-      content="拖动节点以交换位置"
-      placement="right"
-    >
+
       <el-tree
         :data="data"
         :props="defaultProps"
@@ -40,7 +35,6 @@
         :highlight-current="true"
         default-expand-all
       ></el-tree>
-    </el-tooltip>
     <!--添加到非一二级目录-->
     <el-dialog :visible.sync="dialogVisible" width="35%">
       <span slot="title" style="float: left; font-size: 25px"

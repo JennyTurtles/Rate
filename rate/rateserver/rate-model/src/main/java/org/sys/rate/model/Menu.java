@@ -16,8 +16,6 @@ public class Menu implements Serializable {
 
     private String iconCls;
 
-    private Meta meta;
-
     private Integer parentId;
 
     private Boolean enabled;
@@ -30,14 +28,6 @@ public class Menu implements Serializable {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
-    }
-
-    public Meta getMeta() {
-        return meta;
-    }
-
-    public void setMeta(Meta meta) {
-        this.meta = meta;
     }
 
     public List<Menu> getChildren() {

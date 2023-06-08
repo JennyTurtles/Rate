@@ -98,7 +98,7 @@ public class PaperService {
         mailToStuService.sendStuMail(state, paper, "论文");
         // 管理员通过的时候需要处理2分论文的情况，还要计算student的活动总分
         if (state.equals("adm_pass")){
-            Long stuID = paper.getStudentID();
+            Integer stuID = paper.getStudentId();
             Long score = paper.getPoint();
 
             if (score == 2){ // 2分的时候检查是否已经发表过2分的论文

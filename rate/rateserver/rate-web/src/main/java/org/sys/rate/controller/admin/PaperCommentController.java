@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.model.PaperComment;
 import org.sys.rate.model.Student;
-import org.sys.rate.service.underFunction.PaperCommentService;
+import org.sys.rate.service.admin.PaperCommentService;
 import org.sys.rate.utils.ExportPDF;
 
 import javax.annotation.Resource;

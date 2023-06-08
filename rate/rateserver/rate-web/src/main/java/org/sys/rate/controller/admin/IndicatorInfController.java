@@ -5,13 +5,11 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.sys.rate.mapper.IndicatorInfMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.IndicatorInfService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @RestController

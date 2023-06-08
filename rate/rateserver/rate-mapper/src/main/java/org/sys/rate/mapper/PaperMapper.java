@@ -4,10 +4,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import org.sys.rate.model.Award;
 import org.sys.rate.model.Paper;
 
-import org.w3c.dom.Text;
 import java.util.List;
 
 /**
@@ -25,7 +23,7 @@ public interface PaperMapper
      * @param ID
      * @return
      */
-    @Select("select * from paper where ID = #{ID}")
+    @Select("select id from paper where id = #{ID}")
     Paper getById(Integer ID);
 
     /**

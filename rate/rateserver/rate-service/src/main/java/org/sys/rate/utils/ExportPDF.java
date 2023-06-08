@@ -12,7 +12,7 @@ import org.sys.rate.model.Teacher;
 import org.sys.rate.model.Thesis;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.TeacherService;
-import org.sys.rate.service.underFunction.PaperCommentService;
+import org.sys.rate.service.admin.PaperCommentService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -48,10 +48,10 @@ public class ExportPDF {
     private final static int PRESUMROWS = 17;
     private final static int NEXTPLANROWS = 21;
     private final static int ONEROWMAXCOUNT = 35;
-    private final static String DEST = "upload/exportFiles/";
-    private final static String FONT_PATH_Song = "upload/templete/song.ttf";
-    private final static String TEMPLATE_PATH10 = "upload/templete/templete_10.pdf";
-    private final static String TEMPLATE_PATH20 = "upload/templete/templete_20.pdf";
+    private final static String DEST = "src/main/resources/exportFiles/";
+    private final static String FONT_PATH_Song = "src/main/resources/templete/song.ttf";
+    private final static String TEMPLATE_PATH10 = "src/main/resources/templete/templete_10.pdf";
+    private final static String TEMPLATE_PATH20 = "src/main/resources/templete/templete_20.pdf";
     private boolean necessaryFilesAndDirectoriesExist;
 
     public ExportPDF() {

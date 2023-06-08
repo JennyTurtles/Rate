@@ -13,11 +13,14 @@ import javax.annotation.Resource;
 @Configuration
 public class InterceptorConfig extends WebMvcConfigurationSupport {
 
+    @Resource
+    jwtInterceptor jwtInterceptor;
     @Override
     protected void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new jwtInterceptor())
-                        .addPathPatterns("/**")//拦截所有请求，判断token是否合法决定是否需要登录
-                        .excludePathPatterns("/doLogin", "/registerUser", "**/export", "**/import","/getPublicKey","/paper/basic/download","**/exportPDF");    // 拦截所有请求， 决定判断token是否合法来决定是否需要登录
+        registry.addInterceptor(jwtInterceptor)
+                .addPathPatterns("/**")//拦截所有请求，判断token是否合法决定是否需要登录
+        .excludePathPatterns("/**");
+                //.excludePathPatterns("/doLogin", "/registerUser", "**/export", "**/import","/getPublicKey","/paper/basic/download","**/exportPDF");    // 拦截所有请求， 决定判断token是否合法来决定是否需要登录
     }
 }
 

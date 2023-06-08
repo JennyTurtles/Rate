@@ -37,7 +37,7 @@ public class IndicatorController {
             List<Integer> key = new ArrayList<>();
             for (String numString : tmp)
                 key.add(Integer.parseInt(numString));
-            TreeNode Node =  new TreeNode(indicator.getID(),indicator.getName(),indicator.getType(),indicator.getOrder(),indicator.getScore());
+            TreeNode Node =  new TreeNode(indicator.getID(), indicator.getOrder()+" "+indicator.getName(),indicator.getType(),indicator.getOrder(),indicator.getScore());
             map.put(key,Node);
         }
         List<Integer> empty = new ArrayList<>();
