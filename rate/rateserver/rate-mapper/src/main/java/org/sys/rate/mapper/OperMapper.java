@@ -1,7 +1,6 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.sys.rate.model.BooksOper;
 import org.sys.rate.model.Oper;
 
 import java.util.List;
