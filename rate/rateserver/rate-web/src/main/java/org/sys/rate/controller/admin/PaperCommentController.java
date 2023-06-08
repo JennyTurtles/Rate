@@ -57,8 +57,7 @@ public class PaperCommentController {
     /**
      * 新增保存评论
      */
-    @GetMapping("/add")
-    @ResponseBody
+    @PostMapping("/add")
     public JsonResult addSave(PaperComment paperComment) throws MessagingException {
         Integer res = paperCommentService.insertComment(paperComment);
         //System.out.println("新增的dateStu:" + paperComment.getDateStu());
