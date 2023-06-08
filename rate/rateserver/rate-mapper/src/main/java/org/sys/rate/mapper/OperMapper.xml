@@ -6,11 +6,11 @@
     <resultMap type="org.sys.rate.model.Oper" id="OperResult">
         <result property="id"    column="id"    />
         <result property="operatorRole"    column="operatorRole"    />
-        <result property="operatorID"    column="operatorID"    />
-        <result property="prod_type"    column="prod_type"    />
-        <result property="prod_id"    column="prod_id"    />
+        <result property="operatorId"    column="operatorId"    />
+        <result property="prodType"    column="prodType"    />
+        <result property="prodId"    column="prodId"    />
         <result property="time"    column="time"    />
-        <result property="operation_name"    column="operation_name"    />
+        <result property="operationName"    column="operationName"    />
         <result property="state"    column="state"    />
         <result property="remark"    column="remark"    />
     </resultMap>
