@@ -1,10 +1,13 @@
 package org.sys.rate.model;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,5 +47,11 @@ public class Publication {
      * 一个期刊可以对应多个指标点
      */
     private List<Indicator> indicatorList;
+
+    private Integer indicatorId;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date date;
 
 }

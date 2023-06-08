@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.PublicationMapper;
-import org.sys.rate.model.IndicatorPublication;
+
 import org.sys.rate.model.Publication;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.PublicationService;
@@ -36,7 +36,7 @@ public class PublicationController
         List<Publication> publications = publicationService.selectList();
         List<Long> scores = new ArrayList<>();
         for (Publication publication : publications)
-            scores.add(publicationService.selectScoreById(publication.getIndicatorID()));
+            scores.add(publicationService.selectScoreById(publication.getIndicatorId()));
         List<Object> res = new ArrayList<>();
         res.add(publications);
         res.add(scores);
@@ -109,7 +109,7 @@ public class PublicationController
     @PostMapping("/publication/getInfByNameYear")
     @ResponseBody
     public RespBean getNamesByNameYear(@RequestBody Publication publication){
-        Integer year = publication.getYear();
+        Integer year = publication.getDate().getYear(); // 待修改
         String name = publication.getName();
 //        Integer stuId = Math.toIntExact(publication.getID());
         List<Publication> res = publicationMapper.getNamesByNameYear(name,year);
@@ -150,26 +150,28 @@ public class PublicationController
 //    }
 
     // 文档2.14 功能6 -> 2.21 功能1
-    @PostMapping("/publication/dels")
-    @ResponseBody
-    public RespBean deleteByYearId(@RequestBody IndicatorPublication indicatorPublication){
-
-        int res = publicationMapper.deleteByYearIndicatorNames(indicatorPublication.getYear(),indicatorPublication.getIndicatorNames());
-        return RespBean.ok("success",res);
-    }
+    // 待修改
+    //@PostMapping("/publication/dels")
+    //@ResponseBody
+    //public RespBean deleteByYearId(@RequestBody IndicatorPublication indicatorPublication){
+    //
+    //    int res = publicationMapper.deleteByYearIndicatorNames(indicatorPublication.getYear(),indicatorPublication.getIndicatorNames());
+    //    return RespBean.ok("success",res);
+    //}
 
     // 文档2.14 功能7 用部分名字搜全称 -> 2.21 功能3
-    @PostMapping("/publication/getNames")
-    @ResponseBody
-    public RespBean getNamesByName(@RequestBody Publication publication){
-        String name = publication.getName();
-        String type = publication.getType();
-        List<String> res = new ArrayList<>();
-        if (type.equals("论文")){
-            res = publicationMapper.getNamesByName(name);
-        }
-        return RespBean.ok("success",res);
-    }
+    // 待修改
+    //@PostMapping("/publication/getNames")
+    //@ResponseBody
+    //public RespBean getNamesByName(@RequestBody Publication publication){
+    //    String name = publication.getName();
+    //    String type = publication.getType();
+    //    List<String> res = new ArrayList<>();
+    //    if (type.equals("论文")){
+    //        res = publicationMapper.getNamesByName(name);
+    //    }
+    //    return RespBean.ok("success",res);
+    //}
 
     //文档2.14 功能8 用部分名字搜全称 -> 2.21 功能4
     @GetMapping("/publication/getInf/{name}")

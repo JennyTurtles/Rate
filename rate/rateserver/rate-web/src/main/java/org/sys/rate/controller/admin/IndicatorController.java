@@ -30,14 +30,14 @@ public class IndicatorController {
         Map<List<Integer>,TreeNode> map = new HashMap<>();
         for (Indicator indicator : data)
         {
-            if (indicator.getID() > maxId)
-                maxId = indicator.getID();
+            if (indicator.getId() > maxId)
+                maxId = indicator.getId();
             //将order转换为int型的list，并加入map
             String tmp[] = indicator.getOrder().split("\\.");
             List<Integer> key = new ArrayList<>();
             for (String numString : tmp)
                 key.add(Integer.parseInt(numString));
-            TreeNode Node =  new TreeNode(indicator.getID(), indicator.getOrder()+" "+indicator.getName(),indicator.getType(),indicator.getOrder(),indicator.getScore());
+            TreeNode Node =  new TreeNode(indicator.getId(), indicator.getOrder()+" "+indicator.getName(),indicator.getType(),indicator.getOrder(),indicator.getScore());
             map.put(key,Node);
         }
         List<Integer> empty = new ArrayList<>();
@@ -99,7 +99,7 @@ public class IndicatorController {
         else //修改的是根节点
         {
             Map<List<Integer>,TreeNode> map= getMap();
-            List<Integer> orderList = stringToList(indicatorService.selectOrder(indicator.getID()));
+            List<Integer> orderList = stringToList(indicatorService.selectOrder(indicator.getId()));
             List<TreeNode> children = new ArrayList<>();
             getChildren(map,orderList,children);
             //修改所有子节点的score
@@ -124,7 +124,7 @@ public class IndicatorController {
     @PostMapping("/insert")
     public RespBean insert(@RequestBody Indicator indicator) //对象内的order为新位置的order,其他字段也为新数据
     {
-        String oldOrder = indicatorService.selectOrder(indicator.getID()); //通过id获取老的order
+        String oldOrder = indicatorService.selectOrder(indicator.getId()); //通过id获取老的order
         String newOlder = indicator.getOrder();
         if (oldOrder.equals(newOlder))
             return RespBean.ok("insert success");
@@ -165,7 +165,7 @@ public class IndicatorController {
                 parent.add(tmp.get(1));
                 type = map.get(parent).getType();
             }
-            Indicator updateObj = new Indicator(child.getId(),child.getLabel(),type,newOrderChild,score,indicator.getID());
+            Indicator updateObj = new Indicator(child.getId(),child.getLabel(),type,newOrderChild,score,indicator.getId());
             indicatorService.updateAllField(updateObj);
         }
         //完成操作2
@@ -261,7 +261,7 @@ public class IndicatorController {
         for (Indicator indicator : data)
         {
             List<Integer> key = stringToList(indicator.getOrder());
-            TreeNode Node =  new TreeNode(indicator.getID(),indicator.getName(),indicator.getType(),indicator.getOrder(),indicator.getScore());
+            TreeNode Node =  new TreeNode(indicator.getId(),indicator.getName(),indicator.getType(),indicator.getOrder(),indicator.getScore());
             map.put(key,Node);
         }
         return map;

@@ -28,4 +28,12 @@ public class Indicator {
      */
     private List<Publication> publicationList;
 
+    public Indicator(Integer id, String name, String type, String order, Integer score, Integer father) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.order = order;
+        this.score = score;
+        this.father = father;
+    }
 }

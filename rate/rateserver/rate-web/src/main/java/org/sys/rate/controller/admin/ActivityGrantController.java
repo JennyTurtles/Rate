@@ -15,8 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/activitygrant/basic")
 public class ActivityGrantController {
-    @Autowired
-    HrService hrService;
+
     @Autowired
     AdminService adminService;
     @Autowired

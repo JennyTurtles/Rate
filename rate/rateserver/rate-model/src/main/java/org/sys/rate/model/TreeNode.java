@@ -1,9 +1,16 @@
 package org.sys.rate.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.List;
 
 //与前端对应，每个节点包含所有子节点
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class TreeNode {
     private Integer id;
     private String label;
@@ -18,54 +25,6 @@ public class TreeNode {
         this.type = type;
         this.children = new ArrayList<TreeNode>();
         this.order = order;
-        this.score = score;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public List<TreeNode> getChildren() {
-        return children;
-    }
-
-    public String getOrder() {
-        return order;
-    }
-
-    public Integer getScore() {
-        return score;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    public void setChildren(List<TreeNode> children) {
-        this.children = children;
-    }
-
-    public void setOrder(String order) {
-        this.order = order;
-    }
-
-    public void setScore(Integer score) {
         this.score = score;
     }
 

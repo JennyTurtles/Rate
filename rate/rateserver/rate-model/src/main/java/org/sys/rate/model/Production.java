@@ -28,6 +28,8 @@ public class Production {
     private String state;
 
     private String url;
+
+    Integer point;
 }
 
 

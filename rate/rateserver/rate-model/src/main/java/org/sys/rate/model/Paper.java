@@ -15,9 +15,10 @@ public class Paper extends Production {
      *
      * 用于判断2积分论文是否生效
      */
-    private Integer have_score;
+    private Integer haveScore;
 
     private String pubPage;
 
-    private Integer publicationID;
+    private Integer publicationId;
+
 }
