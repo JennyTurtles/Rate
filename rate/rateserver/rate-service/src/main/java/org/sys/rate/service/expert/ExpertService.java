@@ -320,6 +320,12 @@ public class ExpertService implements UserDetailsService {
 				int i = expertsMapper.updateByIdNumber(experts);
 				System.out.println("专家信息更新！条数：" + i + " id: " + experts.getName());
 			} else {
+				//对密码进行处理，默认身份证后六位。
+				if (experts.getPassword() == null || experts.getPassword().equals("")) {
+					experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
+				} else {
+					experts.setPassword(sh1(experts.getPassword()));
+				}
 				// 不存在就直接插入，不设置默认用户名和密码
 				int insert = expertsMapper.insert(experts);
 				if (insert > 0) {
@@ -327,12 +333,6 @@ public class ExpertService implements UserDetailsService {
 				} else {
 					System.out.println("insert->" + experts.getName() + " 的信息插入失败");
 				}
-//					//对密码进行处理，默认身份证后六位。
-					if (experts.getPassword() == null || experts.getPassword().equals("")) {
-						experts.setPassword(sh1(experts.getIdnumber().substring(12, 18)));
-					} else {
-						experts.setPassword(sh1(experts.getPassword()));
-					}
 				//对用户名进行处理，如果没有读到默认为电话号码
 //				experts.setUsername(experts.getUsername() == null || experts.getUsername().equals("") ? experts.getPhone() : experts.getUsername());
 //				if (expertsMapper.checkUsername(experts.getUsername()) > 0) {//这里是username_check

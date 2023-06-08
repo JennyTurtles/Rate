@@ -28,8 +28,7 @@ public class InstitutionService {
     InstitutionMapper institutionMapper;
     @Autowired
     RabbitTemplate rabbitTemplate;
-    @Autowired
-    MailSendLogService mailSendLogService;
+
     public final static Logger logger = LoggerFactory.getLogger(InstitutionService.class);
     SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
     SimpleDateFormat monthFormat = new SimpleDateFormat("MM");

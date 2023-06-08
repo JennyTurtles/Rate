@@ -65,7 +65,9 @@ public class DisplayItemController {
     }
 
     @DeleteMapping("/")
-    public RespBean delete(@RequestParam Integer ID) {
+    public RespBean delete(@RequestParam Integer ID,@RequestParam Integer activityID,@RequestParam Integer total) {
+        Integer small = displayItemMapper.getDisplaySequenceByID(ID);
+        displayItemMapper.subDisplaySequence(activityID,small,total);
         int res = displayItemMapper.delete(ID);
         return RespBean.ok("success",res);
     }

@@ -515,7 +515,7 @@
                 <el-divider >评语设置
                     <el-button type="danger"
                                @click="gradeForm.instructorCommentActID='';gradeForm.reviewCommentActID='';gradeForm.defenseCommentActID='';disableComment()"
-                               size="mini" style="margin: 5px;padding: 5px">清空</el-button>
+                               size="mini" style="margin: 5px;padding: 5px" v-show="mode!=='secretary'">清空</el-button>
                 </el-divider>
                 <el-form-item label="指导教师评语:">
                     <el-select
@@ -523,6 +523,7 @@
                             v-model="gradeForm.instructorCommentActID"
                             placeholder="请选择对应的子活动"
                             @change="disableComment()"
+                            :disabled="mode==='secretary'"
                     >
                         <el-option
                                 v-for="item in subActsWithComment"
@@ -538,7 +539,9 @@
                             style="width: 100%"
                             v-model="gradeForm.reviewCommentActID"
                             placeholder="请选择对应的子活动"
-                            @change="disableComment()">
+                            @change="disableComment()"
+                            :disabled="mode==='secretary'"
+                    >
                         <el-option
                                 v-for="item in subActsWithComment"
                                 :key="item.id"
@@ -553,7 +556,9 @@
                             style="width: 100%"
                             v-model="gradeForm.defenseCommentActID"
                             placeholder="请选择对应的子活动"
-                            @change="disableComment()">
+                            @change="disableComment()"
+                            :disabled="mode==='secretary'"
+                    >
                         <el-option
                                 v-for="item in subActsWithComment"
                                 :key="item.id"
@@ -566,7 +571,7 @@
                 <el-divider>指导教师评分项设置
                     <el-button type="danger"
                                @click="emptyScoreItem('指导教师评语');;disableScoreItem()"
-                               size="mini" style="margin: 5px;padding: 5px">清空</el-button>
+                               size="mini" style="margin: 5px;padding: 5px" v-show="mode!=='secretary'">清空</el-button>
                 </el-divider>
                 <el-form
                     label-position="left"
@@ -580,7 +585,9 @@
                                 style="width: 80%"
                                 v-model="gradeForm.instructorScoreItemsMap.get(value[0]).id"
                                 placeholder="请选择对应的评分项"
-                                @change="disableScoreItem()">
+                                @change="disableScoreItem()"
+                                :disabled="mode==='secretary'"
+                        >
                             <el-option
                                 v-for="item in scoreItemsAll"
                                 :key="item.id"
@@ -591,14 +598,14 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="系数" label-width="40px">
-                        <el-input @input="$forceUpdate()" style="width: 60px" v-model="gradeForm.instructorScoreItemsMap.get(value[0]).coef"></el-input>
+                        <el-input @input="$forceUpdate()" style="width: 60px" v-model="gradeForm.instructorScoreItemsMap.get(value[0]).coef" :disabled="mode==='secretary'"></el-input>
                     </el-form-item>
                 </div>
                 </el-form>
                 <el-divider>评阅教师评分项设置
                     <el-button type="danger"
                                @click="emptyScoreItem('评阅教师评语');;disableScoreItem()"
-                               size="mini" style="margin: 5px;padding: 5px">清空</el-button>
+                               size="mini" style="margin: 5px;padding: 5px" v-show="mode!=='secretary'">清空</el-button>
                 </el-divider>
                 <el-form
                     label-position="left"
@@ -612,7 +619,9 @@
                                 style="width: 80%"
                                 v-model="gradeForm.reviewScoreItemsMap.get(value[0]).id"
                                 placeholder="请选择对应的评分项"
-                                @change="disableScoreItem">
+                                @change="disableScoreItem"
+                                :disabled="mode==='secretary'"
+                            >
                                 <el-option
                                     v-for="item in scoreItemsAll"
                                     :key="item.id"
@@ -623,14 +632,14 @@
                             </el-select>
                         </el-form-item>
                         <el-form-item label="系数" label-width="40px">
-                            <el-input @input="$forceUpdate()" style="width: 60px" v-model="gradeForm.reviewScoreItemsMap.get(value[0]).coef"></el-input>
+                            <el-input @input="$forceUpdate()" style="width: 60px" v-model="gradeForm.reviewScoreItemsMap.get(value[0]).coef" :disabled="mode==='secretary'"></el-input>
                         </el-form-item>
                     </div>
                 </el-form>
                 <el-divider>答辩评分项设置
                     <el-button type="danger"
                                @click="emptyScoreItem('答辩教师评语');;disableScoreItem()"
-                               size="mini" style="margin: 5px;padding: 5px">清空</el-button>
+                               size="mini" style="margin: 5px;padding: 5px" v-show="mode!=='secretary'">清空</el-button>
                 </el-divider>
                 <el-form
                     label-position="left"
@@ -644,7 +653,9 @@
                                 style="width: 80%"
                                 v-model="gradeForm.defenseScoreItemsMap.get(value[0]).id"
                                 placeholder="请选择对应的评分项"
-                                @change="disableScoreItem">
+                                @change="disableScoreItem"
+                                :disabled="mode==='secretary'"
+                            >
                                 <el-option
                                     v-for="item in scoreItemsAll"
                                     :key="item.id"
@@ -655,7 +666,7 @@
                             </el-select>
                         </el-form-item>
                         <el-form-item label="系数" label-width="40px">
-                            <el-input @input="$forceUpdate()" style="width: 60px" v-model="gradeForm.defenseScoreItemsMap.get(value[0]).coef"></el-input>
+                            <el-input @input="$forceUpdate()" style="width: 60px" v-model="gradeForm.defenseScoreItemsMap.get(value[0]).coef" :disabled="mode==='secretary'"></el-input>
                         </el-form-item>
                     </div>
                 </el-form>

@@ -559,13 +559,14 @@ export default {
         type: "warning",
       })
           .then(() => {
-            this.deleteRequest("/displayItem/?ID="+row.id).then((resp) => {
+            this.deleteRequest("/displayItem/?ID="+row.id+"&activityID="+this.keywords+"&total="+this.total).then((resp) => {
               if (resp) {
                 if(resp.msg==='success')
                 {Message.success('删除成功')}
                 else
                 {Message.error('删除失败')}
                 this.initHrs();
+                this.total=this.total-1;
               }
             });
           })

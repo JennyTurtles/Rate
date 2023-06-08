@@ -333,19 +333,7 @@ export default {
       showTimeSelect: true,
       showTimeSelect2: false,
 
-      // tutorName:JSON.parse(sessionStorage.getItem('user')).teachers.name,//导师名字
-      oper: {
-        operatorRole: "student",
-        operatorID: JSON.parse(localStorage.getItem("user")).id,
-        operatorName: JSON.parse(localStorage.getItem("user")).name,
-        paperID: null,
-        paperName: null,
-        pubID: null,
-        pubName: null,
-        operation: "",
-        state: "",
-        remark: "",
-      },
+
       emp: {
         id: null,
 
@@ -426,11 +414,16 @@ export default {
   methods: {
     exportPDF() {
       this.loading = true;
-      let url = "/paperComment/basic/exportPDF?thesisID=" + this.thesisID;
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        window.location.href = url;
-      });
+      if(this.thesisID!=null) {
+        let url = "/paperComment/basic/exportPDF?thesisID=" + this.thesisID;
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          window.location.href = url;
+        });
+      }else{
+        this.loading=false;
+        this.$message.info("抱歉你还未添加毕设设计或论文！")
+      }
     },
     handleCancel(event) {
       event.stopPropagation();
@@ -441,7 +434,6 @@ export default {
     disabledTime(date) {
       const today = new Date();
       const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-      // console.log(new Date(this.preDate).getTime());
       switch (this.timeChoose) {
         case 10:
         case 13:
@@ -571,7 +563,7 @@ export default {
         });
       } else {
         console.log("新增记录：");
-        // console.log(this.emp);
+        console.log(this.emp);
         var empdata = this.emp;
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
@@ -632,35 +624,34 @@ export default {
 
     initEmps() {
       this.loading = true;
-      this.studentID = JSON.parse(localStorage.getItem("user")).id;
-      // var tID;
-      let getTIDPromise = new Promise((resolve, reject) => {
-        this.getRequest(
-          "/paperComment/basic/getTID?stuID=" + this.studentID
-        ).then((resp) => {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const studentID = user && user.id;
+      if (!studentID) {
+        console.error("Unable to get student ID from storage.");
+        return;
+      }
+      this.getRequest("/paperComment/basic/getTID?stuID=" + studentID)
+        .then((resp) => {
           if (resp.data) {
             this.thesisID = resp.data;
-            resolve(this.thesisID);
+            const url =
+              "/paperComment/basic/getAllCommentStu?thesisID=" + this.thesisID;
+            return this.getRequest(url);
           } else {
-            reject(Error("Error getting TID"));
+            throw new Error("Error getting TID");
           }
-        });
-      });
-
-      getTIDPromise.then((tID) => {
-        let url =
-          "/paperComment/basic/getAllCommentStu?thesisID=" + this.thesisID;
-        // 通过学生ID获取其毕业设计的ID
-        this.getRequest(url).then((resp) => {
+        })
+        .then((resp) => {
           this.loading = false;
-          if (resp) {
-            // console.log("初始化页面:");
-            // console.log(resp);
+          if (resp && resp.data) {
             this.emps = resp.data;
             this.total = resp.data.length;
           }
+        })
+        .catch((err) => {
+          console.error(err);
+          this.loading = false;
         });
-      });
     },
   },
 };

@@ -4,15 +4,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.sys.rate.mapper.MailMapper;
 import org.sys.rate.model.Mail;
 
 import javax.annotation.Resource;
-import javax.mail.*;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Store;
+import javax.mail.Transport;
 import java.util.Map;
 import java.util.Properties;
 
 @Service
+@Transactional
 public class MailService {
     @Resource
     private JdbcTemplate jdbcTemplate;

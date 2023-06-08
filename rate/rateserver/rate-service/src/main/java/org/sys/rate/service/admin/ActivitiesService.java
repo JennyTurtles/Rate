@@ -24,8 +24,6 @@ public class ActivitiesService {
     @Autowired
     RabbitTemplate rabbitTemplate;
     @Autowired
-    MailSendLogService mailSendLogService;
-    @Autowired
     ActivityGrantMapper activityGrantMapper;
 
     public final static Logger logger = LoggerFactory.getLogger(ActivitiesService.class);

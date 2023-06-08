@@ -20,12 +20,7 @@
         ></el-button>
       </div>
     </div>
-    <el-tooltip
-      class="item"
-      effect="dark"
-      content="拖动节点以交换位置"
-      placement="right"
-    >
+
       <el-tree
         :data="data"
         :props="defaultProps"
@@ -38,10 +33,8 @@
         :allow-drop="allowDrop"
         :allow-drag="allowDrag"
         :highlight-current="true"
-        :style="{ height: scrollerHeight, overflow: 'auto' }"
         default-expand-all
       ></el-tree>
-    </el-tooltip>
     <!--添加到非一二级目录-->
     <el-dialog :visible.sync="dialogVisible" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
@@ -283,8 +276,8 @@ export default {
       id: 0,
       TypeOptions: [
         {
-          value: "论文",
-          label: "论文",
+          value: "学术论文",
+          label: "学术论文",
           disabled: false,
         },
         {
@@ -398,7 +391,7 @@ export default {
               icon="el-icon-edit"
               on-click={() => {
                 this.data1 = data;
-                this.labelUpdate = data.label;
+                this.labelUpdate = data.label.substring(data.order.length + 1);
                 if (node.level > 2) this.dialogVisibleUpdate = true;
                 else if (node.level === 1) {
                   this.dialogVisibleUpdateRoot = true;
@@ -793,6 +786,8 @@ export default {
   padding-right: 0px;
 }
 .inline-tree-node {
+  position: absolute;
+  left: 0px;
   display: none;
 }
 .custom-tree-node:hover .inline-tree-node {
@@ -808,11 +803,12 @@ body {
 /*节点高度*/
 .el-tree-node__content {
   height: 30px;
+  position: relative;
 }
 
 .plus-button {
-  background-color: #1e90ff; 
-  color: white; 
+  background-color: #1e90ff;
+  color: white;
   border-radius: 4px;
   padding: 8px 16px;
   font-size: 16px;
@@ -821,16 +817,16 @@ body {
 }
 
 .plus-button:hover {
-  background-color: #add8e6; 
+  background-color: #add8e6;
 }
 
 .plus-button:active {
-  background-color: #f0a020; 
+  background-color: #f0a020;
 }
 
 .tree-node-text {
   display: inline-block;
-  max-width: 400px;
+  max-width: 1000px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

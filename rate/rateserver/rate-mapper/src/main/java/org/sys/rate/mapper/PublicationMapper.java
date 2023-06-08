@@ -1,29 +1,24 @@
 package org.sys.rate.mapper;
 
-import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.sys.rate.model.Award;
-import org.sys.rate.model.InfoItem;
 import org.sys.rate.model.Publication;
-import org.sys.rate.model.RespBean;
 
 import java.util.List;
 
 /**
  * 刊物Mapper接口
- * 
+ *
  * @author system
  * @date 2022-03-13
  */
 @Mapper
-public interface PublicationMapper 
+public interface PublicationMapper
 {
     /**
      * 查询刊物
-     * 
+     *
      * @param ID 刊物ID
      * @return 刊物
      */
@@ -31,7 +26,7 @@ public interface PublicationMapper
 
     /**
      * 查询刊物列表
-     * 
+     *
      * @param publication 刊物
      * @return 刊物集合
      */
@@ -39,7 +34,7 @@ public interface PublicationMapper
 
     /**
      * 新增刊物
-     * 
+     *
      * @param publication 刊物
      * @return 结果
      */
@@ -47,7 +42,7 @@ public interface PublicationMapper
 
     /**
      * 修改刊物
-     * 
+     *
      * @param publication 刊物
      * @return 结果
      */
@@ -55,7 +50,7 @@ public interface PublicationMapper
 
     /**
      * 删除刊物
-     * 
+     *
      * @param ID 刊物ID
      * @return 结果
      */
@@ -63,7 +58,7 @@ public interface PublicationMapper
 
     /**
      * 批量删除刊物
-     * 
+     *
      * @param IDs 需要删除的数据ID
      * @return 结果
      */

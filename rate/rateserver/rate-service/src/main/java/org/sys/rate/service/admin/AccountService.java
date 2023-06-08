@@ -4,19 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.sys.rate.mapper.AdminMapper;
-import org.sys.rate.mapper.HrRoleMapper;
 import org.sys.rate.model.Account;
-import org.sys.rate.model.Admin;
-import org.sys.rate.model.RespPageBean;
 import org.sys.rate.service.expert.ExpertService;
-import org.sys.rate.service.expert.TeacherService;
-import org.sys.rate.utils.HrUtils;
-
-import java.util.List;
 
 @Service("AccountService")
 public class AccountService implements UserDetailsService {
