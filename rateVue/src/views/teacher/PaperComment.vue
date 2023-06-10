@@ -199,7 +199,7 @@ export default {
       this.emp = {
         dateStu: new Date(),
         id: null,
-        num: null,
+        num: this.total + 1,
         preSum: "",
         nextPlan: "",
         thesisID: null,

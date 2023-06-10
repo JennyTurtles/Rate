@@ -464,7 +464,7 @@ export default {
       this.emp = {
         dateStu: new Date(),
         id: null,
-        num: null,
+        num: this.total + 1,
         preSum: "",
         nextPlan: "",
         thesisID: null,
@@ -583,17 +583,17 @@ export default {
 
               if (date1 + 86400000 > date2) {
                 this.$message.error({ message: "请选择合适的指导时间！" });
-              } else {
-                this.postRequest1("/paperComment/basic/add", _this.emp).then(
-                  (resp) => {
-                    if (resp) {
-                      this.dialogVisible = false;
-                      this.initEmps();
-                    }
-                  }
-                );
+                return;
               }
             }
+            this.postRequest1("/paperComment/basic/add", _this.emp).then(
+                (resp) => {
+                  if (resp) {
+                    this.dialogVisible = false;
+                    this.initEmps();
+                  }
+                }
+            );
           }
         });
       }
