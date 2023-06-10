@@ -25,7 +25,6 @@
       >
         <el-table-column type="selection" width="35px"> </el-table-column>
 
-        <!-- width="70" -->
         <el-table-column
             prop="name"
             align="center"
@@ -57,15 +56,6 @@
               </span>
           </template>
         </el-table-column>
-        <!-- width="200"
-        <el-table-column
-          prop="institutionID"
-          align="center"
-          label="所属人"
-          width="150"
-        >
-        </el-table-column>-->
-        <!-- width="200" -->
         <el-table-column
             prop="typename"
             label="专利类别"
@@ -96,8 +86,6 @@
             label="备注"
         >
         </el-table-column>
-        <!-- width="80" -->
-        <!-- width="550" -->
         <el-table-column align="center" width="275" label="操 作">
           <template slot-scope="scope">
             <el-button
@@ -215,18 +203,6 @@
               placeholder="请输入参与人,如有多个用分号按顺位分隔"
           ></el-input>
         </el-form-item>
-        <!--<el-form-item label="备 注: " prop="comment">
-           <textarea v-model="emp.comment" placeholder="备注" style="height:100px;width: 350px"></textarea>
-          <el-input
-            type="textarea"
-            :rows="2"
-            v-model="emp.comment"
-            placeholder="备注"
-          >
-          </el-input>
-        </el-form-item>-->
-
-
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
           <el-upload
               :file-list="files"
@@ -385,7 +361,6 @@ export default {
       dialogVisible_showInfo:false,
       total: 0,
       page: 1,
-      keyword: "",
       size: 10,
       positions: [],
       patentTypename:"",//项目类别
@@ -415,15 +390,8 @@ export default {
         state:" ",
         patentTypeID:"",
       },
-      defaultProps: {
-        children: "children",
-        label: "name",
-      },
       rules: {
         name: [{ required: true, message: "请输入专利名", trigger: "blur" }],
-        /*startDate: [
-          { required: true, message: "请输入专利时间", trigger: "blur" },
-        ],*/
         scoreItemCount: [
           {
             required: true,
@@ -552,7 +520,6 @@ export default {
       }
       this.postRequest1("/patent/basic/deleteFile",file).then(
           (response)=>{
-            console.log(response)
           },()=>{}
       )
     },
@@ -577,7 +544,6 @@ export default {
       formData.append("file",this.files[0].raw)
       axios.post("/patent/basic/upload",formData,{
         headers:{
-          // 'token': window.sessionStorage.getItem('user') ? JSON.parse(window.sessionStorage.getItem('user')).token : ''
           'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
         }
       }).then(
@@ -588,8 +554,6 @@ export default {
             this.addButtonState = true
             //获取文件路径
             this.urlFile=response.data
-            // console.log("response:");
-            // console.log(this.urlFile);
           },()=>{}
       )
     },
@@ -667,23 +631,6 @@ export default {
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
-    /** 查询角色列表 */
-    onError(err, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-    },
-    onSuccess(response, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-      this.initEmps();
-    },
-    beforeUpload() {
-      this.importDataBtnText = "正在导入";
-      this.importDataBtnIcon = "el-icon-loading";
-      this.importDataDisabled = true;
-    },
     exportData() {
       window.open("/employee/basic/export", "_parent");
     },
@@ -734,11 +681,6 @@ export default {
       });
       this.view_point = data.point
     },
-    showEditEmpView_show(data) {
-      this.title_show = "显示详情";
-      this.emp = data;
-      this.dialogVisible_show = true;
-    },
     showInfo(data){
       this.title_show = "显示详情";
       this.emp=data
@@ -756,7 +698,7 @@ export default {
     deleteEmp(data) {
       if(confirm(
           "此操作将永久删除【" + data.name + "】, 是否继续?",)){
-        axios.delete("/patent/basic/remove/" + data.id).then((resp) => {
+        this.deleteRequest("/patent/basic/remove/" + data.id).then((resp) => {
           if (resp) {
             this.dialogVisible = false;
             this.initEmps();
@@ -838,14 +780,6 @@ export default {
       await this.postRequest1("/oper/basic/add", this.oper)
       await this.initEmps();
     },
-    sizeChange(currentSize) {
-      this.size = currentSize;
-      this.initEmps();
-    },
-    currentChange(currentPage) {
-      this.page = currentPage;
-      this.initEmps("advanced");
-    },
     showAddEmpView() {//点击添加科研项目按钮
       this.addButtonState=true
       // this.emptyEmp();
@@ -861,65 +795,6 @@ export default {
         if (resp) {
           this.emps = resp.data;
           this.total = 10;
-        }
-      });
-    },
-    showGroupmanagement(data) {
-      this.$router.push({
-        path: "/ActivitM/table",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showInsertmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/group",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showteachermanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/sobcfg",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showScoreItem(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/month",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    searchEmps() {
-      this.loading = true;
-      console.log('---------',this.keyword);
-      const _this = this;
-      //let url =
-      this.getRequest(
-          "/activities/basic/search?company=" +
-          this.keyword +
-          "&page=" +
-          this.page +
-          "&size=" +
-          this.size
-      ).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.emps = resp.data;
-          this.total = resp.total;
         }
       });
     },
