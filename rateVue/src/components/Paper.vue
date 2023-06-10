@@ -389,12 +389,6 @@
                   @click="dialogVisible_show = false"
                   type="primary"
                   >关闭</el-button>
-
-<!--                      <el-button-->
-<!--                          id="but_reject"-->
-<!--                          @click="dialogVisible_show = false"-->
-<!--                          type="primary"-->
-<!--                      >关闭</el-button>-->
         </span>     
     </el-dialog>
     <el-dialog v-model="emp" :visible.sync="isShowInfo">
@@ -445,7 +439,6 @@ export default {
       importDataBtnIcon: "el-icon-upload2",
       importDataDisabled: false,
       showAdvanceSearchView: false,
-      allDeps: [],
       copyemps:[],
       emps: [],
       role:-1,
@@ -456,21 +449,19 @@ export default {
       dialogVisible_show: false,
       total: 0,
       page: 1,
-      keyword: "",
       size: 10,
       positions: [],
       reason:"",
       oper:{
-        operatorRole:"teacher",
-        operatorID:JSON.parse(localStorage.getItem('user')).id,
-        operatorName:JSON.parse(localStorage.getItem('user')).name,
-        paperID:null,
-        paperName:null,
-        pubID:null,
-        pubName:null,
-        operation:"",
+        operatorRole: "teacher",
+        operatorID: '',
+        prodType: 'paper',
+        patentID: null,
+        operationName:"",
         state:"",
-        remark:""
+        remark:"",
+        time: null,
+        prodId: null,
       },
       emp: {
         id: null,
@@ -524,7 +515,6 @@ export default {
   created() {},
   mounted() {
     this.initEmps();
-    this.initPositions();
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -669,9 +659,6 @@ export default {
       this.importDataBtnIcon = "el-icon-loading";
       this.importDataDisabled = true;
     },
-    exportData() {
-      window.open("/employee/basic/export", "_parent");
-    },
     emptyEmp() {
       this.emp = {
         id: null,
@@ -682,14 +669,11 @@ export default {
       };
     },
     showEditEmpView(data) {//修改论文
-      console.log(data.id)
-      this.initPositions();
       this.title = "编辑单位信息";
       this.emp = data;
       this.dialogVisible = true;
     },
     showEditEmpView_show(data) {
-      console.log(data.url)
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
@@ -704,29 +688,8 @@ export default {
           }
       });
     },
-    deleteEmp(data) {
-      console.log(data);
-      this.$confirm(
-        "此操作将永久删除【" + data.name + "】, 是否继续?",
-        "提示",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",  
-        }
-      ).then(() => {
-        this.postRequest("/paper/basic/remove", {ID:data.id}).then((resp) => {
-          if (resp) {
-            console.log(resp)
-            this.dialogVisible = false;
-            this.initEmps();
-          }
-        });
-      });
-    },
     doAddEmp() {
       if (this.emp.id) {
-        console.log(this.emp);
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             const _this = this;
@@ -744,8 +707,6 @@ export default {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.emp.institutionID = this.user.id;
-            console.log(this.emp);
-            console.log(this.user.id);
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(
               (resp) => {
@@ -759,13 +720,6 @@ export default {
         });
       }
     },
-    initPositions() {
-      /*this.getRequest('/employee/basic/positions').then(resp => {
-        if (resp) {
-          this.positions = resp;
-        }
-      })*/
-    },
     sizeChange(currentSize) {
       this.size = currentSize;
       this.initEmps();
@@ -774,11 +728,6 @@ export default {
       this.page = currentPage;
       this.initEmps("advanced");
     },
-    showAddEmpView() {
-      this.emptyEmp();
-      this.title = "添加论文";
-      this.dialogVisible = true;
-    },
     initEmps() {
       this.loading = true;
       this.role = JSON.parse(localStorage.getItem('user')).role
@@ -786,7 +735,6 @@ export default {
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          console.log(resp);
           this.emps = resp.data;
           this.copyemps=this.emps
           this.total = resp.total;
@@ -810,49 +758,8 @@ export default {
         }
       });
     },
-    showGroupmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/table",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showInsertmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/group",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showteachermanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/sobcfg",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showScoreItem(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/month",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
     searchEmps() {//根据条件搜索论文
       var newemps=new Set()
-      // var copyemps=this.emps
       var stuname=document.getElementById("select_stuname").value
       var state=document.getElementById("select_state").value
       if(state == '导师通过'){
@@ -866,7 +773,6 @@ export default {
       }else if (state == '管理员驳回') {
         state = 'adm_reject'
       }
-
       var paper=document.getElementById("select_paperName").value
       var pub=document.getElementById("select_pub").value
       var point1=document.getElementById("select_point1").value

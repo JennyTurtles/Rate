@@ -412,7 +412,6 @@ export default {
       importDataBtnIcon: "el-icon-upload2",
       importDataDisabled: false,
       showAdvanceSearchView: false,
-      allDeps: [],
       copyemps:[],
       emps: [],
       role:-1,
@@ -423,21 +422,18 @@ export default {
       dialogVisible_show: false,
       total: 0,
       page: 1,
-      keyword: "",
       size: 10,
       positions: [],
       reason:"",
       oper:{
-        operatorRole:"teacher",
-        operatorID:JSON.parse(localStorage.getItem('user')).id,
-        operatorName:JSON.parse(localStorage.getItem('user')).name,
-        paperID:null,
-        paperName:null,
-        pubID:null,
-        pubName:null,
-        operation:"",
+        operatorRole: "teacher",
+        operatorID: '',
+        prodType: 'patent',
+        operationName:"",
         state:"",
-        remark:""
+        remark:"",
+        date: null,
+        prodId: null,
       },
       emp: {
         id: null,
@@ -449,16 +445,12 @@ export default {
         groupCount: "0",
         expertCount: "0",
         participantCount: "0",
-        comment: "javaboy",
+        comment: "",
         state:"",
         student:{},
         total:0,
         rank:0
         // reason:"",
-      },
-      defaultProps: {
-        children: "children",
-        label: "name",
       },
       rules: {
         name: [{ required: true, message: "请输入专利名", trigger: "blur" }],
@@ -491,7 +483,6 @@ export default {
   created() {},
   mounted() {
     this.initEmps();
-    this.initPositions();
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -508,7 +499,6 @@ export default {
     select_pub_option:{
       handler(val){
         let url = "/publication/basic/listByName?publicationName=" + val
-        console.log(url);
         this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
@@ -535,7 +525,6 @@ export default {
   methods: {
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
-      console.log(fileName);
       if(localStorage.getItem("user")){
         var url="/paper/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
         window.location.href = encodeURI(url);
@@ -553,8 +542,6 @@ export default {
     },
     //点击对话框中的确定按钮 触发事件
     auditing_commit(num){
-      debugger
-      console.log(this.role)
       this.loading = true;
       let url;
       const _this=this
@@ -565,73 +552,38 @@ export default {
         this.loading = false;
         this.$message.success('专利已通过，无法驳回')
       }else{
-        this.getRequest(url).then((resp) => {
-          debugger
+        this.postRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
             this.emp.state=num
             this.total = resp.total;
-            // this.emp.pubid = this.emp.publicationID;
-            // this.emp.pubName = this.emp.publication.name;
             this.$message({
               type: 'success',
               message: '操作成功'
             })
             this.doAddOper(num,this.reason,
-                this.emp.id,this.emp.name,
-                this.emp.pubName,this.emp.pubid);
+                this.emp.id);
           }
         }).finally(()=>{
-
           this.initEmps();
         });
       }
     },
-    doAddOper(state,reamrk,paperID,paperName,pubName,pubID) {
-
-      debugger
-      this.oper.state=state
-      this.oper.remark=reamrk,
-          this.oper.patentID=paperID,
-          this.oper.patentName=paperName,
-          this.oper.pubName=pubName,
-          this.oper.pubID=pubID
+    async doAddOper(state,remark,patentID) {
+      this.oper.state = state;
+      this.oper.operatorID = this.user.id;
+      this.oper.remark = remark;
+      this.oper.prodId = patentID;
       if(this.oper.state=="tea_pass" || this.oper.state=="adm_pass"){
         this.oper.operation="审核通过"
       }else{
         this.oper.operation="审核驳回"
       }
-      this.postRequest1("/patent/basic/add", this.oper).then(
-          (resp) => {
-            if (resp) {
-              console.log(resp)
-              this.initEmps()
-            }
-          }
-      );
+      await this.postRequest1("/oper/basic/add", this.oper);
+      await this.initEmps();
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
-    },
-    /** 查询角色列表 */
-    onError(err, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-    },
-    onSuccess(response, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-      this.initEmps();
-    },
-    beforeUpload() {
-      this.importDataBtnText = "正在导入";
-      this.importDataBtnIcon = "el-icon-loading";
-      this.importDataDisabled = true;
-    },
-    exportData() {
-      window.open("/employee/basic/export", "_parent");
     },
     emptyEmp() {
       this.emp = {
@@ -643,8 +595,6 @@ export default {
       };
     },
     showEditEmpView(data) {//修改论文
-      console.log(data.id)
-      this.initPositions();
       this.title = "编辑单位信息";
       this.emp = data;
       this.dialogVisible = true;
@@ -656,8 +606,6 @@ export default {
       this.getRequest("/patent/basic/List?ID="+data.id).then((resp) => {
         this.loading = false;
         if (resp) {
-          console.log("/paperoper/basic/List?ID=");
-          console.log(resp);
           this.isShowInfo=false
           this.operList=resp.data
           this.operList.sort(function(a,b){
@@ -666,29 +614,8 @@ export default {
         }
       });
     },
-    deleteEmp(data) {
-      console.log(data);
-      this.$confirm(
-          "此操作将永久删除【" + data.name + "】, 是否继续?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          }
-      ).then(() => {
-        this.postRequest("/paper/basic/remove", {ID:data.id}).then((resp) => {
-          if (resp) {
-            console.log(resp)
-            this.dialogVisible = false;
-            this.initEmps();
-          }
-        });
-      });
-    },
     doAddEmp() {
       if (this.emp.id) {
-        console.log(this.emp);
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             const _this = this;
@@ -706,8 +633,6 @@ export default {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.emp.institutionID = this.user.id;
-            console.log(this.emp);
-            console.log(this.user.id);
             const _this = this;
             this.postRequest("/activities/basic/insert", _this.emp).then(
                 (resp) => {
@@ -721,13 +646,6 @@ export default {
         });
       }
     },
-    initPositions() {
-      /*this.getRequest('/employee/basic/positions').then(resp => {
-        if (resp) {
-          this.positions = resp;
-        }
-      })*/
-    },
     sizeChange(currentSize) {
       this.size = currentSize;
       this.initEmps();
@@ -736,22 +654,16 @@ export default {
       this.page = currentPage;
       this.initEmps("advanced");
     },
-    showAddEmpView() {
-      this.emptyEmp();
-      this.title = "添加专利";
-      this.dialogVisible = true;
-    },
+    // 专利和刊物有关系吗？
     initEmps() {
       this.loading = true;
       this.role = JSON.parse(localStorage.getItem('user')).role
       let url = "/patent/basic/List";
-      console.log(url);
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          console.log(resp);
           this.emps = resp.data;
-          this.copyemps=this.emps
+          this.copyemps=this.emps;
           this.total = resp.total;
           for(var i=0;i<this.emps.length;i++){
             var papername=this.emps[i].name
@@ -773,49 +685,7 @@ export default {
         }
       });
     },
-    showGroupmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/table",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showInsertmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/group",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showteachermanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/sobcfg",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showScoreItem(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/month",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    searchEmps() {//根据条件搜索论文
-      var newemps=new Set()
-      // var copyemps=this.emps
+    searchEmps() {//根据条件搜索专利
       var stuname=document.getElementById("select_stuname").value
       var select_paperName=document.getElementById("select_paperName").value
       var state = null
@@ -833,7 +703,6 @@ export default {
       this.postRequest("/patent/basic/List", {'stuName':stuname,'zcName':select_paperName,'sState':state,'sScore':this.tmp2,'eScore':this.tmp3}).then((resp) => {
         this.loading = false;
         if (resp) {
-          console.log(resp);
           this.emps = resp.data;
           this.copyemps=this.emps
           this.total = resp.total;
@@ -856,20 +725,12 @@ export default {
           })
         }
       });
-      console.log({'stuName':stuname,'zcName':select_paperName,'sState':this.tmp1,'sScore':this.tmp2,'eScore':this.tmp3})
     },
   },
 };
 </script>
 
 <style>
-/* 可以设置不同的进入和离开动画 */
-/* 设置持续时间和动画函数 */
-/* .selectInput { */
-/* position: relative; */
-/* display: inline-block; */
-
-/* } */
 .showInfo_dialog .el-form-item{
   margin-bottom: 5px;
 }
