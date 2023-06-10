@@ -358,7 +358,6 @@ export default {
       publicationID:-1,
       startPage:'',
       endPage:'',
-      // tutorName:JSON.parse(sessionStorage.getItem('user')).teachers.name,//导师名字
       oper:{
         operatorRole: "student",
         operatorID: this.user.id,
@@ -811,23 +810,6 @@ export default {
         if (resp) {
           this.emps = resp.data;
           this.total = 11;
-        }
-      });
-    },
-    searchEmps() {
-      this.loading = true;
-      this.getRequest(
-        "/paper/basic/byName?name=" +
-          this.keyword +
-          "&page=" +
-          this.page +
-          "&size=" +
-          this.size
-      ).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.emps = resp.data;
-          this.total = resp.total;
         }
       });
     },
