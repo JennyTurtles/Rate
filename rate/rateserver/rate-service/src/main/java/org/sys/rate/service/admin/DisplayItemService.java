@@ -7,6 +7,7 @@ import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -259,7 +260,11 @@ public class DisplayItemService {
         } else if (tableName.equals("displayitem")) {
             name = displayItemMapper.getNameByID(ID);
         }else if (tableName.equals("scoreitem")) {
-            name = scoreItemMapper.getNameByID(ID);
+            if (scoreItemMapper.getNameByID(ID).equals("活动得分")){
+                name = scoreItemMapper.getActivityName(ID) + ".活动得分";
+            }
+            else
+                name = scoreItemMapper.getNameByID(ID);
         }
         else
             return "error";
