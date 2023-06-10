@@ -360,16 +360,14 @@ export default {
       endPage:'',
       // tutorName:JSON.parse(sessionStorage.getItem('user')).teachers.name,//导师名字
       oper:{
-        operatorRole:"student",
-        operatorID:'',
-        operatorName:'',
-        paperID:null,
-        paperName:null,
-        pubID:null,
-        pubName:null,
-        operation:"",
-        state:"",
-        remark:""
+        operatorRole: "student",
+        operatorID: this.user.id,
+        prodType: 'paper',
+        operationName: '',
+        state: '',
+        remark: '',
+        prodId: null,
+        time: null
       },
       emp: {
         id: null,
@@ -719,82 +717,76 @@ export default {
         })
       }).catch(() => {})
     },
-    doAddEmp() {//确定添加论文
+    async doAddEmp() {//确定添加论文
       if (this.emp.id) {//emptyEmp中没有将id设置为空 所以可以判断
           var empdata=this.emp
           this.emptyEmp()
-          this.$refs["empForm"].validate((valid) => {
-              if (valid) {
-                this.emp.name=empdata.name
-                this.emp.ID=empdata.id
-                this.emp.publicationID=empdata.publicationID
-                this.emp.point = empdata.point
-                this.emp.year=empdata.year
-                this.emp.month = empdata.month
-                this.emp.author=empdata.author
-                this.emp.total = empdata.total
-                this.emp.rank=empdata.rank
-                this.emp.pubPage=this.startPage+"-"+this.endPage
-                this.emp.url = empdata.url;
-                this.emp.state="commit"
-                this.emp.studentID = this.urlFile
-                const _this = this;
-                if(this.emp.url == '' ||this.emp.url == null){
-                  this.$message({
-                    message:'请上传证明材料！'
-                  })
-                  return
-                }
-                this.postRequest1("/paper/basic/edit", _this.emp).then((resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                    this.$message.success('编辑成功');
-                  }});
+          this.$refs["empForm"].validate(async (valid) => {
+            if (valid) {
+              this.emp.name = empdata.name
+              this.emp.ID = empdata.id
+              this.emp.publicationID = empdata.publicationID
+              this.emp.point = empdata.point
+              this.emp.year = empdata.year
+              this.emp.month = empdata.month
+              this.emp.author = empdata.author
+              this.emp.total = empdata.total
+              this.emp.rank = empdata.rank
+              this.emp.pubPage = this.startPage + "-" + this.endPage
+              this.emp.url = empdata.url;
+              this.emp.state = "commit"
+              this.emp.studentID = this.urlFile
+              const _this = this;
+              if (this.emp.url == '' || this.emp.url == null) {
+                this.$message({
+                  message: '请上传证明材料！'
+                })
+                return
               }
+              await this.postRequest1("/paper/basic/edit", _this.emp).then((resp) => {
+                if (resp) {
+                  this.dialogVisible = false;
+                  this.$message.success('编辑成功');
+                }
+              });
+              await this.initEmps();
+            }
           });
       } else {
-        this.$refs["empForm"].validate((valid) => {
+        this.$refs["empForm"].validate(async (valid) => {
           if (valid) {
-            this.publicationName=document.getElementById("input_publicationName").value
-            this.emp.pubPage=this.startPage+"-"+this.endPage
+            this.publicationName = document.getElementById("input_publicationName").value
+            this.emp.pubPage = this.startPage + "-" + this.endPage
             this.emp.url = this.urlFile;
-            this.emp.state="commit"
+            this.emp.state = "commit"
             this.emp.point = this.view_point
             this.emp.publicationID = this.publicationID
             this.emp.studentID = this.user.id
             const _this = this;
-            if(this.emp.url == '' ||this.emp.url == null){
+            if (this.emp.url == '' || this.emp.url == null) {
               this.$message.error('请上传证明材料！')
               return
             }
-            this.postRequest1("/paper/basic/add",_this.emp).then(
+            await this.postRequest1("/paper/basic/add", _this.emp).then(
                 (resp) => {
                   if (resp) {
                     this.dialogVisible = false;
-                    this.doAddOper("commit",this.emp.name,this.publicationName,
-                        this.emp.publicationID,resp.data)
+                    this.emp.id = resp.data;
                   }
                 }
             );
+            await this.doAddOper("commit", this.emp.id)
           }
         });
       }
     },
-    doAddOper(state,paperName,pubName,pubID,paperID) {
+    async doAddOper(state, paperID) {
       this.oper.state=state
-      this.oper.paperName=paperName,
-      this.oper.pubName=pubName,
-      this.oper.pubID=pubID
-      this.oper.operation="提交论文"
-      this.oper.paperID=paperID
-      this.postRequest1("/paperoper/basic/add", this.oper).then(
-        (resp) => {
-          if (resp) {
-            this.initEmps();
-          }
-        }
-      );    
+      this.oper.prodId = paperID
+      this.oper.operation = "提交论文"
+      this.oper.time = this.dateFormatFunc(new Date());
+      await this.postRequest1("/oper/basic/add", this.oper)
+      await this.initEmps();
     },
     showAddEmpView() {//点击添加论文按钮
       this.addButtonState=true

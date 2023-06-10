@@ -5,19 +5,19 @@
 <mapper namespace="org.sys.rate.mapper.OperMapper">
     <resultMap type="org.sys.rate.model.Oper" id="OperResult">
         <result property="id"    column="id"    />
-        <result property="operatorRole"    column="operatorRole"    />
-        <result property="operatorId"    column="operatorId"    />
-        <result property="prodType"    column="prodType"    />
-        <result property="prodId"    column="prodId"    />
-        <result property="time"    column="time"    />
-        <result property="operationName"    column="operationName"    />
+        <result property="operatorRole"    column="operator_role"    />
+        <result property="operatorId"    column="operator_id"    />
+        <result property="prodType"    column="prod_type"    />
+        <result property="prodId"    column="prod_id"    />
+        <result property="time"    column="date"    />
+        <result property="operationName"    column="operation_name"    />
         <result property="state"    column="state"    />
         <result property="remark"    column="remark"    />
     </resultMap>
 
 
     <sql id="selectOper">
-        select ID,operatorRole,operatorID,prod_type,prod_id,time, operation_name,state,remark from i_oper
+        select id,operator_role,operator_id,prod_type,prod_id,date, operation_name,state,remark from i_oper
     </sql>
 
     <select id="selectList" resultMap="OperResult">
@@ -26,13 +26,13 @@
     </select>
 
     <insert id="insertOper" parameterType="org.sys.rate.model.Oper">
-        insert into i_oper (id, operatorRole,operatorID,
-                            prod_type, prod_id, time, operation_name,state,remark)
+        insert into i_oper (id, operator_role,operator_id,
+                            prod_type, prod_id, date, operation_name,state,remark)
         values (#{id},
                 #{operatorRole},
-                #{operatorID,jdbcType=INTEGER}, #{prod_type},
-                #{prod_id}, #{operation_name},
-                #{time},#{state},#{remark})
+                #{operatorID,jdbcType=INTEGER}, #{prodType},
+                #{prodId}, #{operationName},
+                #{date},#{state},#{remark})
     </insert>
 
 </mapper>
