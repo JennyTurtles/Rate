@@ -13,23 +13,25 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Production {
-    private Integer id;
+    Integer id;
 
-    private String name;
+    String name;
 
-    private Integer studentId;
+    Integer studentId;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date date;
+    Date date;
 
-    private String author;
+    String author;
 
-    private String state;
+    String state;
 
-    private String url;
+    String url;
 
     Integer point;
+
+
 }
 
 

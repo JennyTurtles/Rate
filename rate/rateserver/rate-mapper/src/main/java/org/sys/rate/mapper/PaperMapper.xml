@@ -82,43 +82,23 @@
         where id = #{id}
     </update>
 
-    <delete id="deletePaperByIds" parameterType="String">
+    <delete id="deletePaperByIds">
         delete from i_paper where id in
-        <foreach item="ID" collection="array" open="(" separator="," close=")">
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
 
-    <select id="selectList" resultMap="PaperResult">
-        -- 老师查询所有学生的论文
-        SELECT p.ID,
-               p.studentID,
-               p.NAME,
-               p.point,
-               p.publicationID,
-               p.state,
-               p.pubPage,
-               p.rank,
-               p.total,
-               p.YEAR,
-               p.MONTH,
-               p.author,
-               p.url,
-               p.have_score,
-               s.NAME   AS sname,
-               pub.NAME AS pname,
-               paperoper.remark,
-               paperoper.operatorRole,
-               paperoper.time,
-               paperoper.operation
-        FROM paper p
-                 LEFT JOIN student s ON p.studentID = s.ID
-                 LEFT JOIN publication pub ON p.publicationID = pub.ID
-                 LEFT JOIN paper_oper paperoper ON p.ID = paperoper.paperID
+    <update id="editState" parameterType="org.sys.rate.model.Paper">
+        update i_paper
+        <set>
+            <if test="state != null and state != '' "> state=#{state} </if>
+        </set>
+        where id = #{id}
+    </update>
 
-    </select>
 
-    <select id="selectListById" resultMap="PaperResult">
+    <select id="selectListByIdWithPaging" resultMap="PaperResult">
         <include refid="selectPaperVo"></include>
         <where>
             <if test="studentID != null  and studentID != ''">and studentID = #{studentID}</if>
@@ -128,48 +108,6 @@
         </where>
     </select>
 
-    <select id="selectListByIds" resultMap="PaperResult" parameterType="Integer">
-        select p.ID,
-               p.studentID,
-               p.name,
-               p.point,
-               p.publicationID,
-               p.rank,
-               p.total,
-               p.year,
-               p.month,
-               p.point,
-               p.author,
-               p.pubPage,
-               p.url,
-               p.state,
-               pub.name as pname,
-               p.have_score,
-               paperoper.remark,
-               paperoper.operatorRole,
-               paperoper.time,
-               paperoper.operation
-        from paper p,
-             student s,
-             publication pub,
-             paper_oper paperoper
-        where p.studentID = #{studentID}
-          and p.publicationID = pub.ID
-          and p.ID = paperoper.paperID
-    </select>
-
-
-
-
-    <update id="editState" parameterType="org.sys.rate.model.Paper">
-        update paper
-        <trim prefix="SET" suffixOverrides=",">
-            <if test="state != null">state=#{state},</if>
-            <!--  <if test="reason != null">reason=#{reason},</if>-->
-            <!--            <if test="url != null">url=#{url},</if>-->
-        </trim>
-        where ID = #{ID}
-    </update>
 
 
 

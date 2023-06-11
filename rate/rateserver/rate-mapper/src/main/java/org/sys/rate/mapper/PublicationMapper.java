@@ -14,15 +14,15 @@ import java.util.List;
  * @date 2022-03-13
  */
 @Mapper
-public interface PublicationMapper
-{
+public interface PublicationMapper {
     /**
      * 查询刊物
      *
      * @param ID 刊物ID
      * @return 刊物
      */
-    public Publication selectPublicationById(Long ID);
+    @Select("select id, name, abbr, publisher, url from i_publication")
+    Publication selectPublicationById(Integer id);
 
     /**
      * 查询刊物列表
@@ -65,6 +65,7 @@ public interface PublicationMapper
     public int deletePublicationByIds(String[] IDs);
 
     public List<Publication> selectList();
+
     public List<Publication> selectListByPubName(String publicationName);
 
     @Select("select `score` from indicator where ID = #{id}")
@@ -112,19 +113,17 @@ public interface PublicationMapper
     @Select("SELECT publication.ID,publication.name,publication.indicatorID,indicator.score,publication.year FROM publication,indicator\n" +
             "WHERE `year` = (SELECT MAX(year) FROM publication WHERE publication.name = #{name} AND year <= #{year})\n" +
             "AND publication.name = #{name} AND publication.indicatorID = indicator.ID")
-    public Publication getPubByYearName(Integer year,String name);
-
-
+    public Publication getPubByYearName(Integer year, String name);
 
 
     @Select("SELECT MAX(`year`) FROM publication WHERE indicatorID = #{Id} AND `year` <= #{year}")
-    public Integer getMaxYearByIdYear(Integer Id,Integer year);
+    public Integer getMaxYearByIdYear(Integer Id, Integer year);
 
 
     public int deleteByYearIndicatorNames(@Param("year") int year, @Param("IndicatorNames") List<String> IndicatorNames);
 
     @Select("SELECT DISTINCT `name` FROM publication WHERE indicatorID = #{indicatorID} AND name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
-    public List<String> getNamesByIdName(Integer indicatorID,String name);
+    public List<String> getNamesByIdName(Integer indicatorID, String name);
 
     @Select("SELECT DISTINCT `name` FROM publication WHERE name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
     public List<String> getNamesByName(String name);

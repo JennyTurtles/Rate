@@ -4,10 +4,10 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.PaperMapper;
 import org.sys.rate.model.Paper;
-import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -15,10 +15,6 @@ public class PaperService {
 
     @Resource
     private PaperMapper paperMapper;
-
-    @Resource
-    MailToStuService mailToStuService;
-
 
     /**
      * 通过id寻找paper信息
@@ -31,18 +27,29 @@ public class PaperService {
         return paper != null ? paper : null;
     }
 
-
-    public List<Paper> selectListById(@Param("studentID") Integer studentID, @Param("page") Integer page, @Param("size") Integer size) {
+    /**
+     * 分页返回某学生的paper
+     *
+     * @param studentID:
+     * @param page:
+     * @param size:
+     * @Return List<Paper>
+     */
+    public List<Paper> selectListByIdWithPaging(@Param("studentID") Integer studentID, @Param("page") Integer page, @Param("size") Integer size) {
         if (page != null && size != null) {
             page = (page - 1) * size;
         }
-        List<Paper> p = paperMapper.selectListById(studentID, page, size);
-//        System.out.println(p);
-        return p;
+        List<Paper> paperList = paperMapper.selectListByIdWithPaging(studentID, page, size);
+        return paperList;
     }
 
-    public List<Paper> selectListByIds(@Param("studentID") Integer studentID) {
-        return paperMapper.selectListByIds(studentID);
+    /**
+     * 返回某学生的paper
+     * @param studentID:
+     * @Return List<Paper>
+     */
+    public List<Paper> selectListById(@Param("studentID") Integer studentID) {
+        return paperMapper.selectListById(studentID);
     }
 
     /**
@@ -51,7 +58,7 @@ public class PaperService {
      * @param paper 论文成果
      * @return 结果
      */
-    public int insertPaper(Paper paper) {
+    public Integer insertPaper(Paper paper) {
         return paperMapper.insertPaper(paper);
     }
 
@@ -61,44 +68,48 @@ public class PaperService {
      * @param paper 论文成果
      * @return 结果
      */
-    public int updatePaper(Paper paper) {
+    public Integer updatePaper(Paper paper) {
         return paperMapper.updatePaper(paper);
     }
 
     /**
      * 删除论文成果
      *
-     * @param ID 论文成果ID
+     * @param id 论文成果id
      * @return 结果
      */
-    public int deletePaperById(Long ID) {
-        return paperMapper.deletePaperById(ID);
+    public Integer deletePaperById(Integer id) {
+        return paperMapper.deletePaperByIds(Collections.singletonList(id));
     }
 
-    //    老师界面调用paper
-    public List<Paper> selectList() {
-        return paperMapper.selectList();
-    }
 
-    //    修改论文状态
-    public int editState(String state, Integer ID) throws MessagingException {
-        Paper paper = paperMapper.selectByID(ID);
-        mailToStuService.sendStuMail(state, paper, "论文");
+    /**
+     * 修改论文状态
+     * @param state:
+     * @param ID:
+     * @Return int
+     */
+    public Integer editState(String state, Integer id) throws MessagingException {
+        Paper paper = paperMapper.getById(id);
+        //mailToStuService.sendStuMail(state, paper, "论文");
         // 管理员通过的时候需要处理2分论文的情况，还要计算student的活动总分
-        if (state.equals("adm_pass")) {
+        if ("adm_pass".equals(state)) {
             Integer stuID = paper.getStudentId();
+            // TODO:这里获取分数应该是写错了，需要重写这个方法，因为paper表本身是不存储这个分数的
             Integer score = paper.getPoint();
-
-            if (score == 2) { // 2分的时候检查是否已经发表过2分的论文
-                if (paperMapper.checkScore(stuID) != null) { // 已经发表过2分论文,将该论文的have_score设置为0
-                    return paperMapper.editState2(state, ID, 0);
+            // 2分的时候检查是否已经发表过2分的论文
+            // 已经发表过2分论文,将该论文的have_score设置为0
+            // 若这2分论文没有发表过，将该论文的have_score设置为1，可是判断没有必要
+            if (score == 2) {
+                if (paperMapper.checkHaveScore(stuID) != null) {
+                    return paperMapper.editState2(state, id, 0);
                 } else {
-                    paperMapper.editState2(state, ID, 1);
+                    paperMapper.editState2(state, id, 1);
                     return paperMapper.updateScore(stuID, score);
                 }
             }
             paperMapper.updateScore(stuID, score);
         }
-        return paperMapper.editState(state, ID);
+        return paperMapper.editState(state, id);
     }
 }

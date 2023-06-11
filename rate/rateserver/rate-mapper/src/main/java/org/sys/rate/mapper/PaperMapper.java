@@ -19,7 +19,7 @@ public interface PaperMapper {
     /**
      * 通过ID获取Paper
      *
-     * @param id
+     * @param id 主键
      * @return
      */
     @Select("select id, name, student_id, date, author, state, url, have_score, pub_page, publication_id from i_paper where id = #{id}")
@@ -43,38 +43,73 @@ public interface PaperMapper {
 
     /**
      * 批量删除paper
+     *
      * @param ids: paper的主键
      * @Return int
      */
     int deletePaperByIds(List<Integer> ids);
 
-    public int editState(String state, Integer ID);
     /**
-     * 删除论文成果
+     * 修改paper的状态
      *
-     * @param ID 论文成果ID
-     * @return 结果
+     * @param state:
+     * @param id:
+     * @Return int
      */
-    public int deletePaperById(Long ID);
+    int editState(String state, Integer id);
+
+    /**
+     * 分页返回该生的paper
+     *
+     * @param studentID:
+     * @param page:
+     * @param size:
+     * @Return List<Paper>
+     */
+    List<Paper> selectListByIdWithPaging(@Param("studentID") Integer studentID, @Param("page") Integer page, @Param("size") Integer size);
+
+    /**
+     * 根据学号返回该生的paper
+     * @param studentID:
+     * @Return List<Paper>
+     */
+    @Select("select * from i_paper where student_id = #{studentID}")
+    List<Paper> selectListById(Integer studentID);
+
+    /**
+     * 返回某学生已经被管理员通过的2分论文的主键，目的是判断该生是否已经提交过2分的论文
+     * 1. 通过paper的state和student_id来确定paper的主键id
+     * 2. 通过paper的id找到paper的publication_id
+     * 3. 通过publication_id和paper.date在中间表中获取所有对应的indicator_id
+     * 4. 通过score=2来筛选出唯一的indicator_id
+     * @param stuID:
+     * @Return Integer
+     */
+    @Select("SELECT p.id FROM i_paper p JOIN indicator_publication ip ON p.publication_id = ip.publication_id " +
+            "WHERE p.state = 'admin_pass' AND p.student_id = #{stuID}  AND ip.flag = 0 AND YEAR(ip.date) = YEAR(p.date) " +
+            "AND EXISTS(SELECT i.id FROM indicator i WHERE i.id = ip.indicator_id AND i.score = 2)")
+    Integer checkHaveScore(Integer stuID);
 
 
+    /**
+     * 修改2分的论文状态
+     *
+     * @param state:
+     * @param id:
+     * @param valid:
+     * @Return Integer
+     */
+    @Update("UPDATE i_paper SET state = #{state}, have_score = #{valid} WHERE id = #{id}")
+    Integer editState2(String state, Integer id, Integer valid);
 
-    public List<Paper> selectList();
+    /**
+     * 更新研究生表的分数
+     * @param stuID:
+     * @param score:
+     * @Return int
+     */
+    @Update("UPDATE graduatestudent SET point = point + #{score} WHERE studentID = #{stuID}")
+    int updateScore(int stuID, int score);
 
-    public List<Paper> selectListById(@Param("studentID") Integer studentID, @Param("page") Integer page, @Param("size") Integer size);
 
-    public List<Paper> selectListByIds(@Param("studentID") Integer studentID);
-
-
-    @Select("SELECT ID FROM paper WHERE studentID = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
-    public Integer checkScore(int stuID);
-
-    @Update("UPDATE paper SET state = #{state},have_score = #{valid} WHERE ID = #{ID}")
-    public Integer editState2(String state, int ID, Integer valid);
-
-    @Update("UPDATE student SET score = score + #{score} WHERE ID = #{stuID}")
-    public int updateScore(int stuID, int score);
-
-    @Select("SELECT * FROM paper WHERE  ID = #{ID}")
-    public Paper selectByID(int ID);
 }
