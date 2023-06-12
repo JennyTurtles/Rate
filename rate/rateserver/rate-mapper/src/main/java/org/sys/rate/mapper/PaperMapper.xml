@@ -10,18 +10,22 @@
         <result property="name" column="name"/>
         <result property="date" column="date"/>
         <result property="author" column="author"/>
-        <result property="have_score" column="have_score"/>
         <result property="publicationId" column="publication_id"/>
         <result property="url" column="url"/>
         <result property="state" column="state"/>
         <result property="pubPage" column="pubPage"/>
         <result property="publicationId" column="publication_id"/>
-        <!--        <collection property="paperoperList" ofType="org.sys.rate.model.PaperOper">-->
-        <!--            <result property="remark" column="remark"/>-->
-        <!--            <result property="operatorRole" column="operatorRole"/>-->
-        <!--            <result property="operation" column="operation"/>-->
-        <!--            <result property="time" column="time"/>-->
-        <!--        </collection>-->
+<!--        <collection property="operationList" ofType="org.sys.rate.model.Operation">-->
+<!--            <result property="operatorRole" column="remark"/>-->
+<!--            <result property="operatorId" column="operatorRole"/>-->
+<!--            <result property="operatorName" column="operation"/>-->
+<!--            <result property="prodType" column="time"/>-->
+<!--            <result property="prodId" column="time"/>-->
+<!--            <result property="date" column="time"/>-->
+<!--            <result property="operatorName" column="time"/>-->
+<!--            <result property="state" column="time"/>-->
+<!--            <result property="remark" column="time"/>-->
+<!--        </collection>-->
     </resultMap>
 
     <sql id="selectPaperVo">
@@ -92,7 +96,7 @@
     <update id="editState" parameterType="org.sys.rate.model.Paper">
         update i_paper
         <set>
-            <if test="state != null and state != '' "> state=#{state} </if>
+            <if test="state != null and state != '' ">state=#{state}</if>
         </set>
         where id = #{id}
     </update>
@@ -107,8 +111,6 @@
             </if>
         </where>
     </select>
-
-
 
 
 </mapper>
