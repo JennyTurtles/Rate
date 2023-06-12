@@ -1,5 +1,6 @@
 package org.sys.rate.service.mail;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,6 +19,7 @@ import java.util.Properties;
 
 @Service
 @Transactional
+@Slf4j
 public class MailService {
     @Resource
     private JdbcTemplate jdbcTemplate;
@@ -30,7 +32,6 @@ public class MailService {
     private String SMTPHost;
 
     private Map<String, Object> cachedMail;
-    private static final Logger logger = LoggerFactory.getLogger(MailService.class);
 
     public String getSMTPHost() {
         return SMTPHost;
@@ -80,7 +81,7 @@ public class MailService {
         setIMAPVerifyCode((String) cachedMail.get("IMAPVerifyCode"));
         setIMAPHost((String) cachedMail.get("IMAPHost"));
         setSMTPHost((String) cachedMail.get("SMTPHost"));
-        logger.info("更新了超级管理员的邮箱信息！" + getEmailAddress());
+        //log.info("更新了超级管理员的邮箱信息！" + getEmailAddress());
     }
 
     public boolean updateMail(Mail mail) throws MessagingException {

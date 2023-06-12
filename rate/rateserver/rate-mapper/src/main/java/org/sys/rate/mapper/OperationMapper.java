@@ -13,7 +13,7 @@ public interface OperationMapper {
      * @param oper:
      * @Return int
      */
-    int insertOper(Operation oper);
+    Integer insertOper(Operation oper);
 
     /**
      * 按照成果类型和成果id来查找对应的历史操作

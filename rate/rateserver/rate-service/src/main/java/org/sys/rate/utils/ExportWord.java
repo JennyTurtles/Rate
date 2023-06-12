@@ -29,7 +29,7 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class ExportWord {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);
-    private static final String TEMPLATE_PATH = "src/main/resources/templete/GradingTable.docx";
+    private static final String TEMPLATE_PATH = "rate/rateserver/rate-web/src/main/resources/templete/GradingTable.docx";
     private static final SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
     private static final SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
     private static final SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
@@ -49,8 +49,8 @@ public class ExportWord {
     }
 
     private boolean checkIfNecessaryFilesAndDirectoriesExist() {
-        File file10 = new File(TEMPLATE_PATH);
-        if (!file10.exists()) {
+        File file = new File(TEMPLATE_PATH);
+        if (!file.exists()) {
             logger.error("模版文件 " + TEMPLATE_PATH + " 不存在！！！");
             return false;
         }

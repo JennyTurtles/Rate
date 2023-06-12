@@ -1,5 +1,6 @@
 package org.sys.rate.service.mail;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.sys.rate.service.admin.TeacherService;
 
 import javax.annotation.Resource;
 
+@Slf4j
 @Service
 public class MailToStuService {
     @Resource
@@ -21,9 +23,6 @@ public class MailToStuService {
 
     @Resource
     TeacherService teacherService;
-
-    private static final Logger logger = LoggerFactory.getLogger(MailToStuService.class);
-
 
     private String from = null;
 
