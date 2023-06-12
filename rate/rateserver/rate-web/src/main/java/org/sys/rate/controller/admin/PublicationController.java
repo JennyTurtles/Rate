@@ -1,8 +1,11 @@
 package org.sys.rate.controller.admin;
 
+import com.baomidou.mybatisplus.extension.api.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.IndicatorMapper;
+import org.sys.rate.mapper.PaperMapper;
 import org.sys.rate.mapper.PublicationMapper;
 
 import org.sys.rate.model.Publication;
@@ -11,6 +14,7 @@ import org.sys.rate.service.admin.PublicationService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -21,133 +25,103 @@ import java.util.List;
  * @date 2022-03-13
  */
 @RestController
-public class PublicationController
-{
-
-    @Autowired
+public class PublicationController {
+    @Resource
     private PublicationService publicationService;
 
     @Resource
     private PublicationMapper publicationMapper;
 
-    @GetMapping("/publication/basic/List")
-    public JsonResult<List> getCollect(){
-//        不传递参数 查找所有刊物
-        List<Publication> publications = publicationService.selectList();
-        List<Long> scores = new ArrayList<>();
-        for (Publication publication : publications)
-            scores.add(publicationService.selectScoreById(publication.getIndicatorId()));
-        List<Object> res = new ArrayList<>();
-        res.add(publications);
-        res.add(scores);
-        return new JsonResult<>(res);
-    }
+    @Resource
+    private PaperMapper paperMapper;
 
-    @GetMapping("/publication/basic/listByName")
-    public JsonResult listByName(String publicationName){
-        List<Publication> list = publicationService.selectPublicationListByName(publicationName);
-//        System.out.println(list.get(0).getIndicator().getScore());
-        return new JsonResult(list);
-    }
+    @Resource
+    private IndicatorMapper indicatorMapper;
+
     /**
-     * 查询刊物列表
+     * 模糊查询相关期刊，返回期刊的全称
+     * @param publicationName:
+     * @Return RespBean
      */
-    @PostMapping("/publication/basic/list")
-    @ResponseBody
-    public JsonResult list(Publication publication)
-    {
-//        按照特定参数查找
-        List<Publication> list = publicationService.selectPublicationList(publication);
-        return new JsonResult(list);
-    }
-
-    // 按照相同年份和名称进行匹配
-//    @GetMapping("/list/{year}")
-//    public JsonResult listByYear(@PathVariable Integer year){
-//        return new JsonResult(publicationService.selectPublicationListByYear(year));
-//    }
-
-    // 2.14 功能4
-    // 按照indicatorId进行分类，每类中对年份进行筛选，取小于目标年份且最大的年份的所有期刊
-    @GetMapping("/publication/basic/list/{year}")
-    public JsonResult listByYear(@PathVariable Integer year){
-        return new JsonResult(publicationService.selectPublicationListByYear(year));
+    @GetMapping("/publication/basic/listByName")
+    public RespBean listByName(String publicationName) {
+        List<String> list = publicationService.selectPublicationListByName(publicationName);
+        return RespBean.ok("模糊查询相关期刊", list);
     }
 
     /**
      * 新增保存刊物
      */
     @PostMapping("/publication/basic/add")
-    @ResponseBody
-    public JsonResult addSave(Publication publication)
-    {
-        return new JsonResult(publicationService.insertPublication(publication));
+    public RespBean addSave(Publication publication) {
+        publicationService.insertPublication(publication);
+        return RespBean.ok("添加期刊成功！");
     }
-
 
     /**
      * 修改保存刊物
      */
     @PostMapping("/publication/basic/edit")
-    @ResponseBody
-    public JsonResult editSave(Publication publication)
-    {
-        return new JsonResult(publicationService.updatePublication(publication));
+    public RespBean editSave(Publication publication) {
+        return RespBean.ok("插入期刊成功", publicationService.updatePublication(publication));
     }
 
     /**
      * 删除刊物
      */
-    @PostMapping( "/publication/basic/remove")
-    @ResponseBody
-    public JsonResult remove(Long ids)
-    {
-        return new JsonResult(publicationService.deletePublicationById(ids));
+    @PostMapping("/publication/basic/remove")
+    public RespBean deletePublicationById(Integer ids) {
+        return RespBean.ok("删除期刊成功！",publicationService.deletePublicationById(Collections.singletonList(ids)));
     }
 
-    // 文档2.14 功能1 用部分名字搜全称 -> 文档2.21 功能5 PART1
-    @PostMapping("/publication/getInfByNameYear")
-    @ResponseBody
-    public RespBean getNamesByNameYear(@RequestBody Publication publication){
-        Integer year = publication.getDate().getYear(); // 待修改
-        String name = publication.getName();
-//        Integer stuId = Math.toIntExact(publication.getID());
-        List<Publication> res = publicationMapper.getNamesByNameYear(name,year);
+    /**
+     * 通过期刊姓名进行模糊查找
+     * @param name:
+     * @Return RespBean
+     */
+    @GetMapping("/publication/basic/searchByName/{name}")
+    public RespBean getPubsByName(@PathVariable String name){
+        List<String> res = publicationService.selectPublicationListByName(name);
         return RespBean.ok("success",res);
     }
 
+    /**
+     * 通过全称和year进行最佳搜索
+     * @param year:
+     * @param name:
+     * @Return RespBean
+     */
+    @PostMapping("/publication/getInfByNameYear")
+    public RespBean getPublicationNamesByNameYear(@RequestParam Integer year, @RequestParam String name) {
+        Publication res = publicationMapper.getPublicationByNameYear(name, year);
+        return RespBean.ok("success", res);
+    }
+
+    /**
+     * 搜索2分论文，返回2分论文的主键
+     * @param stuId:
+     */
     @GetMapping("/publication/checkScore/{stuId}")
-    @ResponseBody
-    public RespBean checkScore(@PathVariable Integer stuId){
-        Integer id = publicationMapper.checkScore(stuId);
-        if (id == null){
-            return RespBean.ok("success",-1);
-        }else // 已经获得了2分的论文指标点，返回paper的id
-            return RespBean.ok("success",id);
+    public RespBean checkScore(@PathVariable Integer stuId) {
+        Integer id = paperMapper.checkHaveScore(stuId);
+        if (id == null) {
+            return RespBean.ok("success", -1);
+        } else {
+            return RespBean.ok("success", id);
+        }
     }
 
-    // 文档2.21 功能5 PART2
+    /**
+     * 返回指标点的分数
+     * @param id: 指标点的主键
+     * @Return RespBean
+     */
     @GetMapping("/publication/getScore/{id}")
-    @ResponseBody
-    public RespBean getScore(@PathVariable Integer id){
-        Integer score = publicationMapper.getScore(id);
-        return score != null ? RespBean.ok("success",score) : RespBean.ok("fail!",0);
+    public RespBean getScore(@PathVariable Integer id) {
+        Integer score = indicatorMapper.getScore(id);
+        return score != null ? RespBean.ok("success", score) : RespBean.ok("fail!", 0);
     }
 
-//    // 文档2.14 功能2
-//    @PostMapping("/publication/basic/searchByYearName")
-//    @ResponseBody
-//    public RespBean getPubByYearName(@RequestBody Publication publication){
-//        Integer year = publication.getYear();
-//        String name = publication.getName();
-//        Publication p = publicationMapper.getPubByYearName(year,name); //year和name匹配的pub // 问题
-//        Integer year1 = p.getYear();
-//        Integer indicatorId = Math.toIntExact(p.getIndicatorID());
-//        Integer year2 = publicationMapper.getMaxYearByIdYear(indicatorId,year); //当前indicator中最大的year
-//        if (year1 < year2)
-//            p.setScore(0);
-//        return RespBean.ok("success",p);
-//    }
 
     // 文档2.14 功能6 -> 2.21 功能1
     // 待修改
@@ -173,21 +147,17 @@ public class PublicationController
     //    return RespBean.ok("success",res);
     //}
 
-    //文档2.14 功能8 用部分名字搜全称 -> 2.21 功能4
+    /**
+     * 根据期刊全称获取期刊在数据库中的详细信息。
+     * @param name:
+     * @Return RespBean
+     */
     @GetMapping("/publication/getInf/{name}")
-    @ResponseBody
-    public RespBean getInfByName(@PathVariable("name") String name){
-
-        List<Publication> res = publicationMapper.getInfByName(name);
-        return RespBean.ok("success",res);
+    public RespBean getInfByName(@PathVariable("name") String name) {
+        List<Publication> res = publicationMapper.getPublicationInfByName(name);
+        return RespBean.ok("success", res);
     }
 
-//    // 文档2.14 功能8 用部分名字搜全称
-//    @GetMapping("/publication/basic/searchByName/{name}")
-//    @ResponseBody
-//    public RespBean getPubsByName(@PathVariable String name){
-//        List<Publication> res = publicationMapper.getPubsByName(name);
-//        return RespBean.ok("success",res);
-//    }
+
 
 }

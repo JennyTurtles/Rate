@@ -78,15 +78,12 @@ public interface PaperMapper {
 
     /**
      * 返回某学生已经被管理员通过的2分论文的主键，目的是判断该生是否已经提交过2分的论文
-     * 1. 通过paper的state和student_id来确定paper的主键id
-     * 2. 通过paper的id找到paper的publication_id
-     * 3. 通过publication_id和paper.date在中间表中获取所有对应的indicator_id
-     * 4. 通过score=2来筛选出唯一的indicator_id
+     * 这里的问题是：p.state我觉得应该只有adm_pass，因为只有当adm_pass时才能获得分数。
      * @param stuID:
      * @Return Integer
      */
     @Select("SELECT p.id FROM i_paper p JOIN indicator_publication ip ON p.publication_id = ip.publication_id " +
-            "WHERE p.state = 'admin_pass' AND p.student_id = #{stuID}  AND ip.flag = 0 AND YEAR(ip.date) = YEAR(p.date) " +
+            "WHERE p.state ='adm_pass' AND p.student_id = #{stuID} AND ip.flag = 0 AND YEAR(ip.date) = YEAR(p.date) " +
             "AND EXISTS(SELECT i.id FROM indicator i WHERE i.id = ip.indicator_id AND i.score = 2)")
     Integer checkHaveScore(Integer stuID);
 

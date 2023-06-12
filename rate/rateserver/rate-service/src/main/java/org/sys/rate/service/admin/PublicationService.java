@@ -1,17 +1,19 @@
 package org.sys.rate.service.admin;
 
 import org.apache.ibatis.annotations.Param;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.PublicationMapper;
+import org.sys.rate.model.Indicator;
 import org.sys.rate.model.Publication;
 
+import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
 
 @Service
 public class PublicationService {
 
-    @Autowired
+    @Resource
     private PublicationMapper publicationMapper;
 
     /**
@@ -20,26 +22,18 @@ public class PublicationService {
      * @param ID 刊物ID
      * @return 刊物
      */
-    public Publication selectPublicationById(Long ID){
-       return publicationMapper.selectPublicationById(ID);
+    public Publication selectPublicationById(Integer id) {
+        return publicationMapper.selectPublicationById(id);
     }
 
     /**
-     * 查询刊物列表
+     * 模糊查询期刊，获取相关期刊全称
      *
-     * @param publication 刊物
-     * @return 刊物集合
+     * @param publicationName:
+     * @Return List<String>
      */
-    public List<Publication> selectPublicationList(Publication publication){
-        return publicationMapper.selectPublicationList(publication);
-    }
-
-    //模糊查询 返回pub
-    public List<Publication> selectPublicationListByName(@Param("publicationName") String publicationName){
-        List<Publication> res=publicationMapper.selectListByPubName(publicationName);
-//        List<String> res=paperMapper.selectListByPubName(publicationName);
-//        System.out.println("res:");
-//        System.out.println(res);
+    public List<String> selectPublicationListByName(@Param("publicationName") String publicationName) {
+        List<String> res = publicationMapper.getPublicationNamesByName(publicationName);
         return res;
     }
 
@@ -49,8 +43,11 @@ public class PublicationService {
      * @param publication 刊物
      * @return 结果
      */
-    public int insertPublication(Publication publication){
-        return publicationMapper.insertPublication(publication);
+    public void insertPublication(Publication publication) {
+        publicationMapper.insertPublication(publication);
+        for (int i = 0; i < publication.getIndicatorList().size(); ++i) {
+            publicationMapper.insertIndicatorPublication(publication.getIndicatorList().get(i).getId(), publication.getId(), publication.getDateList().get(i));
+        }
     }
 
     /**
@@ -59,7 +56,7 @@ public class PublicationService {
      * @param publication 刊物
      * @return 结果
      */
-    public int updatePublication(Publication publication){
+    public Integer updatePublication(Publication publication) {
         return publicationMapper.updatePublication(publication);
     }
 
@@ -69,22 +66,8 @@ public class PublicationService {
      * @param ID 刊物ID
      * @return 结果
      */
-    public int deletePublicationById(Long ID){
-        return publicationMapper.deletePublicationById(ID);
+    public Integer deletePublicationById(List<Integer> ids) {
+        return publicationMapper.deletePublicationByIds(ids);
     }
 
-    public List<Publication> selectList(){
-        return publicationMapper.selectList();
-    }
-
-    public Long selectScoreById(long id)
-    {
-        return publicationMapper.selectScoreById(id);
-    }
-
-    public Publication selectPublicationByNameYear(String name, Integer year){return publicationMapper.selectPublicationByNameYear(name,year);}
-
-    public List<Publication> selectPublicationListByYear(Integer year){
-        return publicationMapper.selectPublicationByYear(year);
-    }
 }

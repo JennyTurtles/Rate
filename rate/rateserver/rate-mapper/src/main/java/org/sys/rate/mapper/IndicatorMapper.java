@@ -7,6 +7,14 @@ import java.util.List;
 
 @Mapper
 public interface IndicatorMapper{
+    /**
+     * 获取indicator的分数
+     * @param id:
+     * @Return Integer
+     */
+    @Select("SELECT score FROM indicator WHERE id = #{id}")
+    Integer getScore(Integer id);
+
     @Select("select * from indicator")
     public List<Indicator> getAll();
 
