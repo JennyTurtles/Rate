@@ -18,31 +18,31 @@ public interface IndicatorMapper{
     @Select("select * from indicator")
     public List<Indicator> getAll();
 
-    @Select("select `order` from indicator where ID = #{id}")
+    @Select("select `order` from indicator where id = #{id}")
     public String selectOrder(Integer id);
 
-    @Insert("insert into indicator values(#{ID},#{name},#{type},#{order},#{score},#{father})")
+    @Insert("insert into indicator values(#{id},#{name},#{type},#{order},#{score},#{father})")
     public int save(Indicator indicator);
 
     //需要获取被删除记录的order,并调整其他记录的order（难点）,通过sql语句来实现有些困难，因此采用java来进行逻辑判断并Update
-    @Delete("delete from indicator where ID = #{id}")
+    @Delete("delete from indicator where id = #{id}")
     public int delete(Integer id);
 
-    @Update("update indicator set name = #{name} where ID = #{ID}")
+    @Update("update indicator set name = #{name} where id = #{id}")
     public int update(Indicator indicator);
 
-    @Update("update indicator set `order` = #{order} where ID = #{ID}")
+    @Update("update indicator set `order` = #{order} where id = #{id}")
     public int updateOrder(Indicator indicator);
 
-    @Update("update indicator set type = #{type} where ID = #{ID}")
+    @Update("update indicator set type = #{type} where id = #{id}")
     public int updateType(Indicator indicator);
 
-    @Update("update indicator set name = #{name}, score = #{score} where ID = #{ID}")
+    @Update("update indicator set name = #{name}, score = #{score} where id = #{id}")
     public int updateScoreName(Indicator indicator);
 
-    @Update("update indicator set type = #{type},`order` = #{order}, score = #{score}, father = #{father} where ID = #{ID}")
+    @Update("update indicator set type = #{type},`order` = #{order}, score = #{score}, father = #{father} where id = #{id}")
     public int updateAllField(Indicator indicator);
 
-    @Select("select score from indicator where ID = #{id}")
+    @Select("select score from indicator where id = #{id}")
     public Integer selectScoreById(Integer id);
 }
