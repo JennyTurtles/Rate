@@ -6,6 +6,8 @@ import qs from 'qs';
 
 axios.interceptors.response.use(success => {  //
     if (success.status && success.status == 200 && success.data.status == 500) {
+        if (success.data.msg === '该数据有关联数据，操作失败!')
+            return
         Message.error({message: success.data.msg})
         return;
     }

@@ -1237,8 +1237,10 @@ export default {
                             type: "warning",
                         }
                     ).then(() => {
+                     data.requireGroup = data.requireGroup ? 1 : 0
                         this.postRequest("/activities/basic/predelete", data).then((resp) => {
-                            if (resp) {
+                            if (resp.status === 200) {
+                             this.$message({type: 'success',message: '删除成功!'});
                                 this.dialogVisible = false;
                                 this.initEmps();
                             }

@@ -731,6 +731,8 @@ export default {
     initEmps() {
       this.loading = true;
       this.role = JSON.parse(localStorage.getItem('user')).role
+      if (this.role === 13 || this.role === 14)
+       this.role = 1
       let url = "/paper/basic/List";
       this.getRequest(url).then((resp) => {
         this.loading = false;
