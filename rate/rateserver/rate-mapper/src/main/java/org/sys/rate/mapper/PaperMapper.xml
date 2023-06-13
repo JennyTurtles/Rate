@@ -5,17 +5,30 @@
 <mapper namespace="org.sys.rate.mapper.PaperMapper">
 
     <resultMap type="org.sys.rate.model.Paper" id="PaperResult">
-        <id property="id" column="id" jdbcType="INTEGER"/>
-        <result property="studentId" column="student_id"/>
+        <id property="ID" column="ID" jdbcType="INTEGER"/>
+        <result property="studentID" column="studentID"/>
         <result property="name" column="name"/>
-        <result property="date" column="date"/>
+        <result property="year" column="year"/>
+        <result property="month" column="month"/>
         <result property="author" column="author"/>
-        <result property="publicationId" column="publication_id"/>
+        <result property="rank" column="rank"/>
+        <result property="total" column="total"/>
+        <result property="point" column="point"/>
+        <result property="have_score" column="have_score"/>
+        <result property="publicationID" column="publicationID"/>
         <result property="url" column="url"/>
         <result property="state" column="state"/>
         <result property="pubPage" column="pubPage"/>
-        <result property="publicationId" column="publication_id"/>
-        <collection property="operationList" ofType="org.sys.rate.model.Operation">
+        <result property="pubName" column="pubName"/>
+        <association property="student" javaType="org.sys.rate.model.Student">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="sname" column="sname"/>
+        </association>
+        <association property="publication" javaType="org.sys.rate.model.Publication">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="pname"/>
+        </association>
+        <collection property="paperoperList" ofType="org.sys.rate.model.Operation">
             <result property="operatorRole" column="operator_role"/>
             <result property="operatorId" column="operator_id"/>
             <result property="operatorName" column="operator_name"/>
@@ -29,91 +42,56 @@
     </resultMap>
 
     <sql id="selectPaperVo">
-        select id,
+        select ID,
+               studentID,
                name,
-               student_id,
-               date,
-               author,
-               state,
+               year,
+               month,
+               `rank`,
+               total,
+               point,
+               publicationID,
                url,
-               have_score,
-               pub_page,
-               publication_id
-        from i_paper
+               state,
+               pubPage
+        from paper
     </sql>
 
-    <select id="getById" resultMap="PaperResult">
-        SELECT
-            p.id, p.name, p.student_id, p.date, p.author, p.state, p.url,
-            p.have_score, p.pub_page, p.publication_id,
-            o.operator_role, o.operator_id, o.operator_name,
-            o.prod_type, o.prod_id, o.date AS operation_date, o.operation_name, o.state AS operation_state, o.remark AS operation_remark
-        FROM i_paper p
-                 LEFT JOIN i_oper o ON p.id = o.prod_id AND o.prod_type = '学术论文'
-        WHERE p.id = #{id}
+    <select id="selectList" resultMap="PaperResult">
+        -- 老师查询所有学生的论文
+        SELECT p.ID,
+               p.studentID,
+               p.NAME,
+               p.point,
+               p.publicationID,
+               p.state,
+               p.pubPage,
+               p.rank,
+               p.total,
+               p.YEAR,
+               p.MONTH,
+               p.author,
+               p.url,
+               p.have_score,
+               s.NAME   AS sname,
+               pub.NAME AS pname,
+               paperoper.operator_role,
+               paperoper.operator_id,
+               paperoper.operator_name,
+               paperoper.prod_type,
+               paperoper.prod_id,
+               paperoper.date,
+               paperoper.operation_name,
+               paperoper.state,
+               paperoper.remark
+        FROM paper p
+                 LEFT JOIN student s ON p.studentID = s.ID
+                 LEFT JOIN i_publication pub ON p.publicationID = pub.id
+                 LEFT JOIN i_oper paperoper ON p.ID = paperoper.prod_id and paperoper.prod_type = '学术论文'
+
     </select>
 
-    <insert id="insertPaper" parameterType="org.sys.rate.model.Paper" useGeneratedKeys="true" keyProperty="id">
-        insert into i_paper
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">id,</if>
-            <if test="name != null and name != ''">name,</if>
-            <if test="studentId != null">student_id,</if>
-            <if test="date != null">date</if>
-            <if test="author != null">author,</if>
-            <if test="state != null">state,</if>
-            <if test="url != null">url,</if>
-            <if test="haveScore != null">have_score,</if>
-            <if test="pubPage != null">pub_page</if>
-            <if test="publicationId != null">publication_id,</if>
-        </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">#{id},</if>
-            <if test="name != null and name != ''">#{name},</if>
-            <if test="studentId != null">#{studentId},</if>
-            <if test="date != null">#{date}</if>
-            <if test="author != null">#{author},</if>
-            <if test="state != null">#{state},</if>
-            <if test="url != null">#{url},</if>
-            <if test="haveScore != null">#{haveScore}</if>
-            <if test="pubPage != null">#{pubPage}</if>
-            <if test="publicationId != null">#{publicationId},</if>
-        </trim>
-    </insert>
-
-    <update id="updatePaper" parameterType="org.sys.rate.model.Paper">
-        update i_paper
-        <trim prefix="SET" suffixOverrides=",">
-            <if test="name != null and name != ''">name = #{name},</if>
-            <if test="studentID != null">student_id = #{studentID},</if>
-            <if test="date != null">date = #{date},</if>
-            <if test="author != null">author = #{author},</if>
-            <if test="state != null">state=#{state},</if>
-            <if test="url != null">url=#{url},</if>
-            <if test="haveScore != null">have_score=#{haveScore}</if>
-            <if test="pubPage != null">pub_page=#{pubPage},</if>
-            <if test="publicationID != null">publication_id = #{publicationId},</if>
-        </trim>
-        where id = #{id}
-    </update>
-
-    <delete id="deletePaperByIds">
-        delete from i_paper where id in
-        <foreach collection="ids" item="id" open="(" separator="," close=")">
-            #{id}
-        </foreach>
-    </delete>
-
-    <update id="editState" parameterType="org.sys.rate.model.Paper">
-        update i_paper
-        <set>
-            <if test="state != null and state != '' ">state=#{state}</if>
-        </set>
-        where id = #{id}
-    </update>
-
-
-    <select id="selectListByIdWithPaging" resultMap="PaperResult">
+    <select id="selectListById" resultMap="PaperResult">
         <include refid="selectPaperVo"></include>
         <where>
             <if test="studentID != null  and studentID != ''">and studentID = #{studentID}</if>
@@ -123,5 +101,142 @@
         </where>
     </select>
 
+    <select id="selectListByIds" resultMap="PaperResult" parameterType="Integer">
+        select p.ID,
+               p.studentID,
+               p.name,
+               p.point,
+               p.publicationID,
+               p.rank,
+               p.total,
+               p.year,
+               p.month,
+               p.point,
+               p.author,
+               p.pubPage,
+               p.url,
+               p.state,
+               pub.name as pname,
+               p.have_score,
+               paperoper.operator_role,
+               paperoper.operator_id,
+               paperoper.operator_name,
+               paperoper.prod_type,
+               paperoper.prod_id,
+               paperoper.date,
+               paperoper.operation_name,
+               paperoper.state,
+               paperoper.remark
+        from paper p,
+             student s,
+             i_publication pub,
+             i_oper paperoper
+        where p.studentID = #{studentID}
+          and p.publicationID = pub.id
+          and p.ID = paperoper.id
+          and paperoper.prod_type = '学术论文'
+
+    </select>
+
+    <select id="selectPaperList" parameterType="org.sys.rate.model.Paper" resultMap="PaperResult">
+        <include refid="selectPaperVo"/>
+        <where>
+            <if test="ID !=null and ID !=''">and ID =#{ID}</if>
+            <if test="studentID != null ">and studentID = #{studentID}</if>
+            <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
+            <if test="year != null  and year != ''">and year = #{year}</if>
+            <if test="month != null ">and month = #{month}</if>
+            <if test="`rank` != null ">and `rank` = #{rank}</if>
+            <if test="total != null ">and total = #{total}</if>
+            <if test="point != null ">and point = #{point}</if>
+            <if test="publicationID != null ">and publicationID = #{publicationID}</if>
+            <if test="url != null ">and url = #{url}</if>
+        </where>
+    </select>
+
+    <select id="selectPaperById" parameterType="Long" resultMap="PaperResult">
+        <include refid="selectPaperVo"/>
+        where ID = #{ID}
+    </select>
+
+    <insert id="insertPaper" parameterType="org.sys.rate.model.Paper" useGeneratedKeys="true" keyProperty="ID">
+        insert into paper
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ID != null">ID,</if>
+            <if test="studentID != null">studentID,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="year != null">year,</if>
+            <if test="month != null">month,</if>
+            <if test="author != null">author,</if>
+            <if test="`rank` != null">`rank`,</if>
+            <if test="total != null">total,</if>
+            <if test="point != null">point,</if>
+            <if test="publicationID != null">publicationID,</if>
+            <!--<if test="content != null">content,</if>-->
+            <if test="state != null">state,</if>
+            <if test="pubPage != null">pubPage,</if>
+            <if test="url != null">url,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ID != null">#{ID},</if>
+            <if test="studentID != null">#{studentID},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="year != null">#{year},</if>
+            <if test="month != null">#{month},</if>
+            <if test="author != null">#{author},</if>
+            <if test="`rank` != null">#{rank},</if>
+            <if test="total != null">#{total},</if>
+            <if test="point != null">#{point},</if>
+            <if test="publicationID != null">#{publicationID},</if>
+            <!--<if test="content != null">#{content},</if>-->
+            <if test="state != null">#{state},</if>
+            <if test="pubPage != null">#{pubPage},</if>
+            <if test="url != null">#{url},</if>
+        </trim>
+        <!--            <selectKey order="AFTER" resultType="Long" keyProperty="ID">-->
+        <!--                SELECT LAST_INSERT_ID()-->
+        <!--            </selectKey>-->
+    </insert>
+
+    <update id="updatePaper" parameterType="org.sys.rate.model.Paper">
+        update paper
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="studentID != null">studentID = #{studentID},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="year != null">year = #{year},</if>
+            <if test="month != null">month = #{month},</if>
+            <if test="author != null">author = #{author},</if>
+            <if test="`rank` != null">`rank` = #{rank},</if>
+            <if test="total != null">total = #{total},</if>
+            <if test="point != null">point = #{point},</if>
+            <if test="publicationID != null">publicationID = #{publicationID},</if>
+            <if test="state != null">state=#{state},</if>
+            <if test="pubPage != null">pubPage=#{pubPage},</if>
+            <if test="url != null">url=#{url},</if>
+        </trim>
+        where ID = #{ID}
+    </update>
+
+    <update id="editState" parameterType="org.sys.rate.model.Paper">
+        update paper
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null">state=#{state},</if>
+            <!--  <if test="reason != null">reason=#{reason},</if>-->
+            <!--            <if test="url != null">url=#{url},</if>-->
+        </trim>
+        where ID = #{ID}
+    </update>
+    <delete id="deletePaperById" parameterType="Long">
+        delete
+        from paper
+        where ID = #{ID}
+    </delete>
+
+    <delete id="deletePaperByIds" parameterType="String">
+        delete from paper where ID in
+        <foreach item="ID" collection="array" open="(" separator="," close=")">
+            #{ID}
+        </foreach>
+    </delete>
 
 </mapper>

@@ -10,7 +10,7 @@ import org.sys.rate.mapper.AdminMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.AdminService;
 import org.sys.rate.service.admin.RoleService;
-import org.sys.rate.service.mail.MailService;
+//import org.sys.rate.service.mail.MailService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -29,8 +29,8 @@ public class AdminController {
     AdminMapper adminMapper;
     @Resource
     ActivityGrantMapper activityGrantMapper;
-    @Resource
-    MailService mailService;
+    //@Resource
+    //MailService mailService;
 
     @GetMapping("/")
     public RespPageBean getAllAds(@RequestParam String keywords, @RequestParam Integer ID, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
@@ -44,15 +44,15 @@ public class AdminController {
 
     @PostMapping("/updateMail")
     public RespBean updateMail(@RequestBody Mail mail) throws MessagingException {
-        if (mailService.updateMail(mail)) {
-//            if(mailService.checkMail(mail)) {
-            if(true) {
-                mailService.setMail();
-                return RespBean.ok("更新成功!");
-            }else{
-                return RespBean.error("邮箱设置错误!请检查各项邮箱配置。");
-            }
-        }
+//        if (mailService.updateMail(mail)) {
+////            if(mailService.checkMail(mail)) {
+//            if(true) {
+//                mailService.setMail();
+//                return RespBean.ok("更新成功!");
+//            }else{
+//                return RespBean.error("邮箱设置错误!请检查各项邮箱配置。");
+//            }
+//        }
         return RespBean.error("更新失败!");
     }
 

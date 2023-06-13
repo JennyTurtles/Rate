@@ -15,97 +15,80 @@ import java.util.List;
  * @date 2022-03-13
  */
 @Mapper
-public interface PaperMapper {
+public interface PaperMapper
+{
     /**
      * 通过ID获取Paper
      *
-     * @param id 主键
+     * @param ID
      * @return
      */
-    Paper getById(Integer id);
+    @Select("select * from paper where ID = #{ID}")
+    Paper getById(Integer ID);
 
     /**
-     * 新增paper
+     * 查询论文成果
      *
-     * @param paper
-     * @return 新增paper的主键id
+     * @param ID 论文成果ID
+     * @return 论文成果
      */
-    int insertPaper(Paper paper);
+    public Paper selectPaperById(Long ID);
 
     /**
-     * 修改paper
+     * 查询论文成果列表
+     *
+     * @param paper 论文成果
+     * @return 论文成果集合
+     */
+    public List<Paper> selectPaperList(Paper paper);
+
+    /**
+     * 新增论文成果
      *
      * @param paper 论文成果
      * @return 结果
      */
-    int updatePaper(Paper paper);
+    public int insertPaper(Paper paper);
 
     /**
-     * 批量删除paper
+     * 修改论文成果
      *
-     * @param ids: paper的主键
-     * @Return int
+     * @param paper 论文成果
+     * @return 结果
      */
-    int deletePaperByIds(List<Integer> ids);
+    public int updatePaper(Paper paper);
 
+    public int editState(String state, Long ID);
     /**
-     * 修改paper的状态
+     * 删除论文成果
      *
-     * @param state:
-     * @param id:
-     * @Return int
+     * @param ID 论文成果ID
+     * @return 结果
      */
-    int editState(String state, Integer id);
+    public int deletePaperById(Long ID);
 
     /**
-     * 分页返回该生的paper
+     * 批量删除论文成果
      *
-     * @param studentID:
-     * @param page:
-     * @param size:
-     * @Return List<Paper>
+     * @param IDs 需要删除的数据ID
+     * @return 结果
      */
-    List<Paper> selectListByIdWithPaging(@Param("studentID") Integer studentID, @Param("page") Integer page, @Param("size") Integer size);
+    public int deletePaperByIds(String[] IDs);
 
-    /**
-     * 根据学号返回该生的paper
-     * @param studentID:
-     * @Return List<Paper>
-     */
-    @Select("select * from i_paper where student_id = #{studentID}")
-    List<Paper> selectListById(Integer studentID);
-
-    /**
-     * 返回某学生已经被管理员通过的2分论文的主键，目的是判断该生是否已经提交过2分的论文
-     * 这里的问题是：p.state我觉得应该只有adm_pass，因为只有当adm_pass时才能获得分数。
-     * @param stuID:
-     * @Return Integer
-     */
-    @Select("SELECT p.id FROM i_paper p JOIN indicator_publication ip ON p.publication_id = ip.publication_id " +
-            "WHERE p.state ='adm_pass' AND p.student_id = #{stuID} AND ip.flag = 0 AND YEAR(ip.date) = YEAR(p.date) " +
-            "AND EXISTS(SELECT i.id FROM indicator i WHERE i.id = ip.indicator_id AND i.score = 2)")
-    Integer checkHaveScore(Integer stuID);
+    public List<Paper> selectList();
+    public List<Paper> selectListById(@Param("studentID") Integer studentID, @Param("page") Integer page, @Param("size") Integer size);
+    public List<Paper> selectListByIds(@Param("studentID") Integer studentID);
 
 
-    /**
-     * 修改2分的论文状态
-     *
-     * @param state:
-     * @param id:
-     * @param valid:
-     * @Return Integer
-     */
-    @Update("UPDATE i_paper SET state = #{state}, have_score = #{valid} WHERE id = #{id}")
-    Integer editState2(String state, Integer id, Integer valid);
+    @Select("SELECT ID FROM paper WHERE studentID = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
+    public Integer checkScore(Long stuID);
 
-    /**
-     * 更新研究生表的分数
-     * @param stuID:
-     * @param score:
-     * @Return int
-     */
-    @Update("UPDATE graduatestudent SET point = point + #{score} WHERE studentID = #{stuID}")
-    int updateScore(int stuID, int score);
+    @Update("UPDATE paper SET state = #{state},have_score = #{valid} WHERE ID = #{ID}")
+    public Integer editState2(String state, Long ID, Integer valid);
 
+    @Update("UPDATE graduatestudent SET point = point + #{score} WHERE ID = #{stuID}")
+    public int updateScore(Long stuID,Long score);
 
+    @Select("SELECT * FROM paper WHERE  ID = #{ID}")
+    public Paper selectByID(Long ID);
 }

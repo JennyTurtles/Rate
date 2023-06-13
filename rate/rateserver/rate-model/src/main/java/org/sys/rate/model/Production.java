@@ -34,6 +34,12 @@ public class Production {
 
     List<Operation> operationList;
 
+    // 排名
+    Integer rank;
+
+    // 总人数
+    Integer total;
+
 }
 
 

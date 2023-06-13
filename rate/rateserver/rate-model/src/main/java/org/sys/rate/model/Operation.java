@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import java.sql.Timestamp;
+
 
 import java.util.Date;
 
@@ -25,9 +27,7 @@ public class Operation {
 
     private Integer prodId;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date date;
+    private Timestamp time;
 
     private String operationName;
 
