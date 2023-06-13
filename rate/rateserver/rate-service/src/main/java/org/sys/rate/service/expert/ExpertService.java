@@ -390,9 +390,9 @@ public class ExpertService implements UserDetailsService {
 		HashMap<Integer, String> Smap = new LinkedHashMap<>();
 		HashMap<Integer, String> SNotByEmap = new LinkedHashMap<>();
 		List<PEexport> data = null;
-		if(defination=="activityID")
+		if(Objects.equals(defination, "activityID"))
 			data=participatesMapper.getPartByGroupIdForPEexpert(activityID);
-		if(defination=="groupID")
+		if(Objects.equals(defination, "groupID"))
 			data=participatesMapper.getPartByGroupIdForPEexpertByGID(activityID);
 		HashMap<Integer,HashMap<Integer,HashMap<Integer,Participates>>> map = new LinkedHashMap<>();//ID,map(ExpertID,map(PID,P))
 		for(PEexport experts:data)//获得expert对应的participants和他们的分数

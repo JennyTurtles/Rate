@@ -106,7 +106,7 @@ public class POIUtils {
                     HSSFRow row = sheet.createRow(1+count);
                     row.createCell(0).setCellValue(hashPEexport.getGmap().get(s));//groupName
                     row.createCell(1).setCellValue(hashPEexport.getEmap().get(ss));//ExpertName
-                    row.createCell(2).setCellValue(p.getDisplaySequence());//display
+                    row.createCell(2).setCellValue(p.getDisplaySequence() == null ? 0:p.getDisplaySequence());//display
                     row.createCell(3).setCellValue(p.getCode());//code
                     row.createCell(4).setCellValue(p.getName());//name
                     HashMap<Integer, ScoreItemValue>  map=p.getScoremap();
