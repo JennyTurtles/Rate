@@ -15,17 +15,17 @@
         <result property="state" column="state"/>
         <result property="pubPage" column="pubPage"/>
         <result property="publicationId" column="publication_id"/>
-<!--        <collection property="operationList" ofType="org.sys.rate.model.Operation">-->
-<!--            <result property="operatorRole" column="remark"/>-->
-<!--            <result property="operatorId" column="operatorRole"/>-->
-<!--            <result property="operatorName" column="operation"/>-->
-<!--            <result property="prodType" column="time"/>-->
-<!--            <result property="prodId" column="time"/>-->
-<!--            <result property="date" column="time"/>-->
-<!--            <result property="operatorName" column="time"/>-->
-<!--            <result property="state" column="time"/>-->
-<!--            <result property="remark" column="time"/>-->
-<!--        </collection>-->
+        <collection property="operationList" ofType="org.sys.rate.model.Operation">
+            <result property="operatorRole" column="operator_role"/>
+            <result property="operatorId" column="operator_id"/>
+            <result property="operatorName" column="operator_name"/>
+            <result property="prodType" column="prod_type"/>
+            <result property="prodId" column="prod_id"/>
+            <result property="date" column="operation_date"/>
+            <result property="operationName" column="operation_name"/>
+            <result property="state" column="operation_state"/>
+            <result property="remark" column="operation_remark"/>
+        </collection>
     </resultMap>
 
     <sql id="selectPaperVo">
@@ -41,6 +41,17 @@
                publication_id
         from i_paper
     </sql>
+
+    <select id="getById" resultMap="PaperResult">
+        SELECT
+            p.id, p.name, p.student_id, p.date, p.author, p.state, p.url,
+            p.have_score, p.pub_page, p.publication_id,
+            o.operator_role, o.operator_id, o.operator_name,
+            o.prod_type, o.prod_id, o.date AS operation_date, o.operation_name, o.state AS operation_state, o.remark AS operation_remark
+        FROM i_paper p
+                 LEFT JOIN i_oper o ON p.id = o.prod_id AND o.prod_type = '学术论文'
+        WHERE p.id = #{id}
+    </select>
 
     <insert id="insertPaper" parameterType="org.sys.rate.model.Paper" useGeneratedKeys="true" keyProperty="id">
         insert into i_paper

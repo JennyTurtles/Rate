@@ -1,67 +1,80 @@
-//package org.sys.rate.controller.admin;
-//
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.core.io.InputStreamResource;
-//import org.springframework.http.HttpHeaders;
-//import org.springframework.http.MediaType;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
-//import org.springframework.web.multipart.MultipartFile;
-//import org.sys.rate.config.JsonResult;
-//import org.sys.rate.model.Operation;
-//import org.sys.rate.model.Paper;
-//import org.sys.rate.model.Publication;
-//import org.sys.rate.model.RespBean;
-//import org.sys.rate.service.admin.*;
-////import org.sys.rate.service.mail.MailToTeacherService;
-//
-//import javax.annotation.Resource;
-//import javax.mail.MessagingException;
-//import java.io.File;
-//import java.io.FileInputStream;
-//import java.io.FileNotFoundException;
-//import java.io.IOException;
-//import java.sql.Timestamp;
-//import java.util.List;
-//
-//
-///**
-// * 论文成果Controller
-// *
-// * @author system
-// * @date 2022-03-13
-// */
-//@Slf4j
-//@RestController
-//@RequestMapping("/paper/basic")
-//public class PaperController {
-//    @Resource
-//    private PaperService paperService;
-//    @Resource
-//    PublicationService publicationService;
-//    @Resource
-//    IndicatorService indicatorService;
-//    @Resource
-//    OperationService operationService;
-//    //@Resource
-//    //MailToTeacherService mailToTeacherService;
-//
-//
-//    private String uploadFileName;
-//
-//
-//    /**
-//     * 修改论文状态
-//     *
-//     * @param state:
-//     * @param ID:
-//     * @Return JsonResult
-//     */
-//    @GetMapping("/edit_state")
-//    public RespBean editState(String state, Integer ID) throws MessagingException {
-//        return paperService.editState(state, ID) != null ? RespBean.ok("修改论文状态成功！") : RespBean.error("修改论文状态失败！");
-//    }
-//
+package org.sys.rate.controller.admin;
+
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.sys.rate.config.JsonResult;
+import org.sys.rate.model.Operation;
+import org.sys.rate.model.Paper;
+import org.sys.rate.model.Publication;
+import org.sys.rate.model.RespBean;
+import org.sys.rate.service.admin.*;
+import org.sys.rate.service.mail.MailToTeacherService;
+
+import javax.annotation.Resource;
+import javax.mail.MessagingException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.List;
+
+
+/**
+ * 论文成果Controller
+ *
+ * @author system
+ * @date 2022-03-13
+ */
+@Slf4j
+@RestController
+@RequestMapping("/paper/basic")
+public class PaperController {
+    @Resource
+    private PaperService paperService;
+    @Resource
+    PublicationService publicationService;
+    @Resource
+    IndicatorService indicatorService;
+    @Resource
+    OperationService operationService;
+    @Resource
+    MailToTeacherService mailToTeacherService;
+
+
+    private String uploadFileName;
+
+
+    /**
+     * 修改论文状态
+     *
+     * @param state:
+     * @param ID:
+     * @Return JsonResult
+     */
+    @GetMapping("/edit_state")
+    public RespBean editState(String state, Integer ID) throws MessagingException {
+        return paperService.editState(state, ID) != null ? RespBean.ok("修改论文状态成功！") : RespBean.error("修改论文状态失败！");
+    }
+
+    /**
+     * 通过paperId返回paper相关的paper实体，历史操作oper
+     *
+     * @param paperId:
+     * @Return RespBean
+     */
+    @GetMapping("/getPaperById")
+    public RespBean getPaperListById(@Param("paperId") Integer paperId) {
+        return paperService.getById(paperId) == null ? RespBean.ok("get paper success", paperService.getById(paperId)) : RespBean.ok("get paper null", null);
+    }
+
+
 //    /**
 //     * 返回studentID对应的论文列表，无页码要求。
 //     *
@@ -245,4 +258,4 @@
 //                .contentType(MediaType.APPLICATION_OCTET_STREAM)
 //                .body(resource);
 //    }
-//}
+}

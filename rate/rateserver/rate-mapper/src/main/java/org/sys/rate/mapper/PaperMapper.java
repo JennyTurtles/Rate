@@ -22,7 +22,6 @@ public interface PaperMapper {
      * @param id 主键
      * @return
      */
-    @Select("select id, name, student_id, date, author, state, url, have_score, pub_page, publication_id from i_paper where id = #{id}")
     Paper getById(Integer id);
 
     /**
