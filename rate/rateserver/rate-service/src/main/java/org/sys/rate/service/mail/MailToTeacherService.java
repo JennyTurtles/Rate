@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.regex.Matcher;
@@ -46,6 +47,8 @@ public class MailToTeacherService {
     private String from = null;
     private String password = null;
     private String sendHost = null;
+
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
 
     private final String greetingToUser = "亲爱的用户：<br>";
     private final String greetingToTeacher = "尊敬的老师：<br>";
@@ -99,7 +102,7 @@ public class MailToTeacherService {
             contentBuilder.append("<b>您的学生").append(student.getName()).append("已经在系统中提交成果申报。</b><br>");
             contentBuilder.append("论文标题：").append(production.getName()).append("。<br>");
             contentBuilder.append("发表期刊：").append(pubName).append("<br>");
-            contentBuilder.append("出版年月：").append(production.getDate()).append("<br>");
+            contentBuilder.append("出版年月：").append(sdf.format(production.getDate())).append("<br>");
             contentBuilder.append("作者列表：").append(production.getAuthor()).append("<br>");
             contentBuilder.append("提交时间：").append(upLoadTime).append("<br>");
             contentBuilder.append("证明材料：请查看邮件附件<br><br>");
@@ -307,7 +310,7 @@ public class MailToTeacherService {
         infoProduction.append("下面是论文的一些基本信息：<br>")
                 .append("论文标题：").append(production.getName()).append("。<br>")
                 .append("发表期刊：").append(pubName).append("<br>")
-                .append("出版年月：").append(production.getDate()).append("<br>")
+                .append("出版年月：").append(sdf.format(production.getDate())).append("<br>")
                 .append("作者列表：").append(production.getAuthor()).append("<br><br>");
         return infoProduction.toString();
     }
