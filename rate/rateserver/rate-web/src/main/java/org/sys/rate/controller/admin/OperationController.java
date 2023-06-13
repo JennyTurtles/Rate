@@ -11,7 +11,7 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("/oper/basic")
-public class OpertionController {
+public class OperationController {
     @Resource
     private OperationMapper operMapper;
 
