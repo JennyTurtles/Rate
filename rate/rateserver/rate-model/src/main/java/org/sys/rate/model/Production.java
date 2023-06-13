@@ -20,8 +20,8 @@ public class Production {
 
     Integer studentId;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM")
+    @JsonFormat(pattern = "yyyy-MM", timezone = "GMT+8")
     Date date;
 
     String author;

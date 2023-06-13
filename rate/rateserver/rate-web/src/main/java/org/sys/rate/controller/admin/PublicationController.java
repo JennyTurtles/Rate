@@ -91,8 +91,8 @@ public class PublicationController {
      * @param name:
      * @Return RespBean
      */
-    @PostMapping("/publication/getInfByNameYear")
-    public RespBean getPublicationNamesByNameYear(@RequestParam Integer year, @RequestParam String name) {
+    @GetMapping("/publication/getInfByNameYear")
+    public RespBean getPublicationNamesByNameYear(String year,String name) {
         Publication res = publicationMapper.getPublicationByNameYear(name, year);
         return RespBean.ok("success", res);
     }

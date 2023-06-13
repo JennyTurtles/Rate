@@ -48,25 +48,25 @@
             <if test="id != null">id,</if>
             <if test="name != null and name != ''">name,</if>
             <if test="studentId != null">student_id,</if>
-            <if test="date != null">date</if>
+            <if test="date != null">date,</if>
             <if test="author != null">author,</if>
             <if test="state != null">state,</if>
             <if test="url != null">url,</if>
             <if test="haveScore != null">have_score,</if>
-            <if test="pubPage != null">pub_page</if>
+            <if test="pubPage != null">pub_page,</if>
             <if test="publicationId != null">publication_id,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="name != null and name != ''">#{name},</if>
             <if test="studentId != null">#{studentId},</if>
-            <if test="date != null">#{date}</if>
+            <if test="date != null">#{date},</if>
             <if test="author != null">#{author},</if>
             <if test="state != null">#{state},</if>
             <if test="url != null">#{url},</if>
-            <if test="haveScore != null">#{haveScore}</if>
-            <if test="pubPage != null">#{pubPage}</if>
-            <if test="publicationId != null">#{publicationId},</if>
+            <if test="haveScore != null">#{haveScore},</if>
+            <if test="pubPage != null">#{pubPage},</if>
+            <if test="publicationId != null">#{publicationId}</if>
         </trim>
     </insert>
 

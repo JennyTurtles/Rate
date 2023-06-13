@@ -157,17 +157,17 @@
                   id="input_publicationName"/>
               <div class="select_div"
                    v-show="ispubShow && publicationName && emp.year ? true:false"
-                   :style="'height:${menuHeight}'"
+                   :style="'height: ${menuHeight}'"
                    @mouseover="ispubFlag = true"
                    @mouseleave="ispubFlag = false">
                 <div
                     class="select_div_div"
                     v-for="val in select_pubName"
-                    :key="val.index"
-                    :value="val.value"
+                    :key="val"
+                    :value="val"
                     @click="filter_pub(val)"
                 >
-                  {{ val.value }}
+                  {{ val }}
                 </div>
               </div>
             </div>
@@ -360,7 +360,7 @@ export default {
       endPage:'',
       oper:{
         operatorRole: "student",
-        operatorID: this.user.id,
+        operatorID: JSON.parse(localStorage.getItem('user')).id,
         prodType: 'paper',
         operationName: '',
         state: '',
@@ -372,6 +372,7 @@ export default {
         id: null,
         institutionID: null,
         name: null,//论文名称
+        date: '',
         year: "",
         month: "",
         rank: "",//排名
@@ -419,16 +420,14 @@ export default {
       return JSON.parse(localStorage.getItem('user')); //object信息
     },
     menuHeight() {
-      return this.publicationName.length * 50 > 150
+      return this.select_pubName.length * 50 > 150
           ? 150 + 'px'
-          : '${this.publicationName.length * 50}px'
+          : `${this.select_pubName.length * 50}px`
     },
   },
   created() {},
   mounted() {
     this.initEmps();
-    this.oper.operatorID = this.user.id;
-    this.oper.operatorName = this.user.name;
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -448,27 +447,16 @@ export default {
       if(!val){
         return
       }
-      var publication={}
-      publication.year = this.emp.year
-      publication.name = this.publicationName
       this.timer = setTimeout(()=>{
-        let url = "/publication/getInfByNameYear"
-        this.postRequest(url,publication).then((resp) => {
+        let url = "/publication/basic/listByName?publicationName=" + this.publicationName
+        this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
             this.select_pubName=[]
             if(resp.obj){
-              for(var i=0;i<resp.obj.length;i++){
-                this.select_pubName.push(
-                    {//保存返回期刊的name
-                      value:resp.obj[i].name,
-                      indicatorID:resp.obj[i].indicatorID,
-                      publicationID:resp.obj[i].id
-                    }
-                )
-              }
-            }else{
-              this.$message.error(`请检查期刊名称的拼写`);
+              resp.obj.map(val => {
+                this.select_pubName.push(val)
+              })
             }
           }
         });
@@ -491,8 +479,8 @@ export default {
       if(!val){
           return
       }
-      this.publicationName=val.value
-      var url = "/publication/getScore/" + val.indicatorID
+      this.publicationName = val
+      var url = "/publication/getInfByNameYear?year=" + this.emp.year + '&name=' + this.publicationName
       this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
@@ -726,15 +714,16 @@ export default {
               this.emp.ID = empdata.id
               this.emp.publicationID = empdata.publicationID
               this.emp.point = empdata.point
-              this.emp.year = empdata.year
-              this.emp.month = empdata.month
+              this.emp.date = empdata.year + empdata.month
+              // this.emp.year = empdata.year
+              // this.emp.month = empdata.month
               this.emp.author = empdata.author
               this.emp.total = empdata.total
               this.emp.rank = empdata.rank
               this.emp.pubPage = this.startPage + "-" + this.endPage
               this.emp.url = empdata.url;
-              this.emp.state = "commit"
-              this.emp.studentID = this.urlFile
+              this.emp.state = "commit";
+              this.emp.studentId = this.user.id;
               const _this = this;
               if (this.emp.url == '' || this.emp.url == null) {
                 this.$message({
@@ -760,7 +749,8 @@ export default {
             this.emp.state = "commit"
             this.emp.point = this.view_point
             this.emp.publicationID = this.publicationID
-            this.emp.studentID = this.user.id
+            this.emp.date = this.emp.year + '-' + this.emp.month;
+            this.emp.studentId = this.user.id
             const _this = this;
             if (this.emp.url == '' || this.emp.url == null) {
               this.$message.error('请上传证明材料！')

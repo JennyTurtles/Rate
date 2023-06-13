@@ -741,7 +741,7 @@ export default {
       this.oper.awardID = awardID
       this.oper.operation="提交奖励"
       this.oper.time = this.dateFormatFunc(new Date());
-      await this.postRequest1("/awardoper/basic/add", this.oper);
+      await this.postRequest1("/oper/basic/add", this.oper);
       await this.initEmps();
     },
     showAddEmpView() {//点击添加科研项目按钮
