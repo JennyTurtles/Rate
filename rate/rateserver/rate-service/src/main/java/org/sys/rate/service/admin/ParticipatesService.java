@@ -427,16 +427,17 @@ public class ParticipatesService {
     }
 
     @Transactional
-    public Integer deleteParticipant(Integer groupID,Participates company) {
-        participatesMapper.delete(company);
-        int result = participatesMapper.deletePar(company.getID(),company.getActivityID());
-        if (participatesMapper.existPar(company.getStudentID()) == null){   // 该选手可能有其他活动，只有在选手表内无该选手时候，才能在student表删除
-            studentMapper.deleteStudent(company.getStudentID());
+    public Integer deleteParticipant(Integer groupID,Participates par) {
+        participatesMapper.delete(par);
+        updateParCount(par.getActivityID(),groupID);
+        int result = participatesMapper.deletePar(par.getID(),par.getActivityID());
+        if (participatesMapper.existPar(par.getStudentID()) == null){   // 该选手可能有其他活动，只有在选手表内无该选手时候，才能在student表删除
+            studentMapper.deleteStudent(par.getStudentID());
         }
         if(result>0)
         {
             if (groupID != -1)
-                participatesMapper.subDisplaySequence(groupID,company.getDisplaySequence(),null);
+                participatesMapper.subDisplaySequence(groupID,par.getDisplaySequence(),null);
             return 1;
         }
         return 0;
@@ -616,5 +617,11 @@ public class ParticipatesService {
     }
     public List<Participates> getParticipantIDByStudentID(Integer studentID){
         return participatesMapper.getParticipantsBySID(studentID);
+    }
+
+    @Transactional
+    public void updateParCount(Integer activityID, Integer groupID){
+        participatesMapper.updateGroupParCount(groupID);
+        participatesMapper.updateActParCount(activityID);
     }
 }

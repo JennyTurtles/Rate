@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
+import org.sys.rate.service.admin.ExpertActivitiesService;
 import org.sys.rate.utils.PasswordUtils;
 
 import javax.annotation.Resource;
@@ -41,6 +42,8 @@ public class ExpertService implements UserDetailsService {
 	UnderGraduateMapper underGraduateMapper;
 	@Resource
 	CommentMapper commentMapper;
+	@Resource
+	ExpertActivitiesService expertActivitiesService;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -376,11 +379,17 @@ public class ExpertService implements UserDetailsService {
 		return expertactivitiesMapper.updategroupid(groupid, activityid, id);
 	}
 
+	@Transactional
 	public Integer deleteExActivityTable(Integer groupid, Integer activityid, Experts teacher) {
 		Integer id = expertsMapper.getID(teacher.getIdnumber());
-		if (groupid == -1)
-			return expertactivitiesMapper.deleteNogroupid(activityid,id);
-		return expertactivitiesMapper.deletegroupid(groupid, activityid, id);
+		if (groupid == -1){
+			Integer res = expertactivitiesMapper.deleteNogroupid(activityid,id);
+			expertactivitiesMapper.updateActExpertCount(activityid);
+			return res;
+		}
+		Integer res = expertactivitiesMapper.deletegroupid(groupid, activityid, id);
+		expertActivitiesService.updateExpertCount(activityid,groupid);
+		return res;
 	}
 
 	public HashPEexport  getExpertList(String defination,Integer activityID) {

@@ -188,4 +188,15 @@ public interface ParticipatesMapper {
             "FROM participants p1 LEFT JOIN participants p2 on p1.studentID = p2.studentID\n" +
             "WHERE p1.activityID = #{subID} and p2.activityID = #{parID}")
     List<subID2ParID> getSubID2ParID(Integer subID, Integer parID);
+
+
+    @Update("UPDATE `groups` set participantCount=\n" +
+            "(SELECT COUNT(*) from participants WHERE groupID = #{groupID} ) \n" +
+            "where ID=#{groupID}")
+    void updateGroupParCount(Integer groupID);
+
+    @Update("UPDATE activities set participantCount=\n" +
+            "(SELECT COUNT(*) from participants WHERE activityID = #{activityID} ) \n" +
+            "where ID=#{activityID}")
+    void updateActParCount(Integer activityID);
 }
