@@ -20,8 +20,6 @@ public class DisplayItemService {
     @Resource
     ParticipatesMapper participatesMapper;
     @Resource
-    ParticipatesService participatesService;
-    @Resource
     DisplayItemMapper displayItemMapper;
     @Resource
     ScoreItemMapper scoreItemMapper;
@@ -166,7 +164,7 @@ public class DisplayItemService {
         String[] split2 = target.split("\\.");
         String tableName = split2[0];
         if (!tableName.equals("infoitem") && !tableName.equals("displayitem") && !tableName.equals("scoreitem"))
-            return "error";
+            return "item不存在";
         Integer ID = Integer.parseInt(split2[1]);
         // 处理infoitem表
         if (tableName.equals("infoitem")) {
