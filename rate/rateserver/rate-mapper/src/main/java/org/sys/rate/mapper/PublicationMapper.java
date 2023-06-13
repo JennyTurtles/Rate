@@ -56,7 +56,7 @@ public interface PublicationMapper {
      * @param name:
      * @Return List<String>
      */
-    @Select("select name from i_publication where name LIKE CONCAT('%', #{name}, '%')")
+    @Select("select distinct name from i_publication where name LIKE CONCAT('%', #{name}, '%')")
     List<String> getPublicationNamesByName(String name);
 
     /**
