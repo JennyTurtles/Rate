@@ -332,7 +332,6 @@ export default {
       })
           .then(() => {
             this.postRequest("/groups/basic/delete?institutionID="+this.user.institutionID, si).then((resp) => {
-             console.log(resp)
               if (resp) {
                 if(resp==='删除成功!')
                 {Message.success(resp)}
@@ -342,7 +341,7 @@ export default {
                 }
                 this.initHrs();
               }else {
-                Message.warning("请先确保组内无选手和专家。")
+                Message.warning("请先确保组内无选手和专家")
               }
             });
           })
