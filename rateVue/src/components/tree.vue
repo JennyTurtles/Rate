@@ -69,7 +69,7 @@
         :rules="rules"
         :model="ruleForm"
         label-width="60px"
-        :label-position="left"
+        :label-position="'left'"
       >
         <el-form-item style="margin-top: 15px" prop="name" label="类型">
           <el-input v-model="ruleForm.name" placeholder="请输入分类名" />
@@ -475,15 +475,29 @@ export default {
         };
         this.data.push(newChild);
       }
-      axios.post("/indicator", postData).then(function (resp) {
-        if (resp.status != 200) alert("添加失败！");
-        else {
-          that.$message({
-            type: "success",
-            message: "添加成功",
+      axios.post("/indicator", postData)
+          .then(function (resp) {
+            if (resp.status != 200) {
+              alert("添加失败！");
+            } else {
+              that.$message({
+                type: "success",
+                message: "添加成功",
+              });
+
+              // 在 POST 请求成功后再发送 GET 请求
+              axios.get("/indicator")
+                  .then(function (resp) {
+                    that.id = resp.obj[0];
+                    that.data = resp.obj[1];
+                  });
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+            alert("添加指标失败：" + error.message);
           });
-        }
-      });
+
       this.id++;
       this.label = "";
       this.score = "";
