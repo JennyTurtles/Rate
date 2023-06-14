@@ -103,7 +103,7 @@ public class PublicationController {
      */
     @GetMapping("/publication/checkScore/{stuId}")
     public RespBean checkScore(@PathVariable Integer stuId) {
-        Integer id = paperMapper.checkHaveScore(stuId);
+        Integer id = paperMapper.checkScore(Long.valueOf(stuId));
         if (id == null) {
             return RespBean.ok("success", -1);
         } else {

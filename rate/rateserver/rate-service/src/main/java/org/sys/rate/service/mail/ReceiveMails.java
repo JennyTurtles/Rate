@@ -3,6 +3,7 @@ package org.sys.rate.service.mail;
 import com.sun.mail.imap.IMAPStore;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -200,7 +201,7 @@ public class ReceiveMails {
                     continue;
                 }
                 // 4.修改成果的状态
-                if (paperService.editState(state, ID) == 0) {
+                if (paperService.editState(state, Long.valueOf(ID)) == 0) {
                     log.error("修改论文状态失败!");
                     continue;
                 }
@@ -257,7 +258,7 @@ public class ReceiveMails {
         operation.setOperatorName(teacher.getName());
         operation.setProdType(type);
         operation.setProdId(production.getId());
-        operation.setDate(date);
+        operation.setTime((Timestamp) date);
         operation.setOperationName(operationName);
         operation.setState(state);
         operation.setRemark(remark);
@@ -445,5 +446,44 @@ public class ReceiveMails {
         return content.trim().replaceAll("\r", "").replaceAll("\n+", "\n");
     }
 
+
+    public boolean editOperation(Paper production, String remark, String state, String type) {
+        Student student = studentService.getById(Math.toIntExact(production.getStudentID()));
+        Teacher teacher = teacherService.getById(student.getTutorID());
+
+        String operationName = state.equals("tea_pass") ? "经邮件回复，教师审核通过" : "经邮件回复，教师驳回";
+        Date date = new Date();
+        // 修改论文操作状态
+        Operation operation = new Operation();
+        operation.setOperatorRole("teacher");
+        operation.setOperatorId(teacher.getId());
+        operation.setOperatorName(teacher.getName());
+        operation.setProdType(type);
+        operation.setProdId(Math.toIntExact(production.getID()));
+        operation.setTime((Timestamp) date);
+        operation.setOperationName(operationName);
+        operation.setState(state);
+        operation.setRemark(remark);
+
+        return operationService.insertOper(operation) != 0 ? true : false;
+    }
+
+    private String getTutorEmail(Paper production) {
+        Student student = studentService.getById(production.getStudentID().intValue());
+        if (student == null) {
+            return null;
+        } else {
+            Teacher teacher = teacherService.getById(student.getTutorID());
+            if (teacher == null) {
+                return null;
+            } else {
+                return teacher.getEmail();
+            }
+        }
+    }
+
+    public boolean checkProductionState(Paper production) {
+        return production.getState().equals("commit");
+    }
 
 }
