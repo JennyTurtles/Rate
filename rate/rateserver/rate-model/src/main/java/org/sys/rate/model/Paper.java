@@ -12,7 +12,7 @@ import java.util.List;
  * @date 2022-03-13
  */
 @Data
-public class Paper {
+public class Paper{
     private static final long serialVersionUID = 1L;
 
     /**

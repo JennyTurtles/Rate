@@ -14,7 +14,7 @@ import org.sys.rate.model.Paper;
 import org.sys.rate.model.Publication;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.*;
-//import org.sys.rate.service.mail.MailToTeacherService;
+import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -41,8 +41,8 @@ public class PaperController {
     PublicationService publicationService;
     @Resource
     IndicatorService indicatorService;
-    //@Resource
-    //MailToTeacherService mailToTeacherService;
+    @Resource
+    MailToTeacherService mailToTeacherService;
 
     private static final Logger logger = LoggerFactory.getLogger(PaperController.class);
 
@@ -170,7 +170,7 @@ public class PaperController {
     @ResponseBody
     public JsonResult addSave(Paper paper) throws FileNotFoundException {
         Integer res = paperService.insertPaper(paper);
-        //mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
         return new JsonResult(paper.getID());
     }
 
@@ -180,7 +180,7 @@ public class PaperController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Paper paper) throws FileNotFoundException {
-        //mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
         return new JsonResult(paperService.updatePaper(paper));
     }
 
