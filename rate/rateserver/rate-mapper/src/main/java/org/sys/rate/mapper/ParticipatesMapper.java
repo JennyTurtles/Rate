@@ -176,7 +176,7 @@ public interface ParticipatesMapper {
             "on pp.studentID = p.studentID WHERE pp.groupID != #{groupID}")
     List<Participates> checkInOtherGroup(Integer groupID);
 
-    void addParent(List<Participates> list); // 活动ID，小组ID，学生ID设置为唯一索引，如果重复则不添加
+//    void addParent(List<Participates> list); // 活动ID，小组ID，学生ID设置为唯一索引，如果重复则不添加
 
     @Select("SELECT studentID FROM participants WHERE groupID = #{groupID}")
     List<Integer> getStudentIDbyGroupID(Integer groupID);

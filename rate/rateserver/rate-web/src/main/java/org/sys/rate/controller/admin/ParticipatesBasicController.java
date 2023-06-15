@@ -343,15 +343,12 @@ public class ParticipatesBasicController {
                                   MultipartFile file) throws IOException, ParseException {
         RespPageBean bean=excel2p(groupid,activityid,file);
         RespBean respBean = importPars(groupid,activityid,insititutionID,bean); // 为了复用才返回respBean
-        if (respBean.getStatus() != 200){ // 检查当前选手是否在主活动中存在
-            RespBean.error(respBean.getMsg());
-        }
-        List<Participates> list= (List<Participates>) bean.getData();
-        for (Participates participates : list) { // 填上主活动的id和大组id
-            participates.setActivityID(actIDParent);
-            participates.setGroupID(groupIDParent);
-        }
-        participatesMapper.addParent(list); // 如果存在父活动则不新增，不存在则新增
+//        List<Participates> list= (List<Participates>) bean.getData();
+//        for (Participates participates : list) { // 填上主活动的id和大组id
+//            participates.setActivityID(actIDParent);
+//            participates.setGroupID(groupIDParent);
+//        }
+//        participatesMapper.addParent(list); // 如果存在父活动则不新增，不存在则新增
         return RespBean.ok(respBean.getMsg());
     }
 }

@@ -302,18 +302,18 @@ public class ExpertMController {
                                   MultipartFile file) throws IOException, ParseException {
         RespPageBean bean =  POIUtils.readExcel_expert(file);
         RespBean respBean = importExperts(groupid,activityid,insititutionID,bean); // 为了复用才返回respBean
-        if (respBean.getStatus() != 200){ // 检查当前专家是否在主活动中存在
+/*        if (respBean.getStatus() != 200){ // 检查当前专家是否在主活动中存在
             RespBean.error(respBean.getMsg());
-        }
-        List<Experts> list= (List<Experts>) bean.getData();
-        for (Experts experts : list) { // 填上主活动的id和大组id
-            experts.setActivityID(actIDParent);
-            experts.setGroupID(groupIDParent);
-            experts.setId(expertsMapper.getID(experts.getIdnumber())); // 懒得考虑性能了
-            experts.setFinished(false);
-            experts.setRole("专家");
-        }
-        expertsMapper.addParent(list); // 如果存在父活动则不新增，不存在则新增
+        }*/
+//        List<Experts> list= (List<Experts>) bean.getData();
+//        for (Experts experts : list) { // 填上主活动的id和大组id
+//            experts.setActivityID(actIDParent);
+//            experts.setGroupID(groupIDParent);
+//            experts.setId(expertsMapper.getID(experts.getIdnumber())); // 懒得考虑性能了
+//            experts.setFinished(false);
+//            experts.setRole("专家");
+//        }
+//        expertsMapper.addParent(list); // 如果存在父活动则不新增，不存在则新增
         return RespBean.ok(respBean.getMsg());
     }
 }
