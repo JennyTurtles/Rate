@@ -294,10 +294,9 @@
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-          <!-- <el-form-item  v-model="operList" v-for="item in operList" :key="item.time" style="margin-bottom:8px;"> -->
+            <div  v-for="item in operList" :key="item.date" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
               <div >
-                <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operation}}</p>
+                <p>{{item.date|dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
               </div>
             </div>
@@ -355,24 +354,24 @@ export default {
       keyword: "",
       size: 10,
       publicationName:"",//所属期刊
-      publicationID:-1,
+      publicationId:-1,
       startPage:'',
       endPage:'',
       oper:{
         operatorRole: "student",
-        operatorID: JSON.parse(localStorage.getItem('user')).id,
-        prodType: 'paper',
+        operatorId: JSON.parse(localStorage.getItem('user')).id,
+        operatorName: JSON.parse(localStorage.getItem('user')).name,
+        prodType: '学术论文',
         operationName: '',
         state: '',
         remark: '',
         prodId: null,
-        time: null
+        date: null
       },
       emp: {
         id: null,
         institutionID: null,
         name: null,//论文名称
-        date: '',
         year: "",
         month: "",
         rank: "",//排名
@@ -381,7 +380,7 @@ export default {
         url:'',
         state:'',
         pubPage:'',
-        publicationID:null
+        publicationId:null
       },
       rules: {
         name: [{ required: true, message: "请输入论文名", trigger: "blur" }],
@@ -475,7 +474,6 @@ export default {
     filter_pub(val){//选择下拉框的某个期刊 得到选择的期刊的id score等信息
       this.ispubFlag=false
       this.ispubShow=false
-      var that = this
       if(!val){
           return
       }
@@ -485,14 +483,8 @@ export default {
           this.loading = false;
           if (resp) {
             if(resp.obj){
-              this.view_point = resp.obj
-              const id = this.user.id
-              if (this.view_point === 2){
-                // that.getRequest("/publication/checkScore/"+id).then((resp)=>{
-                //
-                // }
-              }
-              this.publicationID = val.publicationID
+              this.view_point = resp.obj.point
+              this.publicationId = resp.obj.id;
             }else {
               this.publicationName = ''
               this.$message.error('无该期刊！请重新选择时间！')
@@ -503,7 +495,6 @@ export default {
     },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
-      console.log(fileName);
       if(this.user){
         var url="/paper/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
         window.location.href = encodeURI(url);
@@ -665,9 +656,9 @@ export default {
       this.emp = data;
       this.view_point = data.point
       this.dialogVisible = true;
-      this.publicationName=this.emp.publication.name
-      this.data_picker= new Date(this.emp.year,this.emp.month)
-      this.writer=this.emp.author
+      this.publicationName = this.emp.publication.name
+      this.data_picker = new Date(this.emp.year,this.emp.month)
+      this.writer = this.emp.author
       var page = this.emp.pubPage.split('-')
       this.startPage = page[0]
       this.endPage = page[1]
@@ -712,11 +703,10 @@ export default {
             if (valid) {
               this.emp.name = empdata.name
               this.emp.ID = empdata.id
-              this.emp.publicationID = empdata.publicationID
+              this.emp.publicationId = empdata.publicationId
               this.emp.point = empdata.point
-              this.emp.date = empdata.year + empdata.month
-              // this.emp.year = empdata.year
-              // this.emp.month = empdata.month
+              this.emp.year = empdata.year
+              this.emp.month = empdata.month
               this.emp.author = empdata.author
               this.emp.total = empdata.total
               this.emp.rank = empdata.rank
@@ -748,9 +738,8 @@ export default {
             this.emp.url = this.urlFile;
             this.emp.state = "commit"
             this.emp.point = this.view_point
-            this.emp.publicationID = this.publicationID
-            this.emp.date = this.emp.year + '-' + this.emp.month;
-            this.emp.studentId = this.user.id
+            this.emp.publicationID = this.publicationId
+            this.emp.studentID = this.user.id
             const _this = this;
             if (this.emp.url == '' || this.emp.url == null) {
               this.$message.error('请上传证明材料！')
@@ -772,8 +761,8 @@ export default {
     async doAddOper(state, paperID) {
       this.oper.state=state
       this.oper.prodId = paperID
-      this.oper.operation = "提交论文"
-      this.oper.time = this.dateFormatFunc(new Date());
+      this.oper.operationName = "提交论文"
+      this.oper.date = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper)
       await this.initEmps();
     },
@@ -806,14 +795,15 @@ export default {
     //查看详情
     showInfo(data){
       this.title_show = "显示详情";
-      this.emp=data
-      this.dialogVisible_showInfo=true
-      this.getRequest("/paperoper/basic/List?ID="+data.id).then((resp) => {
+      this.emp = data
+      this.dialogVisible_showInfo = true
+      console.log(this.emp);
+      this.getRequest("/oper/basic/List?proId=" + data.id + '&type=学术论文' + '&operatorId=' + this.user.id).then((resp) => {
           this.loading = false;
           if (resp) {
-            this.operList=resp.data
+            this.operList = resp.obj
             this.operList.sort(function(a,b){
-              return a.time > b.time ? -1 : 1
+              return a.date > b.date ? -1 : 1
             })
           }
       });

@@ -16,8 +16,8 @@ public class OperationService {
         return operationMapper.insertOper(oper);
     }
 
-    public List<Operation> selectOper(Integer operId, String operType){
-        return operationMapper.selectList(operId, operType);
+    public List<Operation> selectOper(Integer prodId, String operType, Integer operatorId){
+        return operationMapper.selectList(prodId, operType, operatorId);
     }
 
 }

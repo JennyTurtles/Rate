@@ -53,35 +53,33 @@ public class PaperController {
     @GetMapping("/studentID")//无页码要求
     public JsonResult<List> getById(Integer studentID) {
         List<Paper> list = paperService.selectListByIds(studentID);
+        //好像是要返回时间最晚的被驳回记录的那条理由？
         List<Paper> pp;
         for (int i = 0; i < list.size(); i++) {
-            Paper x = list.get(i);
-            Timestamp maxtime;
-            List<Operation> x_p = x.getPaperoperList();
+            Paper paper = list.get(i);
+            List<Operation> paperOperation = paper.getPaperoperList();
             int j;
-            Timestamp time = x_p.get(0).getTime();
-            if (x_p.size() == 1) {
+            Timestamp time = paperOperation.get(0).getTime();
+            //说明只有学生提交的那一条操作记录，不需要继续
+            if (paperOperation.size() == 1) {
                 continue;
             }
-            int flag = 0, index = 0;
-//            List<String> remarks=new ArrayList<String>();
-            for (j = 0; j < x_p.size(); j++) {
-                if (x_p.get(j).getOperationName().equals("审核驳回") && x_p.get(j).getOperatorRole().equals("teacher")) {
+            int flag = 0, maxTimeIndex = 0;
+            for (j = 0; j < paperOperation.size(); j++) {
+                if (paperOperation.get(j).getOperationName().equals("审核驳回") && paperOperation.get(j).getOperatorRole().equals("teacher")) {
                     flag = 1;
-//                    remarks.add(x_p.get(j).getRemark());
-                    if (time.getTime() < x_p.get(j).getTime().getTime()) {
-                        index = j;
-                        time = x_p.get(j).getTime();
+                    if (time.getTime() < paperOperation.get(j).getTime().getTime()) {
+                        maxTimeIndex = j;
+                        time = paperOperation.get(j).getTime();
                     }
                 }
             }
-            if (x_p.get(index).getRemark() != "" && flag == 1) {
-                if (x.getState().equals("commit") || x.getState().equals("tea_pass")) {
-                    x.setRemark(" ");
+            if (paperOperation.get(maxTimeIndex).getRemark() != "" && flag == 1) {
+                if (paper.getState().equals("commit") || paper.getState().equals("tea_pass")) {
+                    paper.setRemark(" ");
                 } else {
-                    x.setRemark(x_p.get(index).getRemark());
+                    paper.setRemark(paperOperation.get(maxTimeIndex).getRemark());
                 }
-//                x.setRemark(remarks);
             }
         }
         return new JsonResult<>(list);
@@ -170,7 +168,7 @@ public class PaperController {
     @ResponseBody
     public JsonResult addSave(Paper paper) throws FileNotFoundException {
         Integer res = paperService.insertPaper(paper);
-        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
+//        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
         return new JsonResult(paper.getID());
     }
 
