@@ -34,10 +34,10 @@
             <result property="operatorName" column="operator_name"/>
             <result property="prodType" column="prod_type"/>
             <result property="prodId" column="prod_id"/>
-            <result property="date" column="operation_date"/>
+            <result property="time" column="date"/>
             <result property="operationName" column="operation_name"/>
-            <result property="state" column="operation_state"/>
-            <result property="remark" column="operation_remark"/>
+            <result property="state" column="state"/>
+            <result property="remark" column="remark"/>
         </collection>
     </resultMap>
 
@@ -59,20 +59,7 @@
 
     <select id="selectList" resultMap="PaperResult">
         -- 老师查询所有学生的论文
-        SELECT p.ID,
-               p.studentID,
-               p.NAME,
-               p.point,
-               p.publicationID,
-               p.state,
-               p.pubPage,
-               p.rank,
-               p.total,
-               p.YEAR,
-               p.MONTH,
-               p.author,
-               p.url,
-               p.have_score,
+        SELECT p.*,
                s.NAME   AS sname,
                pub.NAME AS pname,
                paperoper.operator_role,
@@ -88,7 +75,6 @@
                  LEFT JOIN student s ON p.studentID = s.ID
                  LEFT JOIN i_publication pub ON p.publicationID = pub.id
                  LEFT JOIN i_oper paperoper ON p.ID = paperoper.prod_id and paperoper.prod_type = '学术论文'
-
     </select>
 
     <select id="selectListById" resultMap="PaperResult">

@@ -10,7 +10,7 @@
         <result property="operatorName" column="operator_name"/>
         <result property="prodType" column="prod_type"/>
         <result property="prodId" column="prod_id"/>
-        <result property="date" column="date"/>
+        <result property="time" column="date"/>
         <result property="operationName" column="operation_name"/>
         <result property="state" column="state"/>
         <result property="remark" column="remark"/>
@@ -33,7 +33,7 @@
 
     <select id="selectList" resultMap="OperResult">
         select * from i_oper
-        where prod_id = #{prodId} and prod_type = #{prodType} and operator_id = #{operatorId}
+        where prod_id = #{prodId} and prod_type = #{prodType}
     </select>
 
     <insert id="insertOper" parameterType="org.sys.rate.model.Operation">
@@ -45,7 +45,7 @@
                 #{operatorName},
                 #{prodType},
                 #{prodId},
-                #{date},
+                #{time},
                 #{operationName},
                 #{state},
                 #{remark})

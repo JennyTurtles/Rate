@@ -10,6 +10,9 @@ import org.sys.rate.model.Operation;
 import org.sys.rate.model.RespBean;
 
 import javax.annotation.Resource;
+import javax.xml.crypto.Data;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -21,6 +24,7 @@ public class OperationController {
     @PostMapping("/add")
     public RespBean addOper(Operation oper) {
         try {
+            oper.setTime((Timestamp) oper.getTime());
             operMapper.insertOper(oper);
         }catch (Exception e) {
             return RespBean.error("error", null);
@@ -29,10 +33,10 @@ public class OperationController {
     }
 
     @GetMapping("/List")
-    public RespBean selectOperList(@Param("prodId") Integer prodId,@Param("prodType") String prodType) {
+    public RespBean selectOperList(Integer prodId,String type) {
         List<Operation> operationList;
         try {
-            operationList = operMapper.selectList(prodId, prodType);
+            operationList = operMapper.selectList(prodId, type);
         }catch (Exception e) {
             return RespBean.error("error", null);
         }

@@ -21,7 +21,7 @@ public interface OperationMapper {
      * @param prodType:
      * @Return List<Operation>
      */
-    List<Operation> selectList(Integer prodId, String prodType, Integer operatorId);
+    List<Operation> selectList(Integer prodId, String prodType);
 
 //    List<Operation> selectOperationListOf(Integer prodId, String prodType, Integer operatorId);
 

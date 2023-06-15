@@ -294,9 +294,9 @@
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.date" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
               <div >
-                <p>{{item.date|dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
+                <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
               </div>
             </div>
@@ -366,7 +366,7 @@ export default {
         state: '',
         remark: '',
         prodId: null,
-        date: null
+        time: null
       },
       emp: {
         id: null,
@@ -663,19 +663,19 @@ export default {
       this.startPage = page[0]
       this.endPage = page[1]
       this.options = []
-      this.getRequest("/publication/basic/list/"+data.year).then((resp) => {
-        if (resp) {
-          for(var i=0;i<resp.data.length;i++){
-            this.options.push( //修改
-                {
-                  index:resp.data[i].id,
-                  value:resp.data[i].name,
-                  point:resp.data[i].score
-                }
-            )
-          }
-        }
-      })
+      // this.getRequest("/publication/basic/list/"+data.year).then((resp) => {
+      //   if (resp) {
+      //     for(var i=0;i<resp.data.length;i++){
+      //       this.options.push( //修改
+      //           {
+      //             index:resp.data[i].id,
+      //             value:resp.data[i].name,
+      //             point:resp.data[i].score
+      //           }
+      //       )
+      //     }
+      //   }
+      // })
     },
     showEditEmpView_show(data) {
       this.title_show = "显示详情";
@@ -762,7 +762,7 @@ export default {
       this.oper.state=state
       this.oper.prodId = paperID
       this.oper.operationName = "提交论文"
-      this.oper.date = this.dateFormatFunc(new Date());
+      this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper)
       await this.initEmps();
     },
@@ -797,13 +797,12 @@ export default {
       this.title_show = "显示详情";
       this.emp = data
       this.dialogVisible_showInfo = true
-      console.log(this.emp);
-      this.getRequest("/oper/basic/List?proId=" + data.id + '&type=学术论文' + '&operatorId=' + this.user.id).then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=学术论文').then((resp) => {
           this.loading = false;
           if (resp) {
             this.operList = resp.obj
             this.operList.sort(function(a,b){
-              return a.date > b.date ? -1 : 1
+              return a.time > b.time ? -1 : 1
             })
           }
       });

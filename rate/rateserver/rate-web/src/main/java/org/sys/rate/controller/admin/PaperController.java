@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Date;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -97,48 +98,42 @@ public class PaperController {
         List<Paper> list = paperService.selectList();
         List<Paper> pp;
         for (int i = 0; i < list.size(); i++) {
-            Paper x = list.get(i);
-            Timestamp maxtime;
-            List<Operation> x_p = x.getPaperoperList();
-            if (x_p == null || x_p.size() == 0){
+            Paper paper = list.get(i);
+            List<Operation> paperoperList = paper.getPaperoperList();
+            if (paperoperList == null || paperoperList.size() == 0){
                 continue;
             }
-            int j;
-            Timestamp timeCommit = x_p.get(0).getTime();
-            Timestamp timeReject = x_p.get(0).getTime();
-            if (x_p.size() == 1) {//只有一个提交
-                x.setTime(x_p.get(0).getTime());
+            if (paperoperList.size() == 1) {//只有一个提交
+                paper.setTime(paperoperList.get(0).getTime());
                 continue;
             }
-            int flagCommit = 0, flagReject = 0, indexCommit = 0, indexReject = 0;
-//            List<String> remarks=new ArrayList<String>();
-            for (j = 0; j < x_p.size(); j++) {//这篇论文的操作列表
-                if (x_p.get(j).getOperationName().equals("提交论文") && x_p.get(j).getOperatorRole().equals("student")) {
-                    flagCommit = 1;
-                    //返回提交时间最早的一条
-                    if (timeCommit.getTime() > x_p.get(j).getTime().getTime()) {
-                        indexCommit = j;
-                        timeCommit = x_p.get(j).getTime();
+            int indexReject = -1;
+            Timestamp timeCommit = new Timestamp(new Date().getTime());
+            Timestamp timeReject = paperoperList.get(0).getTime();
+            for (int paperOper = 0; paperOper < paperoperList.size(); paperOper ++) {
+                if (paperoperList.get(paperOper).getOperationName().equals("提交论文") && paperoperList.get(paperOper).getOperatorRole().equals("student")) {
+//                    因为可能有多次提交（如老师驳回、再次提交），所以找到时间最早的一条记录
+                    if (timeCommit.getTime() > paperoperList.get(paperOper).getTime().getTime()) {
+                        timeCommit = paperoperList.get(paperOper).getTime();
                     }
                 }
-                if (x_p.get(j).getOperationName().equals("审核驳回") && x_p.get(j).getOperatorRole().equals("teacher")) {
-                    flagReject = 1;
-//                    remarks.add(x_p.get(j).getRemark());
-                    //返回驳回时间最晚的一条
-                    if (timeReject.getTime() < x_p.get(j).getTime().getTime()) {
-                        indexReject = j;
-                        timeReject = x_p.get(j).getTime();
+                if (paperoperList.get(paperOper).getOperationName().equals("审核驳回") && paperoperList.get(paperOper).getOperatorRole().equals("teacher")) {
+//                    可能有多次驳回，所以找到时间最晚的一条记录
+                    if (timeReject.getTime() < paperoperList.get(paperOper).getTime().getTime()) {
+                        indexReject = paperOper; //有可能该论文没有被驳回过，所以后续通过indexReject判断是否为初始值-1
+                        timeReject = paperoperList.get(paperOper).getTime();
                     }
                 }
             }
-            if (x_p.get(indexReject).getRemark() != "" && flagReject == 1) {
-                if (x.getState().equals("commit") || x.getState().equals("tea_pass")) {
-                    x.setRemark(" ");
+            if (indexReject != -1) { //说明有驳回记录
+                if (paper.getState().equals("commit") || paper.getState().equals("tea_pass")) {
+                    //但是如果当前的论文处于通过或再次被提交状态就不返回驳回理由
+                    paper.setRemark(" ");
                 } else {
-                    x.setRemark(x_p.get(indexReject).getRemark());
+                    paper.setRemark(paperoperList.get(indexReject).getRemark());
                 }
             }
-            x.setTime(x_p.get(indexCommit).getTime());
+            paper.setTime(timeCommit);
         }
         return new JsonResult<>(list);
     }
