@@ -102,22 +102,8 @@
     </select>
 
     <select id="selectListByIds" resultMap="PaperResult" parameterType="Integer">
-        select p.ID,
-               p.studentID,
-               p.name,
-               p.point,
-               p.publicationID,
-               p.rank,
-               p.total,
-               p.year,
-               p.month,
-               p.point,
-               p.author,
-               p.pubPage,
-               p.url,
-               p.state,
+        select p.*,
                pub.name as pname,
-               p.have_score,
                paperoper.operator_role,
                paperoper.operator_id,
                paperoper.operator_name,
@@ -133,7 +119,7 @@
              i_oper paperoper
         where p.studentID = #{studentID}
           and p.publicationID = pub.id
-          and p.ID = paperoper.id
+          and p.ID = paperoper.prod_id
           and paperoper.prod_type = '学术论文'
 
     </select>
@@ -193,9 +179,6 @@
             <if test="pubPage != null">#{pubPage},</if>
             <if test="url != null">#{url},</if>
         </trim>
-        <!--            <selectKey order="AFTER" resultType="Long" keyProperty="ID">-->
-        <!--                SELECT LAST_INSERT_ID()-->
-        <!--            </selectKey>-->
     </insert>
 
     <update id="updatePaper" parameterType="org.sys.rate.model.Paper">

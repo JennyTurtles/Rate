@@ -574,6 +574,7 @@ export default {
       this.oper.operatorID = this.user.id;
       this.oper.remark = remark;
       this.oper.prodId = patentID;
+      this.oper.time = this.dateFormatFunc(new Date());
       if(this.oper.state=="tea_pass" || this.oper.state=="adm_pass"){
         this.oper.operation="审核通过"
       }else{
@@ -613,38 +614,6 @@ export default {
           })
         }
       });
-    },
-    doAddEmp() {
-      if (this.emp.id) {
-        this.$refs["empForm"].validate((valid) => {
-          if (valid) {
-            const _this = this;
-            this.postRequest("/activities/basic/update", _this.emp).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                  }
-                }
-            );
-          }
-        });
-      } else {
-        this.$refs["empForm"].validate((valid) => {
-          if (valid) {
-            this.emp.institutionID = this.user.id;
-            const _this = this;
-            this.postRequest("/activities/basic/insert", _this.emp).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                  }
-                }
-            );
-          }
-        });
-      }
     },
     sizeChange(currentSize) {
       this.size = currentSize;

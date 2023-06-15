@@ -71,7 +71,7 @@ public interface PublicationMapper {
             "WHERE p.`name` = #{name} AND YEAR ( ip.date )= #{year}  AND ip.flag !=- 1 \n" +
             "ORDER BY i.score DESC, i.`order` \n" +
             "LIMIT 1")
-    Publication getPublicationByNameYear(String name, Integer year);
+    Publication getPublicationByNameYear(String name, String year);
 
 
     /**

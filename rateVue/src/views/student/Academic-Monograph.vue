@@ -758,7 +758,7 @@ export default {
       this.oper.state=state
       this.oper.bookID=academicID
       this.oper.operation="提交学术专著和教材"
-      await this.postRequest1("/booksoper/basic/add", this.oper)
+      await this.postRequest1("/oper/basic/add", this.oper)
       await this.initEmps();
     },
     showAddEmpView() {//点击添加科研项目按钮

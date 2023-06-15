@@ -32,8 +32,8 @@
     </sql>
 
     <select id="selectList" resultMap="OperResult">
-        <include refid="selectOper"></include>
-        where prod_id = #{prodId} and prod_type = #{prodType}
+        select * from i_oper
+        where prod_id = #{prodId} and prod_type = #{prodType} and operator_id = #{operatorId}
     </select>
 
     <insert id="insertOper" parameterType="org.sys.rate.model.Operation">
@@ -41,12 +41,12 @@
                             prod_type, prod_id, date, operation_name, state, remark)
         values (#{id},
                 #{operatorRole},
-                #{operatorID,jdbcType=INTEGER},
+                #{operatorId,jdbcType=INTEGER},
                 #{operatorName},
                 #{prodType},
                 #{prodId},
-                #{operationName},
                 #{date},
+                #{operationName},
                 #{state},
                 #{remark})
     </insert>

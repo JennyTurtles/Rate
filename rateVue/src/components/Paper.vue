@@ -585,7 +585,6 @@ export default {
     auditing_commit(num){
       this.loading = true;
       let url;
-      const _this=this
       this.dialogVisible_show=false
       url= "/paper/basic/edit_state?state="+num
           +"&ID="+this.emp.id
@@ -604,23 +603,18 @@ export default {
               type: 'success',
               message: '操作成功'
             })
-            this.doAddOper(num,this.reason,
-                this.emp.id,this.emp.name,
-                this.emp.pubName,this.emp.pubid);
+            this.doAddOper(num, this.reason, this.emp.id);
           }
         }).finally(()=>{
-
           this.initEmps();
         });
       }
     },
-    doAddOper(state,reamrk,paperID,paperName,pubName,pubID) {
-      this.oper.state=state
-      this.oper.remark=reamrk,
-      this.oper.paperID=paperID,
-      this.oper.paperName=paperName,
-      this.oper.pubName=pubName,
-      this.oper.pubID=pubID
+    doAddOper(state, remark, paperID) {
+      this.oper.state = state;
+      this.oper.remark = remark;
+      this.oper.paperID = paperID;
+      this.oper.time = this.dateFormatFunc(new Date());
       if(this.oper.state=="tea_pass"){
         this.oper.operation="教师审核通过"
       }else if (this.oper.state == 'adm_pass')
@@ -630,10 +624,9 @@ export default {
       else{
         this.oper.operation="管理员驳回"
       }
-      this.postRequest1("/paperoper/basic/add", this.oper).then(
+      this.postRequest1("/oper/basic/add", this.oper).then(
         (resp) => {
           if (resp) {
-            console.log(resp)
             this.initEmps()
           }
         }
@@ -641,23 +634,6 @@ export default {
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
-    },
-    /** 查询角色列表 */
-    onError(err, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-    },
-    onSuccess(response, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-      this.initEmps();
-    },
-    beforeUpload() {
-      this.importDataBtnText = "正在导入";
-      this.importDataBtnIcon = "el-icon-loading";
-      this.importDataDisabled = true;
     },
     emptyEmp() {
       this.emp = {
@@ -667,11 +643,6 @@ export default {
         scoreItemCount: "0",
         comment: "论文备注example：关于xxx的论文",
       };
-    },
-    showEditEmpView(data) {//修改论文
-      this.title = "编辑单位信息";
-      this.emp = data;
-      this.dialogVisible = true;
     },
     showEditEmpView_show(data) {
       this.title_show = "显示详情";
@@ -733,7 +704,7 @@ export default {
       this.role = JSON.parse(localStorage.getItem('user')).role
       if (this.role === 13 || this.role === 14)
        this.role = 1
-      let url = "/paper/basic/List";
+      let url = "/paper/basic/List?id=" + this.user.id;
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
@@ -803,13 +774,6 @@ export default {
 </script>
 
 <style>
-/* 可以设置不同的进入和离开动画 */
-/* 设置持续时间和动画函数 */
-/* .selectInput { */
-  /* position: relative; */
-  /* display: inline-block; */
-
-/* } */
 .showInfo_dialog .el-form-item{
   margin-bottom: 5px;
 }

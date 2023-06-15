@@ -187,36 +187,8 @@
         </el-pagination>
       </div>
     </div>
-
-    <el-dialog :title="title" :visible.sync="dialogVisible" width="30%" center>
-      <el-form
-          :label-position="labelPosition"
-          label-width="100px"
-          :model="emp"
-          :rules="rules"
-          ref="empForm"
-      >
-        <el-form-item label="获奖成果名称:" prop="name">
-          <el-input
-              size="mini"
-              style="width: 400px"
-              prefix-icon="el-icon-edit"
-              v-model="emp.name"
-              placeholder="请输入单位名称"
-          ></el-input>
-        </el-form-item>
-      </el-form>
-
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="doAddEmp">确 定</el-button>
-      </span>
-    </el-dialog>
-
-    <!-- 对话框 老师审核通过论文 -->
     <el-dialog :title="title"
                :visible.sync="dialogVisible_pass" width="30%" center>
-      <!-- 确定审核通过该学生论文？ -->
       <el-form
           :label-position="labelPosition"
           label-width="80px"
@@ -429,16 +401,15 @@ export default {
       positions: [],
       reason:"",
       oper:{
-        operatorRole:"teacher",
-        operatorID:JSON.parse(localStorage.getItem('user')).id,
-        operatorName:JSON.parse(localStorage.getItem('user')).name,
-        paperID:null,
-        paperName:null,
-        pubID:null,
-        pubName:null,
-        operation:"",
+        operatorRole: "teacher",
+        operatorID: '',
+        prodType: 'award',
+        patentID: null,
+        operationName:"",
         state:"",
-        remark:""
+        remark:"",
+        time: null,
+        prodId: null,
       },
       emp: {
         id: null,
@@ -455,11 +426,6 @@ export default {
         student:{},
         total:0,
         rank:0
-        // reason:"",
-      },
-      defaultProps: {
-        children: "children",
-        label: "name",
       },
       rules: {
         name: [{ required: true, message: "请输入获奖成果名", trigger: "blur" }],
@@ -492,7 +458,6 @@ export default {
   created() {},
   mounted() {
     this.initEmps();
-    this.initPositions();
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -592,13 +557,12 @@ export default {
         });
       }
     },
-    doAddOper(state,reamrk,paperID,paperName,pubName,pubID) {
-      this.oper.state=state
-      this.oper.remark=reamrk,
-          this.oper.awardID=paperID,
-          this.oper.awardName=paperName,
-          this.oper.pubName=pubName,
-          this.oper.pubID=pubID
+    async doAddOper(state,remark,awardID) {
+      this.oper.state = state;
+      this.oper.operatorID = this.user.id;
+      this.oper.remark = remark;
+      this.oper.prodId = awardID;
+      this.oper.time = this.dateFormatFunc(new Date());
       if(this.oper.state=="tea_pass"){
         this.oper.operation="教师审核通过"
       }else if (this.oper.state == 'adm_pass')
@@ -608,37 +572,11 @@ export default {
       else{
         this.oper.operation="管理员驳回"
       }
-      this.postRequest1("/award/basic/add", this.oper).then(
-          (resp) => {
-            if (resp) {
-              console.log(resp)
-              this.initEmps()
-            }
-          }
-      );
+      await this.postRequest1("/award/basic/add", this.oper);
+      await this.initEmps();
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
-    },
-    /** 查询角色列表 */
-    onError(err, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-    },
-    onSuccess(response, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-      this.initEmps();
-    },
-    beforeUpload() {
-      this.importDataBtnText = "正在导入";
-      this.importDataBtnIcon = "el-icon-loading";
-      this.importDataDisabled = true;
-    },
-    exportData() {
-      window.open("/employee/basic/export", "_parent");
     },
     emptyEmp() {
       this.emp = {
@@ -649,15 +587,7 @@ export default {
         comment: "获奖成果备注example：关于xxx的获奖成果",
       };
     },
-    showEditEmpView(data) {//修改论文
-      console.log(data.id)
-      this.initPositions();
-      this.title = "编辑单位信息";
-      this.emp = data;
-      this.dialogVisible = true;
-    },
     showEditEmpView_show(data) {
-      console.log(data.url)
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
@@ -673,7 +603,6 @@ export default {
       });
     },
     deleteEmp(data) {
-      console.log(data);
       this.$confirm(
           "此操作将永久删除【" + data.name + "】, 是否继续?",
           "提示",
@@ -685,54 +614,11 @@ export default {
       ).then(() => {
         this.postRequest("/paper/basic/remove", {ID:data.id}).then((resp) => {
           if (resp) {
-            console.log(resp)
             this.dialogVisible = false;
             this.initEmps();
           }
         });
       });
-    },
-    doAddEmp() {
-      if (this.emp.id) {
-        console.log(this.emp);
-        this.$refs["empForm"].validate((valid) => {
-          if (valid) {
-            const _this = this;
-            this.postRequest("/activities/basic/update", _this.emp).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                  }
-                }
-            );
-          }
-        });
-      } else {
-        this.$refs["empForm"].validate((valid) => {
-          if (valid) {
-            this.emp.institutionID = this.user.id;
-            console.log(this.emp);
-            console.log(this.user.id);
-            const _this = this;
-            this.postRequest("/activities/basic/insert", _this.emp).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                  }
-                }
-            );
-          }
-        });
-      }
-    },
-    initPositions() {
-      /*this.getRequest('/employee/basic/positions').then(resp => {
-        if (resp) {
-          this.positions = resp;
-        }
-      })*/
     },
     sizeChange(currentSize) {
       this.size = currentSize;
@@ -742,11 +628,6 @@ export default {
       this.page = currentPage;
       this.initEmps("advanced");
     },
-    showAddEmpView() {
-      this.emptyEmp();
-      this.title = "添加论文";
-      this.dialogVisible = true;
-    },
     initEmps() {
       this.loading = true;
       this.role = JSON.parse(localStorage.getItem('user')).role
@@ -754,7 +635,6 @@ export default {
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          console.log(resp);
           this.emps = resp.data;
           this.copyemps=this.emps
           this.total = resp.total;
@@ -778,49 +658,8 @@ export default {
         }
       });
     },
-    showGroupmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/table",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showInsertmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/group",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showteachermanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/sobcfg",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showScoreItem(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/month",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
     searchEmps() {//根据条件搜索论文
       var newemps=new Set()
-      // var copyemps=this.emps
       var stuname=document.getElementById("select_stuname").value
       var select_paperName=document.getElementById("select_paperName").value
       var state = null
@@ -838,7 +677,6 @@ export default {
       this.postRequest("/award/basic/list", {'stuName':stuname,'zcName':select_paperName,'sState':state,'sScore':this.tmp2,'eScore':this.tmp3}).then((resp) => {
         this.loading = false;
         if (resp) {
-          console.log(resp);
           this.emps = resp.data;
           this.copyemps=this.emps
           this.total = resp.total;
@@ -861,7 +699,6 @@ export default {
           })
         }
       });
-      console.log({'stuName':stuname,'zcName':select_paperName,'sState':this.tmp1,'sScore':this.tmp2,'eScore':this.tmp3})
     },
     checkScore(row){
       return row.no_score == 1 ? "0（2分论文只能计算一次）" : row.point;
@@ -871,13 +708,6 @@ export default {
 </script>
 
 <style>
-/* 可以设置不同的进入和离开动画 */
-/* 设置持续时间和动画函数 */
-/* .selectInput { */
-/* position: relative; */
-/* display: inline-block; */
-
-/* } */
 .showInfo_dialog .el-form-item{
   margin-bottom: 5px;
 }
@@ -905,10 +735,6 @@ input[type=text]::placeholder {
 input:focus{
   border:1px solid lightblue;
 }
-.slide-fade-enter-active {
-  transition: all 0.8s ease;
-}
-
 .slide-fade-leave-active {
   transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
 }
@@ -926,14 +752,6 @@ div::-webkit-scrollbar:vertical {
   /* 设置垂直滚动条宽度 */
   width: 6px;
 }
-
-
-/* 这里不需要用到这个 */
-/* div::-webkit-scrollbar:horizontal{ */
-/* 设置水平滚动条厚度 */
-/* height: 2px; */
-/* } */
-
 div::-webkit-scrollbar-thumb {
   /* 滚动条的其他样式定制，注意，这个一定也要定制，否则就是一个透明的滚动条 */
   border-radius: 8px;

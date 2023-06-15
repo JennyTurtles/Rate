@@ -224,32 +224,6 @@
         </el-pagination>
       </div>
     </div>
-
-    <el-dialog :title="title" :visible.sync="dialogVisible" width="30%" center>
-      <el-form
-          :label-position="labelPosition"
-          label-width="100px"
-          :model="emp"
-          :rules="rules"
-          ref="empForm"
-      >
-        <el-form-item label="项目名称:" prop="name">
-          <el-input
-              size="mini"
-              style="width: 200px"
-              prefix-icon="el-icon-edit"
-              v-model="emp.name"
-              placeholder="请输入单位名称"
-          ></el-input>
-        </el-form-item>
-      </el-form>
-
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="doAddEmp">确 定</el-button>
-      </span>
-    </el-dialog>
-
     <!-- 对话框 老师审核通过项目 -->
     <el-dialog :title="title"
                :visible.sync="dialogVisible_pass" width="30%" center>
@@ -441,16 +415,14 @@ export default {
       positions: [],
       reason:"",
       oper:{
-        operatorRole:"teacher",
-        operatorID:JSON.parse(localStorage.getItem('user')).id,
-        operatorName:JSON.parse(localStorage.getItem('user')).name,
-        paperID:null,
-        paperName:null,
-        pubID:null,
-        pubName:null,
-        operation:"",
-        state:"",
-        remark:""
+        operatorRole: "teacher",
+        operatorID: null,
+        prodType: 'project',
+        operationName: '',
+        state: '',
+        remark: '',
+        prodId: null,
+        time: null
       },
       emp: {
         id: null,
@@ -564,33 +536,28 @@ export default {
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          console.log(resp);
           this.emp.state=num
           this.total = resp.total;
           this.isShowInfo=false
-          this.doAddOper(num,this.reason,
-              this.emp.id,this.emp.name,
-              this.emp.pubName,this.emp.pubid)
+          this.doAddOper(num, this.reason, this.emp.id)
         }
       });
 
     },
-    doAddOper(state,reamrk,paperID,paperName,pubName,pubID) {
-      this.oper.state=state
-      this.oper.remark=reamrk,
-          this.oper.paperID=paperID,
-          this.oper.paperName=paperName,
-          this.oper.pubName=pubName,
-          this.oper.pubID=pubID
+    doAddOper(state,remark, projectID) {
+      this.oper.state=state;
+      this.oper.operatorID = this.user.id;
+      this.oper.remark = remark;
+      this.oper.prodId = projectID;
+      this.oper.time = this.dateFormatFunc(new Date());
       if(this.oper.state=="tea_pass"){
         this.oper.operation="审核通过"
       }else{
         this.oper.operation="审核驳回"
       }
-      this.postRequest1("/paperoper/basic/add", this.oper).then(
+      this.postRequest1("/oper/basic/add", this.oper).then(
           (resp) => {
             if (resp) {
-              console.log(resp)
               this.initEmps()
             }
           }
@@ -598,26 +565,6 @@ export default {
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
-    },
-    /** 查询角色列表 */
-    onError(err, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-    },
-    onSuccess(response, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-      this.initEmps();
-    },
-    beforeUpload() {
-      this.importDataBtnText = "正在导入";
-      this.importDataBtnIcon = "el-icon-loading";
-      this.importDataDisabled = true;
-    },
-    exportData() {
-      window.open("/employee/basic/export", "_parent");
     },
     emptyEmp() {
       this.emp = {
@@ -628,13 +575,6 @@ export default {
         comment: "论文备注example：关于xxx的论文",
       };
     },
-    showEditEmpView(data) {//修改论文
-      console.log(data.id)
-      this.initPositions();
-      this.title = "编辑单位信息";
-      this.emp = data;
-      this.dialogVisible = true;
-    },
     showEditEmpView_show(data) {
       this.title_show = "显示详情";
       this.emp = data;
@@ -642,8 +582,6 @@ export default {
       this.getRequest("/paperoper/basic/List?ID="+data.id).then((resp) => {
         this.loading = false;
         if (resp) {
-          console.log("/paperoper/basic/List?ID=");
-          console.log(resp);
           this.isShowInfo=false
           this.operList=resp.data
           this.operList.sort(function(a,b){
@@ -651,73 +589,6 @@ export default {
           })
         }
       });
-      // if(this.emp.state == 'tea_pass'){
-      //   this.isShowInfo=true
-      // }else{
-      //   this.isShowInfo=false
-      // }
-    },
-    deleteEmp(data) {
-      console.log(data);
-      this.$confirm(
-          "此操作将永久删除【" + data.name + "】, 是否继续?",
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          }
-      ).then(() => {
-        this.postRequest("/paper/basic/remove", {ID:data.id}).then((resp) => {
-          if (resp) {
-            console.log(resp)
-            this.dialogVisible = false;
-            this.initEmps();
-          }
-        });
-      });
-    },
-    doAddEmp() {
-      if (this.emp.id) {
-        console.log(this.emp);
-        this.$refs["empForm"].validate((valid) => {
-          if (valid) {
-            const _this = this;
-            this.postRequest("/activities/basic/update", _this.emp).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                  }
-                }
-            );
-          }
-        });
-      } else {
-        this.$refs["empForm"].validate((valid) => {
-          if (valid) {
-            this.emp.institutionID = this.user.id;
-            console.log(this.emp);
-            console.log(this.user.id);
-            const _this = this;
-            this.postRequest("/activities/basic/insert", _this.emp).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                  }
-                }
-            );
-          }
-        });
-      }
-    },
-    initPositions() {
-      /*this.getRequest('/employee/basic/positions').then(resp => {
-        if (resp) {
-          this.positions = resp;
-        }
-      })*/
     },
     sizeChange(currentSize) {
       this.size = currentSize;
@@ -727,19 +598,12 @@ export default {
       this.page = currentPage;
       this.initEmps("advanced");
     },
-    showAddEmpView() {
-      this.emptyEmp();
-      this.title = "添加论文";
-      this.dialogVisible = true;
-    },
     initEmps() {
       this.loading = true;
       let url = "/paper/basic/List";
-      console.log(url);
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          console.log(resp);
           this.emps = resp.data;
           this.copyemps=this.emps
           this.total = resp.total;
@@ -761,46 +625,6 @@ export default {
             return a.time > b.time ? -1 : 1
           })
         }
-      });
-    },
-    showGroupmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/table",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showInsertmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/group",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showteachermanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/sobcfg",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showScoreItem(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/month",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
       });
     },
     searchEmps() {//根据条件搜索论文
@@ -836,13 +660,6 @@ export default {
 </script>
 
 <style>
-/* 可以设置不同的进入和离开动画 */
-/* 设置持续时间和动画函数 */
-/* .selectInput { */
-/* position: relative; */
-/* display: inline-block; */
-
-/* } */
 .showInfo_dialog .el-form-item{
   margin-bottom: 5px;
 }
@@ -870,17 +687,6 @@ input[type=text]::placeholder {
 input:focus{
   border:1px solid lightblue;
 }
-/* .selectInput .select {
-    width: 80%;
-    position: absolute;
-    background: #fff;
-    z-index: 99999;
-    overflow: auto;
-    left: 77px;
-    cursor: pointer;
-    border:1px solid #ccc;
-    padding: 0 10px;
-  } */
 .slide-fade-enter-active {
   transition: all 0.8s ease;
 }
@@ -902,14 +708,6 @@ div::-webkit-scrollbar:vertical {
   /* 设置垂直滚动条宽度 */
   width: 6px;
 }
-
-
-/* 这里不需要用到这个 */
-/* div::-webkit-scrollbar:horizontal{ */
-/* 设置水平滚动条厚度 */
-/* height: 2px; */
-/* } */
-
 div::-webkit-scrollbar-thumb {
   /* 滚动条的其他样式定制，注意，这个一定也要定制，否则就是一个透明的滚动条 */
   border-radius: 8px;
