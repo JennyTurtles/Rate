@@ -342,18 +342,18 @@
         <span slot="footer" class="dialog-footer" :model="emp">
             <el-button
                   id="but_pass"
-                  v-show="(emp.state=='commit' || (emp.state=='tea_pass' && role.indexOf('14') >= 0)) ? true:false"
+                  v-show="((emp.state=='commit' && role == 'teacher') || (emp.state=='tea_pass' && role == 'admin')) ? true:false"
                   @click="(()=>{
-                  if (role.indexOf('8') >= 0 || role.indexOf('9') >= 0)
+                  if (role == 'teacher')
                    auditing_commit('tea_pass')
-                  else if (role.indexOf('13') >= 0 || role.indexOf('14') >= 0)
+                  else if (role == 'admin')
                    auditing_commit('adm_pass')
                 }) "
                   type="primary"
                   >审核通过</el-button>
             <el-button
                   id="but_reject"
-                  v-show="(emp.state=='commit' || (emp.state=='tea_pass' && role == 1)) ? true:false"
+                  v-show="((emp.state=='commit' && role == 'teacher') || (emp.state=='tea_pass' && role == 'admin')) ? true:false"
                   @click="isShowInfo = true"
                   type="primary"
                   >审核不通过</el-button>
@@ -375,9 +375,9 @@
         </el-input>
         <span slot="footer">
           <el-button @click=" (()=>{
-            if (this.role == 8)
+            if (role == 'teacher')
               auditing_commit('tea_reject')
-            else if (this.role == 1)
+            else if (role == 'admin')
               auditing_commit('adm_reject')
             isShowInfo = false
           })"
@@ -583,13 +583,13 @@ export default {
       this.oper.time = this.dateFormatFunc(new Date());
       this.oper.operatorRole = this.role;
       if(this.oper.state == "tea_pass"){
-        this.oper.operationName = "教师审核通过"
+        this.oper.operationName = "审核通过"
       }else if (this.oper.state == 'adm_pass'){
-        this.oper.operationName = "管理员审核通过"
+        this.oper.operationName = "审核通过"
       } else if (this.oper.state =="tea_reject"){
-        this.oper.operationName = "教师驳回"
+        this.oper.operationName = "审核驳回"
       } else{
-        this.oper.operationName = "管理员驳回"
+        this.oper.operationName = "审核驳回"
       }
       this.postRequest1("/oper/basic/add", this.oper).then(
         (resp) => {
