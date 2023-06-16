@@ -23,8 +23,6 @@
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%"
       >
-        <el-table-column type="selection" width="35px"> </el-table-column>
-
         <el-table-column
             prop="name"
             align="center"
@@ -367,7 +365,8 @@ export default {
       patentTypeID:-1,
       oper:{
         operatorRole: "student",
-        operatorID: this.user.id,
+        operatorId: JSON.parse(localStorage.getItem('user')).id,
+        operatorName: JSON.parse(localStorage.getItem('user')).name,
         prodType: 'patent',
         operationName: '',
         state: '',
