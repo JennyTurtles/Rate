@@ -351,4 +351,9 @@ public class ParticipatesBasicController {
 //        participatesMapper.addParent(list); // 如果存在父活动则不新增，不存在则新增
         return RespBean.ok(respBean.getMsg());
     }
+
+    @GetMapping("/getByInstitutionID")
+    public RespBean getByInstitutionID(@RequestParam("institutionID")Integer institutionID){
+        return RespBean.ok("success",participatesMapper.getByInstitutionID(institutionID));
+    }
 }

@@ -199,4 +199,9 @@ public interface ParticipatesMapper {
             "(SELECT COUNT(*) from participants WHERE activityID = #{activityID} ) \n" +
             "where ID=#{activityID}")
     void updateActParCount(Integer activityID);
+
+    @Select("SELECT p.ID,name,IDNumber,code,activityID,groupID,studentID,s.institutionID,telephone,username,email\n" +
+            "FROM student s,participants p\n" +
+            "WHERE s.ID = p.studentID AND institutionID = #{institutionID}")
+    List<Participates> getByInstitutionID(Integer institutionID);
 }
