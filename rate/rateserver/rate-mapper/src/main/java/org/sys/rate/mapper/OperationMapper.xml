@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.OperationMapper">
+    <resultMap type="org.sys.rate.model.Operation" id="OperResult">
+        <result property="id" column="id"/>
+        <result property="operatorRole" column="operator_role"/>
+        <result property="operatorId" column="operator_id"/>
+        <result property="operatorName" column="operator_name"/>
+        <result property="prodType" column="prod_type"/>
+        <result property="prodId" column="prod_id"/>
+        <result property="time" column="date"/>
+        <result property="operationName" column="operation_name"/>
+        <result property="state" column="state"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+
+    <sql id="selectOper">
+        select id,
+               operator_role,
+               operator_id,
+               operator_name,
+               prod_type,
+               prod_id,
+               date,
+               operation_name,
+               state,
+               remark
+        from i_oper
+    </sql>
+
+    <select id="selectList" resultMap="OperResult">
+        select * from i_oper
+        where prod_id = #{prodId} and prod_type = #{prodType}
+    </select>
+
+    <insert id="insertOper" parameterType="org.sys.rate.model.Operation">
+        insert into i_oper (id, operator_role, operator_id, operator_name,
+                            prod_type, prod_id, date, operation_name, state, remark)
+        values (#{id},
+                #{operatorRole},
+                #{operatorId,jdbcType=INTEGER},
+                #{operatorName},
+                #{prodType},
+                #{prodId},
+                #{time},
+                #{operationName},
+                #{state},
+                #{remark})
+    </insert>
+
+</mapper>

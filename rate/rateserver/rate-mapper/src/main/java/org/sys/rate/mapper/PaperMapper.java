@@ -15,40 +15,50 @@ import java.util.List;
  * @date 2022-03-13
  */
 @Mapper
-public interface PaperMapper {
+public interface PaperMapper
+{
     /**
      * 通过ID获取Paper
      *
-     * @param id
+     * @param ID
      * @return
      */
-    @Select("select id, name, student_id, date, author, state, url, have_score, pub_page, publication_id from i_paper where id = #{id}")
-    Paper getById(Integer id);
+    @Select("select * from paper where ID = #{ID}")
+    Paper getById(Integer ID);
 
     /**
-     * 新增paper
+     * 查询论文成果
      *
-     * @param paper
-     * @return 新增paper的主键id
+     * @param ID 论文成果ID
+     * @return 论文成果
      */
-    int insertPaper(Paper paper);
+    public Paper selectPaperById(Long ID);
 
     /**
-     * 修改paper
+     * 查询论文成果列表
+     *
+     * @param paper 论文成果
+     * @return 论文成果集合
+     */
+    public List<Paper> selectPaperList(Paper paper);
+
+    /**
+     * 新增论文成果
      *
      * @param paper 论文成果
      * @return 结果
      */
-    int updatePaper(Paper paper);
+    public int insertPaper(Paper paper);
 
     /**
-     * 批量删除paper
-     * @param ids: paper的主键
-     * @Return int
+     * 修改论文成果
+     *
+     * @param paper 论文成果
+     * @return 结果
      */
-    int deletePaperByIds(List<Integer> ids);
+    public int updatePaper(Paper paper);
 
-    public int editState(String state, Integer ID);
+    public int editState(String state, Long ID);
     /**
      * 删除论文成果
      *
@@ -57,24 +67,28 @@ public interface PaperMapper {
      */
     public int deletePaperById(Long ID);
 
-
+    /**
+     * 批量删除论文成果
+     *
+     * @param IDs 需要删除的数据ID
+     * @return 结果
+     */
+    public int deletePaperByIds(String[] IDs);
 
     public List<Paper> selectList();
-
     public List<Paper> selectListById(@Param("studentID") Integer studentID, @Param("page") Integer page, @Param("size") Integer size);
-
     public List<Paper> selectListByIds(@Param("studentID") Integer studentID);
 
 
     @Select("SELECT ID FROM paper WHERE studentID = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
-    public Integer checkScore(int stuID);
+    public Integer checkScore(Long stuID);
 
     @Update("UPDATE paper SET state = #{state},have_score = #{valid} WHERE ID = #{ID}")
-    public Integer editState2(String state, int ID, Integer valid);
+    public Integer editState2(String state, Long ID, Integer valid);
 
-    @Update("UPDATE student SET score = score + #{score} WHERE ID = #{stuID}")
-    public int updateScore(int stuID, int score);
+    @Update("UPDATE graduatestudent SET point = point + #{score} WHERE ID = #{stuID}")
+    public int updateScore(Long stuID,Long score);
 
     @Select("SELECT * FROM paper WHERE  ID = #{ID}")
-    public Paper selectByID(int ID);
+    public Paper selectByID(Long ID);
 }

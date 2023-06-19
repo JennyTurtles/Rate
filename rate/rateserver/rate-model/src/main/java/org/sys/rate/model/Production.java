@@ -7,29 +7,39 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.List;
 
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Production {
-    private Integer id;
+    Integer id;
 
-    private String name;
+    String name;
 
-    private Integer studentId;
+    Integer studentId;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date date;
+    @DateTimeFormat(pattern = "yyyy-MM")
+    @JsonFormat(pattern = "yyyy-MM", timezone = "GMT+8")
+    Date date;
 
-    private String author;
+    String author;
 
-    private String state;
+    String state;
 
-    private String url;
+    String url;
 
     Integer point;
+
+    List<Operation> operationList;
+
+    // 排名
+    Integer rank;
+
+    // 总人数
+    Integer total;
+
 }
 
 

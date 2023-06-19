@@ -341,7 +341,7 @@ export default {
                 }
                 this.initHrs();
               }else {
-                Message.warning("请先确保组内无选手和专家。")
+                Message.warning("请先确保组内无选手和专家")
               }
             });
           })
@@ -544,7 +544,7 @@ export default {
     },
     exportTG(row) {
       this.loading=true;
-      Message.success("正在导出");
+      Message.success("导出成功");
       let url = "/participants/basic/exportTG?groupID="+row.id;
       this.loading=false;
       window.open(url, '_parent');

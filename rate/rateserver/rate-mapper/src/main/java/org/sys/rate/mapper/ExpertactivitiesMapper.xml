@@ -118,14 +118,11 @@
   <delete id="deletegroupid">
     delete from expertactivities
     where teacherID = #{id} and activityID = #{activityid} and groupID = #{groupid};
-    UPDATE activities set expertCount=expertCount-1 where ID=#{activityid};
-    UPDATE `groups` set expertCount=expertCount-1 where ID=#{groupid}
   </delete>
 
   <delete id="deleteNogroupid">
     delete from expertactivities
     where teacherID = #{id} and activityID = #{activityid};
-    UPDATE activities set expertCount=expertCount-1 where ID=#{activityid};
   </delete>
 
   <update id="insert" parameterType="org.sys.rate.model.Expertactivities">

@@ -157,17 +157,17 @@
                   id="input_publicationName"/>
               <div class="select_div"
                    v-show="ispubShow && publicationName && emp.year ? true:false"
-                   :style="'height:${menuHeight}'"
+                   :style="'height: ${menuHeight}'"
                    @mouseover="ispubFlag = true"
                    @mouseleave="ispubFlag = false">
                 <div
                     class="select_div_div"
                     v-for="val in select_pubName"
-                    :key="val.index"
-                    :value="val.value"
+                    :key="val"
+                    :value="val"
                     @click="filter_pub(val)"
                 >
-                  {{ val.value }}
+                  {{ val }}
                 </div>
               </div>
             </div>
@@ -295,9 +295,8 @@
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
             <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-          <!-- <el-form-item  v-model="operList" v-for="item in operList" :key="item.time" style="margin-bottom:8px;"> -->
               <div >
-                <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operation}}</p>
+                <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
               </div>
             </div>
@@ -355,14 +354,14 @@ export default {
       keyword: "",
       size: 10,
       publicationName:"",//所属期刊
-      publicationID:-1,
+      publicationId:-1,
       startPage:'',
       endPage:'',
-      // tutorName:JSON.parse(sessionStorage.getItem('user')).teachers.name,//导师名字
       oper:{
         operatorRole: "student",
-        operatorID: this.user.id,
-        prodType: 'paper',
+        operatorId: JSON.parse(localStorage.getItem('user')).id,
+        operatorName: JSON.parse(localStorage.getItem('user')).name,
+        prodType: '学术论文',
         operationName: '',
         state: '',
         remark: '',
@@ -381,7 +380,7 @@ export default {
         url:'',
         state:'',
         pubPage:'',
-        publicationID:null
+        publicationId:null
       },
       rules: {
         name: [{ required: true, message: "请输入论文名", trigger: "blur" }],
@@ -420,16 +419,14 @@ export default {
       return JSON.parse(localStorage.getItem('user')); //object信息
     },
     menuHeight() {
-      return this.publicationName.length * 50 > 150
+      return this.select_pubName.length * 50 > 150
           ? 150 + 'px'
-          : '${this.publicationName.length * 50}px'
+          : `${this.select_pubName.length * 50}px`
     },
   },
   created() {},
   mounted() {
     this.initEmps();
-    this.oper.operatorID = this.user.id;
-    this.oper.operatorName = this.user.name;
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -449,27 +446,16 @@ export default {
       if(!val){
         return
       }
-      var publication={}
-      publication.year = this.emp.year
-      publication.name = this.publicationName
       this.timer = setTimeout(()=>{
-        let url = "/publication/getInfByNameYear"
-        this.postRequest(url,publication).then((resp) => {
+        let url = "/publication/basic/listByName?publicationName=" + this.publicationName
+        this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
             this.select_pubName=[]
             if(resp.obj){
-              for(var i=0;i<resp.obj.length;i++){
-                this.select_pubName.push(
-                    {//保存返回期刊的name
-                      value:resp.obj[i].name,
-                      indicatorID:resp.obj[i].indicatorID,
-                      publicationID:resp.obj[i].id
-                    }
-                )
-              }
-            }else{
-              this.$message.error(`请检查期刊名称的拼写`);
+              resp.obj.map(val => {
+                this.select_pubName.push(val)
+              })
             }
           }
         });
@@ -488,24 +474,17 @@ export default {
     filter_pub(val){//选择下拉框的某个期刊 得到选择的期刊的id score等信息
       this.ispubFlag=false
       this.ispubShow=false
-      var that = this
       if(!val){
           return
       }
-      this.publicationName=val.value
-      var url = "/publication/getScore/" + val.indicatorID
+      this.publicationName = val
+      var url = "/publication/getInfByNameYear?year=" + this.emp.year + '&name=' + this.publicationName
       this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
             if(resp.obj){
-              this.view_point = resp.obj
-              const id = this.user.id
-              if (this.view_point === 2){
-                // that.getRequest("/publication/checkScore/"+id).then((resp)=>{
-                //
-                // }
-              }
-              this.publicationID = val.publicationID
+              this.view_point = resp.obj.point
+              this.publicationId = resp.obj.id;
             }else {
               this.publicationName = ''
               this.$message.error('无该期刊！请重新选择时间！')
@@ -516,7 +495,6 @@ export default {
     },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
-      console.log(fileName);
       if(this.user){
         var url="/paper/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
         window.location.href = encodeURI(url);
@@ -678,26 +656,26 @@ export default {
       this.emp = data;
       this.view_point = data.point
       this.dialogVisible = true;
-      this.publicationName=this.emp.publication.name
-      this.data_picker= new Date(this.emp.year,this.emp.month)
-      this.writer=this.emp.author
+      this.publicationName = this.emp.publication.name
+      this.data_picker = new Date(this.emp.year,this.emp.month)
+      this.writer = this.emp.author
       var page = this.emp.pubPage.split('-')
       this.startPage = page[0]
       this.endPage = page[1]
       this.options = []
-      this.getRequest("/publication/basic/list/"+data.year).then((resp) => {
-        if (resp) {
-          for(var i=0;i<resp.data.length;i++){
-            this.options.push( //修改
-                {
-                  index:resp.data[i].id,
-                  value:resp.data[i].name,
-                  point:resp.data[i].score
-                }
-            )
-          }
-        }
-      })
+      // this.getRequest("/publication/basic/list/"+data.year).then((resp) => {
+      //   if (resp) {
+      //     for(var i=0;i<resp.data.length;i++){
+      //       this.options.push( //修改
+      //           {
+      //             index:resp.data[i].id,
+      //             value:resp.data[i].name,
+      //             point:resp.data[i].score
+      //           }
+      //       )
+      //     }
+      //   }
+      // })
     },
     showEditEmpView_show(data) {
       this.title_show = "显示详情";
@@ -725,7 +703,7 @@ export default {
             if (valid) {
               this.emp.name = empdata.name
               this.emp.ID = empdata.id
-              this.emp.publicationID = empdata.publicationID
+              this.emp.publicationId = empdata.publicationId
               this.emp.point = empdata.point
               this.emp.year = empdata.year
               this.emp.month = empdata.month
@@ -734,8 +712,8 @@ export default {
               this.emp.rank = empdata.rank
               this.emp.pubPage = this.startPage + "-" + this.endPage
               this.emp.url = empdata.url;
-              this.emp.state = "commit"
-              this.emp.studentID = this.urlFile
+              this.emp.state = "commit";
+              this.emp.studentId = this.user.id;
               const _this = this;
               if (this.emp.url == '' || this.emp.url == null) {
                 this.$message({
@@ -760,7 +738,7 @@ export default {
             this.emp.url = this.urlFile;
             this.emp.state = "commit"
             this.emp.point = this.view_point
-            this.emp.publicationID = this.publicationID
+            this.emp.publicationID = this.publicationId
             this.emp.studentID = this.user.id
             const _this = this;
             if (this.emp.url == '' || this.emp.url == null) {
@@ -783,7 +761,7 @@ export default {
     async doAddOper(state, paperID) {
       this.oper.state=state
       this.oper.prodId = paperID
-      this.oper.operation = "提交论文"
+      this.oper.operationName = "提交论文"
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper)
       await this.initEmps();
@@ -814,32 +792,15 @@ export default {
         }
       });
     },
-    searchEmps() {
-      this.loading = true;
-      this.getRequest(
-        "/paper/basic/byName?name=" +
-          this.keyword +
-          "&page=" +
-          this.page +
-          "&size=" +
-          this.size
-      ).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.emps = resp.data;
-          this.total = resp.total;
-        }
-      });
-    },
     //查看详情
     showInfo(data){
       this.title_show = "显示详情";
-      this.emp=data
-      this.dialogVisible_showInfo=true
-      this.getRequest("/paperoper/basic/List?ID="+data.id).then((resp) => {
+      this.emp = data
+      this.dialogVisible_showInfo = true
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=学术论文').then((resp) => {
           this.loading = false;
           if (resp) {
-            this.operList=resp.data
+            this.operList = resp.obj
             this.operList.sort(function(a,b){
               return a.time > b.time ? -1 : 1
             })

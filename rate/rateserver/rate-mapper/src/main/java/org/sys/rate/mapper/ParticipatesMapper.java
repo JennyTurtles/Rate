@@ -176,7 +176,7 @@ public interface ParticipatesMapper {
             "on pp.studentID = p.studentID WHERE pp.groupID != #{groupID}")
     List<Participates> checkInOtherGroup(Integer groupID);
 
-    void addParent(List<Participates> list); // 活动ID，小组ID，学生ID设置为唯一索引，如果重复则不添加
+//    void addParent(List<Participates> list); // 活动ID，小组ID，学生ID设置为唯一索引，如果重复则不添加
 
     @Select("SELECT studentID FROM participants WHERE groupID = #{groupID}")
     List<Integer> getStudentIDbyGroupID(Integer groupID);
@@ -188,4 +188,20 @@ public interface ParticipatesMapper {
             "FROM participants p1 LEFT JOIN participants p2 on p1.studentID = p2.studentID\n" +
             "WHERE p1.activityID = #{subID} and p2.activityID = #{parID}")
     List<subID2ParID> getSubID2ParID(Integer subID, Integer parID);
+
+
+    @Update("UPDATE `groups` set participantCount=\n" +
+            "(SELECT COUNT(*) from participants WHERE groupID = #{groupID} ) \n" +
+            "where ID=#{groupID}")
+    void updateGroupParCount(Integer groupID);
+
+    @Update("UPDATE activities set participantCount=\n" +
+            "(SELECT COUNT(*) from participants WHERE activityID = #{activityID} ) \n" +
+            "where ID=#{activityID}")
+    void updateActParCount(Integer activityID);
+
+    @Select("SELECT p.ID,name,IDNumber,code,activityID,groupID,studentID,s.institutionID,telephone,username,email\n" +
+            "FROM student s,participants p\n" +
+            "WHERE s.ID = p.studentID AND institutionID = #{institutionID}")
+    List<Participates> getByInstitutionID(Integer institutionID);
 }

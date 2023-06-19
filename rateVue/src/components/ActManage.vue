@@ -301,7 +301,7 @@
                                 icon="el-icon-download"
                                 type="primary"
                                 plain
-                                v-show="scope.row.haveSub === 1"
+                                v-show="scope.row.haveSub === 1 && scope.row.gradeFormType === 1"
                         >导出成绩评定表
                         </el-button
                         >
@@ -357,7 +357,7 @@
         </div>
 
         <el-dialog :title="title" :visible.sync="dialogVisible" width="46%"
-                   @close="emp_edit={};haveComment = false;haveSub = false" center>
+                   @close="emp_edit={};haveComment = false;haveSub = false;gradeFormType = 0" center>
             <el-form
                     :label-position="labelPosition"
                     label-width="120px"
@@ -436,6 +436,21 @@
                 <el-form-item label="是否写评语: ">
                     <el-checkbox v-model="haveComment"></el-checkbox>
                   <span class="tip-title" style="margin-left: 10px">专家在评分时是否需要写评语</span>
+                </el-form-item>
+                <el-form-item label="成绩评定表类型: ">
+                 <el-select
+                     style="width: 100%"
+                     v-model="gradeFormType"
+                     placeholder="请选择成绩评定表类型xxx"
+                 >
+                  <el-option
+                      v-for="item in gradeFormTypes"
+                      :key="item.id"
+                      :label="item.label"
+                      :value="item.id"
+                      :disabled="item.disabled">
+                  </el-option>
+                 </el-select>
                 </el-form-item>
             </el-form>
             <span slot="footer" class="dialog-footer">
@@ -752,6 +767,8 @@ export default {
             scoreItemsAll:[],
             haveSub:false,
             haveComment:false,
+            gradeFormType:0,
+            gradeFormTypes:[{label:'无',id:0},{label:'计算机学院',id:1}],
             startDate: '',
             experts:'',
             participates:'',
@@ -1168,6 +1185,7 @@ export default {
                 scoreItemCount: "0",
                 comment: "活动备注example：关于xxx的活动。备注信息将显示在专家评分表的活动标题下方。",
             };
+            this.gradeFormType = 0
         },
         exportEx(data){
             this.loading=true;
@@ -1181,8 +1199,10 @@ export default {
         showEditEmpView(data) {
             this.title = "编辑活动信息";
             this.emp = data;
+
             this.haveSub = data.haveSub === 1;
             this.haveComment = data.haveComment === 1;
+            this.gradeFormType = data.gradeFormType;
             this.dialogVisible = true;
             if(data.visibleDate) this.visibleDateSelected = false//判断是否有时间数据 不然就默认选择不限
             else this.visibleDateSelected = true
@@ -1237,8 +1257,10 @@ export default {
                             type: "warning",
                         }
                     ).then(() => {
+                     data.requireGroup = data.requireGroup ? 1 : 0
                         this.postRequest("/activities/basic/predelete", data).then((resp) => {
-                            if (resp) {
+                            if (resp.status === 200) {
+                             this.$message({type: 'success',message: '删除成功!'});
                                 this.dialogVisible = false;
                                 this.initEmps();
                             }
@@ -1301,6 +1323,7 @@ export default {
             this.emp.haveSub = this.haveSub ? 1 : 0
             this.emp.haveComment = this.haveComment ? 1 : 0
             this.emp.requireGroup = this.requireGroup ? 1 : 0
+            this.emp.gradeFormType = this.gradeFormType
             this.$set(this.emp,"adminID",this.user.id)
             this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
             if (this.emp.id) {

@@ -373,6 +373,12 @@ public class ExpertController {
 //        String res = expertService.checkLeader(gradeForms);
         return RespBean.ok(String.valueOf(gradeForms.size()));
     }
+
+    @GetMapping("/getByInstitutionID")
+    public RespBean getByInstitutionID(@RequestParam("institutionID")Integer institutionID){
+        return RespBean.ok("success",expertsMapper.getByInstitutionID(institutionID));
+    }
+
 }
 
 

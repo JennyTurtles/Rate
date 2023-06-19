@@ -117,7 +117,7 @@ public class PaperCommentController {
      * 通过thesisID返回需要打印的pdf文件
      */
     @ResponseBody
-    @PostMapping("/exportPDF")
+    @GetMapping("/exportPDF")
     public void exportDataPDF(HttpServletResponse response, @RequestParam Integer thesisID) throws Exception {
         exportPDF.generatePDF(response, thesisID);
     }

@@ -19,7 +19,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Publication {
+public class  Publication {
 
     private Integer id;
 
@@ -48,10 +48,10 @@ public class Publication {
      */
     private List<Indicator> indicatorList;
 
-    private Integer indicatorId;
-
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private Date date;
+    private List<Date> dateList;
+
+    private List<Integer> flag;
 
 }

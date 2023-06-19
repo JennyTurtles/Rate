@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="display: flex; justify-content: left">
-      {{ keywords_name }}活动 {{groupName}} 选手总成绩
+      {{ keywords_name }}活动 {{groupName}} 选手成绩
 
       <div style="margin-left: auto">
         <el-button icon="el-icon-download" type="primary" @click="exportExcel">
@@ -209,6 +209,9 @@ export default {
       var url = '/displayItem/allPar?activityID=' + this.keywords
       if (typeof this.groupID !== 'undefined')
         url += '&groupID=' + this.groupID
+      else if (typeof this.$route.query.backGroupID !== 'undefined'){
+       url += '&groupID=' + this.$route.query.backGroupID
+      }
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-row>
+<!--    <el-row>-->
       <div style="margin-top: 10px">
         <span style="fontsize: 15px"> 学生姓名: </span>
         <div class="select_div_input">
@@ -145,7 +145,7 @@
           >重置</el-button
         >
       </div>
-    </el-row>
+<!--    </el-row>-->
       <div style="margin-top: 20px">
         <el-table
           class="table-with-shadow"
