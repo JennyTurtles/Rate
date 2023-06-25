@@ -3,16 +3,14 @@ package org.sys.rate.service.admin;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
 import javax.persistence.criteria.CriteriaBuilder;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class DisplayItemService {
@@ -97,7 +95,11 @@ public class DisplayItemService {
             }
         }
         // 展示项：建立map，ID:displayItem
-        List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItem(activityID); // 获取所有列信息
+        List<DisplayItem> displayItems;
+        if (activitiesMapper.getScoreSet(activityID)==1)
+            displayItems = displayItemMapper.getAllDisplayItem(activityID);
+        else
+            displayItems = getOrdinaryDisplayItem(activityID);
         Map<Integer, DisplayItem> displayItemMap = new HashMap<>();
         for (DisplayItem displayItem : displayItems){
             displayItem.setSourceName(getSourceName(displayItem.getSource())); // 解析sourceName
@@ -136,7 +138,11 @@ public class DisplayItemService {
 
 
     public List<DisplayItem> getDisplayItem(Integer activityID) {
-        List<DisplayItem> res =  displayItemMapper.getAllDisplayItem(activityID);
+        List<DisplayItem> res;
+        if (activitiesMapper.getScoreSet(activityID)==1)
+            res = displayItemMapper.getAllDisplayItem(activityID);
+        else
+            res = getOrdinaryDisplayItem(activityID);
         for (DisplayItem displayItem : res)
             displayItem.setSourceName(getSourceName(displayItem.getSource()));
         return res;
@@ -358,5 +364,24 @@ public class DisplayItemService {
             }
         }
         return "false";
+    }
+
+    //获取默认情况下的展示项
+    public List<DisplayItem> getOrdinaryDisplayItem(Integer activityID){
+        List<DisplayItem> res = new ArrayList<>();
+        res.add(new DisplayItem(0, "编号", "编号", "code"));
+        res.add(new DisplayItem(1, "姓名", "姓名", "name"));
+        List<ScoreItem> scoreItems = scoreItemMapper.getAllByActicityID(activityID);
+        //把活动得分放最后
+        ScoreItem score = scoreItems.get(0);
+        scoreItems.remove(0);
+        scoreItems.add(score);
+        Integer ID = 2;
+        for (ScoreItem scoreItem:scoreItems){
+            String source = "scoreitem."+ scoreItem.getId();
+            res.add(new DisplayItem(ID,scoreItem.getName(),scoreItem.getName(),source));
+            ID++;
+        }
+        return res;
     }
 }
