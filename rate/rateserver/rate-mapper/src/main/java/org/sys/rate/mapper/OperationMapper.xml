@@ -14,6 +14,9 @@
         <result property="operationName" column="operation_name"/>
         <result property="state" column="state"/>
         <result property="remark" column="remark"/>
+        <association property="point" javaType="org.sys.rate.model.Paper">
+            <result property="point" column="point"/>
+        </association>
     </resultMap>
 
 
@@ -32,23 +35,25 @@
     </sql>
 
     <select id="selectList" resultMap="OperResult">
-        select * from i_oper
-        where prod_id = #{prodId} and prod_type = #{prodType}
+        SELECT o.id, operator_role, operator_id, operator_name, prod_type, prod_id, date, operation_name, o.state, remark, point
+        FROM i_oper o, paper p
+        WHERE prod_id = 6144 AND prod_type = '学术论文' and o.prod_id = p.ID
+        ORDER BY date
     </select>
 
     <insert id="insertOper" parameterType="org.sys.rate.model.Operation">
-        insert into i_oper (id, operator_role, operator_id, operator_name,
+        insert into i_oper (operator_role, operator_id, operator_name,
                             prod_type, prod_id, date, operation_name, state, remark)
-        values (#{id},
-                #{operatorRole},
+        values (#{operatorRole},
                 #{operatorId,jdbcType=INTEGER},
                 #{operatorName},
                 #{prodType},
                 #{prodId},
-                #{time},
+                #{time, jdbcType=TIMESTAMP},
                 #{operationName},
                 #{state},
                 #{remark})
     </insert>
+
 
 </mapper>

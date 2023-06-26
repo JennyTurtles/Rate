@@ -35,5 +35,8 @@ public class Operation {
 
     private String remark;
 
+    private String formattedTime;
+
+    private Integer point;
 
 }

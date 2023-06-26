@@ -19,7 +19,9 @@ public class Production {
     String name;
 
     Integer studentId;
+
     Student student;
+
     Indicator indicator;
 
     @DateTimeFormat(pattern = "yyyy-MM")
@@ -32,8 +34,6 @@ public class Production {
 
     String url;
 
-    Integer point;
-
     List<Operation> operationList;
 
     // 排名
@@ -41,6 +41,8 @@ public class Production {
 
     // 总人数
     Integer total;
+
+    Integer point;
 
 }
 

@@ -176,7 +176,6 @@ public class ReceiveMails {
             }
             // 4.通过泛型来解决重复修改论文状态等问题
             int ID = Integer.parseInt(lines.get(this.phrases[1]));
-            //  Java's switch statement does not support using Chinese characters as case labels
             if (lines.get(this.phrases[0]).equals(this.allTypes[0])) {
                 // 0.检查ID是否正确
                 if (paperService.getById(ID) == null) {
@@ -187,12 +186,12 @@ public class ReceiveMails {
                 String state = lines.get(this.phrases[2]).equals("通过") ? "tea_pass" : "tea_reject";
                 // 1.重复修改论文状态
                 if (!checkProductionState(paper)) {
-                    mailToTeacherService.sendTeaFeedbackMail(paper, "论文", senderEmail, "dupEditState", originalMessage);
+                    mailToTeacherService.sendTeaFeedbackMail(paper, "学术论文", senderEmail, "dupEditState", originalMessage);
                     continue;
                 }
                 // 2.教师的邮件和发件人邮件是否匹配
                 if (getTutorEmail(paper) == null || getTutorEmail(paper).length() == 0 || !getTutorEmail(paper).equals(senderEmail)) {
-                    mailToTeacherService.sendTeaFeedbackMail(paper, "论文", senderEmail, "IDNotMatchTutorEmail", originalMessage);
+                    mailToTeacherService.sendTeaFeedbackMail(paper, "学术论文", senderEmail, "IDNotMatchTutorEmail", originalMessage);
                     continue;
                 }
                 // 3.修改成果的操作历史
@@ -207,8 +206,7 @@ public class ReceiveMails {
                 }
                 // 5.若成功，将修改后的状态发给老师&&学生
                 String editStateSuccess = state.equals("tea_pass") ? "editPassSuccess" : "editRejectSuccess";
-                mailToTeacherService.sendTeaFeedbackMail(paper, "论文", senderEmail, editStateSuccess, originalMessage);
-
+                mailToTeacherService.sendTeaFeedbackMail(paper, "学术论文", senderEmail, editStateSuccess, originalMessage);
 
             }
             // 在这里添加其他的成果类型
@@ -452,7 +450,8 @@ public class ReceiveMails {
         Teacher teacher = teacherService.getById(student.getTutorID());
 
         String operationName = state.equals("tea_pass") ? "经邮件回复，教师审核通过" : "经邮件回复，教师驳回";
-        Date date = new Date();
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
         // 修改论文操作状态
         Operation operation = new Operation();
         operation.setOperatorRole("teacher");
@@ -460,7 +459,7 @@ public class ReceiveMails {
         operation.setOperatorName(teacher.getName());
         operation.setProdType(type);
         operation.setProdId(Math.toIntExact(production.getID()));
-        operation.setTime((Timestamp) date);
+        operation.setTime(timestamp);
         operation.setOperationName(operationName);
         operation.setState(state);
         operation.setRemark(remark);

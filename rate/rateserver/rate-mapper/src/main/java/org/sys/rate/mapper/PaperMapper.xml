@@ -20,6 +20,7 @@
         <result property="state" column="state"/>
         <result property="pubPage" column="pubPage"/>
         <result property="pubName" column="pubName"/>
+        <result property="point" column="point"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="sname" column="sname"/>
@@ -42,18 +43,7 @@
     </resultMap>
 
     <sql id="selectPaperVo">
-        select ID,
-               studentID,
-               name,
-               year,
-               month,
-               `rank`,
-               total,
-               point,
-               publicationID,
-               url,
-               state,
-               pubPage
+        select ID, studentID, name, year, month, author, `rank`, total, point, have_score, publicationID, pubPage, state, url
         from paper
     </sql>
 

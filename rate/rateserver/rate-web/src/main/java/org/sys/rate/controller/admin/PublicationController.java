@@ -43,9 +43,9 @@ public class PublicationController {
      * @param publicationName:
      * @Return RespBean
      */
-    @GetMapping("/publication/basic/listByName")
-    public RespBean listByName(String publicationName) {
-        List<String> list = publicationService.selectPublicationListByName(publicationName);
+    @GetMapping("/publication/basic/listByNameYear/{publicationName}/{year}")
+    public RespBean listByName(@PathVariable String publicationName, @PathVariable Integer year) {
+        List<String> list = publicationService.selectPublicationListByName(publicationName, year);
         return RespBean.ok("模糊查询相关期刊", list);
     }
 
@@ -72,17 +72,6 @@ public class PublicationController {
     @PostMapping("/publication/basic/remove")
     public RespBean deletePublicationById(Integer ids) {
         return RespBean.ok("删除期刊成功！",publicationService.deletePublicationById(Collections.singletonList(ids)));
-    }
-
-    /**
-     * 通过期刊姓名进行模糊查找
-     * @param name:
-     * @Return RespBean
-     */
-    @GetMapping("/publication/basic/searchByName/{name}")
-    public RespBean getPubsByName(@PathVariable String name){
-        List<String> res = publicationService.selectPublicationListByName(name);
-        return RespBean.ok("success",res);
     }
 
     /**

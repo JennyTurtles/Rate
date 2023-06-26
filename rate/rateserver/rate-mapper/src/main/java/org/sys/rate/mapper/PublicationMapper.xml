@@ -5,16 +5,17 @@
 <mapper namespace="org.sys.rate.mapper.PublicationMapper">
 
     <resultMap type="org.sys.rate.model.Publication" id="PublicationResult">
-        <result property="id" column="id"/>
+        <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="abbr" column="abbr"/>
         <result property="publisher" column="publisher"/>
         <result property="url" column="url"/>
-        <association property="indicatorList" javaType="org.sys.rate.model.Indicator">
-            <id property="id" column="id" jdbcType="INTEGER"/>
-            <result property="name" column="name"/>
-            <result property="score" column="score"/>
-        </association>
+        <collection property="indicatorList" ofType="org.sys.rate.model.Indicator">
+            <id property="id" column="i_id" jdbcType="INTEGER"/>
+            <result property="name" column="i_name"/>
+            <result property="score" column="point"/>
+            <result property="order" column="order"/>
+        </collection>
     </resultMap>
 
     <sql id="selectPublicationVo">
@@ -26,7 +27,7 @@
         update i_publication
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
-            <if test="abbr != null">abbr = #{abbr},</if>``
+            <if test="abbr != null">abbr = #{abbr},</if>
             <if test="publisher != null">publisher = #{publisher},</if>
             <if test="url != null">url = #{url},</if>
         </trim>
@@ -39,5 +40,15 @@
             #{id}
         </foreach>
     </delete>
+
+    <select id="getPublicationByNameYear" resultMap="PublicationResult">
+        SELECT p.id, p.`name`, p.abbr, p.publisher, p.url, i.id as i_id, i.`name` as i_name, i.score as point, i.`order`
+        FROM indicator_publication ip
+                 LEFT JOIN i_publication p ON ip.publication_id = p.id
+                 LEFT JOIN indicator i ON ip.indicator_id = i.id
+        WHERE p.`name` = #{name} AND YEAR(ip.date) = #{year} AND ip.flag != -1
+        ORDER BY i.score DESC, i.`order`
+        LIMIT 1
+    </select>
 
 </mapper>

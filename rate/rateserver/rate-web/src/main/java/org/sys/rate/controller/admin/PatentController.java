@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
-import org.sys.rate.model.Operation;
 import org.sys.rate.model.Patent;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.IndicatorService;
@@ -23,8 +22,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 /**

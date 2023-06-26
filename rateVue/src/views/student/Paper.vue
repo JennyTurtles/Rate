@@ -225,8 +225,12 @@
         </el-form-item>
       </el-form>
       <div style="margin-left: 20px;">
+        <span style="color:gray;font-size:10px">{{publication_detail}}</span>
+      </div>
+      <div style="margin-left: 20px;">
           <span style="color:gray;font-size:10px">将会获得：{{view_point}}积分</span>
       </div>
+
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="doAddEmp()" v-show="addButtonState">提 交</el-button>
@@ -329,6 +333,7 @@ export default {
       ispubShow:false,
       empPaperName:'',//添加论文中的论文名称
       view_point:0,
+      publication_detail:"",
       headers: {
 					'Content-Type': 'multipart/form-data'
 			},
@@ -447,7 +452,7 @@ export default {
         return
       }
       this.timer = setTimeout(()=>{
-        let url = "/publication/basic/listByName?publicationName=" + this.publicationName
+        let url = `/publication/basic/listByNameYear/${encodeURIComponent(this.publicationName)}/${encodeURIComponent(this.emp.year)}`;
         this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
@@ -480,10 +485,12 @@ export default {
       this.publicationName = val
       var url = "/publication/getInfByNameYear?year=" + this.emp.year + '&name=' + this.publicationName
       this.getRequest(url).then((resp) => {
+        console.log(resp)
           this.loading = false;
           if (resp) {
             if(resp.obj){
-              this.view_point = resp.obj.point
+              this.view_point = resp.obj.indicatorList[0].score;
+              this.publication_detail = resp.obj.name + "录入于" +this.emp.year+"年，按照东华大学毕业要求，属于"+resp.obj.indicatorList[0].order+"类"
               this.publicationId = resp.obj.id;
             }else {
               this.publicationName = ''
@@ -555,6 +562,7 @@ export default {
       {
         this.publicationName = ""
         this.view_point = 0
+        this.publication_detail = ""
       }
       this.emp.year=data.getFullYear()
       this.emp.month=data.getMonth()+1
@@ -745,8 +753,10 @@ export default {
               this.$message.error('请上传证明材料！')
               return
             }
+            // console.log(_this.emp)
             await this.postRequest1("/paper/basic/add", _this.emp).then(
                 (resp) => {
+                  // console.log(resp)
                   if (resp) {
                     this.dialogVisible = false;
                     this.emp.id = resp.data;
@@ -770,6 +780,7 @@ export default {
       this.addButtonState=true
       this.options=[]
       this.view_point = 0
+      this.publication_detail = ""
       this.emptyEmp();
       this.writer=''
       this.data_picker=''
