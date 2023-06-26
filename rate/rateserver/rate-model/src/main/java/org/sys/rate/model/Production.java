@@ -19,6 +19,8 @@ public class Production {
     String name;
 
     Integer studentId;
+    Student student;
+    Indicator indicator;
 
     @DateTimeFormat(pattern = "yyyy-MM")
     @JsonFormat(pattern = "yyyy-MM", timezone = "GMT+8")

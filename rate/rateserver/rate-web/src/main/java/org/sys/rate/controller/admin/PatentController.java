@@ -52,36 +52,7 @@ public class PatentController {
     @GetMapping("/studentID")//无页码要求
     public JsonResult<List> getById(Integer studentID) {
         List<Patent> list = patentService.selectListByIds(studentID);
-        //好像是要返回时间最晚的被驳回记录的那条理由？
-        List<Patent> pp;
-        for (int i = 0; i < list.size(); i++) {
-            Patent patent = list.get(i);
-            List<Operation> patentOperation = patent.getOperationList();
-            int j;
-            Timestamp time = patentOperation.get(0).getTime();
-            //说明只有学生提交的那一条操作记录，不需要继续
-            if (patentOperation.size() == 1) {
-                continue;
-            }
-            int flag = 0, maxTimeIndex = 0;
-            for (j = 0; j < patentOperation.size(); j++) {
-                if (patentOperation.get(j).getOperationName().equals("审核驳回") && patentOperation.get(j).getOperatorRole().equals("teacher")) {
-                    flag = 1;
-                    if (time.getTime() < patentOperation.get(j).getTime().getTime()) {
-                        maxTimeIndex = j;
-                        time = patentOperation.get(j).getTime();
-                    }
-                }
-            }
-            if (patentOperation.get(maxTimeIndex).getRemark() != "" && flag == 1) {
-                if (patent.getState().equals("commit") || patent.getState().equals("tea_pass")) {
-                    patent.setRemark(" ");
-                } else {
-                    patent.setRemark(patentOperation.get(maxTimeIndex).getRemark());
-                }
-            }
-        }
-        return new JsonResult<>(list);
+        return new JsonResult<>(patentService.setPatentOperation(list));
     }
 
     //    修改专利状态
@@ -94,46 +65,7 @@ public class PatentController {
     public JsonResult<List> getCollect() {
         //包括返回最早的提交时间 和多次驳回的理由列表
         List<Patent> list = patentService.selectList();
-        List<Patent> pp;
-        for (int i = 0; i < list.size(); i++) {
-            Patent patent = list.get(i);
-            List<Operation> patentoperList = patent.getOperationList();
-            if (patentoperList == null || patentoperList.size() == 0) {
-                continue;
-            }
-            if (patentoperList.size() == 1) {//只有一个提交
-                patent.setDate(patentoperList.get(0).getTime());
-                continue;
-            }
-            int indexReject = -1;
-            Timestamp timeCommit = new Timestamp(new Date().getTime());
-            Timestamp timeReject = patentoperList.get(0).getTime();
-            for (int patentOper = 0; patentOper < patentoperList.size(); patentOper++) {
-                if (patentoperList.get(patentOper).getOperationName().equals("提交专利") && patentoperList.get(patentOper).getOperatorRole().equals("student")) {
-//                    因为可能有多次提交（如老师驳回、再次提交），所以找到时间最早的一条记录
-                    if (timeCommit.getTime() > patentoperList.get(patentOper).getTime().getTime()) {
-                        timeCommit = patentoperList.get(patentOper).getTime();
-                    }
-                }
-                if (patentoperList.get(patentOper).getOperationName().equals("审核驳回") && patentoperList.get(patentOper).getOperatorRole().equals("teacher")) {
-//                    可能有多次驳回，所以找到时间最晚的一条记录
-                    if (timeReject.getTime() < patentoperList.get(patentOper).getTime().getTime()) {
-                        indexReject = patentOper; //有可能该专利没有被驳回过，所以后续通过indexReject判断是否为初始值-1
-                        timeReject = patentoperList.get(patentOper).getTime();
-                    }
-                }
-            }
-            if (indexReject != -1) { //说明有驳回记录
-                if (patent.getState().equals("commit") || patent.getState().equals("tea_pass")) {
-                    //但是如果当前的专利处于通过或再次被提交状态就不返回驳回理由
-                    patent.setRemark(" ");
-                } else {
-                    patent.setRemark(patentoperList.get(indexReject).getRemark());
-                }
-            }
-            patent.setDate(timeCommit);
-        }
-        return new JsonResult<>(list);
+        return new JsonResult<>(patentService.setPatentOperation(list));
     }
 
     //    添加专利 搜索期刊类别

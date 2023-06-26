@@ -55,7 +55,7 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="typename"
+            prop="indicator.name"
             label="专利类别"
             align="center"
             width="300"
@@ -68,9 +68,8 @@
             width="150px"
         >
         </el-table-column>
-        <!-- width="200" -->
         <el-table-column
-            prop="point"
+            prop="indicator.score"
             label="积分"
             align="center"
             width="75px"
@@ -78,8 +77,8 @@
         </el-table-column>
         <!-- width="60" -->
         <el-table-column
-            prop="comment"
-            style="width=90px"
+            prop="remark"
+            style="width:90px"
             align="center"
             label="备注"
         >
@@ -147,7 +146,7 @@
                 style="margin-left:5px;width:80%;line-height:28px;
                               border:1px solid lightgrey;padding:0 10px 1px 15px;
                               border-radius:4px;color:gray"
-                :disabled = "false"
+                :disabled="disabledInput"
                 placeholder="请输入专利类别"
                 v-model="patentTypename"
                 @focus="inputTypeFocus"
@@ -172,18 +171,18 @@
         </el-form-item>
         <el-form-item label="立项年月:" prop="month" label-width="80px" style="margin-left: 20px;">
           <el-date-picker
-              v-model="emp.time"
+              v-model="emp.date"
               type="month"
               value-format="yyyy-MM"
               placeholder="立项年月">
           </el-date-picker>
         </el-form-item>
-        <el-form-item prop="rights" label="专利状态" label-width="80px" style="margin-left: 20px;">
+        <el-form-item prop="grantedStatus" label="专利状态" label-width="80px" style="margin-left: 20px;">
           <el-select
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
-              v-model="emp.rights"
+              v-model="emp.grantedStatus"
               placeholder="请选择专利状态"
           >
             <el-option label="授权" value="授权" />
@@ -261,8 +260,8 @@
           <span>{{ emp.month }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="专利状态:" prop="rights">
-          <span>{{ emp.rights }}</span
+        <el-form-item label="专利状态:" prop="grantedStatus">
+          <span>{{ emp.grantedStatus }}</span
           ><br />
         </el-form-item>
         <el-form-item label="参与人:" prop="patentee">
@@ -378,9 +377,8 @@ export default {
         id: null,
         institutionID: null,
         studentID:"",
-        // type:"",
         time:"",
-        rights:"",
+        grantedStatus:'',
         patentee:"",
         rank:"",
         total:"",
@@ -410,7 +408,7 @@ export default {
         this.delayInputTimer(val)
       }
     },
-    data_picker:{//清除时间input设置为不可输入
+    "emp.time":{//清除时间input设置为不可输入
       handler(val){
         if(!val){
           this.disabledInput = true
@@ -475,9 +473,12 @@ export default {
       },300)
     },
     inputTypeFocus(){//input获取焦点判断是否有下拉框，是否可输入
-      if(true){
-        this.isTypeShow = true//控制下拉框是否显示
+      if(this.emp.time){
+        this.ispubShow = true//控制下拉框是否显示
         this.disabledInput = false
+      }else {
+        this.$message.error('请选择时间！')
+        this.disabledInput = true
       }
     },
     filter_type(val){//选择下拉框的某个项目类别 得到选择的类别的id 等信息
@@ -639,7 +640,6 @@ export default {
         name: "",
         typename:"",
         time:"",
-        rights:"",
         patentee:"",
         total:"",
         rank:"",
@@ -653,9 +653,9 @@ export default {
       this.title = "编辑项目信息";
       this.emp = data;
       this.dialogVisible = true;
-      this.patentTypename=this.emp.type.name
-      //this.data_picker= new Date(this.emp.year,this.emp.month)
-      this.patentee=this.emp.patentee
+      this.patentTypename = this.emp.indicator.name
+      this.data_picker = this.emp.date
+      this.patentee = this.emp.patentee
       this.options = []
       let url = "/patentType/basic/searchByName/"
       this.postRequest(url, this.patentTypename).then((resp) => {
@@ -715,7 +715,6 @@ export default {
             this.emp.name=empdata.name
             this.emp.ID=empdata.id
             this.emp.point = empdata.point
-            this.emp.rights = empdata.rights
             this.emp.patentee=empdata.patentee
             this.emp.total = empdata.total
             this.patentTypename=document.getElementById("input_patentTypeName").value
@@ -746,7 +745,6 @@ export default {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
             this.patentTypename=document.getElementById("input_patentTypeName").value
-            //this.emp.pubPage=this.startPage+"-"+this.endPage
             this.emp.typename = this.patentTypename;
             this.emp.patentTypeID = this.patentTypeID;
             this.emp.point = this.view_point

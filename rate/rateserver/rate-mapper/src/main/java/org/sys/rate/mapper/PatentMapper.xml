@@ -13,6 +13,26 @@
         <result property="state" column="state"/>
         <result property="grantedStatus" column="granted_status"/>
         <result property="indicatorId" column="indicator_id"/>
+        <association property="student" javaType="org.sys.rate.model.Student">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="name" column="sname"/>
+        </association>
+        <association property="indicator" javaType="org.sys.rate.model.Indicator">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="iname"/>
+            <result property="score" column="score"/>
+        </association>
+        <collection property="operationList" ofType="org.sys.rate.model.Operation">
+            <result property="operatorRole" column="operator_role"/>
+            <result property="operatorId" column="operator_id"/>
+            <result property="operatorName" column="operator_name"/>
+            <result property="prodType" column="prod_type"/>
+            <result property="prodId" column="prod_id"/>
+            <result property="time" column="date"/>
+            <result property="operationName" column="operation_name"/>
+            <result property="state" column="state"/>
+            <result property="remark" column="remark"/>
+        </collection>
     </resultMap>
 
     <sql id="selectPaperVo">
@@ -23,21 +43,14 @@
     <select id="selectList" resultMap="PatentResult">
         -- 老师查询所有学生的专利
         SELECT p.*,
-               s.NAME   AS sname,
-               pub.NAME AS pname,
-               paperoper.operator_role,
-               paperoper.operator_id,
-               paperoper.operator_name,
-               paperoper.prod_type,
-               paperoper.prod_id,
-               paperoper.date,
-               paperoper.operation_name,
-               paperoper.state,
-               paperoper.remark
+               s.name as sname,
+               i.name as iname,
+               i.score,
+               oper.*
         FROM i_patent p
                  LEFT JOIN student s ON p.student_id = s.ID
-                 LEFT JOIN i_publication pub ON p. = pub.id
-                 LEFT JOIN i_oper paperoper ON p.ID = paperoper.prod_id and paperoper.prod_type = '授权专利'
+                 LEFT JOIN indicator i ON i.id = p.indicator_id
+                 LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '授权专利'
     </select>
 
     <select id="selectListById" resultMap="PatentResult">
@@ -53,25 +66,13 @@
 <!--    学生专利页面初始化-->
     <select id="selectListByIds" resultMap="PatentResult" parameterType="Integer">
         select p.*,
---                indicat.name as pname,
-               paperoper.operator_role,
-               paperoper.operator_id,
-               paperoper.operator_name,
-               paperoper.prod_type,
-               paperoper.prod_id,
-               paperoper.date,
-               paperoper.operation_name,
-               paperoper.state,
-               paperoper.remark
-        from i_patent p,
-             student s,
---              indicator indicat,
-             i_oper paperoper
+               oper.*,
+               i.name as iname,
+               i.score
+        FROM i_patent p
+                 LEFT JOIN indicator i ON i.id = p.indicator_id
+                 LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '授权专利'
         where p.student_id = #{studentID}
---           and p.indicator_id = indicat.id
-          and p.ID = paperoper.prod_id
-          and paperoper.prod_type = '授权专利'
-
     </select>
 
     <select id="selectPaperList" parameterType="org.sys.rate.model.Patent" resultMap="PatentResult">
