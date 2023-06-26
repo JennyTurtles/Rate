@@ -37,7 +37,7 @@
         e.`departmentId`=d.`id` and e.`jobLevelId`=j.`id` and e.`posId`=pos.`id` and e.`id`=#{id}
     </select>
     <select id="getActivitiesByPage" resultMap="BaseResultMap">
-        select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID,e.status,e.haveSub,aa.adminID,aa.activityID,aa.ID,e.haveComment,e.creatorID,e.enterDate,e.visibleDate
+        select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID,e.status,e.haveSub,aa.adminID,aa.activityID,aa.ID,e.haveComment,e.creatorID,e.enterDate,e.visibleDate,e.gradeFormType
         from activities e,activitygrant aa
         where e.deleteFlag = '0'
         and e.institutionID = #{institutionID}
@@ -88,11 +88,11 @@
         </where>
     </select>
     <insert id="insert" parameterType="org.sys.rate.model.Activities" useGeneratedKeys="true" keyProperty="id">
-        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID,parentID,haveSub,haveComment,creatorID,enterDate,visibleDate
+        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID,parentID,haveSub,haveComment,creatorID,enterDate,visibleDate,gradeFormType
         )
         values  (#{name,jdbcType=VARCHAR}, #{startDate,jdbcType=TIMESTAMP}, #{scoreItemCount,jdbcType=INTEGER},
                 #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER},#{parentID,jdbcType=INTEGER},#{haveSub,jdbcType=INTEGER},#{haveComment,jdbcType=INTEGER},
-                 #{adminID,jdbcType=INTEGER},#{enterDate,jdbcType=TIMESTAMP},#{visibleDate,jdbcType=TIMESTAMP});
+                 #{adminID,jdbcType=INTEGER},#{enterDate,jdbcType=TIMESTAMP},#{visibleDate,jdbcType=TIMESTAMP},#{gradeFormType,jdbcType=INTEGER});
     </insert>
     <insert id="insertScoreItem" parameterType="org.sys.rate.model.Activities">
         insert into scoreitem (activityID,name,score,coef,byExpert)
@@ -131,7 +131,8 @@
             haveSub=#{haveSub,jdbcType=INTEGER},
             haveComment=#{haveComment,jdbcType=INTEGER},
             enterDate=#{enterDate,jdbcType=TIMESTAMP},
-            visibleDate=#{visibleDate,jdbcType=TIMESTAMP}
+            visibleDate=#{visibleDate,jdbcType=TIMESTAMP},
+            gradeFormType=#{gradeFormType,jdbcType=INTEGER},
         </trim>
         where ID=#{id,jdbcType=INTEGER}
     </update>
