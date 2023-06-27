@@ -55,27 +55,26 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="indicator.name"
-            label="专利类别"
-            align="center"
-            width="300"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="patentee"
+            prop="author"
             align="center"
             label="参与人"
             width="150px"
         >
         </el-table-column>
         <el-table-column
-            prop="indicator.score"
+            prop="point"
             label="积分"
             align="center"
             width="75px"
         >
         </el-table-column>
-        <!-- width="60" -->
+        <el-table-column
+            prop="grantedStatus"
+            label="授权状态"
+            align="center"
+            width="75px"
+        >
+        </el-table-column>
         <el-table-column
             prop="remark"
             style="width:90px"
@@ -115,8 +114,6 @@
           </template>
         </el-table-column>
       </el-table>
-
-
     </div>
 
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
@@ -124,8 +121,7 @@
           :hide-required-asterisk="true"
           :label-position="labelPosition"
           label-width="150px"
-          :model="emp"
-          :rules="rules"
+          :model="currentPatentCopy"
           ref="empForm"
       >
         <el-form-item label="专利名称:" prop="name" label-width="80px" style="margin-left: 20px;">
@@ -134,44 +130,13 @@
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
-              v-model="emp.name"
+              v-model="patentName"
               placeholder="请输入专利名称"
           ></el-input>
         </el-form-item>
-        <el-form-item prop="typename" label="专利类别" label-width="80px" style="margin-left: 20px;">
-          <span class="isMust">*</span>
-          <div class="select_div_input">
-            <input
-                autocomplete="off"
-                style="margin-left:5px;width:80%;line-height:28px;
-                              border:1px solid lightgrey;padding:0 10px 1px 15px;
-                              border-radius:4px;color:gray"
-                :disabled="disabledInput"
-                placeholder="请输入专利类别"
-                v-model="patentTypename"
-                @focus="inputTypeFocus"
-                @blur="isTypeShow=isTypeFlag"
-                id="input_patentTypeName"/>
-            <div class="select_div"
-                 v-show="isTypeShow && patentTypename ? true:false"
-                 :style="'height:${menuHeight}'"
-                 @mouseover="isTypeFlag = true"
-                 @mouseleave="isTypeFlag = false">
-              <div
-                  style="margin:12px 0px 3px 12px;width:90%"
-                  v-for="val in select_TypeName"
-                  :key="val.index"
-                  :value="val.value"
-                  @click="filter_type(val)"
-              >
-                {{ val.value }}
-              </div>
-            </div>
-          </div>
-        </el-form-item>
         <el-form-item label="立项年月:" prop="month" label-width="80px" style="margin-left: 20px;">
           <el-date-picker
-              v-model="emp.date"
+              v-model="patentDate"
               type="month"
               value-format="yyyy-MM"
               placeholder="立项年月">
@@ -182,11 +147,11 @@
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
-              v-model="emp.grantedStatus"
+              v-model="patentGrantedStatus"
               placeholder="请选择专利状态"
+              @change="changePatentStatus($event)"
           >
-            <el-option label="授权" value="授权" />
-            <el-option label="受理" value="受理" />
+            <el-option v-for="item in patentStatusList" :key="item.value" :value="item" :label="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item  prop="total" label="参与人:" label-width="80px" style="margin-left: 20px;">
@@ -218,17 +183,13 @@
                   &nbsp;&nbsp;大小不能超过10MB
                 </span>
           </el-upload>
-          <div>
-
-          </div>
-
         </el-form-item>
       </el-form>
       <div style="margin-left: 20px;">
         <span style="color:gray;font-size:10px">将会获得：{{view_point}}积分</span>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="cancelAddPatent">取 消</el-button>
         <el-button type="primary" @click="doAddEmp" v-show="addButtonState">提 交</el-button>
       </span>
     </el-dialog>
@@ -242,9 +203,8 @@
     >
       <el-form
           :label-position="labelPosition"
-          label-width="120px"
+          label-width="80px"
           :model="emp"
-          :rules="rules"
           ref="empForm"
           style="margin-left: 20px">
 
@@ -252,20 +212,16 @@
           <span>{{ emp.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="专利类别:" prop="typename">
-          <span>{{ emp.typename }}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="受理年月:" prop="month">
-          <span>{{ emp.month }}</span
+        <el-form-item label="受理日期:" prop="date">
+          <span>{{ emp.date }}</span
           ><br />
         </el-form-item>
         <el-form-item label="专利状态:" prop="grantedStatus">
           <span>{{ emp.grantedStatus }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="参与人:" prop="patentee">
-          <span>{{ emp.patentee }}</span
+        <el-form-item label="参与人:" prop="author">
+          <span>{{ emp.author }}</span
           ><br />
         </el-form-item>
         <el-form-item label="总人数:" prop="total">
@@ -285,8 +241,6 @@
           ><br />
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
-          <!-- <el-button @click="download(emp)" type="primary" v-show="emp.url == '' || emp.url == null ? false:true">下载材料</el-button> -->
-          &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
           <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
              @click="download(emp)"
@@ -299,18 +253,16 @@
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
             <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <!-- <el-form-item  v-model="operList" v-for="item in operList" :key="item.time" style="margin-bottom:8px;"> -->
               <div >
-                <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operation}}</p>
-                <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
+                <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
+                <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
               </div>
             </div>
           </div>
         </div>
       </el-form>
-
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="dialogVisible_showinfo = false"
+        <el-button type="primary" @click="dialogVisible_showInfo = false"
         >关 闭</el-button
         >
       </span>
@@ -325,11 +277,30 @@ export default {
   name: "SalSearch",
   data() {
     return {
-      disabledInput:false,
-      timer:null,
-      select_TypeName:[],
-      isTypeFlag:false,
-      isTypeShow:false,
+      patentName:'',
+      patentDate:'',
+      patentGrantedStatus: '',
+      //在编辑状态时，做一个副本，用户点击取消可恢复原始状态
+      currentPatentCopy: null,
+      patentStatusList: [{
+        label:'受理',
+        value: -1
+      },{
+        label:'初审',
+        value: -2
+      },{
+        label:'公布',
+        value: -3
+      },{
+        label:'实审',
+        value: 107
+      },{
+        label:'授权',
+        value: 105
+      },{
+        label:'转让',
+        value: 92
+      }],
       view_point:0,
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -338,19 +309,10 @@ export default {
       urlFile:'',//文件路径
       addButtonState:true,//是否允许添加项目
       operList:[],//每个项目的历史操作记录
-      remarksort:[],//对显示的驳回理由做排序
       patentee:'',//和输入的作者列表绑定
-      options:[],//存储所有类型对象
-      data_picker:"",//选择时间
-      ulList:false,
       labelPosition: "left",
       title: "",
       title_show: "",
-      importDataBtnText: "导入数据",
-      importDataBtnIcon: "el-icon-upload2",
-      importDataDisabled: false,
-      showAdvanceSearchView: false,
-      allDeps: [],
       emps: [],
       loading: false,
       dialogVisible: false,
@@ -359,14 +321,12 @@ export default {
       total: 0,
       page: 1,
       size: 10,
-      positions: [],
       patentTypename:"",//项目类别
-      patentTypeID:-1,
       oper:{
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: 'patent',
+        prodType: '授权专利',
         operationName: '',
         state: '',
         remark: '',
@@ -375,56 +335,28 @@ export default {
       },
       emp: {
         id: null,
-        institutionID: null,
-        studentID:"",
-        time:"",
+        name:'',
+        studentId: JSON.parse(localStorage.getItem('user')).id,
+        date:"",
         grantedStatus:'',
-        patentee:"",
+        author:"",
         rank:"",
         total:"",
         point:"",
         url:'',
         state:" ",
-        patentTypeID:"",
+        remark: '',
+        indicatorId:''
       },
-      rules: {
-        name: [{ required: true, message: "请输入专利名", trigger: "blur" }],
-        scoreItemCount: [
-          {
-            required: true,
-            type: "number",
-            message: "请输入正确数据",
-            trigger: "blur",
-            transform: (value) => Number(value),
-          },
-        ],
-        comment: [{ required: true, message: "请输入备注", trigger: "blur" }],
-      },
+      // rules: {
+      //   name: [{ required: true, message: "请输入专利名", trigger: "blur" }]
+      // }
     };
-  },
-  watch:{
-    patentTypename:{
-      handler(val){//函数抖动
-        this.delayInputTimer(val)
-      }
-    },
-    "emp.time":{//清除时间input设置为不可输入
-      handler(val){
-        if(!val){
-          this.disabledInput = true
-        }
-      }
-    }
   },
   computed: {
     user() {
       return JSON.parse(localStorage.getItem('user')); //object信息
-    },
-    menuHeight() {
-      return this.patentTypename.length * 50 > 150
-          ? 150 + 'px'
-          : '${this.patentTypename.length * 50}px'
-    },
+    }
   },
   created() {},
   mounted() {
@@ -441,69 +373,33 @@ export default {
     }
   },
   methods: {
-    delayInputTimer(val){//项目类别输入框，根据name查找全称 每隔300ms发送请求
-      if(this.timer){
-        clearInterval(this.timer)
-      }
-      if(!val){
-        return
-      }
-      this.timer = setInterval(()=>{
-        let url = "/patentType/basic/searchByName/"
-        this.postRequest(url, val).then((resp) => {
-          this.loading = false;
-          if (resp) {
-            this.select_TypeName=[]
-            if(resp.obj){
-              for(var i=0;i<resp.obj.length;i++){
-                this.select_TypeName.push(
-                    {
-                      value:resp.obj[i].name,
-                      indicatorID:resp.obj[i].indicatorId,
-                      patentTypeID:resp.obj[i].id
-                    }
-                )
-              }
-            }else{
-              this.$message.error(`请检查项目名称的拼写`);
-            }
-          }
-          clearInterval(this.timer)
-        });
-      },300)
+    //添加 编辑框点击取消出发事件
+    cancelAddPatent() {
+      this.setCurrentPatent();
+      this.dialogVisible = false;
     },
-    inputTypeFocus(){//input获取焦点判断是否有下拉框，是否可输入
-      if(this.emp.time){
-        this.ispubShow = true//控制下拉框是否显示
-        this.disabledInput = false
+    setCurrentPatent() {
+      this.emp.grantedStatus = this.patentGrantedStatus;
+      this.emp.name = this.patentName;
+      this.emp.author = this.patentee;
+      this.emp.date = this.patentDate;
+      this.emp.point = this.view_point;
+      this.emp.date = this.patentDate;
+    },
+    //下拉框中选择专利的某个状态
+    changePatentStatus(item){
+      this.emp.grantedStatus = item.label;
+      if(item.value < 0) {
+        this.view_point = 0;
       }else {
-        this.$message.error('请选择时间！')
-        this.disabledInput = true
-      }
-    },
-    filter_type(val){//选择下拉框的某个项目类别 得到选择的类别的id 等信息
-      this.isTypeFlag=false
-      this.isTypeShow=false
-      var that = this
-      if(!val){
-        return
-      }
-      this.patentTypename = val.value
-      var url = "/patentType/basic/getScore/" + val.indicatorID
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          if(resp.obj){
-            this.view_point = resp.obj
-            const id = JSON.parse(localStorage.getItem('user')).id
-            this.patentTypeID = val.patentTypeID
-          }else {
-            this.patentTypename = ''
-            this.$message.error('无该专利类别！请重新检查类别名称！')
+        this.getRequest('/indicator/getScoreById?indicatorId=' + item.value).then(response => {
+          if(response.obj){
+            this.view_point = response.obj;
           }
-          clearInterval(this.timer)
-        }
-      });
+        })
+      }
+      this.emp.point = this.view_point;
+      this.emp.indicatorId = item.value;
     },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
@@ -557,10 +453,6 @@ export default {
           },()=>{}
       )
     },
-    timechange(picker){//选择日历调用的方法
-      var data=new Date(picker)
-      this.disabledInput = false
-    },
     judgePatentee(){//输入作者框 失去焦点触发事件
       var val=this.patentee;
       var isalph = false//判断输入中是否有英文字母
@@ -586,7 +478,7 @@ export default {
           this.addButtonState=false
         }else{
           this.addButtonState=true
-          this.emp.patentee=this.patentee
+          this.emp.author=this.patentee
           this.emp.rank=1
           this.emp.total=1
         }
@@ -615,24 +507,21 @@ export default {
               // num=[info.teachers.name,...num]
               // this.writer = num.join(';')
             },()=>{});
-            this.emp.point=0
-            this.view_point=this.emp.point
+            this.emp.point = 0
+            this.view_point = this.emp.point
           }
         }
-        this.addButtonState=true
+        this.addButtonState = true
       }
-      this.emp.total=num.length
+      this.emp.total = num.length
       if(num.indexOf(info.teachers.name)>-1){
         num.splice(num.indexOf(info.teachers.name),1)
       }
-      this.emp.rank=num.indexOf(info.name)+1
-      this.emp.patentee=this.patentee
+      this.emp.rank = num.indexOf(info.name)+1
+      this.emp.author=this.patentee
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
-    },
-    exportData() {
-      window.open("/employee/basic/export", "_parent");
     },
     emptyEmp() {
       this.emp = {
@@ -646,51 +535,30 @@ export default {
         point:"",
         url:"",
         state:"",
-        comment: "",
+        remark: "",
       };
     },
     showEditEmpView(data) {
-      this.title = "编辑项目信息";
-      this.emp = data;
       this.dialogVisible = true;
-      this.patentTypename = this.emp.indicator.name
-      this.data_picker = this.emp.date
-      this.patentee = this.emp.patentee
-      this.options = []
-      let url = "/patentType/basic/searchByName/"
-      this.postRequest(url, this.patentTypename).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.select_TypeName=[]
-          if(resp.obj){
-            for(var i=0;i<resp.obj.length;i++){
-              this.select_TypeName.push(
-                  {
-                    value:resp.obj[i].name,
-                    indicatorID:resp.obj[i].indicatorId,
-                    patentTypeID:resp.obj[i].id
-                  }
-              )
-            }
-          }else{
-            this.$message.error(`请检查项目名称的拼写`);
-          }
-        }
-        clearInterval(this.timer)
-      });
-      this.view_point = data.point
+      this.title = "编辑项目信息";
+      this.patentName = data.name;
+      this.patentDate = data.date;
+      this.patentGrantedStatus = data.grantedStatus;
+      this.patentee = data.author;
+      this.view_point = data.point;
+      this.emp.indicatorId = data.indicatorId;
+      this.emp.id = data.id;
+      this.emp.rank = data.rank;
+      this.emp.total = data.total;
     },
     showInfo(data){
       this.title_show = "显示详情";
-      this.emp=data
-      this.dialogVisible_showInfo=true
-      this.getRequest("/patentoper/basic/List?ID="+data.id).then((resp) => {
+      this.emp = data
+      this.dialogVisible_showInfo = true
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=授权专利').then((resp) => {
         this.loading = false;
         if (resp) {
-          this.operList=resp.data
-          this.operList.sort(function(a,b){
-            return a.time > b.time ? -1 : 1
-          })
+          this.operList = resp.obj
         }
       });
     },
@@ -700,6 +568,7 @@ export default {
         this.deleteRequest("/patent/basic/remove/" + data.id).then((resp) => {
           if (resp) {
             this.dialogVisible = false;
+            this.$message.success('删除成功！');
             this.initEmps();
           }
         })
@@ -707,34 +576,26 @@ export default {
     },
     doAddEmp() {//项目提交确认
       if (this.emp.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        // if(confirm('确定要提交吗？')){
-        var empdata=this.emp
-        this.emptyEmp()
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
-            this.emp.name=empdata.name
-            this.emp.ID=empdata.id
-            this.emp.point = empdata.point
-            this.emp.patentee=empdata.patentee
-            this.emp.total = empdata.total
-            this.patentTypename=document.getElementById("input_patentTypeName").value
-            this.emp.typename = this.patentTypename;
-            this.emp.patentTypeID = this.patentTypeID;
+            this.emp.name = this.patentName;
+            this.emp.point = this.view_point;
+            this.emp.date = this.patentDate;
+            this.emp.author = this.patentee;
             this.emp.url = this.urlFile;
-            this.emp.state="commit"
-
-            const _this = this;
+            this.emp.state = "commit";
             if(this.emp.url == '' ||this.emp.url == null){
               this.$message({
                 message:'请上传证明材料！'
               })
               return
             }
-            this.postRequest1("/patent/basic/edit", _this.emp).then(
+            this.postRequest1("/patent/basic/edit", this.emp).then(
                 (resp) => {
                   if (resp) {
                     this.dialogVisible = false;
                     this.initEmps();
+                    this.$message.success('编辑成功！')
                   }
                 }
             );
@@ -744,15 +605,13 @@ export default {
       } else {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
-            this.patentTypename=document.getElementById("input_patentTypeName").value
-            this.emp.typename = this.patentTypename;
-            this.emp.patentTypeID = this.patentTypeID;
+            this.emp.name = this.patentName;
+            this.emp.date = this.patentDate;
             this.emp.point = this.view_point
             this.emp.url = this.urlFile;
-            this.emp.state="commit"
-            this.emp.total = 1
-            this.emp.rank = 1
-            this.emp.studentID = JSON.parse(localStorage.getItem('user')).id
+            this.emp.author = this.patentee;
+            this.emp.state = "commit"
+            this.emp.studentId = this.user.id
             if(this.emp.url == '' ||this.emp.url == null){
               this.$message.error('请上传证明材料！')
               return
@@ -772,15 +631,13 @@ export default {
     async doAddOper(state, patentID) {
       this.oper.state = state
       this.oper.prodId = patentID
-      this.oper.operation = "提交专利"
+      this.oper.operationName = "提交专利"
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper)
       await this.initEmps();
     },
     showAddEmpView() {//点击添加科研项目按钮
-      this.addButtonState=true
-      // this.emptyEmp();
-      this.data_picker=''
+      this.addButtonState = true
       this.title = "添加专利";
       this.dialogVisible = true;
     },

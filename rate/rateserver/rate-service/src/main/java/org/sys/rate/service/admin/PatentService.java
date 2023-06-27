@@ -59,11 +59,11 @@ public class PatentService {
     /**
      * 新增论文成果
      *
-     * @param paper 论文成果
+     * @param patent 论文成果
      * @return 结果
      */
-    public int insertPatent(Patent paper){
-        return patentMapper.insertPatent(paper);
+    public int insertPatent(Patent patent){
+        return patentMapper.insertPatent(patent);
     }
 
     /**
@@ -127,7 +127,8 @@ public class PatentService {
                     patent.setRemark(patentoperList.get(indexReject).getRemark());
                 }
             }
-            patent.setDate(timeCommit);
+//            这里是返回里最早提交时间，显示详情中应该是申请的时间
+//            patent.setDate(timeCommit);
         }
         return list;
     }

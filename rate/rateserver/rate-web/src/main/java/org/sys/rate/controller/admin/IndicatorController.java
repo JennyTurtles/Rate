@@ -2,11 +2,13 @@ package org.sys.rate.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.model.Indicator;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.model.TreeNode;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,11 +19,23 @@ import java.util.Map;
 public class IndicatorController {
     @Autowired
     private IndicatorService indicatorService;
+    @Resource
+    private IndicatorMapper indicatorMapper;
 
     // 上限为7层，每层最多99个节点，因为order字段最大长度为20。
     // 依赖order字段确定父子关系并保持有序，仅使用id和parent不能保持有序。
     // 首先遍历一次，将order字符串按照'.'进行分割，分割为list，建立map（orderList:Indicator)。通过递归确定父子关系。时间复杂度O(n)
     // 前提：(每次增加和删除操作后可以保证)order是连续的且从1开始。
+    @GetMapping("/getScoreById")
+    public RespBean getScoreById(Integer indicatorId){
+        Integer res = -1;
+        try{
+            res = indicatorMapper.selectScoreById(indicatorId);
+        } catch (Exception e) {
+            return RespBean.error("error",null);
+        }
+        return RespBean.ok("ok",res);
+    }
     @GetMapping
     public RespBean getAll()
     {

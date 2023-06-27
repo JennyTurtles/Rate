@@ -35,10 +35,10 @@
     </sql>
 
     <select id="selectList" resultMap="OperResult">
-        SELECT o.id, operator_role, operator_id, operator_name, prod_type, prod_id, date, operation_name, o.state, remark, point
-        FROM i_oper o, paper p
-        WHERE prod_id = 6144 AND prod_type = '学术论文' and o.prod_id = p.ID
-        ORDER BY date
+        SELECT *
+        FROM i_oper
+        WHERE prod_id = #{prodId} AND prod_type = #{prodType}
+        ORDER BY date desc
     </select>
 
     <insert id="insertOper" parameterType="org.sys.rate.model.Operation">

@@ -11,6 +11,9 @@
         <result property="author" column="author"/>
         <result property="url" column="url"/>
         <result property="state" column="state"/>
+        <result property="point" column="point"/>
+        <result property="rank" column="rank"/>
+        <result property="total" column="total"/>
         <result property="grantedStatus" column="granted_status"/>
         <result property="indicatorId" column="indicator_id"/>
         <association property="student" javaType="org.sys.rate.model.Student">
@@ -96,72 +99,67 @@
         where ID = #{ID}
     </select>
 
-    <insert id="insertPaper" parameterType="org.sys.rate.model.Patent" useGeneratedKeys="true" keyProperty="ID">
+    <insert id="insertPatent" parameterType="org.sys.rate.model.Patent" useGeneratedKeys="true" keyProperty="id">
         insert into i_patent
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="ID != null">ID,</if>
-            <if test="student_id != null">student_id,</if>
+            <if test="id != null">id,</if>
+            <if test="studentId != null">student_id,</if>
+            <if test="indicatorId != null">indicator_id,</if>
             <if test="name != null and name != ''">name,</if>
-            <if test="year != null">year,</if>
-            <if test="month != null">month,</if>
+            <if test="date != null">date,</if>
             <if test="author != null">author,</if>
             <if test="`rank` != null">`rank`,</if>
             <if test="total != null">total,</if>
             <if test="point != null">point,</if>
-            <if test=" != null">,</if>
-            <!--<if test="content != null">content,</if>-->
             <if test="state != null">state,</if>
-            <if test=" != null">,</if>
             <if test="url != null">url,</if>
+            <if test="grantedStatus != null">granted_status</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="ID != null">#{ID},</if>
-            <if test="student_id != null">#{student_id},</if>
+            <if test="id != null">#{id},</if>
+            <if test="studentId != null">#{studentId},</if>
+            <if test="indicatorId != null">#{indicatorId},</if>
             <if test="name != null and name != ''">#{name},</if>
-            <if test="year != null">#{year},</if>
-            <if test="month != null">#{month},</if>
+            <if test="date != null">#{date},</if>
             <if test="author != null">#{author},</if>
             <if test="`rank` != null">#{rank},</if>
             <if test="total != null">#{total},</if>
             <if test="point != null">#{point},</if>
-            <if test=" != null">#{},</if>
-            <!--<if test="content != null">#{content},</if>-->
             <if test="state != null">#{state},</if>
-            <if test=" != null">#{},</if>
             <if test="url != null">#{url},</if>
+            <if test="grantedStatus != null">#{grantedStatus}</if>
         </trim>
     </insert>
 
-    <update id="updatePaper" parameterType="org.sys.rate.model.Patent">
+    <update id="updatePatent" parameterType="org.sys.rate.model.Patent">
         update i_patent
         <trim prefix="SET" suffixOverrides=",">
-            <if test="student_id != null">student_id = #{student_id},</if>
+            <if test="studentId != null">student_id = #{studentId},</if>
             <if test="name != null and name != ''">name = #{name},</if>
-            <if test="year != null">year = #{year},</if>
-            <if test="month != null">month = #{month},</if>
+            <if test="date != null">date = #{date},</if>
             <if test="author != null">author = #{author},</if>
             <if test="`rank` != null">`rank` = #{rank},</if>
             <if test="total != null">total = #{total},</if>
             <if test="point != null">point = #{point},</if>
-            <if test=" != null"> = #{},</if>
-            <if test="state != null">state=#{state},</if>
-            <if test=" != null">=#{},</if>
-            <if test="url != null">url=#{url},</if>
+            <if test="state != null">state =#{state},</if>
+            <if test="url != null">url = #{url},</if>
+            <if test="indicatorId != null">indicator_id = #{indicatorId},</if>
+            <if test="grantedStatus != null">granted_status = #{grantedStatus}</if>
         </trim>
-        where ID = #{ID}
+        where id = #{id}
     </update>
 
     <update id="editState" parameterType="org.sys.rate.model.Patent">
         update i_patent
         <trim prefix="SET" suffixOverrides=",">
-            <if test="state != null">state=#{state},</if>
+            <if test="state != null">state = #{state},</if>
         </trim>
         where ID = #{ID}
     </update>
-    <delete id="deletePaperById" parameterType="Long">
+    <delete id="deletePatentById" parameterType="Long">
         delete
         from i_patent
-        where ID = #{ID}
+        where id = #{ID}
     </delete>
 
     <delete id="deletePaperByIds" parameterType="String">

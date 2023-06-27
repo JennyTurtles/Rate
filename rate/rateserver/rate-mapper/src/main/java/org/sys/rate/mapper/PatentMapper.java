@@ -45,16 +45,13 @@ public interface PatentMapper
     /**
      * 新增专利成果
      *
-     * @param i_patent 专利成果
+     * @param patent 专利成果
      * @return 结果
      */
     public int insertPatent(Patent patent);
 
     /**
      * 修改专利成果
-     *
-     * @param i_patent 专利成果
-     * @return 结果
      */
     public int updatePatent(Patent patent);
 

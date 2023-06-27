@@ -87,7 +87,7 @@ public class PatentController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Patent patent) throws FileNotFoundException {
+    public JsonResult addSave(Patent patent) {
         Integer res = patentService.insertPatent(patent);
 //        mailToTeacherService.sendTeaCheckMail(patent, "授权专利", uploadFileName);
         return new JsonResult(patent.getId());
