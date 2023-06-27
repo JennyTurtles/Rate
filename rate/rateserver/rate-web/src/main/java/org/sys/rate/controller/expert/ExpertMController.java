@@ -278,9 +278,9 @@ public class ExpertMController {
 
     @Transactional
     @PostMapping("/addExperts")
-    public RespBean addPars(@RequestBody List<Experts> list) throws ParseException {
-        Integer activityID = list.get(0).getActivityID();
-        Integer groupID = list.get(0).getGroupID();
+    public RespBean addPars(@RequestParam Integer groupID,@RequestParam Integer activityID,@RequestBody List<Experts> list) throws ParseException {
+//        Integer activityID = list.get(0).getActivityID();
+//        Integer groupID = list.get(0).getGroupID();
         RespPageBean bean=new RespPageBean();
         bean.setData(list);
         bean.setTotal((long) list.size());

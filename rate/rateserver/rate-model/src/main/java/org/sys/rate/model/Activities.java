@@ -40,6 +40,7 @@ public class Activities {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date visibleDate;//专家能看到该活动的时间
+    private Integer scoreSetByself; //成绩查看设置方式
     private Integer gradeFormType;
 
     public Integer getGradeFormType() {

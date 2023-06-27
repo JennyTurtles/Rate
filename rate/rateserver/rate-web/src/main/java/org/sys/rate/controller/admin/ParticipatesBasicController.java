@@ -295,9 +295,9 @@ public class ParticipatesBasicController {
     // 点击添加按钮添加的选手，无信息项和评分项
     @Transactional
     @PostMapping("/addPars")
-    public RespBean addPars(@RequestBody List<Participates> list) throws ParseException {
-        Integer activityID = list.get(0).getActivityID();
-        Integer groupID = list.get(0).getGroupID();
+    public RespBean addPars(@RequestParam Integer activityID,@RequestParam Integer groupID,@RequestBody List<Participates> list) throws ParseException {
+//        Integer activityID = list.get(0).getActivityID();
+//        Integer groupID = list.get(0).getGroupID();
         RespPageBean bean=new RespPageBean();
         bean.setData(list);
         bean.setTotal((long) list.size());

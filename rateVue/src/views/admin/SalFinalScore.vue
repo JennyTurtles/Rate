@@ -60,7 +60,15 @@
 <!--              </el-checkbox-group>-->
 <!--            </div>-->
 <!--          </el-popover>-->
-
+      <router-link :to= "{path: '/ActivitM/total',query: {keywords: keywords,
+                          keyword_name:keywords_name,
+                          backID:keywords,
+                          mode:mode,}}"
+                   style="margin-left: 300px">
+            <span>
+              定制成绩查看界面
+            </span>
+      </router-link>
     </div>
     <div style="margin-top: 10px">
       <el-table
@@ -160,6 +168,7 @@ export default {
       keywords: '', // 活动id
       keyword: '',
       size: 10,
+      mode:'',
       columns: [{ label: "性别", prop: "name", width: 100, show: true },
         { label: "民族", prop: "sex", width: 150, show: true },
         { label: "政治面貌", prop: "age", width: 100, show: true }],

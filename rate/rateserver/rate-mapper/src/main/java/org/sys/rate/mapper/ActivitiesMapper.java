@@ -106,4 +106,10 @@ public interface ActivitiesMapper {
 
     @Select("SELECT * FROM activities WHERE ID = #{activityID}")
     Activities getByID(Integer id);
+
+    @Select("SELECT scoreSetByself FROM activities WHERE ID = #{activityID}")
+    Integer getScoreSet(Integer activityID);
+
+    @Update("UPDATE activities SET scoreSetByself = #{setByself} WHERE ID = #{activityID}")
+    int changeMethod(Integer activityID,Integer setByself);
 }

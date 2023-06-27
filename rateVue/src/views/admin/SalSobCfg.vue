@@ -1,49 +1,64 @@
 <template>
   <div>
     <div style="display: flex; justify-content: left">
-    {{ keywords_name }} <a v-show="flag===0">专家名单</a> <a v-show="flag==1">专家打分</a>
+      <div style="width: 100%;text-align: center">专家管理</div>
+      <div style="margin-left: auto">
+        <el-button icon="el-icon-back" type="primary" @click="change">
+          切换到选手管理
+        </el-button>
+      </div><br/><br/>
+    </div>
+    <div style="display: flex; justify-content: left">
+      <a>
+        专家添加有三种模式：手动添加、从本单位添加、批量导入。
+      </a>
+<!--    {{ keywords_name }} <a v-show="flag===0">专家名单</a> <a v-show="flag==1">专家打分</a>-->
       <div style="margin-left: auto">
         <el-button icon="el-icon-back" type="primary" @click="back">
           返回
         </el-button>
       </div>
     </div>
-    <div style="display: flex; justify-content: left;margin-top:10px">
-      <div v-if="flag==0">
-        <span  style="font-weight:600;">导入新数据</span> <a>第一步：</a>
-        <el-button
-            type="primary"
-            @click="exportMo"
-            icon="el-icon-upload"
-            style="margin-right: 8px"
-        >
-          下载模板
-        </el-button>
-        <a >第二步：</a>
-        <el-upload
-            :show-file-list="false"
-            :before-upload="beforeUpload"
-            :on-success="onSuccess"
-            :on-error="onError"
-            :disabled="importDataDisabled"
-            style="display: inline-flex; margin-right: 8px"
-            :action="UploadUrl()"
-        >
-          <el-button
-              :disabled="importDataDisabled"
-              type="primary"
-              :icon="importDataBtnIcon"
-          >
-            {{ importDataBtnText }}
-          </el-button>
-        </el-upload>
-      </div>
+<!--    <div style="display: flex; justify-content: left;margin-top:10px">-->
+<!--      <div v-if="flag==0">-->
+<!--        <span  style="font-weight:600;">导入新数据</span> <a>第一步：</a>-->
+<!--        <el-button-->
+<!--            type="primary"-->
+<!--            @click="exportMo"-->
+<!--            icon="el-icon-upload"-->
+<!--            style="margin-right: 8px"-->
+<!--        >-->
+<!--          下载模板-->
+<!--        </el-button>-->
+<!--        <a >第二步：</a>-->
+<!--        <el-upload-->
+<!--            :show-file-list="false"-->
+<!--            :before-upload="beforeUpload"-->
+<!--            :on-success="onSuccess"-->
+<!--            :on-error="onError"-->
+<!--            :disabled="importDataDisabled"-->
+<!--            style="display: inline-flex; margin-right: 8px"-->
+<!--            :action="UploadUrl()"-->
+<!--        >-->
+<!--          <el-button-->
+<!--              :disabled="importDataDisabled"-->
+<!--              type="primary"-->
+<!--              :icon="importDataBtnIcon"-->
+<!--          >-->
+<!--            {{ importDataBtnText }}-->
+<!--          </el-button>-->
+<!--        </el-upload>-->
+<!--      </div>-->
 
+<!--    </div>-->
+<!--    <div v-show="flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。-->
+<!--        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。-->
+<!--    </div>-->
+    <div>
+      <el-button type="primary" @click="showMethod">
+        添加专家
+      </el-button>
     </div>
-    <div v-show="flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。
-        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。
-    </div>
-
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -378,6 +393,87 @@
           <el-button @click="dialogVisible_edit = false">关闭</el-button>
         </span>
       </el-dialog>
+      <el-dialog :title="title" :visible.sync="dialogVisible_method" width="55%" center>
+        <el-tabs type="border-card">
+          <el-tab-pane label="手动添加">
+
+          </el-tab-pane>
+          <el-tab-pane label="从本单位添加">
+            <el-table
+                ref="multipleTable"
+                :data="currentExpert"
+                tooltip-effect="dark"
+                style="width: 100%"
+                @selection-change="handleSelectionChange">
+              <el-table-column
+                  type="selection"
+                  width="40px">
+              </el-table-column>
+              <el-table-column
+                  prop="name"
+                  label="姓名"
+                  width="200px">
+              </el-table-column>
+              <el-table-column
+                  prop="idnumber"
+                  label="证件号码"
+                  width="200px"
+                  show-overflow-tooltip>
+              </el-table-column>
+            </el-table>
+            <div class="block">
+              <el-pagination
+                  @current-change="currentChange"
+                  @size-change="sizeChange"
+                  layout="sizes, prev, pager, next, jumper, ->, total, slot"
+                  :total="total">
+              </el-pagination>
+            </div>
+            <el-button type="primary" @click="add">
+              添加
+            </el-button>
+          </el-tab-pane>
+          <el-tab-pane label="批量导入">
+            <div style="display: flex; justify-content: left;margin-top:10px">
+              <div v-if="flag==0">
+                <div v-show="flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。
+                  <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。
+                </div><br/>
+                <span  style="font-weight:600;">导入新数据</span> <a>第一步：</a>
+                    <el-button
+                        type="primary"
+                        @click="exportMo"
+                        icon="el-icon-upload"
+                        style="margin-right: 8px"
+                    >
+                      下载模板
+                    </el-button>
+                <a >第二步：</a>
+                <el-upload
+                    :show-file-list="false"
+                    :before-upload="beforeUpload"
+                    :on-success="onSuccess"
+                    :on-error="onError"
+                    :disabled="importDataDisabled"
+                    style="display: inline-flex; margin-right: 8px"
+                    :action="UploadUrl()"
+                >
+                  <el-button
+                      :disabled="importDataDisabled"
+                      type="primary"
+                      :icon="importDataBtnIcon"
+                  >
+                    {{ importDataBtnText }}
+                  </el-button>
+                </el-upload>
+              </div>
+            </div>
+          </el-tab-pane>
+          <el-tab-pane label="从大组添加" v-if="mode==='secretarySub'">
+
+          </el-tab-pane>
+        </el-tabs>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -416,8 +512,13 @@ export default {
       total: 0,
       loading: false,
       hrs: [],
+      experts: [],
+      currentExpert:[],
+      multipleSelection:[],
+      currentExperts: [],
       unsureinfo: [],
       dialogVisible_edit: false,
+      dialogVisible_method: false,
       selectedRoles: [],
       allroles: [],
       options: [{
@@ -569,7 +670,6 @@ export default {
           ).then((resp) => {
               if (resp) {
                   this.hrs = resp;
-                  this.total = resp.length;
               }
           });
       }else {  // 从活动或子活动进入
@@ -579,13 +679,24 @@ export default {
               ).then((resp) => {
                   if (resp) {
                       this.hrs = resp.obj;
-                      this.total = this.hrs;
                       // console.log(this.hrs)
                   }
               });
           }
       }
-
+      this.initExperts();
+    },
+      initExperts(){
+      this.loading = true;
+      let url = '/system/Experts/getByInstitutionID/?institutionID=' + this.user.institutionID;
+      this.getRequest(url).then(resp => {
+        this.loading = false;
+        if (resp) {
+          this.experts = resp.obj;
+          console.log(this.experts);
+          this.total = this.experts.length;
+        }
+      });
     },
     jumperInToS(data){
       const _this = this;
@@ -644,17 +755,21 @@ export default {
       ).then((resp) => {
         if (resp) {
           this.hrs = resp.data;
-          this.total = resp.total;
         }
       });
     },
     sizeChange(currentSize) {
       this.size = currentSize;
-      this.initHrs();
+      this.getCurrentExperts();
     },
     currentChange(currentPage) {
       this.page = currentPage;
-      this.initHrs("advanced");
+      this.getCurrentExperts('advanced');
+    },
+    getCurrentExperts(){
+      let begin = (this.page - 1) * this.size;
+      let end = this.page * this.size;
+      this.currentExpert = this.experts.slice(begin, end);
     },
     //取消表格选择
     // toggleSelection(rows) {
@@ -899,6 +1014,25 @@ export default {
         }
       });
     },
+    change(){
+      const _this = this
+      _this.$router.push({
+        path: '/participantsM',
+        query:{
+          activityID: this.keywords,
+          keywords: this.keywords,
+          keyword_name: this.keyword_name,
+          groupID:this.groupID,
+          ACNAME:this.keyword_name,
+          mode:this.mode,
+        }
+      })
+    },
+    showMethod(){
+      this.title='添加专家';
+      this.dialogVisible_method=true;
+      this.getCurrentExperts();
+    },
     changeFinished(row){
       this.$confirm("是否确定退回打分", "提示", {
         confirmButtonText: "确定",
@@ -922,7 +1056,17 @@ export default {
               message: "已取消退回",
             });
           });
-    }
+    },
+    add(){
+      this.dialogVisible_method=false;
+      const _this = this
+      this.postRequest("/systemM/Experts/addExperts?groupID=" + this.groupID + "&activityID=" + this.keywords, this.multipleSelection).then(resp => {
+         this.initHrs();
+      })
+    },
+    handleSelectionChange(val){
+      this.multipleSelection=val;
+    },
   },
 };
 </script>

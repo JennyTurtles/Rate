@@ -257,7 +257,7 @@
                                 icon="el-icon-tickets"
                                 type="primary"
                                 plain
-                        >分配选手和专家
+                        >人员管理
                         </el-button
                         >
                         <el-button
@@ -1087,15 +1087,19 @@ export default {
         },
         assignPE(data) {
             const _this = this;
+            console.log(data.groupID);
             _this.$router.push({
-                path: "/Expert/EassignPE",
-                query: {
-                    activityIDParent: this.$route.query.id,
-                    activityID: data.id,
-                    groupIDParent: this.$route.query.groupID, // 这里有问题
-                    groupID: data.groupID,
-                    mode:this.mode
-                }
+              path: "/participantsM",
+              query: {
+                activityIDParent: this.$route.query.id,
+                activityID: data.id,
+                groupIDParent: this.$route.query.groupID, // 这里有问题
+                groupID: this.groupID,
+                mode:this.mode,
+                keywords:this.keywords,
+                keyword_name:this.keywords_name,
+                ACNAME:this.keywords_name,
+              }
             })
         },
         // 转换为map

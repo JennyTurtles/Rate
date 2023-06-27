@@ -94,4 +94,7 @@ public interface ScoreItemMapper {
 
     @Select("SELECT ID,activityID,name FROM scoreitem s WHERE activityID = #{activityID}")
     List<ScoreItem> selectScoreItemByActId(Integer activityID);
+
+    @Select("SELECT a.name FROM scoreitem s,activities a WHERE s.ID = #{ID} AND s.activityID = a.ID")
+    String getActivityName(Integer ID);
 }
