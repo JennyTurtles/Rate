@@ -25,7 +25,7 @@
           </el-button>
         </div> -->
         <div>
-          <el-button type="primary" @click="showMethod">
+          <el-button type="success" @click="showMethod">
             添加选手
           </el-button>
         </div>
@@ -350,17 +350,15 @@
             </el-table-column>
             <el-table-column
                 prop="name"
-                label="姓名"
-                width="200px">
+                label="姓名">
             </el-table-column>
             <el-table-column
                 prop="idnumber"
-                label="编号"
-                width="200px"
+                label="证件号码"
                 show-overflow-tooltip>
             </el-table-column>
           </el-table>
-          <div class="block">
+          <div class="block" style="padding-top: 10px">
             <el-pagination
                 @current-change="currentChange"
                 @size-change="sizeChange"
@@ -368,7 +366,7 @@
                 :total="total">
             </el-pagination>
           </div>
-          <el-button type="primary" @click="add">
+          <el-button type="primary" @click="add" style="float: right">
             添加
           </el-button>
         </el-tab-pane>
@@ -411,12 +409,11 @@
             <el-table-column
                 prop="name"
                 label="姓名"
-                width="200px">
+                >
             </el-table-column>
             <el-table-column
                 prop="idnumber"
                 label="编号"
-                width="200px"
                 show-overflow-tooltip>
             </el-table-column>
           </el-table>
@@ -781,12 +778,23 @@ export default {
       this.multipleSelection=val;
     },
     add(){
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '请选择选手!'
+        });
+        return;
+      }
       this.dialogVisible_method = false;
       const _this = this;
-      console.log(this.groupID,this.multipleSelection);
       this.postRequest("/participants/basic/addPars?activityID="+this.keywords + "&groupID=" + this.groupID,_this.multipleSelection).then((resp) => {
-        console.log(resp);
-        this.initEmps();
+        if (resp) {
+          this.initEmps();
+          this.$message({
+            type: 'success',
+            message: '添加成功!'
+          });
+        }
       });
     }
     // searchEmps() {
@@ -824,5 +832,10 @@ export default {
   transform: translateX(10px);
   opacity: 0;
 }
+
+.el-pagination {
+  text-align: center;
+}
+
 </style>
 

@@ -55,7 +55,7 @@
 <!--        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。-->
 <!--    </div>-->
     <div>
-      <el-button type="primary" @click="showMethod">
+      <el-button type="success" @click="showMethod">
         添加专家
       </el-button>
     </div>
@@ -411,17 +411,15 @@
               </el-table-column>
               <el-table-column
                   prop="name"
-                  label="姓名"
-                  width="200px">
+                  label="姓名">
               </el-table-column>
               <el-table-column
                   prop="idnumber"
                   label="证件号码"
-                  width="200px"
                   show-overflow-tooltip>
               </el-table-column>
             </el-table>
-            <div class="block">
+            <div class="block" style="padding-top: 10px">
               <el-pagination
                   @current-change="currentChange"
                   @size-change="sizeChange"
@@ -429,7 +427,7 @@
                   :total="total">
               </el-pagination>
             </div>
-            <el-button type="primary" @click="add">
+            <el-button type="primary" style="float: right" @click="add">
               添加
             </el-button>
           </el-tab-pane>
@@ -1058,10 +1056,23 @@ export default {
           });
     },
     add(){
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '请选择专家!'
+        });
+        return;
+      }
       this.dialogVisible_method=false;
       const _this = this
       this.postRequest("/systemM/Experts/addExperts?groupID=" + this.groupID + "&activityID=" + this.keywords, this.multipleSelection).then(resp => {
-         this.initHrs();
+        if (resp) {
+          this.initHrs();
+          this.$message({
+            type: 'success',
+            message: '添加成功!'
+          });
+        }
       })
     },
     handleSelectionChange(val){
@@ -1122,4 +1133,9 @@ export default {
   height: 100%;
   display: inline-block;
 }
+
+.el-pagination {
+  text-align: center;
+}
+
 </style>

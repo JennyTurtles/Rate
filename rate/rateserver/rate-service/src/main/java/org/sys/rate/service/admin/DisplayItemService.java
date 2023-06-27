@@ -8,7 +8,6 @@ import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.text.DecimalFormat;
 import java.util.*;
 
