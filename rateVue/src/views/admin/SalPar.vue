@@ -1,11 +1,17 @@
 <template>
   <div>
     <div >
+      <div style="display: flex; justify-content: left">
+        <div style="width: 100%;text-align: center">选手管理</div>
+        <div style="margin-left: auto">
+          <el-button icon="el-icon-back" type="primary" @click="change">
+            切换到专家管理
+          </el-button>
+        </div>
+      </div>
       <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
       <a>
-      选手导入到本组<br/><br/>
-      选手第一次导入时，可先不分组。此时可以将导入表格中的“分组名称”留空，进行导入操作。待分组后，再导入一次，从而实现分组。
-      选手的信息项以及评分项，也可在选手第一次导入时留空，待第二次、第三次（或之后）导入时填入那些信息。<br/>
+      选手添加有三种模式：手动添加、从本单位添加、批量导入。<br/><br/>
       </a>
       <div style="display: flex;justify-content: space-between;">
         <!-- <div>
@@ -19,25 +25,9 @@
           </el-button>
         </div> -->
         <div>
-          <span style="font-weight:600;">导入新数据</span> 第一步：
-<!--          <a href="/participants/basic/exportMoPar?activityid=15">Test ResponseEntity</a>-->
-          <el-button type="primary" @click="exportCheckbox" icon="el-icon-upload" style="margin-right: 8px">
-            下载模板
+          <el-button type="primary" @click="showMethod">
+            添加选手
           </el-button>
-          第二步：
-          <el-upload
-              :show-file-list="false"
-              :before-upload="beforeUpload"
-              :on-success="onSuccess"
-              :on-error="onError"
-              :disabled="importDataDisabled"
-              style="display: inline-flex;margin-right: 8px"
-              action="#"
-              :http-request="handleChange">
-            <el-button :disabled="importDataDisabled" type="primary" :icon="importDataBtnIcon">
-              {{importDataBtnText}}
-            </el-button>
-          </el-upload>
         </div>
         <div>
           <el-button type="primary" @click="exportTG" icon="el-icon-download">
@@ -342,6 +332,100 @@
         </span>
     </el-dialog>
 
+    <el-dialog :title="title" :visible.sync="dialogVisible_method" width="55%" center>
+      <el-tabs type="border-card">
+        <el-tab-pane label="手动添加">
+
+        </el-tab-pane>
+        <el-tab-pane label="从本单位添加">
+          <el-table
+              ref="multipleTable"
+              :data="currentParticipants"
+              tooltip-effect="dark"
+              style="width: 100%"
+              @selection-change="handleSelectionChange">
+            <el-table-column
+                type="selection"
+                width="40px">
+            </el-table-column>
+            <el-table-column
+                prop="name"
+                label="姓名"
+                width="200px">
+            </el-table-column>
+            <el-table-column
+                prop="idnumber"
+                label="编号"
+                width="200px"
+                show-overflow-tooltip>
+            </el-table-column>
+          </el-table>
+          <div class="block">
+            <el-pagination
+                @current-change="currentChange"
+                @size-change="sizeChange"
+                layout="sizes, prev, pager, next, jumper, ->, total, slot"
+                :total="total">
+            </el-pagination>
+          </div>
+          <el-button type="primary" @click="add">
+            添加
+          </el-button>
+        </el-tab-pane>
+        <el-tab-pane label="批量导入">
+          <a>
+            选手第一次导入时，可先不分组。此时可以将导入表格中的“分组名称”留空，进行导入操作。待分组后，再导入一次，从而实现分组。
+            选手的信息项以及评分项，也可在选手第一次导入时留空，待第二次、第三次（或之后）导入时填入那些信息。<br/><br/>
+          </a>
+          <span style="font-weight:600;">导入新数据</span> 第一步：
+          <!--<a href="/participants/basic/exportMoPar?activityid=15">Test ResponseEntity</a>-->
+          <el-button type="primary" @click="exportCheckbox" icon="el-icon-upload" style="margin-right: 8px">
+            下载模板
+          </el-button>
+            第二步：
+          <el-upload
+              :show-file-list="false"
+              :before-upload="beforeUpload"
+              :on-success="onSuccess"
+              :on-error="onError"
+              :disabled="importDataDisabled"
+              style="display: inline-flex;margin-right: 8px"
+              action="#"
+              :http-request="handleChange">
+            <el-button :disabled="importDataDisabled" type="primary" :icon="importDataBtnIcon">
+              {{importDataBtnText}}
+            </el-button>
+          </el-upload>
+        </el-tab-pane>
+        <el-tab-pane label="从大组添加" v-if="mode==='secretarySub'">
+          <el-table
+              ref="multipleTable"
+              :data="parentGroup"
+              tooltip-effect="dark"
+              style="width: 100%"
+              @selection-change="handleSelectionChange">
+            <el-table-column
+                type="selection"
+                width="40px">
+            </el-table-column>
+            <el-table-column
+                prop="name"
+                label="姓名"
+                width="200px">
+            </el-table-column>
+            <el-table-column
+                prop="idnumber"
+                label="编号"
+                width="200px"
+                show-overflow-tooltip>
+            </el-table-column>
+          </el-table>
+          <el-button type="primary" @click="add">
+            添加
+          </el-button>
+        </el-tab-pane>
+      </el-tabs>
+    </el-dialog>
   </div>
 </template>
 
@@ -372,6 +456,7 @@ export default {
       dialogVisible_checkbox: false,
       loading: false,
       dialogVisible: false,
+      dialogVisible_method:false,
       total: 0,
       page: 1,
       keywords: '',
@@ -381,6 +466,12 @@ export default {
       mode:'',
       size: 10,
       positions: [],
+      participants: [],
+      currentParticipants:[],
+      multipleSelection: [],
+      parentGroup:[],
+      activityIDParent:0,
+      groupIDParent:0,
       emp: {
         id:null,
         institutionID:null,
@@ -420,6 +511,8 @@ export default {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
     this.ACNAME=this.$route.query.keywords_name;
+    this.activityIDParent=this.$route.query.activityIDParent;
+    this.groupIDParent=this.$route.query.groupIDParent;
     this.initEmps();
   },
   methods: {
@@ -558,11 +651,16 @@ export default {
     },
     sizeChange(currentSize) {
       this.size = currentSize;
-      this.initEmps();
+      this.getCurrentParticipants();
     },
     currentChange(currentPage) {
       this.page = currentPage;
-      this.initEmps('advanced');
+      this.getCurrentParticipants('advanced');
+    },
+    getCurrentParticipants(){
+      let begin = (this.page - 1) * this.size;
+      let end = this.page * this.size;
+      this.currentParticipants = this.participants.slice(begin, end);
     },
     initEmps() {
       this.loading = true;
@@ -572,9 +670,33 @@ export default {
         if (resp) {
           //console.log("aha",resp);
           this.emps = resp.data;
-          // console.log(this.emps);
-          this.total = resp.total;
-          //console.log("total",this.total);
+          console.log(this.emps);
+        }
+      });
+      this.initParticipants();
+      if (this.mode==='secretarySub')
+        this.initParentGroup();
+    },
+    initParticipants(){
+      this.loading = true;
+      let url = '/participants/basic/getByInstitutionID/?institutionID=' + this.user.institutionID;
+      this.getRequest(url).then(resp => {
+        this.loading = false;
+        if (resp) {
+          this.participants = resp.obj;
+          this.total = this.participants.length;
+          console.log(this.participants);
+        }
+      });
+    },
+    initParentGroup(){
+      this.loading = true;
+      let url = '/participants/basic/?page=' + 1 + '&size=' + 1000+ '&groupID=' + this.groupIDParent+ '&activitiesID=' + this.activityID;
+      this.getRequest(url).then(resp => {
+        this.loading = false;
+        if (resp) {
+          this.parentGroup = resp.data;
+          console.log(this.parentGroup);
         }
       });
     },
@@ -637,6 +759,36 @@ export default {
         }
       })
     },
+    change(){
+      const _this = this
+      _this.$router.push({
+        path: '/ActivitM/sobcfg',
+        query:{
+          keywords: this.keywords,
+          keyword_name: this.keyword_name,
+          groupID:this.groupID,
+          ACNAME:this.keyword_name,
+          mode:this.mode,
+        }
+      })
+    },
+    showMethod(){
+      this.title = "添加选手";
+      this.dialogVisible_method=true;
+      this.getCurrentParticipants();
+    },
+    handleSelectionChange(val){
+      this.multipleSelection=val;
+    },
+    add(){
+      this.dialogVisible_method = false;
+      const _this = this;
+      console.log(this.groupID,this.multipleSelection);
+      this.postRequest("/participants/basic/addPars?activityID="+this.keywords + "&groupID=" + this.groupID,_this.multipleSelection).then((resp) => {
+        console.log(resp);
+        this.initEmps();
+      });
+    }
     // searchEmps() {
     //   this.loading = true;
     //   console.log(this.keyword);

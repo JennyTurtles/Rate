@@ -107,7 +107,7 @@
                       icon="el-icon-tickets"
                       type="primary"
                       plain
-              >分配选手和专家
+              >人员管理
               </el-button
               >
 <!--            <el-button-->
@@ -564,24 +564,31 @@ export default {
     },
       assignPE(data) {
           const _this = this;
+          console.log(data.id);
           if (this.mode === 'secretary' || this.mode === 'secretarySub'|| this.mode === 'adminSub'){
             _this.$router.push({
-              path: "/Expert/EassignPE",
+              path: "/participantsM",
               query: {
-                activityIDParent: this.$route.query.backID,
-                activityID: data.activityID,
-                groupIDParent: this.$route.query.groupID,
+                activityIDParent: this.$route.query.id,
+                activityID: this.keywords,
+                groupIDParent: this.groupID,
                 groupID: data.id,
-                mode:this.mode
+                mode:this.mode,
+                keywords:this.keywords,
+                keyword_name:this.keywords_name,
+                ACNAME:this.keywords_name,
               }
             })
           }else if (this.mode === 'admin'){
             _this.$router.push({
-              path: "/Admin/AssignPE",
+              path: "/participantsM",
               query: {
                 activityID: data.activityID,
                 groupID: data.id,
-                mode:this.mode
+                mode:this.mode,
+                keywords:this.keywords,
+                keyword_name:this.keywords_name,
+                ACNAME:this.keywords_name,
               }
             })
           }
