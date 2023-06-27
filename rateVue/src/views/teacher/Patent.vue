@@ -194,7 +194,6 @@
           :label-position="labelPosition"
           label-width="80px"
           :model="emp"
-          :rules="rules"
           ref="empForm"
           style="margin-left: 60px"
       >
@@ -215,7 +214,6 @@
           :label-position="labelPosition"
           label-width="80px"
           :model="emp"
-          :rules="rules"
           ref="empForm"
           style="margin-left: 40px"
       >
@@ -249,11 +247,10 @@
           :label-position="labelPosition"
           label-width="80px"
           :model="emp"
-          :rules="rules"
           ref="empForm"
           style="margin-left: 20px"
       >
-        <el-form-item label="专利名:" prop="name">
+        <el-form-item label="专利名称:" prop="name">
           <span>{{ emp.name }}</span
           ><br />
         </el-form-item>
@@ -415,22 +412,6 @@ export default {
         rank:0
         // reason:"",
       },
-      rules: {
-        name: [{ required: true, message: "请输入专利名", trigger: "blur" }],
-        startDate: [
-          { required: true, message: "请输入专利时间", trigger: "blur" },
-        ],
-        scoreItemCount: [
-          {
-            required: true,
-            type: "number",
-            message: "请输入正确数据",
-            trigger: "blur",
-            transform: (value) => Number(value),
-          },
-        ],
-        comment: [{ required: true, message: "请输入备注", trigger: "blur" }],
-      },
     };
   },
   computed: {
@@ -588,7 +569,6 @@ export default {
       this.page = currentPage;
       this.initEmps("advanced");
     },
-    // 专利和刊物有关系吗？
     initEmps() {
       this.loading = true;
       let url = "/patent/basic/List";
