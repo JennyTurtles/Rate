@@ -3,9 +3,12 @@
     <div >
       <div style="display: flex; justify-content: left">
         <div style="width: 100%;text-align: center">选手管理</div>
-        <div style="margin-left: auto">
-          <el-button icon="el-icon-back" type="primary" @click="change">
+        <div style="margin-left: auto;width: 270px;float: right">
+          <el-button icon="el-icon-sort" type="primary" @click="change">
             切换到专家管理
+          </el-button>
+          <el-button icon="el-icon-back" type="primary" @click="back" style="float: right">
+            返回
           </el-button>
         </div>
       </div>
@@ -33,13 +36,10 @@
           <el-button type="primary" @click="exportTG" icon="el-icon-download">
             导出专家打分
           </el-button>
-          <el-button
-              icon="el-icon-refresh"
-              type="primary"
-              @click="refreshact()">刷新</el-button>
-          <el-button icon="el-icon-back" type="primary" @click="back">
-            返回
-          </el-button>
+<!--          <el-button-->
+<!--              icon="el-icon-refresh"-->
+<!--              type="primary"-->
+<!--              @click="refreshact()">刷新</el-button>-->
         </div>
       </div>
     </div>
@@ -413,11 +413,11 @@
             </el-table-column>
             <el-table-column
                 prop="idnumber"
-                label="编号"
+                label="证件号码"
                 show-overflow-tooltip>
             </el-table-column>
           </el-table>
-          <el-button type="primary" @click="add">
+          <el-button type="primary" @click="add" style="float: right;margin-top: 10px">
             添加
           </el-button>
         </el-tab-pane>
@@ -698,19 +698,38 @@ export default {
       });
     },
     back(){
+      // 小屎山，以后有时间再优化
       const _this = this;
       var url;
       if (this.mode==='admin')
         url="/ActivitM/table"
       else if (this.mode==='secretary')
         url="/secretary/ActManage"
+      else if (this.mode === 'secretarySub' && this.$route.query.smallGroup === 'false'){
+        url ="secretary/SubActManage"
+      }else if (this.mode === 'secretarySub' && this.$route.query.smallGroup === 'true'){
+        url="/ActivitM/table"
+      }
+      var keywords = this.activityID
+      if (this.mode==='secretarySub' && this.$route.query.smallGroup === 'false')
+        keywords = this.activityIDParent
+      var groupID = this.groupID
+      if (this.mode==='secretarySub' && this.$route.query.smallGroup === 'true')
+        groupID = this.groupIDParent
       _this.$router.push({
         path: url,
         query: {
-          keywords: this.activityID,
-          keyword_name: this.ACNAME,
-          groupID:this.groupID,
+          keywords: keywords,
+          keyword_name: typeof this.ACNAME !== 'undefined' ? this.ACNAME : this.$route.query.keyword_name,
+          groupID:groupID,
           mode:this.mode,
+          id:this.$route.query.id,
+          actName:this.$route.query.actName,
+          groupName:this.$route.query.groupName,
+          isGroup:this.$route.query.isGroup,
+          haveSub:this.$route.query.haveSub,
+          backID:this.$route.query.backID,
+          backActName:this.$route.query.backActName,
         },
       });
     },
@@ -761,11 +780,21 @@ export default {
       _this.$router.push({
         path: '/ActivitM/sobcfg',
         query:{
+          activityIDParent:this.$route.query.activityIDParent,
+          activityID:this.$route.query.activityID,
+          groupIDParent:this.$route.query.groupIDParent,
+          groupID:this.$route.query.groupID,
+          actName:this.$route.query.actName,
+          groupName:this.$route.query.groupName,
+          smallGroup:this.$route.query.smallGroup,
+          isGroup:this.$route.query.isGroup,
+          haveSub:this.$route.query.haveSub,
+          id:this.$route.query.id,
           keywords: this.keywords,
-          keyword_name: this.keyword_name,
-          groupID:this.groupID,
-          ACNAME:this.keyword_name,
+          keyword_name: typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
+          ACNAME:typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
           mode:this.mode,
+          backActName:this.$route.query.backActName,
         }
       })
     },

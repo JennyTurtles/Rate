@@ -2,9 +2,12 @@
   <div>
     <div style="display: flex; justify-content: left">
       <div style="width: 100%;text-align: center">专家管理</div>
-      <div style="margin-left: auto">
-        <el-button icon="el-icon-back" type="primary" @click="change">
+      <div style="margin-left: auto;width: 270px">
+        <el-button icon="el-icon-sort" type="primary" @click="change">
           切换到选手管理
+        </el-button>
+        <el-button icon="el-icon-back" type="primary" @click="back" style="float: right">
+          返回
         </el-button>
       </div><br/><br/>
     </div>
@@ -13,11 +16,11 @@
         专家添加有三种模式：手动添加、从本单位添加、批量导入。
       </a>
 <!--    {{ keywords_name }} <a v-show="flag===0">专家名单</a> <a v-show="flag==1">专家打分</a>-->
-      <div style="margin-left: auto">
-        <el-button icon="el-icon-back" type="primary" @click="back">
-          返回
-        </el-button>
-      </div>
+<!--      <div style="margin-left: auto">-->
+<!--        <el-button icon="el-icon-back" type="primary" @click="back">-->
+<!--          返回-->
+<!--        </el-button>-->
+<!--      </div>-->
     </div>
 <!--    <div style="display: flex; justify-content: left;margin-top:10px">-->
 <!--      <div v-if="flag==0">-->
@@ -55,7 +58,7 @@
 <!--        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。-->
 <!--    </div>-->
     <div>
-      <el-button type="success" @click="showMethod">
+      <el-button type="success" @click="showMethod" style="margin-top: 15px">
         添加专家
       </el-button>
     </div>
@@ -826,6 +829,13 @@ export default {
                   id: this.$route.query.backID,
               },
           });
+      }else{
+        // _this.$router.push({
+        //   path: "/ActivitM/SubActManage",
+        //   query: {
+        //     id: this.$route.query.backID,
+        //   },
+        // });
       }
     },
     tableRowClassName({row, rowIndex}) {
@@ -1017,12 +1027,22 @@ export default {
       _this.$router.push({
         path: '/participantsM',
         query:{
-          activityID: this.keywords,
+          activityIDParent: this.$route.query.activityIDParent,
+          activityID: this.$route.query.activityID,
+          groupIDParent: this.$route.query.groupIDParent,
+          groupID: this.$route.query.groupID,
+          actName: this.$route.query.actName,
+          groupName: this.$route.query.groupName,
+          isGroup: this.$route.query.isGroup,
+          haveSub: this.$route.query.haveSub,
+          id: this.$route.query.id,
           keywords: this.keywords,
-          keyword_name: this.keyword_name,
-          groupID:this.groupID,
-          ACNAME:this.keyword_name,
+          keyword_name: typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
+          ACNAME:typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
           mode:this.mode,
+          backID:this.$route.query.groupID,
+          backActName:this.$route.query.backActName,
+          smallGroup:this.$route.query.smallGroup,
         }
       })
     },
