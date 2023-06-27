@@ -602,13 +602,20 @@ export default {
     },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
-      if(this.user){
-        var url="/paper/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
-        window.location.href = encodeURI(url);
-      }else{
-        this.$message.error("请重新登录！");
-      }
-      
+      var url = data.url
+      axios({
+        url: '/paper/basic/downloadByUrl?url='+url,
+        method: 'GET',
+        responseType: 'blob'
+      }).then(response => {
+        const url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
     },
     handleDelete() {//删除选择的文件
       var file={

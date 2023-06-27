@@ -140,15 +140,15 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="indicator.name"
-            label="专利类别"
+            prop="point"
+            label="积分"
             align="center"
-            width="240"
+            width="80"
         >
         </el-table-column>
         <el-table-column
-            prop="indicator.score"
-            label="积分"
+            prop="grantedStatus"
+            label="授权状态"
             align="center"
             width="80"
         >
@@ -179,8 +179,11 @@
             background
             @current-change="currentChange"
             @size-change="sizeChange"
+            :current-page="currentPage"
             layout="sizes, prev, pager, next, jumper, ->, total, slot"
             :total="total"
+            :page-sizes="pageSizes"
+            :page-size="pageSize"
         >
         </el-pagination>
       </div>
@@ -268,18 +271,10 @@
           <span>{{emp.total}}</span
           ><br />
         </el-form-item>
-<!--        <el-form-item label="作者列表:" prop="author">-->
-<!--          <span>{{emp.author}}</span-->
-<!--          ><br />-->
-<!--        </el-form-item>-->
         <el-form-item label="排名:" prop="rank">
           <span>{{emp.rank}}</span
           ><br />
         </el-form-item>
-<!--        <el-form-item label="受理日期:" prop="year">-->
-<!--          <span>{{emp.year}}</span-->
-<!--          ><br />-->
-<!--        </el-form-item>-->
         <el-form-item label="受理日期:" prop="date">
           <span>{{emp.date | dataFormat}}</span
           ><br />
@@ -291,7 +286,7 @@
           <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(emp)"
              onmouseover="this.style.color = 'blue'"
              onmouseleave="this.style.color = 'gray'">
-            {{emp.url|fileNameFilter}}</a>
+            {{emp.url | fileNameFilter}}</a>
           <br />
         </el-form-item>
         <div >
@@ -350,10 +345,15 @@
 
 <script>
 import { set } from 'vue';
+import axios from "axios";
 export default {
   name: "SalSearch",
   data() {
     return {
+      pageSizes:[10,20,20,20,30],
+      totalCount:0,
+      currentPage:1,
+      pageSize:10,
       tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
       ispubFlag:false,
       ispubShow:false,
@@ -430,7 +430,7 @@ export default {
   },
   created() {},
   mounted() {
-    this.initEmps();
+    this.initEmps(1,10);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -480,12 +480,20 @@ export default {
     },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
-      if(localStorage.getItem("user")){
-        var url="/paper/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
-        window.location.href = encodeURI(url);
-      }else{
-        this.$message.error("请重新登录！");
-      }
+      var url = data.url
+      axios({
+        url: '/patent/basic/downloadByUrl?url='+url,
+        method: 'GET',
+        responseType: 'blob'
+      }).then(response => {
+        const url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
     },
     filter(val,options){
       document.getElementById(options).value=val
@@ -561,23 +569,24 @@ export default {
         }
       });
     },
+    //应该要分是否有无筛选条件
     sizeChange(currentSize) {
-      this.size = currentSize;
-      this.initEmps();
+      this.pageSize = currentSize;
+      this.initEmps(this.currentPage,currentSize);
     },
     currentChange(currentPage) {
-      this.page = currentPage;
-      this.initEmps("advanced");
+      this.currentPage = currentPage;
+      this.initEmps(currentPage,this.pageSize);
     },
-    initEmps() {
+    initEmps(pageNum,pageSize) {
       this.loading = true;
-      let url = "/patent/basic/List";
+      let url = '/patent/basic/List?pageNum=' + pageNum + '&pageSize=' + pageSize;
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.emps = resp.data;
+          this.emps = resp.extend.res[0];
           this.copyemps = this.emps
-          this.total = resp.total;
+          this.totalCount = resp.extend.res[1];
           this.emps.sort(function(a,b){
             return a.date > b.date ? -1 : 1
           })
