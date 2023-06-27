@@ -190,7 +190,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAddPatent">取 消</el-button>
-        <el-button type="primary" @click="doAddEmp" v-show="addButtonState">提 交</el-button>
+        <el-button type="primary" @click="addAward" v-show="addButtonState">提 交</el-button>
       </span>
     </el-dialog>
 
@@ -318,10 +318,6 @@ export default {
       dialogVisible: false,
       dialogVisible_show: false,
       dialogVisible_showInfo:false,
-      total: 0,
-      page: 1,
-      size: 10,
-      patentTypename:"",//项目类别
       oper:{
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
@@ -531,21 +527,6 @@ export default {
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
-    emptyEmp() {
-      this.emp = {
-        //startDate: null,
-        name: "",
-        typename:"",
-        time:"",
-        patentee:"",
-        total:"",
-        rank:"",
-        point:"",
-        url:"",
-        state:"",
-        remark: "",
-      };
-    },
     showEditEmpView(data) {
       this.dialogVisible = true;
       this.title = "编辑项目信息";
@@ -582,34 +563,36 @@ export default {
         })
       }
     },
-    doAddEmp() {//项目提交确认
-      if (this.emp.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        this.$refs["empForm"].validate((valid) => {
-          if (valid) {
-            this.emp.name = this.patentName;
-            this.emp.point = this.view_point;
-            this.emp.date = this.patentDate;
-            this.emp.author = this.patentee;
-            this.emp.url = this.urlFile;
-            this.emp.state = "commit";
-            if(this.emp.url == '' ||this.emp.url == null){
-              this.$message({
-                message:'请上传证明材料！'
-              })
-              return
-            }
-            this.postRequest1("/patent/basic/edit", this.emp).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                    this.$message.success('编辑成功！')
-                  }
-                }
-            );
+    editAward() {
+      this.$refs["empForm"].validate((valid) => {
+        if (valid) {
+          this.emp.name = this.patentName;
+          this.emp.point = this.view_point;
+          this.emp.date = this.patentDate;
+          this.emp.author = this.patentee;
+          this.emp.url = this.urlFile;
+          this.emp.state = "commit";
+          if(this.emp.url == '' ||this.emp.url == null){
+            this.$message({
+              message:'请上传证明材料！'
+            })
+            return
           }
-        });
-
+          this.postRequest1("/patent/basic/edit", this.emp).then(
+              (resp) => {
+                if (resp) {
+                  this.dialogVisible = false;
+                  this.initEmps();
+                  this.$message.success('编辑成功！')
+                }
+              }
+          );
+        }
+      });
+    },
+    addAward() {//项目提交确认
+      if (this.emp.id) {//emptyEmp中没有将id设置为空 所以可以判断
+        this.editAward();
       } else {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
@@ -656,7 +639,6 @@ export default {
         this.loading = false;
         if (resp) {
           this.emps = resp.data;
-          this.total = 10;
         }
       });
     },

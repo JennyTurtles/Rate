@@ -13,7 +13,7 @@
     </div>
     <div style="margin-top: 10px;">
       <el-table
-          :data="emps"
+          :data="awardsList"
           stripe
           border
           v-loading="loading"
@@ -23,7 +23,6 @@
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%;"
       >
-        <el-table-column type="selection" width="35px"> </el-table-column>
         <el-table-column
             prop="name"
             align="center"
@@ -235,7 +234,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="doAddEmp" v-show="addButtonState">提 交</el-button>
+        <el-button type="primary" @click="addAward" v-show="addButtonState">提 交</el-button>
       </span>
     </el-dialog>
 
@@ -279,8 +278,6 @@
           <span>{{ emp.comment }}</span>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
-          <!-- <el-button @click="download(emp)" type="primary" v-show="emp.url == '' || emp.url == null ? false:true">下载材料</el-button> -->
-          &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
           <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
              @click="download(emp)"
@@ -293,7 +290,6 @@
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
             <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <!-- <el-form-item  v-model="operList" v-for="item in operList" :key="item.time" style="margin-bottom:8px;"> -->
               <div >
                 <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operation}}</p>
                 <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
@@ -340,7 +336,7 @@ export default {
       labelPosition: "left",
       title: "",
       title_show: "",
-      emps: [],
+      awardsList: [],
       loading: false,
       dialogVisible: false,
       dialogVisible_show: false,
@@ -352,8 +348,9 @@ export default {
       awardTypeID:-1,
       oper:{
         operatorRole: "student",
-        operatorID: this.user.id,
-        prodType: 'award',
+        operatorId: JSON.parse(localStorage.getItem('user')).id,
+        operatorName: JSON.parse(localStorage.getItem('user')).name,
+        prodType: '科研奖励',
         operationName: '',
         state: '',
         remark: '',
@@ -405,7 +402,7 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.currentHr; //object信息
+      return JSON.parse(localStorage.getItem('user')); //object信息
     },
     menuHeight() {
       return this.awardTypename.length * 50 > 150
@@ -415,7 +412,7 @@ export default {
   },
   created() {},
   mounted() {
-    this.initEmps();
+    this.initAwardsList();
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -529,7 +526,6 @@ export default {
       formData.append("file",this.files[0].raw)
       axios.post("/award/basic/upload",formData,{
         headers:{
-          // 'token': window.sessionStorage.getItem('user') ? JSON.parse(window.sessionStorage.getItem('user')).token : ''
           'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
         }
       }).then(
@@ -595,22 +591,6 @@ export default {
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
-    emptyEmp() {
-      this.emp = {
-        name: "",
-        awardTypename: "",
-        unit:"",
-        way:"",
-        year: "",
-        starttime: "",
-        endtime: "",
-        point:"",
-        url:'',
-        state:'',
-        score: "",
-        comment: "",
-      };
-    },
     //编辑按钮
     showEditEmpView(data) {
       // this.initPositions();
@@ -664,71 +644,60 @@ export default {
         this.deleteRequest("/award/basic/remove/" + data.id).then((resp) => {
           if (resp) {
             this.dialogVisible = false;
-            this.initEmps();
+            this.initAwardsList();
           }
         })
       }
     },
-    doAddEmp() {//项目提交确认
-      if (this.emp.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        // if(confirm('确定要提交吗？')){
-        var empdata=this.emp
-        this.emptyEmp()
-        this.$refs["empForm"].validate((valid) => {
-          if (valid) {
-            this.emp.name=empdata.name
-            this.emp.ID=empdata.id
-            //this.emp.awardTypename=empdata.awardTypename
-            this.emp.point = empdata.point
-            this.emp.unit = empdata.unit
-            this.emp.year=empdata.year
-            this.emp.member=empdata.member
-            //this.emp.total = empdata.total
-            this.awardTypename=document.getElementById("input_awardTypename").value
-            //this.emp.pubPage=this.startPage+"-"+this.endPage
-            this.emp.awardTypename = this.awardTypename
-            this.emp.awardTypeID = this.awardTypeID
-            this.emp.url = this.urlFile;
-            this.emp.point = this.view_point
-            this.emp.state="commit"
-            const _this = this;
-            if(this.emp.url == '' ||this.emp.url == null){
-              this.$message({
-                message:'请上传证明材料！'
-              })
-              return
-            }
-            this.postRequest1("/award/basic/edit", _this.emp).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                  }
-                }
-            );
+    editAward() {
+      this.$refs["empForm"].validate((valid) => {
+        if (valid) {
+          this.emp.name = this.patentName;
+          this.emp.point = this.view_point;
+          this.emp.date = this.patentDate;
+          this.emp.author = this.patentee;
+          this.emp.url = this.urlFile;
+          this.emp.state = "commit";
+          if(this.emp.url == '' ||this.emp.url == null){
+            this.$message({
+              message:'请上传证明材料！'
+            })
+            return
           }
-        });
-
+          this.postRequest1("/award/basic/edit", this.emp).then(
+              (resp) => {
+                if (resp) {
+                  this.dialogVisible = false;
+                  this.initAwardsList();
+                  this.$message.success('编辑成功！')
+                }
+              }
+          );
+        }
+      });
+    },
+    addAward() {//项目提交确认
+      if (this.emp.id) {//emptyEmp中没有将id设置为空 所以可以判断
+        this.editAward();
       } else {
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
-            this.awardTypename=document.getElementById("input_awardTypename").value
-            this.emp.awardTypename = this.awardTypename
-            this.emp.awardTypeID = this.awardTypeID
+            this.emp.name = this.patentName;
+            this.emp.date = this.patentDate;
             this.emp.point = this.view_point
             this.emp.url = this.urlFile;
-            this.emp.state="commit"
-            this.emp.studentID = JSON.parse(localStorage.getItem('user')).id
-            const _this = this;
+            this.emp.author = this.patentee;
+            this.emp.state = "commit"
+            this.emp.studentId = this.user.id
             if(this.emp.url == '' ||this.emp.url == null){
               this.$message.error('请上传证明材料！')
               return
             }
-            this.postRequest1("/award/basic/add",_this.emp).then(
+            this.postRequest1("/award/basic/add",this.emp).then(
                 (resp) => {
                   if (resp) {
                     this.dialogVisible = false;
-                    this.doAddOper("commit",resp.data)
+                    this.doAddOper("commit", resp.data);
                   }
                 }
             );
@@ -742,11 +711,10 @@ export default {
       this.oper.operation="提交奖励"
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper);
-      await this.initEmps();
+      await this.initAwardsList();
     },
     showAddEmpView() {//点击添加科研项目按钮
       this.addButtonState=true
-      this.emptyEmp();
       this.member=''
       this.data_picker=''
       this.title = "添加科研项目";
@@ -768,13 +736,13 @@ export default {
         }
       });
     },
-    initEmps() {
-      let url = "/award/basic/studentID?studentID="+JSON.parse(localStorage.getItem('user')).id
+    initAwardsList() {
+      this.loading = true;
+      let url = "/award/basic/studentID?studentID=" + this.user.id
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.emps = resp.data;
-          this.total = 10;
+          this.awardsList = resp.data;
         }
       });
     },
