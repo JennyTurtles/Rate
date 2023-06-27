@@ -1,5 +1,8 @@
 package org.sys.rate.controller.admin;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -9,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.model.Msg;
 import org.sys.rate.model.Patent;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.IndicatorService;
@@ -59,10 +63,14 @@ public class PatentController {
     }
 
     @GetMapping("/List")
-    public JsonResult<List> getCollect() {
+    public Msg getCollect(@RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
         //包括返回最早的提交时间 和多次驳回的理由列表
+        Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
         List<Patent> list = patentService.selectList();
-        return new JsonResult<>(patentService.setPatentOperation(list));
+        patentService.setPatentOperation(list);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()};
+        return Msg.success().add("res", res);
     }
 
     //    添加专利 搜索期刊类别

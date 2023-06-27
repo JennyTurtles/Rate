@@ -122,7 +122,7 @@ public class PatentService {
             if (indexReject != -1) { //说明有驳回记录
                 if (patent.getState().equals("commit") || patent.getState().equals("tea_pass") || patent.getState().equals("adm_pass")) {
                     //但是如果当前的专利处于通过或再次被提交状态就不返回驳回理由
-                    patent.setRemark(" ");
+                    patent.setRemark("");
                 } else {
                     patent.setRemark(patentoperList.get(indexReject).getRemark());
                 }
