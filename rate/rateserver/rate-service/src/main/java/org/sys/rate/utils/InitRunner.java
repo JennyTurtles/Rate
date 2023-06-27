@@ -26,11 +26,11 @@ public class InitRunner implements ApplicationRunner {
         mailService.setMail();
     }
 
-    @Scheduled(fixedRateString = "120000")
+    @Scheduled(fixedRateString = "60000")
     public void readMails() {
         try {
             TimeUnit.SECONDS.sleep(2);
-            receiveMails.readMails();
+            //receiveMails.readMails();
         } catch (Exception e) {
             e.printStackTrace();
         }

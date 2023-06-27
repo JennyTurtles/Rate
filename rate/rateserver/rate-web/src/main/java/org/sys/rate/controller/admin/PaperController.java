@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.model.Operation;
 import org.sys.rate.model.Paper;
-import org.sys.rate.model.Publication;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.*;
 import org.sys.rate.service.mail.MailToTeacherService;
@@ -139,11 +138,10 @@ public class PaperController {
     }
 
     //    添加论文 搜索期刊类别
-    @GetMapping("/publicationList")
-    public JsonResult<List> getPublicationList(String publicationName) {
-        return new JsonResult<>(publicationService.selectPublicationListByName(publicationName));
-//        return new JsonResult<>(paperService.selectPublicationList(publicationName));
-    }
+    //@GetMapping("/publicationList")
+    //public JsonResult<List> getPublicationList(String publicationName) {
+    //    return new JsonResult<>(publicationService.selectPublicationListByName(publicationName, year));
+    //}
 
     /**
      * 查询论文成果列表
@@ -163,7 +161,7 @@ public class PaperController {
     @ResponseBody
     public JsonResult addSave(Paper paper) throws FileNotFoundException {
         Integer res = paperService.insertPaper(paper);
-//        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
         return new JsonResult(paper.getID());
     }
 

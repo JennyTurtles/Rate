@@ -13,6 +13,7 @@ import javax.annotation.Resource;
 import javax.xml.crypto.Data;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 @RestController
@@ -37,6 +38,13 @@ public class OperationController {
         List<Operation> operationList;
         try {
             operationList = operMapper.selectList(prodId, type);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            for (Operation operation : operationList) {
+                if (operation.getTime() != null) {
+                    String formattedTime = dateFormat.format(operation.getTime());
+                    operation.setFormattedTime(formattedTime);
+                }
+            }
         }catch (Exception e) {
             return RespBean.error("error", null);
         }

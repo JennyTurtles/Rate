@@ -18,10 +18,10 @@ public interface PublicationMapper {
     /**
      * 查询刊物
      *
-     * @param ID 刊物ID
+     * @param id 刊物id
      * @return 刊物
      */
-    @Select("select id, name, abbr, publisher, url from i_publication")
+    @Select("select id, name, abbr, publisher, url from i_publication where id= #{id}")
     Publication selectPublicationById(Integer id);
 
     /**
@@ -45,13 +45,22 @@ public interface PublicationMapper {
     /**
      * 批量删除刊物
      *
-     * @param IDs 需要删除的数据ID
+     * @param ids 需要删除的数据ID
      * @return 结果
      */
     Integer deletePublicationByIds(List<Integer> ids);
 
     /**
-     * 模糊查询，返回相关的刊物全称
+     * 根据name和year模糊查询，返回相关的刊物全称
+     *
+     * @param name:
+     * @Return List<String>
+     */
+    @Select("SELECT DISTINCT NAME FROM i_publication p LEFT JOIN indicator_publication ip on p.id = ip.publication_id WHERE NAME LIKE CONCAT('%',#{name},'%') and YEAR(ip.date)=#{year} and ip.flag!=-1")
+    List<String> getPublicationNamesByNameYear(String name, Integer year);
+
+    /**
+     * 根据name模糊查询，返回相关的刊物全称
      *
      * @param name:
      * @Return List<String>
@@ -66,11 +75,6 @@ public interface PublicationMapper {
      * @param year: 刊物出版年份
      * @Return List<Publication>
      */
-    @Select("SELECT p.id, p.`name`, p.abbr, p.publisher, p.url, i.id, i.`name`, i.score \n" +
-            "FROM indicator_publication ip LEFT JOIN i_publication p ON ip.publication_id = p.id LEFT JOIN indicator i ON ip.indicator_id = i.id \n" +
-            "WHERE p.`name` = #{name} AND YEAR ( ip.date )= #{year}  AND ip.flag !=- 1 \n" +
-            "ORDER BY i.score DESC, i.`order` \n" +
-            "LIMIT 1")
     Publication getPublicationByNameYear(String name, String year);
 
 
@@ -87,7 +91,9 @@ public interface PublicationMapper {
 
     /**
      * 插入期刊时，也需要插入中间表中
-     * @param id:
+     * @param indicatorId:
+     * @param publicationId:
+     * @param date:
      * @Return Integer
      */
     @Insert("insert into indicator_publication(indicator_id, publication_id, date, flag) values(#{indicatorId},#{publicationId},#{date},0)")

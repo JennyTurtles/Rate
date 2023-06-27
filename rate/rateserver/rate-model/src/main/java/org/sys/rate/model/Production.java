@@ -20,6 +20,10 @@ public class Production {
 
     Integer studentId;
 
+    Student student;
+
+    Indicator indicator;
+
     @DateTimeFormat(pattern = "yyyy-MM")
     @JsonFormat(pattern = "yyyy-MM", timezone = "GMT+8")
     Date date;
@@ -30,8 +34,6 @@ public class Production {
 
     String url;
 
-    Integer point;
-
     List<Operation> operationList;
 
     // 排名
@@ -39,6 +41,8 @@ public class Production {
 
     // 总人数
     Integer total;
+
+    Integer point;
 
 }
 

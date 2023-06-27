@@ -1,6 +1,7 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Operation;
 
 import java.util.List;
@@ -23,6 +24,5 @@ public interface OperationMapper {
      */
     List<Operation> selectList(Integer prodId, String prodType);
 
-//    List<Operation> selectOperationListOf(Integer prodId, String prodType, Integer operatorId);
 
 }

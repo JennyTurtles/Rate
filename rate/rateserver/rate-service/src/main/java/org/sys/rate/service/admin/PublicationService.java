@@ -3,11 +3,9 @@ package org.sys.rate.service.admin;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.PublicationMapper;
-import org.sys.rate.model.Indicator;
 import org.sys.rate.model.Publication;
 
 import javax.annotation.Resource;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -29,10 +27,16 @@ public class PublicationService {
     /**
      * 模糊查询期刊，获取相关期刊全称
      *
-     * @param publicationName:
+     * @param publicationName :
+     * @param year
      * @Return List<String>
      */
-    public List<String> selectPublicationListByName(@Param("publicationName") String publicationName) {
+    public List<String> selectPublicationListByName(String publicationName, Integer year) {
+        List<String> res = publicationMapper.getPublicationNamesByNameYear(publicationName, year);
+        return res;
+    }
+
+    public List<String> selectPublicationListByName(String publicationName) {
         List<String> res = publicationMapper.getPublicationNamesByName(publicationName);
         return res;
     }

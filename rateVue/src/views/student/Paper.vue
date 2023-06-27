@@ -23,7 +23,7 @@
         element-loading-background="rgba(0, 0, 0, 0.12)"
         style="width: 100%;"
       >
-        <el-table-column type="selection" width="35px"> </el-table-column>
+<!--        <el-table-column type="selection" width="35px"> </el-table-column>-->
         <el-table-column
           prop="name"
           align="center"
@@ -111,24 +111,24 @@
       
     </div>
 
-<!-- 添加论文对话框 -->
+    <!-- 添加论文对话框 -->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
       <el-form
-        :hide-required-asterisk="true"
-        :label-position="labelPosition"
-        label-width="150px"
-        :model="emp"
-        :rules="rules"
-        ref="empForm"        
+          :hide-required-asterisk="true"
+          :label-position="labelPosition"
+          label-width="150px"
+          :model="emp"
+          :rules="rules"
+          ref="empForm"
       >
         <el-form-item label="论文名称:" prop="name" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
-            size="mini"
-            style="width:80%"
-            prefix-icon="el-icon-edit"
-            v-model="emp.name"
-            placeholder="请输入论文名称"
+              size="mini"
+              style="width:80%"
+              prefix-icon="el-icon-edit"
+              v-model="emp.name"
+              placeholder="请输入论文名称"
           ></el-input>
         </el-form-item>
         <el-form-item  prop="year" label="出版年月:" label-width="80px" style="margin-left: 20px;">
@@ -142,91 +142,111 @@
           ></el-date-picker>
         </el-form-item>
         <el-form-item  label="所属期刊:" prop="name" label-width="80px" style="margin-left: 20px;">
-            <span class="isMust">*</span>
-            <div class="select_div_input">
-              <input
-                  autocomplete="off"
-                  style="width:95%;line-height:28px;
+          <span class="isMust">*</span>
+          <div class="select_div_input">
+            <input
+                autocomplete="off"
+                style="width:95%;line-height:28px;
                               border:1px solid lightgrey;padding:0 10px 1px 15px;
                               border-radius:4px;color:gray"
-                  :disabled="disabledInput"
-                  placeholder="请输入期刊名称"
-                  v-model="publicationName"
-                  @focus="inputPubFocus"
-                  @blur="ispubShow=ispubFlag"
-                  id="input_publicationName"/>
-              <div class="select_div"
-                   v-show="ispubShow && publicationName && emp.year ? true:false"
-                   :style="'height: ${menuHeight}'"
-                   @mouseover="ispubFlag = true"
-                   @mouseleave="ispubFlag = false">
-                <div
-                    class="select_div_div"
-                    v-for="val in select_pubName"
-                    :key="val"
-                    :value="val"
-                    @click="filter_pub(val)"
-                >
-                  {{ val }}
-                </div>
+                :disabled="disabledInput"
+                placeholder="请输入期刊名称"
+                v-model="publicationName"
+                @focus="inputPubFocus"
+                @blur="ispubShow=ispubFlag"
+                id="input_publicationName"/>
+            <div class="select_div"
+                 v-show="ispubShow && publicationName && emp.year ? true:false"
+                 :style="'height: ${menuHeight}'"
+                 @mouseover="ispubFlag = true"
+                 @mouseleave="ispubFlag = false">
+              <div
+                  class="select_div_div"
+                  v-for="val in select_pubName"
+                  :key="val"
+                  :value="val"
+                  @click="filter_pub(val)"
+              >
+                {{ val }}
               </div>
             </div>
+          </div>
         </el-form-item>
-       
+
         <el-form-item  prop="total" label="作者列表:" label-width="80px" style="margin-left: 20px;">
-            <el-input
-            id="input_writer"
-            size="mini"
-            style="width:80%"
-            prefix-icon="el-icon-edit"
-            v-model="writer"
-            @blur="judgeWriter()"
-            placeholder="请输入作者,如有多个用分号分隔"
-            ></el-input> 
+          <el-input
+              id="input_writer"
+              size="mini"
+              style="width:80%"
+              prefix-icon="el-icon-edit"
+              v-model="writer"
+              @blur="judgeWriter()"
+              placeholder="请输入作者,如有多个用分号分隔"
+          ></el-input>
         </el-form-item>
 
         <el-form-item  prop="content" label="页码:" label-width="80px" style="margin-left: 20px;">
           <el-input
-            size="mini"
-            style="width: 32%"
-            prefix-icon="el-icon-edit"
-            v-model="startPage"
-            placeholder="开始页码"
+              size="mini"
+              style="width: 32%"
+              prefix-icon="el-icon-edit"
+              v-model="startPage"
+              placeholder="开始页码"
           ></el-input>  &nbsp;-&nbsp;  <el-input
             size="mini"
             style="width: 32%"
             prefix-icon="el-icon-edit"
             v-model="endPage"
             placeholder="结尾页码"
-          ></el-input>
-        </el-form-item>      
+        ></el-input>
+        </el-form-item>
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
-           <el-upload
-                :file-list="files"
-                action="#" 
-                :limit="1"
-                :headers="headers"
-                :on-remove="handleDelete"
-                :auto-upload="false"
-                :on-change="handleChangeFiles"
-                :on-exceed="handleExceed"
-              >
-                <el-button type="primary" icon="el-icon-upload2"
-                    slot="trigger"
-                >选择文件</el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-                <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
+          <el-upload
+              :file-list="files"
+              action="#"
+              :limit="1"
+              :headers="headers"
+              :on-remove="handleDelete"
+              :auto-upload="false"
+              :on-change="handleChangeFiles"
+              :on-exceed="handleExceed"
+          >
+            <el-button type="primary" icon="el-icon-upload2"
+                       slot="trigger"
+            >选择文件</el-button>&nbsp;&nbsp;&nbsp;&nbsp;
+            <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
                   &nbsp;&nbsp;大小不能超过10MB
                 </span>
-              </el-upload>
-              <div>
-                
-              </div>
-              
+          </el-upload>
+          <div>
+
+          </div>
+
         </el-form-item>
       </el-form>
       <div style="margin-left: 20px;">
-          <span style="color:gray;font-size:10px">将会获得：{{view_point}}积分</span>
+        <span style="color:gray;font-size:10px">{{publication_detail}}</span>
+        <span
+            style="color: #409eff;  cursor: pointer;font-size:10px"
+            @click="openDialog"
+            v-if="publication_detail !== null && publication_detail.length > 0"
+        >
+            结果有误？点击修改此期刊
+          </span>
       </div>
+      <div style="margin-left: 20px;font-size: 10px;margin-top: 5px;">
+        没有找到期刊？
+        <span
+            style="color: #409eff;  cursor: pointer;"
+            @click="openDialog"
+        >
+            点击添加新的期刊
+          </span>
+      </div>
+      <div style="margin-left: 20px;margin-top: 5px;">
+        <span style="color:gray;font-size:10px">将会获得：{{view_point}}积分</span>
+      </div>
+
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="doAddEmp()" v-show="addButtonState">提 交</el-button>
@@ -311,6 +331,82 @@
               >关闭</el-button>
       </span>
     </el-dialog>
+
+    <!-- 添加或修改期刊对话框  -->
+    <el-dialog :title="title_publication" :visible.sync="dialogVisible_publication" width="50%" center>
+      <el-form
+          :hide-required-asterisk="true"
+          :label-position="labelPosition"
+          label-width="150px"
+          :model="emp"
+          ref="empForm"
+      >
+        <el-form-item label="期刊全称:" prop="name" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-input
+              size="mini"
+              style="width:80%"
+              prefix-icon="el-icon-edit"
+              v-model="emp.name"
+              placeholder="请输入期刊全称"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="刊物简称:" prop="name" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-input
+              size="mini"
+              style="width:80%"
+              prefix-icon="el-icon-edit"
+              v-model="emp.name"
+              placeholder="请输入刊物简称"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="出版社:" prop="name" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-input
+              size="mini"
+              style="width:80%"
+              prefix-icon="el-icon-edit"
+              v-model="emp.name"
+              placeholder="请输入出版社"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="网址:" prop="name" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-input
+              size="mini"
+              style="width:80%"
+              prefix-icon="el-icon-edit"
+              v-model="emp.name"
+              placeholder="请输入网址"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="收录级别:" prop="name" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-input
+              size="mini"
+              style="width:80%"
+              prefix-icon="el-icon-edit"
+              v-model="emp.name"
+              placeholder="请输入收录级别，用分号分隔多个级别"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="录入年份:" prop="name" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-input
+              size="mini"
+              style="width:80%"
+              prefix-icon="el-icon-edit"
+              v-model="emp.name"
+              placeholder="请输入录入年份"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible_publication = false;dialogVisible=true">取 消</el-button>
+        <el-button type="primary" @click="doAddEmp()" v-show="addButtonState">提 交</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -329,6 +425,7 @@ export default {
       ispubShow:false,
       empPaperName:'',//添加论文中的论文名称
       view_point:0,
+      publication_detail:"",
       headers: {
 					'Content-Type': 'multipart/form-data'
 			},
@@ -343,10 +440,12 @@ export default {
       labelPosition: "left",
       title: "",
       title_show: "",
+      title_publication:"",
       allDeps: [],
       emps: [],
       loading: false,
       dialogVisible: false,
+      dialogVisible_publication:false,
       dialogVisible_show: false,
       dialogVisible_showInfo: false,
       total: 0,
@@ -439,6 +538,12 @@ export default {
     }
   },
   methods: {
+    openDialog() {
+      this.title_publication = "添加期刊"
+      this.dialogVisible=false
+      this.dialogVisible_publication=true
+
+    },
     delayInputTimer(val){//期刊输入框，根据name查找全称 每隔300ms发送请求
       if(this.timer){
         clearTimeout(this.timer)
@@ -447,7 +552,7 @@ export default {
         return
       }
       this.timer = setTimeout(()=>{
-        let url = "/publication/basic/listByName?publicationName=" + this.publicationName
+        let url = `/publication/basic/listByNameYear/${encodeURIComponent(this.publicationName)}/${encodeURIComponent(this.emp.year)}`;
         this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
@@ -480,10 +585,12 @@ export default {
       this.publicationName = val
       var url = "/publication/getInfByNameYear?year=" + this.emp.year + '&name=' + this.publicationName
       this.getRequest(url).then((resp) => {
+        console.log(resp)
           this.loading = false;
           if (resp) {
             if(resp.obj){
-              this.view_point = resp.obj.point
+              this.view_point = resp.obj.indicatorList[0].score;
+              this.publication_detail = resp.obj.name + "录入于" +this.emp.year+"年，按照东华大学毕业要求，属于"+resp.obj.indicatorList[0].order+"类"
               this.publicationId = resp.obj.id;
             }else {
               this.publicationName = ''
@@ -555,6 +662,7 @@ export default {
       {
         this.publicationName = ""
         this.view_point = 0
+        this.publication_detail = ""
       }
       this.emp.year=data.getFullYear()
       this.emp.month=data.getMonth()+1
@@ -745,8 +853,10 @@ export default {
               this.$message.error('请上传证明材料！')
               return
             }
+            // console.log(_this.emp)
             await this.postRequest1("/paper/basic/add", _this.emp).then(
                 (resp) => {
+                  // console.log(resp)
                   if (resp) {
                     this.dialogVisible = false;
                     this.emp.id = resp.data;
@@ -770,6 +880,7 @@ export default {
       this.addButtonState=true
       this.options=[]
       this.view_point = 0
+      this.publication_detail = ""
       this.emptyEmp();
       this.writer=''
       this.data_picker=''
