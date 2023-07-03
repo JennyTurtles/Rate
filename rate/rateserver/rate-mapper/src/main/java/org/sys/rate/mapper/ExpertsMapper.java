@@ -2,10 +2,7 @@ package org.sys.rate.mapper;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.*;
 
 @Mapper
@@ -78,4 +75,9 @@ public interface ExpertsMapper {
             "FROM teacher t\n" +
             "WHERE deleteFlag = 0 AND institutionID = #{institutionID}")
     List<Experts> getByInstitutionID(Integer institutionID);
+
+
+    @Insert("INSERT IGNORE INTO teacher (name,phone,IDNumber,email,institutionID) VALUES (#{name},#{phone},#{idnumber},#{email},#{institutionid})")
+    @Options(useGeneratedKeys = true, keyProperty = "ID")
+    Integer manualAdd(Experts experts);
 }

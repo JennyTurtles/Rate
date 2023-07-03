@@ -3,7 +3,7 @@
     <div >
       <div style="display: flex; justify-content: left">
         <div style="width: 100%;text-align: center">选手管理</div>
-        <div style="margin-left: auto;width: 270px;float: right">
+        <div style="margin-left: auto;width: 280px;float: right">
           <el-button icon="el-icon-sort" type="primary" @click="change">
             切换到专家管理
           </el-button>
@@ -521,13 +521,10 @@ export default {
        // email:[
        //  { validator: validateInputEmail, trigger: "blur" }
        // ],
-       name:[
-        { required: true,message: "请输入姓名",trigger: "blur"}
-       ],
+       name:[{ required: true,message: "请输入姓名",trigger: "blur"}],
        IDNumber:[
         { required: true,message: "请输入身份证号",trigger: "blur"},
-        { validator: validateInputIdCard, trigger: "blur" }
-       ]
+        { validator: validateInputIdCard, trigger: "blur" }]
       }
     }
   },

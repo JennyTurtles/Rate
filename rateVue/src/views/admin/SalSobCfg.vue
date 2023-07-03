@@ -2,7 +2,7 @@
   <div>
     <div style="display: flex; justify-content: left">
       <div style="width: 100%;text-align: center">专家管理</div>
-      <div style="margin-left: auto;width: 270px">
+      <div style="margin-left: auto;width: 280px">
         <el-button icon="el-icon-sort" type="primary" @click="change">
           切换到选手管理
         </el-button>
@@ -399,7 +399,21 @@
       <el-dialog :title="title" :visible.sync="dialogVisible_method" width="55%" center>
         <el-tabs type="border-card">
           <el-tab-pane label="手动添加">
-
+           <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
+            <el-form-item label="身份证号:" prop="idnumber">
+             <el-input style="width: 60%"  v-model="manualAddForm.idnumber"></el-input>
+            </el-form-item>
+            <el-form-item label="教师姓名:" prop="name">
+             <el-input style="width: 60%" v-model="manualAddForm.name"></el-input>
+            </el-form-item>
+            <el-form-item label="教师电话:" prop="phone">
+             <el-input style="width: 60%" v-model="manualAddForm.phone" ></el-input>
+            </el-form-item>
+            <el-form-item label="教师邮箱:" prop="email">
+             <el-input style="width: 60%" v-model="manualAddForm.email"></el-input>
+            </el-form-item>
+           </el-form>
+           <el-button type="primary" @click="manualAdd">添加</el-button>
           </el-tab-pane>
           <el-tab-pane label="从本单位添加">
             <el-table
@@ -437,7 +451,7 @@
           <el-tab-pane label="批量导入">
             <div style="display: flex; justify-content: left;margin-top:10px">
               <div v-if="flag==0">
-                <div v-show="flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。
+                <div v-show="flag == 0">如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。
                   <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。
                 </div><br/>
                 <span  style="font-weight:600;">导入新数据</span> <a>第一步：</a>
@@ -482,11 +496,24 @@
 <script>
 import {Message} from 'element-ui'
 import {log} from "@/utils/sockjs";
+import {validateInputIdCard} from "@/utils/check";
 
 export default {
   name: "SalSobCfg",
   data() {
     return {
+     manualAddRules:{
+      name:[{ required: true,message: "请输入姓名",trigger: "blur"}],
+      idnumber:[
+       { required: true,message: "请输入身份证号",trigger: "blur"},
+       { validator: validateInputIdCard, trigger: "blur" }]
+     },
+     manualAddForm:{
+      name: '',
+      phone: '',
+      idnumber: '',
+      email:''
+     },
       editing: false,
       activityID:-1,
       flag:0,
@@ -611,7 +638,30 @@ export default {
     this.initHrs();
   },
   methods: {
+   manualAdd(){
+    {
+     this.manualAddForm.institutionID = this.user.institutionID;
+     this.manualAddForm.activityID = this.keywords
+     this.manualAddForm.groupID = this.groupID
+     this.$refs['manualAddForm'].validate((valid) => {
+      if (valid) {
+       this.postRequest1("/systemM/Experts/manualAdd",this.manualAddForm).then(resp => {
+        if (resp && resp.status === 200) {
+         this.$message({
+          message: resp.msg,
+          type: 'success'
+         });
+         this.dialogVisible_method = false
+         this.initHrs();
+        }
+       });
+      } else {
+       return false
+      }
+     })
+    }
 
+   },
     Delete_ExActivity(si) {
       if (si.finished)
       {
