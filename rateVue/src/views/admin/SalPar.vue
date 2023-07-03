@@ -536,7 +536,6 @@ export default {
   created() {
   },
   mounted() {
-    //this.init();//先获得评分项
     this.groupID = this.$route.query.groupID;
     this.activityID = this.$route.query.activityID;
     this.mode = this.$route.query.mode
@@ -546,6 +545,9 @@ export default {
     this.activityIDParent=this.$route.query.activityIDParent;
     this.groupIDParent=this.$route.query.groupIDParent;
     this.initEmps();
+   if (typeof this.$route.query.back != 'undefined') {
+    this.back()
+   }
   },
   methods: {
    manualAdd(){

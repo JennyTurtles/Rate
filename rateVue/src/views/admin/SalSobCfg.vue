@@ -880,6 +880,29 @@ export default {
               },
           });
       }else{
+       const _this = this
+       _this.$router.push({
+        path: '/participantsM',
+        query:{
+         activityIDParent: this.$route.query.activityIDParent,
+         activityID: this.$route.query.activityID,
+         groupIDParent: this.$route.query.groupIDParent,
+         groupID: this.$route.query.groupID,
+         actName: this.$route.query.actName,
+         groupName: this.$route.query.groupName,
+         isGroup: this.$route.query.isGroup,
+         haveSub: this.$route.query.haveSub,
+         id: this.$route.query.id,
+         keywords: this.keywords,
+         keyword_name: typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
+         ACNAME:typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
+         mode:this.mode,
+         backID:this.$route.query.groupID,
+         backActName:this.$route.query.backActName,
+         smallGroup:this.$route.query.smallGroup,
+         back:1,
+        }
+       })
         // _this.$router.push({
         //   path: "/ActivitM/SubActManage",
         //   query: {
