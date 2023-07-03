@@ -431,9 +431,10 @@ public class ParticipatesService {
         participatesMapper.delete(par);
         updateParCount(par.getActivityID(),groupID);
         int result = participatesMapper.deletePar(par.getID(),par.getActivityID());
-        if (participatesMapper.existPar(par.getStudentID()) == null){   // 该选手可能有其他活动，只有在选手表内无该选手时候，才能在student表删除
-            studentMapper.deleteStudent(par.getStudentID());
-        }
+        // 不在学生表中删除
+//        if (participatesMapper.existPar(par.getStudentID()) == null){   // 该选手可能有其他活动，只有在选手表内无该选手时候，才能在student表删除
+//            studentMapper.deleteStudent(par.getStudentID());
+//        }
         if(result>0)
         {
             if (groupID != -1)

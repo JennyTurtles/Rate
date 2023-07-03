@@ -204,4 +204,8 @@ public interface ParticipatesMapper {
             "FROM student s\n" +
             "WHERE institutionID = #{institutionID}")
     List<Participates> getByInstitutionID(Integer institutionID);
+
+    @Insert("INSERT IGNORE INTO student (name,telephone,IDNumber,email,institutionID) VALUES (#{name},#{telephone},#{IDNumber},#{email},#{institutionid})")
+    @Options(useGeneratedKeys = true, keyProperty = "ID")
+    Integer manualAdd(Participates participates);
 }
