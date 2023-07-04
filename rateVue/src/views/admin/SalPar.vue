@@ -162,7 +162,6 @@
               style="width: 200px"
               prefix-icon="el-icon-edit"
               v-model="emp.displaySequence"
-              disabled
               placeholder="显示顺序"
           ></el-input>
         </el-form-item>

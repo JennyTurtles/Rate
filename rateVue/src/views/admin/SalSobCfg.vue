@@ -1197,7 +1197,9 @@ export default {
       }
       this.dialogVisible_method=false;
       const _this = this
-      console.log(this.multipleSelection);
+      for (let i = 0; i < this.multipleSelection.length; i++) {
+        this.multipleSelection[i].institutionid = this.multipleSelection[i].institutionID;
+      }
       this.postRequest("/systemM/Experts/addExperts?groupID=" + this.groupID + "&activityID=" + this.keywords, this.multipleSelection).then(resp => {
         if (resp) {
           this.initHrs();
