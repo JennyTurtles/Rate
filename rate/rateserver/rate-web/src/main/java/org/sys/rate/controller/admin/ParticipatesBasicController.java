@@ -356,4 +356,15 @@ public class ParticipatesBasicController {
     public RespBean getByInstitutionID(@RequestParam("institutionID")Integer institutionID){
         return RespBean.ok("success",participatesMapper.getByInstitutionID(institutionID));
     }
+
+    @Transactional
+    @PostMapping("/manualAdd")
+    public RespBean manualAdd(Participates participates) throws ParseException {
+        Integer res = participatesMapper.manualAdd(participates);
+        if(res > 0){
+            return addPars(participates.getActivityID(),participates.getGroupID(),Arrays.asList(participates));
+        }else {
+            return RespBean.error("已存在该选手");
+        }
+    }
 }

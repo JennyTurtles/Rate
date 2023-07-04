@@ -20,10 +20,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @RestController("ratesystemExperts")
 @RequestMapping("/systemM/Experts")
@@ -315,5 +312,17 @@ public class ExpertMController {
 //        }
 //        expertsMapper.addParent(list); // 如果存在父活动则不新增，不存在则新增
         return RespBean.ok(respBean.getMsg());
+    }
+
+    // 还能再狮山一点吗？选手类telephone，专家类phone；选手类IDNumber，专家类idnumber；选手类institutionid；专家类institutionID和institutionid都有！我真的会谢。
+    @Transactional
+    @PostMapping("/manualAdd")
+    public RespBean manualAdd(Experts experts) throws ParseException {
+        Integer res = expertsMapper.manualAdd(experts);
+        if(res > 0){
+            return addPars(experts.getGroupID(),experts.getActivityID(),Arrays.asList(experts));
+        }else {
+            return RespBean.error("已存在该专家");
+        }
     }
 }

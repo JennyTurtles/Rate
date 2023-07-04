@@ -3,7 +3,7 @@
     <div >
       <div style="display: flex; justify-content: left">
         <div style="width: 100%;text-align: center">选手管理</div>
-        <div style="margin-left: auto;width: 270px;float: right">
+        <div style="margin-left: auto;width: 280px;float: right">
           <el-button icon="el-icon-sort" type="primary" @click="change">
             切换到专家管理
           </el-button>
@@ -332,10 +332,24 @@
         </span>
     </el-dialog>
 
-    <el-dialog :title="title" :visible.sync="dialogVisible_method" width="55%" center>
+    <el-dialog :title="title" ref="dia" :visible.sync="dialogVisible_method" width="55%" center @close="$refs.manualAddForm.resetFields()">
       <el-tabs type="border-card">
         <el-tab-pane label="手动添加">
-
+         <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
+          <el-form-item label="身份证号:" prop="IDNumber">
+           <el-input style="width: 60%"  v-model="manualAddForm.IDNumber"></el-input>
+          </el-form-item>
+          <el-form-item label="学生姓名:" prop="name">
+           <el-input style="width: 60%" v-model="manualAddForm.name"></el-input>
+          </el-form-item>
+          <el-form-item label="学生电话:" prop="telephone">
+           <el-input style="width: 60%" v-model="manualAddForm.telephone" ></el-input>
+          </el-form-item>
+          <el-form-item label="学生邮箱:" prop="email">
+           <el-input style="width: 60%" v-model="manualAddForm.email"></el-input>
+          </el-form-item>
+         </el-form>
+         <el-button type="primary" @click="manualAdd">添加</el-button>
         </el-tab-pane>
         <el-tab-pane label="从本单位添加">
           <el-table
@@ -429,6 +443,9 @@
 <script>
 import axios from 'axios'
 import {Message} from "element-ui";
+import {validateInputPhone,validateInputIdCard,validateInputEmail} from "@/utils/check";
+import {postRequest1} from "@/utils/api";
+
 export default {
   name: "SalPar",
   data() {
@@ -469,6 +486,12 @@ export default {
       parentGroup:[],
       activityIDParent:0,
       groupIDParent:0,
+      manualAddForm:{
+        name: '',
+        telephone: '',
+        IDNumber: '',
+        email:''
+      },
       emp: {
         id:null,
         institutionID:null,
@@ -490,6 +513,18 @@ export default {
         startDate: [{required: true, message: '请输入活动时间', trigger: 'blur'}],
         scoreItemCount: [{required: true, type: 'number', message: '请输入正确数据', trigger: 'blur', transform: (value) => Number(value)}],
         comment: [{required: true, message: '请输入备注', trigger: 'blur'}],
+      },
+      manualAddRules:{
+       // phone:[
+       //  { validator: validateInputPhone, trigger: "blur" }
+       // ],
+       // email:[
+       //  { validator: validateInputEmail, trigger: "blur" }
+       // ],
+       name:[{ required: true,message: "请输入姓名",trigger: "blur"}],
+       IDNumber:[
+        { required: true,message: "请输入身份证号",trigger: "blur"},
+        { validator: validateInputIdCard, trigger: "blur" }]
       }
     }
   },
@@ -501,7 +536,6 @@ export default {
   created() {
   },
   mounted() {
-    //this.init();//先获得评分项
     this.groupID = this.$route.query.groupID;
     this.activityID = this.$route.query.activityID;
     this.mode = this.$route.query.mode
@@ -511,9 +545,36 @@ export default {
     this.activityIDParent=this.$route.query.activityIDParent;
     this.groupIDParent=this.$route.query.groupIDParent;
     this.initEmps();
+   if (typeof this.$route.query.back != 'undefined') {
+    this.back()
+   }
   },
   methods: {
-      preview(dymatic_list,infoitem,scoreitem){
+   manualAdd(){
+    {
+     this.manualAddForm.institutionid = this.user.institutionID;
+     this.manualAddForm.activityID = this.keywords
+     this.manualAddForm.groupID = this.groupID
+     this.$refs['manualAddForm'].validate((valid) => {
+      if (valid) {
+       this.postRequest1("/participants/basic/manualAdd",this.manualAddForm).then(resp => {
+        if (resp && resp.status === 200) {
+         this.$message({
+          message: resp.msg,
+          type: 'success'
+         });
+         this.dialogVisible_method = false
+         this.initEmps();
+        }
+       });
+      } else {
+       return false
+      }
+     })
+    }
+
+   },
+   preview(dymatic_list,infoitem,scoreitem){
           // 拼接3个list，然后转换为不带有引号的字符串
           var list = dymatic_list.concat(scoreitem).concat(infoitem);
           var str = list.join()
@@ -667,7 +728,6 @@ export default {
         if (resp) {
           //console.log("aha",resp);
           this.emps = resp.data;
-          console.log(this.emps);
         }
       });
       this.initParticipants();
@@ -682,7 +742,6 @@ export default {
         if (resp) {
           this.participants = resp.obj;
           this.total = this.participants.length;
-          console.log(this.participants);
         }
       });
     },
@@ -693,7 +752,6 @@ export default {
         this.loading = false;
         if (resp) {
           this.parentGroup = resp.data;
-          console.log(this.parentGroup);
         }
       });
     },
@@ -781,7 +839,6 @@ export default {
         path: '/ActivitM/sobcfg',
         query:{
           activityIDParent:this.$route.query.activityIDParent,
-          activityID:this.$route.query.activityID,
           groupIDParent:this.$route.query.groupIDParent,
           groupID:this.$route.query.groupID,
           actName:this.$route.query.actName,
