@@ -728,7 +728,6 @@ export default {
         if (resp) {
           //console.log("aha",resp);
           this.emps = resp.data;
-          console.log(this.emps);
         }
       });
       this.initParticipants();
@@ -743,7 +742,6 @@ export default {
         if (resp) {
           this.participants = resp.obj;
           this.total = this.participants.length;
-          console.log(this.participants);
         }
       });
     },
@@ -754,7 +752,6 @@ export default {
         this.loading = false;
         if (resp) {
           this.parentGroup = resp.data;
-          console.log(this.parentGroup);
         }
       });
     },
@@ -842,7 +839,6 @@ export default {
         path: '/ActivitM/sobcfg',
         query:{
           activityIDParent:this.$route.query.activityIDParent,
-          activityID:this.$route.query.activityID,
           groupIDParent:this.$route.query.groupIDParent,
           groupID:this.$route.query.groupID,
           actName:this.$route.query.actName,

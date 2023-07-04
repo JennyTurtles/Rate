@@ -485,7 +485,30 @@
             </div>
           </el-tab-pane>
           <el-tab-pane label="从大组添加" v-if="mode==='secretarySub'">
-
+            <el-table
+                ref="multipleTable"
+                :data="parentGroup"
+                tooltip-effect="dark"
+                style="width: 100%"
+                @selection-change="handleSelectionChange">
+              <el-table-column
+                  type="selection"
+                  width="40px">
+              </el-table-column>
+              <el-table-column
+                  prop="name"
+                  label="姓名"
+              >
+              </el-table-column>
+              <el-table-column
+                  prop="idnumber"
+                  label="证件号码"
+                  show-overflow-tooltip>
+              </el-table-column>
+            </el-table>
+            <el-button type="primary" @click="add" style="float: right;margin-top: 10px">
+              添加
+            </el-button>
           </el-tab-pane>
         </el-tabs>
       </el-dialog>
@@ -536,6 +559,7 @@ export default {
       keywords_name: "",
       ACNAME:"",
       groupID: '',
+      groupIDParent:'',
       size: 10,
       total: 0,
       loading: false,
@@ -544,6 +568,7 @@ export default {
       currentExpert:[],
       multipleSelection:[],
       currentExperts: [],
+      parentGroup:[],
       unsureinfo: [],
       dialogVisible_edit: false,
       dialogVisible_method: false,
@@ -630,6 +655,7 @@ export default {
     this.activityID = this.$route.query.activityID;
     this.keywords_name = this.$route.query.keyword_name;
     this.groupID = this.$route.query.groupID;
+    this.groupIDParent = this.$route.query.groupIDParent;
     this.ACNAME = this.$route.query.keywords_name;
     this.mode = this.$route.query.mode;
     this.haveSub = this.$route.query.haveSub;
@@ -713,6 +739,7 @@ export default {
       });
     },
     initHrs() {
+     console.log(this.activityID);
       if (typeof this.activityID == "undefined" || this.mode === 'secretary') { // 此时是从分组管理进入的
           this.getRequest(
               "/systemM/Experts/?keywords=" + this.groupID +
@@ -736,6 +763,8 @@ export default {
           }
       }
       this.initExperts();
+      if (this.mode==='secretarySub')
+        this.initParentGroup();
     },
       initExperts(){
       this.loading = true;
@@ -744,8 +773,18 @@ export default {
         this.loading = false;
         if (resp) {
           this.experts = resp.obj;
-          console.log(this.experts);
           this.total = this.experts.length;
+        }
+      });
+    },
+    initParentGroup(){
+      this.getRequest(
+          "/systemM/Experts/?keywords=" + this.groupIDParent +
+          "&page=" + 1 +
+          "&size=" + 1000 // 避免分页
+      ).then((resp) => {
+        if (resp) {
+          this.parentGroup = resp;
         }
       });
     },
@@ -885,7 +924,7 @@ export default {
         path: '/participantsM',
         query:{
          activityIDParent: this.$route.query.activityIDParent,
-         activityID: this.$route.query.activityID,
+         activityID: this.keywords,
          groupIDParent: this.$route.query.groupIDParent,
          groupID: this.$route.query.groupID,
          actName: this.$route.query.actName,
@@ -1101,7 +1140,7 @@ export default {
         path: '/participantsM',
         query:{
           activityIDParent: this.$route.query.activityIDParent,
-          activityID: this.$route.query.activityID,
+          activityID: this.keywords,
           groupIDParent: this.$route.query.groupIDParent,
           groupID: this.$route.query.groupID,
           actName: this.$route.query.actName,
@@ -1158,6 +1197,7 @@ export default {
       }
       this.dialogVisible_method=false;
       const _this = this
+      console.log(this.multipleSelection);
       this.postRequest("/systemM/Experts/addExperts?groupID=" + this.groupID + "&activityID=" + this.keywords, this.multipleSelection).then(resp => {
         if (resp) {
           this.initHrs();
