@@ -3,9 +3,12 @@
     <div >
       <div style="display: flex; justify-content: left">
         <div style="width: 100%;text-align: center">选手管理</div>
-        <div style="margin-left: auto">
-          <el-button icon="el-icon-back" type="primary" @click="change">
+        <div style="margin-left: auto;width: 280px;float: right">
+          <el-button icon="el-icon-sort" type="primary" @click="change">
             切换到专家管理
+          </el-button>
+          <el-button icon="el-icon-back" type="primary" @click="back" style="float: right">
+            返回
           </el-button>
         </div>
       </div>
@@ -25,7 +28,7 @@
           </el-button>
         </div> -->
         <div>
-          <el-button type="primary" @click="showMethod">
+          <el-button type="success" @click="showMethod">
             添加选手
           </el-button>
         </div>
@@ -33,13 +36,10 @@
           <el-button type="primary" @click="exportTG" icon="el-icon-download">
             导出专家打分
           </el-button>
-          <el-button
-              icon="el-icon-refresh"
-              type="primary"
-              @click="refreshact()">刷新</el-button>
-          <el-button icon="el-icon-back" type="primary" @click="back">
-            返回
-          </el-button>
+<!--          <el-button-->
+<!--              icon="el-icon-refresh"-->
+<!--              type="primary"-->
+<!--              @click="refreshact()">刷新</el-button>-->
         </div>
       </div>
     </div>
@@ -162,7 +162,6 @@
               style="width: 200px"
               prefix-icon="el-icon-edit"
               v-model="emp.displaySequence"
-              disabled
               placeholder="显示顺序"
           ></el-input>
         </el-form-item>
@@ -332,10 +331,24 @@
         </span>
     </el-dialog>
 
-    <el-dialog :title="title" :visible.sync="dialogVisible_method" width="55%" center>
+    <el-dialog :title="title" ref="dia" :visible.sync="dialogVisible_method" width="55%" center @close="$refs.manualAddForm.resetFields()">
       <el-tabs type="border-card">
         <el-tab-pane label="手动添加">
-
+         <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
+          <el-form-item label="身份证号:" prop="IDNumber">
+           <el-input style="width: 60%"  v-model="manualAddForm.IDNumber"></el-input>
+          </el-form-item>
+          <el-form-item label="学生姓名:" prop="name">
+           <el-input style="width: 60%" v-model="manualAddForm.name"></el-input>
+          </el-form-item>
+          <el-form-item label="学生电话:" prop="telephone">
+           <el-input style="width: 60%" v-model="manualAddForm.telephone" ></el-input>
+          </el-form-item>
+          <el-form-item label="学生邮箱:" prop="email">
+           <el-input style="width: 60%" v-model="manualAddForm.email"></el-input>
+          </el-form-item>
+         </el-form>
+         <el-button type="primary" @click="manualAdd">添加</el-button>
         </el-tab-pane>
         <el-tab-pane label="从本单位添加">
           <el-table
@@ -350,17 +363,15 @@
             </el-table-column>
             <el-table-column
                 prop="name"
-                label="姓名"
-                width="200px">
+                label="姓名">
             </el-table-column>
             <el-table-column
                 prop="idnumber"
-                label="编号"
-                width="200px"
+                label="证件号码"
                 show-overflow-tooltip>
             </el-table-column>
           </el-table>
-          <div class="block">
+          <div class="block" style="padding-top: 10px">
             <el-pagination
                 @current-change="currentChange"
                 @size-change="sizeChange"
@@ -368,7 +379,7 @@
                 :total="total">
             </el-pagination>
           </div>
-          <el-button type="primary" @click="add">
+          <el-button type="primary" @click="add" style="float: right">
             添加
           </el-button>
         </el-tab-pane>
@@ -411,16 +422,15 @@
             <el-table-column
                 prop="name"
                 label="姓名"
-                width="200px">
+                >
             </el-table-column>
             <el-table-column
                 prop="idnumber"
-                label="编号"
-                width="200px"
+                label="证件号码"
                 show-overflow-tooltip>
             </el-table-column>
           </el-table>
-          <el-button type="primary" @click="add">
+          <el-button type="primary" @click="add" style="float: right;margin-top: 10px">
             添加
           </el-button>
         </el-tab-pane>
@@ -432,6 +442,9 @@
 <script>
 import axios from 'axios'
 import {Message} from "element-ui";
+import {validateInputPhone,validateInputIdCard,validateInputEmail} from "@/utils/check";
+import {postRequest1} from "@/utils/api";
+
 export default {
   name: "SalPar",
   data() {
@@ -472,6 +485,12 @@ export default {
       parentGroup:[],
       activityIDParent:0,
       groupIDParent:0,
+      manualAddForm:{
+        name: '',
+        telephone: '',
+        IDNumber: '',
+        email:''
+      },
       emp: {
         id:null,
         institutionID:null,
@@ -493,6 +512,18 @@ export default {
         startDate: [{required: true, message: '请输入活动时间', trigger: 'blur'}],
         scoreItemCount: [{required: true, type: 'number', message: '请输入正确数据', trigger: 'blur', transform: (value) => Number(value)}],
         comment: [{required: true, message: '请输入备注', trigger: 'blur'}],
+      },
+      manualAddRules:{
+       // phone:[
+       //  { validator: validateInputPhone, trigger: "blur" }
+       // ],
+       // email:[
+       //  { validator: validateInputEmail, trigger: "blur" }
+       // ],
+       name:[{ required: true,message: "请输入姓名",trigger: "blur"}],
+       IDNumber:[
+        { required: true,message: "请输入身份证号",trigger: "blur"},
+        { validator: validateInputIdCard, trigger: "blur" }]
       }
     }
   },
@@ -504,7 +535,6 @@ export default {
   created() {
   },
   mounted() {
-    //this.init();//先获得评分项
     this.groupID = this.$route.query.groupID;
     this.activityID = this.$route.query.activityID;
     this.mode = this.$route.query.mode
@@ -514,9 +544,36 @@ export default {
     this.activityIDParent=this.$route.query.activityIDParent;
     this.groupIDParent=this.$route.query.groupIDParent;
     this.initEmps();
+   if (typeof this.$route.query.back != 'undefined') {
+    this.back()
+   }
   },
   methods: {
-      preview(dymatic_list,infoitem,scoreitem){
+   manualAdd(){
+    {
+     this.manualAddForm.institutionid = this.user.institutionID;
+     this.manualAddForm.activityID = this.keywords
+     this.manualAddForm.groupID = this.groupID
+     this.$refs['manualAddForm'].validate((valid) => {
+      if (valid) {
+       this.postRequest1("/participants/basic/manualAdd",this.manualAddForm).then(resp => {
+        if (resp && resp.status === 200) {
+         this.$message({
+          message: resp.msg,
+          type: 'success'
+         });
+         this.dialogVisible_method = false
+         this.initEmps();
+        }
+       });
+      } else {
+       return false
+      }
+     })
+    }
+
+   },
+   preview(dymatic_list,infoitem,scoreitem){
           // 拼接3个list，然后转换为不带有引号的字符串
           var list = dymatic_list.concat(scoreitem).concat(infoitem);
           var str = list.join()
@@ -670,7 +727,6 @@ export default {
         if (resp) {
           //console.log("aha",resp);
           this.emps = resp.data;
-          console.log(this.emps);
         }
       });
       this.initParticipants();
@@ -685,7 +741,6 @@ export default {
         if (resp) {
           this.participants = resp.obj;
           this.total = this.participants.length;
-          console.log(this.participants);
         }
       });
     },
@@ -696,24 +751,42 @@ export default {
         this.loading = false;
         if (resp) {
           this.parentGroup = resp.data;
-          console.log(this.parentGroup);
         }
       });
     },
     back(){
+      // 小屎山，以后有时间再优化
       const _this = this;
       var url;
       if (this.mode==='admin')
         url="/ActivitM/table"
       else if (this.mode==='secretary')
         url="/secretary/ActManage"
+      else if (this.mode === 'secretarySub' && this.$route.query.smallGroup === 'false'){
+        url ="secretary/SubActManage"
+      }else if (this.mode === 'secretarySub' && this.$route.query.smallGroup === 'true'){
+        url="/ActivitM/table"
+      }
+      var keywords = this.activityID
+      if (this.mode==='secretarySub' && this.$route.query.smallGroup === 'false')
+        keywords = this.activityIDParent
+      var groupID = this.groupID
+      if (this.mode==='secretarySub' && this.$route.query.smallGroup === 'true')
+        groupID = this.groupIDParent
       _this.$router.push({
         path: url,
         query: {
-          keywords: this.activityID,
-          keyword_name: this.ACNAME,
-          groupID:this.groupID,
+          keywords: keywords,
+          keyword_name: typeof this.ACNAME !== 'undefined' ? this.ACNAME : this.$route.query.keyword_name,
+          groupID:groupID,
           mode:this.mode,
+          id:this.$route.query.id,
+          actName:this.$route.query.actName,
+          groupName:this.$route.query.groupName,
+          isGroup:this.$route.query.isGroup,
+          haveSub:this.$route.query.haveSub,
+          backID:this.$route.query.backID,
+          backActName:this.$route.query.backActName,
         },
       });
     },
@@ -764,11 +837,20 @@ export default {
       _this.$router.push({
         path: '/ActivitM/sobcfg',
         query:{
+          activityIDParent:this.$route.query.activityIDParent,
+          groupIDParent:this.$route.query.groupIDParent,
+          groupID:this.$route.query.groupID,
+          actName:this.$route.query.actName,
+          groupName:this.$route.query.groupName,
+          smallGroup:this.$route.query.smallGroup,
+          isGroup:this.$route.query.isGroup,
+          haveSub:this.$route.query.haveSub,
+          id:this.$route.query.id,
           keywords: this.keywords,
-          keyword_name: this.keyword_name,
-          groupID:this.groupID,
-          ACNAME:this.keyword_name,
+          keyword_name: typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
+          ACNAME:typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
           mode:this.mode,
+          backActName:this.$route.query.backActName,
         }
       })
     },
@@ -781,12 +863,23 @@ export default {
       this.multipleSelection=val;
     },
     add(){
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '请选择选手!'
+        });
+        return;
+      }
       this.dialogVisible_method = false;
       const _this = this;
-      console.log(this.groupID,this.multipleSelection);
       this.postRequest("/participants/basic/addPars?activityID="+this.keywords + "&groupID=" + this.groupID,_this.multipleSelection).then((resp) => {
-        console.log(resp);
-        this.initEmps();
+        if (resp) {
+          this.initEmps();
+          this.$message({
+            type: 'success',
+            message: '添加成功!'
+          });
+        }
       });
     }
     // searchEmps() {
@@ -824,5 +917,10 @@ export default {
   transform: translateX(10px);
   opacity: 0;
 }
+
+.el-pagination {
+  text-align: center;
+}
+
 </style>
 

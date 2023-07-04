@@ -1095,6 +1095,12 @@ export default {
                 activityID: data.id,
                 groupIDParent: this.$route.query.groupID, // 这里有问题
                 groupID: this.groupID,
+                actName:this.$route.query.actName,
+                groupName:this.$route.query.groupName,
+                isGroup:this.$route.query.isGroup,
+                haveSub:this.$route.query.haveSub,
+                id:this.$route.query.id,
+                smallGroup:false, // 从活动管理进入的，因此不是小组
                 mode:this.mode,
                 keywords:this.keywords,
                 keyword_name:this.keywords_name,

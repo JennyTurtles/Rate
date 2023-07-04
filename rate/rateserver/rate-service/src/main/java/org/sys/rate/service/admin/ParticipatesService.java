@@ -393,6 +393,9 @@ public class ParticipatesService {
         if (NewPar.getID() != null
                 && NewPar.getDisplaySequence() > 0) {
             Participates old=participatesMapper.getEmployeeById(NewPar.getID());
+            if (old.getDisplaySequence() == null)
+                old.setDisplaySequence(0);
+
             // id确实存在
             if (old != null) {
                 // 显示顺序没有变化
@@ -401,18 +404,15 @@ public class ParticipatesService {
                     return "success";
                 // 修改的显示序号不能大于最大的显示序号
                 if (NewPar.getDisplaySequence() <= maxDisplaySequence) {
-                    if (NewPar.getDisplaySequence() > old
-                            .getDisplaySequence()) {
+                    if (NewPar.getDisplaySequence() > old.getDisplaySequence()) {
                         // 修正显示顺序
                         participatesMapper.subDisplaySequence(groupID,old.getDisplaySequence(),NewPar
                                 .getDisplaySequence());
                         // 保存
                         participatesMapper.saveDisplaySequence(groupID,NewPar.getDisplaySequence(),NewPar.getID());
                         return "success";
-
                     }
-                    if (NewPar.getDisplaySequence() < old
-                            .getDisplaySequence()) {
+                    if (NewPar.getDisplaySequence() < old.getDisplaySequence()) {
                         // 修正显示顺序
                         participatesMapper.addDisplaySequence(groupID,NewPar.getDisplaySequence(),old
                                 .getDisplaySequence());
@@ -431,9 +431,10 @@ public class ParticipatesService {
         participatesMapper.delete(par);
         updateParCount(par.getActivityID(),groupID);
         int result = participatesMapper.deletePar(par.getID(),par.getActivityID());
-        if (participatesMapper.existPar(par.getStudentID()) == null){   // 该选手可能有其他活动，只有在选手表内无该选手时候，才能在student表删除
-            studentMapper.deleteStudent(par.getStudentID());
-        }
+        // 不在学生表中删除
+//        if (participatesMapper.existPar(par.getStudentID()) == null){   // 该选手可能有其他活动，只有在选手表内无该选手时候，才能在student表删除
+//            studentMapper.deleteStudent(par.getStudentID());
+//        }
         if(result>0)
         {
             if (groupID != -1)

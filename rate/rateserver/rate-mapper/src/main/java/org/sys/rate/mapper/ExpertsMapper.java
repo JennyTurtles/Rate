@@ -2,10 +2,7 @@ package org.sys.rate.mapper;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.*;
 
 @Mapper
@@ -74,8 +71,13 @@ public interface ExpertsMapper {
             "targetID = VALUES(targetID),coef = VALUES(coef)")
     void saveGradeForm(GradeFormEntry gradeFormEntry);
 
-    @Select("SELECT e.ID,teacherID,name,jobnumber,institutionID,sex,department,IDNumber,phone,email,e.role,activityID,groupID\n" +
-            "FROM expertactivities e, teacher t\n" +
-            "WHERE e.teacherID = t.ID AND deleteFlag = 0 AND institutionID = #{institutionID}")
+    @Select("SELECT ID,name,jobnumber,institutionID,sex,department,IDNumber,phone,email\n" +
+            "FROM teacher t\n" +
+            "WHERE deleteFlag = 0 AND institutionID = #{institutionID}")
     List<Experts> getByInstitutionID(Integer institutionID);
+
+
+    @Insert("INSERT IGNORE INTO teacher (name,phone,IDNumber,email,institutionID) VALUES (#{name},#{phone},#{idnumber},#{email},#{institutionid})")
+    @Options(useGeneratedKeys = true, keyProperty = "ID")
+    Integer manualAdd(Experts experts);
 }

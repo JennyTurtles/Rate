@@ -2,10 +2,10 @@
   <div>
     <div>
       <div
-        style="display: flex; justify-content: space-between; margin: 15px 0"
+          style="display: flex; justify-content: space-between; margin: 15px 0"
       >
         <div>
-          <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
+          <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView" :disabled="!isShowAddButton">
             添加记录
           </el-button>
           <el-button type="primary" icon="el-icon-download" @click="exportPDF">
@@ -17,22 +17,22 @@
 
     <div style="margin-top: 10px">
       <el-table
-        class="table-with-shadow"
-        :data="emps"
-        stripe="stripe"
-        border="border"
-        v-loading="loading"
-        :header-cell-style="rowClass"
-        element-loading-text="正在加载..."
-        element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.12)"
-        style="width: 100%"
-        v-loading.fullscreen.lock="loading"
+          class="table-with-shadow"
+          :data="emps"
+          stripe="stripe"
+          border="border"
+          v-loading="loading"
+          :header-cell-style="rowClass"
+          element-loading-text="正在加载..."
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(0, 0, 0, 0.12)"
+          style="width: 100%"
+          v-loading.fullscreen.lock="loading"
       >
         <el-table-column align="center" label="操作" width="220px">
           <template slot-scope="scope">
             <div
-              style="
+                style="
                 text-align: center;
                 height: 300px;
                 display: flex;
@@ -43,7 +43,7 @@
               <div style="margin-bottom: 10px; left: 0">
                 提交次序:
                 <span
-                  style="
+                    style="
                     display: inline-block;
                     width: 100px;
                     text-align: left;
@@ -56,25 +56,25 @@
               <div style="margin-bottom: 10px">
                 提交日期:
                 <span
-                  style="
+                    style="
                     display: inline-block;
                     width: 100px;
                     text-align: left;
                     margin-left: 10px;
                   "
-                  >{{ scope.row.dateStu }}</span
+                >{{ scope.row.dateStu }}</span
                 >
               </div>
               <div style="margin-bottom: 10px; left: 0">
                 审核结果:
                 <span
-                  style="
+                    style="
                     display: inline-block;
                     width: 100px;
                     text-align: left;
                     margin-left: 10px;
                   "
-                  :style="
+                    :style="
                     scope.row.isPass == 'tea_deny'
                       ? { color: 'red' }
                       : { color: 'black' }
@@ -82,10 +82,10 @@
                 >
                   {{
                     scope.row.isPass == "tea_pass"
-                      ? "导师通过"
-                      : scope.row.isPass == "tea_deny"
-                      ? "导师驳回"
-                      : "暂无"
+                        ? "导师通过"
+                        : scope.row.isPass == "tea_deny"
+                            ? "导师驳回"
+                            : "暂无"
                   }}</span
                 >
                 <!-- <div :style="{ color: emp.isPass === '驳回' ? 'red' : '' }"> {{ emp.isPass }}
@@ -93,28 +93,28 @@
               </div>
               <div style="display: flex; justify-content: center">
                 <el-button
-                  @click="showEditEmpView(scope.row)"
-                  style="padding: 4px; margin-right: 10px"
-                  size="mini"
-                  icon="el-icon-edit"
-                  type="primary"
-                  plain="plain"
-                  v-show="scope.row.isPass == 'tea_pass' ? false : true"
-                  >编辑
+                    @click="showEditEmpView(scope.row)"
+                    style="padding: 4px; margin-right: 10px"
+                    size="mini"
+                    icon="el-icon-edit"
+                    type="primary"
+                    plain="plain"
+                    v-show="scope.row.isPass == 'tea_pass' ? false : true"
+                >编辑
                 </el-button>
                 <el-button
-                  @click="deleteEmp(scope.row)"
-                  style="padding: 4px"
-                  size="mini"
-                  type="danger"
-                  icon="el-icon-delete"
-                  plain="plain"
-                  v-show="
+                    @click="deleteEmp(scope.row)"
+                    style="padding: 4px"
+                    size="mini"
+                    type="danger"
+                    icon="el-icon-delete"
+                    plain="plain"
+                    v-show="
                     scope.$index === total - 1 && scope.row.isPass != 'tea_pass'
                       ? true
                       : false
                   "
-                  >删除
+                >删除
                 </el-button>
               </div>
             </div>
@@ -126,35 +126,35 @@
             <div class="table-cell">
               <p>
                 <strong
-                  style="
+                    style="
                     display: inline-block;
                     min-width: 0px;
                     text-align: left;
                   "
-                  >上期总结：</strong
+                >上期总结：</strong
                 >
                 {{ scope.row.preSum }}
               </p>
 
               <p>
                 <strong
-                  style="
+                    style="
                     display: inline-block;
                     min-width: 0px;
                     text-align: left;
                   "
-                  >下期计划：</strong
+                >下期计划：</strong
                 >
                 {{ scope.row.nextPlan }}
               </p>
               <p>
                 <strong
-                  style="
+                    style="
                     display: inline-block;
                     min-width: 0px;
                     text-align: left;
                   "
-                  >导师评价：</strong
+                >导师评价：</strong
                 >
                 {{ scope.row.tutorComment || "暂无评价" }}
               </p>
@@ -166,25 +166,25 @@
 
     <!-- 添加记录对话框 -->
     <el-dialog
-      :close-on-click-modal="false"
-      :title="title"
-      :visible.sync="dialogVisible"
-      width="50%"
-      center="center"
+        :close-on-click-modal="false"
+        :title="title"
+        :visible.sync="dialogVisible"
+        width="50%"
+        center="center"
     >
       <el-form
-        :hide-required-asterisk="true"
-        :label-position="labelPosition"
-        label-width="300px"
-        :model="emp"
-        :rules="rules"
-        ref="empForm"
+          :hide-required-asterisk="true"
+          :label-position="labelPosition"
+          label-width="300px"
+          :model="emp"
+          :rules="rules"
+          ref="empForm"
       >
         <el-form-item
-          label="提交次序:"
-          prop="num"
-          label-width="80px"
-          style="margin-left: 20px"
+            label="提交次序:"
+            prop="num"
+            label-width="80px"
+            style="margin-left: 20px"
         >
           <!-- <span class="isMust">*</span> -->
           <span>
@@ -194,40 +194,40 @@
 
         <el-row>
           <el-form-item
-            prop="dateStu"
-            label="指导时间:"
-            label-width="80px"
-            style="margin-left: 20px"
+              prop="dateStu"
+              label="指导时间:"
+              label-width="80px"
+              style="margin-left: 20px"
           >
             <span class="isMust">*</span>
             <el-date-picker
-              style="width: 200px"
-              value-format="yyyy-MM-dd"
-              v-model="emp.dateStu"
-              type="date"
-              placeholder="请选择指导时间"
-              :picker-options="pickerOptions"
-              v-if="showTimeSelect2"
+                style="width: 200px"
+                value-format="yyyy-MM-dd"
+                v-model="emp.dateStu"
+                type="date"
+                placeholder="请选择指导时间"
+                :picker-options="pickerOptions"
+                v-if="showTimeSelect2"
             ></el-date-picker>
             <span v-if="showTimeSelect">{{ emp.dateStu }}</span>
 
             <el-tooltip
-              effect="light"
-              popper-class="btnitem"
-              :content="prePlan"
-              placement="top"
-              v-if="showTooltip"
+                effect="light"
+                popper-class="btnitem"
+                :content="prePlan"
+                placement="top"
+                v-if="showTooltip"
             >
               <span
-                style="
+                  style="
                   display: inline-block;
                   margin-left: 20px;
                   color: #409eff;
                   position: relative;
                 "
-                >上期安排
+              >上期安排
                 <span
-                  style="
+                    style="
                     position: absolute;
                     bottom: 0px;
                     left: 0;
@@ -244,42 +244,42 @@
         </el-row>
 
         <el-form-item
-          label="上期总结:"
-          prop="preSum"
-          label-width="80px"
-          style="margin-left: 20px"
+            label="上期总结:"
+            prop="preSum"
+            label-width="80px"
+            style="margin-left: 20px"
         >
           <span class="isMust">*</span>
           <el-input
-            type="textarea"
-            size="medium"
-            style="width: 80%"
-            prefix-icon="el-icon-edit"
-            v-model="emp.preSum"
-            placeholder="请输入上期总结"
-            :show-word-limit="true"
-            :rows="8"
-            :maxlength="400"
+              type="textarea"
+              size="medium"
+              style="width: 80%"
+              prefix-icon="el-icon-edit"
+              v-model="emp.preSum"
+              placeholder="请输入上期总结"
+              :show-word-limit="true"
+              :rows="8"
+              :maxlength="400"
           ></el-input>
         </el-form-item>
 
         <el-form-item
-          label="下期计划:"
-          prop="nextPlan"
-          label-width="80px"
-          style="margin-left: 20px"
+            label="下期计划:"
+            prop="nextPlan"
+            label-width="80px"
+            style="margin-left: 20px"
         >
           <span class="isMust">*</span>
           <el-input
-            type="textarea"
-            size="medium"
-            style="width: 80%"
-            prefix-icon="el-icon-edit"
-            v-model="emp.nextPlan"
-            placeholder="请输入下期安排"
-            :show-word-limit="true"
-            :rows="8"
-            :maxlength="400"
+              type="textarea"
+              size="medium"
+              style="width: 80%"
+              prefix-icon="el-icon-edit"
+              v-model="emp.nextPlan"
+              placeholder="请输入下期安排"
+              :show-word-limit="true"
+              :rows="8"
+              :maxlength="400"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -287,7 +287,7 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click.stop.prevent="handleCancel">取 消</el-button>
         <el-button type="primary" @click="doAddEmp()" v-show="true"
-          >提 交</el-button
+        >提 交</el-button
         >
       </span>
     </el-dialog>
@@ -301,6 +301,7 @@ export default {
   name: "stuPaperComment",
   data() {
     return {
+      isShowAddButton: false,
       disabledInput: true,
       timer: null,
       select_pubName: [],
@@ -402,11 +403,12 @@ export default {
     },
     menuHeight() {
       return this.publicationName.length * 50 > 150
-        ? 150 + "px"
-        : "${this.publicationName.length * 50}px";
+          ? 150 + "px"
+          : "${this.publicationName.length * 50}px";
     },
   },
-  created() {},
+  created() {
+  },
   mounted() {
     this.initEmps();
   },
@@ -414,14 +416,14 @@ export default {
   methods: {
     exportPDF() {
       this.loading = true;
-      if(this.thesisID!=null) {
+      if (this.thesisID != null) {
         let url = "/paperComment/basic/exportPDF?thesisID=" + this.thesisID;
         this.getRequest(url).then((resp) => {
           this.loading = false;
           window.location.href = url;
         });
-      }else{
-        this.loading=false;
+      } else {
+        this.loading = false;
         this.$message.info("抱歉你还未添加毕设设计或论文！")
       }
     },
@@ -441,16 +443,16 @@ export default {
         case 15:
         case 11:
           return (
-            date.getTime() <= new Date(this.preDate).getTime() ||
-            date.getTime() < sevenDaysAgo.getTime() ||
-            date.getTime() > today.getTime()
+              date.getTime() <= new Date(this.preDate).getTime() ||
+              date.getTime() < sevenDaysAgo.getTime() ||
+              date.getTime() > today.getTime()
           );
         case 12:
           return date.getTime() >= new Date(this.nextDate).getTime();
         case 14:
           return (
-            date.getTime() >= new Date(this.nextDate).getTime() ||
-            date.getTime() <= new Date(this.preDate).getTime()
+              date.getTime() >= new Date(this.nextDate).getTime() ||
+              date.getTime() <= new Date(this.preDate).getTime()
           );
         default:
           console.log("时间限制出现了其他的问题！请检查");
@@ -482,8 +484,8 @@ export default {
       this.emp.id = 1;
       // this.emps.num = data.num; console.log(this.emps);  也就是这个可以获取当前表格中的所有数据
       // 修改编辑时日期的显示状态
-      this.showTimeSelect = this.emp.isPass != "tea_pass" ? false : true;
-      this.showTimeSelect2 = this.emp.isPass != "tea_pass" ? true : false;
+      this.showTimeSelect = this.emp.isPass !== "tea_pass" ? false : true;
+      this.showTimeSelect2 = this.emp.isPass !== "tea_pass" ? true : false;
 
       if (data.num > 1) {
         this.showTooltip = true;
@@ -516,21 +518,21 @@ export default {
       console.log(data.thesisID);
       if (confirm("此操作将永久删除【第" + data.num + "条记录】, 是否继续?")) {
         axios
-          .delete(
-            "/paperComment/basic/remove/" + data.num + "/" + data.thesisID
-          )
-          .then((resp) => {
-            if (resp) {
-              console.log(resp);
-              this.dialogVisible = false;
-              this.initEmps();
-            }
-          });
+            .delete(
+                "/paperComment/basic/remove/" + data.num + "/" + data.thesisID
+            )
+            .then((resp) => {
+              if (resp) {
+                console.log(resp);
+                this.dialogVisible = false;
+                this.initEmps();
+              }
+            });
       }
     },
     doAddEmp() {
       //确定是添加记录还是新增记录
-      if (this.emp.id) {
+      if (this.emp.id == 1) {
         //emptyEmp中没有将id设置为空 所以可以判断
         // console.log("编辑记录：");
         var empdata = this.emp;
@@ -552,18 +554,18 @@ export default {
             // console.log(_this.emp);
 
             this.postRequest1("/paperComment/basic/edit", _this.emp).then(
-              (resp) => {
-                if (resp) {
-                  this.dialogVisible = false;
-                  this.initEmps();
+                (resp) => {
+                  if (resp) {
+                    this.dialogVisible = false;
+                    this.initEmps();
+                  }
                 }
-              }
             );
           }
         });
       } else {
-        console.log("新增记录：");
-        console.log(this.emp);
+        // console.log("新增记录：");
+        // console.log(this.emp);
         var empdata = this.emp;
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
@@ -582,7 +584,7 @@ export default {
               let date2 = Date.parse(this.emp.dateStu);
 
               if (date1 + 86400000 > date2) {
-                this.$message.error({ message: "请选择合适的指导时间！" });
+                this.$message.error({message: "请选择合适的指导时间！"});
                 return;
               }
             }
@@ -631,27 +633,28 @@ export default {
         return;
       }
       this.getRequest("/paperComment/basic/getTID?stuID=" + studentID)
-        .then((resp) => {
-          if (resp.data) {
-            this.thesisID = resp.data;
-            const url =
-              "/paperComment/basic/getAllCommentStu?thesisID=" + this.thesisID;
-            return this.getRequest(url);
-          } else {
-            throw new Error("Error getting TID");
-          }
-        })
-        .then((resp) => {
-          this.loading = false;
-          if (resp && resp.data) {
-            this.emps = resp.data;
-            this.total = resp.data.length;
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          this.loading = false;
-        });
+          .then((resp) => {
+            if (resp.data) {
+              this.thesisID = resp.data;
+              const url =
+                  "/paperComment/basic/getAllCommentStu?thesisID=" + this.thesisID;
+              this.isShowAddButton = true;
+              return this.getRequest(url);
+            } else {
+              throw new Error("Error getting TID");
+            }
+          })
+          .then((resp) => {
+            this.loading = false;
+            if (resp && resp.data) {
+              this.emps = resp.data;
+              this.total = resp.data.length;
+            }
+          })
+          .catch((err) => {
+            // console.error(err);
+            this.loading = false;
+          });
     },
   },
 };

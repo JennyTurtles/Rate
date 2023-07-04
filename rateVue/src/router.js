@@ -245,6 +245,14 @@ export default new Router({
           meta: {
             title: '论文',
           },
+        }, {
+          path: '/student/Standard',
+          name: '制定标准',
+          hidden: true,
+          component: () => import('./views/student/Standard'),
+          meta: {
+            title: '制定标准',
+          },
         },
         {
           path: '/student/infos',

@@ -572,11 +572,16 @@ export default {
                 activityIDParent: this.$route.query.id,
                 activityID: this.keywords,
                 groupIDParent: this.groupID,
+                smallGroup:true, // 从分组管理进入的，因此是小组
                 groupID: data.id,
                 mode:this.mode,
                 keywords:this.keywords,
                 keyword_name:this.keywords_name,
                 ACNAME:this.keywords_name,
+                groupName:this.$route.query.groupName,
+                backID:this.$route.query.backID,
+                backActName:this.$route.query.backActName,
+                isGroup:this.$route.query.isGroup,
               }
             })
           }else if (this.mode === 'admin'){
