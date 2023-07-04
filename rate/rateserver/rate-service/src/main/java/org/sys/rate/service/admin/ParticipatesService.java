@@ -394,7 +394,7 @@ public class ParticipatesService {
                 && NewPar.getDisplaySequence() > 0) {
             Participates old=participatesMapper.getEmployeeById(NewPar.getID());
             if (old.getDisplaySequence() == null)
-                old.setDisplaySequence(1);
+                old.setDisplaySequence(0);
 
             // id确实存在
             if (old != null) {

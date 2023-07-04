@@ -162,7 +162,6 @@
               style="width: 200px"
               prefix-icon="el-icon-edit"
               v-model="emp.displaySequence"
-              disabled
               placeholder="显示顺序"
           ></el-input>
         </el-form-item>
@@ -339,13 +338,13 @@
           <el-form-item label="身份证号:" prop="IDNumber">
            <el-input style="width: 60%"  v-model="manualAddForm.IDNumber"></el-input>
           </el-form-item>
-          <el-form-item label="学生姓名:" prop="name">
+          <el-form-item label="选手姓名:" prop="name">
            <el-input style="width: 60%" v-model="manualAddForm.name"></el-input>
           </el-form-item>
-          <el-form-item label="学生电话:" prop="telephone">
+          <el-form-item label="选手电话:" prop="telephone">
            <el-input style="width: 60%" v-model="manualAddForm.telephone" ></el-input>
           </el-form-item>
-          <el-form-item label="学生邮箱:" prop="email">
+          <el-form-item label="选手邮箱:" prop="email">
            <el-input style="width: 60%" v-model="manualAddForm.email"></el-input>
           </el-form-item>
          </el-form>
