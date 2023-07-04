@@ -108,7 +108,7 @@
         <el-table-column
             sortable
             prop="score"
-            label="活动得分"
+            label="活动总评分"
             align="center"
             min-width="10%">
         </el-table-column>

@@ -146,7 +146,7 @@ public class ExpertController {
         }
         reentrantLock.lock(); // 不清楚为什么要加锁，别人写的，暂时留着吧 by grz
         try {
-            Integer i = participatesService.saveAvgscore(participantID, AID); // 找到所有的“活动得分”，更新选手表里的平均分
+            Integer i = participatesService.saveAvgscore(participantID, AID); // 找到所有的“活动总评分”，更新选手表里的平均分
             // 所有评分项都需要计算平均分，保存在score_average表。若存在则更新，不存在则插入
             Integer j = participatesService.saveAvgScores(participantID, AID);
             if (i == 0 || j == 0) {

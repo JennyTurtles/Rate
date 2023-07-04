@@ -18,6 +18,7 @@ public interface ActivitiesMapper {
     int getInstitution_Current_Total(Activities record);
     int insert(Activities record);
     int insertScoreItem(Activities record);
+    int insertDisplayItem(Activities record);
     void insert_update(Activities record);
 
     int predelete(Integer id);

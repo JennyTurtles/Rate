@@ -91,7 +91,7 @@ public class TeacherService implements UserDetailsService{
 
     @Transactional
     public List<String> addScores(Integer expertID,Integer activitiesID,List<Scores> scoresList) {
-        //先找到评分项中的总分id(活动得分)
+        //先找到评分项中的总分id(活动总评分)
         Integer scoreFullScore = scoreItemMapper.selectScoreItemFinal(activitiesID);
         List<String> result = new ArrayList<>();
         StringBuilder error = null;
@@ -105,7 +105,7 @@ public class TeacherService implements UserDetailsService{
             }
         }
         boolean sumScoreFlage;
-        //计算每个选手的活动得分
+        //计算每个选手的活动总评分
         for(int i = 0;i < arr.size(); i++){
             sumScoreFlage = false;
             Scores fullScore = new Scores();
@@ -148,7 +148,7 @@ public class TeacherService implements UserDetailsService{
             }
 
         }
-        //将每个选手的活动得分添加进去
+        //将每个选手的活动总评分添加进去
         if(fullScoreArr.size() > 0){
             scoresList.addAll(fullScoreArr);
         }

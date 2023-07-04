@@ -62,7 +62,7 @@
 
                 <el-table-column
                     v-for="(v, i) in this.smap"
-                    v-if="v!=='活动得分'"
+                    v-if="v!=='活动总评分'"
                     :prop="v"
                     :label="v"
                     :key="i"
@@ -80,7 +80,7 @@
                 </el-table-column>
               <el-table-column
                   v-for="(v, i) in this.smap"
-                  v-if="v==='活动得分'"
+                  v-if="v==='活动总评分'"
                   :prop="v"
                   :label="v"
                   :key="i"

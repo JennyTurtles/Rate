@@ -96,7 +96,12 @@
     </insert>
     <insert id="insertScoreItem" parameterType="org.sys.rate.model.Activities">
         insert into scoreitem (activityID,name,score,coef,byExpert)
-        values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'活动得分',100,1,true)
+        values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'活动总评分',100,1,true)
+    </insert>
+    <insert id="insertDisplayItem">
+        insert into displayitem (activityID,name,source,displaySequence)
+        values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'编号','code',1),
+               ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'姓名','name',2)
     </insert>
 
     <update id="insert_update" parameterType="org.sys.rate.model.Activities">
