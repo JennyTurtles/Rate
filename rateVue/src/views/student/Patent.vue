@@ -468,7 +468,6 @@ export default {
         }
       }
       var num=null
-      // var info=JSON.parse(window.sessionStorage.getItem("user"))
       var info=JSON.parse(localStorage.getItem("user"))
       if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
         num=val.split('；')
@@ -488,7 +487,6 @@ export default {
         }
         return
       }
-
       //判断自己在不在其中
       if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
         this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
@@ -508,8 +506,6 @@ export default {
                   type: "warning",
                 }
             ).then(() => {//点击确定
-              // num=[info.teachers.name,...num]
-              // this.writer = num.join(';')
             },()=>{});
             this.emp.point = 0
             this.view_point = this.emp.point
