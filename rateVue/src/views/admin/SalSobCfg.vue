@@ -396,7 +396,7 @@
           <el-button @click="dialogVisible_edit = false">关闭</el-button>
         </span>
       </el-dialog>
-      <el-dialog :title="title" :visible.sync="dialogVisible_method" width="55%" center>
+      <el-dialog :title="title" :visible.sync="dialogVisible_method" width="55%" center @close="$refs.manualAddForm.resetFields()">
         <el-tabs type="border-card">
           <el-tab-pane label="手动添加">
            <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
@@ -745,7 +745,6 @@ export default {
       });
     },
     initHrs() {
-     console.log(this.activityID);
       if (typeof this.activityID == "undefined" || this.mode === 'secretary') { // 此时是从分组管理进入的
           this.getRequest(
               "/systemM/Experts/?keywords=" + this.groupID +
@@ -796,14 +795,13 @@ export default {
     },
     jumperInToS(data){
       const _this = this;
-      // console.log(this.user)
       _this.$router.push({
         path: "/ActivitM/situation",
         query: {
           keywords: this.keywords,
           keyword_name: this.ACNAME,
           keywords_name:this.keywords_name,
-          groupID: this.groupID,
+          groupID: this.groupID !== null ? this.groupID : data.groupID,
           expertID:data.id,
           expertName:data.name,
           institutionID:this.user.institutionID,

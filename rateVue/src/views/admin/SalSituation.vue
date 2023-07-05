@@ -2,8 +2,7 @@
     <div>
 
         <div style="display: flex; justify-content: left;margin-top:10px">
-          {{ keywords }}、{{ keywords_name }}活动
-          {{GName}}
+          {{ keywords_name }}
           {{ expertName }}专家评分情况
             <div style="margin-left: auto">
                 <el-button
@@ -231,7 +230,7 @@
         },
         mounted() {
             this.keywords = this.$route.query.keywords;
-            this.keywords_name = this.$route.query.keyword_name;
+            this.keywords_name = this.$route.query.keywords_name;
             this.GName = this.$route.query.keywords_name;
             this.groupID = this.$route.query.groupID;
             this.expertID = this.$route.query.expertID;
@@ -297,7 +296,6 @@
                     )
                     .then((resp) => {
                         if (resp) {
-                            // console.log(resp.data);
                             for (var name in resp.data) {
                                 var value = resp.data[name];
 
@@ -361,20 +359,21 @@
                     .push(obj);
             },
             back() {
-                const _this = this;
-                _this
-                    .$router
-                    .push({
-                        path: "/ActivitM/sobcfg",
-                        query: {
-                            keywords: this.keywords,
-                            keyword_name: this.ACNAME,
-                            keywords_name: this.keywords_name,
-                            groupID: this.groupID,
-                            mode: this.mode,
-                            flag: this.flag,
-                        }
-                    });
+             this.$router.go(-1);
+                // const _this = this;
+                // _this
+                //     .$router
+                //     .push({
+                //         path: "/ActivitM/sobcfg",
+                //         query: {
+                //             keywords: this.keywords,
+                //             keyword_name: this.ACNAME,
+                //             keywords_name: this.keywords_name,
+                //             groupID: this.groupID,
+                //             mode: this.mode,
+                //             flag: this.flag,
+                //         }
+                //     });
             },
             revert() {
                 this
@@ -485,7 +484,6 @@
                     .then((resp) => {
                         if (resp) {
                             this.activitydata = resp;
-                            // console.log(resp);
                         }
                     });
             },

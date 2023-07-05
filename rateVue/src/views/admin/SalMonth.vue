@@ -361,6 +361,7 @@ export default {
         if (resp) {
           this.loading = false;
           this.hrs = resp.data;
+         console.log(this.hrs)
           for (var i = 0; i < this.hrs.length; i++){
             if (this.hrs[i].byexpert)
               this.hrs[i].byexpert = 1
