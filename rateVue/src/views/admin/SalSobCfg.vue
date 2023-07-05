@@ -396,21 +396,27 @@
           <el-button @click="dialogVisible_edit = false">关闭</el-button>
         </span>
       </el-dialog>
-      <el-dialog :title="title" :visible.sync="dialogVisible_method" width="55%" center>
+      <el-dialog :title="title" :visible.sync="dialogVisible_method" width="55%" center @close="$refs.manualAddForm.resetFields()">
         <el-tabs type="border-card">
           <el-tab-pane label="手动添加">
            <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
             <el-form-item label="身份证号:" prop="idnumber">
              <el-input style="width: 60%"  v-model="manualAddForm.idnumber"></el-input>
             </el-form-item>
-            <el-form-item label="教师姓名:" prop="name">
+            <el-form-item label="姓名:" prop="name">
              <el-input style="width: 60%" v-model="manualAddForm.name"></el-input>
             </el-form-item>
-            <el-form-item label="教师电话:" prop="phone">
+            <el-form-item label="电话:" prop="phone">
              <el-input style="width: 60%" v-model="manualAddForm.phone" ></el-input>
             </el-form-item>
-            <el-form-item label="教师邮箱:" prop="email">
+            <el-form-item label="邮箱:" prop="email">
              <el-input style="width: 60%" v-model="manualAddForm.email"></el-input>
+            </el-form-item>
+            <el-form-item label="性别:" prop="sex">
+             <el-input style="width: 60%" v-model="manualAddForm.sex"></el-input>
+            </el-form-item>
+            <el-form-item label="工号:" prop="jobNumber">
+             <el-input style="width: 60%" v-model="manualAddForm.jobNumber"></el-input>
             </el-form-item>
            </el-form>
            <el-button type="primary" @click="manualAdd">添加</el-button>
@@ -526,16 +532,16 @@ export default {
   data() {
     return {
      manualAddRules:{
-      name:[{ required: true,message: "请输入姓名",trigger: "blur"}],
       idnumber:[
-       { required: true,message: "请输入身份证号",trigger: "blur"},
        { validator: validateInputIdCard, trigger: "blur" }]
      },
      manualAddForm:{
       name: '',
       phone: '',
       idnumber: '',
-      email:''
+      email:'',
+      sex:'',
+      jobNumber:'',
      },
       editing: false,
       activityID:-1,
@@ -666,7 +672,7 @@ export default {
   methods: {
    manualAdd(){
     {
-     this.manualAddForm.institutionID = this.user.institutionID;
+     this.manualAddForm.institutionid = this.user.institutionID;
      this.manualAddForm.activityID = this.keywords
      this.manualAddForm.groupID = this.groupID
      this.$refs['manualAddForm'].validate((valid) => {
@@ -739,7 +745,6 @@ export default {
       });
     },
     initHrs() {
-     console.log(this.activityID);
       if (typeof this.activityID == "undefined" || this.mode === 'secretary') { // 此时是从分组管理进入的
           this.getRequest(
               "/systemM/Experts/?keywords=" + this.groupID +
@@ -790,14 +795,13 @@ export default {
     },
     jumperInToS(data){
       const _this = this;
-      // console.log(this.user)
       _this.$router.push({
         path: "/ActivitM/situation",
         query: {
           keywords: this.keywords,
           keyword_name: this.ACNAME,
           keywords_name:this.keywords_name,
-          groupID: this.groupID,
+          groupID: this.groupID !== null ? this.groupID : data.groupID,
           expertID:data.id,
           expertName:data.name,
           institutionID:this.user.institutionID,

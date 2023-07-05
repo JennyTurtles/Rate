@@ -62,6 +62,7 @@ public class ActivitiesService {
                 employee.setScoreItemCount(0);
                 insertID = activitiesMapper.insert(employee);
                 activitiesMapper.insertScoreItem(employee);//原本是合并写的，改成分开写
+                activitiesMapper.insertDisplayItem(employee);
                 activitiesMapper.insert_update(employee);
                 //在管理员_活动表中添加记录
                 activityGrantMapper.insertRecordOfAddActivity(employee.getAdminID(),employee.getId());

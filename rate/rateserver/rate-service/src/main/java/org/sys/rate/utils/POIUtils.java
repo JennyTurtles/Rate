@@ -83,7 +83,7 @@ public class POIUtils {
         int count_zf=0;
         for(int i = 0; i<key.length; i++)
         {
-            if(hashPEexport.getSmap().get(key[i]).equals("活动得分"))
+            if(hashPEexport.getSmap().get(key[i]).equals("活动总评分"))
             {
                 r0.createCell(4+hashPEexport.getSmap().size()+hashPEexport.getSNotByEmap().size()).setCellStyle(headerStyle);
                 r0.createCell(4+hashPEexport.getSmap().size()+hashPEexport.getSNotByEmap().size()).setCellValue(hashPEexport.getSmap().get(key[i]));
@@ -97,7 +97,7 @@ public class POIUtils {
         }
         /*HSSFCell c4 = r0.createCell(4+scoreItem.size());
         c4.setCellStyle(headerStyle);
-        c4.setCellValue("活动得分");*/
+        c4.setCellValue("活动总评分");*/
         Integer count=0;
         for (Integer s : hashPEexport.getGmap().keySet()) {//这一层是groupid
             for (Integer ss : hashPEexport.getMap().get(s).keySet()) {//这一层是HashMap<Integer,HashMap<Integer,Participates>>
@@ -130,7 +130,7 @@ public class POIUtils {
                             ScoreItemValue value = map.get(key_m[it]);
                             if(value!=null&&value.getScore()!=null)
                             {
-                                if(value.getName().equals("活动得分"))
+                                if(value.getName().equals("活动总评分"))
                                 {
                                     row.createCell(4+hashPEexport.getSmap().size()+hashPEexport.getSNotByEmap().size()).setCellValue(value.getScore());
                                     count_zongfen--;
@@ -354,7 +354,7 @@ public class POIUtils {
                     {
                         if(countNameAndContent.get("信息项:"+InfoItem.get(n-ScoreItem.size()).getName())!=null)
                         map_info.put(InfoItem.get(n-ScoreItem.size()).getID(),countNameAndContent.get("信息项:"+InfoItem.get(n-ScoreItem.size()).getName()));
-                        //key是scoreitem的id，value是插入的分数
+                        //key是infoitem的id，value是插入的分数
                     }
                     p.setScoreItemMap(map_score);
                     p.setInfoItemMap(map_info);
@@ -371,7 +371,7 @@ public class POIUtils {
         return bean;
     }
 
-    // 表格由两部分组成：固定信息+附加信息。固定信息是序号、编号、组名、姓名、专家评分、活动得分。附加信息为总分项。
+    // 表格由两部分组成：固定信息+附加信息。固定信息是序号、编号、组名、姓名、专家评分、活动总评分。附加信息为总分项。
     public static ResponseEntity<byte[]> ExcelExport(HashFianlScore hashFianlScore) {
         // 0.基础配置
         HSSFWorkbook workbook = new HSSFWorkbook(); // 创建一个 Excel 文档
@@ -399,7 +399,7 @@ public class POIUtils {
         List<Integer> itemKey = new ArrayList<>(hashFianlScore.getTmap().keySet()); // 附加信息的key
 
         // 2.设置列宽
-        List<String> columnsBase = Arrays.asList("序号", "编号", "组名", "姓名", "专家评分", "活动得分");
+        List<String> columnsBase = Arrays.asList("序号", "编号", "组名", "姓名", "专家评分", "活动总评分");
         List<String> columnsAdd = new ArrayList<>(hashFianlScore.getTmap().values());
         for (int i = 0; i < columnsBase.size()+columnsAdd.size(); i++)
             sheet.setColumnWidth(i, 10 * 256);
@@ -1667,7 +1667,7 @@ public class POIUtils {
             ScoreItem sitem = scoreItems.get(i);
             HSSFCell col = r1.createCell(i+3+infoItemsShow.size());
             col.setCellStyle(headerStyle);
-            if(sitem.getName().equals("活动得分")){
+            if(sitem.getName().equals("活动总评分")){
                 col.setCellValue("总评分");
             }else {
                 col.setCellValue(sitem.getName());
@@ -1759,7 +1759,7 @@ public class POIUtils {
                     for (int k = 0; k <Cells; k ++) {
                         HSSFCell cell = row.getCell(k);
                         if(tableNameMap.get(k).equals("总评分")){
-                            //活动得分为空并且别的评分项也有空值,不存数据库
+                            //活动总评分为空并且别的评分项也有空值,不存数据库
                             if(cell == null && scoreFlage){
                                 nullRow.add(row.getCell(0).getStringCellValue());
                                 fullScoreFlage = true;

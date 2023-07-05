@@ -275,7 +275,7 @@ public class ExpertMController {
 
     @Transactional
     @PostMapping("/addExperts")
-    public RespBean addPars(@RequestParam Integer groupID,@RequestParam Integer activityID,@RequestBody List<Experts> list) throws ParseException {
+    public RespBean addExpert(@RequestParam Integer groupID,@RequestParam Integer activityID,@RequestBody List<Experts> list) throws ParseException {
 //        Integer activityID = list.get(0).getActivityID();
 //        Integer groupID = list.get(0).getGroupID();
         RespPageBean bean=new RespPageBean();
@@ -320,7 +320,7 @@ public class ExpertMController {
     public RespBean manualAdd(Experts experts) throws ParseException {
         Integer res = expertsMapper.manualAdd(experts);
         if(res > 0){
-            return addPars(experts.getGroupID(),experts.getActivityID(),Arrays.asList(experts));
+            return addExpert(experts.getGroupID(),experts.getActivityID(),Arrays.asList(experts));
         }else {
             return RespBean.error("已存在该专家");
         }

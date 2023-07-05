@@ -28,7 +28,7 @@ vue.prototype.$logs = window.console.log;
             label="专家姓名"
             min-width="10%">
           <template slot-scope="scope">
-            <div v-for="(value,key) in scope.row.scoremap" v-if="value.name==='活动得分'">
+            <div v-for="(value,key) in scope.row.scoremap" v-if="value.name==='活动总评分'">
               {{value.expertName}}
             </div>
           </template>
@@ -64,7 +64,7 @@ vue.prototype.$logs = window.console.log;
         </el-table-column>
         <el-table-column
             v-for="(v, i) in this.smap"
-            v-if="v!=='活动得分'"
+            v-if="v!=='活动总评分'"
             :label="v"
             min-width="10%" align="center">
           <template slot-scope="scope">
@@ -75,7 +75,7 @@ vue.prototype.$logs = window.console.log;
         </el-table-column>
         <el-table-column
             v-for="(v, i) in this.smap"
-            v-if="v==='活动得分'"
+            v-if="v==='活动总评分'"
             :label="v"
             min-width="10%" align="center">
           <template slot-scope="scope">

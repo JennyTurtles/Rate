@@ -263,7 +263,7 @@
     <update id="saveAvgscore">
         update participants p set p.score=(select avg(sc.score) from scores sc
        where sc.participantID=#{participantID}
-       and sc.scoreItemID = (select si.ID from scoreitem si where si.activityID=#{activityID} and si.name="活动得分"))
+       and sc.scoreItemID = (select si.ID from scoreitem si where si.activityID=#{activityID} and si.name="活动总评分"))
         where p.ID=#{participantID} and p.activityID=#{activityID};
     </update>
 
@@ -309,7 +309,7 @@
             )
         </foreach>
     </insert>
-    
+
     <delete id="deletePars">
         delete from participants where ID in
         (<foreach collection="list" separator="," item="item" index="index">

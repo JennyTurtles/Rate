@@ -136,7 +136,7 @@
             v-for="(value, idx) in datalist.scoreitems"
             ref="setTableRef"
             :key="idx"
-            v-if="value.name != '活动得分'"
+            v-if="value.name != '活动总评分'"
             :label="
             value.name +
             '|(满分:' +
@@ -164,7 +164,7 @@
         <el-table-column
             v-for="(value, idx) in datalist.scoreitems"
             :key="value.id"
-            v-if="value.name == '活动得分'"
+            v-if="value.name == '活动总评分'"
             :label="'总评分'"
             min-width="80px"
             align="center"
@@ -754,7 +754,7 @@ export default {
           })
       var sum = 0;
       for (var j = 0; j < m; j++) {
-        if (row["score" + j] && this.datalist.scoreitems[j].name != '活动得分') {
+        if (row["score" + j] && this.datalist.scoreitems[j].name != '活动总评分') {
           sum += (row["score" + j] - "0") * this.datalist.scoreitems[j].coef;
         }
       }
@@ -772,7 +772,7 @@ export default {
         this.datalist.participatesList[index]['score' + idx] = 0
         var sumscore = 0;
         for (var j = 0; j < m; j++) {
-          if (row["score" + j] && this.datalist.scoreitems[j].name != '活动得分') {
+          if (row["score" + j] && this.datalist.scoreitems[j].name != '活动总评分') {
             sumscore += (row["score" + j] - "0") * this.datalist.scoreitems[j].coef;
           }
         }
@@ -794,7 +794,7 @@ export default {
     //计算评分项满分 包括所有评分项*系数
     judgeFullScore(sum,scoreitemidx){
       var fullScore = this.datalist.scoreitems.reduce((pre,cur) => {
-        if(cur.name != "活动得分"){
+        if(cur.name != "活动总评分"){
           return cur.coef * cur.score + pre
         }else {
           return 0 + pre

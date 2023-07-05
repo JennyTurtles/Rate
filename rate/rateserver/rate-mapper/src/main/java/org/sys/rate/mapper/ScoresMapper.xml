@@ -62,7 +62,7 @@
     <select id="selectScoreByPE" resultType="DOUBLE">
         select sc.score from scores sc
         where sc.expertID=#{expertId,jdbcType=INTEGER} and sc.participantID=#{participantID,jdbcType=INTEGER}
-          and sc.scoreItemID = (select si.ID from scoreitem si where si.activityID=#{activityId,jdbcType=INTEGER} and si.name="活动得分")
+          and sc.scoreItemID = (select si.ID from scoreitem si where si.activityID=#{activityId,jdbcType=INTEGER} and si.name="活动总评分")
     </select>
 
     <select id="selectScoreListByAE_null" resultMap="BaseResultMap">

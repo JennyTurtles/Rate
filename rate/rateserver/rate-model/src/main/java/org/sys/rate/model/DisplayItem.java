@@ -29,6 +29,7 @@ public class DisplayItem implements Comparable<DisplayItem> { // 列的信息
         this.name = name;
         this.sourceName = sourceName;
         this.source = source;
+        this.passScore= passScore;
     }
 
     public DisplayItem(DisplayItem displayItem) {

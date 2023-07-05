@@ -108,7 +108,7 @@
         <el-table-column
             sortable
             prop="score"
-            label="活动得分"
+            label="活动总评分"
             align="center"
             min-width="10%">
         </el-table-column>
@@ -338,13 +338,13 @@
           <el-form-item label="身份证号:" prop="IDNumber">
            <el-input style="width: 60%"  v-model="manualAddForm.IDNumber"></el-input>
           </el-form-item>
-          <el-form-item label="学生姓名:" prop="name">
+          <el-form-item label="姓名:" prop="name">
            <el-input style="width: 60%" v-model="manualAddForm.name"></el-input>
           </el-form-item>
-          <el-form-item label="学生电话:" prop="telephone">
+          <el-form-item label="电话:" prop="telephone">
            <el-input style="width: 60%" v-model="manualAddForm.telephone" ></el-input>
           </el-form-item>
-          <el-form-item label="学生邮箱:" prop="email">
+          <el-form-item label="邮箱:" prop="email">
            <el-input style="width: 60%" v-model="manualAddForm.email"></el-input>
           </el-form-item>
          </el-form>

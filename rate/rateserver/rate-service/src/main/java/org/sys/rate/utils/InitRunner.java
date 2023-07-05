@@ -12,7 +12,6 @@ import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
 @Component
-@Order(1)
 public class InitRunner implements ApplicationRunner {
 
     @Resource

@@ -1720,7 +1720,7 @@ export default {
                 this.scoreItemsAll = resp.obj
                 for (var i = 0; i < this.scoreItemsAll.length; i++){
                     this.scoreItemsAll[i].disabled = false
-                    if (this.scoreItemsAll[i].name === "活动得分"){
+                    if (this.scoreItemsAll[i].name === "活动总评分"){
                         this.scoreItemsAll.splice(i,1)
                         i--;
                     }
