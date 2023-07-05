@@ -88,18 +88,6 @@
             >
         </el-table-column>
         <el-table-column
-            prop="code"
-            align="left"
-            label="编号"
-            min-width="10%">
-        </el-table-column>
-        <el-table-column
-            prop="idnumber"
-            align="left"
-            label="身份证号码"
-            min-width="10%">
-        </el-table-column>
-        <el-table-column
             prop="name"
             align="left"
             label="姓名"
@@ -331,50 +319,66 @@
         </span>
     </el-dialog>
 
-    <el-dialog :title="title" ref="dia" :visible.sync="dialogVisible_method" width="55%" center @close="$refs.manualAddForm.resetFields()">
+    <el-dialog :title="title" ref="dia" :visible.sync="dialogVisible_method" width="55%" center @close="handleClose">
       <el-tabs type="border-card">
         <el-tab-pane label="手动添加">
          <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
-          <el-form-item label="身份证号:" prop="IDNumber">
-           <el-input style="width: 60%"  v-model="manualAddForm.IDNumber"></el-input>
+          <el-form-item label="身份证号:" prop="idnumber" >
+           <el-input style="width: 60%"  v-model="manualAddForm.idnumber" @blur="getInfoByIDNumber()"></el-input>
           </el-form-item>
-          <el-form-item label="姓名:" prop="name">
-           <el-input style="width: 60%" v-model="manualAddForm.name"></el-input>
+          <el-form-item label="编号:" prop="code" >
+           <el-input style="width: 60%" v-model="manualAddForm.code"></el-input>
+          </el-form-item>
+          <el-form-item label="姓名:" prop="name" >
+           <el-input style="width: 60%" v-model="manualAddForm.name" :disabled="manualAddFormDisabled"></el-input>
           </el-form-item>
           <el-form-item label="电话:" prop="telephone">
-           <el-input style="width: 60%" v-model="manualAddForm.telephone" ></el-input>
+           <el-input style="width: 60%" v-model="manualAddForm.telephone" :disabled="manualAddFormDisabled"></el-input>
           </el-form-item>
           <el-form-item label="邮箱:" prop="email">
-           <el-input style="width: 60%" v-model="manualAddForm.email"></el-input>
+           <el-input style="width: 60%" v-model="manualAddForm.email" :disabled="manualAddFormDisabled"></el-input>
           </el-form-item>
          </el-form>
          <el-button type="primary" @click="manualAdd">添加</el-button>
         </el-tab-pane>
         <el-tab-pane label="从本单位添加">
+         <el-input
+             v-model="searchText"
+             placeholder="请输入学号或姓名"
+             @keyup.enter.native="search"
+         >
+          <template #append>
+           <el-button icon="el-icon-search" type="success" @click="search"></el-button>
+          </template>
+         </el-input>
           <el-table
               ref="multipleTable"
               :data="currentParticipants"
               tooltip-effect="dark"
               style="width: 100%"
-              @selection-change="handleSelectionChange">
+              @selection-change="handleSelectionChange"
+              :row-key="getRowKeys">
             <el-table-column
+                :reserve-selection="true"
                 type="selection"
                 width="40px">
             </el-table-column>
+           <el-table-column
+               prop="studentNumber"
+               label="学号"
+               show-overflow-tooltip>
+           </el-table-column>
             <el-table-column
                 prop="name"
                 label="姓名">
             </el-table-column>
-            <el-table-column
-                prop="idnumber"
-                label="证件号码"
-                show-overflow-tooltip>
-            </el-table-column>
+
           </el-table>
           <div class="block" style="padding-top: 10px">
             <el-pagination
                 @current-change="currentChange"
                 @size-change="sizeChange"
+                :current-page="page"
                 layout="sizes, prev, pager, next, jumper, ->, total, slot"
                 :total="total">
             </el-pagination>
@@ -449,6 +453,8 @@ export default {
   name: "SalPar",
   data() {
     return{
+     searchText: '',
+     manualAddFormDisabled: false,
       title: '',
       labelPosition: "left",
       importDataBtnText: '导入选手',
@@ -480,16 +486,18 @@ export default {
       size: 10,
       positions: [],
       participants: [],
+      participants_raw:[],
       currentParticipants:[],
       multipleSelection: [],
       parentGroup:[],
       activityIDParent:0,
       groupIDParent:0,
       manualAddForm:{
+        code:'',
         name: '',
         telephone: '',
-        IDNumber: '',
-        email:''
+       idnumber: '',
+        email:'',
       },
       emp: {
         id:null,
@@ -514,15 +522,7 @@ export default {
         comment: [{required: true, message: '请输入备注', trigger: 'blur'}],
       },
       manualAddRules:{
-       // phone:[
-       //  { validator: validateInputPhone, trigger: "blur" }
-       // ],
-       // email:[
-       //  { validator: validateInputEmail, trigger: "blur" }
-       // ],
-       name:[{ required: true,message: "请输入姓名",trigger: "blur"}],
-       IDNumber:[
-        { required: true,message: "请输入身份证号",trigger: "blur"},
+       idnumber:[
         { validator: validateInputIdCard, trigger: "blur" }]
       }
     }
@@ -549,11 +549,55 @@ export default {
    }
   },
   methods: {
+   getRowKeys(row) {
+    return row.name;
+   },
+   search() {
+    if (this.searchText === ''){
+     this.participants = this.participants_raw
+    }else if (/^\d+$/.test(this.searchText)){ // 纯数字，按工号搜索
+     this.participants = this.participants_raw.filter(item => item.studentNumber != null &&  item.studentNumber.includes(this.searchText))
+    }else { // 非纯数字，按姓名搜索
+     this.participants = this.participants_raw.filter(item => item.name.includes(this.searchText))
+    }
+    this.total = this.participants.length
+    this.getCurrentParticipants()
+    this.page = 1
+   },
+   handleClose(){
+    this.$refs.manualAddForm.resetFields();
+    this.manualAddFormDisabled=false;
+    this.searchText = ''
+    this.multipleSelection = []
+    this.participants = this.participants_raw
+    this.total = this.participants.length
+    this.page = 1
+    this.$refs.multipleTable.clearSelection()
+   },
+   getInfoByIDNumber(){
+    if (this.manualAddFormDisabled === true){
+     this.manualAddForm = {idnumber: this.manualAddForm.idnumber}
+    }
+    this.manualAddFormDisabled = false
+    this.getRequest("/participants/basic/getByIDNumber?IDNumber="+this.manualAddForm.idnumber).then(resp => {
+     if (resp && resp.obj != null){
+      this.manualAddForm = {
+       code:resp.obj.code,
+       name: resp.obj.name,
+       telephone: resp.obj.telephone,
+       idnumber: resp.obj.idnumber,
+       email:resp.obj.email,
+      }
+      this.manualAddFormDisabled = true
+     }
+    })
+   },
    manualAdd(){
     {
      this.manualAddForm.institutionid = this.user.institutionID;
      this.manualAddForm.activityID = this.keywords
      this.manualAddForm.groupID = this.groupID
+     this.manualAddForm.IDNumber = this.manualAddForm.idnumber
      this.$refs['manualAddForm'].validate((valid) => {
       if (valid) {
        this.postRequest1("/participants/basic/manualAdd",this.manualAddForm).then(resp => {
@@ -725,7 +769,6 @@ export default {
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
-          //console.log("aha",resp);
           this.emps = resp.data;
         }
       });
@@ -740,6 +783,7 @@ export default {
         this.loading = false;
         if (resp) {
           this.participants = resp.obj;
+          this.participants_raw = resp.obj;
           this.total = this.participants.length;
         }
       });

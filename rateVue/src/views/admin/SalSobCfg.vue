@@ -58,7 +58,7 @@
 <!--        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。-->
 <!--    </div>-->
     <div>
-      <el-button type="success" @click="showMethod" style="margin-top: 15px">
+      <el-button type="success" @click="showMethod" style="margin-top: 15px" v-if="groupID">
         添加专家
       </el-button>
     </div>

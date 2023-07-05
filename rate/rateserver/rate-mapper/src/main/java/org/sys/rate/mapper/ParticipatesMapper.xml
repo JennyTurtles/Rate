@@ -360,14 +360,15 @@
 <!--    </insert>-->
 
     <update id="update_relationship" parameterType="org.sys.rate.model.Participates">
-        UPDATE participants  set groupID=#{groupID,jdbcType=INTEGER},
+        UPDATE participants
+        set groupID=#{groupID,jdbcType=INTEGER}
         <if test="displaySequence!= -1">
-            displaySequence=#{displaySequence,jdbcType=INTEGER},
+            ,displaySequence=#{displaySequence,jdbcType=INTEGER}
         </if>
         <if test="code!= null">
-            code=#{code,jdbcType=VARCHAR}
+            ,code=#{code,jdbcType=VARCHAR}
         </if>
-       where activityID=#{activityID,jdbcType=INTEGER} and studentID=#{studentID,jdbcType=INTEGER};
+        where activityID=#{activityID,jdbcType=INTEGER} and studentID=#{studentID,jdbcType=INTEGER};
         update activities set expertCount=(select count(*) from expertactivities where activityID=#{activityID,jdbcType=INTEGER} and ID!='0') where ID=#{activityID,jdbcType=INTEGER};
         update activities set participantCount=(select count(*) from participants where activityID=#{activityID,jdbcType=INTEGER} and ID!='0') where ID=#{activityID,jdbcType=INTEGER};
         update `groups` set expertCount=(select count(*) from expertactivities where groupID=#{groupID,jdbcType=INTEGER} and ID!='0') where ID=#{groupID,jdbcType=INTEGER};

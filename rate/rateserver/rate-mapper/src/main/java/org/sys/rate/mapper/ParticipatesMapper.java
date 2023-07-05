@@ -200,7 +200,7 @@ public interface ParticipatesMapper {
             "where ID=#{activityID}")
     void updateActParCount(Integer activityID);
 
-    @Select("SELECT ID,name,IDNumber,institutionID,telephone,username,email\n" +
+    @Select("SELECT ID,name,IDNumber,institutionID,telephone,username,email,studentNumber\n" +
             "FROM student s\n" +
             "WHERE institutionID = #{institutionID}")
     List<Participates> getByInstitutionID(Integer institutionID);
@@ -208,4 +208,16 @@ public interface ParticipatesMapper {
     @Insert("INSERT IGNORE INTO student (name,telephone,IDNumber,email,institutionID) VALUES (#{name},#{telephone},#{IDNumber},#{email},#{institutionid})")
     @Options(useGeneratedKeys = true, keyProperty = "ID")
     Integer manualAdd(Participates participates);
+
+
+    @Select("SELECT s.ID,name,IDNumber,telephone,email\n" +
+            "FROM student s\n" +
+            "WHERE IDNumber = #{IDNumber}")
+    Participates getByIDNumber(String IDNumber);
+
+    @Select("SELECT role FROM student WHERE ID = #{studentID}")
+    String getRole(Integer studentID);
+
+    @Update("UPDATE student SET role = #{role} WHERE ID = #{studentID}")
+    void setParticipateRole(Integer studentID, String role);
 }

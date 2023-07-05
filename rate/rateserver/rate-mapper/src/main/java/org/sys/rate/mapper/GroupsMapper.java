@@ -73,7 +73,6 @@ public interface GroupsMapper {
             "SELECT count(*) FROM participants WHERE activityID = #{activityID} and groupID = #{groupID})\n" +
             "WHERE activityID = #{activityID} AND ID = #{groupID}")
     Integer updateParCount(Integer activityID, Integer groupID);
-
     @Select("select * from `groups` where parentID = #{groupID} and activityID = #{activityID}")
     List<Groups> getSubGroups(Integer activityID,Integer groupID);
 

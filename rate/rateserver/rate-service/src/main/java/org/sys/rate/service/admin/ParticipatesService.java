@@ -625,4 +625,16 @@ public class ParticipatesService {
         participatesMapper.updateGroupParCount(groupID);
         participatesMapper.updateActParCount(activityID);
     }
+
+    // 将某个学生的角色设置为选手
+    public void setParticipateRole(Integer studentID){
+        String role = participatesMapper.getRole(studentID);
+        List<String> roleList = Arrays.asList(role.split(","));
+        if(!roleList.contains("7")){
+            // 如果不在，则将7添加到list中
+            role = role + ",7";
+        }else
+            return;
+        participatesMapper.setParticipateRole(studentID,role);
+    }
 }

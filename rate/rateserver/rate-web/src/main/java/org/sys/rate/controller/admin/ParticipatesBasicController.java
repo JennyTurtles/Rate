@@ -360,11 +360,14 @@ public class ParticipatesBasicController {
     @Transactional
     @PostMapping("/manualAdd")
     public RespBean manualAdd(Participates participates) throws ParseException {
-        Integer res = participatesMapper.manualAdd(participates);
-        if(res > 0){
-            return addPars(participates.getActivityID(),participates.getGroupID(),Arrays.asList(participates));
-        }else {
-            return RespBean.error("已存在该选手");
-        }
+        participatesMapper.manualAdd(participates); // 添加到student表
+        participatesService.setParticipateRole(participates.getID()); // 将其角色设置为选手
+        return addPars(participates.getActivityID(),participates.getGroupID(),Arrays.asList(participates)); // 添加到participates表
     }
+
+    @GetMapping("/getByIDNumber")
+    public RespBean getByIDNumber(@RequestParam("IDNumber")String IDNumber){
+        return RespBean.ok("success",participatesMapper.getByIDNumber(IDNumber));
+    }
+
 }

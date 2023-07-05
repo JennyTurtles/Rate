@@ -13,6 +13,7 @@ public class Participates{
     private String studentnumber;//new from stu
     private String telephone;//new from stu
     private String email;//new from stu
+    private Integer role;
     //private Integer institutionID;
     private String name;//from stu
     private  Double score;//p
@@ -57,6 +58,14 @@ public class Participates{
     }
     public String getPassword() {
         return password;
+    }
+
+    public Integer getRole() {
+        return role;
+    }
+
+    public void setRole(Integer role) {
+        this.role = role;
     }
 
     public void setPassword(String password) {
