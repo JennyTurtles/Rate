@@ -607,12 +607,8 @@ export default {
       if (valid) {
        this.postRequest1("/participants/basic/manualAdd",this.manualAddForm).then(resp => {
         if (resp && resp.status === 200) {
-         this.$message({
-          message: resp.msg,
-          type: 'success'
-         });
          this.dialogVisible_method = false
-         this.initEmps();
+         this.initEmps(this.emps.length);
         }
        });
       } else {
@@ -768,13 +764,24 @@ export default {
       let end = this.page * this.size;
       this.currentParticipants = this.participants.slice(begin, end);
     },
-    initEmps() {
+    initEmps(oldLen) {
       this.loading = true;
       let url = '/participants/basic/?page=' + 1 + '&size=' + 1000+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
           this.emps = resp.data;
+         if (typeof oldLen != "undefined" && this.emps.length > oldLen) {
+          this.$message({
+           type: "success",
+           message: "添加成功",
+          });
+         }else if (typeof oldLen != "undefined"){
+          this.$message({
+           type: "warning",
+           message: "该选手已存在，无需重复添加！",
+          });
+         }
         }
       });
       this.initParticipants();

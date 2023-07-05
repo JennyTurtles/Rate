@@ -361,7 +361,7 @@ public class ParticipatesBasicController {
     @PostMapping("/manualAdd")
     public RespBean manualAdd(Participates participates) throws ParseException {
         participatesMapper.manualAdd(participates); // 添加到student表
-        participatesService.setParticipateRole(participates.getID()); // 将其角色设置为选手
+        participatesService.setParticipateRole(participates.getID(),participates.getIDNumber()); // 将其角色设置为选手
         return addPars(participates.getActivityID(),participates.getGroupID(),Arrays.asList(participates)); // 添加到participates表
     }
 

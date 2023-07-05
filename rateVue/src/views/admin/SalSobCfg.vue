@@ -8,11 +8,11 @@
      </el-button>
     </div><br/><br/>
    </div>
-   <el-tabs v-model="activeName" @tab-click="change2Par">
+   <el-tabs v-model="activeName" @tab-click="change2Par" v-show="groupID">
     <el-tab-pane label="选手管理" name="participant">用户管理</el-tab-pane>
     <el-tab-pane label="专家管理" name="expert">配置管理</el-tab-pane>
    </el-tabs>
-    <div style="display: flex; justify-content: left">
+    <div style="display: flex; justify-content: left" v-show="groupID">
       <a>
         专家添加有三种模式：手动添加、从本单位添加、批量导入。
       </a>
@@ -778,11 +778,11 @@ export default {
         form.push(this.manualAddForm)
         this.postRequest("/systemM/Experts/addExperts?groupID=" + this.groupID + "&activityID=" + this.keywords, form).then(resp => {
          if (resp) {
-          this.initHrs();
-          this.$message({
-           type: 'success',
-           message: '添加成功!'
-          })
+          this.initHrs(this.hrs.length);
+          // this.$message({
+          //  type: 'success',
+          //  message: '添加成功!'
+          // })
           this.dialogVisible_method = false
          }
         })
@@ -856,7 +856,7 @@ export default {
         }
       });
     },
-    initHrs() {
+    initHrs(oldLen) {
       if (typeof this.activityID == "undefined" || this.mode === 'secretary') { // 此时是从分组管理进入的
           this.getRequest(
               "/systemM/Experts/?keywords=" + this.groupID +
@@ -865,6 +865,17 @@ export default {
           ).then((resp) => {
               if (resp) {
                   this.hrs = resp;
+               if (typeof oldLen != "undefined" && this.hrs.length > oldLen) {
+                 this.$message({
+                  type: "success",
+                  message: "添加成功",
+                 });
+                }else if (typeof oldLen != "undefined"){
+                this.$message({
+                 type: "warning",
+                 message: "该专家已存在，无需重复添加！",
+                });
+               }
               }
           });
       }else {  // 从活动或子活动进入
@@ -879,6 +890,7 @@ export default {
               });
           }
       }
+
       this.initExperts();
       if (this.mode==='secretarySub')
         this.initParentGroup();

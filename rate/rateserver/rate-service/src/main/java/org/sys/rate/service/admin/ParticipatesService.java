@@ -627,12 +627,19 @@ public class ParticipatesService {
     }
 
     // 将某个学生的角色设置为选手
-    public void setParticipateRole(Integer studentID){
-        String role = participatesMapper.getRole(studentID);
+    public void setParticipateRole(Integer studentID,String IDNumber){
+        String role;
+        if (studentID != null)
+            role =  participatesMapper.getRole(studentID);
+        else
+            role = participatesMapper.getRoleByIDNumber(IDNumber);
         List<String> roleList = Arrays.asList(role.split(","));
         if(!roleList.contains("7")){
             // 如果不在，则将7添加到list中
-            role = role + ",7";
+            if (role.equals(""))
+                role = "7";
+            else
+                role = role + ",7";
         }else
             return;
         participatesMapper.setParticipateRole(studentID,role);

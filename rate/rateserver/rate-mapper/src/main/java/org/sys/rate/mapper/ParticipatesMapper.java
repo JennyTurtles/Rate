@@ -220,4 +220,7 @@ public interface ParticipatesMapper {
 
     @Update("UPDATE student SET role = #{role} WHERE ID = #{studentID}")
     void setParticipateRole(Integer studentID, String role);
+
+    @Select("SELECT role FROM student WHERE IDNumber = #{IDNumber}")
+    String getRoleByIDNumber(String IDNumber);
 }
