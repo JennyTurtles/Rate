@@ -275,9 +275,7 @@ public class ExpertMController {
 
     @Transactional
     @PostMapping("/addExperts")
-    public RespBean addExpert(@RequestParam Integer groupID,@RequestParam Integer activityID,@RequestBody List<Experts> list) throws ParseException {
-//        Integer activityID = list.get(0).getActivityID();
-//        Integer groupID = list.get(0).getGroupID();
+    public RespBean addExperts(@RequestParam Integer groupID,@RequestParam Integer activityID,@RequestBody List<Experts> list) throws ParseException {
         RespPageBean bean=new RespPageBean();
         bean.setData(list);
         bean.setTotal((long) list.size());
@@ -318,11 +316,15 @@ public class ExpertMController {
     @Transactional
     @PostMapping("/manualAdd")
     public RespBean manualAdd(Experts experts) throws ParseException {
-        Integer res = expertsMapper.manualAdd(experts);
+        Integer res = 0;
+        if (!experts.isUpdateUserName())
+            res = expertsMapper.manualAdd(experts);
+        else
+            res = expertsMapper.manualAddWithUserName(experts);
         if(res > 0){
-            return addExpert(experts.getGroupID(),experts.getActivityID(),Arrays.asList(experts));
+            return addExperts(experts.getGroupID(),experts.getActivityID(),Arrays.asList(experts));
         }else {
-            return RespBean.error("已存在该专家");
+            return RespBean.error("已存在该用户名！");
         }
     }
 }

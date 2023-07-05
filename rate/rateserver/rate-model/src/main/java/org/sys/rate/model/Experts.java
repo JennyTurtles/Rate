@@ -44,6 +44,7 @@ public class Experts extends Account {
     private Integer groupID;
     private Integer activityID;
     private String  groupName;
+    private boolean updateUserName;
 
     public String getGroupName() {
         return groupName;
@@ -79,6 +80,14 @@ public class Experts extends Account {
 
     //private String role;
     //private List<Role> roles;
+
+    public boolean isUpdateUserName() {
+        return updateUserName;
+    }
+
+    public void setUpdateUserName(boolean updateUserName) {
+        this.updateUserName = updateUserName;
+    }
 
     public Integer getId() {
         return id;

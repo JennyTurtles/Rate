@@ -379,6 +379,11 @@ public class ExpertController {
         return RespBean.ok("success",expertsMapper.getByInstitutionID(institutionID));
     }
 
+    @GetMapping("/getByIDNumber")
+    public RespBean getByIDNumber(@RequestParam("idNumber")String idNumber){
+        return RespBean.ok("success",expertsMapper.getByIDNumber(idNumber));
+    }
+
 }
 
 

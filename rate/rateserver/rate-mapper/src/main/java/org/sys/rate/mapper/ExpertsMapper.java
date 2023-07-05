@@ -80,4 +80,12 @@ public interface ExpertsMapper {
     @Insert("INSERT IGNORE INTO teacher (name,phone,IDNumber,email,institutionID) VALUES (#{name},#{phone},#{idnumber},#{email},#{institutionid})")
     @Options(useGeneratedKeys = true, keyProperty = "ID")
     Integer manualAdd(Experts experts);
+
+    @Select("SELECT * FROM teacher WHERE IDNumber = #{idnumber}")
+    Experts getByIDNumber(String idnumber);
+
+    @Insert("INSERT IGNORE INTO teacher (name,phone,IDNumber,email,institutionID,username,password) " +
+            "VALUES (#{name},#{phone},#{idnumber},#{email},#{institutionid},#{username},#{password})")
+    @Options(useGeneratedKeys = true, keyProperty = "ID")
+    Integer manualAddWithUserName(Experts experts);
 }

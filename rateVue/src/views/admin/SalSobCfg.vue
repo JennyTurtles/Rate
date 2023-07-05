@@ -396,56 +396,76 @@
           <el-button @click="dialogVisible_edit = false">关闭</el-button>
         </span>
       </el-dialog>
-      <el-dialog :title="title" :visible.sync="dialogVisible_method" width="55%" center @close="$refs.manualAddForm.resetFields()">
+      <el-dialog :title="title" :visible.sync="dialogVisible_method" width="55%" center @close="handleClose">
         <el-tabs type="border-card">
           <el-tab-pane label="手动添加">
            <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
             <el-form-item label="身份证号:" prop="idnumber">
-             <el-input style="width: 60%"  v-model="manualAddForm.idnumber"></el-input>
+             <el-input style="width: 60%"  v-model="manualAddForm.idnumber" @blur="getInfoByIDNumber();fillPassword()"></el-input>
             </el-form-item>
             <el-form-item label="姓名:" prop="name">
-             <el-input style="width: 60%" v-model="manualAddForm.name"></el-input>
+             <el-input style="width: 60%" v-model="manualAddForm.name" :disabled="manualAddFormDisabled"></el-input>
+            </el-form-item>
+            <el-form-item label="工号:" prop="jobNumber" >
+             <el-input style="width: 60%" v-model="manualAddForm.jobNumber" :disabled="manualAddFormDisabled" @blur="fillUserName"></el-input>
             </el-form-item>
             <el-form-item label="电话:" prop="phone">
-             <el-input style="width: 60%" v-model="manualAddForm.phone" ></el-input>
+             <el-input style="width: 60%" v-model="manualAddForm.phone" :disabled="manualAddFormDisabled"></el-input>
             </el-form-item>
             <el-form-item label="邮箱:" prop="email">
-             <el-input style="width: 60%" v-model="manualAddForm.email"></el-input>
+             <el-input style="width: 60%" v-model="manualAddForm.email" :disabled="manualAddFormDisabled"></el-input>
             </el-form-item>
             <el-form-item label="性别:" prop="sex">
-             <el-input style="width: 60%" v-model="manualAddForm.sex"></el-input>
+             <el-input style="width: 60%" v-model="manualAddForm.sex" :disabled="manualAddFormDisabled"></el-input>
             </el-form-item>
-            <el-form-item label="工号:" prop="jobNumber">
-             <el-input style="width: 60%" v-model="manualAddForm.jobNumber"></el-input>
+            <el-form-item label="用户名:" prop="username" >
+             <el-input style="width: 60%" v-model="manualAddForm.username" @input="$forceUpdate()" :disabled="manualAddFormDisabled"></el-input>
+            </el-form-item>
+            <el-form-item label="密码:" prop="password">
+             <el-input style="width: 60%" v-model="manualAddForm.password" @input="$forceUpdate()" :disabled="manualAddFormDisabled"></el-input>
             </el-form-item>
            </el-form>
            <el-button type="primary" @click="manualAdd">添加</el-button>
           </el-tab-pane>
           <el-tab-pane label="从本单位添加">
+           <div>
+            <el-input
+                v-model="searchText"
+                placeholder="请输入工号或姓名"
+                @keyup.enter.native="search"
+            >
+             <template #append>
+              <el-button icon="el-icon-search" type="success" @click="search"></el-button>
+             </template>
+            </el-input>
+           </div>
             <el-table
                 ref="multipleTable"
                 :data="currentExpert"
                 tooltip-effect="dark"
                 style="width: 100%"
-                @selection-change="handleSelectionChange">
+                @selection-change="handleSelectionChange"
+                :row-key="getRowKeys">
               <el-table-column
                   type="selection"
+                  :reserve-selection="true"
                   width="40px">
               </el-table-column>
+             <el-table-column
+                 prop="jobNumber"
+                 label="工号"
+                 show-overflow-tooltip>
+             </el-table-column>
               <el-table-column
                   prop="name"
                   label="姓名">
-              </el-table-column>
-              <el-table-column
-                  prop="idnumber"
-                  label="证件号码"
-                  show-overflow-tooltip>
               </el-table-column>
             </el-table>
             <div class="block" style="padding-top: 10px">
               <el-pagination
                   @current-change="currentChange"
                   @size-change="sizeChange"
+                  :current-page="page"
                   layout="sizes, prev, pager, next, jumper, ->, total, slot"
                   :total="total">
               </el-pagination>
@@ -517,6 +537,7 @@
             </el-button>
           </el-tab-pane>
         </el-tabs>
+
       </el-dialog>
     </div>
   </div>
@@ -524,16 +545,20 @@
 
 <script>
 import {Message} from 'element-ui'
-import {log} from "@/utils/sockjs";
-import {validateInputIdCard} from "@/utils/check";
+import {validateInputIdCard,checkIdCard} from "@/utils/check";
+import sha1 from "sha1";
 
 export default {
   name: "SalSobCfg",
   data() {
     return {
+     searchText: '',
+     changePasswordFlag:false,
+     changeUserNameFlag:false,
+     manualAddFormDisabled:false,
      manualAddRules:{
       idnumber:[
-       { validator: validateInputIdCard, trigger: "blur" }]
+       { validator: validateInputIdCard, trigger: "blur" }],
      },
      manualAddForm:{
       name: '',
@@ -542,6 +567,8 @@ export default {
       email:'',
       sex:'',
       jobNumber:'',
+      username:'',
+      password:''
      },
       editing: false,
       activityID:-1,
@@ -571,6 +598,7 @@ export default {
       loading: false,
       hrs: [],
       experts: [],
+      experts_raw: [],
       currentExpert:[],
       multipleSelection:[],
       currentExperts: [],
@@ -670,6 +698,67 @@ export default {
     this.initHrs();
   },
   methods: {
+   getRowKeys(row) {
+    return row.jobNumber;
+   },
+   search() {
+    if (this.searchText === ''){
+     this.experts = this.experts_raw
+    }else if (/^\d+$/.test(this.searchText)){ // 纯数字，按工号搜索
+     this.experts = this.experts_raw.filter(item => item.jobNumber.includes(this.searchText))
+    }else { // 非纯数字，按姓名搜索
+     this.experts = this.experts_raw.filter(item => item.name.includes(this.searchText))
+    }
+    this.total = this.experts.length
+    this.getCurrentExperts()
+    this.page = 1
+   },
+   handleClose(){
+    this.$refs.manualAddForm.resetFields();
+    this.manualAddFormDisabled=false;
+    this.changeUserNameFlag=false;
+    this.changePasswordFlag=false;
+    this.searchText = ''
+    this.multipleSelection = []
+    this.experts = this.experts_raw
+    this.total = this.experts.length
+    this.page = 1
+    this.$refs.multipleTable.clearSelection()
+   },
+   fillUserName(){
+    if (this.changeUserNameFlag === false){
+     this.manualAddForm.username = this.manualAddForm.jobNumber
+     this.$forceUpdate()
+    }
+   },
+   fillPassword(){
+    if (this.changePasswordFlag === false && checkIdCard(this.manualAddForm.idnumber)){
+     this.manualAddForm.password = this.manualAddForm.idnumber.substr(-6)
+    }
+   },
+   getInfoByIDNumber(){
+    if (this.manualAddFormDisabled === true){
+     this.manualAddForm = {idnumber: this.manualAddForm.idnumber}
+    }
+    this.manualAddFormDisabled = false
+    if(checkIdCard(this.manualAddForm.idnumber)){
+     this.getRequest("/system/Experts/getByIDNumber?idNumber="+this.manualAddForm.idnumber).then(resp => {
+      if (resp && resp.obj != null){
+       this.manualAddForm = {
+        name: resp.obj.name,
+        phone: resp.obj.phone,
+        idnumber: resp.obj.idnumber,
+        email:resp.obj.email,
+        sex:resp.obj.sex,
+        jobNumber:resp.obj.jobNumber,
+        username:resp.obj.username,
+        password:'*************'
+       }
+       this.manualAddFormDisabled = true
+      }
+     })
+    }
+   },
    manualAdd(){
     {
      this.manualAddForm.institutionid = this.user.institutionID;
@@ -677,18 +766,34 @@ export default {
      this.manualAddForm.groupID = this.groupID
      this.$refs['manualAddForm'].validate((valid) => {
       if (valid) {
-       this.postRequest1("/systemM/Experts/manualAdd",this.manualAddForm).then(resp => {
-        if (resp && resp.status === 200) {
-         this.$message({
-          message: resp.msg,
-          type: 'success'
-         });
-         this.dialogVisible_method = false
-         this.initHrs();
-        }
-       });
-      } else {
-       return false
+       if (this.manualAddFormDisabled){ // teacher表中已经存在该专家，调用“从本单位添加的接口”
+        let form = []
+        form.push(this.manualAddForm)
+        this.postRequest("/systemM/Experts/addExperts?groupID=" + this.groupID + "&activityID=" + this.keywords, form).then(resp => {
+         if (resp) {
+          this.initHrs();
+          this.$message({
+           type: 'success',
+           message: '添加成功!'
+          })
+          this.dialogVisible_method = false
+         }
+        })
+       }else {
+        this.manualAddForm.updateUserName = true
+        this.manualAddForm.password = sha1(this.manualAddForm.password)
+        this.postRequest1("/systemM/Experts/manualAdd",this.manualAddForm).then(resp => { // teacher表中无该专家
+         if (resp && resp.status === 200) {
+          this.$message({
+           message: '添加成功!',
+           type: 'success'
+          });
+          this.initHrs();
+          this.dialogVisible_method = false
+         }
+        });
+       }
+
       }
      })
     }
@@ -778,6 +883,7 @@ export default {
         this.loading = false;
         if (resp) {
           this.experts = resp.obj;
+          this.experts_raw = resp.obj
           this.total = this.experts.length;
         }
       });
@@ -858,7 +964,7 @@ export default {
     },
     currentChange(currentPage) {
       this.page = currentPage;
-      this.getCurrentExperts('advanced');
+      this.getCurrentExperts();
     },
     getCurrentExperts(){
       let begin = (this.page - 1) * this.size;
@@ -1202,7 +1308,7 @@ export default {
       this.dialogVisible_method=false;
       const _this = this
       for (let i = 0; i < this.multipleSelection.length; i++) {
-        this.multipleSelection[i].institutionid = this.multipleSelection[i].institutionID;
+       this.multipleSelection[i].institutionid = this.multipleSelection[i].institutionID;
       }
       this.postRequest("/systemM/Experts/addExperts?groupID=" + this.groupID + "&activityID=" + this.keywords, this.multipleSelection).then(resp => {
         if (resp) {
@@ -1215,7 +1321,7 @@ export default {
       })
     },
     handleSelectionChange(val){
-      this.multipleSelection=val;
+     this.multipleSelection = val
     },
   },
 };
