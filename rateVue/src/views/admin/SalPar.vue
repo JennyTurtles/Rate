@@ -2,17 +2,18 @@
   <div>
     <div >
       <div style="display: flex; justify-content: left">
-        <div style="width: 100%;text-align: center">选手管理</div>
-        <div style="margin-left: auto;width: 280px;float: right">
-          <el-button icon="el-icon-sort" type="primary" @click="change">
-            切换到专家管理
-          </el-button>
+        <div style="width: 100%;text-align: center;font-size: 20px">选手管理</div>
+        <div style="margin-left: auto;float: right">
           <el-button icon="el-icon-back" type="primary" @click="back" style="float: right">
             返回
           </el-button>
         </div>
       </div>
+     <el-tabs v-model="activeName" @tab-click="change2Exp">
+      <el-tab-pane label="选手管理" name="participant">用户管理</el-tab-pane>
+      <el-tab-pane label="专家管理" name="expert">配置管理</el-tab-pane>
       <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
+     </el-tabs>
       <a>
       选手添加有三种模式：手动添加、从本单位添加、批量导入。<br/><br/>
       </a>
@@ -453,6 +454,7 @@ export default {
   name: "SalPar",
   data() {
     return{
+     activeName: 'participant',
      searchText: '',
      manualAddFormDisabled: false,
       title: '',
@@ -549,6 +551,9 @@ export default {
    }
   },
   methods: {
+   change2Exp(){
+    this.change()
+   },
    getRowKeys(row) {
     return row.name;
    },

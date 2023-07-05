@@ -1,16 +1,17 @@
 <template>
   <div>
-    <div style="display: flex; justify-content: left">
-      <div style="width: 100%;text-align: center">专家管理</div>
-      <div style="margin-left: auto;width: 280px">
-        <el-button icon="el-icon-sort" type="primary" @click="change">
-          切换到选手管理
-        </el-button>
-        <el-button icon="el-icon-back" type="primary" @click="back" style="float: right">
-          返回
-        </el-button>
-      </div><br/><br/>
-    </div>
+   <div style="display: flex; justify-content: left">
+    <div style="width: 100%;text-align: center;font-size: 20px">专家管理</div>
+    <div style="margin-left: auto;">
+     <el-button icon="el-icon-back" type="primary" @click="back" style="float: right">
+      返回
+     </el-button>
+    </div><br/><br/>
+   </div>
+   <el-tabs v-model="activeName" @tab-click="change2Par">
+    <el-tab-pane label="选手管理" name="participant">用户管理</el-tab-pane>
+    <el-tab-pane label="专家管理" name="expert">配置管理</el-tab-pane>
+   </el-tabs>
     <div style="display: flex; justify-content: left">
       <a>
         专家添加有三种模式：手动添加、从本单位添加、批量导入。
@@ -62,6 +63,7 @@
         添加专家
       </el-button>
     </div>
+
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
@@ -540,6 +542,7 @@
 
       </el-dialog>
     </div>
+
   </div>
 </template>
 
@@ -552,6 +555,7 @@ export default {
   name: "SalSobCfg",
   data() {
     return {
+     activeName: 'expert',
      searchText: '',
      changePasswordFlag:false,
      changeUserNameFlag:false,
@@ -698,6 +702,9 @@ export default {
     this.initHrs();
   },
   methods: {
+   change2Par(){
+    this.change()
+   },
    getRowKeys(row) {
     return row.jobNumber;
    },
