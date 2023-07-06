@@ -45,4 +45,8 @@ public interface IndicatorMapper{
 
     @Select("select score from indicator where id = #{id}")
     public Integer selectScoreById(Integer id);
+
+    @Select("SELECT MAX(year) FROM indicator i, indicator_publication ip\n" +
+            "WHERE i.id = ip.indicator_id AND `year` <= #{year} AND i.id = #{id}")
+    public Integer getMaxYear(Integer id, Integer year);
 }

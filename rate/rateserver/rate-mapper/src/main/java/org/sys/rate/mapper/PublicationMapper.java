@@ -56,8 +56,12 @@ public interface PublicationMapper {
      * @param name:
      * @Return List<String>
      */
-    @Select("SELECT DISTINCT NAME FROM i_publication p LEFT JOIN indicator_publication ip on p.id = ip.publication_id WHERE NAME LIKE CONCAT('%',#{name},'%') and ip.year=#{year}")
-    List<String> getPublicationNamesByNameYear(String name, Integer year);
+//    @Select("SELECT DISTINCT NAME FROM i_publication p LEFT JOIN indicator_publication ip on p.id = ip.publication_id WHERE NAME LIKE CONCAT('%',#{name},'%') and ip.year=#{year}")
+//    List<String> getPublicationNamesByNameYear(String name, Integer year);
+
+    @Select("SELECT DISTINCT `name` FROM i_publication p, indicator_publication ip \n" +
+            "WHERE p.id = ip.publication_id AND NAME LIKE CONCAT('%',#{name},'%')")
+    List<String> getPublicationNamesByNameYear(String name);
 
     /**
      * 根据name模糊查询，返回相关的刊物全称
@@ -68,14 +72,13 @@ public interface PublicationMapper {
     @Select("select distinct name from i_publication where name LIKE CONCAT('%', #{name}, '%')")
     List<String> getPublicationNamesByName(String name);
 
-    /**
-     * 通过刊物全称和出版年份，返回最佳刊物实体
-     *
-     * @param name: 刊物全称
-     * @param year: 刊物出版年份
-     * @Return List<Publication>
-     */
-    Publication getPublicationByNameYear(String name, String year);
+
+//    @Select("SELECT p.name,i.name indicatorName,i.order,i.score,ip.year,i.type FROM i_publication p, indicator_publication ip,indicator i\n" +
+//            "WHERE p.id = ip.publication_id AND i.id = ip.indicator_id AND p.`name` = #{name} AND year <= #{year}\n" +
+//            "ORDER BY i.score DESC, i.`order`")
+//    List<Publication> getPublicationByNameYear(String name, String year);
+
+    Publication getPublicationByNameYear(String name,Integer year);
 
 
     /**

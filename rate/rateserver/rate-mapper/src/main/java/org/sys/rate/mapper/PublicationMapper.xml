@@ -18,6 +18,19 @@
         </collection>
     </resultMap>
 
+    <resultMap type="org.sys.rate.model.Publication" id="PublicationWithIndicators">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <collection property="indicatorList" ofType="org.sys.rate.model.Indicator">
+            <result property="id" column="incicatorID" jdbcType="INTEGER"/>
+            <result property="name" column="indicatorName"/>
+            <result property="score" column="score"/>
+            <result property="order" column="order"/>
+            <result property="year" column="year"/>
+            <result property="type" column="type"/>
+        </collection>
+    </resultMap>
+
     <sql id="selectPublicationVo">
         select id, name, abbr, publisher, url
         from i_publication
@@ -41,14 +54,20 @@
         </foreach>
     </delete>
 
-    <select id="getPublicationByNameYear" resultMap="PublicationResult">
-        SELECT p.id, p.`name`, p.abbr, p.publisher, p.url, i.id as i_id, i.`name` as i_name, i.score as point, i.`order`
-        FROM indicator_publication ip
-                 LEFT JOIN i_publication p ON ip.publication_id = p.id
-                 LEFT JOIN indicator i ON ip.indicator_id = i.id
-        WHERE p.`name` = #{name} AND ip.year = #{year}
-        ORDER BY i.score DESC, i.`order`
-        LIMIT 1
-    </select>
+<!--    <select id="getPublicationByNameYear" resultMap="PublicationResult">-->
+<!--        SELECT p.id, p.`name`, p.abbr, p.publisher, p.url, i.id as i_id, i.`name` as i_name, i.score as point, i.`order`-->
+<!--        FROM indicator_publication ip-->
+<!--                 LEFT JOIN i_publication p ON ip.publication_id = p.id-->
+<!--                 LEFT JOIN indicator i ON ip.indicator_id = i.id-->
+<!--        WHERE p.`name` = #{name} AND ip.year = #{year}-->
+<!--        ORDER BY i.score DESC, i.`order`-->
+<!--        LIMIT 1-->
+<!--    </select>-->
 
+        <select id="getPublicationByNameYear" resultMap="PublicationWithIndicators">
+            SELECT p.id,p.name,i.name indicatorName,i.order,i.score,i.id incicatorID,ip.year,i.type FROM i_publication p, indicator_publication ip,indicator i
+            WHERE p.id = ip.publication_id AND i.id = ip.indicator_id
+              AND p.`name` = #{name} AND <![CDATA[ year <= #{year}  ]]>
+            ORDER BY i.score DESC,year DESC,i.`order`
+        </select>
 </mapper>

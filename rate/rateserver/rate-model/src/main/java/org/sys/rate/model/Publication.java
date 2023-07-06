@@ -5,10 +5,15 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.annotation.Resource;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 刊物对象 publication
@@ -42,7 +47,6 @@ public class  Publication {
      * 网址
      */
     private String url;
-
     /**
      * 一个期刊可以对应多个指标点
      */
@@ -53,5 +57,4 @@ public class  Publication {
     private List<Date> dateList;
 
     private List<Integer> flag;
-
 }

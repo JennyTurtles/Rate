@@ -590,11 +590,14 @@ export default {
           if (resp) {
             if(resp.obj){
               this.view_point = resp.obj.indicatorList[0].score;
-              this.publication_detail = resp.obj.name + "录入于" +this.emp.year+"年，按照东华大学毕业要求，属于"+resp.obj.indicatorList[0].order+"类"
+              let year = resp.obj.indicatorList[0].year;
+              this.publication_detail = resp.obj.name + "录入于" +year+"年，按照东华大学毕业要求，属于"+resp.obj.indicatorList[0].order+"类"
               this.publicationId = resp.obj.id;
             }else {
+              this.$message.warning(this.publicationName + '在'+this.emp.year+'年的积分为0！')
               this.publicationName = ''
-              this.$message.error('无该期刊！请重新选择时间！')
+              this.publication_detail = ''
+              this.view_point = 0
             }
             clearInterval(this.timer)
           }

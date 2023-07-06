@@ -23,6 +23,8 @@ public class Indicator {
 
     private Integer father;
 
+    private Integer year;
+
     /**
      * 一个指标点可以对应多个期刊
      */

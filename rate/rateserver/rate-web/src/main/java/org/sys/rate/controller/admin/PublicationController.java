@@ -8,10 +8,11 @@ import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.mapper.PaperMapper;
 import org.sys.rate.mapper.PublicationMapper;
 
+import org.sys.rate.model.Indicator;
 import org.sys.rate.model.Publication;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.PublicationService;
-
+import org.sys.rate.service.admin.IndicatorService;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +38,9 @@ public class PublicationController {
 
     @Resource
     private IndicatorMapper indicatorMapper;
+
+    @Resource
+    private IndicatorService indicatorService;
 
     /**
      * 模糊查询相关期刊，返回期刊的全称
@@ -81,9 +85,15 @@ public class PublicationController {
      * @Return RespBean
      */
     @GetMapping("/publication/getInfByNameYear")
-    public RespBean getPublicationNamesByNameYear(String year,String name) {
-        Publication res = publicationMapper.getPublicationByNameYear(name, year);
-        return RespBean.ok("success", res);
+    public RespBean getPublicationNamesByNameYear(Integer year, String name) {
+        Publication publication = publicationMapper.getPublicationByNameYear(name, year);
+        Indicator bestIndicator = publicationService.chooseBestIndicator(publication, year);
+        if (bestIndicator != null) {
+            publication.setIndicatorList(Collections.singletonList(bestIndicator));
+            return RespBean.ok("success", publication);
+        } else {
+            return RespBean.ok("success");
+        }
     }
 
     /**

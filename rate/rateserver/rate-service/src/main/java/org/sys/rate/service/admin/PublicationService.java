@@ -2,17 +2,25 @@ package org.sys.rate.service.admin;
 
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.mapper.PublicationMapper;
+import org.sys.rate.model.Indicator;
 import org.sys.rate.model.Publication;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class PublicationService {
 
     @Resource
     private PublicationMapper publicationMapper;
+
+    @Resource
+    private IndicatorMapper indicatorMapper;
 
     /**
      * 查询刊物
@@ -32,7 +40,7 @@ public class PublicationService {
      * @Return List<String>
      */
     public List<String> selectPublicationListByName(String publicationName, Integer year) {
-        List<String> res = publicationMapper.getPublicationNamesByNameYear(publicationName, year);
+        List<String> res = publicationMapper.getPublicationNamesByNameYear(publicationName);
         return res;
     }
 
@@ -74,4 +82,20 @@ public class PublicationService {
         return publicationMapper.deletePublicationByIds(ids);
     }
 
+    public Indicator chooseBestIndicator(Publication publication , Integer year){
+        if (publication == null)
+            return null;
+        List<Indicator> indicatorList = publication.getIndicatorList();
+        Set<Integer> indicatorIDSet = new HashSet<>();
+        for (Indicator indicator : indicatorList) {
+            Integer indicatorID = indicator.getId();
+            if (indicatorIDSet.contains(indicatorID)) // 已经按年份降序排列。对于同一个指标点，只判断最大的年份即可。
+                continue;
+            indicatorIDSet.add(indicatorID);
+            Integer maxYear = indicatorMapper.getMaxYear(indicatorID, year);
+            if (maxYear <= indicator.getYear()) // 已经按照积分降序排列，找到第一个满足条件的指标点即可。
+                return indicator;
+        }
+        return null;
+    }
 }
