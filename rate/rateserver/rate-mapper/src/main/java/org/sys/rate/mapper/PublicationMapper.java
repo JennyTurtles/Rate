@@ -56,7 +56,7 @@ public interface PublicationMapper {
      * @param name:
      * @Return List<String>
      */
-    @Select("SELECT DISTINCT NAME FROM i_publication p LEFT JOIN indicator_publication ip on p.id = ip.publication_id WHERE NAME LIKE CONCAT('%',#{name},'%') and YEAR(ip.date)=#{year} and ip.flag!=-1")
+    @Select("SELECT DISTINCT NAME FROM i_publication p LEFT JOIN indicator_publication ip on p.id = ip.publication_id WHERE NAME LIKE CONCAT('%',#{name},'%') and ip.year=#{year}")
     List<String> getPublicationNamesByNameYear(String name, Integer year);
 
     /**
@@ -84,9 +84,9 @@ public interface PublicationMapper {
      * @param name:
      * @Return List<Publication>
      */
-    @Select("select p.id, p.name, p.abbr, p.publisher, p.url, YEAR(ip.date), i.id, i.name, i.type, i.score from indicator_publication ip " +
+    @Select("select p.id, p.name, p.abbr, p.publisher, p.url, ip.year, i.id, i.name, i.type, i.score from indicator_publication ip " +
             "left join i_publication p on p.id = ip.publication_id left join indicator i on ip.indicator_id = i.id " +
-            "where p.name = #{name} and ip.flag = 0 order by ip.date")
+            "where p.name = #{name} order by ip.year")
     List<Publication> getPublicationInfByName(String name);
 
     /**

@@ -100,11 +100,6 @@ public class PublicationController {
         }
     }
 
-    /**
-     * 返回指标点的分数
-     * @param id: 指标点的主键
-     * @Return RespBean
-     */
     @GetMapping("/publication/getScore/{id}")
     public RespBean getScore(@PathVariable Integer id) {
         Integer score = indicatorMapper.getScore(id);

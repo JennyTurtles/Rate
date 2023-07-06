@@ -46,7 +46,7 @@
         FROM indicator_publication ip
                  LEFT JOIN i_publication p ON ip.publication_id = p.id
                  LEFT JOIN indicator i ON ip.indicator_id = i.id
-        WHERE p.`name` = #{name} AND YEAR(ip.date) = #{year} AND ip.flag != -1
+        WHERE p.`name` = #{name} AND ip.year = #{year}
         ORDER BY i.score DESC, i.`order`
         LIMIT 1
     </select>
