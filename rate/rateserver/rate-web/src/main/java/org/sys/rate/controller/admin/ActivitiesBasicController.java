@@ -202,5 +202,18 @@ public class ActivitiesBasicController {
         } else
             return RespBean.ok("无子活动",false);
     }
+
+    // 返回所有活动和子活动的的信息
+    @GetMapping("/getALl")
+    public RespBean getALl() {
+        List<Activities> activities = activitiesMapper.getAll();
+        return RespBean.ok("成功", activities);
+    }
+
+    @PostMapping("/clone")
+    public RespBean cloneActivity(@RequestBody Activities activity) {
+        activitiesService.cloneActivity(activity);
+        return RespBean.ok("克隆成功");
+    }
 }
 

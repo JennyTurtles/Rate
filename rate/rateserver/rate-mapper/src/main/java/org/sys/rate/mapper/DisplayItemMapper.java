@@ -11,7 +11,11 @@ public interface DisplayItemMapper {
     @Select("select * from displayitem where activityID = #{activityID} order by displaySequence")
     List<DisplayItem> getAllDisplayItem(Integer activityID);
 
+    @Select("select * from displayitem where activityID = #{activityID} order by ID")
+    List<DisplayItem> getAllDisplayItemNoOrder(Integer activityID);
+
     @Insert("insert into displayitem (activityID, name, source, displaySequence, passScore) values (#{activityID}, #{name}, #{source}, #{displaySequence}, #{passScore})")
+    @Options(useGeneratedKeys = true, keyProperty = "ID")
     int insert(DisplayItem displayItems);
 
     @Update("update displayitem set activityID = #{activityID},name = #{name}, source = #{source}, displaySequence = #{displaySequence}, passScore = #{passScore} where ID = #{ID}")

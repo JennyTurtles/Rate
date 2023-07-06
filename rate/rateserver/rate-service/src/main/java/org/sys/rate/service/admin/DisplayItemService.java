@@ -215,7 +215,7 @@ public class DisplayItemService {
         }
     }
 
-    // 将source解析成sourceName
+    // 将source解析成sourceName（中文名）
     public String getSourceName(String source) {
         if (source == null)
             return null;

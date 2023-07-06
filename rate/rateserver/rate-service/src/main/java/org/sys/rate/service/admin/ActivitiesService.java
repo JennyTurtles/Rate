@@ -5,16 +5,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.sys.rate.mapper.ActivitiesMapper;
-import org.sys.rate.mapper.ActivityGrantMapper;
-import org.sys.rate.model.Activities;
-import org.sys.rate.model.RespBean;
-import org.sys.rate.model.RespPageBean;
-import org.sys.rate.model.ScoreDetail;
+import org.springframework.transaction.annotation.Transactional;
+import org.sys.rate.mapper.*;
+import org.sys.rate.model.*;
 
+import javax.annotation.Resource;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -25,6 +25,12 @@ public class ActivitiesService {
     RabbitTemplate rabbitTemplate;
     @Autowired
     ActivityGrantMapper activityGrantMapper;
+    @Autowired
+    DisplayItemMapper displayItemMapper;
+    @Resource
+    ScoreItemMapper scoreItemMapper;
+    @Resource
+    InfoItemMapper infoItemMapper;;
 
     public final static Logger logger = LoggerFactory.getLogger(ActivitiesService.class);
     SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
@@ -146,5 +152,92 @@ public class ActivitiesService {
         }
         List<Activities> activities= activitiesMapper.selectActivities(activityID);
         return activities;
+    }
+
+
+    @Transactional
+    public void cloneActivity(Activities newActivityInfo){ // ID为老活动ID，三个时间和备注为新活动的
+        Activities activity = activitiesMapper.queryById(newActivityInfo.getId());
+        activity.cleanCount();
+        activity.fillNewInfo(newActivityInfo);
+        Integer oldActID = activity.getId();
+        activitiesMapper.insert(activity); // 此处需要调试，插入后是否会返回ID
+        Integer newActID = activity.getId();
+        cloneDetail(newActID,oldActID);
+        if (activity.getHaveSub() == 1){ // 有子活动则克隆子活动，此处后续使用多线程优化
+            cloneSubActivity(newActID,oldActID);
+        }
+    }
+
+    @Transactional
+    public void cloneSubActivity(Integer newActID, Integer oldActID){
+        activitiesMapper.getSubActivities(oldActID).forEach(subActivity -> {
+            subActivity.setParentID(newActID);
+            cloneActivity(subActivity);
+        });
+    }
+
+    // 克隆评分项，信息项，成绩查看设置
+    @Transactional
+    public void cloneDetail(Integer newActID, Integer oldActID){
+        activitiesMapper.cloneScoreItem(newActID,oldActID);
+        activitiesMapper.cloneInfoItem(newActID,oldActID);
+        cloneDisplayItem(newActID,oldActID);
+    }
+
+    @Transactional
+    public void cloneDisplayItem(Integer newActID, Integer oldActID){
+        // 获取老活动中所有的展示项目
+        List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItemNoOrder(oldActID); // 严格按照添加顺序返回，避免找不到displayItem的ID
+        Map<Integer,Integer> scoreItemMap = new HashMap<>();
+        Map<Integer,Integer> infoItemMap = new HashMap<>();
+        Map<Integer,Integer> displayItemMap = new HashMap<>();
+
+        // 构建新老活动评分项的映射 老活动评分项ID -> 新活动评分项ID
+        List<Integer> oldScoreItemID = scoreItemMapper.getIDByActivityID(oldActID);
+        List<Integer> newScoreItemID = scoreItemMapper.getIDByActivityID(newActID);
+        for (int i = 0; i < oldScoreItemID.size(); i++) {
+            scoreItemMap.put(oldScoreItemID.get(i),newScoreItemID.get(i));
+        }
+
+        // 构建新老活动信息项的映射 老活动评分项ID -> 新活动评分项ID
+        List<Integer> oldInfoItemID = infoItemMapper.getIDByActivityID(oldActID);
+        List<Integer> newInfoItemID = infoItemMapper.getIDByActivityID(newActID);
+        for (int i = 0; i < oldInfoItemID.size(); i++) {
+            infoItemMap.put(oldInfoItemID.get(i),newInfoItemID.get(i));
+        }
+
+        // 逐条解析List<DisplayItem>中的source
+        for (DisplayItem item : displayItems) {
+            List<DisplayItemSource> displayItemSources = item.source2list();
+            if (displayItemSources != null) {  // 非基础类型，将source中id映射到新活动
+                for (DisplayItemSource displayItemSource : displayItemSources) {
+                    String type = displayItemSource.getType();
+                    Integer oldID = displayItemSource.getId();
+                    Integer newID = null;
+                    switch (type) {
+                        case "scoreItem":
+                            newID = scoreItemMap.get(oldID);
+                            break;
+                        case "infoItem":
+                            newID = infoItemMap.get(oldID);
+                            break;
+                        case "displayItem":
+                            newID = displayItemMap.get(oldID);
+                            break;
+                        default:
+                            break;
+                    }
+                    displayItemSource.setId(newID);
+                }
+                item.setSource(DisplayItem.list2source(displayItemSources));
+            }
+            item.setActivityID(newActID);
+            // 将新的displayItem插入到数据库中
+            Integer oldDisplayItemID = item.getID();
+            displayItemMapper.insert(item);
+            Integer newDisplayItemID = item.getID();
+            displayItemMap.put(oldDisplayItemID,newDisplayItemID);
+        }
     }
 }

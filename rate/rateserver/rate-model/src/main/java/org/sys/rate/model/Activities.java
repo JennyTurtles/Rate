@@ -43,6 +43,22 @@ public class Activities {
     private Integer scoreSetByself; //成绩查看设置方式
     private Integer gradeFormType;
 
+
+    public void cleanCount(){
+        this.groupCount = 0;
+        this.expertCount = 0;
+        this.participantCount = 0;
+    }
+
+    public void fillNewInfo(Activities newAct){
+        this.name = newAct.getName() != null ? newAct.getName() : this.name;
+        this.startDate = newAct.getStartDate() != null ? newAct.getStartDate() : this.startDate;
+        this.comment = newAct.getComment() != null ? newAct.getComment() : this.comment;
+        this.enterDate = newAct.getEnterDate() != null ? newAct.getEnterDate() : this.enterDate;
+        this.visibleDate = newAct.getVisibleDate() != null ? newAct.getVisibleDate() : this.visibleDate;
+        this.parentID = newAct.getParentID() != null ? newAct.getParentID() : this.parentID;
+    }
+
     public Integer getGradeFormType() {
         return gradeFormType;
     }

@@ -1,9 +1,6 @@
 package org.sys.rate.mapper;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.Activities;
 import org.sys.rate.model.ScoreDetail;
 
@@ -113,4 +110,21 @@ public interface ActivitiesMapper {
 
     @Update("UPDATE activities SET scoreSetByself = #{setByself} WHERE ID = #{activityID}")
     int changeMethod(Integer activityID,Integer setByself);
+
+    @Select("SELECT * FROM activities WHERE deleteFlag = 0")
+    List<Activities> getAll();
+
+    @Insert("INSERT INTO scoreitem (activityID, name, score, coef,`comment`,byExpert)\n" +
+            "SELECT #{newActID},name, score, coef,`comment`,byExpert\n" +
+            "FROM scoreitem\n" +
+            "WHERE activityID = #{oldActID};")
+    void cloneScoreItem(Integer newActID, Integer oldActID);
+
+    @Insert("INSERT INTO infoitem (activityID, name, contentType, sizelimit,byParticipant,display)\n" +
+            "SELECT #{newActID},name, contentType, sizelimit,byParticipant,display\n" +
+            "FROM infoitem\n" +
+            "WHERE activityID = #{oldActID};")
+    void cloneInfoItem(Integer newActID, Integer oldActID);
+
+    void cloneDisplayItem(Integer newActID, Integer oldActID);
 }

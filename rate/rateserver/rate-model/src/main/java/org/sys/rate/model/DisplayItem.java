@@ -5,7 +5,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Data
 @NoArgsConstructor
@@ -29,7 +33,6 @@ public class DisplayItem implements Comparable<DisplayItem> { // 列的信息
         this.name = name;
         this.sourceName = sourceName;
         this.source = source;
-        this.passScore= passScore;
     }
 
     public DisplayItem(DisplayItem displayItem) {
@@ -46,5 +49,34 @@ public class DisplayItem implements Comparable<DisplayItem> { // 列的信息
     public int compareTo(DisplayItem o) {
         Comparator cmp = Collator.getInstance(java.util.Locale.CHINA);
         return cmp.compare(this.sourceName,o.sourceName);
+    }
+
+    // 将字符串形式的source转换为DisplayItemSource列表
+    public List<DisplayItemSource> source2list() {
+        if (!this.source.contains(".")) { // 不包含'.'，则为基础类型
+            return null;
+        }
+        List<DisplayItemSource> res = new ArrayList<>();
+        Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?\\*)?(\\w+)\\.(\\d+)");
+        Matcher matcher = pattern.matcher(this.source);
+        while (matcher.find()) {
+            double coefficient = matcher.group(1) != null ? Double.parseDouble(matcher.group(1).replace("*", "")) : 1.0;
+            String type = matcher.group(3);
+            int id = Integer.parseInt(matcher.group(4));
+            res.add(new DisplayItemSource(coefficient, type, id, false));
+        }
+        return res;
+    }
+
+    // 将DisplayItemSource列表转换为字符串形式的source
+    public static String list2source(List<DisplayItemSource> list) {
+        if (list == null) {
+            return null;
+        }
+        StringBuilder res = new StringBuilder();
+        for (DisplayItemSource displayItemSource : list) {
+            res.append(displayItemSource.getCoefficient()).append("*").append(displayItemSource.getType()).append(".").append(displayItemSource.getId()).append("+");
+        }
+        return res.substring(0, res.length() - 1);
     }
 }
