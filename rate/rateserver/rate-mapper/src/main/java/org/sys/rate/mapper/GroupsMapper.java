@@ -2,10 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.sys.rate.model.Experts;
-import org.sys.rate.model.Groups;
-import org.sys.rate.model.Participates;
-import org.sys.rate.model.ScoreDetail;
+import org.sys.rate.model.*;
 
 import java.util.Date;
 import java.util.List;
@@ -61,6 +58,12 @@ public interface GroupsMapper {
     @Select("select * from `groups` where ID = #{groupID}")
     List<Groups> getGroup(Integer groupID);
 
+    @Select("select ID from `groups` where activityID = #{activityID}")
+    List<Integer> getIDbyActivityID(Integer activityID);
+
+    @Select("select * from `groups` where activityID = #{activityID}")
+    List<Groups> getGroupByActID(Integer activityID);
+
     @Select("SELECT p.ID,name,IDNumber,code,activityID,groupID,studentID,s.institutionID,telephone,username,email,password FROM student s,participants p\n" +
             "WHERE s.ID = p.studentID AND groupID = #{groupID}")
     List<Participates> getGroupPars(Integer groupID);
@@ -105,4 +108,7 @@ public interface GroupsMapper {
 
     @Select("SELECT ID FROM `expertactivities` WHERE groupID = #{groupID} AND role = '组长'")
     Integer checkLeader(Integer groupID);
+
+
+    void insertGroups(List<Groups> newGroups);
 }

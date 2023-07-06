@@ -127,4 +127,10 @@ public interface ActivitiesMapper {
     void cloneInfoItem(Integer newActID, Integer oldActID);
 
     void cloneDisplayItem(Integer newActID, Integer oldActID);
+
+    @Insert("INSERT INTO `groups` (activityID, name, expertCount, participantCount,parentID)\n" +
+            "SELECT #{newActID},name, 0, 0,parentID\n" +
+            "FROM `groups`\n" +
+            "WHERE activityID = #{oldActID};")
+    void cloneGroup(Integer newActID, Integer oldActID);
 }

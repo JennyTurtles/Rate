@@ -12,6 +12,7 @@ import org.sys.rate.model.*;
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,9 @@ public class ActivitiesService {
     @Resource
     ScoreItemMapper scoreItemMapper;
     @Resource
-    InfoItemMapper infoItemMapper;;
+    InfoItemMapper infoItemMapper;
+    @Resource
+    GroupsMapper groupsMapper;
 
     public final static Logger logger = LoggerFactory.getLogger(ActivitiesService.class);
     SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
@@ -156,28 +159,65 @@ public class ActivitiesService {
 
 
     @Transactional
-    public void cloneActivity(Activities newActivityInfo){ // ID为老活动ID，三个时间和备注为新活动的
-        Activities activity = activitiesMapper.queryById(newActivityInfo.getId());
+    public void cloneActivity(Activities newActivityInfo){ // newActivityInfo中ID为老活动ID，三个时间和备注为新活动的
+        Activities activity = activitiesMapper.queryById(newActivityInfo.getId()); // 老活动
         activity.cleanCount();
         activity.fillNewInfo(newActivityInfo);
         Integer oldActID = activity.getId();
         activitiesMapper.insert(activity); // 此处需要调试，插入后是否会返回ID
         Integer newActID = activity.getId();
+        activityGrantMapper.insertRecordOfAddActivity(newActivityInfo.getAdminID(),newActID);
         cloneDetail(newActID,oldActID);
-        if (activity.getHaveSub() == 1){ // 有子活动则克隆子活动，此处后续使用多线程优化
-            cloneSubActivity(newActID,oldActID);
+        if (!newActivityInfo.isSub()){
+            if (activity.getHaveSub() == 1){ // 有子活动则克隆子活动，此处后续使用多线程优化
+                cloneSubActivity(newActID,oldActID);
+                cloneGroupWithSub(newActID,oldActID);
+            }else
+                cloneGroup(newActID,oldActID);
         }
+    }
+
+    @Transactional
+    public void cloneGroupWithSub(Integer newActID, Integer oldActID) {
+        cloneGroup(newActID,oldActID);
+        Map<Integer,Integer> groupMap = new HashMap<>(); // 老活动小组ID -> 新活动小组ID
+        List<Integer> oldGroupIDs = groupsMapper.getIDbyActivityID(oldActID);
+        List<Integer> newGroupIDs = groupsMapper.getIDbyActivityID(newActID);
+        for (int i = 0; i < oldGroupIDs.size(); i++) {
+            groupMap.put(oldGroupIDs.get(i),newGroupIDs.get(i));
+        }
+        List<Activities> oldSubAct = activitiesMapper.getSubActivities(oldActID);
+        List<Activities> newSubAct = activitiesMapper.getSubActivities(newActID);
+        List<Groups> newGroups = new ArrayList<>();
+        for (int i = 0; i < oldSubAct.size(); i++) {
+            List<Groups> oldGroups = groupsMapper.getGroupByActID(oldSubAct.get(i).getId());
+            // 将oldgroup中的parentID改为新的
+            for (Groups group : oldGroups) {
+                group.setParentID(groupMap.get(group.getParentID()));
+                group.setActivityID(newSubAct.get(i).getId());
+                group.setExpertCount(0);
+                group.setParticipantCount(0);
+            }
+            newGroups.addAll(oldGroups);
+        }
+        groupsMapper.insertGroups(newGroups);
+    }
+
+    @Transactional
+    public void cloneGroup(Integer newActID, Integer oldActID){
+        activitiesMapper.cloneGroup(newActID,oldActID);
     }
 
     @Transactional
     public void cloneSubActivity(Integer newActID, Integer oldActID){
         activitiesMapper.getSubActivities(oldActID).forEach(subActivity -> {
             subActivity.setParentID(newActID);
+            subActivity.setSub(true);
             cloneActivity(subActivity);
         });
     }
 
-    // 克隆评分项，信息项，成绩查看设置
+    // 克隆评分项，信息项，成绩查看设置，小组信息
     @Transactional
     public void cloneDetail(Integer newActID, Integer oldActID){
         activitiesMapper.cloneScoreItem(newActID,oldActID);
@@ -216,13 +256,13 @@ public class ActivitiesService {
                     Integer oldID = displayItemSource.getId();
                     Integer newID = null;
                     switch (type) {
-                        case "scoreItem":
+                        case "scoreitem":
                             newID = scoreItemMap.get(oldID);
                             break;
-                        case "infoItem":
+                        case "infoitem":
                             newID = infoItemMap.get(oldID);
                             break;
-                        case "displayItem":
+                        case "displayitem":
                             newID = displayItemMap.get(oldID);
                             break;
                         default:

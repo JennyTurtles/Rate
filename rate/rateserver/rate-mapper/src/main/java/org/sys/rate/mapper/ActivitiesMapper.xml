@@ -88,11 +88,11 @@
         </where>
     </select>
     <insert id="insert" parameterType="org.sys.rate.model.Activities" useGeneratedKeys="true" keyProperty="id">
-        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID,parentID,haveSub,haveComment,creatorID,enterDate,visibleDate,gradeFormType,scoreSetByself
+        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID,parentID,haveSub,haveComment,creatorID,enterDate,visibleDate,gradeFormType,scoreSetByself,requireGroup
         )
         values  (#{name,jdbcType=VARCHAR}, #{startDate,jdbcType=TIMESTAMP}, #{scoreItemCount,jdbcType=INTEGER},
-                #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER},#{parentID,jdbcType=INTEGER},#{haveSub,jdbcType=INTEGER},#{haveComment,jdbcType=INTEGER},
-                 #{adminID,jdbcType=INTEGER},#{enterDate,jdbcType=TIMESTAMP},#{visibleDate,jdbcType=TIMESTAMP},#{gradeFormType,jdbcType=INTEGER},#{scoreSetByself,jdbcType=INTEGER});
+                #{comment,jdbcType=VARCHAR},0,#{score},0,0,0,#{institutionID,jdbcType=INTEGER},#{parentID,jdbcType=INTEGER},#{haveSub,jdbcType=INTEGER},#{haveComment,jdbcType=INTEGER},
+                 #{adminID,jdbcType=INTEGER},#{enterDate,jdbcType=TIMESTAMP},#{visibleDate,jdbcType=TIMESTAMP},#{gradeFormType,jdbcType=INTEGER},#{scoreSetByself,jdbcType=INTEGER},#{requireGroup,jdbcType=INTEGER});
     </insert>
     <insert id="insertScoreItem" parameterType="org.sys.rate.model.Activities">
         insert into scoreitem (activityID,name,score,coef,byExpert)

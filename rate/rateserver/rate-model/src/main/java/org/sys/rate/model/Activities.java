@@ -32,6 +32,7 @@ public class Activities {
     private String parentName;//父活动名字
     private Integer requireGroup;
     private Integer haveSub;
+    private boolean isSub; // 是否为子活动
     private Integer adminID;//这个应该是和管理员-活动表相关联
     private Integer creatorID;//活动创建者id
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -57,6 +58,7 @@ public class Activities {
         this.enterDate = newAct.getEnterDate() != null ? newAct.getEnterDate() : this.enterDate;
         this.visibleDate = newAct.getVisibleDate() != null ? newAct.getVisibleDate() : this.visibleDate;
         this.parentID = newAct.getParentID() != null ? newAct.getParentID() : this.parentID;
+        this.adminID = newAct.getAdminID() != null ? newAct.getAdminID() : this.adminID;
     }
 
     public Integer getGradeFormType() {
