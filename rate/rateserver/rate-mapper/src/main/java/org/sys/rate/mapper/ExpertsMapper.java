@@ -88,4 +88,8 @@ public interface ExpertsMapper {
             "VALUES (#{name},#{phone},#{idnumber},#{email},#{institutionid},#{username},#{password})")
     @Options(useGeneratedKeys = true, keyProperty = "ID")
     Integer manualAddWithUserName(Experts experts);
+
+
+    @Update("UPDATE expertactivities SET role = '组长' WHERE groupID = #{groupID} AND teacherID = #{teacherID}")
+    Integer setLeader(Integer groupID, Integer teacherID);
 }

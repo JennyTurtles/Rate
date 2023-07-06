@@ -327,4 +327,14 @@ public class ExpertMController {
             return RespBean.error("已存在该用户名！");
         }
     }
+
+    @PostMapping("/setLeader")
+    public RespBean setLeader(@RequestParam Integer groupID,@RequestParam Integer teacherID){
+        Integer res = expertsMapper.setLeader(groupID,teacherID);
+        if(res > 0){
+            return RespBean.ok("设置组长成功");
+        }else {
+            return RespBean.error("设置组长失败");
+        }
+    }
 }

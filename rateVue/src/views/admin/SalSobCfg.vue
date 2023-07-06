@@ -766,6 +766,14 @@ export default {
      })
     }
    },
+   checkLeader(){
+      for (let i=0; i<this.hrs.length; i++){
+        if (this.hrs[i].role === "组长"){
+        return true
+        }
+      }
+      return false
+   },
    manualAdd(){
     {
      this.manualAddForm.institutionid = this.user.institutionID;
@@ -778,7 +786,7 @@ export default {
         form.push(this.manualAddForm)
         this.postRequest("/systemM/Experts/addExperts?groupID=" + this.groupID + "&activityID=" + this.keywords, form).then(resp => {
          if (resp) {
-          this.initHrs(this.hrs.length);
+          this.initHrs(true,this.hrs.length);
           // this.$message({
           //  type: 'success',
           //  message: '添加成功!'
@@ -795,7 +803,7 @@ export default {
            message: '添加成功!',
            type: 'success'
           });
-          this.initHrs();
+          this.initHrs(true);
           this.dialogVisible_method = false
          }
         });
@@ -850,19 +858,22 @@ export default {
       });
     },
     initAllRoles() {
+     this.loading = true
       this.getRequest("/system/hr/roles").then((resp) => {
         if (resp) {
           this.allroles = resp;
         }
       });
     },
-    initHrs(oldLen) {
+    initHrs(checkFlag,oldLen) {
+      this.loading = true;
       if (typeof this.activityID == "undefined" || this.mode === 'secretary') { // 此时是从分组管理进入的
           this.getRequest(
               "/systemM/Experts/?keywords=" + this.groupID +
               "&page=" + 1 +
               "&size=" + 1000 // 避免分页
           ).then((resp) => {
+            this.loading = false;
               if (resp) {
                   this.hrs = resp;
                if (typeof oldLen != "undefined" && this.hrs.length > oldLen) {
@@ -875,6 +886,19 @@ export default {
                  type: "warning",
                  message: "该专家已存在，无需重复添加！",
                 });
+               }
+               if (typeof checkFlag != "undefined" && checkFlag === true){
+                 if (!this.checkLeader() && this.hrs.length > 0){ // 无组长，指定第一个为组长
+                   this.postRequest1("/systemM/Experts/setLeader?groupID=" + this.groupID + "&teacherID=" + this.hrs[0].id).then(resp => {
+                     if (resp && resp.status === 200) {
+                       this.$message({
+                         message: '已经设置'+this.hrs[0].name+'为组长',
+                         type: 'info'
+                       });
+                       this.initHrs(true);
+                     }
+                    });
+                 }
                }
               }
           });
@@ -896,10 +920,8 @@ export default {
         this.initParentGroup();
     },
       initExperts(){
-      this.loading = true;
       let url = '/system/Experts/getByInstitutionID/?institutionID=' + this.user.institutionID;
       this.getRequest(url).then(resp => {
-        this.loading = false;
         if (resp) {
           this.experts = resp.obj;
           this.experts_raw = resp.obj
@@ -1224,7 +1246,7 @@ export default {
       this.importDataBtnText = "导入数据";
       this.importDataBtnIcon = "el-icon-upload2";
       this.importDataDisabled = false;
-      this.initHrs();
+      this.initHrs(true);
     },
     beforeUpload() {
       this.importDataBtnText = "正在导入";
@@ -1331,7 +1353,7 @@ export default {
       }
       this.postRequest("/systemM/Experts/addExperts?groupID=" + this.groupID + "&activityID=" + this.keywords, this.multipleSelection).then(resp => {
         if (resp) {
-          this.initHrs();
+          this.initHrs(true);
           this.$message({
             type: 'success',
             message: '添加成功!'
