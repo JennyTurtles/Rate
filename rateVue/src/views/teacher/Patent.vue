@@ -357,7 +357,6 @@ export default {
       tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
       ispubFlag:false,
       ispubShow:false,
-      select_pub_option:'',
       operList:[],
       isShowInfo:false,
       select_stuName:["全部"],//筛选框
@@ -442,34 +441,6 @@ export default {
       }
     }
   },
-  watch:{
-    //期刊输入框变化
-    select_pub_option:{
-      handler(val){
-        let url = "/publication/basic/listByName?publicationName=" + val
-        this.getRequest(url).then((resp) => {
-          this.loading = false;
-          if (resp) {
-            this.select_pubName=[]
-            if(resp.data != null){
-              for(var i=0;i<resp.data.length;i++){
-                this.select_pubName.push(
-                    {
-                      index:resp.data[i].id,
-                      value:resp.data[i].name,
-                      point:resp.data[i].indicator.score
-                    }
-                )
-              }
-            }else{
-              this.$message.error(`请检查期刊名称的拼写`);
-            }
-          }
-        });
-      }
-
-    }
-  },
   methods: {
     rejectDialog(){
       if (this.role == 'teacher')
@@ -497,11 +468,6 @@ export default {
     },
     filter(val,options){
       document.getElementById(options).value=val
-    },
-    filter_pub(val){//选择期刊
-      this.select_pub_option=val
-      this.ispubFlag=false
-      this.ispubShow=false
     },
     //点击对话框中的确定按钮 触发事件
     auditing_commit(num){

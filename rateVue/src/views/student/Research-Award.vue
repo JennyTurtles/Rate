@@ -97,7 +97,7 @@
         >
         </el-table-column>
         <el-table-column
-            prop="comment"
+            prop="remark"
             width="140px"
             align="center"
             label="备注"
@@ -308,7 +308,7 @@
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
             <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
               <div >
-                <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operation}}</p>
+                <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
               </div>
             </div>
@@ -431,6 +431,7 @@ export default {
         total:"",
         point:"",
         url:'',
+        remark:'',
         awardLevel:'',
         awardClass:'',
         awardRank:''
@@ -639,8 +640,8 @@ export default {
               (resp) => {
                 if (resp) {
                   this.dialogVisible = false;
-                  this.initAwardsList();
                   this.$message.success('编辑成功！')
+                  this.doAddOper("commit", resp.data);
                 }
               }
           );
@@ -681,6 +682,8 @@ export default {
       await this.initAwardsList();
     },
     showAddEmpView() {//点击添加科研项目按钮
+      this.urlFile = ''
+      this.currentAwardCopy = {};
       this.addButtonState=true
       this.member=''
       this.data_picker=''

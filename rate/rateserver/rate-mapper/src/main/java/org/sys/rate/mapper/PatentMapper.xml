@@ -31,7 +31,7 @@
             <result property="operatorName" column="operator_name"/>
             <result property="prodType" column="prod_type"/>
             <result property="prodId" column="prod_id"/>
-            <result property="time" column="date"/>
+            <result property="time" column="operdate"/>
             <result property="operationName" column="operation_name"/>
             <result property="state" column="state"/>
             <result property="remark" column="remark"/>
@@ -49,7 +49,8 @@
                s.name as sname,
                i.name as iname,
                i.score,
-               oper.*
+               oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
+               oper.state,oper.remark
         FROM i_patent p
                  LEFT JOIN student s ON p.student_id = s.ID
                  LEFT JOIN indicator i ON i.id = p.indicator_id
@@ -69,7 +70,8 @@
 <!--    学生专利页面初始化-->
     <select id="selectListByIds" resultMap="PatentResult" parameterType="Integer">
         select p.id, p.name, student_id, p.date, author, p.state, url, granted_status, indicator_id, `rank`, total, point,
-               oper.id , operator_role, operator_id, operator_name, prod_type, prod_id, oper.date as oper_date, operation_name, oper.state oper_state, remark,
+               oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
+               oper.state,oper.remark,
                i.name as iname,
                i.score
         FROM i_patent p

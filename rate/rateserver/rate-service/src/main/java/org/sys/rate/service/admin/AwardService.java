@@ -36,12 +36,6 @@ public class AwardService {
 //        return null;
 //    }
 
-    /**
-     * 查询科研奖励成果列表
-     *
-     * @param award 科研奖励成果
-     * @return 科研奖励成果集合
-     */
 //    public List<Award> selectAwardList(Award paper){
 //        return awardMapper.selectAwardList(paper);
 //    }
@@ -55,7 +49,8 @@ public class AwardService {
 //        return p;
 //    }
     public List<Award> selectAwardListById(@Param("studentID") Integer studentID){
-        return awardMapper.selectAwardListById(studentID);
+        List<Award> list = awardMapper.selectAwardListById(studentID);
+        return setAwardOperation(list);
     }
 
     /**
@@ -82,7 +77,8 @@ public class AwardService {
     }
 
     public List<Award> selectAllAwardList(){
-        return awardMapper.selectAllAwardList();
+        List<Award> list = awardMapper.selectAllAwardList();
+        return setAwardOperation(list);
     }
     public List<Award> setAwardOperation(List<Award> list) {
         for (int i = 0; i < list.size(); i++) {

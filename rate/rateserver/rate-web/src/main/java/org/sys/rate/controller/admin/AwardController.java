@@ -1,5 +1,8 @@
 package org.sys.rate.controller.admin;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.model.Award;
+import org.sys.rate.model.Msg;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.AwardService;
 import org.sys.rate.service.admin.IndicatorService;
@@ -48,7 +52,7 @@ public class AwardController {
     @GetMapping("/studentID")//无页码要求
     public JsonResult<List> getById(Integer studentID) {
         List<Award> list = awardService.selectAwardListById(studentID);
-        return new JsonResult<>(awardService.setAwardOperation(list));
+        return new JsonResult<>(list);
     }
 
     //    修改专利状态
@@ -58,10 +62,13 @@ public class AwardController {
     }
 
     @GetMapping("/List")
-    public JsonResult<List> getCollect() {
+    public Msg getCollect(@RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
         //包括返回最早的提交时间 和多次驳回的理由列表
+        Page page = PageHelper.startPage(pageNum, pageSize);
         List<Award> list = awardService.selectAllAwardList();
-        return new JsonResult<>(awardService.setAwardOperation(list));
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()};
+        return Msg.success().add("res", res);
     }
 
     /**
