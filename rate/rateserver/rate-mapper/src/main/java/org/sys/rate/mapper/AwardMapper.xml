@@ -47,7 +47,7 @@
     </sql>
 
     <select id="selectAllAwardList" resultMap="AwardResult">
-        -- 老师查询所有学生的专利
+        -- 老师查询所有学生的获奖
         SELECT p.*,
                s.name as sname,
                i.name as iname,
@@ -56,7 +56,7 @@
         FROM i_award p
                  LEFT JOIN student s ON p.student_id = s.ID
                  LEFT JOIN indicator i ON i.id = p.indicator_id
-                 LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '授权专利'
+                 LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '科研获奖'
     </select>
 
     <select id="selectListById" resultMap="AwardResult">
@@ -69,10 +69,10 @@
         </where>
     </select>
 
-<!--    学生专利页面初始化-->
+<!--    学生奖励页面初始化-->
     <select id="selectAwardListById" resultMap="AwardResult" parameterType="Integer">
-        select a.id, a.name, student_id, a.date, author, a.state, url, granted_status, indicator_id, `rank`, total, point,
-               oper.id , operator_role, operator_id, operator_name, prod_type, prod_id, oper.date as oper_date, operation_name, oper.state oper_state, remark,
+        select a.id, a.name, student_id, a.date, author, a.state, url, granted_status, indicator_id, `rank`, total, point, a.award_level, a.award_class, a.award_rank,
+            oper.id , operator_role, operator_id, operator_name, prod_type, prod_id, oper.date as oper_date, operation_name, oper.state oper_state, remark,
                i.name as iname,
                i.score
         FROM i_award a
@@ -116,7 +116,10 @@
             <if test="point != null">point,</if>
             <if test="state != null">state,</if>
             <if test="url != null">url,</if>
-            <if test="grantedStatus != null">granted_status</if>
+            <if test="grantedStatus != null">granted_status,</if>
+            <if test="awardLevel != null">award_level,</if>
+            <if test="awardClass != null">award_class,</if>
+            <if test="awardRank != null">award_rank</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
@@ -130,14 +133,16 @@
             <if test="point != null">#{point},</if>
             <if test="state != null">#{state},</if>
             <if test="url != null">#{url},</if>
-            <if test="grantedStatus != null">#{grantedStatus}</if>
+            <if test="grantedStatus != null">#{grantedStatus},</if>
+            <if test="awardLevel != null">#{awardLevel},</if>
+            <if test="awardClass != null">#{awardClass},</if>
+            <if test="awardRank != null">#{awardRank}</if>
         </trim>
     </insert>
 
     <update id="updateAward" parameterType="org.sys.rate.model.Award">
         update i_award
         <trim prefix="SET" suffixOverrides=",">
-            <if test="studentId != null">student_id = #{studentId},</if>
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="date != null">date = #{date},</if>
             <if test="author != null">author = #{author},</if>
@@ -147,7 +152,10 @@
             <if test="state != null">state =#{state},</if>
             <if test="url != null">url = #{url},</if>
             <if test="indicatorId != null">indicator_id = #{indicatorId},</if>
-            <if test="grantedStatus != null">granted_status = #{grantedStatus}</if>
+            <if test="grantedStatus != null">granted_status = #{grantedStatus},</if>
+            <if test="awardLevel != null">award_level = #{awardLevel},</if>
+            <if test="awardClass != null">award_class = #{awardClass},</if>
+            <if test="awardRank != null">award_rank = #{awardRank}</if>
         </trim>
         where id = #{id}
     </update>

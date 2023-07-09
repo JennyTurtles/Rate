@@ -37,10 +37,10 @@ public class AwardService {
 //    }
 
     /**
-     * 查询论文成果列表
+     * 查询科研奖励成果列表
      *
-     * @param award 论文成果
-     * @return 论文成果集合
+     * @param award 科研奖励成果
+     * @return 科研奖励成果集合
      */
 //    public List<Award> selectAwardList(Award paper){
 //        return awardMapper.selectAwardList(paper);
@@ -59,29 +59,22 @@ public class AwardService {
     }
 
     /**
-     * 新增论文成果
+     * 新增科研奖励成果
      *
-     * @param award 论文成果
+     * @param award 科研奖励成果
      * @return 结果
      */
     public int insertAward(Award award){
         return awardMapper.insertAward(award);
     }
-
-    /**
-     * 修改论文成果
-     *
-     * @param paper 论文成果
-     * @return 结果
-     */
-    public int updateAward(Award paper){
-        return awardMapper.updateAward(paper);
+    public int updateAward(Award award){
+        return awardMapper.updateAward(award);
     }
 
     /**
-     * 删除论文成果
+     * 删除科研奖励成果
      *
-     * @param ID 论文成果ID
+     * @param ID 科研奖励成果ID
      * @return 结果
      */
     public int deleteAwardById(Long ID){
@@ -134,9 +127,9 @@ public class AwardService {
         return list;
     }
 
-    //    修改论文状态
+    //    修改科研奖励状态
     public int editState(String state, Long ID) throws MessagingException {
-        //mailToStuServicei.sendStuMail(state, paper, "论文");
+        //mailToStuServicei.sendStuMail(state, paper, "科研奖励");
         return awardMapper.editState(state,ID);
     }
 }

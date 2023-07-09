@@ -43,18 +43,9 @@ public interface AwardMapper
      */
     public List<Award> selectAwardList(Award patent);
 
-    /**
-     * 新增专利成果
-     *
-     * @param patent 专利成果
-     * @return 结果
-     */
     public int insertAward(Award patent);
 
-    /**
-     * 修改专利成果
-     */
-    public int updateAward(Award patent);
+    public int updateAward(Award award);
 
     public int editState(String state, Long ID);
     /**

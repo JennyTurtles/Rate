@@ -33,7 +33,7 @@
         <el-table-column
             prop="state"
             label="状态"
-            width="127px"
+            width="100px"
             align="center"
         >
           <template slot-scope="scope">
@@ -54,22 +54,41 @@
               </span>
           </template>
         </el-table-column>
-        <!-- width="70" -->
         <el-table-column
-            prop="type.name"
-            label="奖励类别"
+            prop="grantedStatus"
+            label="申请状态"
             align="center"
-            width="250px"
+            width="100px"
         >
         </el-table-column>
         <el-table-column
-            prop="member"
+            prop="awardClass"
+            label="奖励类别"
+            align="center"
+            width="100px"
+        >
+        </el-table-column>
+        <el-table-column
+            prop="awardLevel"
+            label="奖励级别"
+            align="center"
+            width="100px"
+        >
+        </el-table-column>
+        <el-table-column
+            prop="awardRank"
+            label="奖励排名"
+            align="center"
+            width="80px"
+        >
+        </el-table-column>
+        <el-table-column
+            prop="author"
             align="center"
             label="完成人"
             width="100px"
         >
         </el-table-column>
-        <!-- width="200" -->
         <el-table-column
             prop="point"
             label="积分"
@@ -77,20 +96,17 @@
             width="75px"
         >
         </el-table-column>
-        <!-- width="60" -->
         <el-table-column
             prop="comment"
-            style="width=90px"
+            width="140px"
             align="center"
             label="备注"
         >
         </el-table-column>
-        <!-- width="80" -->
-        <!-- width="550" -->
         <el-table-column align="center" width="280px" label="操 作">
           <template slot-scope="scope">
             <el-button
-                @click="showEditEmpView(scope.row)"
+                @click="showEditEmpView(scope.row, scope.$index)"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-edit"
@@ -125,75 +141,62 @@
           :hide-required-asterisk="true"
           :label-position="labelPosition"
           label-width="150px"
-          :model="emp"
+          :model="currentAwardCopy"
           :rules="rules"
-          ref="empForm"
+          ref="currentAwardCopy"
       >
-        <el-form-item label="奖励名称:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="奖励名称:" label-width="80px" style="margin-left: 20px;" prop="name">
           <span class="isMust">*</span>
           <el-input
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
-              v-model="emp.name"
+              v-model="currentAwardCopy.name"
               placeholder="请输入奖励名称"
           ></el-input>
         </el-form-item>
-
-
-        <el-form-item  label="所属类别:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="奖励级别:" label-width="80px" style="margin-left: 20px;" prop="awardLevel">
           <span class="isMust">*</span>
-          <div class="select_div_input">
-            <input
-                autocomplete="off"
-                style="margin-left:5px;width:120px;line-height:28px;
-                              border:1px solid lightgrey;padding:0 10px 1px 15px;
-                              border-radius:4px;color:gray"
-                :disabled = "false"
-                placeholder="请输入奖励类别名称"
-                v-model="awardTypename"
-                @focus="inputTypeFocus"
-                @blur="isTypeShow=isTypeFlag"
-                id="input_awardTypename"/>
-            <div class="select_div"
-                 v-show="isTypeShow && awardTypename ? true:false"
-                 :style="'max-height:200px;'"
-                 @mouseover="isTypeFlag = true"
-                 @mouseleave="isTypeFlag = false">
-              <div
-                  style="margin:12px 0px 3px 12px;width:90%"
-                  v-for="val in select_TypeName"
-                  :key="val.index"
-                  :value="val.value"
-                  @click="filter_type(val)"
-              >
-                {{ val.value }}
-              </div>
-            </div>
-          </div>
+          <el-select size="mini" v-model="currentAwardCopy.awardLevel" placeholder="请选择奖励类别" style="width: 329px">
+            <el-option v-for="item in awardLevelList" :key="item.value" :value="item.label" :label="item.label"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="奖励类别:" label-width="80px" style="margin-left: 20px;" prop="awardClass">
+          <span class="isMust">*</span>
+          <el-select size="mini" v-model="currentAwardCopy.awardClass" placeholder="请选择奖励类别" style="width: 329px">
+            <el-option v-for="item in awardClassList" :key="item.value" :value="item.label" :label="item.label"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="奖励排名:" prop="awardRank" label-width="80px" style="margin-left: 20px;width: 329px">
+          <span class="isMust">*</span>
+          <el-select size="mini" v-model="currentAwardCopy.awardRank" placeholder="请选择奖励类别" style="width: 329px">
+            <el-option v-for="item in awardRankList" :key="item" :value="item" :label="item"></el-option>
+          </el-select>
         </el-form-item>
 
-        <el-form-item label="所属单位:" prop="unit" label-width="80px" style="margin-left: 20px;">
-          <el-input
+        <el-form-item label="申报日期:" label-width="80px" style="margin-left: 20px;">
+          <el-date-picker
+              style="width: 329px"
+              v-model="currentAwardCopy.date"
+              type="month"
+              value-format="yyyy-MM"
+              placeholder="选择日期">
+          </el-date-picker>
+        </el-form-item>
+
+        <el-form-item prop="grantedStatus" label="奖励状态" label-width="80px" style="margin-left: 20px;">
+          <el-select
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
-              v-model="emp.unit"
-              placeholder="请输入所属单位"
-          ></el-input>
+              v-model="currentAwardCopy.grantedStatus"
+              placeholder="请选择奖励状态"
+              @change="changeAwardStatus($event)"
+          >
+            <el-option v-for="item in awardStatusList" :key="item.value" :value="item" :label="item.label"></el-option>
+          </el-select>
         </el-form-item>
-
-        <el-form-item label="申报年份:" prop="year" label-width="80px" style="margin-left: 20px;">
-          <el-input
-              size="mini"
-              style="width: 200px"
-              prefix-icon="el-icon-edit"
-              v-model="emp.year"
-              placeholder="申报年份"
-          ></el-input>
-        </el-form-item>
-
-        <el-form-item label="完成人:" prop="member" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="完成人:" label-width="80px" style="margin-left: 20px;">
           <el-input
               id="input_member"
               size="mini"
@@ -233,8 +236,8 @@
         <span style="color:gray;font-size:10px">将会获得：{{view_point}}积分</span>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="addAward" v-show="addButtonState">提 交</el-button>
+        <el-button @click="cancelAdd">取 消</el-button>
+        <el-button type="primary" @click="addAward">提 交</el-button>
       </span>
     </el-dialog>
 
@@ -249,41 +252,55 @@
       <el-form
           :label-position="labelPosition"
           label-width="120px"
-          :model="emp"
-          :rules="rules"
+          :model="currentAward"
           ref="empForm"
           style="margin-left: 20px">
-
-        <el-form-item label="奖励名称" prop="name">
-          <span>{{ emp.name }}</span
+        <el-form-item label="奖励名称:" prop="name" fixed>
+          <span>{{ currentAward.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="所属单位:" prop="unit">
-          <span>{{ emp.unit }}</span
+        <el-form-item label="作  者:" prop="author">
+          <span>{{ currentAward.author }}</span
           >
         </el-form-item>
-        <el-form-item label="完成人:" prop="member">
-          <span>{{ emp.member }}</span
+        <el-form-item label="奖励类别:" prop="awardClass">
+          <span>{{ currentAward.awardClass }}</span
           >
         </el-form-item>
-        <el-form-item label="序位" prop="rank">
-          <span>{{ emp.rank }}</span
+        <el-form-item label="奖励级别:" prop="awardLevel">
+          <span>{{ currentAward.awardLevel }}</span
           >
         </el-form-item>
-        <el-form-item label="获得年份:" prop="year">
-          <span>{{ emp.year }}</span
+        <el-form-item label="奖励排名:" prop="awardRank">
+          <span>{{ currentAward.awardRank }}</span
           >
         </el-form-item>
-        <el-form-item label="备 注:">
-          <span>{{ emp.comment }}</span>
+        <el-form-item label="作者排名:" prop="rank">
+          <span>{{ currentAward.rank }}</span
+          >
+        </el-form-item>
+        <el-form-item label="获得年份:" prop="date">
+          <span>{{ currentAward.date }}</span
+          >
+        </el-form-item>
+        <el-form-item label="申请状态:" prop="grantedStatus">
+          <span>{{ currentAward.grantedStatus}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="奖励状态:" prop="grantedStatus">
+          <span>{{ currentAward.state }}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="备  注:">
+          <span>{{ currentAward.remark }}</span>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
-          <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
+          <span v-if="currentAward.url == '' || currentAward.url == null ? true:false" >无证明材料</span>
           <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
-             @click="download(emp)"
+             @click="download(currentAward)"
              onmouseover="this.style.color = 'blue'"
              onmouseleave="this.style.color = 'gray'">
-            {{emp.url|fileNameFilter}}</a>
+            {{currentAward.url|fileNameFilter}}</a>
           <br />
         </el-form-item>
         <div >
@@ -292,7 +309,7 @@
             <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
               <div >
                 <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operation}}</p>
-                <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
+                <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
               </div>
             </div>
           </div>
@@ -315,6 +332,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      adate: '',
       disabledInput:false,
       timer:null,
       select_TypeName:[],
@@ -346,59 +364,84 @@ export default {
       positions: [],
       awardTypename:"",//奖励类别
       awardTypeID:-1,
+      awardLevelList: [
+        {
+          label:'国家级',
+          value: 1
+        },
+        {
+          label:'省部级',
+          value: 2
+        }
+      ],
+      awardClassList: [
+        {
+          label:'一等奖',
+          value: 1
+        },
+        {
+          label:'二等奖',
+          value: 2
+        },
+        {
+          label:'三等奖',
+          value: 3
+        }
+      ],
+      awardStatusList: [{
+        label:'受理',
+        value: 75
+      },{
+        label:'初审',
+        value: 76
+      },{
+        label:'公布',
+        value: 107
+      },{
+        label:'实审',
+        value: 105
+      },{
+        label:'授权',
+        value: 92
+      },{
+        label:'转让',
+        value: 77
+      }],
+      awardRankList: Array.from(Array(5).keys(), n => n + 1),
       oper:{
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '科研奖励',
+        prodType: '科研获奖',
         operationName: '',
         state: '',
         remark: '',
         prodId: null,
         time: null
       },
-      emp: {
+      currentAwardCopy: {},
+      currentAward: {
         id: null,
-        institutionID: null,
         name: null,
-        awardTypename: "",
-        unit:"",
-        member:"",
-        year: "",
-        rank:"",
+        author:"",
+        grantedStatus: '',
+        state: '',
+        date: "",
+        rank: "",
         total:"",
-        awardTypeID:"",
         point:"",
         url:'',
+        awardLevel:'',
+        awardClass:'',
+        awardRank:''
       },
       rules: {
         name: [{ required: true, message: "请输入奖励名称", trigger: "blur" }],
-        scoreItemCount: [
-          {
-            required: true,
-            type: "number",
-            message: "请输入正确数据",
-            trigger: "blur",
-            transform: (value) => Number(value),
-          },
-        ],
-        comment: [{ required: true, message: "请输入备注", trigger: "blur" }],
+        awardClass: [{ required: true, message: "请输入奖励类别", trigger: "blur" }],
+        awardLevel: [{ required: true, message: "请输入奖励级别", trigger: "blur" }],
+        awardRank: [{ required: true, message: "请输入奖励排名", trigger: "blur" }]
       },
     };
-  },
-  watch:{
-    awardTypename:{
-      handler(val){//函数抖动
-        this.delayInputTimer(val)
-      }
-    },
-    data_picker:{//清除时间input设置为不可输入
-      handler(val){
-        if(!val){
-          this.disabledInput = true
-        }
-      }
-    }
   },
   computed: {
     user() {
@@ -412,6 +455,7 @@ export default {
   },
   created() {},
   mounted() {
+    this.currentAwardCopy = JSON.parse(JSON.stringify(this.currentAward));
     this.initAwardsList();
   },
   filters:{
@@ -425,67 +469,23 @@ export default {
     }
   },
   methods: {
-    delayInputTimer(val){//项目类别输入框，根据name查找全称 每隔300ms发送请求
-      if(this.timer){
-        clearInterval(this.timer)
-      }
-      if(!val){
-        return
-      }
-      this.timer = setInterval(()=>{
-        let url = "/awardType/basic/searchByName/"
-        this.postRequest(url, val).then((resp) => {
-          this.loading = false;
-          if (resp) {
-            this.select_TypeName=[]
-            if(resp.obj){
-              for(var i=0;i<resp.obj.length;i++){
-                this.select_TypeName.push(
-                    {
-                      value:resp.obj[i].name,
-                      indicatorID:resp.obj[i].indicatorId,
-                      awardTypeID:resp.obj[i].id
-                    }
-                )
-              }
-            }else{
-              this.$message.error(`请检查项目名称的拼写`);
-            }
-          }
-          clearInterval(this.timer)
-        });
-      },300)
+    cancelAdd() {
+      this.dialogVisible = false;
     },
-    inputTypeFocus(){//input获取焦点判断是否有下拉框，是否可输入
-      if(true){
-        this.isTypeShow = true//控制下拉框是否显示
-        this.disabledInput = false
-      }
-    },
-    filter_type(val){//选择下拉框的某个项目类别 得到选择的类别的id 等信息
-      this.isTypeFlag=false
-      this.isTypeShow=false
-      if(!val){
-        return
-      }
-      this.awardTypename = val.value
-      var url = "/awardType/basic/getScore/" + val.indicatorID
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          // this.select_pubName=[]
-          if(resp.obj){
-            console.log(resp)
-            this.view_point = resp.obj
-            const id = JSON.parse(localStorage.getItem('user')).id
-            this.awardTypeID = val.awardTypeID
-          }else {//暂因C类项目类别存在，不实质应用此判断语句
-            this.awardTypename = ''
-            this.$message.error('无该科研项目类别！请重新检查类别名称！')
+    changeAwardStatus(item){
+      this.currentAwardCopy.grantedStatus = item.label;
+      if(item.value < 0) {
+        this.view_point = 0;
+        this.currentAwardCopy.indicatorId = null;
+      }else {
+        this.getRequest('/indicator/getScoreById?indicatorId=' + item.value).then(response => {
+          if(response.obj){
+            this.view_point = response.obj;
           }
-          clearInterval(this.timer)
-        }
-      });
+          this.currentAwardCopy.indicatorId = item.value;
+        })
+      }
+      this.currentAwardCopy.point = this.view_point;
     },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
@@ -526,7 +526,7 @@ export default {
       formData.append("file",this.files[0].raw)
       axios.post("/award/basic/upload",formData,{
         headers:{
-          'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
+          'token': localStorage.getItem('user') ? this.user.token : ''
         }
       }).then(
           (response)=>{
@@ -535,19 +535,17 @@ export default {
             })
             this.addButtonState = true
             //获取文件路径
-            this.urlFile=response.data
+            this.urlFile = response.data
           },()=>{}
       )
     },
     timechange(picker){//选择日历调用的方法
       var data=new Date(picker)
-      this.emp.year=data.getFullYear()
-      this.emp.month=data.getMonth()+1
-      this.disabledInput = false
+      this.currentAwardCopy.date = data
       this.options=[]
     },
     judgeMember(){//输入作者框 失去焦点触发事件
-      var val=this.member;
+      var val = this.member;
       var isalph = false//判断输入中是否有英文字母
       for(var i in val){
         var asc = val.charCodeAt(i)
@@ -556,9 +554,8 @@ export default {
           break
         }
       }
-      var num=null
-      // var info=JSON.parse(window.sessionStorage.getItem("user"))
-      var info=JSON.parse(localStorage.getItem("user"))
+      var num = null
+      var info = this.user;
       if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
         num=val.split('；')
       }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
@@ -571,9 +568,9 @@ export default {
           this.addButtonState=false
         }else{
           this.addButtonState=true
-          this.emp.member=this.member
-          this.emp.rank=1
-          this.emp.total=1
+          this.currentAwardCopy.author = this.member
+          this.currentAwardCopy.rank = 1
+          this.currentAwardCopy.total = 1
         }
         return
       }
@@ -585,56 +582,30 @@ export default {
         this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
         this.addButtonState=false
       }
-      this.emp.rank=num.indexOf(info.name)+1
-      this.emp.member=this.member
+      this.currentAwardCopy.rank = num.indexOf(info.name) + 1
+      this.currentAwardCopy.author = this.member
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
     //编辑按钮
-    showEditEmpView(data) {
-      // this.initPositions();
+    showEditEmpView(data, idx) {
       this.title = "编辑奖励信息";
-      this.emp = data;
+      this.currentAwardCopy = JSON.parse(JSON.stringify(data));
       this.dialogVisible = true;
-      this.awardTypename=this.emp.type.name
-      this.data_picker= new Date(this.emp.year,this.emp.month)
-      this.member=this.emp.member
+      this.member = this.currentAwardCopy.author
       this.options = []
-      let url = "/awardType/basic/searchByName/"
-      this.postRequest(url, this.awardTypename).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.select_TypeName=[]
-          if(resp.obj){
-            for(var i=0;i<resp.obj.length;i++){
-              this.select_TypeName.push(
-                  {
-                    value:resp.obj[i].name,
-                    indicatorID:resp.obj[i].indicatorId,
-                    awardTypeID:resp.obj[i].id
-                  }
-              )
-            }
-          }else{
-            this.$message.error(`请检查项目名称的拼写`);
-          }
-        }
-        clearInterval(this.timer)
-      });
       this.view_point = data.point
     },
     showInfo(data){
+      this.loading = true;
       this.title_show = "显示详情";
-      this.emp=data
-      this.dialogVisible_showInfo=true
-      this.getRequest("/awardoper/basic/List?ID="+data.id).then((resp) => {
+      this.currentAward = data
+      this.dialogVisible_showInfo = true
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研获奖').then((resp) => {
         this.loading = false;
         if (resp) {
-          this.operList=resp.data
-          this.operList.sort(function(a,b){
-            return a.time > b.time ? -1 : 1
-          })
+          this.operList = resp.obj
         }
       });
     },
@@ -650,21 +621,21 @@ export default {
       }
     },
     editAward() {
-      this.$refs["empForm"].validate((valid) => {
+      this.$refs["currentAwardCopy"].validate((valid) => {
         if (valid) {
-          this.emp.name = this.patentName;
-          this.emp.point = this.view_point;
-          this.emp.date = this.patentDate;
-          this.emp.author = this.patentee;
-          this.emp.url = this.urlFile;
-          this.emp.state = "commit";
-          if(this.emp.url == '' ||this.emp.url == null){
-            this.$message({
-              message:'请上传证明材料！'
-            })
+          const params = {};
+          this.currentAwardCopy.url = this.urlFile;
+          this.currentAwardCopy.state = "commit";
+          for(let key in this.currentAwardCopy) {
+            if(key !== 'indicator' && key !== 'student' && key !== 'operationList') {
+              params[key] = this.currentAwardCopy[key];
+            }
+          }
+          if(this.currentAwardCopy.url == '' ||this.currentAwardCopy.url == null){
+            this.$message.error('请上传证明材料！')
             return
           }
-          this.postRequest1("/award/basic/edit", this.emp).then(
+          this.postRequest1("/award/basic/edit", params).then(
               (resp) => {
                 if (resp) {
                   this.dialogVisible = false;
@@ -677,23 +648,19 @@ export default {
       });
     },
     addAward() {//项目提交确认
-      if (this.emp.id) {//emptyEmp中没有将id设置为空 所以可以判断
+      if (this.currentAwardCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editAward();
       } else {
-        this.$refs["empForm"].validate((valid) => {
+        this.$refs["currentAwardCopy"].validate((valid) => {
           if (valid) {
-            this.emp.name = this.patentName;
-            this.emp.date = this.patentDate;
-            this.emp.point = this.view_point
-            this.emp.url = this.urlFile;
-            this.emp.author = this.patentee;
-            this.emp.state = "commit"
-            this.emp.studentId = this.user.id
-            if(this.emp.url == '' ||this.emp.url == null){
+            this.currentAwardCopy.url = this.urlFile;
+            this.currentAwardCopy.state = "commit"
+            this.currentAwardCopy.studentId = this.user.id
+            if(this.currentAwardCopy.url == '' ||this.currentAwardCopy.url == null){
               this.$message.error('请上传证明材料！')
               return
             }
-            this.postRequest1("/award/basic/add",this.emp).then(
+            this.postRequest1("/award/basic/add",this.currentAwardCopy).then(
                 (resp) => {
                   if (resp) {
                     this.dialogVisible = false;
@@ -707,8 +674,8 @@ export default {
     },
     async doAddOper(state,awardID) {
       this.oper.state = state
-      this.oper.awardID = awardID
-      this.oper.operation="提交奖励"
+      this.oper.prodId = awardID
+      this.oper.operationName = "提交奖励"
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper);
       await this.initAwardsList();
@@ -719,22 +686,6 @@ export default {
       this.data_picker=''
       this.title = "添加科研项目";
       this.dialogVisible = true;
-      this.loading = true;
-      let url = "/award/basic/List"
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          for(var i=0;i<resp.data[0].length;i++){
-            this.options.push(
-                {
-                  index:resp.data[0][i].id,
-                  value:resp.data[0][i].name,
-                  point:resp.data[1][i]
-                }
-            )
-          }
-        }
-      });
     },
     initAwardsList() {
       this.loading = true;
