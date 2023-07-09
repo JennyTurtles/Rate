@@ -34,7 +34,9 @@
                     <el-button type="primary" icon="el-icon-plus" @click='showAddEmpView' v-show="mode === 'admin' || mode === 'adminSub'">
                         添加活动
                     </el-button>
-
+                    <el-button type="primary" icon="el-icon-plus" @click='showAddEmpView_clone' v-show="mode === 'admin' || mode === 'adminSub'">
+                        克隆活动
+                    </el-button>
                     <span style="margin-left: 20px" v-show="mode === 'secretarySub'">当前管理的是： {{actName}} {{groupName}} </span>
                 </div>
                 <div style="margin-left: auto">
@@ -357,13 +359,18 @@
         </div>
 
         <el-dialog :title="title" :visible.sync="dialogVisible" width="46%"
-                   @close="emp_edit={};haveComment = false;haveSub = false;gradeFormType = 0" center>
+                   @close="emp_edit={};haveComment = false;haveSub = false;gradeFormType = 0;radio = 1;currentClone='';currentCloneid=''" center>
+          <el-radio-group v-model="radio" style="padding-top: 5px" center>
+            <el-radio :label="1" >添加新活动</el-radio>
+            <el-radio :label="2" >克隆已有活动</el-radio>
+          </el-radio-group>
             <el-form
                     :label-position="labelPosition"
                     label-width="120px"
                     :model="emp_edit"
                     :rules="rules"
                     ref="empForm"
+                    v-if="radio===1"
             >
                 <el-form-item label="活动名称:" prop="name">
                     <el-input
@@ -452,6 +459,93 @@
                   </el-option>
                  </el-select>
                 </el-form-item>
+            </el-form>
+            <el-form
+              :label-position="labelPosition"
+              label-width="120px"
+              :model="emp_colone"
+              :rules="rules"
+              ref="empForm"
+              v-if="radio===2"
+            >
+              <div>注：克隆活动时会克隆对应的评分项、信息项、展示项、子活动的对应信息</div><br/>
+              <el-form-item label="选择已有活动:" prop="name">
+                <el-select placeholder="请选择" v-model="currentCloneid" @change="selectClone($event)">
+                  <el-option
+                      v-for="item in coloneActivity"
+                      :key="item.id"
+                      :label="item.name"
+                      :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <div v-if="currentClone!==''">
+                <el-form-item label="活动名称:" prop="name">
+                  <el-input
+                      size="mini"
+                      style="width: 200px"
+                      prefix-icon="el-icon-edit"
+                      v-model="emp_colone.name"
+                      placeholder="请输入活动名称"
+                  ></el-input>
+                </el-form-item>
+              <el-form-item label="专家可见时间:" prop="visibleDate">
+                <div class="block">
+                  <div>
+                    <el-checkbox v-model="visibleDateSelected">不限</el-checkbox>
+                  </div>
+                  <div>
+                    <el-date-picker
+                        :disabled="visibleDateSelected"
+                        v-model="emp_colone.visibleDate"
+                        type="datetime"
+                        style="margin-left: 8px;"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        placeholder="选择日期和时间">
+                    </el-date-picker>
+                    <span class="tip-title">专家在活动列表中可以看到该活动的时间</span>
+                  </div>
+                </div>
+              </el-form-item>
+              <el-form-item label="专家可进入时间:" prop="enterDate">
+                <div class="block">
+                  <div>
+                    <el-checkbox v-model="enterDateSelected">不限</el-checkbox>
+                  </div>
+                  <div>
+                    <el-date-picker
+                        :disabled="enterDateSelected"
+                        v-model="emp_colone.enterDate"
+                        type="datetime"
+                        style="margin-left: 8px;"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        placeholder="选择日期和时间">
+                    </el-date-picker>
+                    <span class="tip-title">专家可进入到该活动中的时间</span>
+                  </div>
+                </div>
+              </el-form-item>
+              <el-form-item label="开始时间:" prop="startDate">
+                <div class="block">
+                  <el-date-picker
+                      v-model="emp_colone.startDate"
+                      type="datetime"
+                      value-format="yyyy-MM-dd HH:mm:ss"
+                      placeholder="选择日期和时间">
+                  </el-date-picker>
+                </div>
+              </el-form-item>
+
+              <el-form-item label="备 注: " prop="comment">
+                <el-input
+                    type="textarea"
+                    :rows="2"
+                    v-model="emp_colone.comment"
+                    placeholder="活动备注example：关于xxx的活动。备注信息将显示在专家评分表的活动标题下方。"
+                >
+                </el-input>
+              </el-form-item>
+              </div>
             </el-form>
             <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
@@ -814,6 +908,13 @@ export default {
             dialogVisible: false,
             exportGradeFormVisible: false,
             dialogVisible_show: false,
+            visible_type:'',//区分添加活动和编辑的对话框
+            radio: 1,
+            coloneActivity:[],
+            emp_colone:{},
+            currentClone:'',
+            currentCloneid:'',
+            newID:'', //克隆活动的id
             total: 0,
             page: 1,
             keyword: "",
@@ -999,6 +1100,29 @@ export default {
                     this.scoreItems = res.obj;
                 }
             })
+        },
+        getCloneActivity(){
+            this.getRequest("/activities/basic/getALl").then(resp=>{
+                console.log(resp);
+                if(resp.status === 200){
+                     this.coloneActivity = resp.obj;
+                }
+            })
+        },
+        selectClone(event){
+          for(var i=0;i<this.coloneActivity.length;i++){
+            if (this.coloneActivity[i].id===event) {
+              this.currentClone = this.coloneActivity[i];
+              break;
+            }
+          }
+          this.currentCloneid=event;
+          this.emp.comment=this.currentClone.comment;
+          this.emp.name=this.currentClone.name+"克隆活动";
+          this.emp.startDate=this.currentClone.startDate;
+          this.emp.enterDate=this.currentClone.enterDate;
+          this.emp.visibleDate=this.currentClone.visibleDate;
+          this.emp_colone = JSON.parse(JSON.stringify(this.emp));
         },
         //活动进行授权给其他的管理员，在后端处理需要添加类字段，所以纯前端处理
         initAdminListofPermission(data){//点击按钮进行初始化本单位下所有管理员的数据列表，并做属性赋值，用于在界面做回显
@@ -1356,25 +1480,44 @@ export default {
                     }
                 });
             } else { //添加活动 能看见的小于能进入的小于开始时间
-                this.$refs["empForm"].validate((valid) => {
-                    if (valid) {
+                  if (this.radio===1){
+                    this.$refs["empForm"].validate((valid) => {
+                      if (valid) {
                         this.emp.institutionID = this.user.institutionID;
                         this.$set(this.emp,"adminID",this.user.id)
                         const _this = this;
                         this.postRequest("/activities/basic/insert", _this.emp).then(
                             (resp) => {
-                                if (resp) {
-                                    this.$message({
-                                        type: 'success',
-                                        message: '添加成功!'
-                                    });
-                                    this.dialogVisible = false;
-                                    this.initEmps();
-                                }
+                              if (resp) {
+                                this.$message({
+                                  type: 'success',
+                                  message: '添加成功!'
+                                });
+                                this.dialogVisible = false;
+                                this.initEmps();
+                              }
                             }
                         );
-                    }
-                });
+                      }
+                    });
+                  }
+                  else if (this.radio===2){
+                    this.emp=this.emp_colone;
+                    this.emp.id=this.currentCloneid;
+                    this.$set(this.emp,"adminID",this.user.id)
+                    this.postRequest("/activities/basic/clone", this.emp).then(
+                        (resp) => {
+                          if (resp) {
+                            this.$message({
+                              type: 'success',
+                              message: '克隆成功!'
+                            });
+                            this.dialogVisible = false;
+                            this.initEmps();
+                          }
+                        }
+                    );
+                  }
             }
         },
         sizeChange(currentSize) {
@@ -1389,10 +1532,16 @@ export default {
             this.emptyEmp();
             this.title = "添加活动";
             this.dialogVisible = true;
+            this.getCloneActivity();
+        },
+        showAddEmpView_clone(){
+          this.showAddEmpView();
+          this.radio=2;
         },
         initEmps() { // 在此适配不同的组件
             this.loading = true;
             this.emp_edit = {};
+            this.emp_colone = {};
             if (this.mode === "admin"){ // 管理员活动管理
                 let url = "/activities/basic/?page=" + this.page + "&size=" + this.size + "&institutionID=" + this.user.institutionID + "&adminID=" + this.user.id;
                 this.getRequest(url).then((resp) => {
