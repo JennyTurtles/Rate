@@ -161,10 +161,13 @@ public class ActivitiesService {
     @Transactional
     public void cloneActivity(Activities newActivityInfo){ // newActivityInfo中ID为老活动ID，三个时间和备注为新活动的
         Activities activity = activitiesMapper.queryById(newActivityInfo.getId()); // 老活动
+        activity.setHaveSub(activity.getHaveSub() == null ? 0 : activity.getHaveSub());
         activity.cleanCount();
         activity.fillNewInfo(newActivityInfo);
         Integer oldActID = activity.getId();
-        activitiesMapper.insert(activity); // 此处需要调试，插入后是否会返回ID
+        if (!newActivityInfo.isSub()) // 用于克隆子活动，将子活动作为主活动
+            activity.setParentID(null);
+        activitiesMapper.insert(activity);
         Integer newActID = activity.getId();
         activityGrantMapper.insertRecordOfAddActivity(newActivityInfo.getAdminID(),newActID);
         cloneDetail(newActID,oldActID);
