@@ -12,15 +12,15 @@
                placeholder="学生姓名"
                autocomplete="off"
                id="select_stuname">
-        <label style="fontSize:10px;margin-left:16px">专利名称：</label>
+        <label style="fontSize:10px;margin-left:16px">奖励名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
-               placeholder="专利名称"
+               placeholder="奖励名称"
                id="select_paperName">
 
-        <label style="fontSize:10px;margin-left:40px;">专利状态：</label>
+        <label style="fontSize:10px;margin-left:40px;">奖励状态：</label>
         <el-select
             v-model="tmp1"
             style="margin-left:3px;width:120px"
@@ -100,6 +100,7 @@
           style="width: 100%"
       >
         <el-table-column
+            fixed
             prop="student.name"
             align="center"
             label="学生姓名"
@@ -107,9 +108,10 @@
         >
         </el-table-column>
         <el-table-column
+            fixed
             prop="name"
             align="center"
-            label="专利名称"
+            label="奖励名称"
             width="230"
         >
         </el-table-column>
@@ -189,10 +191,10 @@
       </div>
     </div>
 
-    <!-- 对话框 老师审核通过专利 -->
+    <!-- 对话框 老师审核通过奖励 -->
     <el-dialog :title="title"
                :visible.sync="dialogVisible_pass" width="30%" center>
-      <!-- 确定审核通过该学生专利？ -->
+      <!-- 确定审核通过该学生奖励？ -->
       <el-form
           :label-position="labelPosition"
           label-width="80px"
@@ -200,7 +202,7 @@
           ref="empForm"
           style="margin-left: 60px"
       >
-        <el-form-item label="专利ID:" prop="id">
+        <el-form-item label="奖励ID:" prop="id">
           <span>{{ emp.id }}</span>
         </el-form-item>
       </el-form>
@@ -209,7 +211,7 @@
         <el-button type="primary" @click="auditing_commit('tea_pass')">确 定</el-button>
       </span>
     </el-dialog>
-    <!-- 对话框 老师驳回该学生专利 -->
+    <!-- 对话框 老师驳回该学生奖励 -->
     <el-dialog :title="title"
                :visible.sync="dialogVisible_reject" width="30%" center>
 
@@ -220,7 +222,7 @@
           ref="empForm"
           style="margin-left: 40px"
       >
-        <el-form-item label="专利ID:" prop="id">
+        <el-form-item label="奖励ID:" prop="id">
           <span>{{ emp.id }}</span>
         </el-form-item>
         <el-form-item label="驳回理由:">
@@ -253,7 +255,7 @@
           ref="empForm"
           style="margin-left: 20px"
       >
-        <el-form-item label="专利名称:" prop="name">
+        <el-form-item label="奖励名称:" prop="name">
           <span>{{ emp.name }}</span
           ><br />
         </el-form-item>
@@ -261,9 +263,8 @@
           <span>{{ emp.student.name }}</span
           ><br />
         </el-form-item>
-
-
-        <el-form-item label="专利状态:" prop="state">
+        
+        <el-form-item label="奖励状态:" prop="state">
           <span>{{emp.state}}</span
           ><br />
         </el-form-item>
@@ -331,7 +332,7 @@
           type="textarea"
           :rows="4"
           v-model="reason"
-          placeholder="请输入专利驳回理由"
+          placeholder="请输入奖励驳回理由"
       >
       </el-input>
       <span slot="footer">
@@ -375,7 +376,6 @@ export default {
       dialogVisible_pass: false,
       dialogVisible_reject: false,
       dialogVisible_show: false,
-      size: 10,
       positions: [],
       reason:"",
       oper:{
@@ -393,28 +393,19 @@ export default {
         id: null,
         institutionID: null,
         name: null,
-        startDate: "2022/02/02",
         scoreItemCount: "0",
         score: "100",
-        groupCount: "0",
-        expertCount: "0",
-        participantCount: "0",
         remark: "",
         state:"",
         student:{},
-        total:0,
-        rank:0
+        total: '',
+        rank: ''
       },
     };
   },
   computed: {
     user() {
       return this.$store.state.currentHr; //object信息
-    },
-    menuHeight() {
-      return this.select_pubName.length * 50 > 150
-          ? 150 + 'px'
-          : '${this.select_pubName.length * 50}px'
     },
     role() {
       return JSON.parse(localStorage.getItem('user')).role.indexOf('8') >= 0 ||
@@ -447,7 +438,7 @@ export default {
       var fileName = data.url.split('/').reverse()[0]
       var url = data.url
       axios({
-        url: '/patent/basic/downloadByUrl?url='+url,
+        url: '/award/basic/downloadByUrl?url='+url,
         method: 'GET',
         responseType: 'blob'
       }).then(response => {
@@ -483,10 +474,10 @@ export default {
         }
       })
     },
-    async doAddOper(state,remark,patentID) {
+    async doAddOper(state,remark,awardID) {
       this.oper.state = state;
       this.oper.remark = remark;
-      this.oper.prodId = patentID;
+      this.oper.prodId = awardID;
       this.oper.time = this.dateFormatFunc(new Date());
       this.oper.operatorRole = this.role;
       if(this.oper.state == "tea_pass" || this.oper.state == 'adm_pass'){
@@ -495,15 +486,9 @@ export default {
         this.oper.operationName = "审核驳回"
       }
       await this.postRequest1("/oper/basic/add", this.oper);
-      // await this.initAwardsList(this.currentPage, this.pageSize);
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
-    },
-    showEditEmpView(data) {//修改论文
-      this.title = "编辑单位信息";
-      this.emp = data;
-      this.dialogVisible = true;
     },
     showEditEmpView_show(data) {
       this.loading = true;
@@ -573,9 +558,8 @@ export default {
         }
       }
       this.emps = Array.from(newemps)
-    },
-
-  },
+    }
+  }
 };
 </script>
 

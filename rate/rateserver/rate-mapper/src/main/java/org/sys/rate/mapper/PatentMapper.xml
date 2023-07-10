@@ -80,22 +80,6 @@
         where p.student_id = #{studentID}
     </select>
 
-    <select id="selectPaperList" parameterType="org.sys.rate.model.Patent" resultMap="PatentResult">
-        <include refid="selectPaperVo"/>
-        <where>
-            <if test="ID !=null and ID !=''">and ID =#{ID}</if>
-            <if test="student_id != null ">and student_id = #{student_id}</if>
-            <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
-            <if test="year != null  and year != ''">and year = #{year}</if>
-            <if test="month != null ">and month = #{month}</if>
-            <if test="`rank` != null ">and `rank` = #{rank}</if>
-            <if test="total != null ">and total = #{total}</if>
-            <if test="point != null ">and point = #{point}</if>
-            <if test=" != null ">and  = #{}</if>
-            <if test="url != null ">and url = #{url}</if>
-        </where>
-    </select>
-
     <select id="selectPaperById" parameterType="Long" resultMap="PatentResult">
         <include refid="selectPaperVo"/>
         where ID = #{ID}

@@ -24,6 +24,7 @@
           style="width: 100%;"
       >
         <el-table-column
+            fixed
             prop="name"
             align="center"
             label="奖励名称"
