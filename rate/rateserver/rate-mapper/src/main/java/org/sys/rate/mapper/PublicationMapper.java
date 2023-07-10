@@ -87,18 +87,12 @@ public interface PublicationMapper {
      * @param name:
      * @Return List<Publication>
      */
-    @Select("select p.id, p.name, p.abbr, p.publisher, p.url, ip.year, i.id, i.name, i.type, i.score from indicator_publication ip " +
-            "left join i_publication p on p.id = ip.publication_id left join indicator i on ip.indicator_id = i.id " +
-            "where p.name = #{name} order by ip.year")
-    List<Publication> getPublicationInfByName(String name);
+
+    Publication getPublicationInfByName(String name);
 
     /**
      * 插入期刊时，也需要插入中间表中
-     * @param indicatorId:
-     * @param publicationId:
-     * @param date:
-     * @Return Integer
      */
-    @Insert("insert into indicator_publication(indicator_id, publication_id, date, flag) values(#{indicatorId},#{publicationId},#{date},0)")
-    Integer insertIndicatorPublication(Integer indicatorId, Integer publicationId, Date date);
+    @Insert("insert into indicator_publication(indicator_id, publication_id, year) values(#{indicatorId},#{publicationId},#{date})")
+    Integer insertIndicatorPublication(Integer indicatorId, Integer publicationId, Integer date);
 }

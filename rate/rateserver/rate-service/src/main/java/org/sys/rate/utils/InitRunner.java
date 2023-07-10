@@ -12,7 +12,6 @@
 //import java.util.concurrent.TimeUnit;
 //
 //@Component
-//@Order(1)
 //public class InitRunner implements ApplicationRunner {
 //
 //    @Resource
@@ -30,7 +29,7 @@
 //    public void readMails() {
 //        try {
 //            TimeUnit.SECONDS.sleep(2);
-//            //receiveMails.readMails();
+//            receiveMails.readMails();
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }

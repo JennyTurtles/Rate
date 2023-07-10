@@ -380,6 +380,15 @@ export default new Router({
           },
         },
         {
+          path: '/admin/Check',
+          name: '审核期刊',
+          hidden: true,
+          component: () => import('./views/admin/Check.vue'),
+          meta: {
+            title: '审核期刊',
+          },
+        },
+        {
           path: '/teacher/stulist',
           name: '研究生导师的研究生列表',
           hidden: true,

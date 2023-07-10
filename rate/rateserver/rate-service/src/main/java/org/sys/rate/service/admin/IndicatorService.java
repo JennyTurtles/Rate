@@ -35,4 +35,8 @@ public class IndicatorService {
     public Integer selectScoreById(Integer id){return indicatorMapper.selectScoreById(id);}
 
     public Integer getMaxYear(Integer id,Integer year){return indicatorMapper.getMaxYear(id,year);}
+
+    public Integer getIndicatorId(String order) {
+        return indicatorMapper.getIndicatorId(order);
+    }
 }
