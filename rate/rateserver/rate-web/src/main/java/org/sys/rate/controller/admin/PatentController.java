@@ -67,7 +67,6 @@ public class PatentController {
         //包括返回最早的提交时间 和多次驳回的理由列表
         Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
         List<Patent> list = patentService.selectList();
-        patentService.setPatentOperation(list);
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()};
         return Msg.success().add("res", res);

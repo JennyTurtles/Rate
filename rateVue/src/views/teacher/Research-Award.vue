@@ -332,7 +332,7 @@
           type="textarea"
           :rows="4"
           v-model="reason"
-          placeholder="请输入奖励驳回理由"
+          placeholder="请输入驳回理由"
       >
       </el-input>
       <span slot="footer">
@@ -360,14 +360,10 @@ export default {
       select_stuName:["全部"],//筛选框
       select_paperName:["全部"],
       select_point:['全部',1,3,4,6,9,12,15],
-      select_pubName:[],
       option:["全部","学生提交","导师通过","管理员通过","导师驳回","管理员驳回"],
       labelPosition: "left",
       title: "",
       title_show: "",
-      importDataBtnText: "导入数据",
-      importDataBtnIcon: "el-icon-upload2",
-      importDataDisabled: false,
       showAdvanceSearchView: false,
       copyemps:[],
       emps: [],
@@ -376,7 +372,6 @@ export default {
       dialogVisible_pass: false,
       dialogVisible_reject: false,
       dialogVisible_show: false,
-      positions: [],
       reason:"",
       oper:{
         operatorRole: "",
@@ -394,10 +389,10 @@ export default {
         institutionID: null,
         name: null,
         scoreItemCount: "0",
-        score: "100",
+        score: "",
         remark: "",
-        state:"",
-        student:{},
+        state: "",
+        student: {},
         total: '',
         rank: ''
       },

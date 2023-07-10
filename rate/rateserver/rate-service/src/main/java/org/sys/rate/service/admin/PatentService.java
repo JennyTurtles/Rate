@@ -88,7 +88,8 @@ public class PatentService {
 
     //    老师界面调用paper
     public List<Patent> selectList(){
-        return patentMapper.selectList();
+        List<Patent> res = patentMapper.selectList();
+        return setPatentOperation(res);
     }
     public List<Patent> setPatentOperation(List<Patent> list) {
         for (int i = 0; i < list.size(); i++) {
