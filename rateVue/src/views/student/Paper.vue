@@ -2,7 +2,7 @@
   <div>
     <div>
       <div
-        style="display: flex; justify-content: space-between; margin: 15px 0"
+          style="display: flex; justify-content: space-between; margin: 15px 0"
       >
         <div>
           <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
@@ -13,102 +13,107 @@
     </div>
     <div style="margin-top: 10px;">
       <el-table
-        :data="emps"
-        stripe
-        border
-        v-loading="loading"
-        :header-cell-style="rowClass"
-        element-loading-text="正在加载..."
-        element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.12)"
-        style="width: 100%;"
+          :data="emps"
+          stripe
+          border
+          v-loading="loading"
+          :header-cell-style="rowClass"
+          element-loading-text="正在加载..."
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(0, 0, 0, 0.12)"
+          style="width: 100%;"
       >
-<!--        <el-table-column type="selection" width="35px"> </el-table-column>-->
+        <!--        <el-table-column type="selection" width="35px"> </el-table-column>-->
         <el-table-column
-          prop="name"
-          align="center"
-          label="论文名称"
-          width="200px"
+            prop="name"
+            align="center"
+            label="论文名称"
+            width="200px"
         >
         </el-table-column>
         <el-table-column
-          prop="state"
-          label="状态"
-          width="70px"
-          align="center"
+            prop="state"
+            label="状态"
+            width="70px"
+            align="center"
         >
-        <template slot-scope="scope">
+          <template slot-scope="scope">
             <span
-              style="padding: 4px"
-              :style="scope.row.state=='tea_reject' || scope.row.state=='adm_reject' ? {'color':'red'}:{'color':'gray'}"
-              size="mini"
-              >
-              {{scope.row.state=="commit" 
-              ? "已提交"
-              :scope.row.state=="tea_pass"
-              ? "导师通过"
-              :scope.row.state=="tea_reject"
-              ? "导师驳回"
-              :scope.row.state=="adm_pass"
-              ? "管理员通过"
-              :"管理员驳回"}}
+                style="padding: 4px"
+                :style="scope.row.state=='tea_reject' || scope.row.state=='adm_reject' ? {'color':'red'}:{'color':'gray'}"
+                size="mini"
+            >
+              {{
+                scope.row.state == "commit"
+                    ? "已提交"
+                    : scope.row.state == "tea_pass"
+                        ? "导师通过"
+                        : scope.row.state == "tea_reject"
+                            ? "导师驳回"
+                            : scope.row.state == "adm_pass"
+                                ? "管理员通过"
+                                : "管理员驳回"
+              }}
               </span>
           </template>
         </el-table-column>
         <el-table-column
-          prop="publication.name"
-          label="发表刊物"
-          align="center"
-          width="250px"
+            prop="publication.name"
+            label="发表刊物"
+            align="center"
+            width="250px"
         >
         </el-table-column>
         <el-table-column
-          prop="remark"
-          label="备注"
-          :formatter="checkScoreComent"
-          align="center"
-          style="width:220px"
+            prop="remark"
+            label="备注"
+            :formatter="checkScoreComent"
+            align="center"
+            style="width:220px"
         >
         </el-table-column>
         <el-table-column
-          prop="point"
-          label="积分"
-          align="center"
-          width="80px"
+            prop="point"
+            label="积分"
+            align="center"
+            width="80px"
         >
         </el-table-column>
         <el-table-column align="center" width="280px" label="操作">
           <template slot-scope="scope">
             <el-button
-              @click="showEditEmpView(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              icon="el-icon-edit"
-              type="primary"
-              plain
-              v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject' || scope.row.state == 'adm_reject' ? true:false"
-              >编辑</el-button
+                @click="showEditEmpView(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-edit"
+                type="primary"
+                plain
+                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject' || scope.row.state == 'adm_reject' ? true:false"
+            >编辑
+            </el-button
             >
             <el-button
-              @click="deleteEmp(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              type="danger"
-              icon="el-icon-delete"
-              plain
-              v-show="scope.row.state == 'tea_reject' || scope.row.state == 'commit' || scope.row.state == 'adm_reject'? true:false"
-              >删除</el-button
+                @click="deleteEmp(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                type="danger"
+                icon="el-icon-delete"
+                plain
+                v-show="scope.row.state == 'tea_reject' || scope.row.state == 'commit' || scope.row.state == 'adm_reject'? true:false"
+            >删除
+            </el-button
             >
             <el-button
-              @click="showInfo(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              >查看详情</el-button
+                @click="showInfo(scope.row)"
+                style="padding: 4px"
+                size="mini"
+            >查看详情
+            </el-button
             >
           </template>
         </el-table-column>
       </el-table>
-      
+
     </div>
 
     <!-- 添加论文对话框 -->
@@ -131,17 +136,17 @@
               placeholder="请输入论文名称"
           ></el-input>
         </el-form-item>
-        <el-form-item  prop="year" label="出版年月:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item prop="year" label="发表年月:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-date-picker
               style="width:155px"
               v-model="data_picker"
               type="month"
-              placeholder="请选择出版年月"
+              placeholder="请选择发表年月"
               @change="timechange"
           ></el-date-picker>
         </el-form-item>
-        <el-form-item  label="所属期刊:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="所属期刊:" prop="name" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <div class="select_div_input">
             <input
@@ -173,7 +178,7 @@
           </div>
         </el-form-item>
 
-        <el-form-item  prop="total" label="作者列表:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item prop="total" label="作者列表:" label-width="80px" style="margin-left: 20px;">
           <el-input
               id="input_writer"
               size="mini"
@@ -185,20 +190,21 @@
           ></el-input>
         </el-form-item>
 
-        <el-form-item  prop="content" label="页码:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item prop="content" label="页码:" label-width="80px" style="margin-left: 20px;">
           <el-input
               size="mini"
               style="width: 32%"
               prefix-icon="el-icon-edit"
               v-model="startPage"
               placeholder="开始页码"
-          ></el-input>  &nbsp;-&nbsp;  <el-input
-            size="mini"
-            style="width: 32%"
-            prefix-icon="el-icon-edit"
-            v-model="endPage"
-            placeholder="结尾页码"
-        ></el-input>
+          ></el-input> &nbsp;-&nbsp;
+          <el-input
+              size="mini"
+              style="width: 32%"
+              prefix-icon="el-icon-edit"
+              v-model="endPage"
+              placeholder="结尾页码"
+          ></el-input>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
           <el-upload
@@ -213,22 +219,20 @@
           >
             <el-button type="primary" icon="el-icon-upload2"
                        slot="trigger"
-            >选择文件</el-button>&nbsp;&nbsp;&nbsp;&nbsp;
+            >选择文件
+            </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
             <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
                   &nbsp;&nbsp;大小不能超过10MB
                 </span>
           </el-upload>
-          <div>
-
-          </div>
-
         </el-form-item>
       </el-form>
+
       <div style="margin-left: 20px;">
-        <span style="color:gray;font-size:10px">{{publication_detail}}</span>
+        <span style="color:gray;font-size:10px">{{ publication_detail }}</span>
         <span
             style="color: #409eff;  cursor: pointer;font-size:10px"
-            @click="openDialog"
+            @click="openUpdateDialog"
             v-if="publication_detail !== null && publication_detail.length > 0"
         >
             结果有误？点击修改此期刊
@@ -238,225 +242,302 @@
         没有找到期刊？
         <span
             style="color: #409eff;  cursor: pointer;"
-            @click="openDialog"
+            @click="openAddDialog"
         >
             点击添加新的期刊
           </span>
       </div>
       <div style="margin-left: 20px;margin-top: 5px;">
-        <span style="color:gray;font-size:10px">将会获得：{{view_point}}积分</span>
+        <span style="color:gray;font-size:10px">将会获得：{{ view_point }}积分</span>
       </div>
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="doAddEmp()" v-show="addButtonState">提 交</el-button>
+        <el-button type="primary" @click="doAddEmp()">提 交</el-button>
       </span>
     </el-dialog>
 
     <!-- 查看详情按钮 -->
-     <el-dialog
-      class="showInfo_dialog"
-      :title="title_show"
-      :visible.sync="dialogVisible_showInfo"
-      width="520px"
-      center>
+    <el-dialog
+        class="showInfo_dialog"
+        :title="title_show"
+        :visible.sync="dialogVisible_showInfo"
+        width="520px"
+        center>
       <el-form
-        :label-position="labelPosition"
-        label-width="100px"
-        :model="emp"
-        :rules="rules"
-        ref="empForm"
-        style="margin-left: 20px"
+          :label-position="labelPosition"
+          label-width="100px"
+          :model="emp"
+          :rules="rules"
+          ref="empForm"
+          style="margin-left: 20px"
       >
-         <el-form-item label="论文名:" prop="name">
+        <el-form-item label="论文名:" prop="name">
           <span>{{ emp.name }}</span
-          ><br />
+          ><br/>
         </el-form-item>
         <el-form-item label="积分:" prop="point">
-          <span>{{emp.point}}</span
-          ><br />
+          <span>{{ emp.point }}</span
+          ><br/>
         </el-form-item>
         <el-form-item label="论文状态:" prop="state">
-          <span>{{emp.state}}</span
-          ><br />
+          <span>{{ emp.state }}</span
+          ><br/>
         </el-form-item>
         <el-form-item label="作者人数:" prop="total">
-          <span>{{emp.total}}</span
-          ><br />
+          <span>{{ emp.total }}</span
+          ><br/>
         </el-form-item>
         <el-form-item label="作者列表:" prop="author">
-          <span>{{emp.author}}</span
-          ><br />
+          <span>{{ emp.author }}</span
+          ><br/>
         </el-form-item>
         <el-form-item label="排名:" prop="rank">
-          <span>{{emp.rank}}</span
-          ><br />
+          <span>{{ emp.rank }}</span
+          ><br/>
         </el-form-item>
         <el-form-item label="发表年份:" prop="year">
-          <span>{{emp.year}}</span
-          ><br />
+          <span>{{ emp.year }}</span
+          ><br/>
         </el-form-item>
         <el-form-item label="发表月份:" prop="month">
-          <span>{{emp.month}}</span
-          ><br />
+          <span>{{ emp.month }}</span
+          ><br/>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           <!-- <el-button @click="download(emp)" type="primary" v-show="emp.url == '' || emp.url == null ? false:true">下载材料</el-button> -->
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
+          <span v-if="emp.url == '' || emp.url == null ? true:false">无证明材料</span>
           <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
              @click="download(emp)"
              onmouseover="this.style.color = 'blue'"
              onmouseleave="this.style.color = 'gray'">
-            {{emp.url|fileNameFilter}}</a>
-          <br />
+            {{ emp.url|fileNameFilter }}</a>
+          <br/>
         </el-form-item>
-        <div >
+        <div>
           <span>历史操作:</span>
-          <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <div >
-                <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
-                <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
+          <div
+              style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
+            <div v-for="item in operList" :key="item.time"
+                 style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
+              <div>
+                <p>
+                  {{ item.time | dataFormat }}&nbsp;&nbsp;&nbsp;&nbsp;{{
+                    item.operatorName
+                  }}&nbsp;&nbsp;&nbsp;&nbsp;{{ item.operationName }}</p>
+                <p v-show="item.remark == '' ? false : true">驳回理由：{{ item.remark }}</p>
               </div>
             </div>
           </div>
         </div>
-      </el-form> 
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button
-              id="but_reject"
-              @click="dialogVisible_showInfo= false"
-              type="primary"
-              >关闭</el-button>
+            id="but_reject"
+            @click="dialogVisible_showInfo= false"
+            type="primary"
+        >关闭</el-button>
       </span>
     </el-dialog>
 
     <!-- 添加或修改期刊对话框  -->
-    <el-dialog :title="title_publication" :visible.sync="dialogVisible_publication" width="50%" center>
+    <el-dialog :title="title_publication" :visible.sync="dialogVisible_publication" @close="cannotAddPublish=true"
+               width="50%" center>
       <el-form
           :hide-required-asterisk="true"
           :label-position="labelPosition"
           label-width="150px"
-          :model="emp"
+          :model="publish"
+          :rules="rulesPublication"
           ref="empForm"
       >
-        <el-form-item label="期刊全称:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="期刊全称:" prop="publicationName" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
-              v-model="emp.name"
+              v-model="publish.publicationName"
+              :disabled="inputDisabled"
               placeholder="请输入期刊全称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="刊物简称:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="刊物简称:" prop="publicationAbbr" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
-              v-model="emp.name"
+              v-model="publish.publicationAbbr"
+              :disabled="inputDisabled"
               placeholder="请输入刊物简称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="出版社:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="出版社:" prop="publisherName" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
-              v-model="emp.name"
+              v-model="publish.publisherName"
+              :disabled="inputDisabled"
               placeholder="请输入出版社"
           ></el-input>
         </el-form-item>
-        <el-form-item label="网址:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="网址:" prop="publicationUrl" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
-              v-model="emp.name"
+              v-model="publish.publicationUrl"
+              :disabled="inputDisabled"
               placeholder="请输入网址"
           ></el-input>
         </el-form-item>
-        <el-form-item label="收录级别:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="录入年份:" prop="year" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
-              v-model="emp.name"
-              placeholder="请输入收录级别，用分号分隔多个级别"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="录入年份:" prop="name" label-width="80px" style="margin-left: 20px;">
-          <span class="isMust">*</span>
-          <el-input
-              size="mini"
-              style="width:80%"
-              prefix-icon="el-icon-edit"
-              v-model="emp.name"
+              v-model="publish.year"
+              @blur="checkYear"
               placeholder="请输入录入年份"
           ></el-input>
+        </el-form-item>
+        <el-form-item label="指标点分类:" prop="indicatorName" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-input
+              size="mini"
+              style="width:80%"
+              prefix-icon="el-icon-edit"
+              v-model="publish.indicatorName"
+              @blur="queryIndicatorOrder"
+              placeholder="请输入该期刊对应的指标点分类"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="证明材料:" prop="publicationProofUrl" label-width="80px" style="margin-left: 20px;">
+          <el-upload
+              :file-list="filesPublication"
+              action="#"
+              :limit="1"
+              :headers="headers"
+              :on-remove="handleDeletePublication"
+              :auto-upload="false"
+              :on-change="handleChangeFilesPublication"
+              :on-exceed="handleExceed"
+          >
+            <el-button type="primary" icon="el-icon-upload2"
+                       slot="trigger"
+            >选择文件
+            </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
+            <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
+                  &nbsp;&nbsp;大小不能超过10MB
+                </span>
+          </el-upload>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible_publication = false;dialogVisible=true">取 消</el-button>
-        <el-button type="primary" @click="doAddEmp()" v-show="addButtonState">提 交</el-button>
+        <el-button type="primary" @click="doAddPublish" :disabled="cannotAddPublish">提 交</el-button>
       </span>
     </el-dialog>
   </div>
+
 </template>
 
 <script>
 // import { delete } from 'vue/types/umd';
 import axios from "axios";
 import {deleteRequest, postRequest1} from "@/utils/api";
+
 export default {
   name: "SalSearch",
   data() {
     return {
-      disabledInput:true,
-      timer:null,
-      select_pubName:[],
-      ispubFlag:false,
-      ispubShow:false,
-      empPaperName:'',//添加论文中的论文名称
-      view_point:0,
-      publication_detail:"",
+      cannotAddPublish: true,
+      inputDisabled: true,
+      publish: {
+        id: '',
+        publicationId: '',
+        indicatorId: '',
+        indicatorName: '',
+        year: '',
+        student_id: '',
+        date: '',
+        state: '',
+        publicationName: '',
+        publicationAbbr: '',
+        publisherName: '',
+        publicationUrl: '',
+        publicationProofUrl: ''
+      },
+      publishToDatabase: {
+        id: '',
+        publicationId: '',
+        indicatorName: '',
+        check_duplicates: {
+          indicatorId: '',
+          year: '',
+        },
+        student_id: '',
+        date: '',
+        state: '',
+        publicationName: '',
+        publicationAbbr: '',
+        publisherName: '',
+        publicationUrl: '',
+        publicationProofUrl: ''
+      },
+      publication: {
+        publicationName: '',
+        publicationAbbr: '',
+        publisherName: '',
+        publicationUrl: '',
+      },
+      disabledInput: true,
+      timer: null,
+      select_pubName: [],
+      ispubFlag: false,
+      ispubShow: false,
+      empPaperName: '',//添加论文中的论文名称
+      view_point: 0,
+      publication_detail: "",
       headers: {
-					'Content-Type': 'multipart/form-data'
-			},
-      files:[],//选择上传的文件列表
-      urlFile:'',//文件路径
-      addButtonState:true,//是否允许添加论文
-      operList:[],//每个论文的历史操作记录
-      remarksort:[],//对显示的驳回理由做排序
-      writer:'',//和输入的作者列表绑定
-      options:[],//存储所有刊物对象
-      data_picker:"",//选择时间
+        'Content-Type': 'multipart/form-data'
+      },
+      files: [],//选择上传的文件列表
+      filesPublication:[], // 这里上传的是期刊的证明材料
+      urlFile: '',//文件路径
+      addButtonState: true,//是否允许添加论文
+      operList: [],//每个论文的历史操作记录
+      remarksort: [],//对显示的驳回理由做排序
+      writer: '',//和输入的作者列表绑定
+      options: [],//存储所有刊物对象
+      data_picker: "",//选择时间
       labelPosition: "left",
       title: "",
       title_show: "",
-      title_publication:"",
+      title_publication: "",
       allDeps: [],
       emps: [],
       loading: false,
       dialogVisible: false,
-      dialogVisible_publication:false,
+      dialogVisible_publication: false,
       dialogVisible_show: false,
       dialogVisible_showInfo: false,
       total: 0,
       page: 1,
       keyword: "",
       size: 10,
-      publicationName:"",//所属期刊
-      publicationId:-1,
-      startPage:'',
-      endPage:'',
-      oper:{
+      publicationName: "",//所属期刊
+
+      publicationId: -1,
+      startPage: '',
+      endPage: '',
+      oper: {
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
@@ -476,15 +557,15 @@ export default {
         rank: "",//排名
         total: "",//总人数
         content: "",
-        url:'',
-        state:'',
-        pubPage:'',
-        publicationId:null
+        url: '',
+        state: '',
+        pubPage: '',
+        publicationId: null
       },
       rules: {
-        name: [{ required: true, message: "请输入论文名", trigger: "blur" }],
+        name: [{required: true, message: "请输入论文名", trigger: "blur"}],
         year: [
-          { required: true, message: "请输入出版年份", trigger: "blur" },
+          {required: true, message: "请输入出版年份", trigger: "blur"},
         ],
         scoreItemCount: [
           {
@@ -495,19 +576,39 @@ export default {
             transform: (value) => Number(value),
           },
         ],
-        comment: [{ required: true, message: "请输入备注", trigger: "blur" }],
+        comment: [{required: true, message: "请输入备注", trigger: "blur"}],
       },
+      rulesPublication: {
+        publicationName: [
+          {required: true, message: '请输入期刊全称', trigger: 'blur'}
+        ],
+        publicationAbbr: [
+          {required: true, message: '请输入刊物简称', trigger: 'blur'}
+        ],
+        publisherName: [
+          {required: true, message: '请输入出版社', trigger: 'blur'}
+        ],
+        publicationUrl: [
+          {required: true, message: '请输入网址', trigger: 'blur'}
+        ],
+        year: [
+          {required: true, message: '请输入录入年份', trigger: 'blur'},
+        ],
+        indicatorName: [
+          {required: true, message: '请输入该期刊对应的指标点分类', trigger: 'blur'}
+        ]
+      }
     };
   },
-  watch:{
-    publicationName:{
-      handler(val){//函数抖动
+  watch: {
+    publicationName: {
+      handler(val) {//函数抖动
         this.delayInputTimer(val)
       }
     },
-    data_picker:{//清除时间input设置为不可输入
-      handler(val){
-        if(!val){
+    data_picker: {//清除时间input设置为不可输入
+      handler(val) {
+        if (!val) {
           this.disabledInput = true
         }
       }
@@ -522,92 +623,330 @@ export default {
           ? 150 + 'px'
           : `${this.select_pubName.length * 50}px`
     },
+
   },
-  created() {},
+  created() {
+  },
   mounted() {
     this.initEmps();
   },
-  filters:{
-    fileNameFilter:function(data){//将证明材料显示出来
-      if(data == null || data == ''){
+  filters: {
+    fileNameFilter: function (data) {//将证明材料显示出来
+      if (data == null || data == '') {
         return '无证明材料'
-      }else{
-        var arr= data.split('/')
-        return  arr.reverse()[0]
+      } else {
+        var arr = data.split('/')
+        return arr.reverse()[0]
       }
     }
   },
   methods: {
-    openDialog() {
-      this.title_publication = "添加期刊"
-      this.dialogVisible=false
-      this.dialogVisible_publication=true
-
-    },
-    delayInputTimer(val){//期刊输入框，根据name查找全称 每隔300ms发送请求
-      if(this.timer){
-        clearTimeout(this.timer)
+    handleDeletePublication() {//删除选择的文件
+      var file = {
+        filepath: this.publish.publicationProofUrl
       }
-      if(!val){
+      this.postRequest1("/publicationSubmission/deleteFile", file).then(
+          (res) => {
+            this.$message.success('删除成功！')
+          }, () => {
+            this.$message.success('删除失败！')
+          }
+      )
+    },
+
+    handleChangeFilesPublication(file) {//文件列表数量改变
+      this.filesPublication = []
+      var attachmentType = [
+        "doc", "docx", "pdf", "jpg", "png", "jpeg", "rar", "zip"]
+      var type = file.name.split('.')
+      if (file.size > 10 * 1024 * 1024) {
+        this.$message.error('上传文件大小不能超过10MB!');
         return
       }
-      this.timer = setTimeout(()=>{
+      if (attachmentType.indexOf(type[type.length - 1].toLowerCase()) === -1) {
+        this.$message.error("不支持上传该类型的附件")
+        return
+      }
+      var formData = new FormData();
+      this.filesPublication.push(file);
+      formData.append("file", this.filesPublication[0].raw)
+      axios.post("/publicationSubmission/upload", formData, {
+        headers: {
+          'token': this.user ? this.user.token : ''
+        }
+      }).then(
+          (response) => {
+            this.$message({
+              message: '上传成功！'
+            })
+            this.cannotAddPublish = false
+            //获取文件路径
+            this.publish.publicationProofUrl = response.data
+          }, () => {
+          }
+      )
+    }
+    ,
+    checkYear() {
+      if (this.timer) {
+        clearTimeout(this.timer)
+      }
+      this.timer = setTimeout(() => {
+        if (!this.publish.year) {
+          return
+        }
+        const isValidYear = /^\d{4}$/.test(this.publish.year);
+        if (isValidYear) {
+          return;
+        } else {
+          this.$message.error("年份不合法！请输入合理的年份")
+        }
+      }, 500);
+    },
+    queryIndicatorOrder() {
+      if (this.timer) {
+        clearTimeout(this.timer)
+      }
+      const regex = /^\d+\.\d+\.\d+$/;
+
+      if (!regex.test(this.publish.indicatorName)) {
+        this.$message.error('输入的指标点分类不合法，请参考格式1.1.1');
+        return
+      }
+
+      this.timer = setTimeout(() => {
+        if (this.publish.indicatorName !== null && this.publish.indicatorName !== "") {
+          var url = `/indicator/getIndicatorId/${encodeURIComponent(this.publish.indicatorName)}`;
+          this.getRequest(url)
+              .then((resp) => {
+                if (resp && resp.obj) {
+                  this.publish.indicatorId = resp.obj;
+                } else {
+                  this.$message.error('输入的指标点分类不存在，请查阅指标点分类');
+                }
+              });
+        }
+      }, 200);
+    },
+    queryPublication() {
+      if (this.timer) {
+        clearTimeout(this.timer)
+      }
+      this.timer = setTimeout(() => {
+        if (this.publish.publicationName !== null && this.publish.publicationName !== "") {
+          var url = `/publication/getInf/${encodeURIComponent(this.publish.publicationName)}`;
+          this.getRequest(url).then((resp) => {
+            if (resp && resp.obj) {
+              // console.log(resp)
+              this.publish.publicationAbbr = resp.obj.abbr;
+              this.publish.publicationName = resp.obj.name;
+              this.publish.publisherName = resp.obj.publisher;
+              this.publish.publicationUrl = resp.obj.url;
+              this.publish.publicationId = resp.obj.id;
+              const years = [];
+              const indicatorIds = [];
+              for (let i = 0; i < resp.obj.indicatorList.length; i++) {
+                const year = resp.obj.indicatorList[i].year;
+                const indicatorId = resp.obj.indicatorList[i].id;
+                years.push(year);
+                indicatorIds.push(indicatorId);
+              }
+              this.publishToDatabase.check_duplicates.year = years;
+              this.publishToDatabase.check_duplicates.indicatorId = indicatorIds;
+              this.inputDisabled = true;
+              this.$message.success('该期刊已经在数据库中存在');
+            }
+          });
+        }
+      }, 500);
+    },
+
+
+    openAddDialog() {
+      this.emptyPublish()
+      this.title_publication = "添加期刊"
+      this.dialogVisible = false
+      this.dialogVisible_publication = true
+    }
+    ,
+    openUpdateDialog() {
+      this.publish.publicationName = this.publication.publicationName
+      this.publish.publicationAbbr = this.publication.publicationAbbr
+      this.publish.publisherName = this.publication.publisherName
+      this.publish.publicationUrl = this.publication.publicationUrl
+      // 这里需要将之前获取的publication存储在this.publish中
+      this.title_publication = "修改期刊"
+      this.inputDisabled = true
+      this.dialogVisible = false
+      this.dialogVisible_publication = true
+    }
+    ,
+    emptyPublish() {
+      this.inputDisabled = false
+      this.publish = {
+        id: '',
+        publicationId: '',
+        indicatorId: '',
+        indicatorName: '',
+        year: '',
+        student_id: '',
+        date: '',
+        state: '',
+        publicationName: '',
+        publicationAbbr: '',
+        publisherName: '',
+        publicationUrl: '',
+        publicationProofUrl: ''
+      };
+      this.publishToDatabase = {
+        id: '',
+        publicationId: '',
+        indicatorName: '',
+        check_duplicates: {
+          indicatorId: '',
+          year: '',
+        },
+        student_id: '',
+        date: '',
+        state: '',
+        publicationName: '',
+        publicationAbbr: '',
+        publisherName: '',
+        publicationUrl: '',
+        publicationProofUrl: ''
+      };
+    }
+    ,
+// 添加期刊提交记录
+    async doAddPublish() {
+      // 表单验证
+      this.cannotAddPublish = true
+      if (this.publish.indicatorId !== null && this.publish.indicatorId !== "") {
+        this.cannotAddPublish = false
+        this.$refs["empForm"].validate(async valid => {
+          if (valid) {
+            const indicatorId = this.publish.indicatorId;
+            const year = this.publish.year;
+            const duplicates = this.publishToDatabase.check_duplicates;
+
+            // 检查 publicationId 和 year 组合是否存在于 duplicates 中
+            if (typeof duplicates === 'object') {
+              const duplicatesArray = Object.values(duplicates);
+              const duplicateCombination = duplicatesArray.some(
+                  item => item.indicatorId === indicatorId && item.year === year
+              );
+              if (duplicateCombination) {
+                this.$message.error("这个期刊已经在数据库中存在了！");
+                return;
+              }
+            }
+
+            this.publishToDatabase = {
+              publicationAbbr: this.publish.publicationAbbr,
+              publicationName: this.publish.publicationName,
+              publisherName: this.publish.publisherName,
+              publicationUrl: this.publish.publicationUrl,
+              publicationId: this.publish.publicationId,
+              indicatorId,
+              year,
+              studentId: this.user.id,
+              date: this.dateFormatFunc(new Date()),
+              state: "commit",
+              publicationProofUrl: this.publish.publicationProofUrl
+            };
+
+            // console.log(this.publishToDatabase);
+
+            const url = `/publicationSubmission/insert/`;
+            try {
+              const resp = await this.postRequest1(url, this.publishToDatabase);
+              if (resp && resp.msg === "200") {
+                this.$message.success("成功发送！");
+                this.dialogVisible_publication = false
+              }
+            } catch (error) {
+              this.$message.error(error);
+            }
+          } else {
+            // 表单验证不通过，给出错误提示
+            this.$message.error("表单填写不完整或不正确");
+          }
+        });
+      }
+    },
+
+
+    delayInputTimer(val) {//期刊输入框，根据name查找全称 每隔300ms发送请求
+      if (this.timer) {
+        clearTimeout(this.timer)
+      }
+      if (!val) {
+        return
+      }
+      this.timer = setTimeout(() => {
         let url = `/publication/basic/listByNameYear/${encodeURIComponent(this.publicationName)}/${encodeURIComponent(this.emp.year)}`;
         this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
-            this.select_pubName=[]
-            if(resp.obj){
+            this.select_pubName = []
+            if (resp.obj) {
               resp.obj.map(val => {
                 this.select_pubName.push(val)
               })
             }
           }
         });
-      },400)
-    },
-    inputPubFocus(){//input获取焦点判断是否有下拉框，是否可输入
-      if(this.emp.year){
+      }, 400)
+    }
+    ,
+    inputPubFocus() {//input获取焦点判断是否有下拉框，是否可输入
+      if (this.emp.year) {
         this.ispubShow = true//控制下拉框是否显示
         this.disabledInput = false
-      }else {
+      } else {
         this.publicationName = ''
         this.$message.error('请选择时间！')
         this.disabledInput = true
       }
-    },
-    filter_pub(val){//选择下拉框的某个期刊 得到选择的期刊的id score等信息
-      this.ispubFlag=false
-      this.ispubShow=false
-      if(!val){
-          return
+    }
+    ,
+    filter_pub(val) {//选择下拉框的某个期刊 得到选择的期刊的id score等信息
+      this.ispubFlag = false
+      this.ispubShow = false
+      if (!val) {
+        return
       }
       this.publicationName = val
       var url = "/publication/getInfByNameYear?year=" + this.emp.year + '&name=' + this.publicationName
       this.getRequest(url).then((resp) => {
-        console.log(resp)
-          this.loading = false;
-          if (resp) {
-            if(resp.obj){
-              this.view_point = resp.obj.indicatorList[0].score;
-              let year = resp.obj.indicatorList[0].year;
-              this.publication_detail = resp.obj.name + "录入于" +year+"年，按照东华大学毕业要求，属于"+resp.obj.indicatorList[0].order+"类"
-              this.publicationId = resp.obj.id;
-            }else {
-              this.$message.warning(this.publicationName + '在'+this.emp.year+'年的积分为0！')
-              this.publicationName = ''
-              this.publication_detail = ''
-              this.view_point = 0
-            }
-            clearInterval(this.timer)
+        // console.log(resp)
+        this.loading = false;
+        if (resp) {
+          if (resp.obj) {
+            this.view_point = resp.obj.indicatorList[0].score;
+            let year = resp.obj.indicatorList[0].year;
+            this.publication_detail = resp.obj.name + "录入于" + year + "年，按照东华大学毕业要求，属于" + resp.obj.indicatorList[0].order + "类"
+            this.publicationId = resp.obj.id;
+            this.publication.publicationName = this.publicationName
+            this.publication.publicationAbbr = resp.obj.abbr
+            this.publication.publisherName = resp.obj.publisher
+            this.publication.publicationUrl = resp.obj.url
+          } else {
+            this.$message.warning(this.publicationName + '在' + this.emp.year + '年的积分为0！')
+            this.publicationName = ''
+            this.publication_detail = ''
+            this.view_point = 0
           }
-        });
-    },
-    download(data){//下载证明材料
+          clearInterval(this.timer)
+        }
+      });
+    }
+    ,
+    download(data) {//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
       var url = data.url
       axios({
-        url: '/paper/basic/downloadByUrl?url='+url,
+        url: '/paper/basic/downloadByUrl?url=' + url,
         method: 'GET',
         responseType: 'blob'
       }).then(response => {
@@ -619,136 +958,145 @@ export default {
         link.click();
         document.body.removeChild(link);
       });
-    },
+    }
+    ,
     handleDelete() {//删除选择的文件
-      var file={
-        filepath:this.urlFile
+      var file = {
+        filepath: this.urlFile
       }
-      this.postRequest1("/paper/basic/deleteFile",file).then(
-        (res)=>{
-          this.$message.success('删除成功！')
-        },()=>{
-          this.$message.success('删除失败！')
-        }
+      this.postRequest1("/paper/basic/deleteFile", file).then(
+          (res) => {
+            this.$message.success('删除成功！')
+          }, () => {
+            this.$message.success('删除失败！')
+          }
       )
-    },
-    handleExceed(){//超过限制数量
+    }
+    ,
+    handleExceed() {//超过限制数量
       this.$message.error(`只允许上传1个文件`);
-    },
-    handleChangeFiles(file,fileList){//文件列表数量改变
-      this.files=[]
+    }
+    ,
+    handleChangeFiles(file, fileList) {//文件列表数量改变
+      this.files = []
       var attachmentType = [
-          "doc","docx","pdf","jpg","png","jpeg","rar","zip"]
-      var type=file.name.split('.')
-      if(file.size > 10*1024*1024){
+        "doc", "docx", "pdf", "jpg", "png", "jpeg", "rar", "zip"]
+      var type = file.name.split('.')
+      if (file.size > 10 * 1024 * 1024) {
         this.$message.error('上传文件大小不能超过10MB!');
         return
       }
-      if(attachmentType.indexOf(type[type.length-1].toLowerCase()) === -1) {
+      if (attachmentType.indexOf(type[type.length - 1].toLowerCase()) === -1) {
         this.$message.error("不支持上传该类型的附件")
         return
       }
-      var formData=new FormData();
+      var formData = new FormData();
       this.files.push(file);
-      formData.append("file",this.files[0].raw)
-      axios.post("/paper/basic/upload",formData,{
-        headers:{
+      formData.append("file", this.files[0].raw)
+      axios.post("/paper/basic/upload", formData, {
+        headers: {
           'token': this.user ? this.user.token : ''
         }
       }).then(
-        (response)=>{
-          this.$message({
-            message:'上传成功！'
-          })
-          this.addButtonState = true
-          //获取文件路径
-          this.urlFile=response.data
-        },()=>{}
+          (response) => {
+            this.$message({
+              message: '上传成功！'
+            })
+            this.addButtonState = true
+            //获取文件路径
+            this.urlFile = response.data
+          }, () => {
+          }
       )
-    },
-    timechange(picker){//选择日历调用的方法
-      var data=new Date(picker)
-      if (data.getFullYear() != this.emp.year)
-      {
+    }
+    ,
+    timechange(picker) {//选择日历调用的方法
+      var data = new Date(picker)
+      if (data.getFullYear() != this.emp.year) {
         this.publicationName = ""
         this.view_point = 0
         this.publication_detail = ""
       }
-      this.emp.year=data.getFullYear()
-      this.emp.month=data.getMonth()+1
+      this.emp.year = data.getFullYear()
+      this.emp.month = data.getMonth() + 1
       this.disabledInput = false
-      this.options=[]
-    },
-    judgeWriter(){//输入作者框 失去焦点触发事件
-      var val=this.writer;
+      this.options = []
+    }
+    ,
+    judgeWriter() {//输入作者框 失去焦点触发事件
+      var val = this.writer;
       var isalph = false//判断输入中是否有英文字母
-      for(var i in val){
+      for (var i in val) {
         var asc = val.charCodeAt(i)
-        if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
-            isalph=true
-            break
+        if (asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122) {
+          isalph = true
+          break
         }
       }
-      var num=null
+      var num = null
       // var info=JSON.parse(window.sessionStorage.getItem("user"))
       var info = this.user
-      if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
-        num=val.split('；')          
-      }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
-        num=val.split(';')       
-      }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//中英都有
-        this.$message.error();('输入不合法请重新输入！')
-      }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(this.writer != info.name && isalph){
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.addButtonState=false
-        }else{
-          this.addButtonState=true
-          this.emp.author=this.writer
-          this.emp.rank=1
-          this.emp.total=1
+      if (val.indexOf("；") > -1 && val.indexOf(";") == -1) {//中文
+        num = val.split('；')
+      } else if (val.indexOf(";") > -1 && val.indexOf("；") == -1) {//英文
+        num = val.split(';')
+      } else if (val.indexOf("；") > -1 && val.indexOf(";") > -1) {//中英都有
+        this.$message.error();
+        ('输入不合法请重新输入！')
+      } else if (val.indexOf("；") == -1 && val.indexOf(";") == -1) {//只有一个人
+        if (this.writer != info.name && isalph) {
+          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【" + info.name + " 】，注意拼写要完全正确。");
+          this.addButtonState = false
+        } else {
+          this.addButtonState = true
+          this.emp.author = this.writer
+          this.emp.rank = 1
+          this.emp.total = 1
         }
         return
       }
-      
+
       //判断自己在不在其中
-      if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
-          this.addButtonState=false
-      }else if(num.indexOf(info.name) == -1 && isalph){//不在 里面有英文单词
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.addButtonState=false
-      }else{//自己在里面 自己是一作不用做任何判断 导师无所谓
-        if(num.indexOf(info.name) > 0){//自己不是一作 
-            if(num.indexOf(info.teachers.name) > 0 || num.indexOf(info.teachers.name) == -1){//导师在作者列表中,不是一作
-              this.$confirm(
+      if (num.indexOf(info.name) == -1 && !isalph) {//不在 并且没有英文单词
+        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【" + info.name + " 】");
+        this.addButtonState = false
+      } else if (num.indexOf(info.name) == -1 && isalph) {//不在 里面有英文单词
+        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【" + info.name + " 】，注意拼写要完全正确。");
+        this.addButtonState = false
+      } else {//自己在里面 自己是一作不用做任何判断 导师无所谓
+        if (num.indexOf(info.name) > 0) {//自己不是一作
+          if (num.indexOf(info.teachers.name) > 0 || num.indexOf(info.teachers.name) == -1) {//导师在作者列表中,不是一作
+            this.$confirm(
                 "第一作者不是导师【 " + info.teachers.name + " 】！积分将为【0】分",
                 "提示",
                 {
                   confirmButtonText: "确定",
                   // cancelButtonText: "取消",
-                  type: "warning",  
+                  type: "warning",
                 }
-              ).then(() => {//点击确定
-                // num=[info.teachers.name,...num]
-                // this.writer = num.join(';')
-              },()=>{});
-                this.emp.point=0
-                this.view_point=this.emp.point
-            }
+            ).then(() => {//点击确定
+              // num=[info.teachers.name,...num]
+              // this.writer = num.join(';')
+            }, () => {
+            });
+            this.emp.point = 0
+            this.view_point = this.emp.point
+          }
         }
-        this.addButtonState=true
+        this.addButtonState = true
       }
-      this.emp.total=num.length
-      if(num.indexOf(info.teachers.name)>-1){
-        num.splice(num.indexOf(info.teachers.name),1)
+      this.emp.total = num.length
+      if (num.indexOf(info.teachers.name) > -1) {
+        num.splice(num.indexOf(info.teachers.name), 1)
       }
-      this.emp.rank=num.indexOf(info.name)+1
-      this.emp.author=this.writer 
-    },
-    rowClass(){
+      this.emp.rank = num.indexOf(info.name) + 1
+      this.emp.author = this.writer
+    }
+    ,
+    rowClass() {
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
-    },
+    }
+    ,
     emptyEmp() {
       this.emp = {
         name: "",
@@ -757,25 +1105,27 @@ export default {
         rank: "",
         total: "",
         content: "",
-        url:'',
-        state:'',
-        pubPage:'',
-        publicationID:''
+        url: '',
+        state: '',
+        pubPage: '',
+        publicationID: ''
       };
-    },
-     mail(e){
-      this.postRequest('/test/mail/mail?content='+e).then((resp) => {
+    }
+    ,
+    mail(e) {
+      this.postRequest('/test/mail/mail?content=' + e).then((resp) => {
         console.log()
       });
-    },
-    //编辑按钮
+    }
+    ,
+//编辑按钮
     showEditEmpView(data) {
       this.title = "编辑论文信息";
       this.emp = data;
       this.view_point = data.point
       this.dialogVisible = true;
       this.publicationName = this.emp.publication.name
-      this.data_picker = new Date(this.emp.year,this.emp.month)
+      this.data_picker = new Date(this.emp.year, this.emp.month)
       this.writer = this.emp.author
       var page = this.emp.pubPage.split('-')
       this.startPage = page[0]
@@ -794,12 +1144,14 @@ export default {
       //     }
       //   }
       // })
-    },
+    }
+    ,
     showEditEmpView_show(data) {
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
-    },
+    }
+    ,
     deleteEmp(data) {//点击删除按钮
       this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?",).then(() => {
         this.deleteRequest("/paper/basic/remove/" + data.id).then((resp) => {
@@ -811,43 +1163,45 @@ export default {
         }).catch(() => {
           this.$message.error('删除失败!')
         })
-      }).catch(() => {})
-    },
+      }).catch(() => {
+      })
+    }
+    ,
     async doAddEmp() {//确定添加论文
       if (this.emp.id) {//emptyEmp中没有将id设置为空 所以可以判断
-          var empdata=this.emp
-          this.emptyEmp()
-          this.$refs["empForm"].validate(async (valid) => {
-            if (valid) {
-              this.emp.name = empdata.name
-              this.emp.ID = empdata.id
-              this.emp.publicationId = empdata.publicationId
-              this.emp.point = empdata.point
-              this.emp.year = empdata.year
-              this.emp.month = empdata.month
-              this.emp.author = empdata.author
-              this.emp.total = empdata.total
-              this.emp.rank = empdata.rank
-              this.emp.pubPage = this.startPage + "-" + this.endPage
-              this.emp.url = empdata.url;
-              this.emp.state = "commit";
-              this.emp.studentId = this.user.id;
-              const _this = this;
-              if (this.emp.url == '' || this.emp.url == null) {
-                this.$message({
-                  message: '请上传证明材料！'
-                })
-                return
-              }
-              await this.postRequest1("/paper/basic/edit", _this.emp).then((resp) => {
-                if (resp) {
-                  this.dialogVisible = false;
-                  this.$message.success('编辑成功');
-                }
-              });
-              await this.initEmps();
+        var empdata = this.emp
+        this.emptyEmp()
+        this.$refs["empForm"].validate(async (valid) => {
+          if (valid) {
+            this.emp.name = empdata.name
+            this.emp.ID = empdata.id
+            this.emp.publicationId = empdata.publicationId
+            this.emp.point = empdata.point
+            this.emp.year = empdata.year
+            this.emp.month = empdata.month
+            this.emp.author = empdata.author
+            this.emp.total = empdata.total
+            this.emp.rank = empdata.rank
+            this.emp.pubPage = this.startPage + "-" + this.endPage
+            this.emp.url = empdata.url;
+            this.emp.state = "commit";
+            this.emp.studentId = this.user.id;
+            const _this = this;
+            if (this.emp.url == '' || this.emp.url == null) {
+              this.$message({
+                message: '请上传证明材料！'
+              })
+              return
             }
-          });
+            await this.postRequest1("/paper/basic/edit", _this.emp).then((resp) => {
+              if (resp) {
+                this.dialogVisible = false;
+                this.$message.success('编辑成功');
+              }
+            });
+            await this.initEmps();
+          }
+        });
       } else {
         this.$refs["empForm"].validate(async (valid) => {
           if (valid) {
@@ -877,31 +1231,34 @@ export default {
           }
         });
       }
-    },
+    }
+    ,
     async doAddOper(state, paperID) {
-      this.oper.state=state
+      this.oper.state = state
       this.oper.prodId = paperID
       this.oper.operationName = "提交论文"
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper)
       await this.initEmps();
-    },
+    }
+    ,
     showAddEmpView() {//点击添加论文按钮
-      this.addButtonState=true
-      this.options=[]
+      this.addButtonState = true
+      this.options = []
       this.view_point = 0
       this.publication_detail = ""
       this.emptyEmp();
-      this.writer=''
-      this.data_picker=''
-      this.publicationName=''
-      this.empPaperName=''
-      this.startPage=''
-      this.endPage=''
-      this.urlFile=''
+      this.writer = ''
+      this.data_picker = ''
+      this.publicationName = ''
+      this.empPaperName = ''
+      this.startPage = ''
+      this.endPage = ''
+      this.urlFile = ''
       this.title = "添加论文";
       this.dialogVisible = true;
-    },
+    }
+    ,
     initEmps() {
       this.loading = true;
       let url = "/paper/basic/studentID?studentID=" + this.user.id
@@ -912,42 +1269,46 @@ export default {
           this.total = 11;
         }
       });
-    },
-    //查看详情
-    showInfo(data){
+    }
+    ,
+//查看详情
+    showInfo(data) {
       this.title_show = "显示详情";
       this.emp = data
       this.dialogVisible_showInfo = true
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=学术论文').then((resp) => {
-          this.loading = false;
-          if (resp) {
-            this.operList = resp.obj
-            this.operList.sort(function(a,b){
-              return a.time > b.time ? -1 : 1
-            })
-          }
+        this.loading = false;
+        if (resp) {
+          this.operList = resp.obj
+          this.operList.sort(function (a, b) {
+            return a.time > b.time ? -1 : 1
+          })
+        }
       });
-    },
-    checkScoreComent(row){
-      if (row.state === "adm_pass" && row.point === 2 && row.have_score === 0)
-      {
-        return (row.remark === null ? "" : row.remark+";") + "本类别论文只计算一篇，本论文积分不计入总分"
+    }
+    ,
+    checkScoreComent(row) {
+      if (row.state === "adm_pass" && row.point === 2 && row.have_score === 0) {
+        return (row.remark === null ? "" : row.remark + ";") + "本类别论文只计算一篇，本论文积分不计入总分"
       }
       return row.remark
-    },
+    }
+    ,
   },
-};
+}
+;
 </script>
 
 <style>
-.select_div_input{
+.select_div_input {
   /*margin-left:3px;*/
-  width:80%;
-  height:32px;
-  position:relative;
-  display:inline-block
+  width: 80%;
+  height: 32px;
+  position: relative;
+  display: inline-block
 }
-.select_div{
+
+.select_div {
   border: .5px solid lightgray;
   border-radius: 3px;
   margin-top: 5px;
@@ -959,35 +1320,40 @@ export default {
   width: 90%;
   cursor: pointer;
 }
-.select_div_div:hover{
+
+.select_div_div:hover {
   background-color: lightgray;
 }
-.select_div_div{
+
+.select_div_div {
   padding-bottom: 2px;
   /*padding-top: 7px;*/
   padding-left: 12px;
   width: 100%;
 }
+
 /*input[type=text]::placeholder {*/
 /*  color:lightgrey;*/
 /*}*/
 /*input:focus{*/
 /*  border:1px solid lightblue;*/
 /*}*/
-.showInfo_dialog .el-form-item{
+.showInfo_dialog .el-form-item {
   margin-bottom: 5px;
 }
-.isMust{
-    position: absolute;
-    color: #F56C6C;
-    top: 2px;
-    left: -100px;
+
+.isMust {
+  position: absolute;
+  color: #F56C6C;
+  top: 2px;
+  left: -100px;
 }
 
-.el-form-item label{
+.el-form-item label {
   text-align: justify;
 }
-#selectItem{
+
+#selectItem {
   display: 'none';
   border: 1px solid #eee;
   width: 200px;
@@ -995,9 +1361,10 @@ export default {
   position: absolute;
   /* background-color: royalblue; */
 }
+
 /* 可以设置不同的进入和离开动画 */
 /* 设置持续时间和动画函数 */
-#selectItem ul{
+#selectItem ul {
   list-style: none;
   /* height: 100px; */
   width: 200px;
@@ -1005,12 +1372,14 @@ export default {
   /* border: 1px solid #eee; */
   /* visibility: hidden; */
 }
-#selectItem ul li{
+
+#selectItem ul li {
   height: 28px;
   line-height: 28px;
   padding-left: 10px;
   cursor: pointer;
 }
+
 .slide-fade-enter-active {
   transition: all 0.8s ease;
 }
@@ -1020,30 +1389,33 @@ export default {
 }
 
 .slide-fade-enter, .slide-fade-leave-to
-  /* .slide-fade-leave-active for below version 2.1.8 */ {
+  /* .slide-fade-leave-active for below version 2.1.8 */
+{
   transform: translateX(10px);
   opacity: 0;
 }
-div::-webkit-scrollbar { 
-	/* 隐藏默认的滚动条 */
-	-webkit-appearance: none;
+
+div::-webkit-scrollbar {
+  /* 隐藏默认的滚动条 */
+  -webkit-appearance: none;
 }
-div::-webkit-scrollbar:vertical { 
-	/* 设置垂直滚动条宽度 */
-	width: 6px;
+
+div::-webkit-scrollbar:vertical {
+  /* 设置垂直滚动条宽度 */
+  width: 6px;
 }
 
 
 /* 这里不需要用到这个 */
 /* div::-webkit-scrollbar:horizontal{ */
-	/* 设置水平滚动条厚度 */
-	/* height: 2px; */
+/* 设置水平滚动条厚度 */
+/* height: 2px; */
 /* } */
 
-div::-webkit-scrollbar-thumb { 
-	/* 滚动条的其他样式定制，注意，这个一定也要定制，否则就是一个透明的滚动条 */
-	border-radius: 8px; 
-	border: 3px solid rgba(255,255,255,.4); 
-	background-color: rgba(0, 0, 0, .5);
+div::-webkit-scrollbar-thumb {
+  /* 滚动条的其他样式定制，注意，这个一定也要定制，否则就是一个透明的滚动条 */
+  border-radius: 8px;
+  border: 3px solid rgba(255, 255, 255, .4);
+  background-color: rgba(0, 0, 0, .5);
 }
 </style>

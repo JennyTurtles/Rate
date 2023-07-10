@@ -21,8 +21,11 @@
     <resultMap type="org.sys.rate.model.Publication" id="PublicationWithIndicators">
         <id property="id" column="id"/>
         <result property="name" column="name"/>
+        <result property="abbr" column="abbr"/>
+        <result property="publisher" column="publisher"/>
+        <result property="url" column="url"/>
         <collection property="indicatorList" ofType="org.sys.rate.model.Indicator">
-            <result property="id" column="incicatorID" jdbcType="INTEGER"/>
+            <result property="id" column="indicatorID" jdbcType="INTEGER"/>
             <result property="name" column="indicatorName"/>
             <result property="score" column="score"/>
             <result property="order" column="order"/>

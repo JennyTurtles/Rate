@@ -54,7 +54,9 @@ public class  Publication {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private List<Date> dateList;
+    private List<Integer> dateList;
 
-    private List<Integer> flag;
+
+
+
 }

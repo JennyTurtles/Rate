@@ -53,7 +53,7 @@ public class DisplayItem implements Comparable<DisplayItem> { // 列的信息
 
     // 将字符串形式的source转换为DisplayItemSource列表
     public List<DisplayItemSource> source2list() {
-        if (!this.source.contains(".")) { // 不包含'.'，则为基础类型
+        if (this.source == null || !this.source.contains(".")) { // 不包含'.'，则为基础类型
             return null;
         }
         List<DisplayItemSource> res = new ArrayList<>();
