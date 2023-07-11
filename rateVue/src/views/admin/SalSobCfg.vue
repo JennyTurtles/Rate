@@ -712,7 +712,7 @@ export default {
     if (this.searchText === ''){
      this.experts = this.experts_raw
     }else if (/^\d+$/.test(this.searchText)){ // 纯数字，按工号搜索
-     this.experts = this.experts_raw.filter(item => item.jobNumber.includes(this.searchText))
+     this.experts = this.experts_raw.filter(item => item.jobNumber != null && item.jobNumber.includes(this.searchText))
     }else { // 非纯数字，按姓名搜索
      this.experts = this.experts_raw.filter(item => item.name.includes(this.searchText))
     }
