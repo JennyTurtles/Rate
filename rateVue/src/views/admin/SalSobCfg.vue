@@ -908,6 +908,7 @@ export default {
                   "/systemM/Experts/allByActID?activityID=" + this.activityID
               ).then((resp) => {
                   if (resp) {
+                   this.loading = false;
                       this.hrs = resp.obj;
                       // console.log(this.hrs)
                   }
