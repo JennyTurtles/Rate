@@ -433,8 +433,9 @@
            <div>
             <el-input
                 v-model="searchText"
-                placeholder="请输入工号或姓名"
+                placeholder="请输入工号或姓名进行搜索"
                 @keyup.enter.native="search"
+                @input="search"
             >
              <template #append>
               <el-button icon="el-icon-search" type="success" @click="search"></el-button>
@@ -451,6 +452,7 @@
               <el-table-column
                   type="selection"
                   :reserve-selection="true"
+                  :selectable="checkSecletion"
                   width="40px">
               </el-table-column>
              <el-table-column
@@ -550,6 +552,7 @@
 import {Message} from 'element-ui'
 import {validateInputIdCard,checkIdCard} from "@/utils/check";
 import sha1 from "sha1";
+import PinYinMatch from 'pinyin-match';
 
 export default {
   name: "SalSobCfg",
@@ -713,7 +716,9 @@ export default {
      this.experts = this.experts_raw
     }else if (/^\d+$/.test(this.searchText)){ // 纯数字，按工号搜索
      this.experts = this.experts_raw.filter(item => item.jobNumber.includes(this.searchText))
-    }else { // 非纯数字，按姓名搜索
+    }else if (/^[a-zA-Z]*$/.test(this.searchText)){ //纯英文，考虑首字母
+      this.experts = this.experts_raw.filter(item => PinYinMatch.match(item.name,this.searchText))
+    } else { // 非纯数字，按姓名搜索
      this.experts = this.experts_raw.filter(item => item.name.includes(this.searchText))
     }
     this.total = this.experts.length
@@ -999,6 +1004,13 @@ export default {
         }
       });
     },
+    checkSecletion(row,index){
+      for (let i = 0; i < this.hrs.length; i++){
+        if (row.idnumber === this.hrs[i].idnumber)
+          return false;
+      }
+      return true;
+    },
     sizeChange(currentSize) {
       this.size = currentSize;
       this.getCurrentExperts();
@@ -1011,6 +1023,14 @@ export default {
       let begin = (this.page - 1) * this.size;
       let end = this.page * this.size;
       this.currentExpert = this.experts.slice(begin, end);
+      this.$nextTick(() => {
+        this.currentExpert.forEach(item => {
+          for (let i = 0; i < this.hrs.length; i++){
+            if (item.idnumber === this.hrs[i].idnumber)
+              this.$refs.multipleTable.toggleRowSelection(item, true)
+          }
+        })
+      })
     },
     //取消表格选择
     // toggleSelection(rows) {
