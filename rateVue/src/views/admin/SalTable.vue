@@ -1,9 +1,10 @@
 <template>
   <div>
+   <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)+1" :actID="keywords" :act-name="keywords_name"></AddActStep>
     <div style="display: flex; justify-content: left">
       <div style="width: 100%;text-align: center">{{ keywords_name }}分组管理</div>
       <div style="margin-left: auto">
-        <el-button icon="el-icon-back" type="primary" @click="back">
+        <el-button icon="el-icon-back" type="primary" @click="back" v-show="typeof $route.query.addActive === 'undefined'">
           返回
         </el-button>
       </div>
@@ -101,6 +102,7 @@
             </el-button
             >
               <el-button
+                      v-show="typeof $route.query.addActive === 'undefined'"
                       @click="assignPE(scope.row)"
                       style="padding: 4px"
                       size="mini"
@@ -146,6 +148,7 @@
 <!--            >-->
             <el-button
                 @click="showFinalScore(scope.row)"
+                v-show="typeof $route.query.addActive === 'undefined'"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
@@ -156,6 +159,7 @@
             </el-button
             >
             <el-button
+                v-show="typeof $route.query.addActive === 'undefined'"
                 @click="exportTG(scope.row)"
                 :loading="loading"
                 style="padding: 4px"
@@ -226,9 +230,11 @@
 import {Message} from 'element-ui'
 import da from "element-ui/src/locale/lang/da";
 import el from "element-ui/src/locale/lang/el";
+import AddActStep from "@/components/AddActStep.vue";
 
 export default {
   name: "SalTable",
+ components: {AddActStep},
   data() {
     return {
       editing:false,

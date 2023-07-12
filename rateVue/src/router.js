@@ -117,6 +117,12 @@ export default new Router({
           meta: { title: '查看各个单位管理员列表' },
         },
         {
+          path: '/Admin/addAct',
+          name: '添加活动',
+          component: () => import('./views/admin/AddAct'),
+          meta: { title: '添加活动' },
+        },
+        {
           path: '/ActivitM/total',
           name: 'SalTotal',
           component: () => import('./views/admin/SalTotal'),
@@ -324,6 +330,13 @@ export default new Router({
           hidden: true,
           component: () => import('./components/ActManage.vue'),
           meta: { title: 'ActManage' },
+        },
+        {
+          path: 'AddActStep',
+          name: 'AddActStep',
+          hidden: true,
+          component: () => import('./components/AddActStep.vue'),
+          meta: { title: 'AddActStep' },
         },
         {
           path: '/secretary/ActManage',

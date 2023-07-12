@@ -1529,14 +1529,31 @@ export default {
             this.initEmps("advanced");
         },
         showAddEmpView() {
-            this.emptyEmp();
-            this.title = "添加活动";
-            this.dialogVisible = true;
+            // this.emptyEmp();
+            // this.title = "添加活动";
+            // this.dialogVisible = true;
+         const _this = this;
+         // _this.$router.push({
+         //  path: "/ActivitM/score",
+         //  query: {
+         //   mode:this.mode,
+         //   backID:this.activityID,
+         //  },
+         // });
+         _this.$router.push({
+          path: "/Admin/addAct",
+          query: {
+           mode:this.mode,
+          },
+         });
             this.getCloneActivity();
         },
         showAddEmpView_clone(){
-          this.showAddEmpView();
-          this.radio=2;
+         this.emptyEmp();
+         this.title = "添加活动";
+         this.dialogVisible = true;
+         this.getCloneActivity();
+         this.radio=2;
         },
         initEmps() { // 在此适配不同的组件
             this.loading = true;
