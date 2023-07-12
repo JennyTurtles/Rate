@@ -8,6 +8,7 @@ package org.sys.rate.controller.admin;/**
  * @Version 1.0
  */
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
@@ -19,6 +20,7 @@ import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.PublicationService;
 
 import javax.annotation.Resource;
+import java.beans.Transient;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -49,25 +51,39 @@ public class PublicationSubmissionController {
         return RespBean.ok("200", submissions);
     }
 
-    @PutMapping("editState")
-    public RespBean editState(@RequestBody PublicationSubmission submission) {
+    @GetMapping("/check")
+    public RespBean checkSubmission(PublicationSubmission submission) {
+        try {
+            boolean isDup = submissionMapper.check(submission.getIndicatorId(), submission.getPublicationId(), submission.getYear()) != null;
+            return RespBean.ok("200", isDup);
+        } catch (Exception e) {
+            // 处理异常情况
+            return RespBean.error("Error occurred during submission check.");
+        }
+    }
+
+
+    @PostMapping("editState")
+    @Transactional
+    public RespBean editState(PublicationSubmission submission) {
         // 1. edit state
-        submissionMapper.editState(submission.getId(), submission.getState());
+        submissionMapper.editState(submission.getId(), submission.getState(), submission.getComment());
         if (submission.getState().equals("pass")) {
-            // 2. add publication
+            // 2. add publication  这里需要进行查重！！
             Publication publication = new Publication();
-            publication.setName(submission.getPublicationName());
-            publication.setAbbr(submission.getPublicationAbbr());
-            publication.setPublisher(submission.getPublisherName());
-            publication.setUrl(submission.getPublicationUrl());
+            if (submission.getPublicationId() == null) {
+                publication.setName(submission.getPublicationName());
+                publication.setAbbr(submission.getPublicationAbbr());
+                publication.setPublisher(submission.getPublisherName());
+                publication.setUrl(submission.getPublicationUrl());
+            }
+            publication.setId(submission.getPublicationId());
 
             Indicator indicator = new Indicator();
             indicator.setId(submission.getIndicatorId());
 
             List<Indicator> indicatorList = Collections.singletonList(indicator);
-
             List<Integer> dateList = Collections.singletonList(submission.getYear());
-
 
             publication.setIndicatorList(indicatorList);
             publication.setDateList(dateList);

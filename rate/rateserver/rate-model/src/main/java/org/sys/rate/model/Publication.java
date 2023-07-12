@@ -56,6 +56,10 @@ public class  Publication {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private List<Integer> dateList;
 
+    private Integer indicatorId;
+
+    private Integer year;
+
 
 
 

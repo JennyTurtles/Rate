@@ -396,7 +396,7 @@ export default new Router({
           path: '/admin/Check',
           name: '审核期刊',
           hidden: true,
-          component: () => import('./views/admin/Check.vue'),
+          component: () => import('./views/admin/Check'),
           meta: {
             title: '审核期刊',
           },

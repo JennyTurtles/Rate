@@ -87,8 +87,10 @@ public interface PublicationMapper {
      * @param name:
      * @Return List<Publication>
      */
-
-    Publication getPublicationInfByName(String name);
+    @Select("select p.id, p.name, p.abbr, p.publisher, p.url, ip.year, i.id indicatorId, i.name, i.type, i.score from indicator_publication ip " +
+            "left join i_publication p on p.id = ip.publication_id left join indicator i on ip.indicator_id = i.id " +
+            "where p.name = #{name} order by ip.year")
+    List<Publication> getPublicationInfByName(String name);
 
     /**
      * 插入期刊时，也需要插入中间表中
