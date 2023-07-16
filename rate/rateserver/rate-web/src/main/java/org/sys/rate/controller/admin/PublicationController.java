@@ -148,7 +148,7 @@ public class PublicationController {
      */
     @GetMapping("/publication/getInf/{name}")
     public RespBean getInfByName(@PathVariable("name") String name) {
-        Publication res = publicationMapper.getPublicationInfByName(name);
+        List<Publication> res = publicationMapper.getPublicationInfByName(name);
         return RespBean.ok("success", res);
     }
 

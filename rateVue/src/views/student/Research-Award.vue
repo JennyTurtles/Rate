@@ -158,26 +158,26 @@
         </el-form-item>
         <el-form-item label="奖励级别:" label-width="80px" style="margin-left: 20px;" prop="awardLevel">
           <span class="isMust">*</span>
-          <el-select size="mini" v-model="currentAwardCopy.awardLevel" placeholder="请选择奖励类别" style="width: 329px">
+          <el-select size="mini" v-model="currentAwardCopy.awardLevel" placeholder="请选择奖励级别" style="width: 80%">
             <el-option v-for="item in awardLevelList" :key="item.value" :value="item.label" :label="item.label"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="奖励类别:" label-width="80px" style="margin-left: 20px;" prop="awardClass">
           <span class="isMust">*</span>
-          <el-select size="mini" v-model="currentAwardCopy.awardClass" placeholder="请选择奖励类别" style="width: 329px">
+          <el-select size="mini" v-model="currentAwardCopy.awardClass" placeholder="请选择奖励类别" style="width: 80%">
             <el-option v-for="item in awardClassList" :key="item.value" :value="item.label" :label="item.label"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="奖励排名:" prop="awardRank" label-width="80px" style="margin-left: 20px;width: 329px">
+        <el-form-item label="奖励排名:" prop="awardRank" label-width="80px" style="margin-left: 20px">
           <span class="isMust">*</span>
-          <el-select size="mini" v-model="currentAwardCopy.awardRank" placeholder="请选择奖励类别" style="width: 329px">
+          <el-select size="mini" v-model="currentAwardCopy.awardRank" placeholder="请选择奖励排名" style="width: 80%">
             <el-option v-for="item in awardRankList" :key="item" :value="item" :label="item"></el-option>
           </el-select>
         </el-form-item>
 
         <el-form-item label="申报日期:" label-width="80px" style="margin-left: 20px;">
           <el-date-picker
-              style="width: 329px"
+              style="width: 80%"
               v-model="currentAwardCopy.date"
               type="month"
               value-format="yyyy-MM"
@@ -188,7 +188,7 @@
         <el-form-item prop="grantedStatus" label="奖励状态" label-width="80px" style="margin-left: 20px;">
           <el-select
               size="mini"
-              style="width:80%"
+              style="width: 80%"
               prefix-icon="el-icon-edit"
               v-model="currentAwardCopy.grantedStatus"
               placeholder="请选择奖励状态"
@@ -201,7 +201,7 @@
           <el-input
               id="input_member"
               size="mini"
-              style="width:80%"
+              style="width: 80%"
               prefix-icon="el-icon-edit"
               v-model="member"
               @blur="judgeMember()"
@@ -227,10 +227,6 @@
                   &nbsp;&nbsp;大小不能超过10MB
                 </span>
           </el-upload>
-          <div>
-
-          </div>
-
         </el-form-item>
       </el-form>
       <div style="margin-left: 20px;">
@@ -541,11 +537,6 @@ export default {
           },()=>{}
       )
     },
-    timechange(picker){//选择日历调用的方法
-      var data=new Date(picker)
-      this.currentAwardCopy.date = data
-      this.options=[]
-    },
     judgeMember(){//输入作者框 失去焦点触发事件
       var val = this.member;
       var isalph = false//判断输入中是否有英文字母
@@ -642,7 +633,7 @@ export default {
                 if (resp) {
                   this.dialogVisible = false;
                   this.$message.success('编辑成功！')
-                  this.doAddOper("commit", resp.data);
+                  this.doAddOper("commit", this.currentAwardCopy.id);
                 }
               }
           );
@@ -665,6 +656,7 @@ export default {
             this.postRequest1("/award/basic/add",this.currentAwardCopy).then(
                 (resp) => {
                   if (resp) {
+                    this.$message.success('添加成功！')
                     this.dialogVisible = false;
                     this.doAddOper("commit", resp.data);
                   }

@@ -341,29 +341,43 @@
       </span>
     </el-dialog>
 
+    <el-dialog title="选择指标点分类" center :visible.sync="showTree" width="60%">
+      <span class="el-tree-node">
+        <el-tree
+            :data="data"
+            :props="defaultProps"
+            @node-click="handleNodeClick"
+            :expand-on-click-node="false"
+            :highlight-current="true"
+            default-expand-all
+        ></el-tree>
+      </span>
+    </el-dialog>
+
     <!-- 添加或修改期刊对话框  -->
     <el-dialog :title="title_publication" :visible.sync="dialogVisible_publication" @close="cannotAddPublish=true"
                width="50%" center>
       <el-form
           :hide-required-asterisk="true"
           :label-position="labelPosition"
-          label-width="150px"
+          label-width="180px"
           :model="publish"
           :rules="rulesPublication"
-          ref="empForm"
+          ref="publicationForm"
       >
-        <el-form-item label="期刊全称:" prop="publicationName" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="期刊全称:" prop="publicationName" label-width="90px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
               v-model="publish.publicationName"
+              @blur="queryPublication"
               :disabled="inputDisabled"
               placeholder="请输入期刊全称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="刊物简称:" prop="publicationAbbr" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="刊物简称:" prop="publicationAbbr" label-width="90px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
@@ -374,7 +388,7 @@
               placeholder="请输入刊物简称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="出版社:" prop="publisherName" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="出版社:" prop="publisherName" label-width="90px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
@@ -385,7 +399,7 @@
               placeholder="请输入出版社"
           ></el-input>
         </el-form-item>
-        <el-form-item label="网址:" prop="publicationUrl" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="网址:" prop="publicationUrl" label-width="90px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
@@ -396,7 +410,7 @@
               placeholder="请输入网址"
           ></el-input>
         </el-form-item>
-        <el-form-item label="录入年份:" prop="year" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="录入年份:" prop="year" label-width="90px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
@@ -407,18 +421,22 @@
               placeholder="请输入录入年份"
           ></el-input>
         </el-form-item>
-        <el-form-item label="指标点分类:" prop="indicatorName" label-width="80px" style="margin-left: 20px;">
+        <!--        <el-form-item label="指标点分类:" prop="indicatorName" label-width="90px" style="margin-left: 20px;">-->
+        <!--          <span class="isMust">*</span>-->
+        <!--          <el-input-->
+        <!--              size="mini"-->
+        <!--              style="width:80%"-->
+        <!--              prefix-icon="el-icon-edit"-->
+        <!--              v-model="publish.indicatorName"-->
+        <!--              @blur="queryIndicatorOrder"-->
+        <!--              placeholder="请输入该期刊对应的指标点分类"-->
+        <!--          ></el-input>-->
+        <!--        </el-form-item>-->
+        <el-form-item label="指标点分类:" prop="indicatorName" label-width="90px" style="margin-left: 20px;">
           <span class="isMust">*</span>
-          <el-input
-              size="mini"
-              style="width:80%"
-              prefix-icon="el-icon-edit"
-              v-model="publish.indicatorName"
-              @blur="queryIndicatorOrder"
-              placeholder="请输入该期刊对应的指标点分类"
-          ></el-input>
+          <el-button ref="selectBtn" size="mini" type="text" @click="showTreeDialog">{{ buttonText }}</el-button>
         </el-form-item>
-        <el-form-item label="证明材料:" prop="publicationProofUrl" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="证明材料:" prop="publicationProofUrl" label-width="90px" style="margin-left: 20px;">
           <el-upload
               :file-list="filesPublication"
               action="#"
@@ -457,6 +475,16 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      // 和开启tree相关的
+      buttonText: '点击选择指标点分类',
+      data: [],
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
+      indicatorName: '', // 初始化为一个空字符串
+      showTree: false, // 控制树形组件的显示与隐藏
+      // 和添加or新增期刊信息相关的属性
       cannotAddPublish: true,
       inputDisabled: true,
       publish: {
@@ -479,8 +507,8 @@ export default {
         publicationId: '',
         indicatorName: '',
         check_duplicates: {
-          indicatorId: '',
-          year: '',
+          indicatorId: [],
+          year: [],
         },
         student_id: '',
         date: '',
@@ -496,6 +524,7 @@ export default {
         publicationAbbr: '',
         publisherName: '',
         publicationUrl: '',
+        publicationId: '',
       },
       disabledInput: true,
       timer: null,
@@ -509,7 +538,7 @@ export default {
         'Content-Type': 'multipart/form-data'
       },
       files: [],//选择上传的文件列表
-      filesPublication:[], // 这里上传的是期刊的证明材料
+      filesPublication: [], // 这里上传的是期刊的证明材料
       urlFile: '',//文件路径
       addButtonState: true,//是否允许添加论文
       operList: [],//每个论文的历史操作记录
@@ -594,9 +623,6 @@ export default {
         year: [
           {required: true, message: '请输入录入年份', trigger: 'blur'},
         ],
-        indicatorName: [
-          {required: true, message: '请输入该期刊对应的指标点分类', trigger: 'blur'}
-        ]
       }
     };
   },
@@ -631,6 +657,7 @@ export default {
     this.initEmps();
   },
   filters: {
+
     fileNameFilter: function (data) {//将证明材料显示出来
       if (data == null || data == '') {
         return '无证明材料'
@@ -641,6 +668,90 @@ export default {
     }
   },
   methods: {
+    // 和tree相关的代码
+    showTreeDialog() {
+      this.dialogVisible_publication = false;
+      this.showTree = true;
+      this.initTree()
+    },
+    // 初始化树
+    initTree() {
+      var that = this;
+      axios.get("/indicator").then(function (resp) {
+        //此处可以让父组件向子组件传递url,提高复用性
+        console.log(resp);
+        that.id = resp.obj[0];
+        that.data = resp.obj[1];
+      });
+    },
+
+    handleNodeClick(data, node) {
+      if (data.children.length == 0) {
+        this.publish.indicatorId = data.id
+        this.buttonText = data.label
+        this.showTree = false;
+        this.dialogVisible_publication = true;
+      }
+    },
+    // 和添加期刊相关的代码
+    openAddDialog() {
+      this.emptyPublish()
+      this.inputDisabled = false
+      this.title_publication = "添加期刊"
+      this.dialogVisible = false
+      this.dialogVisible_publication = true
+    }
+    ,
+    openUpdateDialog() {
+      if (this.inputDisabled) {
+        this.publish.publicationName = this.publication.publicationName
+        this.publish.publicationAbbr = this.publication.publicationAbbr
+        this.publish.publisherName = this.publication.publisherName
+        this.publish.publicationUrl = this.publication.publicationUrl
+        this.publish.publicationId = this.publication.publicationId
+      }
+      // 这里需要将之前获取的publication存储在this.publish中
+      this.title_publication = "修改期刊"
+      this.inputDisabled = true
+      this.dialogVisible = false
+      this.dialogVisible_publication = true
+    }
+    ,
+    emptyPublish() {
+      this.inputDisabled = false
+      this.publish = {
+        id: '',
+        publicationId: '',
+        indicatorId: '',
+        indicatorName: '',
+        year: '',
+        student_id: '',
+        date: '',
+        state: '',
+        publicationName: '',
+        publicationAbbr: '',
+        publisherName: '',
+        publicationUrl: '',
+        publicationProofUrl: ''
+      };
+      this.publishToDatabase = {
+        id: '',
+        publicationId: '',
+        indicatorName: '',
+        check_duplicates: {
+          indicatorId: [],
+          year: [],
+        },
+        student_id: '',
+        date: '',
+        state: '',
+        publicationName: '',
+        publicationAbbr: '',
+        publisherName: '',
+        publicationUrl: '',
+        publicationProofUrl: ''
+      };
+    },
     handleDeletePublication() {//删除选择的文件
       var file = {
         filepath: this.publish.publicationProofUrl
@@ -701,7 +812,7 @@ export default {
         } else {
           this.$message.error("年份不合法！请输入合理的年份")
         }
-      }, 500);
+      }, 100);
     },
     queryIndicatorOrder() {
       if (this.timer) {
@@ -715,127 +826,67 @@ export default {
       }
 
       this.timer = setTimeout(() => {
-        if (this.publish.indicatorName !== null && this.publish.indicatorName !== "") {
-          var url = `/indicator/getIndicatorId/${encodeURIComponent(this.publish.indicatorName)}`;
-          this.getRequest(url)
-              .then((resp) => {
-                if (resp && resp.obj) {
-                  this.publish.indicatorId = resp.obj;
-                } else {
-                  this.$message.error('输入的指标点分类不存在，请查阅指标点分类');
-                }
-              });
-        }
-      }, 200);
+        var url = `/indicator/getIndicatorId/${encodeURIComponent(this.publish.indicatorName)}`;
+        this.getRequest(url)
+            .then((resp) => {
+              if (resp && resp.obj) {
+                this.publish.indicatorId = resp.obj;
+              } else {
+                this.$message.error('输入的指标点分类不存在，请查阅指标点分类');
+              }
+            });
+      }, 100);
     },
     queryPublication() {
+      // 查重
       if (this.timer) {
         clearTimeout(this.timer)
       }
       this.timer = setTimeout(() => {
-        if (this.publish.publicationName !== null && this.publish.publicationName !== "") {
+        if (this.publish.publicationName) {
           var url = `/publication/getInf/${encodeURIComponent(this.publish.publicationName)}`;
           this.getRequest(url).then((resp) => {
             if (resp && resp.obj) {
+              this.publish.publicationAbbr = resp.obj[0].abbr;
+              this.publish.publicationName = resp.obj[0].name;
+              this.publish.publisherName = resp.obj[0].publisher;
+              this.publish.publicationUrl = resp.obj[0].url;
+              this.publish.publicationId = resp.obj[0].id;
+              this.inputDisabled = true;
               // console.log(resp)
-              this.publish.publicationAbbr = resp.obj.abbr;
-              this.publish.publicationName = resp.obj.name;
-              this.publish.publisherName = resp.obj.publisher;
-              this.publish.publicationUrl = resp.obj.url;
-              this.publish.publicationId = resp.obj.id;
               const years = [];
               const indicatorIds = [];
-              for (let i = 0; i < resp.obj.indicatorList.length; i++) {
-                const year = resp.obj.indicatorList[i].year;
-                const indicatorId = resp.obj.indicatorList[i].id;
+              for (let i = 0; i < resp.obj.length; i++) {
+                const year = resp.obj[i].year;
+                const indicatorId = resp.obj[i].id;
                 years.push(year);
                 indicatorIds.push(indicatorId);
               }
-              this.publishToDatabase.check_duplicates.year = years;
               this.publishToDatabase.check_duplicates.indicatorId = indicatorIds;
-              this.inputDisabled = true;
+              this.publishToDatabase.check_duplicates.year = years;
+
+
               this.$message.success('该期刊已经在数据库中存在');
             }
           });
         }
-      }, 500);
+      }, 200);
     },
-
-
-    openAddDialog() {
-      this.emptyPublish()
-      this.title_publication = "添加期刊"
-      this.dialogVisible = false
-      this.dialogVisible_publication = true
-    }
-    ,
-    openUpdateDialog() {
-      this.publish.publicationName = this.publication.publicationName
-      this.publish.publicationAbbr = this.publication.publicationAbbr
-      this.publish.publisherName = this.publication.publisherName
-      this.publish.publicationUrl = this.publication.publicationUrl
-      // 这里需要将之前获取的publication存储在this.publish中
-      this.title_publication = "修改期刊"
-      this.inputDisabled = true
-      this.dialogVisible = false
-      this.dialogVisible_publication = true
-    }
-    ,
-    emptyPublish() {
-      this.inputDisabled = false
-      this.publish = {
-        id: '',
-        publicationId: '',
-        indicatorId: '',
-        indicatorName: '',
-        year: '',
-        student_id: '',
-        date: '',
-        state: '',
-        publicationName: '',
-        publicationAbbr: '',
-        publisherName: '',
-        publicationUrl: '',
-        publicationProofUrl: ''
-      };
-      this.publishToDatabase = {
-        id: '',
-        publicationId: '',
-        indicatorName: '',
-        check_duplicates: {
-          indicatorId: '',
-          year: '',
-        },
-        student_id: '',
-        date: '',
-        state: '',
-        publicationName: '',
-        publicationAbbr: '',
-        publisherName: '',
-        publicationUrl: '',
-        publicationProofUrl: ''
-      };
-    }
-    ,
 // 添加期刊提交记录
     async doAddPublish() {
       // 表单验证
       this.cannotAddPublish = true
       if (this.publish.indicatorId !== null && this.publish.indicatorId !== "") {
         this.cannotAddPublish = false
-        this.$refs["empForm"].validate(async valid => {
+        this.$refs["publicationForm"].validate(async valid => {
           if (valid) {
-            const indicatorId = this.publish.indicatorId;
             const year = this.publish.year;
+            const indicatorId = this.publish.indicatorId;
             const duplicates = this.publishToDatabase.check_duplicates;
 
-            // 检查 publicationId 和 year 组合是否存在于 duplicates 中
-            if (typeof duplicates === 'object') {
-              const duplicatesArray = Object.values(duplicates);
-              const duplicateCombination = duplicatesArray.some(
-                  item => item.indicatorId === indicatorId && item.year === year
-              );
-              if (duplicateCombination) {
+            const length = duplicates.indicatorId.length;
+            for (let i = 0; i < length; i++) {
+              if (year == duplicates.year[i] && indicatorId == duplicates.indicatorId[i]) {
                 this.$message.error("这个期刊已经在数据库中存在了！");
                 return;
               }
@@ -855,7 +906,6 @@ export default {
               publicationProofUrl: this.publish.publicationProofUrl
             };
 
-            // console.log(this.publishToDatabase);
 
             const url = `/publicationSubmission/insert/`;
             try {
@@ -923,6 +973,7 @@ export default {
         this.loading = false;
         if (resp) {
           if (resp.obj) {
+            // console.log(resp.obj)
             this.view_point = resp.obj.indicatorList[0].score;
             let year = resp.obj.indicatorList[0].year;
             this.publication_detail = resp.obj.name + "录入于" + year + "年，按照东华大学毕业要求，属于" + resp.obj.indicatorList[0].order + "类"
@@ -931,6 +982,18 @@ export default {
             this.publication.publicationAbbr = resp.obj.abbr
             this.publication.publisherName = resp.obj.publisher
             this.publication.publicationUrl = resp.obj.url
+            this.publication.publicationId = resp.obj.id
+            const years = [];
+            const indicatorIds = [];
+            for (let i = 0; i < resp.obj.indicatorList.length; i++) {
+              const year = resp.obj.indicatorList[i].year;
+              const indicatorId = resp.obj.indicatorList[i].id;
+              years.push(year);
+              indicatorIds.push(indicatorId);
+            }
+            this.publishToDatabase.check_duplicates.indicatorId = indicatorIds;
+            this.publishToDatabase.check_duplicates.year = years;
+            this.inputDisabled = true
           } else {
             this.$message.warning(this.publicationName + '在' + this.emp.year + '年的积分为0！')
             this.publicationName = ''
@@ -1300,6 +1363,11 @@ export default {
 </script>
 
 <style>
+.el-tree-node {
+  background: none;
+  color: black;
+}
+
 .select_div_input {
   /*margin-left:3px;*/
   width: 80%;

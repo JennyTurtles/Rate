@@ -6,7 +6,7 @@
      <el-button icon="el-icon-back" type="primary" @click="back" style="float: right">
       返回
      </el-button>
-    </div><br/><br/>
+    </div>
    </div>
    <el-tabs v-model="activeName" @tab-click="change2Par" v-show="groupID">
     <el-tab-pane label="选手管理" name="participant">用户管理</el-tab-pane>
@@ -715,7 +715,7 @@ export default {
     if (this.searchText === ''){
      this.experts = this.experts_raw
     }else if (/^\d+$/.test(this.searchText)){ // 纯数字，按工号搜索
-     this.experts = this.experts_raw.filter(item => item.jobNumber.includes(this.searchText))
+     this.experts = this.experts_raw.filter(item => item.jobNumber != null && item.jobNumber.includes(this.searchText))
     }else if (/^[a-zA-Z]*$/.test(this.searchText)){ //纯英文，考虑首字母
       this.experts = this.experts_raw.filter(item => PinYinMatch.match(item.name,this.searchText))
     } else { // 非纯数字，按姓名搜索
@@ -913,6 +913,7 @@ export default {
                   "/systemM/Experts/allByActID?activityID=" + this.activityID
               ).then((resp) => {
                   if (resp) {
+                   this.loading = false;
                       this.hrs = resp.obj;
                       // console.log(this.hrs)
                   }

@@ -37,4 +37,5 @@ public class PublicationSubmission {
     private String publicationProofUrl;
     private String studentName;
     private String indicatorName;
+    private String comment;
 }

@@ -69,6 +69,7 @@ public class ActivitiesService {
             else result = false;//说明达到上限 不能添加
             if (result){
                 employee.setScoreItemCount(0);
+                employee.setScore(0.0);
                 insertID = activitiesMapper.insert(employee);
                 activitiesMapper.insertScoreItem(employee);//原本是合并写的，改成分开写
                 activitiesMapper.insertDisplayItem(employee);
@@ -80,7 +81,7 @@ public class ActivitiesService {
             return RespBean.error("添加失败",null);
         }
         if(!result) return RespBean.error("活动达到上限",null);
-        return RespBean.ok("添加成功",null);
+        return RespBean.ok("添加成功",employee);
     }
 
     public Integer predeleteActivities(Activities activities) {

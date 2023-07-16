@@ -1,8 +1,9 @@
 <template>
   <div>
+   <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)+1" :actID="keywords" :act-name="keywords_name"></AddActStep>
     <div style="display: flex; justify-content: left">
       <div style="width: 100%;text-align: center">{{ keywords_name }}活动 成绩查看设置</div>
-      <div style="margin-left: auto">
+      <div style="margin-left: auto" v-show="typeof $route.query.addActive === 'undefined'">
         <el-button icon="el-icon-back" type="primary" @click="back">
           返回
         </el-button>
@@ -252,9 +253,11 @@
 
 <script>
 import {Message} from 'element-ui'
+import AddActStep from "@/components/AddActStep.vue";
 
 export default {
   name: "SalTotal",
+ components: {AddActStep},
   data() {
     return {
       title: "",

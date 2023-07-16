@@ -2,6 +2,7 @@ package org.sys.rate.service.admin;
 
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.mapper.PublicationMapper;
@@ -56,7 +57,9 @@ public class PublicationService {
      * @return 结果
      */
     public void insertPublication(Publication publication) {
-        publicationMapper.insertPublication(publication);
+        if(publication.getId()==null) {
+            publicationMapper.insertPublication(publication);
+        }
         for (int i = 0; i < publication.getIndicatorList().size(); ++i) {
             publicationMapper.insertIndicatorPublication(publication.getIndicatorList().get(i).getId(), publication.getId(), publication.getDateList().get(i));
         }

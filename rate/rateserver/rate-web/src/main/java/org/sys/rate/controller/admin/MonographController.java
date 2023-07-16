@@ -12,12 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.model.Monograph;
 import org.sys.rate.model.Msg;
-import org.sys.rate.model.Patent;
 import org.sys.rate.model.RespBean;
+import org.sys.rate.service.admin.MonographService;
 import org.sys.rate.service.admin.IndicatorService;
-import org.sys.rate.service.admin.PatentService;
-import org.sys.rate.service.admin.PublicationService;
+import org.sys.rate.service.admin.MonographService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.annotation.Resource;
@@ -29,93 +29,73 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * 专利成果Controller
+ * 专著成果Controller
  *
  * @author system
  * @date 2022-03-13
  */
 @RestController
-@RequestMapping("/patent/basic")
-public class PatentController {
+@RequestMapping("/monograph/basic")
+public class MonographController {
     
     @Resource
-    private PatentService patentService;
-    @Resource
-    PublicationService publicationService;
+    private MonographService monographService;
     @Resource
     IndicatorService indicatorService;
     @Resource
     MailToTeacherService mailToTeacherService;
 
-    private static final Logger logger = LoggerFactory.getLogger(PatentController.class);
+    private static final Logger logger = LoggerFactory.getLogger(MonographController.class);
     private String uploadFileName;
 
     @GetMapping("/studentID")//无页码要求
     public JsonResult<List> getById(Integer studentID) {
-        List<Patent> list = patentService.selectListByIds(studentID);
-        return new JsonResult<>(patentService.setPatentOperation(list));
+        List<Monograph> list = monographService.selectMonographListById(studentID);
+        return new JsonResult<>(list);
     }
 
-    //    修改专利状态
+    //    修改专著状态
     @GetMapping("/edit_state")
     public JsonResult getById(String state, Long ID) throws MessagingException {
-        return new JsonResult(patentService.editState(state, ID));
+        return new JsonResult(monographService.editState(state, ID));
     }
 
     @GetMapping("/List")
     public Msg getCollect(@RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
         //包括返回最早的提交时间 和多次驳回的理由列表
-        Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
-        List<Patent> list = patentService.selectList();
+        Page page = PageHelper.startPage(pageNum, pageSize);
+        List<Monograph> list = monographService.selectAllMonographList();
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()};
         return Msg.success().add("res", res);
     }
-
-    //    添加专利 搜索期刊类别
-    @GetMapping("/publicationList")
-    public JsonResult<List> getPublicationList(String publicationName) {
-        return new JsonResult<>(publicationService.selectPublicationListByName(publicationName));
-    }
-
     /**
-     * 查询专利成果列表
-     */
-    @PostMapping("/list")
-    @ResponseBody
-    public JsonResult list(Patent patent) {
-        List<Patent> list = patentService.selectPatentList(patent);
-        return new JsonResult(list);
-    }
-
-
-    /**
-     * 新增保存专利成果
+     * 新增保存专著成果
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Patent patent) {
-        Integer res = patentService.insertPatent(patent);
-//        mailToTeacherService.sendTeaCheckMail(patent, "授权专利", uploadFileName);
-        return new JsonResult(patent.getId());
+    public JsonResult addSave(Monograph monograph) {
+        Integer res = monographService.insertMonograph(monograph);
+//        mailToTeacherService.sendTeaCheckMail(monograph, "科研奖励", uploadFileName);
+        return new JsonResult(monograph.getId());
     }
 
     /**
-     * 修改保存专利成果
+     * 修改保存专著成果
      */
     @PostMapping("/edit")
     @ResponseBody
-    public JsonResult editSave(Patent patent) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(patent, "授权专利", uploadFileName);
-        return new JsonResult(patentService.updatePatent(patent));
+    public JsonResult editSave(Monograph monograph) throws FileNotFoundException {
+//        mailToTeacherService.sendTeaCheckMail(monograph, "科研奖励", uploadFileName);
+        return new JsonResult(monographService.updateMonograph(monograph));
     }
 
     /**
-     * 删除专利成果
+     * 删除专著成果
      */
     @DeleteMapping("/remove/{ID}")
     public JsonResult remove(@PathVariable Long ID) {
-        Integer res = patentService.deletePatentById(ID);
+        Integer res = monographService.deleteMonographById(ID);
         return new JsonResult(res);
     }
 
@@ -132,7 +112,7 @@ public class PatentController {
     }
 
     @GetMapping("/download")
-    public RespBean download(Integer patentID, String filename) throws IOException {
+    public RespBean download(Integer monographID, String filename) throws IOException {
         File newFile = new File(new File("upload").getAbsolutePath() + "/" + filename);
         return RespBean.ok("success", newFile);
     }

@@ -68,7 +68,7 @@
 <!--    </select>-->
 
         <select id="getPublicationByNameYear" resultMap="PublicationWithIndicators">
-            SELECT p.id,p.name,i.name indicatorName,i.order,i.score,i.id incicatorID,ip.year,i.type FROM i_publication p, indicator_publication ip,indicator i
+            SELECT p.id,p.name,p.abbr, p.publisher, p.url,i.name indicatorName,i.order,i.score,i.id indicatorID,ip.year,i.type FROM i_publication p, indicator_publication ip,indicator i
             WHERE p.id = ip.publication_id AND i.id = ip.indicator_id
               AND p.`name` = #{name} AND <![CDATA[ year <= #{year}  ]]>
             ORDER BY i.score DESC,year DESC,i.`order`
