@@ -50,7 +50,7 @@ public class IndicatorController {
             List<Integer> key = new ArrayList<>();
             for (String numString : tmp)
                 key.add(Integer.parseInt(numString));
-            TreeNode Node = new TreeNode(indicator.getId(), indicator.getOrder() + " " + indicator.getName(), indicator.getType(), indicator.getOrder(), indicator.getScore());
+            TreeNode Node = new TreeNode(indicator.getId(), indicator.getOrder() + " " + indicator.getName(), indicator.getType(), indicator.getOrder(), indicator.getScore(), indicator.getRankN());
             map.put(key, Node);
         }
         List<Integer> empty = new ArrayList<>();
@@ -265,7 +265,7 @@ public class IndicatorController {
         Map<List<Integer>, TreeNode> map = new HashMap<>();
         for (Indicator indicator : data) {
             List<Integer> key = stringToList(indicator.getOrder());
-            TreeNode Node = new TreeNode(indicator.getId(), indicator.getName(), indicator.getType(), indicator.getOrder(), indicator.getScore());
+            TreeNode Node = new TreeNode(indicator.getId(), indicator.getName(), indicator.getType(), indicator.getOrder(), indicator.getScore(), indicator.getRankN());
             map.put(key, Node);
         }
         return map;

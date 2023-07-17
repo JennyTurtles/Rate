@@ -93,7 +93,7 @@ public class MonographService {
             Timestamp timeCommit = new Timestamp(new Date().getTime());
             Timestamp timeReject = monographoperList.get(0).getTime();
             for (int monographOper = 0; monographOper < monographoperList.size(); monographOper++) {
-                if (monographoperList.get(monographOper).getOperationName().equals("提交专著教材") && monographoperList.get(monographOper).getOperatorRole().equals("student")) {
+                if (monographoperList.get(monographOper).getOperationName().equals("提交著作") && monographoperList.get(monographOper).getOperatorRole().equals("student")) {
 //                    因为可能有多次提交（如老师驳回、再次提交），所以找到时间最早的一条记录
                     if (timeCommit.getTime() > monographoperList.get(monographOper).getTime().getTime()) {
                         timeCommit = monographoperList.get(monographOper).getTime();
