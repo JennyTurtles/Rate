@@ -79,4 +79,6 @@ public interface MonographMapper
 
     @Select("SELECT * FROM i_monograph WHERE  ID = #{ID}")
     public Monograph selectByID(Long ID);
+
+    public List<Monograph> searchMonographByConditions(String studentName, String state, String monoName, String pointFront, String pointBack);
 }

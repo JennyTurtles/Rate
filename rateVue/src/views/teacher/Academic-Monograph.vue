@@ -9,20 +9,20 @@
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
+               v-model="searchStudentName"
                placeholder="学生姓名"
-               id="select_stuname">
-        <label style="fontSize:10px;margin-left:16px">学术专著和教材名称：</label>
+               autocomplete="off">
+        <label style="fontSize:10px;margin-left:16px">著作名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
-               placeholder="学术专著和教材名称"
+               placeholder="著作名称"
+               v-model="searchMonographName"
                id="select_paperName">
-
-
-        <label style="fontSize:10px;margin-left:40px;">状态：</label>
+        <label style="fontSize:10px;margin-left:40px;">著作状态：</label>
         <el-select
-            v-model="tmp1"
+            v-model="searchStatus"
             style="margin-left:3px;width:120px"
             prefix-icon="el-icon-edit"
             clearable
@@ -40,14 +40,12 @@
         </el-select>
         <label style="fontSize:10px;margin-left:16px">积分范围：</label>
         <el-select
-            v-model="tmp2"
+            v-model="searchPointFront"
             style="margin-left:3px;width:60px"
             prefix-icon="el-icon-edit"
             clearable
             filterable
             placeholder="1"
-            @change="((val) => filter(val,'select_point1'))"
-            id="select_point1"
         >
           <el-option
               style=""
@@ -59,14 +57,12 @@
         </el-select>
         <label >&nbsp; - &nbsp;</label>
         <el-select
-            v-model="tmp3"
+            v-model="searchPointBack"
             style="margin-left:3px;width:60px"
             prefix-icon="el-icon-edit"
             clearable
             filterable
             placeholder="12"
-            @change="((val) => filter(val,'select_point2'))"
-            id="select_point2"
         >
           <el-option
               style=""
@@ -79,7 +75,7 @@
         <el-button
             icon="el-icon-search"
             type="primary"
-            @click="searchEmps"
+            @click="searchMonograph(1, 5)"
             :disabled="showAdvanceSearchView"
             style="margin-left:30px"
         >
@@ -89,7 +85,7 @@
     </div>
     <div style="margin-top: 10px">
       <el-table
-          :data="emps"
+          :data="monographList"
           stripe
           border
           v-loading="loading"
@@ -100,6 +96,7 @@
           style="width: 100%"
       >
         <el-table-column
+            fixed
             prop="student.name"
             align="center"
             label="学生姓名"
@@ -107,25 +104,24 @@
         >
         </el-table-column>
         <el-table-column
+            fixed
             prop="name"
             align="center"
-            label="学术专著和教材名称"
+            label="著作名称"
             width="230"
         >
         </el-table-column>
-        <!-- width="200" -->
         <el-table-column
             prop="state"
             label="状态"
             width="110"
             align="center"
         >
-
           <template slot-scope="scope">
             <span
                 style="padding: 4px"
                 size="mini"
-                :model="emp.state"
+                :model="currentMonograph.state"
                 :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
             >
               {{scope.row.state=="commit"
@@ -141,16 +137,22 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="type"
+            prop="point"
+            label="积分"
             align="center"
-            label="著作还是教材"
-            width="240"
+            width="80"
         >
         </el-table-column>
         <el-table-column
-            :formatter="checkScore"
-            prop="point"
-            label="积分"
+            prop="publisher"
+            label="出版社"
+            align="center"
+            width="80"
+        >
+        </el-table-column>
+        <el-table-column
+            prop="isbn"
+            label="ISBN"
             align="center"
             width="80"
         >
@@ -181,47 +183,49 @@
             background
             @current-change="currentChange"
             @size-change="sizeChange"
+            :current-page="currentPage"
             layout="sizes, prev, pager, next, jumper, ->, total, slot"
-            :total="total"
+            :total="totalCount"
+            :page-sizes="pageSizes"
+            :page-size="pageSize"
         >
         </el-pagination>
       </div>
     </div>
-    <!-- 对话框 老师审核通过论文 -->
+
+    <!-- 对话框 老师审核通过著作 -->
     <el-dialog :title="title"
-               :visible.sync="dialogVisible_pass" width="30%" center>
-      <!-- 确定审核通过该学生论文？ -->
+               :visible.sync="dialogVisiblePass" width="30%" center>
+      <!-- 确定审核通过该学生著作？ -->
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="emp"
-          :rules="rules"
+          :model="currentMonograph"
           ref="empForm"
           style="margin-left: 60px"
       >
-        <el-form-item label="编号:" prop="id">
-          <span>{{ emp.id }}</span>
+        <el-form-item label="著作ID:" prop="id">
+          <span>{{ currentMonograph.id }}</span>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <!-- <el-button @click="dialogVisible_pass = false">取 消</el-button> -->
+        <!-- <el-button @click="dialogVisiblePass = false">取 消</el-button> -->
         <el-button type="primary" @click="auditing_commit('tea_pass')">确 定</el-button>
       </span>
     </el-dialog>
-    <!-- 对话框 老师驳回该学生论文 -->
+    <!-- 对话框 老师驳回该学生著作 -->
     <el-dialog :title="title"
-               :visible.sync="dialogVisible_reject" width="30%" center>
+               :visible.sync="dialogVisibleReject" width="30%" center>
 
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="emp"
-          :rules="rules"
+          :model="currentMonograph"
           ref="empForm"
           style="margin-left: 40px"
       >
-        <el-form-item label="编号:" prop="id">
-          <span>{{ emp.id }}</span>
+        <el-form-item label="著作ID:" prop="id">
+          <span>{{ currentMonograph.id }}</span>
         </el-form-item>
         <el-form-item label="驳回理由:">
           <el-input
@@ -234,7 +238,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <!-- <el-button @click="dialogVisible_pass = false">取 消</el-button> -->
+        <!-- <el-button @click="dialogVisiblePass = false">取 消</el-button> -->
         <el-button type="primary" @click="auditing_commit('tea_reject')">确 定</el-button>
       </span>
     </el-dialog>
@@ -242,123 +246,99 @@
     <!-- 查看详情按钮 -->
     <el-dialog
         class="showInfo_dialog"
-        :title="title_show"
+        :title="titleName"
         :visible.sync="dialogVisible_show"
         width="520px"
         center>
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="emp"
-          :rules="rules"
+          :model="currentMonograph"
           ref="empForm"
           style="margin-left: 20px"
       >
-        <el-form-item label="作品名:" prop="name">
-          <span>{{ emp.name }}</span
+        <el-form-item label="著作名称:" prop="name">
+          <span>{{ currentMonograph.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="学生姓名:" prop="student">
-          <span>{{ emp.student.name }}</span
+        <el-form-item label="学生姓名:" prop="student.name">
+          <span>{{ currentMonograph.student.name }}</span
           ><br />
         </el-form-item>
 
-
-        <el-form-item label="状态:" prop="state">
-          <span>{{emp.state}}</span
+        <el-form-item label="著作状态:" prop="state">
+          <span>{{currentMonograph.state}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="参编作者:" prop="member">
-          <span>{{emp.member}}</span
+        <el-form-item label="作者人数:" prop="total">
+          <span>{{currentMonograph.total}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="版次:" prop="version">
-          <span>{{emp.version}}</span
+        <el-form-item label="作者排名:" prop="rank">
+          <span>{{currentMonograph.rank}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="出版社:" prop="place">
-          <span>{{emp.place}}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="出版年:" prop="year">
-          <span>{{emp.year}}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="出版月:" prop="month">
-          <span>{{emp.month}}</span
+        <el-form-item label="受理日期:" prop="date">
+          <span>{{currentMonograph.date | dataFormat}}</span
           ><br />
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
-          <!-- <el-button @click="download(emp)" type="primary">下载材料</el-button> -->
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(emp)"
+          <span v-if="currentMonograph.url == '' || currentMonograph.url == null ? true:false" >无证明材料</span>
+          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(currentMonograph)"
              onmouseover="this.style.color = 'blue'"
              onmouseleave="this.style.color = 'gray'">
-            {{emp.url|fileNameFilter}}</a>
+            {{currentMonograph.url | fileNameFilter}}</a>
           <br />
         </el-form-item>
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in emp.bookList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
               <div style="font-size: 10px;">
-                <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operation}}</p>
-                <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
+                <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
+                <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
               </div>
             </div>
           </div>
         </div>
       </el-form>
-      <span slot="footer" class="dialog-footer" :model="emp">
+      <span slot="footer" class="dialog-footer" :model="currentMonograph">
             <el-button
                 id="but_pass"
-                v-show="(emp.state=='commit' || (emp.state=='tea_pass' && role == 1)) ? true:false"
+                v-show="((currentMonograph.state=='commit' && role == 'teacher') || (currentMonograph.state=='tea_pass' && role == 'admin')) ? true:false"
                 @click="(()=>{
-                  if (this.role.indexOf('8') != -1)
+                  if (role == 'teacher')
                    auditing_commit('tea_pass')
-                  else if (this.role.indexOf('1') != -1)
+                  else if (role == 'admin')
                    auditing_commit('adm_pass')
                 }) "
                 type="primary"
             >审核通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="(emp.state=='commit' || (emp.state=='tea_pass' && role == 1)) ? true:false"
+                v-show="((currentMonograph.state=='commit' && role == 'teacher') || (currentMonograph.state=='tea_pass' && role == 'admin')) ? true:false"
                 @click="isShowInfo = true"
                 type="primary"
             >审核不通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="(emp.state=='tea_reject' || emp.state=='adm_reject' || emp.state == 'adm_pass' || (emp.state=='tea_pass' && role == 8))? true:false"
+                v-show="(currentMonograph.state=='tea_reject' || currentMonograph.state=='adm_reject' || currentMonograph.state == 'adm_pass' || (currentMonograph.state=='tea_pass' && role == 8))? true:false"
                 @click="dialogVisible_show = false"
                 type="primary"
             >关闭</el-button>
-
-        <!--                      <el-button-->
-        <!--                          id="but_reject"-->
-        <!--                          @click="dialogVisible_show = false"-->
-        <!--                          type="primary"-->
-        <!--                      >关闭</el-button>-->
         </span>
     </el-dialog>
-    <el-dialog v-model="emp" :visible.sync="isShowInfo">
+    <el-dialog v-model="currentMonograph" :visible.sync="isShowInfo">
       <el-input
           type="textarea"
           :rows="4"
           v-model="reason"
-          placeholder="请输入获奖成果驳回理由"
+          placeholder="请输入驳回理由"
       >
       </el-input>
       <span slot="footer">
-          <el-button @click=" (()=>{
-            if (this.role.indexOf('8') != -1)
-              auditing_commit('tea_reject')
-            else if (this.role.indexOf('1') != -1)
-              auditing_commit('adm_reject')
-            isShowInfo = false
-          })"
-                     type="primary">确定</el-button>
+          <el-button @click="rejectDialog()" type="primary">确定</el-button>
           <el-button @click="isShowInfo = false">取消</el-button>
         </span>
     </el-dialog>
@@ -372,101 +352,72 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      searchPointFront: '',
+      searchPointBack: '',
+      searchMonographName: '',
+      searchStatus: '',
+      searchStudentName: '',
+      pageSizes:[10,20,20,20,30],
+      totalCount:0,
+      currentPage:1,
+      pageSize:10,
       tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
-      ispubFlag:false,
-      ispubShow:false,
-      select_pub_option:'',
       operList:[],
       isShowInfo:false,
       select_stuName:["全部"],//筛选框
       select_paperName:["全部"],
       select_point:['全部',1,3,4,6,9,12,15],
-      select_pubName:[],
       option:["全部","学生提交","导师通过","管理员通过","导师驳回","管理员驳回"],
       labelPosition: "left",
       title: "",
-      title_show: "",
-      importDataBtnText: "导入数据",
-      importDataBtnIcon: "el-icon-upload2",
-      importDataDisabled: false,
+      titleName: "",
       showAdvanceSearchView: false,
-      allDeps: [],
       copyemps:[],
       emps: [],
-      role:-1,
       loading: false,
       dialogVisible: false,
-      dialogVisible_pass: false,
-      dialogVisible_reject: false,
+      dialogVisiblePass: false,
+      dialogVisibleReject: false,
       dialogVisible_show: false,
-      total: 0,
-      page: 1,
-      keyword: "",
-      size: 10,
-      positions: [],
       reason:"",
       oper:{
-        operatorRole: "teacher",
-        operatorID: this.user.id,
-        prodType: 'academic-monograph',
-        operationName: '',
-        state: '',
-        remark: '',
+        operatorRole: "",
+        operatorId: JSON.parse(localStorage.getItem('user')).id,
+        operatorName: JSON.parse(localStorage.getItem('user')).name,
+        prodType: '专著教材',
+        operationName:"",
+        state:"",
+        remark:"",
+        time: null,
         prodId: null,
-        time: null
       },
-      emp: {
+      currentMonograph: {
         id: null,
         institutionID: null,
         name: null,
-        startDate: "2022/02/02",
         scoreItemCount: "0",
-        score: "100",
-        groupCount: "0",
-        expertCount: "0",
-        participantCount: "0",
-        comment: "javaboy",
-        state:"",
-        student:{},
-        total:0,
-        rank:0
-        // reason:"",
+        score: "",
+        remark: "",
+        state: "",
+        student: {},
+        total: '',
+        rank: ''
       },
-      defaultProps: {
-        children: "children",
-        label: "name",
-      },
-      rules: {
-        name: [{ required: true, message: "请输入获奖成果名", trigger: "blur" }],
-        startDate: [
-          { required: true, message: "请输入获奖年份", trigger: "blur" },
-        ],
-        scoreItemCount: [
-          {
-            required: true,
-            type: "number",
-            message: "请输入正确数据",
-            trigger: "blur",
-            transform: (value) => Number(value),
-          },
-        ],
-        comment: [{ required: true, message: "请输入备注", trigger: "blur" }],
-      },
+      monographList: []
     };
   },
   computed: {
     user() {
       return this.$store.state.currentHr; //object信息
     },
-    menuHeight() {
-      return this.select_pubName.length * 50 > 150
-          ? 150 + 'px'
-          : '${this.select_pubName.length * 50}px'
-    },
+    role() {
+      return JSON.parse(localStorage.getItem('user')).role.indexOf('8') >= 0 ||
+      JSON.parse(localStorage.getItem('user')).role.indexOf('9') >= 0 ? 'teacher' : 'admin';
+    }
   },
   created() {},
   mounted() {
-    this.initEmps();
+    this.initMonographsList(1,10);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -478,41 +429,19 @@ export default {
       }
     }
   },
-  watch:{
-    //期刊输入框变化
-    select_pub_option:{
-      handler(val){
-        let url = "/book/basic/listByName?publicationName=" + val
-        console.log(url);
-        this.getRequest(url).then((resp) => {
-          this.loading = false;
-          if (resp) {
-            this.select_pubName=[]
-            if(resp.data != null){
-              for(var i=0;i<resp.data.length;i++){
-                this.select_pubName.push(
-                    {
-                      index:resp.data[i].id,
-                      value:resp.data[i].name,
-                      point:resp.data[i].indicator.score
-                    }
-                )
-              }
-            }else{
-              this.$message.error(`请检查期刊名称的拼写`);
-            }
-          }
-        });
-      }
-
-    }
-  },
   methods: {
+    rejectDialog(){
+      if (this.role == 'teacher')
+        this.auditing_commit('tea_reject')
+      else if (this.role == 'admin')
+        this.auditing_commit('adm_reject')
+      this.isShowInfo = false
+    },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
       var url = data.url
       axios({
-        url: '/paper/basic/downloadByUrl?url='+url,
+        url: '/monograph/basic/downloadByUrl?url='+url,
         method: 'GET',
         responseType: 'blob'
       }).then(response => {
@@ -525,170 +454,114 @@ export default {
         document.body.removeChild(link);
       });
     },
-    filter(val,options){
-      document.getElementById(options).value=val
-    },
-    filter_pub(val){//选择期刊
-      this.select_pub_option=val
-      this.ispubFlag=false
-      this.ispubShow=false
-    },
+    // filter(val,options){
+    //   document.getElementById(options).value=val
+    // },
     //点击对话框中的确定按钮 触发事件
     auditing_commit(num){
       this.loading = true;
-      let url;
-      const _this=this
+      let url = "/monograph/basic/edit_state?state=" + num + "&ID=" + this.currentMonograph.id;
       this.dialogVisible_show=false
-      url= "/book/basic/edit_state?state="+num
-          +"&ID="+this.emp.id
-      if(false){
-        this.loading = false;
-        this.$message.success('获奖成果已通过，无法驳回')
-      }else{
-        this.getRequest(url).then((resp) => {
-          this.loading = false;
-          if (resp) {
-            this.emp.state=num
-            this.total = resp.total;
-            this.$message({
-              type: 'success',
-              message: '操作成功'
-            })
-            this.doAddOper(num, this.reason, this.emp.id);
-          }
-        }).finally(()=>{
-          this.initEmps();
-        });
+      if(num.indexOf('reject') >= 0){
+        this.currentMonograph.remark = this.reason;
       }
+      this.getRequest(url).then((resp) => {
+        this.loading = false;
+        if (resp) {
+          this.currentMonograph.state = num
+          this.$message({
+            type: 'success',
+            message: '操作成功'
+          })
+          this.doAddOper(num, this.reason, this.currentMonograph.id);
+        }
+      })
     },
-    async doAddOper(state,remark,academicID) {
+    doAddOper(state,remark,monographID) {
       this.oper.state = state;
       this.oper.remark = remark;
-      this.oper.bookID = academicID;
+      this.oper.prodId = monographID;
       this.oper.time = this.dateFormatFunc(new Date());
-      if(this.oper.state=="tea_pass"){
-        this.oper.operation="教师审核通过"
-      }else if (this.oper.state == 'adm_pass')
-        this.oper.operation="管理员审核通过"
-      else if (this.oper.state =="tea_reject")
-        this.oper.operation="教师驳回"
-      else{
-        this.oper.operation="管理员驳回"
+      this.oper.operatorRole = this.role;
+      if(this.oper.state == "tea_pass" || this.oper.state == 'adm_pass'){
+        this.oper.operationName = "审核通过"
+      } else if (this.oper.state =="tea_reject" || this.oper.state == 'adm_reject'){
+        this.oper.operationName = "审核驳回"
       }
-      await this.postRequest1("/oper/basic/add", this.oper);
-      await this.initEmps();
+      this.postRequest1("/oper/basic/add", this.oper);
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
-    emptyEmp() {
-      this.emp = {
-        id: null,
-        startDate: null,
-        name: "",
-        scoreItemCount: "0",
-        comment: "获奖成果备注example：关于xxx的获奖成果",
-      };
-    },
     showEditEmpView_show(data) {
-      this.title_show = "显示详情";
-      this.emp = data;
+      this.loading = true;
+      this.titleName = "显示详情";
+      this.currentMonograph = data;
       this.dialogVisible_show = true;
-      this.getRequest("/book/basic/list?ID="+data.id).then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=专著教材').then((resp) => {
         this.loading = false;
         if (resp) {
-          this.isShowInfo=false
-          this.operList=resp.data
+          this.isShowInfo = false;
+          this.operList = resp.obj;
           this.operList.sort(function(a,b){
             return a.time > b.time ? -1 : 1
           })
         }
       });
     },
+    //应该要分是否有无筛选条件
     sizeChange(currentSize) {
-      this.size = currentSize;
-      this.initEmps();
+      this.pageSize = currentSize;
+      this.initMonographsList(this.currentPage,currentSize);
     },
     currentChange(currentPage) {
-      this.page = currentPage;
-      this.initEmps("advanced");
+      this.currentPage = currentPage;
+      this.initMonographsList(currentPage,this.pageSize);
     },
-    initEmps() {
+    initMonographsList(pageNum, pageSize) {
       this.loading = true;
-      this.role = JSON.parse(localStorage.getItem('user')).role
-      let url = "/book/basic/list";
+      let url = '/monograph/basic/List?pageNum=' + pageNum + '&pageSize=' + pageSize;
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.emps = resp.data;
-          this.copyemps=this.emps
-          this.total = resp.total;
-          for(var i=0;i<this.emps.length;i++){
-            var papername=this.emps[i].name
-            if(this.select_paperName.indexOf(papername)==-1){
-              this.select_paperName.push(papername)
-            }
-            var judge=this.emps[i].student.sname
-            if(this.select_stuName.indexOf(judge)==-1){
-              this.select_stuName.push(judge)
-            }
-            var pub=this.emps[i].publication.name
-            if(this.select_pubName.indexOf(pub)==-1){
-              this.select_pubName.push(pub)
-            }
-          }
-          this.emps.sort(function(a,b){
-            return a.time > b.time ? -1 : 1
+          this.monographList = resp.extend.res[0];
+          this.copyemps = this.monographList
+          this.totalCount = resp.extend.res[1];
+          this.monographList.sort(function(a,b){
+            return a.date > b.date ? -1 : 1
           })
         }
       });
     },
-    searchEmps() {//根据条件搜索论文
-      var newemps=new Set()
-      var stuname=document.getElementById("select_stuname").value
-      var select_paperName=document.getElementById("select_paperName").value
-      var state = null
-      if(this.tmp1 == '导师通过'){
+    searchMonograph(pageNum, pageSize) {//根据条件搜索
+      const params = {};
+      params.studentName = this.searchStudentName;
+      var state = this.searchStatus;
+      if(state == '导师通过'){
         state = 'tea_pass'
-      }else if(this.tmp1 == '导师驳回'){
+      }else if(state == '导师驳回'){
         state = 'tea_reject'
-      }else if(this.tmp1 == '学生提交'){
+      }else if(state == '学生提交'){
         state = 'commit'
-      }else if (this.tmp1 == '管理员通过'){
+      }else if (state == '管理员通过'){
         state = 'adm_pass'
-      }else if (this.tmp1 == '管理员驳回') {
+      }else if (state == '管理员驳回') {
         state = 'adm_reject'
       }
-      this.postRequest("/book/basic/list", {'stuName':stuname,'zcName':select_paperName,'sState':state,'sScore':this.tmp2,'eScore':this.tmp3}).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.emps = resp.data;
-          this.copyemps=this.emps
-          this.total = resp.total;
-          for(var i=0;i<this.emps.length;i++){
-            var papername=this.emps[i].name
-            if(this.select_paperName.indexOf(papername)==-1){
-              this.select_paperName.push(papername)
-            }
-            var judge=this.emps[i].student.sname
-            if(this.select_stuName.indexOf(judge)==-1){
-              this.select_stuName.push(judge)
-            }
-            var pub=this.emps[i].publication.name
-            if(this.select_pubName.indexOf(pub)==-1){
-              this.select_pubName.push(pub)
-            }
-          }
-          this.emps.sort(function(a,b){
-            return a.time > b.time ? -1 : 1
-          })
+      params.state = state;
+      params.name = this.searchMonographName;
+      params.pointFront = this.searchPointFront;
+      params.pointBack = this.searchPointBack;
+      params.pageNum = pageNum.toString();
+      params.pageSize = pageSize.toString();
+      this.postRequest('/monograph/basic/searchMonographByConditions', params).then((response) => {
+        if(response) {
+          this.monographList = response.extend.res[0];
+          this.totalCount = response.extend.res[1];
         }
-      });
-    },
-    checkScore(row){
-      return row.no_score == 1 ? "0（2分论文只能计算一次）" : row.point;
-    },
-  },
+      })
+    }
+  }
 };
 </script>
 
@@ -720,6 +593,10 @@ input[type=text]::placeholder {
 input:focus{
   border:1px solid lightblue;
 }
+.slide-fade-enter-active {
+  transition: all 0.8s ease;
+}
+
 .slide-fade-leave-active {
   transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
 }
@@ -737,13 +614,6 @@ div::-webkit-scrollbar:vertical {
   /* 设置垂直滚动条宽度 */
   width: 6px;
 }
-
-
-/* 这里不需要用到这个 */
-/* div::-webkit-scrollbar:horizontal{ */
-/* 设置水平滚动条厚度 */
-/* height: 2px; */
-/* } */
 
 div::-webkit-scrollbar-thumb {
   /* 滚动条的其他样式定制，注意，这个一定也要定制，否则就是一个透明的滚动条 */
