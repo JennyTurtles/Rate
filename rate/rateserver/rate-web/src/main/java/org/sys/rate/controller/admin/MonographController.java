@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.model.Monograph;
 import org.sys.rate.model.Msg;
+import org.sys.rate.model.Operation;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.MonographService;
 import org.sys.rate.service.admin.IndicatorService;
@@ -26,7 +27,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 专著成果Controller
@@ -141,5 +144,13 @@ public class MonographController {
                 .contentLength(file.length())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
+    }
+    @PostMapping("/searchMonographByConditions")
+    public Msg searchMonographByConditions(@RequestBody Map<String, String> params) {
+        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
+        List<Monograph> list = monographService.searchMonographByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"));
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
     }
 }

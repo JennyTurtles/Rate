@@ -208,7 +208,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAdd">取 消</el-button>
-        <el-button type="primary" @click="addMonograph">提 交</el-button>
+        <el-button type="primary" @click="addMonograph" v-show="addButtonState">提 交</el-button>
       </span>
     </el-dialog>
 
@@ -232,6 +232,10 @@
         </el-form-item>
         <el-form-item label="作者名称:" prop="author">
           <span>{{ currentMonograph.author }}</span
+          >
+        </el-form-item>
+        <el-form-item label="作者人数:" prop="rank">
+          <span>{{ currentMonograph.total }}</span
           >
         </el-form-item>
         <el-form-item label="作者排名:" prop="rank">
@@ -304,12 +308,11 @@ export default {
       },
       files:[],//选择上传的文件列表
       urlFile:'',//文件路径
-      addButtonState:true,//是否允许添加专著或教材
+      addButtonState: false,//是否允许添加专著或教材
       operList:[],//每个专著或教材的历史操作记录
       remarksort:[],//对显示的驳回理由做排序
       member:'',//和输入的作者列表绑定
       options:[],//存储所有类型对象
-      data_picker:"",//选择时间
       labelPosition: "left",
       title: "",
       title_show: "",
@@ -318,8 +321,6 @@ export default {
       dialogVisible: false,
       dialogVisible_show: false,
       dialogVisible_showInfo:false,
-      total: 0,
-      size: 10,
       oper:{
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
@@ -473,9 +474,9 @@ export default {
       }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
         if(this.member != info.name && isalph){
           this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.addButtonState=false
+          this.addButtonState = false
         }else{
-          this.addButtonState=true
+          this.addButtonState = true
           this.currentMonographCopy.author = this.member
           this.currentMonographCopy.rank = 1
           this.currentMonographCopy.total = 1
@@ -593,9 +594,8 @@ export default {
     showAddEmpView() {//点击添加科研专著或教材按钮
       this.urlFile = ''
       this.currentMonographCopy = {};
-      this.addButtonState=true
-      this.member=''
-      this.data_picker=''
+      this.addButtonState = false;
+      this.member = ''
       this.title = "添加著作";
       this.dialogVisible = true;
     },
