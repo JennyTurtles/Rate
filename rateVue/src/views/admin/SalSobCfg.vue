@@ -474,9 +474,12 @@
                   :total="total">
               </el-pagination>
             </div>
-            <el-button type="primary" style="float: right" @click="add">
-              添加
-            </el-button>
+            <div style="color: #4b8ffe ;float: right">
+              已选择{{multipleSelection.length}}位专家
+              <el-button type="primary" @click="add" style="padding-left: 10px">
+                添加
+              </el-button>
+            </div>
           </el-tab-pane>
           <el-tab-pane label="批量导入">
             <div style="display: flex; justify-content: left;margin-top:10px">
@@ -1383,7 +1386,16 @@ export default {
       })
     },
     handleSelectionChange(val){
-     this.multipleSelection = val
+      for(let i=0;i<val.length;i++){
+        for (let j=0;j<this.hrs.length;j++){
+          if (val[i].idnumber===this.hrs[j].idnumber){
+            val.splice(i,1);
+            i--;
+            break;
+          }
+        }
+      }
+      this.multipleSelection=val;
     },
   },
 };
