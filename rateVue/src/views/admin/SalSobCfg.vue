@@ -1,16 +1,17 @@
 <template>
   <div>
+   <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
    <div style="display: flex; justify-content: left">
-    <div style="width: 100%;text-align: center;font-size: 20px">专家管理</div>
+    <div style="width: 100%;text-align: center;font-size: 20px" v-show="typeof $route.query.addActive === 'undefined'">专家管理</div>
     <div style="margin-left: auto;">
-     <el-button icon="el-icon-back" type="primary" @click="back" style="float: right">
+     <el-button icon="el-icon-back" type="primary" @click="back" style="float: right" v-show="typeof $route.query.addActive === 'undefined'">
       返回
      </el-button>
     </div>
    </div>
-   <el-tabs v-model="activeName" @tab-click="change2Par">
-    <el-tab-pane label="选手管理" name="participant">用户管理</el-tab-pane>
-    <el-tab-pane label="专家管理" name="expert">配置管理</el-tab-pane>
+   <el-tabs v-model="activeName" style="width: 70%" @tab-click="change2Par">
+    <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
+    <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
    </el-tabs>
     <div style="display: flex; justify-content: left">
       <a>
@@ -62,6 +63,14 @@
       <el-button type="success" @click="showMethod" style="margin-top: 15px" v-if="haveGroup || groupID">
         添加专家
       </el-button>
+     <el-tooltip class="item" effect="dark" content="当前活动无分组，无法添加专家。请先在分组管理中添加分组后再试。" placement="top-start" v-else :disabled='false'>
+      <span>
+      <el-button type="success" @click="showMethod" style="margin-top: 15px"  :disabled="true">
+       添加专家
+      </el-button>
+      </span>
+     </el-tooltip>
+
     </div>
 
     <div style="margin-top: 10px">
@@ -574,9 +583,11 @@ import {Message} from 'element-ui'
 import {validateInputIdCard,checkIdCard} from "@/utils/check";
 import sha1 from "sha1";
 import PinYinMatch from 'pinyin-match';
+import AddActStep from "@/components/AddActStep.vue";
 
 export default {
   name: "SalSobCfg",
+ components: {AddActStep},
   data() {
     return {
      activeName: 'expert',
@@ -1354,6 +1365,7 @@ export default {
             backID:this.$route.query.groupID,
             backActName:this.$route.query.backActName,
             smallGroup:this.$route.query.smallGroup,
+            addActive:this.$route.query.addActive,
           }
         })
       }
@@ -1366,6 +1378,7 @@ export default {
             groupID:this.groupID,
             mode:this.mode,
             backID:this.activityID,
+            addActive:this.$route.query.addActive,
           }
         })
       }

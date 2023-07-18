@@ -1,18 +1,19 @@
 <template>
   <div>
+   <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :actName="keywords_name"></AddActStep>
     <div>
       <div >
         <div style="display: flex; justify-content: left">
-          <div style="width: 100%;text-align: center;font-size: 20px">选手管理</div>
-          <div style="margin-left: auto;float: right">
-            <el-button icon="el-icon-back" type="primary" @click="back" style="float: right">
+          <div style="width: 100%;text-align: center;font-size: 20px" v-show="typeof $route.query.addActive === 'undefined'">选手管理</div>
+          <div style="margin-left: auto;float: right" v-show="typeof $route.query.addActive === 'undefined'">
+            <el-button icon="el-icon-back" type="primary" @click="back" style="float: right" >
               返回
             </el-button>
           </div>
         </div>
-        <el-tabs v-model="activeName" @tab-click="change2Exp">
-          <el-tab-pane label="选手管理" name="participant">用户管理</el-tab-pane>
-          <el-tab-pane label="专家管理" name="expert">配置管理</el-tab-pane>
+        <el-tabs v-model="activeName" @tab-click="change2Exp" style="width: 70%">
+          <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
+          <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
           <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
         </el-tabs>
         <a>
@@ -583,8 +584,10 @@ import {Message} from "element-ui";
 import axios from 'axios'
 import {validateInputIdCard} from "@/utils/check";
 import PinYinMatch from "pinyin-match";
+import AddActStep from "@/components/AddActStep.vue";
 export default {
   name: "SalGroup",
+ components: {AddActStep},
   data() {
     return{
       mode:'',
@@ -1061,6 +1064,7 @@ export default {
           backID: this.activityID,
           mode:this.mode,
           haveSub:this.$route.query.haveSub,
+          addActive:this.$route.query.addActive,
         }
       })
     },

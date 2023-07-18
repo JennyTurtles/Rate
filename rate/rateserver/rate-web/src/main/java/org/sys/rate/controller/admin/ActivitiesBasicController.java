@@ -48,6 +48,12 @@ public class ActivitiesBasicController {
         return activitiesService.getActivitiesPage(page, size, employee, institutionID,adminID);
     }
 
+    @GetMapping("/one")
+    public RespBean getActivitiesByID(@RequestParam Integer activityID) {
+        Activities res = activitiesMapper.getByID(activityID);
+        return RespBean.ok("success",res);
+    }
+
     @GetMapping("/sub")
     public RespBean getSubActivities(Integer activityID) {
         List<Activities> res = activitiesMapper.getSubActivities(activityID);
