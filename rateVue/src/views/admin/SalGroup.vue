@@ -1,10 +1,40 @@
 <template>
   <div>
     <div>
-      {{keywords_name}}活动<br/><br/>
-      选手导入可以分多次进行。<br/>
-      选手第一次导入时，可先不分组。此时可以将导入表格中的“分组名称”留空，进行导入操作。待分组后，再导入一次，从而实现分组。
-      选手的信息项以及评分项，也可在选手第一次导入时留空，待第二次、第三次（或之后）导入时填入那些信息。<br/>
+      <div >
+        <div style="display: flex; justify-content: left">
+          <div style="width: 100%;text-align: center;font-size: 20px">选手管理</div>
+          <div style="margin-left: auto;float: right">
+            <el-button icon="el-icon-back" type="primary" @click="back" style="float: right">
+              返回
+            </el-button>
+          </div>
+        </div>
+        <el-tabs v-model="activeName" @tab-click="change2Exp">
+          <el-tab-pane label="选手管理" name="participant">用户管理</el-tab-pane>
+          <el-tab-pane label="专家管理" name="expert">配置管理</el-tab-pane>
+          <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
+        </el-tabs>
+        <a>
+          选手添加有三种模式：手动添加、从本单位添加、批量导入。<br/><br/>
+        </a>
+        <div style="display: flex;justify-content: space-between;">
+          <!-- <div>
+            <el-input placeholder="请输入单位名进行搜索，可以直接回车搜索..." prefix-icon="el-icon-search"
+                      clearable
+                      @clear="searchEmps"
+                      style="width: 350px;margin-right: 10px" v-model="keyword"
+                      @keydown.enter.native="searchEmps" :disabled="showAdvanceSearchView"></el-input>
+            <el-button icon="el-icon-search" type="primary" @click="searchEmps" :disabled="showAdvanceSearchView">
+              搜索
+            </el-button>
+          </div> -->
+        </div>
+      </div>
+<!--      {{keywords_name}}活动<br/><br/>-->
+<!--      选手导入可以分多次进行。<br/>-->
+<!--      选手第一次导入时，可先不分组。此时可以将导入表格中的“分组名称”留空，进行导入操作。待分组后，再导入一次，从而实现分组。-->
+<!--      选手的信息项以及评分项，也可在选手第一次导入时留空，待第二次、第三次（或之后）导入时填入那些信息。<br/>-->
       <div style="display: flex;justify-content: space-between;">
 
         <!-- <div>
@@ -18,25 +48,28 @@
           </el-button>
         </div> -->
         <div>
-          <span style="font-weight:600;">导入新数据</span> 第一步：
-          <el-button type="primary" @click="exportCheckbox" icon="el-icon-upload" style="margin-right: 8px">
-            下载模板
+<!--          <span style="font-weight:600;">导入新数据</span> 第一步：-->
+<!--          <el-button type="primary" @click="exportCheckbox" icon="el-icon-upload" style="margin-right: 8px">-->
+<!--            下载模板-->
+<!--          </el-button>-->
+<!--          第二步：-->
+<!--&lt;!&ndash;          导入选手按钮&ndash;&gt;-->
+<!--          <el-upload-->
+<!--              :show-file-list="false"-->
+<!--              :before-upload="beforeUpload"-->
+<!--              :on-success="onSuccess"-->
+<!--              :on-error="onError"-->
+<!--              :disabled="importDataDisabled"-->
+<!--              style="display: inline-flex;"-->
+<!--              action="#"-->
+<!--              :http-request="handleChange">-->
+<!--            <el-button :disabled="importDataDisabled" type="primary" :icon="importDataBtnIcon">-->
+<!--              {{importDataBtnText}}-->
+<!--            </el-button>-->
+<!--          </el-upload>-->
+          <el-button type="success" @click="showMethod">
+            添加选手
           </el-button>
-          第二步：
-<!--          导入选手按钮-->
-          <el-upload
-              :show-file-list="false"
-              :before-upload="beforeUpload"
-              :on-success="onSuccess"
-              :on-error="onError"
-              :disabled="importDataDisabled"
-              style="display: inline-flex;"
-              action="#"
-              :http-request="handleChange">
-            <el-button :disabled="importDataDisabled" type="primary" :icon="importDataBtnIcon">
-              {{importDataBtnText}}
-            </el-button>
-          </el-upload>
           <el-button type="primary" @click="groupsForParticipant" icon="el-icon-upload" style="margin-left: 10px">
             选手分组
           </el-button>
@@ -442,18 +475,121 @@
           <el-button @click="dialogVisible_checkbox = false">关闭</el-button>
         </span>
     </el-dialog>
+    <el-dialog :title="title" ref="dia" :visible.sync="dialogVisible_method" width="55%" center @close="handleClose">
+      <el-tabs type="border-card">
+        <el-tab-pane label="手动添加">
+          <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
+            <el-form-item label="身份证号:" prop="idnumber" >
+              <el-input style="width: 60%"  v-model="manualAddForm.idnumber" @blur="getInfoByIDNumber()"></el-input>
+            </el-form-item>
+            <el-form-item label="编号:" prop="code" >
+              <el-input style="width: 60%" v-model="manualAddForm.code"></el-input>
+            </el-form-item>
+            <el-form-item label="姓名:" prop="name" >
+              <el-input style="width: 60%" v-model="manualAddForm.name" :disabled="manualAddFormDisabled"></el-input>
+            </el-form-item>
+            <el-form-item label="电话:" prop="telephone">
+              <el-input style="width: 60%" v-model="manualAddForm.telephone" :disabled="manualAddFormDisabled"></el-input>
+            </el-form-item>
+            <el-form-item label="邮箱:" prop="email">
+              <el-input style="width: 60%" v-model="manualAddForm.email" :disabled="manualAddFormDisabled"></el-input>
+            </el-form-item>
+          </el-form>
+          <el-button type="primary" @click="manualAdd">添加</el-button>
+        </el-tab-pane>
+        <el-tab-pane label="从本单位添加">
+          <el-input
+              v-model="searchText"
+              placeholder="请输入学号或姓名进行搜索"
+              @keyup.enter.native="search"
+              @input="search"
+          >
+            <template #append>
+              <el-button icon="el-icon-search" type="success" @click="search"></el-button>
+            </template>
+          </el-input>
+          <el-table
+              ref="multipleTable"
+              :data="currentParticipants"
+              tooltip-effect="dark"
+              style="width: 100%"
+              @selection-change="handleSelectionChange"
+              :row-key="getRowKeys">
+            <el-table-column
+                :reserve-selection="true"
+                type="selection"
+                :selectable="checkSecletion"
+                width="40px">
+            </el-table-column>
+            <el-table-column
+                prop="studentNumber"
+                label="学号"
+                show-overflow-tooltip>
+            </el-table-column>
+            <el-table-column
+                prop="name"
+                label="姓名">
+            </el-table-column>
 
+          </el-table>
+          <div class="block" style="padding-top: 10px">
+            <el-pagination
+                @current-change="currentChange_all"
+                @size-change="sizeChange_all"
+                :current-page="page"
+                layout="sizes, prev, pager, next, jumper, ->, total, slot"
+                :total="total">
+            </el-pagination>
+          </div>
+          <div style="color: #4b8ffe ;float: right">
+            已选择{{multipleSelection.length}}位选手
+            <el-button type="primary" @click="add" style="padding-left: 10px">
+              添加
+            </el-button>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="批量导入">
+          <a>
+            选手第一次导入时，可先不分组。此时可以将导入表格中的“分组名称”留空，进行导入操作。待分组后，再导入一次，从而实现分组。
+            选手的信息项以及评分项，也可在选手第一次导入时留空，待第二次、第三次（或之后）导入时填入那些信息。<br/><br/>
+          </a>
+          <span style="font-weight:600;">导入新数据</span> 第一步：
+          <el-button type="primary" @click="exportCheckbox" icon="el-icon-upload" style="margin-right: 8px">
+            下载模板
+          </el-button>
+          第二步：
+          <!--          导入选手按钮-->
+          <el-upload
+              :show-file-list="false"
+              :before-upload="beforeUpload"
+              :on-success="onSuccess"
+              :on-error="onError"
+              :disabled="importDataDisabled"
+              style="display: inline-flex;"
+              action="#"
+              :http-request="handleChange">
+            <el-button :disabled="importDataDisabled" type="primary" :icon="importDataBtnIcon">
+              {{importDataBtnText}}
+            </el-button>
+          </el-upload>
+        </el-tab-pane>
+      </el-tabs>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import {Message} from "element-ui";
 import axios from 'axios'
+import {validateInputIdCard} from "@/utils/check";
+import PinYinMatch from "pinyin-match";
 export default {
   name: "SalGroup",
   data() {
     return{
       mode:'',
+      activeName:'participant',
+      searchText: '',
       filterParticipantsByState:'',
       filterParticipantsByStateList:['全部显示','未分组','已分组'],//筛选选手下拉框
       sortBy:'',
@@ -474,6 +610,7 @@ export default {
       importDataBtnIcon: 'el-icon-plus',
       importDataDisabled: false,
       showAdvanceSearchView: false,
+      manualAddFormDisabled: false,
       show:false,
       percentage: '',
       keywords_name: "",
@@ -486,17 +623,24 @@ export default {
       infoitem:[],
       scoreitem_from_back:[],
       infoitem_from_back:[],
+      participants:[],
+      currentParticipants:[],
+      multipleSelection: [],
       dialogVisible_edit: false,
       dialogVisible_checkbox: false,
+      dialogVisible_method:false,
       loading: false,
       dialogVisible: false,
       total: 0,
       page: 1,
+      size: 10,
+      total_all: 0,
+      page_all: 1,
+      size_all: 10, //用于添加选手里的分页
       keywords: '',
       keyword: '',
       activityID: '',
       groupID: '',
-      size: 10,
       positions: [],
       emp: {
         id:null,
@@ -510,6 +654,13 @@ export default {
         participantCount: '0',
         comment: "javaboy",*/
       },
+      manualAddForm:{
+        code:'',
+        name: '',
+        telephone: '',
+        idnumber: '',
+        email:'',
+      },
       defaultProps: {
         children: 'children',
         label: 'name',
@@ -519,6 +670,10 @@ export default {
         startDate: [{required: true, message: '请输入活动时间', trigger: 'blur'}],
         scoreItemCount: [{required: true, type: 'number', message: '请输入正确数据', trigger: 'blur', transform: (value) => Number(value)}],
         comment: [{required: true, message: '请输入备注', trigger: 'blur'}],
+      },
+      manualAddRules:{
+        idnumber:[
+          { validator: validateInputIdCard, trigger: "blur" }]
       }
     }
   },
@@ -616,6 +771,21 @@ export default {
           }
         });
       }
+    },
+    search() {
+      if (this.searchText === ''){
+        this.participants = this.participants_raw
+      }else if (/^\d+$/.test(this.searchText)){ // 纯数字，按工号搜索
+        this.participants = this.participants_raw.filter(item => item.studentNumber != null &&  item.studentNumber.includes(this.searchText))
+      }else if (/^[a-zA-Z]*$/.test(this.searchText)){ //纯英文，考虑首字母
+        //const PinyinMatch = require('pinyin-match');
+        this.participants = this.participants_raw.filter(item => PinYinMatch.match(item.name,this.searchText))
+      } else { // 非纯数字，按姓名搜索
+        this.participants = this.participants_raw.filter(item => item.name.includes(this.searchText))
+      }
+      this.total_all = this.participants.length
+      this.getCurrentParticipants()
+      this.page_all = 1
     },
     deleteGroupsOfParticipant(){//删除分组 这个活动下的所有group
         this.$confirm('是否确认清空分组信息？', '提示', {
@@ -878,7 +1048,32 @@ export default {
           });
 
     },
-
+    change2Exp(){
+      const _this = this;
+      _this.$router.push({
+        path: "/ActivitM/sobcfg",
+        query: {
+          activityID: this.keywords,
+          keywords: this.keywords,
+          keyword_name: this.keywords_name,
+          keywords_name:this.keywords_name,
+          groupID: this.groupID,
+          backID: this.activityID,
+          mode:this.mode,
+          haveSub:this.$route.query.haveSub,
+        }
+      })
+    },
+    handleClose(){
+      this.$refs.manualAddForm.resetFields();
+      this.manualAddFormDisabled=false;
+      this.searchText = ''
+      this.multipleSelection = []
+      this.participants = this.participants_raw
+      this.total_all = this.participants.length
+      this.page_all = 1
+      this.$refs.multipleTable.clearSelection()
+    },
     exportData() {
       this.loading=true;
       Message.success("正在导出");
@@ -956,6 +1151,14 @@ export default {
         this.filterParticipantsByStateMed(this.filterParticipantsByState)
       }
     },
+    sizeChange_all(currentSize) {
+      this.size_all = currentSize;
+      this.getCurrentParticipants();
+    },
+    currentChange_all(currentPage) {
+      this.page_all = currentPage;
+      this.getCurrentParticipants('advanced');
+    },
     initEmps() {
       this.loading = true;
       let url = '/participants/basic/?page=' + this.page + '&size=' + this.size+ '&groupID=0'+ '&activitiesID='+this.keywords;
@@ -969,6 +1172,7 @@ export default {
           //console.log("total",this.total);
         }
       });
+      this.initParticipants();
     },
     back(){
       const _this = this;
@@ -1002,6 +1206,117 @@ export default {
       this.postRequest("/participants/basic/update", _this.emp).then((resp) => {
       });
     },
+    initParticipants(){
+      this.loading = true;
+      let url = '/participants/basic/getByInstitutionID/?institutionID=' + this.user.institutionID;
+      this.getRequest(url).then(resp => {
+        this.loading = false;
+        if (resp) {
+          this.participants = resp.obj;
+          this.participants_raw = resp.obj;
+          this.total_all = this.participants.length;
+        }
+      });
+    },
+    showMethod(){
+      this.title = "添加选手";
+      this.dialogVisible_method=true;
+      this.getCurrentParticipants();
+    },
+    getInfoByIDNumber(){
+      if (this.manualAddFormDisabled === true){
+        this.manualAddForm = {idnumber: this.manualAddForm.idnumber}
+      }
+      this.manualAddFormDisabled = false
+      this.getRequest("/participants/basic/getByIDNumber?IDNumber="+this.manualAddForm.idnumber).then(resp => {
+        if (resp && resp.obj != null){
+          this.manualAddForm = {
+            code:resp.obj.code,
+            name: resp.obj.name,
+            telephone: resp.obj.telephone,
+            idnumber: resp.obj.idnumber,
+            email:resp.obj.email,
+          }
+          this.manualAddFormDisabled = true
+        }
+      })
+    },
+    manualAdd(){
+      {
+        this.manualAddForm.institutionid = this.user.institutionID;
+        this.manualAddForm.activityID = this.keywords
+        this.manualAddForm.groupID = this.groupID
+        this.manualAddForm.IDNumber = this.manualAddForm.idnumber
+        this.$refs['manualAddForm'].validate((valid) => {
+          if (valid) {
+            this.postRequest1("/participants/basic/manualAdd",this.manualAddForm).then(resp => {
+              if (resp && resp.status === 200) {
+                this.dialogVisible_method = false
+                this.initEmps(this.emps.length);
+              }
+            });
+          } else {
+            return false
+          }
+        })
+      }
+
+    },
+    handleSelectionChange(val){
+      for(let i=0;i<val.length;i++){
+        for (let j=0;j<this.emps.length;j++){
+          if (val[i].idnumber===this.emps[j].idnumber){
+            val.splice(i,1);
+            i--;
+            break;
+          }
+        }
+      }
+      this.multipleSelection=val;
+    },
+    getRowKeys(row) {
+      return row.name;
+    },
+    checkSecletion(row,index){
+      for (let i = 0; i < this.emps.length; i++){
+        if (row.idnumber === this.emps[i].idnumber)
+          return false;
+      }
+      return true;
+    },
+    getCurrentParticipants(){
+      let begin = (this.page_all - 1) * this.size_all;
+      let end = this.page_all * this.size_all;
+      this.currentParticipants = this.participants.slice(begin, end);
+      this.$nextTick(() => {
+        this.currentParticipants.forEach(item => {
+          for (let i = 0; i < this.emps.length; i++){
+            if (item.idnumber === this.emps[i].idnumber)
+              this.$refs.multipleTable.toggleRowSelection(item, true)
+          }
+        })
+      })
+    },
+    add(){
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '请选择选手!'
+        });
+        return;
+      }
+      this.dialogVisible_method = false;
+      const _this = this;
+      this.postRequest("/participants/basic/addPars?activityID="+this.keywords + "&groupID=" + this.groupID,_this.multipleSelection).then((resp) => {
+        if (resp) {
+          this.initEmps();
+          this.$message({
+            type: 'success',
+            message: '添加成功!'
+          });
+        }
+      });
+    }
   }
 }
 </script>

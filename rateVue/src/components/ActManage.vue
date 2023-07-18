@@ -215,7 +215,7 @@
                                 icon="el-icon-plus"
                                 type="primary"
                                 plain
-                        >选手管理
+                        >人员管理
                         </el-button
                         >
                         <el-button
@@ -229,17 +229,17 @@
                         >选手管理
                         </el-button
                         >
-                        <el-button
-                                @click="showGroups(scope.row)"
-                                style="padding: 4px"
-                                size="mini"
-                                icon="el-icon-tickets"
-                                type="primary"
-                                v-show="mode==='admin' || mode==='secretary'"
-                                plain
-                        >专家管理
-                        </el-button
-                        >
+<!--                        <el-button-->
+<!--                                @click="showGroups(scope.row)"-->
+<!--                                style="padding: 4px"-->
+<!--                                size="mini"-->
+<!--                                icon="el-icon-tickets"-->
+<!--                                type="primary"-->
+<!--                                v-show="mode==='admin' || mode==='secretary'"-->
+<!--                                plain-->
+<!--                        >专家管理-->
+<!--                        </el-button-->
+<!--                        >-->
                         <el-button
                                 @click="showScore(scope.row)"
                                 v-show="scope.row.haveSub !== 1"
@@ -468,18 +468,7 @@
               ref="empForm"
               v-if="radio===2"
             >
-              <div>注：克隆活动时会克隆对应的评分项、信息项、展示项、子活动的对应信息</div><br/>
-              <el-form-item label="选择已有活动:" prop="name">
-                <el-select placeholder="请选择" v-model="currentCloneid" @change="selectClone($event)">
-                  <el-option
-                      v-for="item in coloneActivity"
-                      :key="item.id"
-                      :label="item.name"
-                      :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-              <div v-if="currentClone!==''">
+              <div style="display: flex; justify-content: left">
                 <el-form-item label="活动名称:" prop="name">
                   <el-input
                       size="mini"
@@ -489,6 +478,17 @@
                       placeholder="请输入活动名称"
                   ></el-input>
                 </el-form-item>
+                <el-form-item label="克隆自活动:" prop="name">
+                  <el-select placeholder="请选择" v-model="currentCloneid" @change="selectClone($event)">
+                    <el-option
+                        v-for="item in coloneActivity"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </div>
               <el-form-item label="专家可见时间:" prop="visibleDate">
                 <div class="block">
                   <div>
@@ -535,7 +535,6 @@
                   </el-date-picker>
                 </div>
               </el-form-item>
-
               <el-form-item label="备 注: " prop="comment">
                 <el-input
                     type="textarea"
@@ -545,7 +544,10 @@
                 >
                 </el-input>
               </el-form-item>
-              </div>
+              <el-form-item  label="包含子活动: ">
+                <el-checkbox v-model="currentClone.haveSub===1" :disabled="true"></el-checkbox>
+              </el-form-item>
+                <div>注：克隆活动时会克隆对应的评分项、信息项、展示项、子活动的对应信息</div><br/>
             </el-form>
             <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
@@ -1116,6 +1118,7 @@ export default {
               break;
             }
           }
+          console.log(this.currentClone);
           this.currentCloneid=event;
           this.emp.comment=this.currentClone.comment;
           this.emp.name=this.currentClone.name+"克隆活动";
@@ -1676,6 +1679,7 @@ export default {
                     groupID:this.groupID,
                     mode:this.mode,
                     backID:this.activityID,
+                    haveSub:data.haveSub,
                 },
             });
         },

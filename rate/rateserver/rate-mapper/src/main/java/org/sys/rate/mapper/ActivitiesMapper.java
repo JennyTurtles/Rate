@@ -133,4 +133,8 @@ public interface ActivitiesMapper {
             "FROM `groups`\n" +
             "WHERE activityID = #{oldActID};")
     void cloneGroup(Integer newActID, Integer oldActID);
+
+    @Select("SELECT ID FROM `groups` WHERE activityID = #{activityID} LIMIT 1")
+    Integer checkHaveGroup(Integer activityID);
+
 }

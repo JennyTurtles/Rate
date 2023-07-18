@@ -3,6 +3,7 @@ package org.sys.rate.controller.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.ActivitiesMapper;
+import org.sys.rate.mapper.GroupsMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.ActivitiesService;
 import org.sys.rate.service.admin.LogService;
@@ -34,6 +35,9 @@ public class ActivitiesBasicController {
 
     @Resource
     ActivitiesMapper activitiesMapper;
+
+    @Autowired
+    GroupsMapper groupsMapper;
 
     @GetMapping("/")
     public RespPageBean getActivitiesByPage(@RequestParam(defaultValue = "1") Integer page,
@@ -214,6 +218,20 @@ public class ActivitiesBasicController {
     public RespBean cloneActivity(@RequestBody Activities activity) {
         activitiesService.cloneActivity(activity);
         return RespBean.ok("克隆成功");
+    }
+
+    @GetMapping("/checkHaveGroup")
+    public RespBean checkHaveGroup(@RequestParam Integer activityID) {
+        if (activitiesMapper.checkHaveGroup(activityID) != null) {
+            return RespBean.ok("已分组", true);
+        } else
+            return RespBean.ok("未分组",false);
+    }
+
+    @GetMapping("/getAllGroup")
+    public RespBean getAllGroup(@RequestParam Integer activityID){
+        List<Groups> res = groupsMapper.getGroupByActID(activityID);
+        return RespBean.ok("success",res);
     }
 }
 

@@ -8,11 +8,11 @@
      </el-button>
     </div>
    </div>
-   <el-tabs v-model="activeName" @tab-click="change2Par" v-show="groupID">
+   <el-tabs v-model="activeName" @tab-click="change2Par">
     <el-tab-pane label="选手管理" name="participant">用户管理</el-tab-pane>
     <el-tab-pane label="专家管理" name="expert">配置管理</el-tab-pane>
    </el-tabs>
-    <div style="display: flex; justify-content: left" v-show="groupID">
+    <div style="display: flex; justify-content: left">
       <a>
         专家添加有三种模式：手动添加、从本单位添加、批量导入。
       </a>
@@ -59,7 +59,7 @@
 <!--        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。-->
 <!--    </div>-->
     <div>
-      <el-button type="success" @click="showMethod" style="margin-top: 15px" v-if="groupID">
+      <el-button type="success" @click="showMethod" style="margin-top: 15px" v-if="haveGroup || groupID">
         添加专家
       </el-button>
     </div>
@@ -426,11 +426,21 @@
             <el-form-item label="密码:" prop="password">
              <el-input style="width: 60%" v-model="manualAddForm.password" @input="$forceUpdate()" :disabled="manualAddFormDisabled"></el-input>
             </el-form-item>
+             <el-form-item label="组别:" prop="password">
+               <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px">
+                 <el-option
+                     v-for="x in groups"
+                     :key="x.name"
+                     :label="x.name"
+                     :value="x.id">
+                 </el-option>
+               </el-select>
+             </el-form-item>
            </el-form>
            <el-button type="primary" @click="manualAdd">添加</el-button>
           </el-tab-pane>
           <el-tab-pane label="从本单位添加">
-           <div>
+           <div style="display: flex; justify-content: left">
             <el-input
                 v-model="searchText"
                 placeholder="请输入工号或姓名进行搜索"
@@ -441,6 +451,14 @@
               <el-button icon="el-icon-search" type="success" @click="search"></el-button>
              </template>
             </el-input>
+             <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px">
+               <el-option
+                   v-for="x in groups"
+                   :key="x.name"
+                   :label="x.name"
+                   :value="x.id">
+               </el-option>
+             </el-select>
            </div>
             <el-table
                 ref="multipleTable"
@@ -584,6 +602,9 @@ export default {
       activityID:-1,
       flag:0,
       haveSub:0,
+      haveGroup:false,
+      groups:[],
+      currentAddGroup:'',
       //当前焦点数据
       currentfocusdata: "",
       currentrole:"",
@@ -738,6 +759,7 @@ export default {
     this.experts = this.experts_raw
     this.total = this.experts.length
     this.page = 1
+    this.currentAddGroup=''
     this.$refs.multipleTable.clearSelection()
    },
    fillUserName(){
@@ -786,7 +808,7 @@ export default {
     {
      this.manualAddForm.institutionid = this.user.institutionID;
      this.manualAddForm.activityID = this.keywords
-     this.manualAddForm.groupID = this.groupID
+     this.manualAddForm.groupID = this.groupID ? this.groupID : this.currentAddGroup
      this.$refs['manualAddForm'].validate((valid) => {
       if (valid) {
        if (this.manualAddFormDisabled){ // teacher表中已经存在该专家，调用“从本单位添加的接口”
@@ -923,8 +945,9 @@ export default {
               });
           }
       }
-
       this.initExperts();
+      if (this.mode==='admin'&&!this.groupID)
+        this.checkHaveGroup();
       if (this.mode==='secretarySub')
         this.initParentGroup();
     },
@@ -1311,27 +1334,41 @@ export default {
     },
     change(){
       const _this = this
-      _this.$router.push({
-        path: '/participantsM',
-        query:{
-          activityIDParent: this.$route.query.activityIDParent,
-          activityID: this.keywords,
-          groupIDParent: this.$route.query.groupIDParent,
-          groupID: this.$route.query.groupID,
-          actName: this.$route.query.actName,
-          groupName: this.$route.query.groupName,
-          isGroup: this.$route.query.isGroup,
-          haveSub: this.$route.query.haveSub,
-          id: this.$route.query.id,
-          keywords: this.keywords,
-          keyword_name: typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
-          ACNAME:typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
-          mode:this.mode,
-          backID:this.$route.query.groupID,
-          backActName:this.$route.query.backActName,
-          smallGroup:this.$route.query.smallGroup,
-        }
-      })
+      if (this.groupID){
+        _this.$router.push({
+          path: '/participantsM',
+          query:{
+            activityIDParent: this.$route.query.activityIDParent,
+            activityID: this.keywords,
+            groupIDParent: this.$route.query.groupIDParent,
+            groupID: this.$route.query.groupID,
+            actName: this.$route.query.actName,
+            groupName: this.$route.query.groupName,
+            isGroup: this.$route.query.isGroup,
+            haveSub: this.$route.query.haveSub,
+            id: this.$route.query.id,
+            keywords: this.keywords,
+            keyword_name: typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
+            ACNAME:typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
+            mode:this.mode,
+            backID:this.$route.query.groupID,
+            backActName:this.$route.query.backActName,
+            smallGroup:this.$route.query.smallGroup,
+          }
+        })
+      }
+      else {
+        _this.$router.push({
+          path: '/ActivitM/group',
+          query:{
+            keywords: this.keywords,
+            keyword_name: this.keyword_name,
+            groupID:this.groupID,
+            mode:this.mode,
+            backID:this.activityID,
+          }
+        })
+      }
     },
     showMethod(){
       this.title='添加专家';
@@ -1362,6 +1399,10 @@ export default {
             });
           });
     },
+    chooseGroup(event){
+      this.currentAddGroup=event;
+      console.log(this.currentAddGroup)
+    },
     add(){
       if (this.multipleSelection.length === 0) {
         this.$message({
@@ -1375,7 +1416,11 @@ export default {
       for (let i = 0; i < this.multipleSelection.length; i++) {
        this.multipleSelection[i].institutionid = this.multipleSelection[i].institutionID;
       }
-      this.postRequest("/systemM/Experts/addExperts?groupID=" + this.groupID + "&activityID=" + this.keywords, this.multipleSelection).then(resp => {
+      if (this.groupID!==undefined){
+        this.currentAddGroup = this.groupID;
+      }
+      console.log(this.currentAddGroup)
+      this.postRequest("/systemM/Experts/addExperts?groupID=" + this.currentAddGroup + "&activityID=" + this.keywords, this.multipleSelection).then(resp => {
         if (resp) {
           this.initHrs(true);
           this.$message({
@@ -1396,6 +1441,18 @@ export default {
         }
       }
       this.multipleSelection=val;
+    },
+    checkHaveGroup() {
+        this.getRequest('/activities/basic/checkHaveGroup?activityID='+this.keywords).then(res => {
+          if (res.obj){
+            this.haveGroup = true
+            this.getRequest('/activities/basic/getAllGroup?activityID='+this.keywords).then(res => {
+              if (res.obj){
+                this.groups = res.obj;
+              }
+            })
+          }
+        })
     },
   },
 };
