@@ -1377,6 +1377,7 @@ export default {
                         this.postRequest("/activities/basic/predelete", data).then((resp) => {
                             if (resp) {
                                 this.dialogVisible = false;
+                             this.$message({type: 'success',message: '删除成功!'});
                                 this.initEmps();
                             }
                         });
