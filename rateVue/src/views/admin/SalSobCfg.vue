@@ -426,7 +426,7 @@
             <el-form-item label="密码:" prop="password">
              <el-input style="width: 60%" v-model="manualAddForm.password" @input="$forceUpdate()" :disabled="manualAddFormDisabled"></el-input>
             </el-form-item>
-             <el-form-item label="组别:" prop="password">
+             <el-form-item label="组别:" prop="groupID" v-show="!groupID">
                <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px">
                  <el-option
                      v-for="x in groups"
@@ -451,7 +451,7 @@
               <el-button icon="el-icon-search" type="success" @click="search"></el-button>
              </template>
             </el-input>
-             <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px">
+             <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px" v-show="!groupID">
                <el-option
                    v-for="x in groups"
                    :key="x.name"
