@@ -357,10 +357,10 @@ export default {
       searchMonographName: '',
       searchStatus: '',
       searchStudentName: '',
-      pageSizes:[10,20,20,20,30],
+      pageSizes:[5,10,20,20,30],
       totalCount:0,
       currentPage:1,
-      pageSize:10,
+      pageSize:5,
       tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
       operList:[],
       isShowInfo:false,
@@ -417,7 +417,7 @@ export default {
   },
   created() {},
   mounted() {
-    this.initMonographsList(1,10);
+    this.searchMonograph(1,5);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -512,26 +512,11 @@ export default {
     //应该要分是否有无筛选条件
     sizeChange(currentSize) {
       this.pageSize = currentSize;
-      this.initMonographsList(this.currentPage,currentSize);
+      this.searchMonograph(this.currentPage,currentSize);
     },
     currentChange(currentPage) {
       this.currentPage = currentPage;
-      this.initMonographsList(currentPage,this.pageSize);
-    },
-    initMonographsList(pageNum, pageSize) {
-      this.loading = true;
-      let url = '/monograph/basic/List?pageNum=' + pageNum + '&pageSize=' + pageSize;
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.monographList = resp.extend.res[0];
-          this.copyemps = this.monographList
-          this.totalCount = resp.extend.res[1];
-          this.monographList.sort(function(a,b){
-            return a.date > b.date ? -1 : 1
-          })
-        }
-      });
+      this.searchMonograph(currentPage,this.pageSize);
     },
     searchMonograph(pageNum, pageSize) {//根据条件搜索
       const params = {};
@@ -547,17 +532,29 @@ export default {
         state = 'adm_pass'
       }else if (state == '管理员驳回') {
         state = 'adm_reject'
+      }else state = '';
+      if(this.searchPointFront == '全部') {
+        params.pointFront = '';
+      }else {
+        params.pointFront = this.searchPointFront;
+      }
+      if(this.searchPointBack == '全部') {
+        params.pointBack = '';
+      }else {
+        params.pointBack = this.searchPointBack;
       }
       params.state = state;
       params.name = this.searchMonographName;
-      params.pointFront = this.searchPointFront;
-      params.pointBack = this.searchPointBack;
       params.pageNum = pageNum.toString();
       params.pageSize = pageSize.toString();
       this.postRequest('/monograph/basic/searchMonographByConditions', params).then((response) => {
         if(response) {
           this.monographList = response.extend.res[0];
           this.totalCount = response.extend.res[1];
+          this.copyemps = this.monographList;
+          this.monographList.sort(function(a,b){
+            return a.date > b.date ? -1 : 1
+          });
         }
       })
     }

@@ -199,13 +199,13 @@ export default {
    this.emp.requireGroup = this.requireGroup ? 1 : 0
    this.emp.gradeFormType = this.gradeFormType
    this.$set(this.emp,"adminID",this.user.id)
-   this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
    //添加活动 能看见的小于能进入的小于开始时间
    return new Promise((resolve, reject) => {
    this.$refs["empForm"].validate((valid) => {
     if (valid) {
      this.emp.institutionID = this.user.institutionID;
      this.$set(this.emp,"adminID",this.user.id)
+     this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
      const _this = this;
       _this.postRequest("/activities/basic/insert", _this.emp).then(
           (resp) => {

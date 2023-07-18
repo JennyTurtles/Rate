@@ -18,14 +18,16 @@ public class TreeNode {
     private List<TreeNode> children;
     private String order;
     private Integer score;
+    private Integer rankN;
 
-    public TreeNode(Integer id, String label, String type,String order, Integer score) {
+    public TreeNode(Integer id, String label, String type,String order, Integer score, Integer rankN) {
         this.id = id;
         this.label = label;
         this.type = type;
         this.children = new ArrayList<TreeNode>();
         this.order = order;
         this.score = score;
+        this.rankN = rankN;
     }
 
     @Override
@@ -37,6 +39,7 @@ public class TreeNode {
                 ", children=" + children +
                 ", order='" + order + '\'' +
                 ", score=" + score +
+                ", rankN='" + rankN +
                 '}';
     }
 }

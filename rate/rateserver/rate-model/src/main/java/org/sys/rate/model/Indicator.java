@@ -25,6 +25,8 @@ public class Indicator {
 
     private Integer year;
 
+    private Integer rankN;
+
     /**
      * 一个指标点可以对应多个期刊
      */

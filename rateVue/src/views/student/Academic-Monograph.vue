@@ -182,6 +182,9 @@
               placeholder="请输入专著或教材ISBN"
           ></el-input>
         </el-form-item>
+        <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
+          <el-button ref="selectBtn" size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
+        </el-form-item>
 
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
           <el-upload
@@ -285,6 +288,19 @@
         >
       </span>
     </el-dialog>
+
+    <el-dialog title="选择指标点分类" center :visible.sync="showTreeDialog" width="60%">
+      <span class="el-tree-node">
+        <el-tree
+            :data="data"
+            :props="defaultProps"
+            @node-click="handleNodeClick"
+            :expand-on-click-node="false"
+            :highlight-current="true"
+            default-expand-all
+        ></el-tree>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -295,13 +311,14 @@ export default {
   name: "SalSearch",
   data() {
     return {
-      adate: '',
-      disabledInput:false,
-      timer:null,
-      select_TypeName:[],
-      isTypeFlag:false,
-      isTypeShow:false,
-      empmonographName:'',//添加专著或教材中的专著或教材名称
+      indicatorBtn: '选择指标点',
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
+      data: [],
+      showTreeDialog: false,
+
       view_point:0,
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -310,7 +327,6 @@ export default {
       urlFile:'',//文件路径
       addButtonState: false,//是否允许添加专著或教材
       operList:[],//每个专著或教材的历史操作记录
-      remarksort:[],//对显示的驳回理由做排序
       member:'',//和输入的作者列表绑定
       options:[],//存储所有类型对象
       labelPosition: "left",
@@ -331,6 +347,23 @@ export default {
         remark: '',
         prodId: null,
         time: null
+      },
+      publish: {
+        id: '',
+        publicationId: '',
+        indicatorId: '',
+        indicatorName: '',
+        year: '',
+        student_id: '',
+        date: '',
+        state: '',
+        publicationName: '',
+        publicationAbbr: '',
+        publisherName: '',
+        publicationUrl: '',
+        publicationProofUrl: '',
+        indicatorRankN: '',
+        indicatorScore: ''
       },
       currentMonographCopy: {},
       currentMonograph: {
@@ -369,12 +402,36 @@ export default {
       if(data == null || data == ''){
         return '无证明材料'
       }else{
-        var arr= data.split('/')
-        return  arr.reverse()[0]
+        var arr = data.split('/');
+        return arr.reverse()[0];
       }
     }
   },
   methods: {
+    handleNodeClick(data, node) {
+      if (data.children.length == 0) {
+        this.indicatorBtn = data.label;
+        if(this.currentMonographCopy.rank != null && this.currentMonographCopy.rank != '') {
+          if(parseInt(this.currentMonographCopy.rank) < data.rankN) {
+            this.view_point = data.score;
+          } else {
+            this.view_point = 0;
+          }
+        }
+        this.publish.indicatorId = data.id;
+        this.publish.indicatorRankN = data.rankN;
+        this.publish.indicatorScore = data.score;
+        this.showTreeDialog = false;
+      }
+    },
+    initTree() {
+      this.getRequest("/indicator").then( resp => {
+        this.showTreeDialog = true;
+        if (resp) {
+          this.data = resp.obj[1];
+        }
+      });
+    },
     cancelAdd() {
       this.dialogVisible = false;
     },
@@ -480,6 +537,7 @@ export default {
           this.currentMonographCopy.author = this.member
           this.currentMonographCopy.rank = 1
           this.currentMonographCopy.total = 1
+          this.judgeScore();
         }
         return
       }
@@ -493,6 +551,17 @@ export default {
       }
       this.currentMonographCopy.rank = num.indexOf(info.name) + 1
       this.currentMonographCopy.author = this.member
+      this.judgeScore();
+    },
+    judgeScore() {
+      //说明选择了某个指标点数据
+      if(this.publish.indicatorId != null && this.publish.indicatorId != '') {
+        if(parseInt(this.publish.indicatorRankN) >= this.currentMonographCopy.rank) {
+          this.view_point = this.publish.indicatorScore;
+        } else {
+          this.view_point = 0;
+        }
+      }
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
@@ -504,7 +573,8 @@ export default {
       this.dialogVisible = true;
       this.member = this.currentMonographCopy.author
       this.options = []
-      this.view_point = data.point
+      this.view_point = data.point;
+      this.indicatorBtn = data.indicator.name;
     },
     showInfo(data){
       this.loading = true;
@@ -565,7 +635,8 @@ export default {
             this.currentMonographCopy.url = this.urlFile;
             this.currentMonographCopy.state = "commit"
             this.currentMonographCopy.studentId = this.user.id
-            this.currentMonographCopy.indicatorId = 26;
+            this.currentMonographCopy.indicatorId = this.publish.indicatorId;
+            this.currentMonographCopy.point = this.publish.indicatorScore;
             if(this.currentMonographCopy.url == '' ||this.currentMonographCopy.url == null){
               this.$message.error('请上传证明材料！')
               return
@@ -592,10 +663,14 @@ export default {
       await this.initMonographsList();
     },
     showAddEmpView() {//点击添加科研专著或教材按钮
-      this.urlFile = ''
+      this.urlFile = '';
       this.currentMonographCopy = {};
       this.addButtonState = false;
-      this.member = ''
+      this.member = '';
+      this.indicatorBtn = '选择指标点';
+      this.publish.indicatorId = '';
+      this.publish.indicatorScore = '';
+      this.view_point = '';
       this.title = "添加著作";
       this.dialogVisible = true;
     },

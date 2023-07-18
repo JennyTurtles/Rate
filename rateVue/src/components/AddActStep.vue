@@ -9,6 +9,7 @@
     <el-step title="人员管理"></el-step>
    </el-steps>
    <el-button style="margin-top: 12px;margin-bottom: 10px; float: right" type="success" @click="next" >下一步</el-button>
+   <el-button style="margin-top: 12px;margin-bottom: 10px;float: right;margin-right: 10px" type="primary" @click="$router.go(-1)" >返回</el-button>
   </div>
 </template>
 
