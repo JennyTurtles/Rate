@@ -295,9 +295,9 @@
         </div><br/>
       <div style="font-size: 16px;margin-left: 15%">基本信息：<br/>
         <el-checkbox label="姓名" key="姓名" v-model="dymatic_list" disabled style="width: 150px">姓名</el-checkbox>
-        <el-checkbox label="身份证号码" v-model="dymatic_list" disabled style="width: 150px">身份证号码</el-checkbox>
-        <el-checkbox label="编号" v-model="dymatic_list"  style="width: 150px">编号</el-checkbox>
-        <el-checkbox label="序号" v-model="dymatic_list"  style="width: 150px">序号</el-checkbox>
+<!--        <el-checkbox label="身份证号码" v-model="dymatic_list" disabled style="width: 150px">身份证号码</el-checkbox>-->
+        <el-checkbox label="编号" v-model="dymatic_list"  disabled style="width: 150px">编号</el-checkbox>
+        <el-checkbox label="序号" v-model="dymatic_list"  style="width: 150px">组内序号</el-checkbox>
         <el-checkbox label="手机号" v-model="dymatic_list"  style="width: 150px">手机号</el-checkbox>
         <el-checkbox label="邮箱" v-model="dymatic_list"  style="width: 150px">邮箱</el-checkbox>
 <!--        <el-checkbox label="属于本单位" v-model="dymatic_list"  style="width: 150px">属于本单位</el-checkbox>-->
@@ -473,7 +473,7 @@ export default {
       allDeps: [],
       emps: [],
       unsureinfo: [],
-      dymatic_list:["姓名","身份证号码"],
+      dymatic_list:["姓名","编号"],
       scoreitem:[],
       infoitem:[],
       scoreitem_from_back:[],

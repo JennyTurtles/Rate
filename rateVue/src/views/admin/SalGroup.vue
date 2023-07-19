@@ -451,22 +451,22 @@
         </div><br/>
       <div style="font-size: 16px;margin-left: 15%">基本信息：<br/>
       <el-checkbox label="姓名" key="姓名" v-model="dymatic_list" disabled style="width: 150px">姓名</el-checkbox>
-      <el-checkbox label="身份证号码" v-model="dymatic_list" disabled style="width: 150px">身份证号码</el-checkbox>
-      <el-checkbox label="编号" v-model="dymatic_list"  style="width: 150px">编号</el-checkbox>
-      <el-checkbox label="序号" v-model="dymatic_list"  style="width: 150px">序号</el-checkbox>
+<!--      <el-checkbox label="身份证号码" v-model="dymatic_list" disabled style="width: 150px">身份证号码</el-checkbox>-->
+       <el-checkbox label="编号" v-model="dymatic_list" disabled style="width: 150px">编号</el-checkbox>
+       <el-checkbox label="组名" v-model="dymatic_list"  style="width: 150px">组名</el-checkbox>
+      <el-checkbox label="序号" v-model="dymatic_list"  style="width: 150px">组内序号</el-checkbox>
       <el-checkbox label="手机号" v-model="dymatic_list"  style="width: 150px">手机号</el-checkbox>
       <el-checkbox label="邮箱" v-model="dymatic_list"  style="width: 150px">邮箱</el-checkbox>
 <!--      <el-checkbox label="属于本单位" v-model="dymatic_list"  style="width: 150px">属于本单位</el-checkbox>-->
-      <el-checkbox label="组名" v-model="dymatic_list"  style="width: 150px">组名</el-checkbox>
 <!--      <el-checkbox label="用户名" v-model="dymatic_list"  style="width: 150px">用户名</el-checkbox>-->
 <!--      <el-checkbox label="密码" v-model="dymatic_list"  style="width: 150px">密码</el-checkbox>-->
       </div><br/>
       <div style="font-size: 16px;margin-left: 15%">信息项：<br/>
-        <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" v-model="infoitem" style="width: 450px">
+        <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" v-model="infoitem" style="width: auto">
         </el-checkbox>
       </div><br/>
       <div style="font-size: 16px;margin-left: 15%" class="formView">评分项：<br/>
-        <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: 450px">
+        <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: auto">
         </el-checkbox>
       </div>
         <div style="font-size: 16px;margin-left: 15%;margin-top: 15px">模版中的列排列顺序如下：<br/></div>
@@ -621,7 +621,7 @@ export default {
       allDeps: [],
       emps: [],
       unsureinfo: [],
-      dymatic_list:["姓名","身份证号码"],
+      dymatic_list:["姓名","编号"],
       scoreitem:[],
       infoitem:[],
       scoreitem_from_back:[],
