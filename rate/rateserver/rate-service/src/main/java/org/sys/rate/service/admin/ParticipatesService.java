@@ -273,7 +273,7 @@ public class ParticipatesService {
                 if(groupid!=0)
                 {//组内选手管理
                     participants.setGroupID(groupid);
-                    if(participants.getDisplaySequence()==null || participants.getDisplaySequence()!=-1)
+                    if(participants.getDisplaySequence()==null || participants.getDisplaySequence()==-1)
                         participants.setDisplaySequence(last);
                 }
                 else if(participants.getGroupID()!=null && participants.getGroupID()!=-1)//全活动
