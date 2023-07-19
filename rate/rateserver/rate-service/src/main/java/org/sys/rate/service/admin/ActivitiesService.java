@@ -10,6 +10,7 @@ import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -77,8 +78,9 @@ public class ActivitiesService {
                 //在管理员_活动表中添加记录
                 activityGrantMapper.insertRecordOfAddActivity(employee.getAdminID(),employee.getId());
             }
-        }catch (Exception e){
-            return RespBean.error("添加失败",null);
+        }
+        catch (Exception e){
+            return RespBean.error("已存在同名的活动！",null);
         }
         if(!result) return RespBean.error("活动达到上限",null);
         return RespBean.ok("添加成功",employee);

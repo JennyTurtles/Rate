@@ -1,6 +1,6 @@
 <template>
  <div>
- <AddActStep :active="0"></AddActStep>
+ <AddActStep :active="0" :actID="$route.query.keywords"></AddActStep>
   <el-form
       label-position='left'
       label-width="120px"
@@ -74,16 +74,16 @@
     </el-input>
    </el-form-item>
    <el-form-item  label="包含子活动: " v-show="mode === 'admin'">
-    <el-checkbox v-model="haveSub"></el-checkbox>
+    <el-checkbox v-model="emp_edit.haveSub"></el-checkbox>
    </el-form-item>
    <el-form-item label="是否写评语: ">
-    <el-checkbox v-model="haveComment"></el-checkbox>
+    <el-checkbox v-model="emp_edit.haveComment"></el-checkbox>
     <span class="tip-title" style="margin-left: 10px">专家在评分时是否需要写评语</span>
    </el-form-item>
    <el-form-item label="成绩评定表类型: ">
     <el-select
         style="width: 100%"
-        v-model="gradeFormType"
+        v-model="emp_edit.gradeFormType"
         placeholder="请选择成绩评定表类型xxx"
     >
      <el-option
@@ -155,6 +155,7 @@ export default {
   },
  mounted() {
   this.mode = this.$route.query.mode
+  this.init()
  },
  computed: {
   user() {
@@ -162,6 +163,15 @@ export default {
   },
  },
  methods:{
+  init(){
+   if (typeof this.$route.query.keywords !== 'undefined'){ // 此时是从前面返回的
+    this.getRequest("/activities/basic/one?activityID="+this.$route.query.keywords).then(res=> {
+     this.emp_edit = res.obj
+     this.emp_edit.haveSub = res.obj.haveSub === 1
+     this.emp_edit.haveComment = res.obj.haveComment === 1
+    })
+   }
+  },
   doAddEmp() {
    this.emp = this.emp_edit
    // if(this.mode === 'adminSub')
@@ -194,18 +204,16 @@ export default {
      this.emp.enterDate = this.dateFormatFunc(this.emp.enterDate)
     }
    }
-   this.emp.haveSub = this.haveSub ? 1 : 0
-   this.emp.haveComment = this.haveComment ? 1 : 0
-   this.emp.requireGroup = this.requireGroup ? 1 : 0
-   this.emp.gradeFormType = this.gradeFormType
+   this.emp.haveSub = this.emp.haveSub ? 1 : 0
+   this.emp.haveComment = this.emp.haveComment ? 1 : 0
    this.$set(this.emp,"adminID",this.user.id)
-   this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
    //添加活动 能看见的小于能进入的小于开始时间
    return new Promise((resolve, reject) => {
    this.$refs["empForm"].validate((valid) => {
     if (valid) {
      this.emp.institutionID = this.user.institutionID;
      this.$set(this.emp,"adminID",this.user.id)
+     this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
      const _this = this;
       _this.postRequest("/activities/basic/insert", _this.emp).then(
           (resp) => {
@@ -222,9 +230,28 @@ export default {
    });
    })
   },
-   save(){
+  add(){
     return this.doAddEmp()
   },
+  save(id){
+   this.emp = this.emp_edit
+   this.emp.institutionID = this.user.institutionID;
+   this.emp.id = id
+   this.emp.requireGroup = null
+   this.emp.haveSub = this.emp.haveSub ? 1 : 0
+   this.emp.haveComment = this.emp.haveComment ? 1 : 0
+   const _this = this;
+   this.postRequest("/activities/basic/update", _this.emp).then(
+       (resp) => {
+        if (resp) {
+         this.$message({
+          type: 'success',
+          message: '修改成功!'
+         });
+        }
+       }
+   );
+  }
   }
 };
 </script>
