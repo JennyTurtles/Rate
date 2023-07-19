@@ -16,8 +16,8 @@ public class InterceptorConfig extends WebMvcConfigurationSupport {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtInterceptor)
-                .addPathPatterns("/**");//拦截所有请求，判断token是否合法决定是否需要登录
-//                .excludePathPatterns("/doLogin", "/registerUser", "**/export", "**/import","/getPublicKey","/paper/basic/download","**/exportPDF");    // 拦截所有请求， 决定判断token是否合法来决定是否需要登录
+                .addPathPatterns("/**")//拦截所有请求，判断token是否合法决定是否需要登录
+                .excludePathPatterns("/doLogin", "/registerUser", "**/export", "**/import","/getPublicKey","/paper/basic/download","**/exportPDF");    // 拦截所有请求， 决定判断token是否合法来决定是否需要登录
     }
 
 }
