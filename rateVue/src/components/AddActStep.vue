@@ -26,6 +26,7 @@ export default {
   data () {
     return {
      mode: 'admin',
+     haveSub: 0,
     }
   },
  methods: {
@@ -35,6 +36,7 @@ export default {
       var act = null;
       if (typeof this.actID === 'undefined'){
        act = (await this.$parent.add()).obj;
+       this.haveSub = act.haveSub
        this.goInfoItem(act.id,act.name,true)
       }
       else{
@@ -84,6 +86,7 @@ export default {
     keyword_name: actName,
     mode:this.mode,
     addActive:this.active+1, // 标记步骤
+    haveSub: this.active !== 0 ? this.$route.query.haveSub : this.haveSub
    }
   },
   getQueryBack(actID,actName){
@@ -92,13 +95,39 @@ export default {
     keyword_name: actName,
     mode:this.mode,
     addActive:this.active-1, // 标记步骤
+    haveSub: typeof this.$route.query.haveSub !== 'undefined' ? this.$route.query.haveSub : this.haveSub
    }
   },
+  getQuerySub(actID){
+   return {
+    parentID: actID,
+    mode:'adminSub',
+    addActive:0,
+   }},
   goAct(){
+   // 弹出一个对话框，提示是否要添加子活动
    const _this = this;
-   _this.$router.push({
-    path: "/ActivitM/search",
-   });
+   if (this.mode == 'adminSub' || this.$route.query.haveSub == 1){
+    _this.$confirm('是否要添加子活动？', '提示', {
+     confirmButtonText: '确定',
+     cancelButtonText: '取消',
+     type: 'warning'
+    }).then(() => {
+     _this.$router.push({
+      path: "/Admin/addAct",
+      query: this.getQuerySub(_this.actID)
+     });
+    }).catch(() => {
+     _this.$router.push({
+      path: "/ActivitM/search",
+     });
+    });
+   }else {
+    _this.$router.push({
+     path: "/ActivitM/search",
+    });
+   }
+
   },
   goAddAct(actID,actName,flag){
    const _this = this;
@@ -131,7 +160,7 @@ export default {
   goGroup(actID,actName,flag){
     const _this = this;
     var query = flag ? _this.getQuery(actID,actName) : _this.getQueryBack(actID,actName)
-    query.haveSub = false
+    // query.haveSub = false
    _this.$router.push({
     path: "/ActivitM/table",
     query: query

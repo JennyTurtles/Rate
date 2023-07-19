@@ -84,7 +84,7 @@
     <el-select
         style="width: 100%"
         v-model="emp_edit.gradeFormType"
-        placeholder="请选择成绩评定表类型xxx"
+        placeholder="请选择成绩评定表类型"
     >
      <el-option
          v-for="item in gradeFormTypes"
@@ -174,8 +174,8 @@ export default {
   },
   doAddEmp() {
    this.emp = this.emp_edit
-   // if(this.mode === 'adminSub')
-   //  this.emp.parentID = this.activityID;
+   if(this.$route.query.mode === 'adminSub')
+    this.emp.parentID = this.$route.query.parentID;
    if(this.visibleDateSelected) {//不限
     this.emp.visibleDate = null
    }else {//即使用户选择了不限，datapicker也可以进行删除数据，判断是否为空 不为空修改时间格式

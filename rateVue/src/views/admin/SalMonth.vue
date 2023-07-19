@@ -193,9 +193,15 @@
               @click="newScoring()"
               type="primary"
               icon="el-icon-plus"
+              v-if="$route.query.mode != 'admin' || !$route.query.addActive || $route.query.haveSub != 1"
           >新增
-          </el-button
-          >
+          </el-button>
+         <el-tooltip class="item" effect="dark" content="当前活动存在子活动，无法添加评分项。" placement="top-start" v-else :disabled='false'>
+       <span>
+        <el-button @click="newScoring()" type="primary" icon="el-icon-plus" :disabled="true">新增</el-button>
+       </span>
+         </el-tooltip>
+
         </div>
 <!--        <div style="margin-left: auto">-->
 <!--          <el-pagination-->

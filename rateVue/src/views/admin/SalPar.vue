@@ -10,8 +10,8 @@
         </div>
       </div>
      <el-tabs v-model="activeName" @tab-click="change2Exp">
-      <el-tab-pane label="选手管理" name="participant">用户管理</el-tab-pane>
-      <el-tab-pane label="专家管理" name="expert">配置管理</el-tab-pane>
+      <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
+      <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
       <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
      </el-tabs>
       <a>
