@@ -2,8 +2,8 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="org.sys.rate.mapper.MonographMapper">
-    <resultMap type="org.sys.rate.model.Monograph" id="MonographResult">
+<mapper namespace="org.sys.rate.mapper.ProjectMapper">
+    <resultMap type="org.sys.rate.model.Project" id="ProjectResult">
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="studentId" column="student_id"/>
         <result property="name" column="name"/>
@@ -39,12 +39,12 @@
         </collection>
     </resultMap>
 
-    <sql id="selectMonographVo">
+    <sql id="selectProjectVo">
         select id, student_id, name, date, author, url, indicatorId, state, publisher, ISBN
         from i_book
     </sql>
 
-    <select id="selectAllMonographList" resultMap="MonographResult">
+    <select id="selectAllProjectList" resultMap="ProjectResult">
         -- 老师查询所有学生的获奖
         SELECT p.*,
                s.name as sname,
@@ -58,8 +58,8 @@
                  LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '专著教材'
     </select>
 
-    <select id="selectListById" resultMap="MonographResult">
-        <include refid="selectMonographVo"></include>
+    <select id="selectListById" resultMap="ProjectResult">
+        <include refid="selectProjectVo"></include>
         <where>
             <if test="student_id != null  and student_id != ''">and student_id = #{student_id}</if>
             <if test="page !=null and size!=null">
@@ -69,7 +69,7 @@
     </select>
 
 <!--    学生专著教材页面初始化-->
-    <select id="selectMonographListById" resultMap="MonographResult" parameterType="Integer">
+    <select id="selectProjectListById" resultMap="ProjectResult" parameterType="Integer">
         select a.id, a.name, student_id, a.date, author, a.state, url, indicator_id, `rank`, total, point, publisher, a.ISBN as isbn,
                oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
                oper.state,oper.remark,
@@ -81,8 +81,8 @@
         where a.student_id = #{studentID}
     </select>
 
-    <select id="selectMonographList" parameterType="org.sys.rate.model.Monograph" resultMap="MonographResult">
-        <include refid="selectMonographVo"/>
+    <select id="selectProjectList" parameterType="org.sys.rate.model.Project" resultMap="ProjectResult">
+        <include refid="selectProjectVo"/>
         <where>
             <if test="id !=null and id !=''">and id =#{id}</if>
             <if test="student_id != null ">and student_id = #{student_id}</if>
@@ -97,12 +97,12 @@
         </where>
     </select>
 
-    <select id="selectMonographById" parameterType="Long" resultMap="MonographResult">
-        <include refid="selectMonographVo"/>
+    <select id="selectProjectById" parameterType="Long" resultMap="ProjectResult">
+        <include refid="selectProjectVo"/>
         where id = #{id}
     </select>
 
-    <insert id="insertMonograph" parameterType="org.sys.rate.model.Monograph" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertProject" parameterType="org.sys.rate.model.Project" useGeneratedKeys="true" keyProperty="id">
         insert into i_book
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
@@ -136,7 +136,7 @@
         </trim>
     </insert>
 
-    <update id="updateMonograph" parameterType="org.sys.rate.model.Monograph">
+    <update id="updateProject" parameterType="org.sys.rate.model.Project">
         update i_book
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
@@ -154,34 +154,36 @@
         where id = #{id}
     </update>
 
-    <update id="editState" parameterType="org.sys.rate.model.Monograph">
+    <update id="editState" parameterType="org.sys.rate.model.Project">
         update i_book
         <trim prefix="SET" suffixOverrides=",">
             <if test="state != null">state = #{state},</if>
         </trim>
         where id = #{ID}
     </update>
-    <delete id="deleteMonographById" parameterType="Long">
+    <delete id="deleteProjectById" parameterType="Long">
         delete
         from i_book
         where id = #{ID}
     </delete>
 
-    <delete id="deleteMonographByIds" parameterType="String">
+    <delete id="deleteProjectByIds" parameterType="String">
         delete from i_book where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{ID}
         </foreach>
     </delete>
-    <select id="searchMonographByConditions" resultMap="MonographResult">
-        select book.*, s.name as sname
-        from i_book book, student s
+    <select id="searchProjectByConditions" resultMap="ProjectResult">
+        select book.*, s.name as sname,
+            oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
+            oper.state,oper.remark
+        from i_book book, student s, i_oper oper
         <where>
             <if test="monoName != null and monoName != ''">and book.name like concat('%', #{monoName}, '%')</if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
             <if test="state != null and state != ''">and state = #{state}</if>
             <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and point between #{pointFront} and #{pointBack}</if>
-            and s.ID = book.student_id
+            and s.ID = book.student_id and book.id = oper.prod_id
         </where>
     </select>
 </mapper>

@@ -3,12 +3,14 @@ package org.sys.rate.service.admin;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.MonographMapper;
+import org.sys.rate.mapper.OperationMapper;
 import org.sys.rate.model.Monograph;
 import org.sys.rate.model.Operation;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,36 +18,9 @@ import java.util.List;
 public class MonographService {
     @Resource
     private MonographMapper monographMapper;
+    @Resource
+    private OperationMapper operationMapper;
 
-//    public Monograph selectMonographById(Long ID){
-//        return monographMapper.selectMonographById(ID);
-//    }
-
-    /**
-     * 通过ID寻找paper信息
-     * @param ID
-     * @return paper
-     */
-//    public Monograph getById(Integer ID){
-//        Monograph monograph = monographMapper.getById(ID);
-//        if(monograph != null){
-//            return monograph;
-//        }
-//        return null;
-//    }
-
-//    public List<Monograph> selectMonographList(Monograph paper){
-//        return monographMapper.selectMonographList(paper);
-//    }
-
-//    public List<Monograph> selectListById(@Param("studentID") Integer studentID, @Param("page") Integer page, @Param("size") Integer size){
-//        if (page != null && size != null) {
-//            page = (page - 1) * size;
-//        }
-//        List<Monograph> p=monographMapper.selectListById(studentID,page,size);
-////        System.out.println(p);
-//        return p;
-//    }
     public List<Monograph> selectMonographListById(@Param("studentID") Integer studentID){
         List<Monograph> list = monographMapper.selectMonographListById(studentID);
         return setMonographOperation(list);
@@ -128,6 +103,20 @@ public class MonographService {
     }
 
     public List<Monograph> searchMonographByConditions(String studentName, String state, String monoName, String pointFront, String pointBack) {
-        return monographMapper.searchMonographByConditions(studentName, state, monoName, pointFront, pointBack);
+        List<Monograph> list = monographMapper.searchMonographByConditions(studentName, state, monoName, pointFront, pointBack);
+        List<Operation> operationList = operationMapper.selectTypeAllOperationList("专著教材");
+        List<Operation> monographList = new ArrayList<>();
+        //可优化
+        for (int i = 0;i < list.size(); i++) {
+            monographList = new ArrayList<>();
+            for (int j = 0;j < operationList.size(); j++) {
+                if(operationList.get(j).getProdId() == list.get(i).getId()) {
+                    monographList.add(operationList.get(j));
+                }
+            }
+            list.get(i).setOperationList(monographList);
+        }
+        return setMonographOperation(list);
+//        return list;
     }
 }

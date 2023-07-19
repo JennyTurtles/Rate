@@ -54,6 +54,8 @@
                 #{state},
                 #{remark})
     </insert>
-
+    <select id="selectTypeAllOperationList" resultMap="OperResult">
+        select * from i_oper where prod_type = #{type}
+    </select>
 
 </mapper>

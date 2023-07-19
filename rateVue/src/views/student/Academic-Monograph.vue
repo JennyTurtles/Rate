@@ -143,6 +143,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="完成日期:" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
           <el-date-picker
               style="width: 80%"
               v-model="currentMonographCopy.date"
@@ -152,6 +153,7 @@
           </el-date-picker>
         </el-form-item>
         <el-form-item label="完成人:" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
           <el-input
               id="input_member"
               size="mini"
@@ -163,6 +165,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="出版社:" label-width="80px" style="margin-left: 20px;" prop="publisher">
+          <span class="isMust">*</span>
           <el-input
               id="input_member"
               size="mini"
@@ -173,6 +176,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="ISBN:" label-width="80px" style="margin-left: 20px;" prop="isbn">
+          <span class="isMust">*</span>
           <el-input
               id="input_member"
               size="mini"
@@ -183,10 +187,12 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
           <el-button ref="selectBtn" size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
         </el-form-item>
 
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
           <el-upload
               :file-list="files"
               action="#"

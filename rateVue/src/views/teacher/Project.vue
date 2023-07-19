@@ -12,15 +12,15 @@
                v-model="searchStudentName"
                placeholder="学生姓名"
                autocomplete="off">
-        <label style="fontSize:10px;margin-left:16px">著作名称：</label>
+        <label style="fontSize:10px;margin-left:16px">项目名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
-               placeholder="著作名称"
-               v-model="searchMonographName"
+               placeholder="项目名称"
+               v-model="searchProjectName"
                id="select_paperName">
-        <label style="fontSize:10px;margin-left:40px;">著作状态：</label>
+        <label style="fontSize:10px;margin-left:40px;">项目状态：</label>
         <el-select
             v-model="searchStatus"
             style="margin-left:3px;width:120px"
@@ -75,7 +75,8 @@
         <el-button
             icon="el-icon-search"
             type="primary"
-            @click="searchMonograph(1, 15)"
+            @click="searchProject(1, 15)"
+            :disabled="showAdvanceSearchView"
             style="margin-left:30px"
         >
           搜索
@@ -84,7 +85,7 @@
     </div>
     <div style="margin-top: 10px">
       <el-table
-          :data="monographList"
+          :data="ProjectList"
           stripe
           border
           v-loading="loading"
@@ -106,7 +107,7 @@
             fixed
             prop="name"
             align="center"
-            label="著作名称"
+            label="项目名称"
             width="230"
         >
         </el-table-column>
@@ -120,7 +121,7 @@
             <span
                 style="padding: 4px"
                 size="mini"
-                :model="currentMonograph.state"
+                :model="currentProject.state"
                 :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
             >
               {{scope.row.state=="commit"
@@ -192,19 +193,19 @@
       </div>
     </div>
 
-    <!-- 对话框 老师审核通过著作 -->
+    <!-- 对话框 老师审核通过项目 -->
     <el-dialog :title="title"
                :visible.sync="dialogVisiblePass" width="30%" center>
-      <!-- 确定审核通过该学生著作？ -->
+      <!-- 确定审核通过该学生项目？ -->
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="currentMonograph"
+          :model="currentProject"
           ref="empForm"
           style="margin-left: 60px"
       >
-        <el-form-item label="著作ID:" prop="id">
-          <span>{{ currentMonograph.id }}</span>
+        <el-form-item label="项目ID:" prop="id">
+          <span>{{ currentProject.id }}</span>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -212,19 +213,19 @@
         <el-button type="primary" @click="auditing_commit('tea_pass')">确 定</el-button>
       </span>
     </el-dialog>
-    <!-- 对话框 老师驳回该学生著作 -->
+    <!-- 对话框 老师驳回该学生项目 -->
     <el-dialog :title="title"
                :visible.sync="dialogVisibleReject" width="30%" center>
 
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="currentMonograph"
+          :model="currentProject"
           ref="empForm"
           style="margin-left: 40px"
       >
-        <el-form-item label="著作ID:" prop="id">
-          <span>{{ currentMonograph.id }}</span>
+        <el-form-item label="项目ID:" prop="id">
+          <span>{{ currentProject.id }}</span>
         </el-form-item>
         <el-form-item label="驳回理由:">
           <el-input
@@ -252,42 +253,42 @@
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="currentMonograph"
+          :model="currentProject"
           ref="empForm"
           style="margin-left: 20px"
       >
-        <el-form-item label="著作名称:" prop="name">
-          <span>{{ currentMonograph.name }}</span
+        <el-form-item label="项目名称:" prop="name">
+          <span>{{ currentProject.name }}</span
           ><br />
         </el-form-item>
         <el-form-item label="学生姓名:" prop="student.name">
-          <span>{{ currentMonograph.student.name }}</span
+          <span>{{ currentProject.student.name }}</span
           ><br />
         </el-form-item>
 
-        <el-form-item label="著作状态:" prop="state">
-          <span>{{currentMonograph.state}}</span
+        <el-form-item label="项目状态:" prop="state">
+          <span>{{currentProject.state}}</span
           ><br />
         </el-form-item>
         <el-form-item label="作者人数:" prop="total">
-          <span>{{currentMonograph.total}}</span
+          <span>{{currentProject.total}}</span
           ><br />
         </el-form-item>
         <el-form-item label="作者排名:" prop="rank">
-          <span>{{currentMonograph.rank}}</span
+          <span>{{currentProject.rank}}</span
           ><br />
         </el-form-item>
         <el-form-item label="受理日期:" prop="date">
-          <span>{{currentMonograph.date | dataFormat}}</span
+          <span>{{currentProject.date | dataFormat}}</span
           ><br />
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <span v-if="currentMonograph.url == '' || currentMonograph.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(currentMonograph)"
+          <span v-if="currentProject.url == '' || currentProject.url == null ? true:false" >无证明材料</span>
+          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(currentProject)"
              onmouseover="this.style.color = 'blue'"
              onmouseleave="this.style.color = 'gray'">
-            {{currentMonograph.url | fileNameFilter}}</a>
+            {{currentProject.url | fileNameFilter}}</a>
           <br />
         </el-form-item>
         <div >
@@ -302,10 +303,10 @@
           </div>
         </div>
       </el-form>
-      <span slot="footer" class="dialog-footer" :model="currentMonograph">
+      <span slot="footer" class="dialog-footer" :model="currentProject">
             <el-button
                 id="but_pass"
-                v-show="((currentMonograph.state=='commit' && role == 'teacher') || (currentMonograph.state=='tea_pass' && role == 'admin')) ? true:false"
+                v-show="((currentProject.state=='commit' && role == 'teacher') || (currentProject.state=='tea_pass' && role == 'admin')) ? true:false"
                 @click="(()=>{
                   if (role == 'teacher')
                    auditing_commit('tea_pass')
@@ -316,19 +317,19 @@
             >审核通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="((currentMonograph.state=='commit' && role == 'teacher') || (currentMonograph.state=='tea_pass' && role == 'admin')) ? true:false"
+                v-show="((currentProject.state=='commit' && role == 'teacher') || (currentProject.state=='tea_pass' && role == 'admin')) ? true:false"
                 @click="isShowInfo = true"
                 type="primary"
             >审核不通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="(currentMonograph.state=='tea_reject' || currentMonograph.state=='adm_reject' || currentMonograph.state == 'adm_pass' || (currentMonograph.state=='tea_pass' && role == 8))? true:false"
+                v-show="(currentProject.state=='tea_reject' || currentProject.state=='adm_reject' || currentProject.state == 'adm_pass' || (currentProject.state=='tea_pass' && role == 8))? true:false"
                 @click="dialogVisible_show = false"
                 type="primary"
             >关闭</el-button>
         </span>
     </el-dialog>
-    <el-dialog v-model="currentMonograph" :visible.sync="isShowInfo">
+    <el-dialog v-model="currentProject" :visible.sync="isShowInfo">
       <el-input
           type="textarea"
           :rows="4"
@@ -353,19 +354,19 @@ export default {
     return {
       searchPointFront: '',
       searchPointBack: '',
-      searchMonographName: '',
+      searchProjectName: '',
       searchStatus: '',
       searchStudentName: '',
       pageSizes:[15,20,30],
       totalCount:0,
-      currentPage: 1,
-      pageSize: 15,
+      currentPage:1,
+      pageSize:15,
       operList:[],
-      isShowInfo: false,
+      isShowInfo:false,
       select_stuName:["全部"],//筛选框
-      select_paperName: ["全部"],
-      select_point: ['全部',1,3,4,6,9,12,15],
-      option: ["全部","学生提交","导师通过","管理员通过","导师驳回","管理员驳回"],
+      select_paperName:["全部"],
+      select_point:['全部',1,3,4,6,9,12,15],
+      option:["全部","学生提交","导师通过","管理员通过","导师驳回","管理员驳回"],
       labelPosition: "left",
       title: "",
       titleName: "",
@@ -375,19 +376,19 @@ export default {
       dialogVisiblePass: false,
       dialogVisibleReject: false,
       dialogVisible_show: false,
-      reason: "",
+      reason:"",
       oper:{
         operatorRole: "",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '专著教材',
+        prodType: '科研项目',
         operationName:"",
         state:"",
         remark:"",
         time: null,
         prodId: null,
       },
-      currentMonograph: {
+      currentProject: {
         id: null,
         institutionID: null,
         name: null,
@@ -399,7 +400,7 @@ export default {
         total: '',
         rank: ''
       },
-      monographList: []
+      ProjectList: []
     };
   },
   computed: {
@@ -413,7 +414,7 @@ export default {
   },
   created() {},
   mounted() {
-    this.searchMonograph(1,15);
+    this.searchProject(1,15);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -437,7 +438,7 @@ export default {
       var fileName = data.url.split('/').reverse()[0]
       var url = data.url
       axios({
-        url: '/monograph/basic/downloadByUrl?url='+url,
+        url: '/project/basic/downloadByUrl?url='+url,
         method: 'GET',
         responseType: 'blob'
       }).then(response => {
@@ -453,27 +454,27 @@ export default {
     //点击对话框中的确定按钮 触发事件
     auditing_commit(num){
       this.loading = true;
-      let url = "/monograph/basic/edit_state?state=" + num + "&ID=" + this.currentMonograph.id;
+      let url = "/project/basic/edit_state?state=" + num + "&ID=" + this.currentProject.id;
       this.dialogVisible_show=false
       if(num.indexOf('reject') >= 0){
-        this.currentMonograph.remark = this.reason;
+        this.currentProject.remark = this.reason;
       }
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.currentMonograph.state = num
+          this.currentProject.state = num
           this.$message({
             type: 'success',
             message: '操作成功'
           })
-          this.doAddOper(num, this.reason, this.currentMonograph.id);
+          this.doAddOper(num, this.reason, this.currentProject.id);
         }
       })
     },
-    doAddOper(state,remark,monographID) {
+    doAddOper(state,remark,projectID) {
       this.oper.state = state;
       this.oper.remark = remark;
-      this.oper.prodId = monographID;
+      this.oper.prodId = projectID;
       this.oper.time = this.dateFormatFunc(new Date());
       this.oper.operatorRole = this.role;
       if(this.oper.state == "tea_pass" || this.oper.state == 'adm_pass'){
@@ -489,13 +490,13 @@ export default {
     showEditEmpView_show(data) {
       this.loading = true;
       this.titleName = "显示详情";
-      this.currentMonograph = data;
+      this.currentProject = data;
       this.dialogVisible_show = true;
-      this.getOperationListOfMonograph(data);
+      this.getOperationListOfProject(data);
     },
-    //获取改专著的操作列表
-    getOperationListOfMonograph(data) {
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=专著教材').then((resp) => {
+    //获取改项目的操作列表
+    getOperationListOfProject(data) {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研项目').then((resp) => {
         this.loading = false;
         if (resp) {
           this.isShowInfo = false;
@@ -509,13 +510,12 @@ export default {
     //应该要分是否有无筛选条件
     sizeChange(currentSize) {
       this.pageSize = currentSize;
-      this.searchMonograph(this.currentPage,currentSize);
+      this.searchProject(this.currentPage,currentSize);
     },
     currentChange(currentPage) {
       this.currentPage = currentPage;
-      this.searchMonograph(currentPage,this.pageSize);
+      this.searchProject(currentPage,this.pageSize);
     },
-    //先做个备份，可以删除
     setDataRemark(data) {
       //初始化页面需要根据学生提交时间做降序
       //页面的table的备注列需要展示驳回时间最晚的一条记录，两者操作无法合并
@@ -525,20 +525,20 @@ export default {
         dataRejectList = [];
         dataCommitList = [];
         item.operationList.map(operation => {
-          //将每个著作的提交和驳回单独提取
+          //将每个项目的提交和驳回单独提取
           if(operation.state === 'commit') dataCommitList.push(operation);
           if(operation.state === 'tea_reject' || operation.state === 'adm_reject') dataRejectList.push(operation);
         })
         //找出最晚驳回理由
         if(dataRejectList.length) {
           dataRejectList.sort((a,b) => {
-            return b.time - a.time;
+            return a.time - b.time;
           })
           item.remark = dataRejectList[0].remark;
         }
       })
     },
-    searchMonograph(pageNum, pageSize) {//根据条件搜索
+    searchProject(pageNum, pageSize) {//根据条件搜索
       const params = {};
       params.studentName = this.searchStudentName;
       var state = this.searchStatus;
@@ -564,14 +564,14 @@ export default {
         params.pointBack = this.searchPointBack;
       }
       params.state = state;
-      params.name = this.searchMonographName;
+      params.name = this.searchProjectName;
       params.pageNum = pageNum.toString();
       params.pageSize = pageSize.toString();
-      this.postRequest('/monograph/basic/searchMonographByConditions', params).then((response) => {
+      this.postRequest('/project/basic/searchProjectByConditions', params).then((response) => {
         if(response) {
-          this.monographList = response.extend.res[0];
+          this.ProjectList = response.extend.res[0];
           this.totalCount = response.extend.res[1];
-          // this.setDataRemark(this.monographList);
+          this.setDataRemark(this.ProjectList);
         }
       })
     }

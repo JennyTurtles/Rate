@@ -24,5 +24,5 @@ public interface OperationMapper {
      */
     List<Operation> selectList(Integer prodId, String prodType);
 
-
+    List<Operation> selectTypeAllOperationList(String type);
 }
