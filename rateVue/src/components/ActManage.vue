@@ -360,10 +360,10 @@
 
         <el-dialog :title="title" :visible.sync="dialogVisible" width="46%"
                    @close="emp_edit={};haveComment = false;haveSub = false;gradeFormType = 0;radio = 1;currentClone='';currentCloneid=''" center>
-          <el-radio-group v-model="radio" style="padding-top: 5px" center>
-            <el-radio :label="1" >添加新活动</el-radio>
-            <el-radio :label="2" >克隆已有活动</el-radio>
-          </el-radio-group>
+<!--          <el-radio-group v-model="radio" style="padding-top: 5px" center>-->
+<!--            <el-radio :label="1" >添加新活动</el-radio>-->
+<!--            <el-radio :label="2" >克隆已有活动</el-radio>-->
+<!--          </el-radio-group>-->
             <el-form
                     :label-position="labelPosition"
                     label-width="120px"
@@ -1336,7 +1336,6 @@ export default {
         showEditEmpView(data) {
             this.title = "编辑活动信息";
             this.emp = data;
-
             this.haveSub = data.haveSub === 1;
             this.haveComment = data.haveComment === 1;
             this.gradeFormType = data.gradeFormType;
@@ -1554,7 +1553,7 @@ export default {
         },
         showAddEmpView_clone(){
          this.emptyEmp();
-         this.title = "添加活动";
+         this.title = "克隆活动";
          this.dialogVisible = true;
          this.getCloneActivity();
          this.radio=2;

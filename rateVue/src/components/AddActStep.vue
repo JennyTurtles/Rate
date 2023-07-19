@@ -8,8 +8,9 @@
     <el-step title="分组管理"></el-step>
     <el-step title="人员管理"></el-step>
    </el-steps>
-   <el-button style="margin-top: 12px;margin-bottom: 10px; float: right;z-index: 99999" type="success" @click="next" >下一步</el-button>
-   <el-button style="margin-top: 12px;margin-bottom: 10px;float: right;margin-right: 10px;z-index: 99999" type="primary" @click="back" >返回</el-button>
+   <el-button style="margin-top: 12px;margin-bottom: 10px; float: right" type="success" @click="goAct" v-if="active===5">完成</el-button>
+   <el-button style="margin-top: 12px;margin-bottom: 10px; float: right" type="success" @click="next" v-else>下一步</el-button>
+   <el-button style="margin-top: 12px;margin-bottom: 10px;float: right;margin-right: 10px" type="primary" @click="back" >返回</el-button>
   </div>
 </template>
 
@@ -57,6 +58,9 @@ export default {
    },
   back(){
    switch (this.active){
+    case 0:
+     this.goAct()
+     break
     case 1:
      this.goAddAct(this.actID,this.actName,false)
      break
@@ -89,6 +93,12 @@ export default {
     mode:this.mode,
     addActive:this.active-1, // 标记步骤
    }
+  },
+  goAct(){
+   const _this = this;
+   _this.$router.push({
+    path: "/ActivitM/search",
+   });
   },
   goAddAct(actID,actName,flag){
    const _this = this;
