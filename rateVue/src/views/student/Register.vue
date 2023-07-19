@@ -80,7 +80,7 @@ export default {
       selectStuType:'',
       confirmPassword:'',
       checkPwdState:false,
-      stuType:['没有本校学号','本科生','研究生'],
+      stuType:['本科生','研究生','不是大学生'],
       user:{
         name:'',
         telephone:'',

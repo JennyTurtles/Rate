@@ -1,15 +1,15 @@
 <template>
   <div>
     <div>
-      <el-button type="primary" @click="downloadExcel">下载模版</el-button>
-      <el-upload
-          :show-file-list="false"
+     导入学生第一步：<el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="downloadExcel">下载模版</el-button>     第二步：<el-upload
+
+        :show-file-list="false"
           :before-upload="beforeUpload"
           :on-success="onSuccess"
-          style="display: inline-flex; margin-left: 8px"
+          style="display: inline-flex; margin-left: 1px"
           :action="UploadUrl()"
       >
-        <el-button type="primary">上传学生excel</el-button>
+        <el-button icon="el-icon-plus" type="primary">导入学生</el-button>
       </el-upload>
     </div>
     <div style="margin-top: 10px">

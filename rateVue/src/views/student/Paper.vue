@@ -320,7 +320,7 @@
           <div
               style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
             <div v-for="item in operList" :key="item.time"
-                 style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
+                 style="margin-top:18px;color:gray;font-size:10px;margin-left:14px">
               <div>
                 <p>
                   {{ item.time | dataFormat }}&nbsp;&nbsp;&nbsp;&nbsp;{{
