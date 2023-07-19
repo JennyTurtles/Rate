@@ -273,19 +273,19 @@ public class ParticipatesService {
                 if(groupid!=0)
                 {//组内选手管理
                     participants.setGroupID(groupid);
-                    /*if(participants.getDisplaySequence()==null)
-                        participants.setDisplaySequence(last);*/
+                    if(participants.getDisplaySequence()==null || participants.getDisplaySequence()!=-1)
+                        participants.setDisplaySequence(last);
                 }
-                else if(participants.getGroupID()!=null)//全活动
+                else if(participants.getGroupID()!=null && participants.getGroupID()!=-1)//全活动
                 {//从活动中导入,且不是groupid=null
                     groupid_temp=participants.getGroupID();
-                    /*Integer last_uniq=participatesMapper.getlastDisplaySequence(groupid_temp);
+                    Integer last_uniq=participatesMapper.getlastDisplaySequence(groupid_temp);
                     System.out.println("name->last_uniq"+last_uniq);
                     if(last_uniq==null)
                     {
                         last_uniq=0;
-                    }*/
-                    //participants.setDisplaySequence(last_uniq+1);
+                    }
+                    participants.setDisplaySequence(last_uniq+1);
                 }
                 participants.setActivityID(activityid);
                 Integer pend = participatesMapper.checkByIDandActivityID(studentID, activityid);//返回的是groupid，null有可能是groupid=null也有可能是不存在

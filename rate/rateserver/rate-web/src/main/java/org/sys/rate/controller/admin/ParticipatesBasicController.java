@@ -304,7 +304,7 @@ public class ParticipatesBasicController {
         RespBean res = importPars(groupID,activityID,list.get(0).getInstitutionid(),bean);
         if(res.getStatus() == 200) {
             Integer res2 = groupsMapper.updateParCount(activityID, groupID);
-            if (res2 > 0)
+            if (res2 > 0 || groupID==0)
                 return RespBean.ok(res.getMsg());
             return RespBean.error("更新选手数量失败");
         }

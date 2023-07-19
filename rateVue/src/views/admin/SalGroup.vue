@@ -99,9 +99,9 @@
               icon="el-icon-refresh"
               type="primary"
               @click="refreshact()">刷新</el-button>
-          <el-button icon="el-icon-back" type="primary" @click="back">
-            返回
-          </el-button>
+<!--          <el-button icon="el-icon-back" type="primary" @click="back">-->
+<!--            返回-->
+<!--          </el-button>-->
         </div>
       </div>
     </div>
@@ -643,7 +643,7 @@ export default {
       keywords: '',
       keyword: '',
       activityID: '',
-      groupID: '',
+      groupID: 0,
       positions: [],
       emp: {
         id:null,
@@ -1311,6 +1311,8 @@ export default {
       }
       this.dialogVisible_method = false;
       const _this = this;
+      this.groupID=0;
+      console.log(this.groupID);
       this.postRequest("/participants/basic/addPars?activityID="+this.keywords + "&groupID=" + this.groupID,_this.multipleSelection).then((resp) => {
         if (resp) {
           this.initEmps();
