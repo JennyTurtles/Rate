@@ -75,8 +75,7 @@
         <el-button
             icon="el-icon-search"
             type="primary"
-            @click="searchMonograph(1, 5)"
-            :disabled="showAdvanceSearchView"
+            @click="searchMonograph(1, 15)"
             style="margin-left:30px"
         >
           搜索
@@ -357,29 +356,26 @@ export default {
       searchMonographName: '',
       searchStatus: '',
       searchStudentName: '',
-      pageSizes:[5,10,20,20,30],
+      pageSizes:[15,20,30],
       totalCount:0,
-      currentPage:1,
-      pageSize:5,
-      tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
+      currentPage: 1,
+      pageSize: 15,
       operList:[],
-      isShowInfo:false,
+      isShowInfo: false,
       select_stuName:["全部"],//筛选框
-      select_paperName:["全部"],
-      select_point:['全部',1,3,4,6,9,12,15],
-      option:["全部","学生提交","导师通过","管理员通过","导师驳回","管理员驳回"],
+      select_paperName: ["全部"],
+      select_point: ['全部',1,3,4,6,9,12,15],
+      option: ["全部","学生提交","导师通过","管理员通过","导师驳回","管理员驳回"],
       labelPosition: "left",
       title: "",
       titleName: "",
-      showAdvanceSearchView: false,
-      copyemps:[],
       emps: [],
       loading: false,
       dialogVisible: false,
       dialogVisiblePass: false,
       dialogVisibleReject: false,
       dialogVisible_show: false,
-      reason:"",
+      reason: "",
       oper:{
         operatorRole: "",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
@@ -417,7 +413,7 @@ export default {
   },
   created() {},
   mounted() {
-    this.searchMonograph(1,5);
+    this.searchMonograph(1,15);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -454,9 +450,6 @@ export default {
         document.body.removeChild(link);
       });
     },
-    // filter(val,options){
-    //   document.getElementById(options).value=val
-    // },
     //点击对话框中的确定按钮 触发事件
     auditing_commit(num){
       this.loading = true;
@@ -498,6 +491,10 @@ export default {
       this.titleName = "显示详情";
       this.currentMonograph = data;
       this.dialogVisible_show = true;
+      this.getOperationListOfMonograph(data);
+    },
+    //获取改专著的操作列表
+    getOperationListOfMonograph(data) {
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=专著教材').then((resp) => {
         this.loading = false;
         if (resp) {
@@ -517,6 +514,29 @@ export default {
     currentChange(currentPage) {
       this.currentPage = currentPage;
       this.searchMonograph(currentPage,this.pageSize);
+    },
+    //先做个备份，可以删除
+    setDataRemark(data) {
+      //初始化页面需要根据学生提交时间做降序
+      //页面的table的备注列需要展示驳回时间最晚的一条记录，两者操作无法合并
+      let dataRejectList;
+      let dataCommitList;
+      data.map(item => {
+        dataRejectList = [];
+        dataCommitList = [];
+        item.operationList.map(operation => {
+          //将每个著作的提交和驳回单独提取
+          if(operation.state === 'commit') dataCommitList.push(operation);
+          if(operation.state === 'tea_reject' || operation.state === 'adm_reject') dataRejectList.push(operation);
+        })
+        //找出最晚驳回理由
+        if(dataRejectList.length) {
+          dataRejectList.sort((a,b) => {
+            return b.time - a.time;
+          })
+          item.remark = dataRejectList[0].remark;
+        }
+      })
     },
     searchMonograph(pageNum, pageSize) {//根据条件搜索
       const params = {};
@@ -551,10 +571,7 @@ export default {
         if(response) {
           this.monographList = response.extend.res[0];
           this.totalCount = response.extend.res[1];
-          this.copyemps = this.monographList;
-          this.monographList.sort(function(a,b){
-            return a.date > b.date ? -1 : 1
-          });
+          // this.setDataRemark(this.monographList);
         }
       })
     }

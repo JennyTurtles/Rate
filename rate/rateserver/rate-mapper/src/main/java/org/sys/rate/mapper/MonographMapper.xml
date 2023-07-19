@@ -174,7 +174,8 @@
         </foreach>
     </delete>
     <select id="searchMonographByConditions" resultMap="MonographResult">
-        select book.*, s.name as sname from i_book book, student s
+        select book.*, s.name as sname
+        from i_book book, student s
         <where>
             <if test="monoName != null and monoName != ''">and book.name like concat('%', #{monoName}, '%')</if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
