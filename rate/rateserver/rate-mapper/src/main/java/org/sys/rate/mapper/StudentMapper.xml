@@ -122,13 +122,13 @@
     </select>
 
     <insert id="insertFROMImport" parameterType="org.sys.rate.model.Student">
-        insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,tutorID,role
+        insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,role
         )
         values (#{ID,jdbcType=INTEGER},
                 #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
         <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
                 #{username,jdbcType=VARCHAR},
-                #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,0,'7'
+                #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,'7'
                )
     </insert>
     <insert id="insertStuFromExcel" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
@@ -159,7 +159,7 @@
         <if test="password!=null">password=#{password,jdbcType=VARCHAR},</if>
         <if test="username!=null">username=#{username,jdbcType=VARCHAR},</if>
                 </set>
-        where IDNumber=#{IDNumber,jdbcType=VARCHAR} and ID!='0'
+        where ID=#{ID,jdbcType=VARCHAR} and ID!='0'
     </update>
 
     <update id="updatePasswordAndUsername" parameterType="org.sys.rate.model.Student">

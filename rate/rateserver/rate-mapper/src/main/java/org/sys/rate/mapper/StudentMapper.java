@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Student;
 
 import java.util.List;
@@ -23,6 +24,10 @@ public interface StudentMapper {
     int update(Student record);
 
     int check(@Param("IDNumber") String record);
+
+    @Select("select ID from student where ID = #{ID}")
+    Integer checkID(@Param("ID") Integer ID);
+
     List<Student> checkAndReturnID(List<Student> stuList);
 
     int updatePasswordAndUsername(Student record);
@@ -37,4 +42,6 @@ public interface StudentMapper {
     int updateFromAdminExcel(List<Student> record);
 
 
+    @Select("select id from student where id = #{id}")
+    Integer isStudent(Integer id);
 }

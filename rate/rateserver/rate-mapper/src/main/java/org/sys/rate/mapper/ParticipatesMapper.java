@@ -200,12 +200,18 @@ public interface ParticipatesMapper {
             "where ID=#{activityID}")
     void updateActParCount(Integer activityID);
 
-    @Select("SELECT ID,name,IDNumber,institutionID,telephone,username,email,studentNumber\n" +
-            "FROM student s\n" +
-            "WHERE institutionID = #{institutionID}")
-    List<Participates> getByInstitutionID(Integer institutionID);
+    @Select("SELECT s.ID,gs.studentID,name,gs.institutionID,telephone,username,email,gs.stuNumber studentNumber\n" +
+            "FROM student s,graduatestudent gs \n" +
+            "WHERE gs.institutionID = #{institutionID} AND s.ID = gs.studentID AND gs.stuNumber IS NOT NULL")
+    List<Participates> getGraduateByInstitutionID(Integer institutionID);
 
-    @Insert("INSERT IGNORE INTO student (name,telephone,IDNumber,email,institutionID) VALUES (#{name},#{telephone},#{IDNumber},#{email},#{institutionid})")
+    @Select("SELECT s.ID,u.studentID,name,u.institutionID,telephone,username,email,u.stuNumber studentNumber\n" +
+            "FROM student s,undergraduate u \n" +
+            "WHERE u.institutionID = #{institutionID} AND s.ID = u.studentID AND u.stuNumber IS NOT NULL")
+    List<Participates> getUndergraduateByInstitutionID(Integer institutionID);
+
+
+    @Insert("INSERT IGNORE INTO student (name,telephone,email,institutionID) VALUES (#{name},#{telephone},#{email},#{institutionid})")
     @Options(useGeneratedKeys = true, keyProperty = "ID")
     Integer manualAdd(Participates participates);
 
@@ -214,6 +220,11 @@ public interface ParticipatesMapper {
             "FROM student s\n" +
             "WHERE IDNumber = #{IDNumber}")
     Participates getByIDNumber(String IDNumber);
+
+    @Select("SELECT s.ID,name,telephone,email,code\n" +
+            "FROM student s,participants p\n" +
+            "WHERE code = #{code} AND p.activityID = #{activityID} AND s.ID = p.studentID")
+    Participates getByCodeActivityID(String code, Integer activityID);
 
     @Select("SELECT role FROM student WHERE ID = #{studentID}")
     String getRole(Integer studentID);

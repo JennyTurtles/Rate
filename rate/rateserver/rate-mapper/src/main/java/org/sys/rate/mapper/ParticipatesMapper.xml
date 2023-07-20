@@ -124,7 +124,7 @@
 
 
     <select id="getActivitiesByPage" resultMap="BaseResultMap">
-        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID from participants e,student s where e.studentID =s.ID and e.groupID=#{groupID} order by e.displaySequence
+        select e.ID,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID from participants e,student s where e.studentID =s.ID and e.groupID=#{groupID} order by e.displaySequence
         <if test="page !=null and size!=null">
             limit #{page},#{size}
         </if>
@@ -145,7 +145,7 @@
     </select>
 
     <select id="getParticipantsPageByACID" resultMap="BaseResultMap">
-        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID from participants e,student s where e.studentID =s.ID and e.activityID=#{activitiesID} order by e.groupID,e.displaySequence
+        select e.ID,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID from participants e,student s where e.studentID =s.ID and e.activityID=#{activitiesID} order by e.groupID,e.displaySequence
         <if test="page !=null and size!=null">
             limit #{page},#{size}
         </if>

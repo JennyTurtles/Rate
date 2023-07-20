@@ -29,6 +29,8 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @RestController
@@ -354,20 +356,28 @@ public class ParticipatesBasicController {
 
     @GetMapping("/getByInstitutionID")
     public RespBean getByInstitutionID(@RequestParam("institutionID")Integer institutionID){
-        return RespBean.ok("success",participatesMapper.getByInstitutionID(institutionID));
+        // 学号改为从研究生表和本科生表中获取，两个表中都有则只保留研究生表中的学号
+        List<Participates> graduates = participatesMapper.getGraduateByInstitutionID(institutionID);
+        List<Participates> undergraduates = participatesMapper.getUndergraduateByInstitutionID(institutionID);
+        // 合并两个List并去重，优先保留graduates中的数据
+        List<Participates> combined = new ArrayList<>(graduates);
+        undergraduates.stream()
+                .filter(p -> !graduates.contains(p))
+                .forEach(combined::add);
+        return RespBean.ok("success",combined);
     }
 
     @Transactional
     @PostMapping("/manualAdd")
     public RespBean manualAdd(Participates participates) throws ParseException {
-        participatesMapper.manualAdd(participates); // 添加到student表
-        participatesService.setParticipateRole(participates.getID(),participates.getIDNumber()); // 将其角色设置为选手
+        participatesMapper.manualAdd(participates); // 添加到student表,里面的ID是学生的ID
+        participatesService.setParticipateRole(participates.getID()); // 将其角色设置为选手
         return addPars(participates.getActivityID(),participates.getGroupID(),Arrays.asList(participates)); // 添加到participates表
     }
 
-    @GetMapping("/getByIDNumber")
-    public RespBean getByIDNumber(@RequestParam("IDNumber")String IDNumber){
-        return RespBean.ok("success",participatesMapper.getByIDNumber(IDNumber));
+    @GetMapping("/getByCodeActivityID")
+    public RespBean getByIDNumber(@RequestParam("code") String code,@RequestParam("actID") Integer activityID){
+        return RespBean.ok("success",participatesMapper.getByCodeActivityID(code,activityID));
     }
 
 }

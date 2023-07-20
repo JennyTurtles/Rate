@@ -1,11 +1,27 @@
 <template>
   <div>
-    <div>
-      <div
-          style="display: flex; justify-content: space-between; margin: 15px 0"
-      >
-      </div>
-    </div>
+   <div>
+    <el-button  type="primary" @click="addVisible=true">添加活动</el-button>
+   </div>
+   <div>
+    <el-dialog title="添加活动" :visible.sync="addVisible" width="50%" center>
+      <el-form :rules="rules" ref="form" label-width="80px">
+        <el-form-item label="活动名称" prop="name">
+          <el-input v-model="actName">
+           <template #append>
+            <el-button icon="el-icon-search">搜索</el-button>
+           </template>
+          </el-input>
+
+        </el-form-item>
+
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="addVisible = false">确 定</el-button>
+        <el-button type="primary" @click="addVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
+   </div>
     <div style="margin-top: 10px">
       <el-table
           :data="emps"
@@ -177,6 +193,8 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      actName: "",
+      addVisible: false,
       labelPosition: "left",
       title: "",
       text: "",
@@ -257,8 +275,6 @@ export default {
     },
     initEmps() {
       this.loading = true;
-      console.log("init")
-      console.log(this.user);
       let url = "/activities/basic/getActivityOfStudent?page=" + this.page + "&size=" + this.size + "&studentID=" + this.user.id;
       this.getRequest(url).then((resp) => {
         this.loading = false;

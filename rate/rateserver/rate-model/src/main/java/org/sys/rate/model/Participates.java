@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.sql.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 @Data
 public class Participates{
@@ -216,4 +217,16 @@ public class Participates{
         this.totalscorewithdot = totalscorewithdot;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Participates myObject = (Participates) o;
+        return Objects.equals(ID,myObject.ID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ID);
+    }
 }

@@ -324,11 +324,11 @@
       <el-tabs type="border-card">
         <el-tab-pane label="手动添加">
          <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
-          <el-form-item label="身份证号:" prop="idnumber" >
-           <el-input style="width: 60%"  v-model="manualAddForm.idnumber" @blur="getInfoByIDNumber()"></el-input>
-          </el-form-item>
+<!--          <el-form-item label="身份证号:" prop="idnumber" >-->
+<!--           <el-input style="width: 60%"  v-model="manualAddForm.idnumber" @blur="getInfoByIDNumber()"></el-input>-->
+<!--          </el-form-item>-->
           <el-form-item label="编号:" prop="code" >
-           <el-input style="width: 60%" v-model="manualAddForm.code"></el-input>
+           <el-input style="width: 60%" v-model="manualAddForm.code" @blur="getInfoByCode"></el-input>
           </el-form-item>
           <el-form-item label="姓名:" prop="name" >
            <el-input style="width: 60%" v-model="manualAddForm.name" :disabled="manualAddFormDisabled"></el-input>
@@ -340,7 +340,14 @@
            <el-input style="width: 60%" v-model="manualAddForm.email" :disabled="manualAddFormDisabled"></el-input>
           </el-form-item>
          </el-form>
-         <el-button type="primary" @click="manualAdd">添加</el-button>
+         <el-button type="primary" @click="manualAdd" v-if="allowManualAdd">添加</el-button>
+         <el-tooltip class="item" effect="dark" content="该选手已经在活动内了，无法重复添加" placement="top-start" v-else :disabled='false'>
+      <span>
+      <el-button type="primary" style="margin-top: 15px" :disabled="true">
+       添加
+      </el-button>
+      </span>
+         </el-tooltip>
         </el-tab-pane>
         <el-tab-pane label="从本单位添加">
          <el-input
@@ -459,6 +466,7 @@ export default {
   name: "SalPar",
   data() {
     return{
+     allowManualAdd: true,
      activeName: 'participant',
      searchText: '',
      manualAddFormDisabled: false,
@@ -524,13 +532,13 @@ export default {
       },
       rules: {
         name: [{required: true, message: '请输入活动名', trigger: 'blur'}],
+        code: [{required: true, message: '请输入选手编号', trigger: 'blur'}],
         startDate: [{required: true, message: '请输入活动时间', trigger: 'blur'}],
         scoreItemCount: [{required: true, type: 'number', message: '请输入正确数据', trigger: 'blur', transform: (value) => Number(value)}],
         comment: [{required: true, message: '请输入备注', trigger: 'blur'}],
       },
       manualAddRules:{
-       idnumber:[
-        { validator: validateInputIdCard, trigger: "blur" }]
+       code: [{required: true, message: '请输入选手编号', trigger: 'blur'}],
       }
     }
   },
@@ -560,7 +568,7 @@ export default {
     this.change()
    },
    getRowKeys(row) {
-    return row.name;
+    return row.studentID;
    },
     search() {
     if (this.searchText === ''){
@@ -586,22 +594,41 @@ export default {
     this.total = this.participants.length
     this.page = 1
     this.$refs.multipleTable.clearSelection()
+    this.allowManualAdd = true
    },
-   getInfoByIDNumber(){
+   // getInfoByIDNumber(){
+   //  if (this.manualAddFormDisabled === true){
+   //   this.manualAddForm = {idnumber: this.manualAddForm.idnumber}
+   //  }
+   //  this.manualAddFormDisabled = false
+   //  this.getRequest("/participants/basic/getByIDNumber?IDNumber="+this.manualAddForm.idnumber).then(resp => {
+   //   if (resp && resp.obj != null){
+   //    this.manualAddForm = {
+   //     code:resp.obj.code,
+   //     name: resp.obj.name,
+   //     telephone: resp.obj.telephone,
+   //     idnumber: resp.obj.idnumber,
+   //     email:resp.obj.email,
+   //    }
+   //    this.manualAddFormDisabled = true
+   //   }
+   //  })
+   // },
+   getInfoByCode(){
     if (this.manualAddFormDisabled === true){
-     this.manualAddForm = {idnumber: this.manualAddForm.idnumber}
+     this.manualAddForm = {code: this.manualAddForm.code}
     }
     this.manualAddFormDisabled = false
-    this.getRequest("/participants/basic/getByIDNumber?IDNumber="+this.manualAddForm.idnumber).then(resp => {
+    this.getRequest("/participants/basic/getByCodeActivityID?code="+this.manualAddForm.code+"&actID="+this.activityID).then(resp => {
      if (resp && resp.obj != null){
       this.manualAddForm = {
        code:resp.obj.code,
        name: resp.obj.name,
        telephone: resp.obj.telephone,
-       idnumber: resp.obj.idnumber,
        email:resp.obj.email,
       }
       this.manualAddFormDisabled = true
+      this.allowManualAdd = false
      }
     })
    },
@@ -610,7 +637,6 @@ export default {
      this.manualAddForm.institutionid = this.user.institutionID;
      this.manualAddForm.activityID = this.keywords
      this.manualAddForm.groupID = this.groupID
-     this.manualAddForm.IDNumber = this.manualAddForm.idnumber
      this.$refs['manualAddForm'].validate((valid) => {
       if (valid) {
        this.postRequest1("/participants/basic/manualAdd",this.manualAddForm).then(resp => {
@@ -774,7 +800,7 @@ export default {
       this.$nextTick(() => {
         this.currentParticipants.forEach(item => {
           for (let i = 0; i < this.emps.length; i++){
-            if (item.idnumber === this.emps[i].idnumber)
+            if (item.studentID === this.emps[i].studentID)
               this.$refs.multipleTable.toggleRowSelection(item, true)
           }
         })
@@ -806,7 +832,7 @@ export default {
     },
     checkSecletion(row,index){
       for (let i = 0; i < this.emps.length; i++){
-        if (row.idnumber === this.emps[i].idnumber)
+        if (row.studentID === this.emps[i].studentID)
           return false;
       }
       return true;
@@ -941,7 +967,7 @@ export default {
     handleSelectionChange(val){
       for(let i=0;i<val.length;i++){
         for (let j=0;j<this.emps.length;j++){
-          if (val[i].idnumber===this.emps[j].idnumber){
+          if (val[i].studentID===this.emps[j].studentID){
             val.splice(i,1);
             i--;
             break;

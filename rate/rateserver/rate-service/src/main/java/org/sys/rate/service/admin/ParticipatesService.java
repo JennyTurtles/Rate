@@ -188,11 +188,12 @@ public class ParticipatesService {
         }
         last++;
         for (Participates participants : list) {
+            participants.setStudentID(participants.getID());
             Boolean flag=false;
             Student student=new Student();
             student.setName(participants.getName());
             student.setTelephone(participants.getTelephone());
-            student.setIDNumber(participants.getIDNumber());
+            student.setID(participants.getID());
             student.setEmail(participants.getEmail());
             student.setInstitutionid(insititutionID);
 //            student.setRole("7");
@@ -205,7 +206,7 @@ public class ParticipatesService {
 //            }else {
 //                student.setInstitutionid(null);
 //            }
-            if (studentMapper.check(participants.getIDNumber())!=0) {
+            if (studentMapper.checkID(participants.getStudentID())!=0) { // 以前根据身份号检查student表的记录，现在根据studentID
                 if(participants.getUsername()!=null)
                 {//不为空
                     student.setUsername(participants.getUsername());
@@ -267,8 +268,6 @@ public class ParticipatesService {
                 //System.out.println(student);
                 //在participants中加入专家
                 //先获得顺序的总数，order取top，然后循环的时候插入++插入。
-                participants.setStudentID(participatesMapper.getID(participants.getIDNumber()));
-                Integer studentID =participatesMapper.getID(participants.getIDNumber());
                 Integer groupid_temp=0;
                 if(groupid!=0)
                 {//组内选手管理
@@ -288,7 +287,7 @@ public class ParticipatesService {
                     participants.setDisplaySequence(last_uniq+1);
                 }
                 participants.setActivityID(activityid);
-                Integer pend = participatesMapper.checkByIDandActivityID(studentID, activityid);//返回的是groupid，null有可能是groupid=null也有可能是不存在
+                Integer pend = participatesMapper.checkByIDandActivityID(participants.getStudentID(), activityid);//返回的是groupid，null有可能是groupid=null也有可能是不存在
                 if ((pend != null && pend.equals(groupid)&&groupid!=0&&groupid!=-1)||(pend != null && pend.equals(groupid_temp)&&groupid==0)||(pend != null &&groupid==-1)) {
                     System.out.println("该组已经有选手： " + participants.getName()+"进行更新");
                     //participants.setDisplaySequence(null);//此时不需要更新顺序，只需要更新Code//new:如果display不为空，则更新
@@ -296,9 +295,12 @@ public class ParticipatesService {
                     participatesMapper.update_relationship(participants);
                 } else {
                     int insert=0;
-                    if(participatesMapper.checkGroupIDExists(studentID, activityid)==0)//真的不存在
+                    if(participatesMapper.checkGroupIDExists(participants.getStudentID(), activityid)==0)//真的不存在
                     {
                         participants.setID(null); // mark：如果其他地方的导入选手出bug，先检查此处
+                        if (participants.getCode() == null) {
+                            participants.setCode(participants.getStudentNumber());
+                        }
                         insert= participatesMapper.insert_relationship(participants);
                         last++;
                     }
@@ -627,12 +629,13 @@ public class ParticipatesService {
     }
 
     // 将某个学生的角色设置为选手
-    public void setParticipateRole(Integer studentID,String IDNumber){
+    public void setParticipateRole(Integer studentID){
         String role;
-        if (studentID != null)
-            role =  participatesMapper.getRole(studentID);
-        else
-            role = participatesMapper.getRoleByIDNumber(IDNumber);
+        role =  participatesMapper.getRole(studentID);
+//        if (studentID != null)
+//            role =  participatesMapper.getRole(studentID);
+//        else
+//            role = participatesMapper.getRoleByIDNumber(IDNumber);
         List<String> roleList = Arrays.asList(role.split(","));
         if(!roleList.contains("7")){
             // 如果不在，则将7添加到list中

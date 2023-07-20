@@ -34,6 +34,8 @@ public class MenuService {
     GraduateStudentMapper graduateStudentMapper;
     @Autowired
     UnderGraduateMapper underGraduateMapper;
+    @Resource
+    StudentMapper studentMapper;
 
 
     //获取子菜单
@@ -95,8 +97,11 @@ public class MenuService {
 //                role = role + ";7";
 //            }
 //        }
-        if(!role.contains("7")){ // 让所有学生都显示参与活动
-            role = role + ";7";
+        // 如果是学生
+        if (studentMapper.isStudent(id) != null){
+            if(!role.contains("7")){ // 让所有学生都显示参与活动
+                role = role + ";7";
+            }
         }
         if (underGraduateMapper.isUndergraduate(id) != 0){//本科生
             if(!role.contains("10")){
