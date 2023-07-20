@@ -1,6 +1,9 @@
 <template>
   <div>
    <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
+   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2GroupManage" v-show="$route.query.addActive == 5">
+    组内人员管理
+   </el-button>
    <div style="display: flex; justify-content: left">
     <div style="width: 100%;text-align: center;font-size: 20px" v-show="typeof $route.query.addActive === 'undefined'">专家管理</div>
     <div style="margin-left: auto;">
@@ -740,6 +743,19 @@ export default {
     this.initHrs();
   },
   methods: {
+   change2GroupManage(){
+    const _this = this;
+    _this.$router.push({
+     path: "/ActivitM/table",
+     query: {
+      keywords: this.$route.query.keywords,
+      keyword_name: this.$route.query.keyword_name,
+      mode:this.mode,
+      addActive:this.$route.query.addActive,
+      haveSub: this.$route.query.haveSub,
+     }
+    });
+   },
    change2Par(){
     this.change()
    },
@@ -951,7 +967,7 @@ export default {
                   if (resp) {
                    this.loading = false;
                       this.hrs = resp.obj;
-                      // console.log(this.hrs)
+                      // 在此指定第一个专家为组长（活动专家管理）
                   }
               });
           }
@@ -1092,6 +1108,19 @@ export default {
     },
     back() {
       const _this = this;
+     // if (typeof this.$route.query.addActive !== 'undefined'){
+     //  _this.$router.push({
+     //   path: "/ActivitM/table",
+     //   query: {
+     //    keywords: this.$route.query.activityID,
+     //    keyword_name: this.$route.query.actName,
+     //    mode:this.mode,
+     //    addActive:this.$route.query.addActive,
+     //    haveSub:this.$route.query.haveSub,
+     //   },
+     //  });
+     //  return
+     // }
       if (this.mode === "admin"){
           // console.log(this.activityID)
           if (typeof this.activityID !== "undefined") { // 从主活动进入
@@ -1374,7 +1403,7 @@ export default {
           path: '/ActivitM/group',
           query:{
             keywords: this.keywords,
-            keyword_name: this.keyword_name,
+            keyword_name: typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
             groupID:this.groupID,
             mode:this.mode,
             backID:this.activityID,
@@ -1429,10 +1458,16 @@ export default {
       for (let i = 0; i < this.multipleSelection.length; i++) {
        this.multipleSelection[i].institutionid = this.multipleSelection[i].institutionID;
       }
-      if (this.groupID!==undefined){
+      if (typeof this.groupID !== 'undefined'){
         this.currentAddGroup = this.groupID;
       }
-      console.log(this.currentAddGroup)
+      if (!this.currentAddGroup) {
+         this.$message({
+           type: 'warning',
+           message: '请选择分组!'
+         });
+         return;
+      }
       this.postRequest("/systemM/Experts/addExperts?groupID=" + this.currentAddGroup + "&activityID=" + this.keywords, this.multipleSelection).then(resp => {
         if (resp) {
           this.initHrs(true);

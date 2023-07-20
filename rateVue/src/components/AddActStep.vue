@@ -54,7 +54,8 @@ export default {
        this.goGroup(this.actID,this.actName,true)
        break
      case 4:
-       this.goPeople(this.actID,this.actName,true)
+       // this.goPeople(this.actID,this.actName,true)
+      this.goGroup(this.actID,this.actName,true)
        break
     }
    },
@@ -107,7 +108,7 @@ export default {
   goAct(){
    // 弹出一个对话框，提示是否要添加子活动
    const _this = this;
-   if (this.mode == 'adminSub' || this.$route.query.haveSub == 1){
+   if (this.$route.query.mode == 'adminSub' || this.$route.query.haveSub == 1){
     _this.$confirm('是否要添加子活动？', '提示', {
      confirmButtonText: '确定',
      cancelButtonText: '取消',
@@ -158,7 +159,20 @@ export default {
     });
    },
   goGroup(actID,actName,flag){
-    const _this = this;
+   const _this = this;
+   if (typeof this.$route.query.groupID !== 'undefined' && !flag){ // 处理从组内人员管理返回，此时addActive不应该减1
+    _this.$router.push({
+     path: "/ActivitM/table",
+     query: {
+      keywords: actID,
+      keyword_name: actName,
+      mode:this.mode,
+      addActive:this.active,
+      haveSub: typeof this.$route.query.haveSub !== 'undefined' ? this.$route.query.haveSub : this.haveSub
+     }
+    });
+    return
+   }
     var query = flag ? _this.getQuery(actID,actName) : _this.getQueryBack(actID,actName)
     // query.haveSub = false
    _this.$router.push({

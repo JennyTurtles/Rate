@@ -1,6 +1,9 @@
 <template>
   <div>
    <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :actName="keywords_name"></AddActStep>
+   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2GroupManage" v-show="$route.query.addActive == 5">
+    组内人员管理
+   </el-button>
     <div>
       <div >
         <div style="display: flex; justify-content: left">
@@ -752,6 +755,19 @@ export default {
     this.initEmps();
   },
   methods: {
+   change2GroupManage(){
+    const _this = this;
+    _this.$router.push({
+     path: "/ActivitM/table",
+     query: {
+      keywords: this.activityID,
+      keyword_name: this.keywords_name,
+      mode:this.mode,
+      addActive:this.$route.query.addActive,
+      haveSub: this.$route.query.haveSub,
+     }
+    });
+   },
     preview(dymatic_list,infoitem,scoreitem){
        // 拼接3个list，然后转换为不带有引号的字符串
         var list = dymatic_list.concat(scoreitem).concat(infoitem);

@@ -1,8 +1,11 @@
 <template>
   <div>
-   <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
+   <AddActStep ref="addActStep" v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
+   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2PeopleManage" v-show="$route.query.addActive == 5">
+    活动人员管理
+   </el-button>
     <div style="display: flex; justify-content: left">
-      <div style="width: 100%;text-align: center">{{ keywords_name }}分组管理</div>
+      <div style="width: 100%;text-align: center;margin-left: 80px;margin-top: 12px">{{ keywords_name }}分组管理</div>
       <div style="margin-left: auto">
         <el-button icon="el-icon-back" type="primary" @click="back" v-show="typeof $route.query.addActive === 'undefined'">
           返回
@@ -102,7 +105,7 @@
             </el-button
             >
               <el-button
-                      v-show="typeof $route.query.addActive === 'undefined'"
+                      v-show="typeof $route.query.addActive === 'undefined' || $route.query.addActive == 5"
                       @click="assignPE(scope.row)"
                       style="padding: 4px"
                       size="mini"
@@ -328,6 +331,19 @@ export default {
     //this.initAd();
   },
   methods: {
+   change2PeopleManage(){ // 切换到活动人员管理
+    const _this = this;
+    _this.$router.push({
+     path: "/ActivitM/group",
+     query: {
+      keywords: this.keywords,
+      keyword_name: this.keywords_name,
+      mode:this.mode,
+      addActive:this.$route.query.addActive,
+      haveSub: this.$route.query.haveSub,
+     }
+    });
+   },
     Delete_Score_Item(si) {
         // console.log("si")
         // console.log(si)
@@ -570,7 +586,6 @@ export default {
     },
       assignPE(data) {
           const _this = this;
-          console.log(data.id);
           if (this.mode === 'secretary' || this.mode === 'secretarySub'|| this.mode === 'adminSub'){
             _this.$router.push({
               path: "/participantsM",
@@ -599,7 +614,10 @@ export default {
                 mode:this.mode,
                 keywords:this.keywords,
                 keyword_name:this.keywords_name,
+                actName:this.keywords_name,
                 ACNAME:this.keywords_name,
+                addActive:this.$route.query.addActive,
+                haveSub:this.$route.query.haveSub,
               }
             })
           }
