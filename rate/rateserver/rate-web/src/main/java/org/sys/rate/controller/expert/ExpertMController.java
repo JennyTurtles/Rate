@@ -337,4 +337,16 @@ public class ExpertMController {
             return RespBean.error("设置组长失败");
         }
     }
+
+    @PostMapping("/checkAndSetLeader")
+    public RespBean checkAndSetLeader(@RequestParam Integer groupID){
+        if (expertsMapper.checkLeader(groupID) == null){
+            Experts experts = expertsMapper.getCandidateLeader(groupID);
+            expertsMapper.setLeader(groupID,experts.getID());
+            return RespBean.ok(experts.getName());
+        }
+        else {
+            return RespBean.error("exist leader");
+        }
+    }
 }

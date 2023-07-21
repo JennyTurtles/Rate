@@ -92,4 +92,13 @@ public interface ExpertsMapper {
 
     @Update("UPDATE expertactivities SET role = '组长' WHERE groupID = #{groupID} AND teacherID = #{teacherID}")
     Integer setLeader(Integer groupID, Integer teacherID);
+
+    @Select("SELECT ID \n" +
+            "FROM expertactivities \n" +
+            "WHERE role = '组长' AND groupID = #{groupID} LIMIT 1")
+    Integer checkLeader(Integer groupID);
+
+    @Select("SELECT t.ID,name FROM expertactivities e,teacher t\n" +
+            "WHERE groupID = #{groupID} AND e.teacherID = t.ID LIMIT 1")
+    Experts getCandidateLeader(Integer groupID);
 }

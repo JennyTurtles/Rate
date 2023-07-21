@@ -836,14 +836,25 @@ export default {
      this.manualAddForm.institutionid = this.user.institutionID;
      this.manualAddForm.activityID = this.keywords
      this.manualAddForm.groupID = this.groupID ? this.groupID : this.currentAddGroup
+     if (!this.manualAddForm.groupID){
+      this.$message({
+       type: 'warning',
+       message: '请选择小组!'
+      })
+      return
+     }
      this.$refs['manualAddForm'].validate((valid) => {
       if (valid) {
        if (this.manualAddFormDisabled){ // teacher表中已经存在该专家，调用“从本单位添加的接口”
         let form = []
         form.push(this.manualAddForm)
-        this.postRequest("/systemM/Experts/addExperts?groupID=" + this.groupID + "&activityID=" + this.keywords, form).then(resp => {
+        this.postRequest("/systemM/Experts/addExperts?groupID=" + this.manualAddForm.groupID + "&activityID=" + this.keywords, form).then(resp => {
          if (resp) {
-          this.initHrs(true,this.hrs.length);
+          if (this.$route.query.groupID)
+           this.initHrs(true,this.hrs.length);
+          else{
+           this.initHrs(true,this.hrs.length,this.manualAddForm.groupID);
+          }
           // this.$message({
           //  type: 'success',
           //  message: '添加成功!'
@@ -856,10 +867,15 @@ export default {
         this.manualAddForm.password = sha1(this.manualAddForm.password)
         this.postRequest1("/systemM/Experts/manualAdd",this.manualAddForm).then(resp => { // teacher表中无该专家
          if (resp && resp.status === 200) {
-          this.$message({
-           message: '添加成功!',
-           type: 'success'
-          });
+          // this.$message({
+          //  message: '添加成功!',
+          //  type: 'success'
+          // });
+          if (this.$route.query.groupID)
+           this.initHrs(true,this.hrs.length);
+          else{
+           this.initHrs(true,this.hrs.length,this.manualAddForm.groupID);
+          }
           this.initHrs(true);
           this.dialogVisible_method = false
          }
@@ -922,7 +938,7 @@ export default {
         }
       });
     },
-    initHrs(checkFlag,oldLen) {
+    initHrs(checkFlag,oldLen,checkGroupID) {
       this.loading = true;
       if (typeof this.activityID == "undefined" || this.mode === 'secretary') { // 此时是从分组管理进入的
           this.getRequest(
@@ -946,15 +962,7 @@ export default {
                }
                if (typeof checkFlag != "undefined" && checkFlag === true){
                  if (!this.checkLeader() && this.hrs.length > 0){ // 无组长，指定第一个为组长
-                   this.postRequest1("/systemM/Experts/setLeader?groupID=" + this.groupID + "&teacherID=" + this.hrs[0].id).then(resp => {
-                     if (resp && resp.status === 200) {
-                       this.$message({
-                         message: '已经设置'+this.hrs[0].name+'为组长',
-                         type: 'info'
-                       });
-                       this.initHrs(true);
-                     }
-                    });
+                  this.setLeader(this.groupID,this.hrs[0].id)
                  }
                }
               }
@@ -966,8 +974,17 @@ export default {
               ).then((resp) => {
                   if (resp) {
                    this.loading = false;
-                      this.hrs = resp.obj;
-                      // 在此指定第一个专家为组长（活动专家管理）
+                   this.hrs = resp.obj
+                   if (typeof oldLen != "undefined" && this.hrs.length > oldLen) {
+                    this.$message({
+                     type: "success",
+                     message: "添加成功",
+                    });
+                   }
+                   if (checkFlag && checkFlag === true && checkGroupID){
+                    console.log("check")
+                    this.checkAndSetLeader(checkGroupID)
+                   }
                   }
               });
           }
@@ -978,6 +995,30 @@ export default {
       if (this.mode==='secretarySub')
         this.initParentGroup();
     },
+   checkAndSetLeader(groupID){
+    this.postRequest1("/systemM/Experts/checkAndSetLeader?groupID=" + groupID).then(resp => {
+     if (resp && resp.status === 200 && resp.msg !== '') {
+      this.$message({
+       message: '已经设置'+resp.msg+'为组长',
+       type: 'info'
+      });
+      this.initHrs();
+     }
+    });
+   },
+   setLeader(groupID,teacherID){
+    if (!this.checkLeader() && this.hrs.length > 0){ // 无组长，指定第一个为组长
+     this.postRequest1("/systemM/Experts/setLeader?groupID=" + groupID + "&teacherID=" + teacherID).then(resp => {
+      if (resp && resp.status === 200) {
+       this.$message({
+        message: '已经设置'+this.hrs[0].name+'为组长',
+        type: 'info'
+       });
+       this.initHrs();
+      }
+     });
+    }
+   },
       initExperts(){
       let url = '/system/Experts/getByInstitutionID/?institutionID=' + this.user.institutionID;
       this.getRequest(url).then(resp => {
@@ -1464,17 +1505,19 @@ export default {
       if (!this.currentAddGroup) {
          this.$message({
            type: 'warning',
-           message: '请选择分组!'
+           message: '请选择小组!'
          });
          return;
       }
+     const groupID = this.currentAddGroup;
       this.postRequest("/systemM/Experts/addExperts?groupID=" + this.currentAddGroup + "&activityID=" + this.keywords, this.multipleSelection).then(resp => {
         if (resp) {
-          this.initHrs(true);
-          this.$message({
-            type: 'success',
-            message: '添加成功!'
-          });
+         // console.log("check")
+          this.initHrs(true,this.hrs.length,groupID);
+          // this.$message({
+          //   type: 'success',
+          //   message: '添加成功!'
+          // });
         }
       })
     },
