@@ -18,6 +18,11 @@
               >
             </span>
             <el-dropdown-menu slot="dropdown">
+             <el-dropdown-item command="registerRole"
+                               v-show="
+                  (user.role == ''  || user.role.indexOf('9') !== -1 || user.role.indexOf('10') !== -1)"
+             >注册为本科生/研究生</el-dropdown-item
+             >
               <el-dropdown-item command="changePassword"
                 >修改密码</el-dropdown-item
               >
@@ -159,6 +164,51 @@
         <el-button type="primary" @click="submitPassword">确 定</el-button>
       </span>
     </el-dialog>
+   <el-dialog @close="registerRoleForm={};selectStuType=''" title="注册为本科生/研究生" :visible.sync="registerRoleVisible" width="30%">
+    <el-form label-width="auto">
+    <el-form-item label="请输入学生姓名:">
+     <el-input v-model="registerRoleForm.name"></el-input>
+    </el-form-item>
+    <el-form-item label="请输入学生电话:">
+     <el-input v-model="registerRoleForm.telephone"></el-input>
+    </el-form-item>
+    <el-form-item label="请输入学生邮箱:">
+     <el-input v-model="registerRoleForm.email"></el-input>
+    </el-form-item>
+    <el-form-item label="请选择注册的学生类型:">
+     <el-select v-model="selectStuType" clearable>
+      <el-option
+          v-for="val in stuType"
+          :value="val"
+          :label="val"
+          :key="val">
+      </el-option>
+     </el-select>
+    </el-form-item>
+    <div >
+     <el-form-item label="请输入学号:">
+      <el-input  v-model="registerRoleForm.studentnumber" ></el-input>
+     </el-form-item>
+     <el-form-item label="请输入入学年份:">
+      <el-input  v-model="registerRoleForm.year" ></el-input>
+     </el-form-item>
+    </div>
+    <div v-show="selectStuType === '研究生'">
+     <el-form-item label="请选择研究生类型:">
+      <el-select v-model="registerRoleForm.gradType">
+       <el-option v-for="val in ['专硕','学硕','博士']"
+                  :value="val"
+                  :label="val"
+                  :key="val">
+       </el-option>
+      </el-select>
+     </el-form-item>
+    </div>
+     <div style="text-align: center">
+      <el-button  @click="registerRole" type="primary">注册</el-button>
+     </div>
+    </el-form>
+   </el-dialog>
   </div>
 </template>
 
@@ -168,18 +218,22 @@ import sha1 from "sha1";
 
 export default {
   name: "Home",
-  data() {
-    return {
-      routes: [],
-      role: "",
-      name: "",
-      //获取页面高度
-      clientHeight: "",
-      showPassword: false,
-      password: "",
-      password_confirm: "",
-    };
-  },
+ data: function () {
+  return {
+   stuType:['本科生','研究生'],
+   selectStuType:'',
+   registerRoleForm: {},
+   registerRoleVisible: false,
+   routes: [],
+   role: "",
+   name: "",
+   //获取页面高度
+   clientHeight: "",
+   showPassword: false,
+   password: "",
+   password_confirm: "",
+  };
+ },
   computed: {
     user() {
       return JSON.parse(localStorage.getItem("user"));
@@ -202,6 +256,30 @@ export default {
     },
   },
   methods: {
+   registerRole(){
+    this.registerRoleForm.ID = this.user.id
+    if (this.selectStuType === '研究生'){
+     this.postRequest1("/system/student/registerGraduate",this.registerRoleForm).then((res) => {
+      if (res) {
+       this.$message({
+        type: "success",
+        message: "注册成功!",
+       });
+       this.registerRoleVisible = false
+      }
+     });
+    }else if (this.selectStuType === '本科生'){
+     this.postRequest1("/system/student/registerUndergraduate",this.registerRoleForm).then((res) => {
+      if (res) {
+       this.$message({
+        type: "success",
+        message: "注册成功!",
+       });
+       this.registerRoleVisible = false
+      }
+     });
+    }
+   },
     handleOpen(subItem) {
       if (
         this.role != JSON.parse(localStorage.getItem("user")).role ||
@@ -267,7 +345,10 @@ export default {
               message: "已取消操作",
             });
           });
-      } else if (cmd == "changePassword") {
+      } else if (cmd == 'registerRole'){
+       this.registerRoleVisible = true
+      }
+      else if (cmd == "changePassword") {
         this.showPassword = true;
       } else if (cmd == "userInfo") {
         if (this.user.role.indexOf("13") >= 0 || this.user.role.indexOf("14") >= 0 || this.user.role .indexOf("15") >= 0 || this.user.role.indexOf("16") >= 0) {
