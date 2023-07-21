@@ -647,4 +647,22 @@ public class ParticipatesService {
             return;
         participatesMapper.setParticipateRole(studentID,role);
     }
+
+    //该选手不在选手表的活动内，则在选手表添加记录，之后管理员导入根据编号更新补全信息。
+    //该选手在选手表的活动内，但studentID不是他，则修改studentID，并在student表中删除该ID（老的）的记录
+    public void addActSelf(Integer studentID,Integer activityID,String code){
+        // 首先检查选手表中是否存在在选手，通过code和activityID
+        Participates participate = participatesMapper.getParticipateIDByCodeAndActivityID(code,activityID);
+        if (participate == null){
+            // 不存在，则添加
+            participatesMapper.addPar(studentID,activityID,code);
+        }else {
+            // 存在，则检查studentID是否是他
+            if (!Objects.equals(participate.getStudentID(), studentID)){
+                // 不是他，则修改studentID，并在student表中删除该ID（老的）的记录
+                participatesMapper.updatePar(studentID,participate.getID());
+                participatesMapper.deleteStudent(participate.getStudentID());
+            }
+        }
+    }
 }

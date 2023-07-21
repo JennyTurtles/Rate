@@ -4,23 +4,47 @@
     <el-button  type="primary" @click="addVisible=true">添加活动</el-button>
    </div>
    <div>
-    <el-dialog title="添加活动" :visible.sync="addVisible" width="50%" center>
-      <el-form :rules="rules" ref="form" label-width="80px">
-        <el-form-item label="活动名称" prop="name">
-          <el-input v-model="actName">
-           <template #append>
-            <el-button icon="el-icon-search">搜索</el-button>
-           </template>
-          </el-input>
-
-        </el-form-item>
-
-      </el-form>
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="addVisible = false">确 定</el-button>
-        <el-button type="primary" @click="addVisible = false">取 消</el-button>
-      </span>
+    <el-dialog
+        title="添加活动"
+        :visible.sync="addVisible"
+        width="50%"
+        :before-close="handleClose">
+     <el-form :model="addActForm">
+      <el-form-item label="活动名称">
+       <el-autocomplete
+           style="width: 90%"
+           v-model="addActForm.activityName"
+           :fetch-suggestions="querySearchAsync"
+           placeholder="请输入活动名称"
+           @select="handleSelect">
+       </el-autocomplete>
+      </el-form-item>
+      <el-form-item label="选手编号">
+       <el-input style="width: 90%" v-model="addActForm.code" placeholder="请输入编号"></el-input>
+      </el-form-item>
+     </el-form>
+     <span slot="footer" class="dialog-footer">
+      <el-button @click="addVisible = false">取 消</el-button>
+      <el-button type="primary" @click="addActSelf">确 定</el-button>
+    </span>
     </el-dialog>
+<!--    <el-dialog title="添加活动" :visible.sync="addVisible" width="50%" center>-->
+<!--      <el-form :rules="rules" ref="form" label-width="80px">-->
+<!--        <el-form-item label="活动名称" prop="name">-->
+<!--          <el-input v-model="actName">-->
+<!--           <template #append>-->
+<!--            <el-button icon="el-icon-search">搜索</el-button>-->
+<!--           </template>-->
+<!--          </el-input>-->
+
+<!--        </el-form-item>-->
+
+<!--      </el-form>-->
+<!--      <span slot="footer" class="dialog-footer">-->
+<!--        <el-button type="primary" @click="addVisible = false">确 定</el-button>-->
+<!--        <el-button type="primary" @click="addVisible = false">取 消</el-button>-->
+<!--      </span>-->
+<!--    </el-dialog>-->
    </div>
     <div style="margin-top: 10px">
       <el-table
@@ -34,8 +58,6 @@
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%"
       >
-        <el-table-column type="selection" width="35px"></el-table-column>
-
         <el-table-column
             prop="id"
             fixed
@@ -50,7 +72,6 @@
             fixed
             align="left"
             label="活动名称"
-            width="200"
         >
         </el-table-column>
         <!-- width="200" -->
@@ -193,6 +214,11 @@ export default {
   name: "SalSearch",
   data() {
     return {
+     addActForm: {
+      activityName: '',
+      activityID: '',
+      code: ''
+     },
       actName: "",
       addVisible: false,
       labelPosition: "left",
@@ -257,6 +283,62 @@ export default {
     this.initEmps();
   },
   methods: {
+   addActSelf() {
+    this.postRequest1('/participants/basic/addActSelf?studentID='+this.user.id+'&activityID='+this.addActForm.activityID+'&code='+this.addActForm.code)
+        .then(response => {
+         if (response.status === 200) {
+          this.$message({
+           message: '添加成功',
+           type: 'success'
+          });
+          this.addVisible = false;
+          this.initEmps();
+         }
+        });
+    // axios.post('your/api/path', {
+    //  activityName: this.form.activityName,
+    //  code: this.form.code
+    // })
+    //     .then(response => {
+    //      // 处理响应
+    //      console.log(response);
+    //     })
+    //     .catch(error => {
+    //      // 处理错误
+    //      console.error(error);
+    //     });
+   },
+   querySearchAsync(queryString, cb) {
+    if (queryString.length < 2) {
+     return cb([]);
+    }
+    this.getRequest('/activities/basic/searchByName?name='+queryString)
+        .then(response => {
+         let results = response.obj;
+         // 遍历result，把里面的name赋值给value
+         results.forEach(result => {
+          result.value = result.name;
+         });
+         // 调用回调函数返回搜索建议
+         cb(results);
+        })
+        .catch(error => {
+         console.error(error);
+        });
+   },
+   handleSelect(item) {
+    // 当用户选择一个活动时触发
+    this.addActForm.activityName = item.name;
+    this.addActForm.activityID = item.id;
+   },
+   handleClose(done) {
+    // 在 dialog 关闭之前的回调，关闭 dialog 之前可以进行一些状态的清理
+    this.addVisible = false
+    this.addActForm.activityName = '';
+    this.addActForm.code = '';
+    this.addActForm.activityID = '';
+    done();
+   },
     rowClass() {
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },

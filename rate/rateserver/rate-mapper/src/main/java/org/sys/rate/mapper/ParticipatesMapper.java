@@ -234,4 +234,16 @@ public interface ParticipatesMapper {
 
     @Select("SELECT role FROM student WHERE IDNumber = #{IDNumber}")
     String getRoleByIDNumber(String IDNumber);
+
+    @Select("SELECT ID, studentID FROM participants WHERE code = #{code} AND activityID = #{activityID}")
+    Participates getParticipateIDByCodeAndActivityID(String code, Integer activityID);
+
+    @Insert("INSERT INTO participants (studentID,activityID,code) VALUES (#{studentID},#{activityID},#{code})")
+    void addPar(Integer studentID, Integer activityID, String code);
+
+    @Update("UPDATE participants SET studentID = #{studentID} WHERE ID = #{id}")
+    void updatePar(Integer studentID, Integer id);
+
+    @Delete("DELETE FROM student WHERE ID = #{studentID}")
+    void deleteStudent(Integer studentID);
 }

@@ -137,4 +137,8 @@ public interface ActivitiesMapper {
     @Select("SELECT ID FROM `groups` WHERE activityID = #{activityID} LIMIT 1")
     Integer checkHaveGroup(Integer activityID);
 
+
+    @Select("SELECT ID,name FROM activities\n" +
+            "WHERE name LIKE CONCAT('%', #{name}, '%') AND deleteFlag = 0")
+    List<Activities> searchByName(String name);
 }

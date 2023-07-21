@@ -11,6 +11,7 @@ import org.sys.rate.service.admin.ParticipatesService;
 import org.sys.rate.service.admin.ScoreItemService;
 
 import javax.annotation.Resource;
+import javax.validation.GroupSequence;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -238,6 +239,12 @@ public class ActivitiesBasicController {
     public RespBean getAllGroup(@RequestParam Integer activityID){
         List<Groups> res = groupsMapper.getGroupByActID(activityID);
         return RespBean.ok("success",res);
+    }
+
+    @GetMapping("/searchByName")
+    public RespBean searchByName(@RequestParam String name) {
+        List<Activities> activities = activitiesMapper.searchByName(name);
+        return RespBean.ok("success", activities);
     }
 }
 

@@ -57,7 +57,7 @@ import {
     DatePicker,
     RadioGroup,
     CollapseItem,
-    Switch, Popconfirm,Divider
+    Switch, Popconfirm,Divider,Autocomplete
 } from 'element-ui';
 Dialog.props.closeOnClickModal.default = false // 点击空白处不关闭弹窗
 Vue.directive('focus', {
@@ -68,6 +68,7 @@ Vue.directive('focus', {
 })
 
 Vue.prototype.$ELEMENT = { size: 'small', zIndex: 3000 };
+Vue.use(Autocomplete)
 Vue.use(Divider)
 Vue.use(Transfer)
 Vue.use(Switch);

@@ -380,4 +380,12 @@ public class ParticipatesBasicController {
         return RespBean.ok("success",participatesMapper.getByCodeActivityID(code,activityID));
     }
 
+    @PostMapping("/addActSelf")
+    public RespBean addActSelf(Integer studentID,Integer activityID,String code) {
+        participatesService.addActSelf(studentID,activityID,code);
+        return RespBean.ok("添加成功");
+    }
+
+
+
 }
