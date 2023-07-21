@@ -5,10 +5,10 @@
     <el-step title="信息项"></el-step>
     <el-step title="评分项"></el-step>
     <el-step title="成绩查看设置"></el-step>
-    <el-step title="分组管理"></el-step>
-    <el-step title="人员管理"></el-step>
+    <el-step title="分组管理" v-if="mode !== 'adminSub'"></el-step>
+    <el-step title="人员管理" v-if="mode !== 'adminSub'"></el-step>
    </el-steps>
-   <el-button style="margin-top: 12px;margin-bottom: 10px; float: right" type="success" @click="goAct" v-if="active===5">完成</el-button>
+   <el-button style="margin-top: 12px;margin-bottom: 10px; float: right" type="success" @click="goAct" v-if="active===5 || active === 3 && mode === 'adminSub' ">完成</el-button>
    <el-button style="margin-top: 12px;margin-bottom: 10px; float: right" type="success" @click="next" v-else>下一步</el-button>
    <el-button style="margin-top: 12px;margin-bottom: 10px;float: right;margin-right: 10px" type="primary" @click="back" >返回</el-button>
   </div>
@@ -27,8 +27,13 @@ export default {
     return {
      mode: 'admin',
      haveSub: 0,
+     requireGroup: '',
     }
   },
+ mounted() {
+  this.mode = this.$route.query.mode
+  this.requireGroup = this.$route.query.requireGroup
+ },
  methods: {
    async next() {
     switch (this.active){
@@ -37,10 +42,13 @@ export default {
       if (typeof this.actID === 'undefined'){
        act = (await this.$parent.add()).obj;
        this.haveSub = act.haveSub
+       this.requireGroup = act.requireGroup
        this.goInfoItem(act.id,act.name,true)
       }
       else{
-       this.$parent.save(this.actID)
+       act = await this.$parent.save(this.actID)
+       this.haveSub = act.haveSub
+       this.requireGroup = act.requireGroup
        this.goInfoItem(this.actID,this.actName,true)
       }
        break
@@ -51,10 +59,14 @@ export default {
        this.goDisplayItem(this.actID,this.actName,true)
        break
      case 3:
-       this.goGroup(this.actID,this.actName,true)
+       if (this.$route.query.requireGroup && this.$route.query.requireGroup === '0' && this.mode === 'adminSub'){
+        this.active += 1
+        this.goPeople(this.actID,this.actName,true)
+       }
+       else
+        this.goGroup(this.actID,this.actName,true)
        break
      case 4:
-       // this.goPeople(this.actID,this.actName,true)
       this.goGroup(this.actID,this.actName,true)
        break
     }
@@ -77,7 +89,11 @@ export default {
      this.goDisplayItem(this.actID,this.actName,false)
      break
     case 5:
-     this.goGroup(this.actID,this.actName,false)
+     if (this.$route.query.requireGroup && this.$route.query.requireGroup === '0' && this.mode === 'adminSub'){
+      this.active -= 1
+      this.goDisplayItem(this.actID,this.actName,false)
+     }else
+      this.goGroup(this.actID,this.actName,false)
      break
    }
   },
@@ -85,23 +101,27 @@ export default {
     return {
     keywords: actID,
     keyword_name: actName,
-    mode:this.mode,
+    mode:this.$route.query.mode,
     addActive:this.active+1, // 标记步骤
-    haveSub: this.active !== 0 ? this.$route.query.haveSub : this.haveSub
+    haveSub: this.active !== 0 ? this.$route.query.haveSub : this.haveSub,
+    parentID:this.$route.query.parentID,
+    requireGroup: this.active !== 0 ? this.$route.query.requireGroup : this.requireGroup
    }
   },
   getQueryBack(actID,actName){
    return {
     keywords: actID,
     keyword_name: actName,
-    mode:this.mode,
+    mode:this.$route.query.mode,
     addActive:this.active-1, // 标记步骤
-    haveSub: typeof this.$route.query.haveSub !== 'undefined' ? this.$route.query.haveSub : this.haveSub
+    haveSub: typeof this.$route.query.haveSub !== 'undefined' ? this.$route.query.haveSub : this.haveSub,
+    parentID:this.$route.query.parentID,
+    requireGroup: this.$route.query.requireGroup
    }
   },
   getQuerySub(actID){
    return {
-    parentID: actID,
+    parentID: this.$route.query.mode === 'adminSub' ? this.$route.query.parentID : actID, // 从子活动到子活动和从主活动到子活动
     mode:'adminSub',
     addActive:0,
    }},

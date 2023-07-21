@@ -138,6 +138,7 @@
             enterDate=#{enterDate,jdbcType=TIMESTAMP},
             visibleDate=#{visibleDate,jdbcType=TIMESTAMP},
             gradeFormType=#{gradeFormType,jdbcType=INTEGER},
+            requireGroup=#{requireGroup,jdbcType=INTEGER}
         </trim>
         where ID=#{id,jdbcType=INTEGER}
     </update>

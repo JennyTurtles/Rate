@@ -1,7 +1,7 @@
 <template>
   <div>
    <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
-   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2GroupManage" v-show="$route.query.addActive == 5">
+   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2GroupManage" v-show="$route.query.addActive == 5 && $route.query.mode == 'admin' ">
     组内人员管理
    </el-button>
    <div style="display: flex; justify-content: left">
@@ -224,6 +224,7 @@
           </template>
         </el-table-column>
         <el-table-column
+            v-if="!$route.query.addActive"
             align="center"
             min-width="3%"
             label="已提交评分"
@@ -237,7 +238,7 @@
         <el-table-column align="center" min-width="10%" label="操作">
           <template slot-scope="scope">
             <el-button
-                v-if="flag==0"
+                v-if="flag==0 && !$route.query.addActive"
                 @click="reset_password(scope.row)"
                 style="padding: 4px"
                 size="mini"
@@ -253,7 +254,7 @@
                 size="mini"
                 icon="el-icon-refresh-right"
                 type="primary"
-                v-show="haveSub!=1"
+                v-show="haveSub!=1 && !$route.query.addActive"
                 plain
             >查看专家评分
             </el-button>
@@ -264,7 +265,7 @@
                 icon="el-icon-refresh-right"
                 type="primary"
                 :disabled="scope.row.finished==0"
-                v-show="haveSub!=1"
+                v-show="haveSub!=1 && !$route.query.addActive"
                 plain
             >退回评分
             </el-button>
@@ -1199,34 +1200,29 @@ export default {
           });
       }else{
        const _this = this
-       _this.$router.push({
-        path: '/participantsM',
-        query:{
-         activityIDParent: this.$route.query.activityIDParent,
-         activityID: this.keywords,
-         groupIDParent: this.$route.query.groupIDParent,
-         groupID: this.$route.query.groupID,
-         actName: this.$route.query.actName,
-         groupName: this.$route.query.groupName,
-         isGroup: this.$route.query.isGroup,
-         haveSub: this.$route.query.haveSub,
-         id: this.$route.query.id,
-         keywords: this.keywords,
-         keyword_name: typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
-         ACNAME:typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
-         mode:this.mode,
-         backID:this.$route.query.groupID,
-         backActName:this.$route.query.backActName,
-         smallGroup:this.$route.query.smallGroup,
-         back:1,
-        }
-       })
-        // _this.$router.push({
-        //   path: "/ActivitM/SubActManage",
-        //   query: {
-        //     id: this.$route.query.backID,
-        //   },
-        // });
+       this.$router.go(-1);
+       // _this.$router.push({
+       //  path: '/participantsM',
+       //  query:{
+       //   activityIDParent: this.$route.query.activityIDParent,
+       //   activityID: this.keywords,
+       //   groupIDParent: this.$route.query.groupIDParent,
+       //   groupID: this.$route.query.groupID,
+       //   actName: this.$route.query.actName,
+       //   groupName: this.$route.query.groupName,
+       //   isGroup: this.$route.query.isGroup,
+       //   haveSub: this.$route.query.haveSub,
+       //   id: this.$route.query.id,
+       //   keywords: this.keywords,
+       //   keyword_name: typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
+       //   ACNAME:typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
+       //   mode:this.mode,
+       //   backID:this.$route.query.groupID,
+       //   backActName:this.$route.query.backActName,
+       //   smallGroup:this.$route.query.smallGroup,
+       //   back:1,
+       //  }
+       // })
       }
     },
     tableRowClassName({row, rowIndex}) {
@@ -1420,7 +1416,7 @@ export default {
           path: '/participantsM',
           query:{
             activityIDParent: this.$route.query.activityIDParent,
-            activityID: this.keywords,
+            activityID: this.keywords ? this.keywords : this.$route.query.id,
             groupIDParent: this.$route.query.groupIDParent,
             groupID: this.$route.query.groupID,
             actName: this.$route.query.actName,
@@ -1436,6 +1432,7 @@ export default {
             backActName:this.$route.query.backActName,
             smallGroup:this.$route.query.smallGroup,
             addActive:this.$route.query.addActive,
+            requireGroup:this.$route.query.requireGroup,
           }
         })
       }

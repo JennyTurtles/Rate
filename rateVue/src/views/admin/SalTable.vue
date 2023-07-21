@@ -1,7 +1,7 @@
 <template>
   <div>
    <AddActStep ref="addActStep" v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
-   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2PeopleManage" v-show="$route.query.addActive == 5">
+   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2PeopleManage" v-show="$route.query.addActive == 5 && $route.query.mode === 'admin' ">
     活动人员管理
    </el-button>
     <div style="display: flex; justify-content: left">
@@ -180,7 +180,7 @@
                 icon="el-icon-plus"
                 type="primary"
                 plain
-                v-show="haveSub == 1 && mode==='admin'"
+                v-show="haveSub == 1 && mode==='admin' && !$route.query.addActive"
             >子活动管理
             </el-button
             >

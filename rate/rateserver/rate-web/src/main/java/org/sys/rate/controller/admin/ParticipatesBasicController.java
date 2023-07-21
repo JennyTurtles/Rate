@@ -308,7 +308,7 @@ public class ParticipatesBasicController {
             Integer res2 = groupsMapper.updateParCount(activityID, groupID);
             if (res2 > 0 || groupID==0)
                 return RespBean.ok(res.getMsg());
-            return RespBean.error("更新选手数量失败");
+//            return RespBean.error("更新选手数量失败");
         }
         return RespBean.error(res.getMsg());
     }

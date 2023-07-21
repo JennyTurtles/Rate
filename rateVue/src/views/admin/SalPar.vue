@@ -1,7 +1,7 @@
 <template>
   <div>
    <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
-   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2GroupManage" v-show="$route.query.addActive == 5">
+   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2GroupManage" v-show="$route.query.addActive == 5 && $route.query.mode == 'admin'">
     组内人员管理
    </el-button>
     <div >
@@ -559,7 +559,7 @@ export default {
     this.groupID = this.$route.query.groupID;
     this.activityID = this.$route.query.activityID;
     this.mode = this.$route.query.mode
-    this.keywords = this.$route.query.keywords;
+    this.keywords = this.$route.query.keywords ? this.$route.query.keywords :this.$route.query.activityID;
     this.keywords_name = this.$route.query.keyword_name;
     this.ACNAME=this.$route.query.keywords_name;
     this.activityIDParent=this.$route.query.activityIDParent;
@@ -990,6 +990,7 @@ export default {
           mode:this.mode,
           backActName:this.$route.query.backActName,
           addActive:this.$route.query.addActive,
+          requireGroup:this.$route.query.requireGroup,
         }
       })
     },

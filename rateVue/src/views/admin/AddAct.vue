@@ -76,6 +76,10 @@
    <el-form-item  label="包含子活动: " v-show="mode === 'admin'">
     <el-checkbox v-model="emp_edit.haveSub"></el-checkbox>
    </el-form-item>
+   <el-form-item label="是否需要分组: " v-show="mode === 'adminSub'">
+    <el-checkbox v-model="emp_edit.requireGroup"></el-checkbox>
+<!--    <span class="tip-title" style="margin-left: 10px">专家在评分时是否需要写评语</span>-->
+   </el-form-item>
    <el-form-item label="是否写评语: ">
     <el-checkbox v-model="emp_edit.haveComment"></el-checkbox>
     <span class="tip-title" style="margin-left: 10px">专家在评分时是否需要写评语</span>
@@ -169,6 +173,7 @@ export default {
      this.emp_edit = res.obj
      this.emp_edit.haveSub = res.obj.haveSub === 1
      this.emp_edit.haveComment = res.obj.haveComment === 1
+     this.emp_edit.requireGroup = res.obj.requireGroup === 1
     })
    }
   },
@@ -206,6 +211,7 @@ export default {
    }
    this.emp.haveSub = this.emp.haveSub ? 1 : 0
    this.emp.haveComment = this.emp.haveComment ? 1 : 0
+   this.emp.requireGroup = this.emp.requireGroup ? 1 : 0
    this.$set(this.emp,"adminID",this.user.id)
    //添加活动 能看见的小于能进入的小于开始时间
    return new Promise((resolve, reject) => {
@@ -237,20 +243,24 @@ export default {
    this.emp = this.emp_edit
    this.emp.institutionID = this.user.institutionID;
    this.emp.id = id
-   this.emp.requireGroup = null
    this.emp.haveSub = this.emp.haveSub ? 1 : 0
    this.emp.haveComment = this.emp.haveComment ? 1 : 0
+   this.emp.requireGroup = this.emp.requireGroup ? 1 : 0
    const _this = this;
-   this.postRequest("/activities/basic/update", _this.emp).then(
-       (resp) => {
-        if (resp) {
-         this.$message({
-          type: 'success',
-          message: '修改成功!'
-         });
+   return new Promise((resolve, reject) => {
+    this.postRequest("/activities/basic/update", _this.emp).then(
+        (resp) => {
+         if (resp) {
+          this.$message({
+           type: 'success',
+           message: '修改成功!'
+          });
+         }
+         resolve(this.emp)
         }
-       }
-   );
+    );
+   });
+
   }
   }
 };
