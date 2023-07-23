@@ -79,7 +79,8 @@
                oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
                oper.state,oper.remark,
                i.name as iname,
-               i.score
+               i.score,
+               type.name as tname,type.year,type.indicator_id
         FROM i_project a
                  LEFT JOIN i_project_type type ON type.id = a.project_type_id
                  LEFT JOIN indicator i ON i.id = type.indicator_id
@@ -113,32 +114,30 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
             <if test="studentId != null">student_id,</if>
-            <if test="indicatorId != null">indicator_id,</if>
+            <if test="projectTypeId != null">project_type_id,</if>
             <if test="name != null and name != ''">name,</if>
-            <if test="date != null">date,</if>
+            <if test="startDate != null">start_date,</if>
+            end_date,
             <if test="author != null">author,</if>
             <if test="`rank` != null">`rank`,</if>
             <if test="total != null">total,</if>
             <if test="point != null">point,</if>
             <if test="state != null">state,</if>
-            <if test="url != null">url,</if>
-            <if test="publisher != null">publisher,</if>
-            <if test="isbn != null">ISBN</if>
+            <if test="url != null">url</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="studentId != null">#{studentId},</if>
-            <if test="indicatorId != null">#{indicatorId},</if>
+            <if test="projectTypeId != null">#{projectTypeId},</if>
             <if test="name != null and name != ''">#{name},</if>
-            <if test="date != null">#{date},</if>
+            <if test="startDate != null">#{startDate},</if>
+            #{endDate},
             <if test="author != null">#{author},</if>
             <if test="`rank` != null">#{rank},</if>
             <if test="total != null">#{total},</if>
             <if test="point != null">#{point},</if>
             <if test="state != null">#{state},</if>
-            <if test="url != null">#{url},</if>
-            <if test="publisher != null">#{publisher},</if>
-            <if test="isbn != null">#{isbn}</if>
+            <if test="url != null">#{url}</if>
         </trim>
     </insert>
 
