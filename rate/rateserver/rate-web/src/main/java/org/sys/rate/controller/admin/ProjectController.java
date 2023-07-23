@@ -12,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.model.Project;
 import org.sys.rate.model.Msg;
+import org.sys.rate.model.ProjectType;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.ProjectService;
@@ -40,6 +42,8 @@ public class ProjectController {
     
     @Resource
     private ProjectService projectService;
+    @Resource
+    private IndicatorMapper indicatorMapper;
     @Resource
     MailToTeacherService mailToTeacherService;
 
@@ -147,5 +151,15 @@ public class ProjectController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
+    }
+
+    @GetMapping("/getIndicatorByYearAndType")
+    public JsonResult getIndicatorByYearAndType(String year,String type) {
+        List<ProjectType> list = projectService.getIndicatorByYearAndType(year,type);
+        return new JsonResult(list);
+    }
+    @GetMapping("/getIndicatorScore")
+    public JsonResult getScore(Integer id) {
+        return new JsonResult(indicatorMapper.getScore(id));
     }
 }

@@ -13,7 +13,7 @@
     </div>
     <div style="margin-top: 10px;">
       <el-table
-          :data="emps"
+          :data="projectsList"
           stripe
           border
           v-loading="loading"
@@ -23,8 +23,8 @@
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%;"
       >
-        <el-table-column type="selection" width="35px"> </el-table-column>
         <el-table-column
+            fixed
             prop="name"
             align="center"
             label="科研项目名称"
@@ -34,7 +34,7 @@
         <el-table-column
             prop="state"
             label="状态"
-            width="127px"
+            width="100px"
             align="center"
         >
           <template slot-scope="scope">
@@ -55,22 +55,34 @@
               </span>
           </template>
         </el-table-column>
-        <!-- width="70" -->
         <el-table-column
-            prop="type.name"
+            prop="projectType.name"
             label="项目类别"
             align="center"
-            width="250px"
+            width="100px"
         >
         </el-table-column>
         <el-table-column
-            prop="head"
+            prop="author"
             align="center"
-            label="参与人"
-            width="200px"
+            label="完成人"
+            width="100px"
         >
         </el-table-column>
-        <!-- width="200" -->
+        <el-table-column
+            prop="startDate"
+            label="立项时间"
+            align="center"
+            width="75px"
+        >
+        </el-table-column>
+        <el-table-column
+            prop="endDate"
+            width="140px"
+            align="center"
+            label="结项时间"
+        >
+        </el-table-column>
         <el-table-column
             prop="point"
             label="积分"
@@ -78,20 +90,17 @@
             width="75px"
         >
         </el-table-column>
-        <!-- width="60" -->
         <el-table-column
-            prop="comment"
-            style="width=90px"
+            prop="remark"
+            width="140px"
             align="center"
             label="备注"
         >
         </el-table-column>
-        <!-- width="80" -->
-        <!-- width="550" -->
         <el-table-column align="center" width="280px" label="操 作">
           <template slot-scope="scope">
             <el-button
-                @click="showEditEmpView(scope.row)"
+                @click="showEditEmpView(scope.row, scope.$index)"
                 style="padding: 4px"
                 size="mini"
                 icon="el-icon-edit"
@@ -120,136 +129,81 @@
         </el-table-column>
       </el-table>
     </div>
-    <!-- 添加科研项目对话框 -->
+    <!-- 添加科研科研项目对话框 -->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
       <el-form
           :hide-required-asterisk="true"
           :label-position="labelPosition"
           label-width="150px"
-          :model="emp"
+          :model="currentProjectCopy"
           :rules="rules"
-          ref="empForm"
+          ref="currentProjectCopy"
       >
-        <el-form-item label="项目名称:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="项目名称:" label-width="80px" style="margin-left: 20px;" prop="name">
           <span class="isMust">*</span>
           <el-input
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
-              v-model="emp.name"
+              v-model="currentProjectCopy.name"
               placeholder="请输入科研项目名称"
           ></el-input>
         </el-form-item>
-
-
-        <el-form-item label="项目来源:" prop="source" label-width="80px" style="margin-left: 20px;">
-          <!--<span class="isMust">*</span>-->
-          <div>
-            <el-input
-                id="input_projectsource"
-                size="mini"
-                style="width:80%"
-                prefix-icon="el-icon-edit"
-                v-model="emp.source"
-                placeholder="请输入项目来源"
-            ></el-input>
-          </div>
-        </el-form-item>
-
-        <el-form-item  label="所属类别:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="立项时间:" label-width="80px" style="margin-left: 20px;" prop="startDate">
           <span class="isMust">*</span>
-          <div class="select_div_input">
-            <input
-                autocomplete="off"
-                style="margin-left:5px;width:120px;line-height:28px;
-                              border:1px solid lightgrey;padding:0 10px 1px 15px;
-                              border-radius:4px;color:gray"
-                :disabled = "false"
-                placeholder="请输入项目类别名称"
-                v-model="projectTypename"
-                @focus="inputTypeFocus"
-                @blur="isTypeShow=isTypeFlag"
-                id="input_projectTypeName"/>
-            <div class="select_div"
-                 v-show="isTypeShow && projectTypename ? true:false"
-                 :style="'max-height:200px;'"
-                 @mouseover="isTypeFlag = true"
-                 @mouseleave="isTypeFlag = false">
-              <div
-                  style="margin:12px 0px 3px 12px;width:90%"
-                  v-for="val in select_TypeName"
-                  :key="val.index"
-                  :value="val.value"
-                  @click="filter_type(val)"
-              >
-                {{ val.value }}
-              </div>
-            </div>
-          </div>
-        </el-form-item>
-
-        <el-form-item label="来源子类:" prop="sub" label-width="80px" style="margin-left: 20px;">
-          <el-input
-              size="mini"
-              style="width:80%"
-              prefix-icon="el-icon-edit"
-              v-model="emp.sub"
-              placeholder="请输入项目来源子类"
-          ></el-input>
-        </el-form-item>
-
-        <el-form-item label="申报年份:" prop="year" label-width="80px" style="margin-left: 20px;">
-          <el-input
-              size="mini"
-              style="width: 200px"
-              prefix-icon="el-icon-edit"
-              v-model="emp.year"
-              placeholder="申报年份"
-          ></el-input>
-        </el-form-item>
-
-        <el-form-item label="立项日期:" prop="starttime" label-width="80px" style="margin-left: 20px;">
           <el-date-picker
-              v-model="emp.starttime"
-              type="date"
-              value-format="yyyy-MM-dd"
-              placeholder="立项日期">
+              style="width: 80%"
+              v-model="currentProjectCopy.startDate"
+              type="month"
+              @change="changeProjectStartDate($event)"
+              value-format="yyyy-MM"
+              placeholder="选择立项时间">
           </el-date-picker>
         </el-form-item>
-
-        <el-form-item label="结项日期:" prop="endtime" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="结项时间:" label-width="80px" style="margin-left: 20px;">
           <el-date-picker
-              v-model="emp.endtime"
-              type="date"
-              value-format="yyyy-MM-dd"
-              placeholder="结项日期">
+              style="width: 80%"
+              v-model="currentProjectCopy.endDate"
+              type="month"
+              value-format="yyyy-MM"
+              placeholder="选择结项时间">
           </el-date-picker>
         </el-form-item>
-
-        <el-form-item label="参与人:" prop="head" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="参与人:" label-width="80px" style="margin-left: 20px;" prop="author">
+          <span class="isMust">*</span>
           <el-input
-              id="input_head"
               size="mini"
-              style="width:80%"
+              style="width: 80%"
               prefix-icon="el-icon-edit"
-              v-model="head"
-              @blur="judgeHead()"
+              v-model="member"
+              @blur="judgeMember()"
               placeholder="请输入参与人,如有多个用分号分隔"
           ></el-input>
         </el-form-item>
-
-        <el-form-item label="结项方式" prop="way" label-width="80px" style="margin-left: 20px;">
-          <el-input
-              id="input_way"
-              size="mini"
-              style="width:80%"
-              prefix-icon="el-icon-edit"
-              v-model="emp.way"
-              placeholder="请输入结项方式"
-          ></el-input>
+        <el-form-item label="项目类别:" label-width="80px" style="margin-left: 20px;" prop="projectType">
+          <span class="isMust">*</span>
+          <el-select
+              :disabled="disabledSelectProjectType"
+              v-model="selectProjectType"
+              filterable
+              remote
+              clearable
+              reserve-keyword
+              @change="selectOption($event)"
+              placeholder="请输入科研项目类别"
+              :remote-method="selectProjectTypeMethod"
+              :loading="loading">
+            <el-option
+                v-for="item in selectProjectTypeList"
+                :key="item.id"
+                :label="item.name"
+                :value="item">
+            </el-option>
+          </el-select>
         </el-form-item>
 
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
           <el-upload
               :file-list="files"
               action="#"
@@ -267,18 +221,14 @@
                   &nbsp;&nbsp;大小不能超过10MB
                 </span>
           </el-upload>
-          <div>
-
-          </div>
-
         </el-form-item>
       </el-form>
       <div style="margin-left: 20px;">
         <span style="color:gray;font-size:10px">将会获得：{{view_point}}积分</span>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="doAddEmp" v-show="addButtonState">提 交</el-button>
+        <el-button @click="cancelAdd">取 消</el-button>
+        <el-button type="primary" @click="addProject" v-show="addButtonState">提 交</el-button>
       </span>
     </el-dialog>
 
@@ -293,65 +243,52 @@
       <el-form
           :label-position="labelPosition"
           label-width="120px"
-          :model="emp"
-          :rules="rules"
+          :model="currentProject"
           ref="empForm"
           style="margin-left: 20px">
-
-        <el-form-item label="科研项目名称" prop="name">
-          <span>{{ emp.name }}</span
+        <el-form-item label="项目名称:" prop="name" fixed>
+          <span>{{ currentProject.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="项目来源:" prop="source">
-          <span>{{ emp.source }}</span
+        <el-form-item label="作者名称:" prop="author">
+          <span>{{ currentProject.author }}</span
           >
         </el-form-item>
-        <el-form-item label="项目来源子类:" prop="sub">
-          <span>{{ emp.sub }}</span
+        <el-form-item label="作者人数:" prop="rank">
+          <span>{{ currentProject.total }}</span
           >
         </el-form-item>
-        <el-form-item label="参与人:" prop="head">
-          <span>{{ emp.head }}</span
+        <el-form-item label="作者排名:" prop="rank">
+          <span>{{ currentProject.rank }}</span
           >
         </el-form-item>
-        <el-form-item label="提交年份:" prop="year">
-          <span>{{ emp.year }}</span
+        <el-form-item label="立项日期:" prop="date">
+          <span>{{ currentProject.startDate }}</span
           >
         </el-form-item>
-        <el-form-item label="结项方式:" prop="way">
-          <span>{{ emp.way }}</span
+        <el-form-item label="结项日期:" prop="date">
+          <span>{{ currentProject.endDate }}</span
           >
         </el-form-item>
-        <el-form-item label="立项日期:" prop="startDate">
-          <span>{{ emp.starttime }}</span
-          >
-        </el-form-item>
-        <el-form-item label="结束日期:" prop="endDate">
-          <span>{{ emp.endtime }}</span
-          >
-        </el-form-item>
-        <el-form-item label="备 注:">
-          <span>{{ emp.comment }}</span>
+        <el-form-item label="相关备注:">
+          <span>{{ currentProject.remark }}</span>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
-          <!-- <el-button @click="download(emp)" type="primary" v-show="emp.url == '' || emp.url == null ? false:true">下载材料</el-button> -->
-          &nbsp;&nbsp;&nbsp;&nbsp;
-          <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
+          <span v-if="currentProject.url == '' || currentProject.url == null ? true:false" >无证明材料</span>
           <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
-             @click="download(emp)"
+             @click="download(currentProject)"
              onmouseover="this.style.color = 'blue'"
              onmouseleave="this.style.color = 'gray'">
-            {{emp.url|fileNameFilter}}</a>
+            {{currentProject.url|fileNameFilter}}</a>
           <br />
         </el-form-item>
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
             <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <!-- <el-form-item  v-model="operList" v-for="item in operList" :key="item.time" style="margin-bottom:8px;"> -->
               <div >
-                <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operation}}</p>
-                <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
+                <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
+                <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
               </div>
             </div>
           </div>
@@ -364,6 +301,7 @@
         >
       </span>
     </el-dialog>
+
   </div>
 </template>
 
@@ -374,204 +312,177 @@ export default {
   name: "SalSearch",
   data() {
     return {
-      disabledInput:false,
-      timer:null,
-      select_TypeName:[],
-      isTypeFlag:false,
-      isTypeShow:false,
-      empProjectName:'',//添加项目中的项目名称
+      disabledSelectProjectType: true,
+      //项目类别下拉框可选列表
+      selectProjectTypeList: [],
+      //选择的某个项目类别
+      selectProjectType: '',
+      data: [],
       view_point:0,
       headers: {
         'Content-Type': 'multipart/form-data'
       },
       files:[],//选择上传的文件列表
       urlFile:'',//文件路径
-      addButtonState:true,//是否允许添加项目
-      operList:[],//每个项目的历史操作记录
-      remarksort:[],//对显示的驳回理由做排序
-      head:'',//和输入的作者列表绑定
+      addButtonState: false,//是否允许添加科研项目
+      operList:[],//每个科研项目的历史操作记录
+      member:'',//和输入的作者列表绑定
       options:[],//存储所有类型对象
-      data_picker:"",//选择时间
-      ulList:false,
       labelPosition: "left",
       title: "",
       title_show: "",
-      emps: [],
+      projectsList: [],
       loading: false,
       dialogVisible: false,
       dialogVisible_show: false,
       dialogVisible_showInfo:false,
-      total: 0,
-      page: 1,
-      size: 10,
-      projectTypename:"",//项目类别
-      projectTypeId:-1,
       oper:{
         operatorRole: "student",
-        operatorID: this.user.id,
-        prodType: 'project',
+        operatorId: JSON.parse(localStorage.getItem('user')).id,
+        operatorName: JSON.parse(localStorage.getItem('user')).name,
+        prodType: '科研项目',
         operationName: '',
         state: '',
         remark: '',
         prodId: null,
         time: null
       },
-      emp: {
+      publish: {
+        id: '',
+        publicationId: '',
+        indicatorId: '',
+        indicatorName: '',
+        year: '',
+        student_id: '',
+        date: '',
+        state: '',
+        publicationName: '',
+        publicationAbbr: '',
+        publisherName: '',
+        publicationUrl: '',
+        publicationProofUrl: '',
+        indicatorRankN: '',
+        indicatorScore: ''
+      },
+      currentProjectCopy: {},
+      currentProject: {
         id: null,
-        institutionID: null,
         name: null,
-        source: "",
-        sub:"",
-        //head:"",
-        division:"",
-        year: "",
-        way:"",
-        starttime: "2023-02-28",
-        endtime: "2023-02-28",
-        //scoreItemCount: "0",
+        author:"",
+        state: '',
+        startDate: "",
+        endDate: "",
+        rank: "",
+        total:"",
         point:"",
         url:'',
-        state:" ",
-        score: "10",
-        projectTypeId: "",
+        remark:'',
+        publisher: '',
+        isbn: ''
       },
       rules: {
-        name: [{ required: true, message: "请输入科研项目名", trigger: "blur" }],
-        scoreItemCount: [
-          {
-            required: true,
-            type: "number",
-            message: "请输入正确数据",
-            trigger: "blur",
-            transform: (value) => Number(value),
-          },
-        ],
-        comment: [{ required: true, message: "请输入备注", trigger: "blur" }],
+        name: [{ required: true, message: "请输入科研项目名称", trigger: "blur" }],
+        projectType: [{ required: true, message: "请输入科研项目类别", trigger: "blur" }],
+        startDate: [{ required: true, message: "请输入科研项目立项时间", trigger: "blur" }],
+        author: [{ required: true, message: "请输入科研项目作者", trigger: "blur" }]
       },
     };
   },
-  watch:{
-    projectTypename:{
-      handler(val){//函数抖动
-        this.delayInputTimer(val)
-      }
-    },
-    data_picker:{//清除时间input设置为不可输入
-      handler(val){
-        if(!val){
-          this.disabledInput = true
-        }
-      }
-    }
-  },
   computed: {
     user() {
-      return this.$store.state.currentHr; //object信息
-    },
-    menuHeight() {
-      return this.projectTypename.length * 50 > 150
-          ? 150 + 'px'
-          : '${this.projectTypename.length * 50}px'
-    },
+      return JSON.parse(localStorage.getItem('user')); //object信息
+    }
   },
   created() {},
   mounted() {
-    this.initEmps();
+    this.currentProjectCopy = JSON.parse(JSON.stringify(this.currentProject));
+    this.initProjectsList();
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
       if(data == null || data == ''){
         return '无证明材料'
       }else{
-        var arr= data.split('/')
-        return  arr.reverse()[0]
+        var arr = data.split('/');
+        return arr.reverse()[0];
       }
     }
   },
   methods: {
-    delayInputTimer(val){//项目类别输入框，根据name查找全称 每隔300ms发送请求
-      if(this.timer){
-        clearInterval(this.timer)
-      }
-      if(!val){
-        return
-      }
-      this.timer = setInterval(()=>{
-        let url = "/projectType/basic/searchByName/"
-        this.postRequest(url, val).then((resp) => {
-          this.loading = false;
-          if (resp) {
-            this.select_TypeName=[]
-            if(resp.obj){
-              for(var i=0;i<resp.obj.length;i++){
-                this.select_TypeName.push(
-                    {
-                      value:resp.obj[i].name,
-                      indicatorID:resp.obj[i].indicatorId,
-                      projectTypeId:resp.obj[i].id
-                    }
-                )
-              }
-            }else{
-              this.$message.error(`请检查项目名称的拼写`);
-            }
+    //选择下拉框的某个选项
+    selectOption(data) {
+      if(data) {
+        this.getRequest('/project/basic/getIndicatorScore?id=' + data.indicatorId).then(response => {
+          if(response) {
+            this.view_point = response.data;
+          }else {
+            this.view_point = 0;
           }
-          clearInterval(this.timer)
-        });
-      },300)
-    },
-    inputTypeFocus(){//input获取焦点判断是否有下拉框，是否可输入
-      if(true){
-        this.isTypeShow = true//控制下拉框是否显示
-        this.disabledInput = false
+        })
       }
     },
-    filter_type(val){//选择下拉框的某个项目类别 得到选择的类别的id 等信息
-      this.isTypeFlag=false
-      this.isTypeShow=false
-      var that = this
-      if(!val){
-        return
+    //改变项目的立项时间
+    changeProjectStartDate(data) {
+      if(data) {
+        this.disabledSelectProjectType = false;
+      }else {
+        this.disabledSelectProjectType = true;
       }
-      this.projectTypename = val.value
-      //projectType.year = this.emp.year
-      //projectType.Name = this.projectTypename
-      var url = "/projectType/basic/getScore/" + val.indicatorID
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          // this.select_pubName=[]
-          if(resp.obj){
-            console.log(resp)
-            this.view_point = resp.obj
-            const id = JSON.parse(localStorage.getItem('user')).id
-            this.projectTypeId = val.projectTypeId
-          }else {//暂因C类项目类别存在，不实质应用此判断语句
-            this.projectTypename = ''
-            this.$message.error('无该科研项目类别！请重新检查类别名称！')
+    },
+    //输入项目类别 发送请求调用的函数
+    selectProjectTypeMethod(data) {
+      if (this.currentProjectCopy.startDate != null && this.currentProjectCopy.startDate != '' && data != null && data != '') {
+        this.getRequest('/project/basic/getIndicatorByYearAndType?year=' + this.currentProjectCopy.startDate.split('-')[0] + '&type=' + data).then(response => {
+          if(response) {
+            this.selectProjectTypeList = response.data;
           }
-          clearInterval(this.timer)
-        }
-        console.log(this.view_point)
-      });
+        })
+      }
     },
-    download(data){//下载证明材料
+    cancelAdd() {
+      this.dialogVisible = false;
+    },
+    changeProjectStatus(item){
+      this.currentProjectCopy.grantedStatus = item.label;
+      if(item.value < 0) {
+        this.view_point = 0;
+        this.currentProjectCopy.indicatorId = null;
+      }else {
+        this.getRequest('/indicator/getScoreById?indicatorId=' + item.value).then(response => {
+          if(response.obj){
+            this.view_point = response.obj;
+          }
+          this.currentProjectCopy.indicatorId = item.value;
+        })
+      }
+      this.currentProjectCopy.point = this.view_point;
+    },
+    download(data) {//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
-      console.log(fileName);
-      if(localStorage.getItem("user")){
-        var url="/projects/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
-        window.location.href = encodeURI(url);
-      }else{
-        this.$message.error("请重新登录！");
-      }
+      var url = data.url
+      axios({
+        url: '/project/basic/downloadByUrl?url=' + url,
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
+        }
+      }).then(response => {
+        const url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
     },
     handleDelete() {//删除选择的文件
       var file={
         filepath:this.urlFile
       }
-      this.postRequest1("/projects/basic/deleteFile",file).then(
+      this.postRequest1("/project/basic/deleteFile",file).then(
           (response)=>{
-            console.log(response)
           },()=>{}
       )
     },
@@ -594,10 +505,9 @@ export default {
       var formData=new FormData();
       this.files.push(file);
       formData.append("file",this.files[0].raw)
-      axios.post("/projects/basic/upload",formData,{
+      axios.post("/project/basic/upload",formData,{
         headers:{
-          // 'token': window.sessionStorage.getItem('user') ? JSON.parse(window.sessionStorage.getItem('user')).token : ''
-          'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
+          'token': localStorage.getItem('user') ? this.user.token : ''
         }
       }).then(
           (response)=>{
@@ -606,21 +516,12 @@ export default {
             })
             this.addButtonState = true
             //获取文件路径
-            this.urlFile=response.data
-            // console.log("response:");
-            // console.log(this.urlFile);
+            this.urlFile = response.data
           },()=>{}
       )
     },
-    timechange(picker){//选择日历调用的方法
-      var data=new Date(picker)
-      this.emp.year=data.getFullYear()
-      this.emp.month=data.getMonth()+1
-      this.disabledInput = false
-      this.options=[]
-    },
-    judgeHead(){//输入作者框 失去焦点触发事件
-      var val=this.head;
+    judgeMember(){//输入作者框 失去焦点触发事件
+      var val = this.member;
       var isalph = false//判断输入中是否有英文字母
       for(var i in val){
         var asc = val.charCodeAt(i)
@@ -629,8 +530,8 @@ export default {
           break
         }
       }
-      var num=null
-      var info=JSON.parse(localStorage.getItem("user"))
+      var num = null
+      var info = this.user;
       if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
         num=val.split('；')
       }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
@@ -638,20 +539,15 @@ export default {
       }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//中英都有
         this.$message.error();('输入不合法请重新输入！')
       }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        //console.log("only one")
-        if(val != info.name ){
+        if(this.member != info.name && isalph){
           this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.addButtonState=false
-          //console.log("wrong")
         }else{
-          this.addButtonState=true
-          this.emp.head=this.head
-          this.emp.total=1
-          //console.log("right")
+          this.currentProjectCopy.author = this.member
+          this.currentProjectCopy.rank = 1
+          this.currentProjectCopy.total = 1
         }
         return
       }
-
       //判断自己在不在其中
       if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
         this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
@@ -660,125 +556,101 @@ export default {
         this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
         this.addButtonState=false
       }
-      this.emp.head=this.head
-      console.log(this.head);
+      this.currentProjectCopy.rank = num.indexOf(info.name) + 1
+      this.currentProjectCopy.author = this.member
+    },
+    judgeScore() {
+      if(this.publish.indicatorId != null && this.publish.indicatorId != '') {
+        if(parseInt(this.publish.indicatorRankN) >= this.currentProjectCopy.rank) {
+          this.view_point = this.publish.indicatorScore;
+        } else {
+          this.view_point = 0;
+        }
+      }
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
-    emptyEmp() {
-      this.emp = {
-        name: "",
-        source: "",
-        sub:"",
-        way:"",
-        year: "",
-        starttime: "",
-        endtime: "",
-        point:"",
-        url:'',
-        state:'',
-        score: "",
-        comment: "",
-      };
-    },
     //编辑按钮
-    showEditEmpView(data) {
-      this.title = "编辑项目信息";
-      this.emp = data;
-      this.view_point = data.point
+    showEditEmpView(data, idx) {
+      this.title = "编辑科研项目信息";
+      this.currentProjectCopy = JSON.parse(JSON.stringify(data));
       this.dialogVisible = true;
-      this.projectTypename=this.emp.type.name
-      this.head=this.emp.head
+      this.member = this.currentProjectCopy.author
       this.options = []
+      this.view_point = data.point;
     },
     showInfo(data){
+      this.loading = true;
       this.title_show = "显示详情";
-      this.emp=data
-      // console.log(data);
-      this.dialogVisible_showInfo=true
-      this.getRequest("/projectoper/basic/List?ID="+data.id).then((resp) => {
+      this.currentProject = data
+      this.dialogVisible_showInfo = true
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研项目').then((resp) => {
         this.loading = false;
         if (resp) {
-          this.operList=resp.data
-          this.operList.sort(function(a,b){
-            return a.time > b.time ? -1 : 1
-          })
+          this.operList = resp.obj
         }
       });
     },
     deleteEmp(data) {
       if(confirm(
           "此操作将永久删除【" + data.name + "】, 是否继续?",)){
-        this.deleteRequest("/projects/basic/remove/" + data.id).then((resp) => {
+        this.deleteRequest("/project/basic/remove/" + data.id).then((resp) => {
           if (resp) {
             this.dialogVisible = false;
-            this.initEmps();
+            this.initProjectsList();
           }
         })
       }
     },
-    doAddEmp() {//项目提交确认
-      if (this.emp.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        // if(confirm('确定要提交吗？')){
-        var empdata=this.emp
-        this.emptyEmp()
-        this.$refs["empForm"].validate((valid) => {
-          if (valid) {
-            this.emp.name=empdata.name
-            this.emp.ID=empdata.id
-            //this.emp.projectTypename=empdata.projectTypename
-            this.emp.projectTypeId=empdata.projectTypeId
-            this.emp.point = empdata.point
-            this.emp.source = empdata.source
-            this.emp.sub = empdata.sub
-            this.emp.year=empdata.year
-            this.emp.way = empdata.way
-            this.emp.head=empdata.head
-            //this.emp.total = empdata.total
-            this.projectTypename=document.getElementById("input_projectTypeName").value
-            this.emp.starttime = empdata.starttime
-            this.emp.endtime = empdata.endtime
-            this.emp.url = this.urlFile;
-            this.emp.state="commit"
-
-            const _this = this;
-            if(this.emp.url == '' ||this.emp.url == null){
-              this.$message({
-                message:'请上传证明材料！'
-              })
-              return
+    editProject() {
+      this.$refs["currentProjectCopy"].validate((valid) => {
+        if (valid) {
+          const params = {};
+          this.currentProjectCopy.url = this.urlFile;
+          this.currentProjectCopy.state = "commit";
+          for(let key in this.currentProjectCopy) {
+            if(key !== 'indicator' && key !== 'student' && key !== 'operationList') {
+              params[key] = this.currentProjectCopy[key];
             }
-            this.postRequest1("/projects/basic/edit", _this.emp).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                  }
-                }
-            );
           }
-        });
-
+          if(this.currentProjectCopy.url == '' ||this.currentProjectCopy.url == null){
+            this.$message.error('请上传证明材料！')
+            return
+          }
+          this.postRequest1("/project/basic/edit", params).then(
+              (resp) => {
+                if (resp) {
+                  this.dialogVisible = false;
+                  this.$message.success('编辑成功！')
+                  this.doAddOper("commit", this.currentProjectCopy.id);
+                }
+              }
+          );
+        }
+      });
+    },
+    addProject() {//科研项目提交确认
+      if (this.currentProjectCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
+        this.editProject();
       } else {
-        this.$refs["empForm"].validate((valid) => {
+        this.$refs["currentProjectCopy"].validate((valid) => {
           if (valid) {
-            this.projectTypename=document.getElementById("input_projectTypeName").value
-            this.emp.projectTypeId = this.projectTypeId
-            this.emp.point = this.view_point
-            this.emp.url = this.urlFile;
-            this.emp.state="commit"
-            this.emp.studentID = JSON.parse(localStorage.getItem('user')).id
-            const _this = this;
-            if(this.emp.url == '' ||this.emp.url == null){
+            this.currentProjectCopy.url = this.urlFile;
+            this.currentProjectCopy.state = "commit"
+            this.currentProjectCopy.studentId = this.user.id
+            this.currentProjectCopy.indicatorId = this.publish.indicatorId;
+            this.currentProjectCopy.point = this.publish.indicatorScore;
+            if(this.currentProjectCopy.url == '' ||this.currentProjectCopy.url == null){
               this.$message.error('请上传证明材料！')
               return
             }
-            this.postRequest1("/projects/basic/add",_this.emp).then(
+            this.postRequest1("/project/basic/add",this.currentProjectCopy).then(
                 (resp) => {
                   if (resp) {
+                    this.$message.success('添加成功！')
                     this.dialogVisible = false;
-                    this.doAddOper("commit",resp.data)
+                    this.doAddOper("commit", resp.data);
                   }
                 }
             );
@@ -786,50 +658,36 @@ export default {
         });
       }
     },
-    async doAddOper(state, projectID) {
+    async doAddOper(state,projectID) {
       this.oper.state = state
-      this.oper.projectID = projectID
-      this.oper.operation="提交项目"
+      this.oper.prodId = projectID
+      this.oper.operationName = "提交项目"
       this.oper.time = this.dateFormatFunc(new Date());
-      await this.postRequest1("/oper/basic/add", this.oper)
-      await this.initEmps();
+      await this.postRequest1("/oper/basic/add", this.oper);
+      await this.initProjectsList();
     },
-    showAddEmpView() {//点击添加科研项目按钮
-      this.addButtonState=true
-      this.emptyEmp();
-      this.head=''
-      this.data_picker=''
-      this.title = "添加科研项目";
+    showAddEmpView() {//点击添加科研科研项目按钮
+      this.urlFile = '';
+      this.currentProjectCopy = {};
+      this.addButtonState = false;
+      this.member = '';
+      this.publish.indicatorId = '';
+      this.publish.indicatorScore = '';
+      this.view_point = '';
+      this.title = "添加项目";
       this.dialogVisible = true;
+    },
+    initProjectsList() {
       this.loading = true;
-      let url = "/projects/basic/List"
+      let url = "/project/basic/studentID?studentID=" + this.user.id
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          for(var i=0;i<resp.data[0].length;i++){
-            console.log(resp.data)
-            this.options.push(
-                {
-                  index:resp.data[0][i].id,
-                  value:resp.data[0][i].name,
-                  point:resp.data[1][i]
-                }
-            )
-          }
+          this.projectsList = resp.data;
         }
       });
     },
-    initEmps() {
-      let url = "/projects/basic/studentID?studentID="+JSON.parse(localStorage.getItem('user')).id
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.emps = resp.data;
-          this.total = 10;
-        }
-      });
-    }
-  }
+  },
 };
 </script>
 
@@ -865,9 +723,4 @@ export default {
   transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
 }
 
-.slide-fade-enter, .slide-fade-leave-to
-  /* .slide-fade-leave-active for below version 2.1.8 */ {
-  transform: translateX(10px);
-  opacity: 0;
-}
 </style>

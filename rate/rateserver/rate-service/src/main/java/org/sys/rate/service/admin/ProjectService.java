@@ -3,8 +3,10 @@ package org.sys.rate.service.admin;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.ProjectMapper;
+import org.sys.rate.mapper.ProjectTypeMapper;
 import org.sys.rate.model.Project;
 import org.sys.rate.model.Operation;
+import org.sys.rate.model.ProjectType;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -16,12 +18,9 @@ import java.util.List;
 public class ProjectService {
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ProjectTypeMapper projectTypeMapper;
 
-    /**
-     * 通过ID寻找paper信息
-     * @param ID
-     * @return paper
-     */
     public List<Project> selectProjectListById(@Param("studentID") Integer studentID){
         List<Project> list = projectMapper.selectProjectListById(studentID);
         return setProjectOperation(list);
@@ -105,5 +104,9 @@ public class ProjectService {
 
     public List<Project> searchProjectByConditions(String studentName, String state, String monoName, String pointFront, String pointBack) {
         return projectMapper.searchProjectByConditions(studentName, state, monoName, pointFront, pointBack);
+    }
+    public List<ProjectType> getIndicatorByYearAndType(String year,String type) {
+        List<ProjectType> list = projectTypeMapper.getIndicatorByYearAndType(year,type);
+        return list;
     }
 }

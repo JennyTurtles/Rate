@@ -7,16 +7,15 @@
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="studentId" column="student_id"/>
         <result property="name" column="name"/>
-        <result property="date" column="date"/>
+        <result property="startDate" column="start_date"/>
+        <result property="endDate" column="end_date"/>
         <result property="author" column="author"/>
         <result property="url" column="url"/>
         <result property="state" column="state"/>
         <result property="point" column="point"/>
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
-        <result property="publisher" column="publisher"/>
-        <result property="isbn" column="isbn"/>
-        <result property="indicatorId" column="indicator_id"/>
+        <result property="projectTypeId" column="project_type_id"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>
@@ -25,6 +24,12 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
+        </association>
+        <association property="projectType" javaType="org.sys.rate.model.ProjectType">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="tname"/>
+            <result property="year" column="year"/>
+            <result property="indicatorId" column="indicator_id"/>
         </association>
         <collection property="operationList" ofType="org.sys.rate.model.Operation">
             <result property="operatorRole" column="operator_role"/>
@@ -40,8 +45,8 @@
     </resultMap>
 
     <sql id="selectProjectVo">
-        select id, student_id, name, date, author, url, indicatorId, state, publisher, ISBN
-        from i_book
+        select id, student_id, name, author, url, project_type_id, state, start_date, end_date, point, rank, total
+        from i_project
     </sql>
 
     <select id="selectAllProjectList" resultMap="ProjectResult">
@@ -52,10 +57,10 @@
                i.score,
                oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
                oper.state,oper.remark
-        FROM i_book p
+        FROM i_project p
                  LEFT JOIN student s ON p.student_id = s.ID
                  LEFT JOIN indicator i ON i.id = p.indicator_id
-                 LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '专著教材'
+                 LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '科研项目'
     </select>
 
     <select id="selectListById" resultMap="ProjectResult">
@@ -68,16 +73,17 @@
         </where>
     </select>
 
-<!--    学生专著教材页面初始化-->
+<!--    学生科研项目页面初始化-->
     <select id="selectProjectListById" resultMap="ProjectResult" parameterType="Integer">
-        select a.id, a.name, student_id, a.date, author, a.state, url, indicator_id, `rank`, total, point, publisher, a.ISBN as isbn,
+        select a.id, a.name, student_id, author, a.state, url, project_type_id, `rank`, total, point, a.start_date, a.end_date,
                oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
                oper.state,oper.remark,
                i.name as iname,
                i.score
-        FROM i_book a
-                 LEFT JOIN indicator i ON i.id = a.indicator_id
-                 LEFT JOIN i_oper oper ON a.id = oper.prod_id and oper.prod_type = '专著教材'
+        FROM i_project a
+                 LEFT JOIN i_project_type type ON type.id = a.project_type_id
+                 LEFT JOIN indicator i ON i.id = type.indicator_id
+                 LEFT JOIN i_oper oper ON a.id = oper.prod_id and oper.prod_type = '科研项目'
         where a.student_id = #{studentID}
     </select>
 
@@ -103,7 +109,7 @@
     </select>
 
     <insert id="insertProject" parameterType="org.sys.rate.model.Project" useGeneratedKeys="true" keyProperty="id">
-        insert into i_book
+        insert into i_project
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
             <if test="studentId != null">student_id,</if>
@@ -137,7 +143,7 @@
     </insert>
 
     <update id="updateProject" parameterType="org.sys.rate.model.Project">
-        update i_book
+        update i_project
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="date != null">date = #{date},</if>
@@ -155,7 +161,7 @@
     </update>
 
     <update id="editState" parameterType="org.sys.rate.model.Project">
-        update i_book
+        update i_project
         <trim prefix="SET" suffixOverrides=",">
             <if test="state != null">state = #{state},</if>
         </trim>
@@ -163,12 +169,12 @@
     </update>
     <delete id="deleteProjectById" parameterType="Long">
         delete
-        from i_book
+        from i_project
         where id = #{ID}
     </delete>
 
     <delete id="deleteProjectByIds" parameterType="String">
-        delete from i_book where id in
+        delete from i_project where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{ID}
         </foreach>
@@ -177,7 +183,7 @@
         select book.*, s.name as sname,
             oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
             oper.state,oper.remark
-        from i_book book, student s, i_oper oper
+        from i_project book, student s, i_oper oper
         <where>
             <if test="monoName != null and monoName != ''">and book.name like concat('%', #{monoName}, '%')</if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
