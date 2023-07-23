@@ -308,6 +308,7 @@
 <script>
 import axios from "axios";
 import {postRequest1} from "@/utils/api";
+import {debounce} from "@/utils/debounce";
 export default {
   name: "SalSearch",
   data() {
@@ -393,7 +394,9 @@ export default {
       return JSON.parse(localStorage.getItem('user')); //object信息
     }
   },
-  created() {},
+  created() {
+    this.debounceSearch = debounce(this.debounceSearchType,600);
+  },
   mounted() {
     this.currentProjectCopy = JSON.parse(JSON.stringify(this.currentProject));
     this.initProjectsList();
@@ -429,8 +432,7 @@ export default {
         this.disabledSelectProjectType = true;
       }
     },
-    //输入项目类别 发送请求调用的函数
-    selectProjectTypeMethod(data) {
+    debounceSearchType(data) {
       if (this.currentProjectCopy.startDate != null && this.currentProjectCopy.startDate != '' && data != null && data != '') {
         this.getRequest('/project/basic/getIndicatorByYearAndType?year=' + this.currentProjectCopy.startDate.split('-')[0] + '&type=' + data).then(response => {
           if(response) {
@@ -438,6 +440,10 @@ export default {
           }
         })
       }
+    },
+    //输入项目类别 发送请求调用的函数
+    selectProjectTypeMethod(data) {
+      this.debounceSearch(data);
     },
     cancelAdd() {
       this.dialogVisible = false;
