@@ -185,6 +185,7 @@
           <el-select
               :disabled="disabledSelectProjectType"
               v-model="selectProjectType"
+              value-key="id"
               filterable
               remote
               clearable
@@ -316,11 +317,12 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      selectProjectType: '',
+      selectProjectTypeName: '',
       isAuthorIncludeSelf: true,
       //先选择立项时间才可以输入项目类别
       disabledSelectProjectType: true,
       //项目类别下拉框可选列表
-      selectProjectType: '',
       selectProjectTypeList: [],
       projectPoint:0,
       headers: {
@@ -511,7 +513,7 @@ export default {
       for(var i in val){
         var asc = val.charCodeAt(i)
         if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
-          isalph=true
+          isalph = true
           break
         }
       }
@@ -521,10 +523,10 @@ export default {
         num = val.split('；')
       }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
         num = val.split(';')
-      }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//中英都有
+      }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//不允许同时包含中文和英文逗号
         this.$message.error();('输入不合法请重新输入！')
       }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(val != info.name && isalph){
+        if(val != info.name && isalph){//有英文字符
           this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
           this.isAuthorIncludeSelf = false;
         }else{
@@ -534,15 +536,18 @@ export default {
         }
         return
       }
-      //判断自己在不在其中
+      //不止一个作者 判断自己在不在其中
       if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
         this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
+        this.isAuthorIncludeSelf = false;
       }else if(num.indexOf(info.name) == -1 && isalph){//不在 里面有英文单词
         this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
+        this.isAuthorIncludeSelf = false;
+      } else { //自己在里面
+        this.isAuthorIncludeSelf = true;
       }
+      this.currentProjectCopy.total = num.length - 1;
       this.currentProjectCopy.rank = num.indexOf(info.name) + 1;
-      this.isAuthorIncludeSelf = false;
-      this.addButtonState = false;
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
@@ -553,6 +558,12 @@ export default {
       this.currentProjectCopy = JSON.parse(JSON.stringify(data));
       this.dialogVisible = true;
       this.options = []
+      if(this.currentProjectCopy.startDate) {
+        this.disabledSelectProjectType = false;
+      }
+      this.selectProjectType = JSON.parse(JSON.stringify(this.currentProjectCopy.projectType));
+      console.log(this.selectProjectType);
+      // this.selectProjectTypeName = this.selectProjectType.name;
       this.projectPoint = data.point;
     },
     showInfo(data){
@@ -585,8 +596,10 @@ export default {
           const params = {};
           this.currentProjectCopy.url = this.urlFile;
           this.currentProjectCopy.state = "commit";
+          this.currentProjectCopy.projectTypeId = this.selectProjectType.id;
+          this.currentProjectCopy.point = this.projectPoint;
           for(let key in this.currentProjectCopy) {
-            if(key !== 'indicator' && key !== 'student' && key !== 'operationList') {
+            if(key !== 'projectType' && key !== 'student' && key !== 'operationList' && key !== 'indicator') {
               params[key] = this.currentProjectCopy[key];
             }
           }

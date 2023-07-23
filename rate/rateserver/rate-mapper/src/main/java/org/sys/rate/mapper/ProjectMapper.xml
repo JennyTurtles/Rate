@@ -145,16 +145,15 @@
         update i_project
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
-            <if test="date != null">date = #{date},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            end_date = #{endDate},
             <if test="author != null">author = #{author},</if>
             <if test="`rank` != null">`rank` = #{rank},</if>
             <if test="total != null">total = #{total},</if>
             <if test="point != null">point = #{point},</if>
             <if test="state != null">state =#{state},</if>
             <if test="url != null">url = #{url},</if>
-            <if test="indicatorId != null">indicator_id = #{indicatorId},</if>
-            <if test="publisher != null">publisher = #{publisher},</if>
-            <if test="isbn != null">ISBN = #{isbn}</if>
+            <if test="projectTypeId != null">project_type_id = #{projectTypeId}</if>
         </trim>
         where id = #{id}
     </update>
