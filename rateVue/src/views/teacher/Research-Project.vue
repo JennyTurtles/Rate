@@ -1,132 +1,88 @@
 <template>
   <div>
-    <div>
-      <div
-          style="display: flex; justify-content: space-between; margin: 15px 0"
-      >
-        <div>
-          <div>
-            <label style="fontSize:10px">学生姓名：</label>
-            <input type="text"
-                   style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
+    <div
+        style="display: flex; justify-content: space-between; margin: 15px 0"
+    >
+      <div>
+        <label style="fontSize:10px">学生姓名：</label>
+        <input type="text"
+               style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
-                   placeholder="学生姓名"
-
-                   id="select_stuname">
-            <!-- <el-select
-              style="margin-left:5px;width:100px"
-              prefix-icon="el-icon-edit"
-              clearable
-              filterable
-              placeholder="学生姓名"
-              @change="((val) => filter(val,'select_stuname'))"
-              id="select_stuname"
-              >
-                <el-option
-                  style="width:90px"
-                  v-for="val in select_stuName"
-                  :key="val"
-                  :value="val"
-                >
-                </el-option>
-            </el-select> -->
-
-            <label style="fontSize:10px;margin-left:16px">项目名称：</label>
-            <input type="text"
-                   style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
+               v-model="searchStudentName"
+               placeholder="学生姓名"
+               autocomplete="off">
+        <label style="fontSize:10px;margin-left:16px">项目名称：</label>
+        <input type="text"
+               style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
-                   placeholder="项目名称"
-                   id="select_paperName">
-            <!-- <el-select
-                style="margin-left:3px;width:120px"
-                prefix-icon="el-icon-edit"
-                clearable
-                filterable
-                placeholder="论文名称"
-                @change="((val) => filter(val,'select_paperName'))"
-                id="select_paperName"
-                >
-                  <el-option
-                    style=""
-                    v-for="val in select_paperName"
-                    :key="val"
-                    :value="val"
-                  >
-                  </el-option>
-            </el-select> -->
-
-            <label style="fontSize:10px;margin-left:40px;">项目状态：</label>
-            <el-select
-                style="margin-left:3px;width:100px"
-                prefix-icon="el-icon-edit"
-                clearable
-                filterable
-                placeholder="状态筛选"
-                @change="((val) => filter(val,'select_state'))"
-                id="select_state"
-            >
-              <el-option
-                  style="width:90px"
-                  v-for="val in option"
-                  :key="val"
-                  :value="val"
-              >
-              </el-option>
-            </el-select>
-            <label style="fontSize:10px;margin-left:16px">积分范围：</label>
-            <el-select
-                style="margin-left:3px;width:60px"
-                prefix-icon="el-icon-edit"
-                clearable
-                filterable
-                placeholder="1"
-                @change="((val) => filter(val,'select_point1'))"
-                id="select_point1"
-            >
-              <el-option
-                  style=""
-                  v-for="val in select_point"
-                  :key="val"
-                  :value="val"
-              >
-              </el-option>
-            </el-select>
-            <label >&nbsp; - &nbsp;</label>
-            <el-select
-                style="margin-left:3px;width:60px"
-                prefix-icon="el-icon-edit"
-                clearable
-                filterable
-                placeholder="12"
-                @change="((val) => filter(val,'select_point2'))"
-                id="select_point2"
-            >
-              <el-option
-                  style=""
-                  v-for="val in select_point"
-                  :key="val"
-                  :value="val"
-              >
-              </el-option>
-            </el-select>
-            <el-button
-                icon="el-icon-search"
-                type="primary"
-                @click="searchEmps"
-                :disabled="showAdvanceSearchView"
-                style="margin-left:30px"
-            >
-              搜索
-            </el-button>
-          </div>
-        </div>
+               placeholder="项目名称"
+               v-model="searchProjectName"
+               id="select_paperName">
+        <label style="fontSize:10px;margin-left:40px;">项目状态：</label>
+        <el-select
+            v-model="searchStatus"
+            style="margin-left:3px;width:120px"
+            prefix-icon="el-icon-edit"
+            clearable
+            filterable
+            placeholder="状态筛选"
+        >
+          <el-option
+              v-for="val in option"
+              :key="val"
+              :value="val"
+          >
+          </el-option>
+        </el-select>
+        <label style="fontSize:10px;margin-left:16px">积分范围：</label>
+        <el-select
+            v-model="searchPointFront"
+            style="margin-left:3px;width:60px"
+            prefix-icon="el-icon-edit"
+            clearable
+            filterable
+            placeholder="1"
+        >
+          <el-option
+              style=""
+              v-for="val in select_point"
+              :key="val"
+              :value="val"
+          >
+          </el-option>
+        </el-select>
+        <label >&nbsp; - &nbsp;</label>
+        <el-select
+            v-model="searchPointBack"
+            style="margin-left:3px;width:60px"
+            prefix-icon="el-icon-edit"
+            clearable
+            filterable
+            placeholder="12"
+        >
+          <el-option
+              style=""
+              v-for="val in select_point"
+              :key="val"
+              :value="val"
+          >
+          </el-option>
+        </el-select>
+        <el-button
+            icon="el-icon-search"
+            type="primary"
+            @click="searchProject(1, 15)"
+            style="margin-left:30px"
+        >
+          搜索
+        </el-button>
       </div>
     </div>
     <div style="margin-top: 10px">
       <el-table
-          :data="emps"
+          :data="projectList"
           stripe
           border
           v-loading="loading"
@@ -136,37 +92,37 @@
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%"
       >
-        <el-table-column type="selection" width="35px"> </el-table-column>
         <el-table-column
-            prop="student.sname"
+            fixed
+            prop="author"
             align="center"
-            label="学生姓名"
-            width="75"
+            label="作者列表"
+            width="100"
         >
         </el-table-column>
         <el-table-column
-            prop="program.name"
+            fixed
+            prop="name"
             align="center"
             label="项目名称"
-            width="230"
+            width="200"
         >
         </el-table-column>
-        <!-- width="200" -->
         <el-table-column
             prop="state"
             label="状态"
-            width="90"
+            width="110"
             align="center"
         >
           <template slot-scope="scope">
             <span
                 style="padding: 4px"
                 size="mini"
-                :model="emp.state"
-                :style="scope.row.state=='tea_reject' ? {'color':'red'}:{'color':'gray'}"
+                :model="currentProject.state"
+                :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
             >
               {{scope.row.state=="commit"
-                ? "待审核"
+                ? "学生提交"
                 :scope.row.state=="tea_pass"
                     ? "导师通过"
                     :scope.row.state=="tea_reject"
@@ -178,10 +134,10 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="indicator.type"
+            prop="projectType.name"
             label="项目类别"
             align="center"
-            width="240"
+            width="80"
         >
         </el-table-column>
         <el-table-column
@@ -195,13 +151,12 @@
             prop="remark"
             label="备注"
             align="center"
-            width="300"
         >
         </el-table-column>
         <el-table-column
             width="130"
             align="center"
-            label="审核"
+            label="详情"
         >
           <template slot-scope="scope">
             <el-button
@@ -218,47 +173,49 @@
             background
             @current-change="currentChange"
             @size-change="sizeChange"
+            :current-page="currentPage"
             layout="sizes, prev, pager, next, jumper, ->, total, slot"
-            :total="total"
+            :total="totalCount"
+            :page-sizes="pageSizes"
+            :page-size="pageSize"
         >
         </el-pagination>
       </div>
     </div>
+
     <!-- 对话框 老师审核通过项目 -->
     <el-dialog :title="title"
-               :visible.sync="dialogVisible_pass" width="30%" center>
+               :visible.sync="dialogVisiblePass" width="30%" center>
       <!-- 确定审核通过该学生项目？ -->
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="emp"
-          :rules="rules"
+          :model="currentProject"
           ref="empForm"
           style="margin-left: 60px"
       >
-        <el-form-item label="科研项目ID:" prop="id">
-          <span>{{ emp.id }}</span>
+        <el-form-item label="项目ID:" prop="id">
+          <span>{{ currentProject.id }}</span>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <!-- <el-button @click="dialogVisible_pass = false">取 消</el-button> -->
+        <!-- <el-button @click="dialogVisiblePass = false">取 消</el-button> -->
         <el-button type="primary" @click="auditing_commit('tea_pass')">确 定</el-button>
       </span>
     </el-dialog>
-    <!-- 对话框 老师驳回该学生科研项目 -->
+    <!-- 对话框 老师驳回该学生项目 -->
     <el-dialog :title="title"
-               :visible.sync="dialogVisible_reject" width="30%" center>
+               :visible.sync="dialogVisibleReject" width="30%" center>
 
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="emp"
-          :rules="rules"
+          :model="currentProject"
           ref="empForm"
           style="margin-left: 40px"
       >
-        <el-form-item label="科研项目ID:" prop="id">
-          <span>{{ emp.id }}</span>
+        <el-form-item label="项目ID:" prop="id">
+          <span>{{ currentProject.id }}</span>
         </el-form-item>
         <el-form-item label="驳回理由:">
           <el-input
@@ -271,7 +228,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <!-- <el-button @click="dialogVisible_pass = false">取 消</el-button> -->
+        <!-- <el-button @click="dialogVisiblePass = false">取 消</el-button> -->
         <el-button type="primary" @click="auditing_commit('tea_reject')">确 定</el-button>
       </span>
     </el-dialog>
@@ -279,98 +236,107 @@
     <!-- 查看详情按钮 -->
     <el-dialog
         class="showInfo_dialog"
-        :title="title_show"
+        :title="titleName"
         :visible.sync="dialogVisible_show"
         width="520px"
         center>
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="emp"
-          :rules="rules"
+          :model="currentProject"
           ref="empForm"
           style="margin-left: 20px"
       >
-        <el-form-item label="项目名:" prop="name">
-          <span>{{ emp.name }}</span
+        <el-form-item label="项目名称:">
+          <span>{{ currentProject.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="学生姓名:" prop="student">
-          <span>{{ emp.student.sname }}</span
+        <el-form-item label="作者列表:">
+          <span>{{ currentProject.author }}</span
           ><br />
         </el-form-item>
-        <!-- <el-form-item label="发表期刊:" prop="publication">
-          <span>{{ emp.publication }}</span
-          ><br />
-        </el-form-item> -->
 
-        <el-form-item label="项目状态:" prop="state">
-          <span>{{emp.state}}</span
+        <el-form-item label="项目状态:">
+          <span>{{currentProject.state}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="参加人数:" prop="total">
-          <span>{{emp.total}}</span
+        <el-form-item label="立项日期:">
+          <span>{{currentProject.startDate}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="列表:" prop="author">
-          <span>{{emp.author}}</span
+        <el-form-item label="结项日期:">
+          <span>{{currentProject.endDate}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="排名:" prop="rank">
-          <span>{{emp.rank}}</span
+        <el-form-item label="项目类别:">
+          <span>{{currentProject.projectType.name}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者人数:">
+          <span>{{currentProject.total}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者排名:">
+          <span>{{currentProject.rank}}</span
           ><br />
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
-          <el-button @click="download(emp)" type="primary">下载材料</el-button>
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <span style="color:gray;font-size:11px">该学生证明材料为：xxx（文件名称包括后缀）</span>
+          <span v-if="currentProject.url == '' || currentProject.url == null ? true:false" >无证明材料</span>
+          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(currentProject)"
+             onmouseover="this.style.color = 'blue'"
+             onmouseleave="this.style.color = 'gray'">
+            {{currentProject.url | fileNameFilter}}</a>
           <br />
         </el-form-item>
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
             <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <div >
-                <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operation}}</p>
-                <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
+              <div style="font-size: 10px;">
+                <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
+                <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
               </div>
             </div>
           </div>
         </div>
       </el-form>
-      <span slot="footer" class="dialog-footer" :model="emp">
+      <span slot="footer" class="dialog-footer" :model="currentProject">
             <el-button
                 id="but_pass"
-                v-show="emp.state=='commit' ? true:false"
-                @click="auditing_commit('tea_pass')"
+                v-show="((currentProject.state=='commit' && role == 'teacher') || (currentProject.state=='tea_pass' && role == 'admin')) ? true:false"
+                @click="(()=>{
+                  if (role == 'teacher')
+                   auditing_commit('tea_pass')
+                  else if (role == 'admin')
+                   auditing_commit('adm_pass')
+                }) "
                 type="primary"
             >审核通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="emp.state=='commit' ? true:false"
+                v-show="((currentProject.state=='commit' && role == 'teacher') || (currentProject.state=='tea_pass' && role == 'admin')) ? true:false"
                 @click="isShowInfo = true"
                 type="primary"
             >审核不通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="emp.state=='tea_pass' || emp.state=='tea_reject' ? true:false"
+                v-show="(currentProject.state=='tea_reject' || currentProject.state=='adm_reject' || currentProject.state == 'adm_pass' || (currentProject.state=='tea_pass' && role == 8))? true:false"
                 @click="dialogVisible_show = false"
                 type="primary"
             >关闭</el-button>
         </span>
     </el-dialog>
-    <el-dialog v-model="emp" :visible.sync="isShowInfo">
+    <el-dialog v-model="currentProject" :visible.sync="isShowInfo">
       <el-input
           type="textarea"
           :rows="4"
           v-model="reason"
-          placeholder="请输入项目驳回理由"
+          placeholder="请输入驳回理由"
       >
       </el-input>
       <span slot="footer">
-          <el-button @click="auditing_commit('tea_reject')"
-                     type="primary">
-                确定</el-button>
+          <el-button @click="rejectDialog()" type="primary">确定</el-button>
           <el-button @click="isShowInfo = false">取消</el-button>
         </span>
     </el-dialog>
@@ -379,283 +345,238 @@
 
 <script>
 import { set } from 'vue';
+import axios from "axios";
 export default {
   name: "SalSearch",
   data() {
     return {
-      ispubFlag:false,
-      ispubShow:false,
-      select_pub_option:'',
+      searchPointFront: '',
+      searchPointBack: '',
+      searchProjectName: '',
+      searchStatus: '',
+      searchStudentName: '',
+      pageSizes:[15,20,30],
+      totalCount:0,
+      currentPage: 1,
+      pageSize: 15,
       operList:[],
-      isShowInfo:false,
+      isShowInfo: false,
       select_stuName:["全部"],//筛选框
-      select_paperName:["全部"],
-      select_point:['全部',1,3,4,6,9,12,15],
-      select_pubName:[],
-      option:["全部","通过","待审核","驳回"],
+      select_paperName: ["全部"],
+      select_point: ['全部',1,3,4,6,9,12,15],
+      option: ["全部","学生提交","导师通过","管理员通过","导师驳回","管理员驳回"],
       labelPosition: "left",
       title: "",
-      title_show: "",
-      importDataBtnText: "导入数据",
-      importDataBtnIcon: "el-icon-upload2",
-      importDataDisabled: false,
-      showAdvanceSearchView: false,
-      allDeps: [],
-      copyemps:[],
+      titleName: "",
       emps: [],
       loading: false,
       dialogVisible: false,
-      dialogVisible_pass: false,
-      dialogVisible_reject: false,
+      dialogVisiblePass: false,
+      dialogVisibleReject: false,
       dialogVisible_show: false,
-      total: 0,
-      page: 1,
-      keyword: "",
-      size: 10,
-      positions: [],
-      reason:"",
+      reason: "",
       oper:{
-        operatorRole: "teacher",
-        operatorID: null,
-        prodType: 'project',
-        operationName: '',
-        state: '',
-        remark: '',
+        operatorRole: "",
+        operatorId: JSON.parse(localStorage.getItem('user')).id,
+        operatorName: JSON.parse(localStorage.getItem('user')).name,
+        prodType: '科研项目',
+        operationName:"",
+        state:"",
+        remark:"",
+        time: null,
         prodId: null,
-        time: null
       },
-      emp: {
+      currentProject: {
         id: null,
         institutionID: null,
         name: null,
-        startDate: "2022/02/02",
         scoreItemCount: "0",
-        score: "100",
-        groupCount: "0",
-        expertCount: "0",
-        participantCount: "0",
-        comment: "javaboy",
-        state:"",
-        student:{},
-        total:0,
-        rank:0
-        // reason:"",
+        score: "",
+        remark: "",
+        state: "",
+        student: {},
+        total: '',
+        rank: '',
+        startDate: '',
+        endDate: '',
+        projectType: {}
       },
-      defaultProps: {
-        children: "children",
-        label: "name",
-      },
-      rules: {
-        name: [{ required: true, message: "请输入项目名", trigger: "blur" }],
-        startDate: [
-          { required: true, message: "请输入项目时间", trigger: "blur" },
-        ],
-        scoreItemCount: [
-          {
-            required: true,
-            type: "number",
-            message: "请输入正确数据",
-            trigger: "blur",
-            transform: (value) => Number(value),
-          },
-        ],
-        comment: [{ required: true, message: "请输入备注", trigger: "blur" }],
-      },
+      projectList: []
     };
   },
   computed: {
     user() {
       return this.$store.state.currentHr; //object信息
     },
-    menuHeight() {
-      return this.select_pubName.length * 50 > 150
-          ? 150 + 'px'
-          : '${this.select_pubName.length * 50}px'
-    },
+    role() {
+      return JSON.parse(localStorage.getItem('user')).role.indexOf('8') >= 0 ||
+      JSON.parse(localStorage.getItem('user')).role.indexOf('9') >= 0 ? 'teacher' : 'admin';
+    }
   },
   created() {},
   mounted() {
-    this.initEmps();
-    this.initPositions();
+    this.searchProject(1,15);
   },
-  watch:{
-    //期刊输入框变化
-    select_pub_option:{
-      handler(val){
-        let url = "/publication/basic/listByName?publicationName=" + val
-        console.log(url);
-        this.getRequest(url).then((resp) => {
-          this.loading = false;
-          if (resp) {
-            this.select_pubName=[]
-            if(resp.data != null){
-              for(var i=0;i<resp.data.length;i++){
-                this.select_pubName.push(
-                    {
-                      index:resp.data[i].id,
-                      value:resp.data[i].name,
-                      point:resp.data[i].indicator.score
-                    }
-                )
-              }
-            }else{
-              this.$message.error(`请检查期刊名称的拼写`);
-            }
-
-            // console.log("xuanzel:");
-            // console.log(resp);
-            // console.log(this.select_pubName);
-            // document.getElementById("select_pub").value=val
-          }
-        });
+  filters:{
+    fileNameFilter:function(data){//将证明材料显示出来
+      if(data == null || data == ''){
+        return '无证明材料'
+      }else{
+        var arr= data.split('/')
+        return  arr.reverse()[0]
       }
-
     }
   },
   methods: {
-    filter(val,options){
-      document.getElementById(options).value=val
+    rejectDialog(){
+      if (this.role == 'teacher')
+        this.auditing_commit('tea_reject')
+      else if (this.role == 'admin')
+        this.auditing_commit('adm_reject')
+      this.isShowInfo = false
     },
-    filter_pub(val){//选择期刊
-      this.select_pub_option=val
-      this.ispubFlag=false
-      this.ispubShow=false
+    download(data){//下载证明材料
+      var fileName = data.url.split('/').reverse()[0]
+      var url = data.url
+      axios({
+        url: '/project/basic/downloadByUrl?url='+url,
+        method: 'GET',
+        responseType: 'blob'
+      }).then(response => {
+        const url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
     },
     //点击对话框中的确定按钮 触发事件
     auditing_commit(num){
-      // this.emp=data
       this.loading = true;
-      let url;
-      const _this=this
+      let url = "/project/basic/edit_state?state=" + num + "&ID=" + this.currentProject.id;
       this.dialogVisible_show=false
-      url= "/paper/basic/edit_state?state="+num
-          +"&ID="+this.emp.id
-      if(num == "tea_reject"){
-        this.isShowInfo=true
+      if(num.indexOf('reject') >= 0){
+        this.currentProject.remark = this.reason;
       }
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.emp.state=num
-          this.total = resp.total;
-          this.isShowInfo=false
-          this.doAddOper(num, this.reason, this.emp.id)
+          this.currentProject.state = num
+          this.$message({
+            type: 'success',
+            message: '操作成功'
+          })
+          this.doAddOper(num, this.reason, this.currentProject.id);
         }
-      });
-
+      })
     },
-    doAddOper(state,remark, projectID) {
-      this.oper.state=state;
-      this.oper.operatorID = this.user.id;
+    doAddOper(state,remark,projectID) {
+      this.oper.state = state;
       this.oper.remark = remark;
       this.oper.prodId = projectID;
       this.oper.time = this.dateFormatFunc(new Date());
-      if(this.oper.state=="tea_pass"){
-        this.oper.operation="审核通过"
-      }else{
-        this.oper.operation="审核驳回"
+      this.oper.operatorRole = this.role;
+      if(this.oper.state == "tea_pass" || this.oper.state == 'adm_pass'){
+        this.oper.operationName = "审核通过"
+      } else if (this.oper.state =="tea_reject" || this.oper.state == 'adm_reject'){
+        this.oper.operationName = "审核驳回"
       }
-      this.postRequest1("/oper/basic/add", this.oper).then(
-          (resp) => {
-            if (resp) {
-              this.initEmps()
-            }
-          }
-      );
+      this.postRequest1("/oper/basic/add", this.oper);
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
-    emptyEmp() {
-      this.emp = {
-        id: null,
-        startDate: null,
-        name: "",
-        scoreItemCount: "0",
-        comment: "论文备注example：关于xxx的论文",
-      };
-    },
     showEditEmpView_show(data) {
-      this.title_show = "显示详情";
-      this.emp = data;
+      this.loading = true;
+      this.titleName = "显示详情";
+      this.currentProject = data;
       this.dialogVisible_show = true;
-      this.getRequest("/paperoper/basic/List?ID="+data.id).then((resp) => {
+      this.getOperationListOfProject(data);
+    },
+    //获取改专著的操作列表
+    getOperationListOfProject(data) {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研项目').then((resp) => {
         this.loading = false;
         if (resp) {
-          this.isShowInfo=false
-          this.operList=resp.data
+          this.isShowInfo = false;
+          this.operList = resp.obj;
           this.operList.sort(function(a,b){
             return a.time > b.time ? -1 : 1
           })
         }
       });
     },
+    //应该要分是否有无筛选条件
     sizeChange(currentSize) {
-      this.size = currentSize;
-      this.initEmps();
+      this.pageSize = currentSize;
+      this.searchProject(this.currentPage,currentSize);
     },
     currentChange(currentPage) {
-      this.page = currentPage;
-      this.initEmps("advanced");
+      this.currentPage = currentPage;
+      this.searchProject(currentPage,this.pageSize);
     },
-    initEmps() {
-      this.loading = true;
-      let url = "/paper/basic/List";
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.emps = resp.data;
-          this.copyemps=this.emps
-          this.total = resp.total;
-          for(var i=0;i<this.emps.length;i++){
-            var papername=this.emps[i].name
-            if(this.select_paperName.indexOf(papername)==-1){
-              this.select_paperName.push(papername)
-            }
-            var judge=this.emps[i].student.sname
-            if(this.select_stuName.indexOf(judge)==-1){
-              this.select_stuName.push(judge)
-            }
-            var pub=this.emps[i].publication.name
-            if(this.select_pubName.indexOf(pub)==-1){
-              this.select_pubName.push(pub)
-            }
-          }
-          this.emps.sort(function(a,b){
-            return a.time > b.time ? -1 : 1
+    //先做个备份，可以删除
+    setDataRemark(data) {
+      //初始化页面需要根据学生提交时间做降序
+      //页面的table的备注列需要展示驳回时间最晚的一条记录，两者操作无法合并
+      let dataRejectList;
+      let dataCommitList;
+      data.map(item => {
+        dataRejectList = [];
+        dataCommitList = [];
+        item.operationList.map(operation => {
+          //将每个项目的提交和驳回单独提取
+          if(operation.state === 'commit') dataCommitList.push(operation);
+          if(operation.state === 'tea_reject' || operation.state === 'adm_reject') dataRejectList.push(operation);
+        })
+        //找出最晚驳回理由
+        if(dataRejectList.length) {
+          dataRejectList.sort((a,b) => {
+            return b.time - a.time;
           })
+          item.remark = dataRejectList[0].remark;
         }
-      });
+      })
     },
-    searchEmps() {//根据条件搜索论文
-      var newemps=new Set()
-      // var copyemps=this.emps
-      var stuname=document.getElementById("select_stuname").value
-      var state=document.getElementById("select_state").value
-      if(state == '通过'){
+    searchProject(pageNum, pageSize) {//根据条件搜索
+      const params = {};
+      params.studentName = this.searchStudentName;
+      var state = this.searchStatus;
+      if(state == '导师通过'){
         state = 'tea_pass'
-      }else if(state == '驳回'){
+      }else if(state == '导师驳回'){
         state = 'tea_reject'
-      }if(state == '待审核'){
+      }else if(state == '学生提交'){
         state = 'commit'
+      }else if (state == '管理员通过'){
+        state = 'adm_pass'
+      }else if (state == '管理员驳回') {
+        state = 'adm_reject'
+      }else state = '';
+      if(this.searchPointFront == '全部') {
+        params.pointFront = '';
+      }else {
+        params.pointFront = this.searchPointFront;
       }
-      var paper=document.getElementById("select_paperName").value
-      var pub=document.getElementById("select_pub").value
-      var point1=document.getElementById("select_point1").value
-      var point2=document.getElementById("select_point2").value
-      for(var i=0;i<this.copyemps.length;i++){
-        if((((this.copyemps[i].student.sname.indexOf(stuname) >= 0 ))||(stuname == '全部' || stuname == ''))&&
-            (((this.copyemps[i].state == state))||(state == '全部' || state == ''))&&
-            (((this.copyemps[i].name.indexOf(paper) >= 0) )||(paper == '全部' || paper == ''))&&
-            (((this.copyemps[i].point <= point2 &&this.copyemps[i].point >= point1))||(point1 == '全部' || point1 == '' || point2 == '全部' || point2 == ''))&&
-            (((this.copyemps[i].publication.name == pub) )||(pub == '全部' || pub == ''))
-        ){
-          newemps.add(this.copyemps[i])
+      if(this.searchPointBack == '全部') {
+        params.pointBack = '';
+      }else {
+        params.pointBack = this.searchPointBack;
+      }
+      params.state = state;
+      params.name = this.searchProjectName;
+      params.pageNum = pageNum.toString();
+      params.pageSize = pageSize.toString();
+      this.postRequest('/project/basic/searchProjectByConditions', params).then((response) => {
+        if(response) {
+          this.projectList = response.extend.res;
+          // this.totalCount = response.extend.res[1];
         }
-      }
-      this.emps=Array.from(newemps)
-    },
-  },
+      })
+    }
+  }
 };
 </script>
 
@@ -708,6 +629,7 @@ div::-webkit-scrollbar:vertical {
   /* 设置垂直滚动条宽度 */
   width: 6px;
 }
+
 div::-webkit-scrollbar-thumb {
   /* 滚动条的其他样式定制，注意，这个一定也要定制，否则就是一个透明的滚动条 */
   border-radius: 8px;

@@ -306,7 +306,7 @@ export default new Router({
           },
         },
         {
-          path: '/teacher/tProduct',
+          path: '/teacher/tResearchProject',
           name: '科研项目2',
           hidden: true,
           component: () => import('./views/teacher/Research-Project'),
@@ -314,7 +314,15 @@ export default new Router({
             title: '科研项目2',
           },
         },
-
+        {
+          path: '/teacher/tProduct',
+          name: '科研产品',
+          hidden: true,
+          component: () => import('./views/teacher/Project'),
+          meta: {
+            title: '科研产品',
+          },
+        },
         {
           path: '/teacher/tperact/actList',
           name: '教师活动列表',

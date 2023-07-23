@@ -2,8 +2,10 @@ package org.sys.rate.service.admin;
 
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
+import org.sys.rate.mapper.OperationMapper;
 import org.sys.rate.mapper.ProjectMapper;
 import org.sys.rate.mapper.ProjectTypeMapper;
+import org.sys.rate.model.Project;
 import org.sys.rate.model.Project;
 import org.sys.rate.model.Operation;
 import org.sys.rate.model.ProjectType;
@@ -11,6 +13,7 @@ import org.sys.rate.model.ProjectType;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -20,6 +23,8 @@ public class ProjectService {
     private ProjectMapper projectMapper;
     @Resource
     private ProjectTypeMapper projectTypeMapper;
+    @Resource
+    private OperationMapper operationMapper;
 
     public List<Project> selectProjectListById(@Param("studentID") Integer studentID){
         List<Project> list = projectMapper.selectProjectListById(studentID);
@@ -102,11 +107,29 @@ public class ProjectService {
         return projectMapper.editState(state,ID);
     }
 
-    public List<Project> searchProjectByConditions(String studentName, String state, String monoName, String pointFront, String pointBack) {
-        return projectMapper.searchProjectByConditions(studentName, state, monoName, pointFront, pointBack);
-    }
+//    public List<Project> searchProjectByConditions(String studentName, String state, String monoName, String pointFront, String pointBack) {
+//        return projectMapper.searchProjectByConditions(studentName, state, monoName, pointFront, pointBack);
+//    }
     public List<ProjectType> getIndicatorByYearAndType(String year,String type) {
         List<ProjectType> list = projectTypeMapper.getIndicatorByYearAndType(year,type);
         return list;
+    }
+
+    public List<Project> searchProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack) {
+        List<Project> list = projectMapper.searchProjectByConditions(studentName, state, projectName, pointFront, pointBack);
+        List<Operation> operationList = operationMapper.selectTypeAllOperationList("科研项目");
+        List<Operation> projectList = new ArrayList<>();
+        //可优化
+        for (int i = 0;i < list.size(); i++) {
+            projectList = new ArrayList<>();
+            for (int j = 0;j < operationList.size(); j++) {
+                if(operationList.get(j).getProdId() == list.get(i).getId()) {
+                    projectList.add(operationList.get(j));
+                }
+            }
+            list.get(i).setOperationList(projectList);
+        }
+        return setProjectOperation(list);
+//        return list;
     }
 }

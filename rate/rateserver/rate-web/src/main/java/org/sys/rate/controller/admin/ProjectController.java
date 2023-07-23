@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.IndicatorMapper;
-import org.sys.rate.model.Project;
-import org.sys.rate.model.Msg;
-import org.sys.rate.model.ProjectType;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.ProjectService;
 import org.sys.rate.service.mail.MailToTeacherService;
@@ -144,14 +141,6 @@ public class ProjectController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
-    @PostMapping("/searchProjectByConditions")
-    public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
-        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
-        List<Project> list = projectService.searchProjectByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"));
-        PageInfo info = new PageInfo<>(page.getResult());
-        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
-        return Msg.success().add("res", res);
-    }
 
     @GetMapping("/getIndicatorByYearAndType")
     public JsonResult getIndicatorByYearAndType(String year,String type) {
@@ -161,5 +150,14 @@ public class ProjectController {
     @GetMapping("/getIndicatorScore")
     public JsonResult getScore(Integer id) {
         return new JsonResult(indicatorMapper.getScore(id));
+    }
+    @PostMapping("/searchProjectByConditions")
+    public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
+//        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
+        List<Project> list = projectService.searchProjectByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"));
+//        PageInfo info = new PageInfo<>(page.getResult());
+//        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+//        return Msg.success().add("res", res);
+        return Msg.success().add("res", list);
     }
 }

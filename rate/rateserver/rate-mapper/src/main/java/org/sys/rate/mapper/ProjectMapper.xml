@@ -56,8 +56,10 @@
                i.name as iname,
                i.score,
                oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
-               oper.state,oper.remark
+               oper.state,oper.remark,
+               type.name as tname,type.year,type.indicator_id
         FROM i_project p
+                 LEFT JOIN i_project_type type ON type.id = p.project_type_id
                  LEFT JOIN student s ON p.student_id = s.ID
                  LEFT JOIN indicator i ON i.id = p.indicator_id
                  LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '科研项目'
@@ -180,14 +182,14 @@
     <select id="searchProjectByConditions" resultMap="ProjectResult">
         select book.*, s.name as sname,
             oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
-            oper.state,oper.remark
-        from i_project book, student s, i_oper oper
+            oper.state,oper.remark,type.name as tname,type.year,type.indicator_id
+        from i_project book, student s, i_oper oper, i_project_type type
         <where>
-            <if test="monoName != null and monoName != ''">and book.name like concat('%', #{monoName}, '%')</if>
+            <if test="projectName != null and projectName != ''">and book.name like concat('%', #{projectName}, '%')</if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
-            <if test="state != null and state != ''">and state = #{state}</if>
-            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and point between #{pointFront} and #{pointBack}</if>
-            and s.ID = book.student_id and book.id = oper.prod_id
+            <if test="state != null and state != ''">and book.state = #{state}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
+            and s.ID = book.student_id and book.project_type_id = type.id
         </where>
     </select>
 </mapper>

@@ -80,5 +80,5 @@ public interface ProjectMapper
     @Select("SELECT * FROM i_project WHERE  ID = #{ID}")
     public Project selectByID(Long ID);
 
-    public List<Project> searchProjectByConditions(String studentName, String state, String monoName, String pointFront, String pointBack);
+    public List<Project> searchProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
 }

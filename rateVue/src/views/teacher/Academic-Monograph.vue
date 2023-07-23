@@ -28,8 +28,6 @@
             clearable
             filterable
             placeholder="状态筛选"
-            @change="((val) => filter(val,'select_state'))"
-            id="select_state"
         >
           <el-option
               v-for="val in option"
