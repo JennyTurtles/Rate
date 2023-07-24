@@ -1088,6 +1088,12 @@ export default {
     showEditEmpView(data) {
       this.title = "编辑论文信息";
       this.currentEmp = JSON.parse(JSON.stringify(data));
+      this.files = [
+        {
+          name: this.currentEmp.url.split('/').reverse()[0],
+          url: this.currentEmp.url
+        }
+      ];
       this.currentEmp.date = this.currentEmp.year + "-" + this.currentEmp.month;
       this.currentEmp.startPage = this.currentEmp.pubPage.split('-')[0]
       this.currentEmp.endPage = this.currentEmp.pubPage.split('-')[1]
@@ -1200,6 +1206,7 @@ export default {
       this.publication_detail = ""
       this.publicationName = ''
       this.urlFile = ''
+      this.files = [];
       this.title = "添加论文";
       this.isAuthorIncludeSelf = false;
       this.dialogVisible = true;
