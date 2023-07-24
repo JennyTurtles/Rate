@@ -161,7 +161,7 @@ public class PaperController {
     @ResponseBody
     public JsonResult addSave(Paper paper) throws FileNotFoundException {
         Integer res = paperService.insertPaper(paper);
-        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
+//        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
         return new JsonResult(paper.getID());
     }
 
@@ -171,7 +171,7 @@ public class PaperController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Paper paper) throws FileNotFoundException {
-        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
+//        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
         return new JsonResult(paperService.updatePaper(paper));
     }
 
