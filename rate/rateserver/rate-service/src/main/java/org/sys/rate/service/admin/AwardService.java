@@ -4,8 +4,8 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.AwardMapper;
 import org.sys.rate.mapper.AwardMapper;
-import org.sys.rate.model.Award;
-import org.sys.rate.model.Operation;
+import org.sys.rate.mapper.AwardTypeMapper;
+import org.sys.rate.model.*;
 import org.sys.rate.model.Award;
 
 import javax.annotation.Resource;
@@ -18,36 +18,9 @@ import java.util.List;
 public class AwardService {
     @Resource
     private AwardMapper awardMapper;
+    @Resource
+    private AwardTypeMapper awardTypeMapper;
 
-//    public Award selectAwardById(Long ID){
-//        return awardMapper.selectAwardById(ID);
-//    }
-
-    /**
-     * 通过ID寻找paper信息
-     * @param ID
-     * @return paper
-     */
-//    public Award getById(Integer ID){
-//        Award award = awardMapper.getById(ID);
-//        if(award != null){
-//            return award;
-//        }
-//        return null;
-//    }
-
-//    public List<Award> selectAwardList(Award paper){
-//        return awardMapper.selectAwardList(paper);
-//    }
-
-//    public List<Award> selectListById(@Param("studentID") Integer studentID, @Param("page") Integer page, @Param("size") Integer size){
-//        if (page != null && size != null) {
-//            page = (page - 1) * size;
-//        }
-//        List<Award> p=awardMapper.selectListById(studentID,page,size);
-////        System.out.println(p);
-//        return p;
-//    }
     public List<Award> selectAwardListById(@Param("studentID") Integer studentID){
         List<Award> list = awardMapper.selectAwardListById(studentID);
         return setAwardOperation(list);
@@ -127,5 +100,9 @@ public class AwardService {
     public int editState(String state, Long ID) throws MessagingException {
         //mailToStuServicei.sendStuMail(state, paper, "科研奖励");
         return awardMapper.editState(state,ID);
+    }
+    public List<AwardType> getIndicatorByYearAndType(String year, String type) {
+        List<AwardType> list = awardTypeMapper.getIndicatorByYearAndType(year,type);
+        return list;
     }
 }

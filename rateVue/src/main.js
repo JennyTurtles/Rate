@@ -271,6 +271,15 @@ Vue.prototype.dateFormatFunc = function (originVal){
     // 拼接时间数据
     return `${year}-${month}-${day} ${hour}:${minutes}:${seconds}`;
 }
+Vue.prototype.initTutor = function (user){
+    if(!user.teacherName) {
+        this.getRequest('/student/basic/getTutorInfo?id=' + user.id).then(response => {
+            if(response) {
+                user.teacherName =  response.obj;
+            }
+        })
+    }
+}
 let vue = new Vue({
     router,
     store,

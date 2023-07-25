@@ -15,10 +15,8 @@
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
         <result property="awardLevel" column="award_level"/>
-        <result property="awardClass" column="award_class"/>
-        <result property="awardRank" column="award_rank"/>
+        <result property="awardTypeId" column="award_type_id"/>
         <result property="grantedStatus" column="granted_status"/>
-        <result property="indicatorId" column="indicator_id"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>
@@ -27,6 +25,12 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
+        </association>
+        <association property="awardType" javaType="org.sys.rate.model.AwardType">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="tname"/>
+            <result property="year" column="year"/>
+            <result property="indicatorId" column="indicator_id"/>
         </association>
         <collection property="operationList" ofType="org.sys.rate.model.Operation">
             <result property="operatorRole" column="operator_role"/>
@@ -42,7 +46,7 @@
     </resultMap>
 
     <sql id="selectAwardVo">
-        select id,student_id,name,date,author,url,grantedStatus,indicatorId,state
+        select id,student_id,name,date,author,url,grantedStatus,state
         from i_award
     </sql>
 
@@ -72,13 +76,15 @@
 
 <!--    学生奖励页面初始化-->
     <select id="selectAwardListById" resultMap="AwardResult" parameterType="Integer">
-        select a.id, a.name, student_id, a.date, author, a.state, url, granted_status, indicator_id, `rank`, total, point, a.award_level, a.award_class, a.award_rank,
+        select a.id, a.name, student_id, a.date, author, a.state, url, granted_status, indicator_id, `rank`, total, point, a.award_level, a.award_type_id,
                oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
                oper.state,oper.remark,
                i.name as iname,
-               i.score
+               i.score,
+               type.name as tname,type.year,type.indicator_id
         FROM i_award a
-                 LEFT JOIN indicator i ON i.id = a.indicator_id
+                 LEFT JOIN i_award_type type ON type.id = a.award_type_id
+                 LEFT JOIN indicator i ON i.id = type.indicator_id
                  LEFT JOIN i_oper oper ON a.id = oper.prod_id and oper.prod_type = '科研获奖'
         where a.student_id = #{studentID}
     </select>
@@ -109,7 +115,6 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
             <if test="studentId != null">student_id,</if>
-            <if test="indicatorId != null">indicator_id,</if>
             <if test="name != null and name != ''">name,</if>
             <if test="date != null">date,</if>
             <if test="author != null">author,</if>
@@ -120,13 +125,11 @@
             <if test="url != null">url,</if>
             <if test="grantedStatus != null">granted_status,</if>
             <if test="awardLevel != null">award_level,</if>
-            <if test="awardClass != null">award_class,</if>
-            <if test="awardRank != null">award_rank</if>
+            <if test="awardTypeId != null">award_type_id</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="studentId != null">#{studentId},</if>
-            <if test="indicatorId != null">#{indicatorId},</if>
             <if test="name != null and name != ''">#{name},</if>
             <if test="date != null">#{date},</if>
             <if test="author != null">#{author},</if>
@@ -137,8 +140,7 @@
             <if test="url != null">#{url},</if>
             <if test="grantedStatus != null">#{grantedStatus},</if>
             <if test="awardLevel != null">#{awardLevel},</if>
-            <if test="awardClass != null">#{awardClass},</if>
-            <if test="awardRank != null">#{awardRank}</if>
+            <if test="awardTypeId != null">#{awardTypeId}</if>
         </trim>
     </insert>
 

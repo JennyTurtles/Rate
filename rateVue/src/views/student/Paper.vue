@@ -626,8 +626,8 @@ export default {
     this.debounceSearch = debounce(this.debounceSearchInput,400);
   },
   mounted() {
-    this.initTutor();
     this.initEmps();
+    this.initTutor(this.user);
   },
   filters: {
     fileNameFilter: function (data) {//将证明材料显示出来
@@ -1026,7 +1026,6 @@ export default {
         }
       }
       var num = null
-      // var info=JSON.parse(window.sessionStorage.getItem("user"))
       var info = this.user
       if (val.indexOf("；") > -1 && val.indexOf(";") == -1) {//中文
         num = val.split('；')
@@ -1045,7 +1044,6 @@ export default {
         }
         return;
       }
-      console.log(info)
       //判断自己在不在其中
       if (num.indexOf(info.name) == -1 && !isalph) {//不在 并且没有英文单词
         this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【" + info.name + " 】");
@@ -1139,6 +1137,10 @@ export default {
             })
             return
           }
+          if(!this.isAuthorIncludeSelf) {
+            this.$message.error('请仔细检查作者列表！');
+            return;
+          }
           this.postRequest1("/paper/basic/edit", params).then((resp) => {
             if (resp) {
               this.dialogVisible = false;
@@ -1210,13 +1212,6 @@ export default {
       this.title = "添加论文";
       this.isAuthorIncludeSelf = false;
       this.dialogVisible = true;
-    },
-    initTutor() {
-      this.getRequest('/student/basic/getTutorInfo?id=' + this.user.id).then(response => {
-        if(response) {
-          this.user.teacherName = response.obj;
-        }
-      })
     },
     initEmps() {
       this.loading = true;
