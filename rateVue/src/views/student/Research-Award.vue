@@ -396,6 +396,7 @@ export default {
         remark:'',
         awardLevel:'',
         awardTypeId:'',
+        awardType: {}
       },
       rules: {
         name: [{ required: true, message: "请输入奖励名称", trigger: "blur" }],
@@ -565,9 +566,10 @@ export default {
         this.isAuthorIncludeSelf = false;
       } else {
         //作者列表的rank大于规定的rankN，积分为0
-        if(this.awardLimitRankN != '' && num.indexOf(info.name) > this.awardLimitRankN) {
+        if(this.awardLimitRankN != '' && num.indexOf(info.name) + 1 > this.awardLimitRankN) {
           this.awardPoint = 0;
         }
+        this.isAuthorIncludeSelf = true;
       }
       this.currentAwardCopy.rank = num.indexOf(info.name) + 1
       this.currentAwardCopy.author = this.member
@@ -686,11 +688,14 @@ export default {
       this.currentAwardCopy = {};
       this.addButtonState = false;
       this.member=''
-      this.data_picker=''
+      this.selectAwardType = '';
       this.title = "添加科研获奖";
       this.dialogVisible = true;
       this.awardLimitRankN = '';
+      this.awardPoint = '';
       this.isAuthorIncludeSelf = false;
+      this.disabledSelectAwardType = true;
+      this.selectAwardTypeList = [];
     },
     initAwardsList() {
       this.loading = true;
