@@ -778,6 +778,13 @@ export default {
   },
   methods: {
    change2GroupManage(){
+    if (this.$route.query.groupNums == 0){
+     this.$message({
+      message: '请先返回上一步添加分组',
+      type: 'warning'
+     });
+     return
+    }
     const _this = this;
     _this.$router.push({
      path: "/ActivitM/table",

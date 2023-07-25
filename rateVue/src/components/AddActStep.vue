@@ -1,5 +1,11 @@
 <template>
   <div>
+   <div style="text-align: center;font-size: 30px" v-if="mode === 'admin'">
+    添加活动
+   </div>
+   <div style="text-align: center;font-size: 30px" v-if="mode === 'adminSub'">
+    添加子活动{{this.$route.query.subActNo}}
+   </div>
    <el-steps style="margin-bottom: 10px;" :active="active" finish-status="success">
     <el-step title="基本信息"></el-step>
     <el-step title="信息项"></el-step>
@@ -10,7 +16,8 @@
    </el-steps>
    <el-button style="margin-top: 12px;margin-bottom: 10px; float: right" type="success" @click="goAct" v-if="active===5 || active === 3 && mode === 'adminSub' ">完成</el-button>
    <el-button style="margin-top: 12px;margin-bottom: 10px; float: right" type="success" @click="next" v-else>下一步</el-button>
-   <el-button style="margin-top: 12px;margin-bottom: 10px;float: right;margin-right: 10px" type="primary" @click="back" >返回</el-button>
+   <el-button style="margin-top: 12px;margin-bottom: 10px;float: right;margin-right: 10px" type="primary" @click="back" v-if="active == '0'">返回</el-button>
+   <el-button style="margin-top: 12px;margin-bottom: 10px;float: right;margin-right: 10px" type="primary" @click="back" v-else>上一步</el-button>
   </div>
 </template>
 
@@ -22,7 +29,7 @@ import { initMenu } from "../utils/menus.js";
 import this_ from "@/main";
 export default {
   name: "AddActStep",
-  props:["active","actID","actName"],
+  props:["active","actID","actName","groupNum"],
   data () {
     return {
      mode: 'admin',
@@ -67,14 +74,19 @@ export default {
         this.goGroup(this.actID,this.actName,true)
        break
      case 4:
-      this.goGroup(this.actID,this.actName,true)
-       break
+      if (this.groupNum === 0){
+       this.goPeople(this.actID,this.actName,true)
+      }else
+       this.goGroup(this.actID,this.actName,true)
+      break
     }
    },
   back(){
    switch (this.active){
     case 0:
-     this.goAct()
+     this.$router.push({
+      path: "/ActivitM/search",
+     });
      break
     case 1:
      this.goAddAct(this.actID,this.actName,false)
@@ -105,7 +117,9 @@ export default {
     addActive:this.active+1, // 标记步骤
     haveSub: this.active !== 0 ? this.$route.query.haveSub : this.haveSub,
     parentID:this.$route.query.parentID,
-    requireGroup: this.active !== 0 ? this.$route.query.requireGroup : this.requireGroup
+    requireGroup: this.active !== 0 ? this.$route.query.requireGroup : this.requireGroup,
+    groupNums: this.groupNum,
+    subActNo: this.$route.query.subActNo
    }
   },
   getQueryBack(actID,actName){
@@ -116,7 +130,8 @@ export default {
     addActive:this.active-1, // 标记步骤
     haveSub: typeof this.$route.query.haveSub !== 'undefined' ? this.$route.query.haveSub : this.haveSub,
     parentID:this.$route.query.parentID,
-    requireGroup: this.$route.query.requireGroup
+    requireGroup: this.$route.query.requireGroup,
+    subActNo: this.$route.query.subActNo
    }
   },
   getQuerySub(actID){
@@ -124,6 +139,7 @@ export default {
     parentID: this.$route.query.mode === 'adminSub' ? this.$route.query.parentID : actID, // 从子活动到子活动和从主活动到子活动
     mode:'adminSub',
     addActive:0,
+    subActNo: this.$route.query.subActNo ? parseInt(this.$route.query.subActNo) + 1: 1,
    }},
   goAct(){
    // 弹出一个对话框，提示是否要添加子活动

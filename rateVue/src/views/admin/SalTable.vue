@@ -1,11 +1,11 @@
 <template>
   <div>
-   <AddActStep ref="addActStep" v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
+   <AddActStep ref="addActStep" v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name" :groupNum="hrs.length"></AddActStep>
    <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2PeopleManage" v-show="$route.query.addActive == 5 && $route.query.mode === 'admin' ">
     活动人员管理
    </el-button>
     <div style="display: flex; justify-content: left">
-      <div style="width: 100%;text-align: center;margin-left: 80px;margin-top: 12px">{{ keywords_name }}分组管理</div>
+      <div style="width: 100%;text-align: center;margin-left: 80px;margin-top: 12px" v-show="!$route.query.addActive">{{ keywords_name }}分组管理</div>
       <div style="margin-left: auto">
         <el-button icon="el-icon-back" type="primary" @click="back" v-show="typeof $route.query.addActive === 'undefined'">
           返回
@@ -210,6 +210,7 @@
               @click="handleAddDetails()"
               type="primary"
               icon="el-icon-plus"
+              v-if="$route.query.addActive && $route.query.addActive == 4"
           >新增
           </el-button
           >
@@ -406,6 +407,9 @@ export default {
                 if (resp) {
                     this.hrs = resp.data;
                     this.total = this.hrs.length;
+                    // if (this.hrs.length === 0){
+                    //  this.change2PeopleManage()
+                    // }
                 }
             });
         }else
