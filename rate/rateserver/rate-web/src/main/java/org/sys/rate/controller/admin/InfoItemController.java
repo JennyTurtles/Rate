@@ -155,9 +155,13 @@ public class InfoItemController {
     // 获得未分组选手所有的信息项
     @GetMapping("/getAll/{id}")
     public Msg getAll(@PathVariable("id") Integer id){
-        List<InfoItem> infoItems = infoItemService.getInforItemByActivityId(id);
+        List<Participates> participates = participatesMapper.getParticipantByAId(id); // 得到所有未分组的选手
+        List<InfoItem> infoItems = new ArrayList<>();;
+        if(participates.size() != 0){
+            infoItems = infoItemService.getInforItemByActivityId(id,participates);
+        }
         List<ScoreItem> scoreItems = scoreItemService.getAllByActicityID(id);
-        return Msg.success().add("infoItems",infoItems).add("scoreItems",scoreItems);
+        return Msg.success().add("infoItems",infoItems).add("scoreItems",scoreItems).add("participates",participates);
     }
 
     @GetMapping("/all")

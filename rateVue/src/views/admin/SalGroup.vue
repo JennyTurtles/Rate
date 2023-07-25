@@ -904,7 +904,8 @@ export default {
           //存放infoItem
           // console.log(resp)
           var infoItems = resp.extend.infoItems
-          if(infoItems.length === 0){   // bug
+          var participates = resp.extend.participates
+          if(participates.length === 0){
             this.$message.warning('该活动下没有未分组的选手！')
             return
           }

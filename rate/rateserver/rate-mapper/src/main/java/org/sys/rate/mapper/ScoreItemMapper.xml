@@ -338,7 +338,7 @@
     where s.activityID=#{activityID} and s.scoreitemID=si.ID and s.expertID=#{expertID}  and s.participantID=#{participantID};
     </select>
   <select id="getAllByActicityID" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select * from scoreItem
+    select * from scoreitem
     where activityID = #{activityID}
   </select>
 </mapper>
