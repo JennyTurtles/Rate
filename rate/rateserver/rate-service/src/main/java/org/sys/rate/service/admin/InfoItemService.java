@@ -126,13 +126,8 @@ public class InfoItemService {
         return infoItemMapper.ScoreItemByActivityIdWhereNotByExpertCount(activityId);
     }
     //对选手进行筛选
-    public List<InfoItem>  getInforItemByActivityId(Integer activitiesID){
-        List<Participates> participates = participatesMapper.getParticipantByAId(activitiesID); // 得到所有未分组的选手
+    public List<InfoItem>  getInforItemByActivityId(Integer activitiesID, List<Participates> participates){
         List<InfoItem> infoItems = new ArrayList<>();
-        //没有不分组的选手
-        if(participates.size() == 0){
-            return infoItems;
-        }
         List<Integer> participantID = new ArrayList<>();
         for(int i = 0;i < participates.size(); i++){
             participantID.add(participates.get(i).getID());

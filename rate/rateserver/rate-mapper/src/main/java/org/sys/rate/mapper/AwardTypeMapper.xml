@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.AwardTypeMapper">
+    <resultMap type="org.sys.rate.model.AwardType" id="AwardTypeResult">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name"/>
+        <result property="year" column="year"/>
+        <result property="indicatorId" column="indicator_id"/>
+    </resultMap>
+
+    <select id="getIndicatorByYearAndType" resultMap="AwardTypeResult">
+        SELECT p.*
+        FROM i_award_type p
+        where p.name like concat('%', #{type}, '%') and p.year = #{year}
+    </select>
+</mapper>

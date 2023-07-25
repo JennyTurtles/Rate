@@ -332,7 +332,6 @@ export default {
       urlFile:'',//文件路径
       addButtonState: false,//是否允许添加科研项目
       operList:[],//每个科研项目的历史操作记录
-      options:[],//存储所有类型对象
       labelPosition: "left",
       title: "",
       title_show: "",
@@ -382,7 +381,7 @@ export default {
   },
   watch: {},
   created() {
-    this.debounceSearch = debounce(this.debounceSearchType,600);
+    this.debounceSearch = debounce(this.debounceSearchType,400);
   },
   mounted() {
     this.currentProjectCopy = JSON.parse(JSON.stringify(this.currentProject));
@@ -557,13 +556,10 @@ export default {
       this.title = "编辑科研项目信息";
       this.currentProjectCopy = JSON.parse(JSON.stringify(data));
       this.dialogVisible = true;
-      this.options = []
       if(this.currentProjectCopy.startDate) {
         this.disabledSelectProjectType = false;
       }
       this.selectProjectType = JSON.parse(JSON.stringify(this.currentProjectCopy.projectType));
-      console.log(this.selectProjectType);
-      // this.selectProjectTypeName = this.selectProjectType.name;
       this.projectPoint = data.point;
     },
     showInfo(data){

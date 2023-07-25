@@ -12,9 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
-import org.sys.rate.model.Award;
-import org.sys.rate.model.Msg;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.mapper.IndicatorMapper;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.AwardService;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.AwardService;
@@ -42,7 +41,7 @@ public class AwardController {
     @Resource
     private AwardService awardService;
     @Resource
-    IndicatorService indicatorService;
+    IndicatorMapper indicatorMapper;
     @Resource
     MailToTeacherService mailToTeacherService;
 
@@ -70,17 +69,6 @@ public class AwardController {
         Object[] res = {list, info.getTotal()};
         return Msg.success().add("res", res);
     }
-
-    /**
-     * 查询专利成果列表
-     */
-//    @PostMapping("/list")
-//    @ResponseBody
-//    public JsonResult list(Award award) {
-//        List<Award> list = awardService.selectAwardList(award);
-//        return new JsonResult(list);
-//    }
-
 
     /**
      * 新增保存专利成果
@@ -154,5 +142,14 @@ public class AwardController {
                 .contentLength(file.length())
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
+    }
+    @GetMapping("/getIndicatorByYearAndType")
+    public JsonResult getIndicatorByYearAndType(String year,String type) {
+        List<AwardType> list = awardService.getIndicatorByYearAndType(year,type);
+        return new JsonResult(list);
+    }
+    @GetMapping("/getIndicatorScore")
+    public JsonResult getScore(Integer id) {
+        return new JsonResult(indicatorMapper.getIndicatorById(id));
     }
 }

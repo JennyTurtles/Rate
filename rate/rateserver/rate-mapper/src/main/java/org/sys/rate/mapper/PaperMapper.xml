@@ -137,7 +137,7 @@
             <!--<if test="content != null">content,</if>-->
             <if test="state != null">state,</if>
             <if test="pubPage != null">pubPage,</if>
-            <if test="url != null">url,</if>
+            <if test="url != null">url</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="ID != null">#{ID},</if>
@@ -153,7 +153,7 @@
             <!--<if test="content != null">#{content},</if>-->
             <if test="state != null">#{state},</if>
             <if test="pubPage != null">#{pubPage},</if>
-            <if test="url != null">#{url},</if>
+            <if test="url != null">#{url}</if>
         </trim>
     </insert>
 

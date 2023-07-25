@@ -53,4 +53,5 @@ public interface TeacherMapper {
     int updateScore(Scores NewScore);
 
     int insertScore(Scores NewScore);
+    String getTutorInfo(Integer id);
 }
