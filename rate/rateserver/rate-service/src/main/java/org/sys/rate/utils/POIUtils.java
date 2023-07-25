@@ -880,28 +880,34 @@ public class POIUtils {
         c0.setCellValue("姓名");
         HSSFCell c1 = r0.createCell(1);
         c1.setCellValue("学号");
+//        HSSFCell c2 = r0.createCell(2);
+//        c2.setCellValue("身份证号码");
+//        HSSFCell c3 = r0.createCell(3);
+//        c3.setCellValue("手机号");
+//        HSSFCell c4 = r0.createCell(4);
+//        c4.setCellValue("邮箱");
+//        HSSFCell c5 = r0.createCell(5);
+//        c5.setCellValue("导师工号");
+//        HSSFCell c6 = r0.createCell(6);
+//        c6.setCellValue("导师姓名");
         HSSFCell c2 = r0.createCell(2);
-        c2.setCellValue("身份证号码");
+        c2.setCellValue("入学年份");
         HSSFCell c3 = r0.createCell(3);
-        c3.setCellValue("手机号");
+        c3.setCellValue("专业");
         HSSFCell c4 = r0.createCell(4);
-        c4.setCellValue("邮箱");
-        HSSFCell c5 = r0.createCell(5);
-        c5.setCellValue("导师工号");
-        HSSFCell c6 = r0.createCell(6);
-        c6.setCellValue("导师姓名");
-        HSSFCell c7 = r0.createCell(7);
-        c7.setCellValue("入学年份");
+        c4.setCellValue("班级");
         HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("张三");
         row.createCell(1).setCellValue("1111");
-        row.createCell(2).setCellValue("123456789123456789");
-        row.createCell(3).setCellValue("13812341234");
-        row.createCell(4).setCellValue("123@dhu.edu.cn");
-        row.createCell(5).setCellValue("1111");
-        row.createCell(6).setCellValue("李华");
-        row.createCell(7).setCellValue("2018");
-        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。导师工号和导师姓名如果不填写，则默认没有导师，如果两者都填写，按照导师工号查询。两者可填可不填");
+//        row.createCell(2).setCellValue("123456789123456789");
+//        row.createCell(3).setCellValue("13812341234");
+//        row.createCell(4).setCellValue("123@dhu.edu.cn");
+//        row.createCell(5).setCellValue("1111");
+//        row.createCell(6).setCellValue("李华");
+        row.createCell(2).setCellValue("2018");
+        row.createCell(3).setCellValue("软件工程");
+        row.createCell(4).setCellValue("软件工程1801");
+        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。入学年份、专业、班级非必填。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -949,12 +955,14 @@ public class POIUtils {
                     tea = new Teachers();
                     String stuNumber=null;//学号
                     String name=null;//姓名
-                    String phone=null;//手机号
-                    String idCard=null;//身份证号
-                    String email=null;//邮箱
-                    String teaJobNumber=null;
-                    String teaName=null;
+                    //String phone=null;//手机号
+                    //String idCard=null;//身份证号
+                    //String email=null;//邮箱
+                    //String teaJobNumber=null;
+                    //String teaName=null;
                     String year=null;
+                    String specialty=null;
+                    String className=null;
                     for (int k = 0; k < Cells; k++) {
                         HSSFCell cell = row.getCell(k);
                         if (cell!=null) {
@@ -967,50 +975,59 @@ public class POIUtils {
                                 case "学号":
                                     stuNumber=cellValue;
                                     break;
-                                case "手机号":
-                                    phone=cellValue;
-                                    break;
-                                case "身份证号码":
-                                    idCard=cellValue;
-                                    break;
-                                case "邮箱":
-                                    email=cellValue;
-                                    break;
-                                case "导师工号":
-                                    teaJobNumber=cellValue;
-                                    break;
-                                case "导师姓名":
-                                    teaName=cellValue;
-                                    break;
+//                                case "手机号":
+//                                    phone=cellValue;
+//                                    break;
+//                                case "身份证号码":
+//                                    idCard=cellValue;
+//                                    break;
+//                                case "邮箱":
+//                                    email=cellValue;
+//                                    break;
+//                                case "导师工号":
+//                                    teaJobNumber=cellValue;
+//                                    break;
+//                                case "导师姓名":
+//                                    teaName=cellValue;
+//                                    break;
                                 case "入学年份":
                                     year=cellValue;
+                                    break;
+                                case "专业":
+                                    specialty=cellValue;
+                                    break;
+                                case "班级":
+                                    className=cellValue;
                                     break;
                                 default:
                                     break;
                             }
                         }
                     }
-                    if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null || year == null){
+                    if(stuNumber==null|| name==null || year == null || specialty == null || className == null){
                         continue;
                     }
-                    //工号和姓名都有按照工号来，都没有tutorid为空，只有姓名就按照姓名查找
-                    if(teaJobNumber == null || teaJobNumber.equals("")){
-                        teaJobNumber = null;
-                    }
-                    if(teaName == null || teaName.equals("")){
-                        teaName = null;
-                    }
+//                    //工号和姓名都有按照工号来，都没有tutorid为空，只有姓名就按照姓名查找
+//                    if(teaJobNumber == null || teaJobNumber.equals("")){
+//                        teaJobNumber = null;
+//                    }
+//                    if(teaName == null || teaName.equals("")){
+//                        teaName = null;
+//                    }
                     student.setName(name);
-                    student.setTelephone(phone);
-                    student.setIDNumber(idCard);
-                    student.setEmail(email);
-                    tea.setJobnumber(teaJobNumber);
-                    tea.setName(teaName);
+                    student.setStudentnumber(stuNumber);
+                    //student.setTelephone(phone);
+                    //student.setIDNumber(idCard);
+                    //student.setEmail(email);
+                    //tea.setJobnumber(teaJobNumber);
+                    //tea.setName(teaName);
                     underGraduate.setTeachers(tea);
                     underGraduate.setStuNumber(stuNumber);
                     underGraduate.setYear(Integer.parseInt(year));
                     underGraduate.setInstitutionID(institutionID);
-                    underGraduate.setIDNumber(idCard);
+                    underGraduate.setClassName(className);
+                    underGraduate.setSpecialty(specialty);
+                    //underGraduate.setIDNumber(idCard);
                     studentList.add(student);
                     underList.add(underGraduate);
                 }

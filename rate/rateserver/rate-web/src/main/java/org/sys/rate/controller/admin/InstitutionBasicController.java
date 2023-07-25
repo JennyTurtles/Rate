@@ -1,11 +1,15 @@
 package org.sys.rate.controller.admin;
 
+import org.apache.catalina.LifecycleState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.sys.rate.mapper.InstitutionMapper;
 import org.sys.rate.model.Institution;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.model.RespPageBean;
 import org.sys.rate.service.admin.InstitutionService;
+
+import java.util.List;
 
 
 @RestController
@@ -13,6 +17,8 @@ import org.sys.rate.service.admin.InstitutionService;
 public class InstitutionBasicController {
     @Autowired
     InstitutionService institutionService;
+    @Autowired
+    InstitutionMapper institutionMapper;
 
 
     @GetMapping("/")
@@ -49,4 +55,9 @@ public class InstitutionBasicController {
         return institutionService.searchInstitution(page, size, company);
     }
 
+    @GetMapping("/getAll")
+    public RespBean getAll(){
+        List<Institution> res = institutionMapper.getAll();
+        return RespBean.ok("success",res);
+    }
 }

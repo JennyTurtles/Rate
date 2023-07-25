@@ -131,6 +131,15 @@
               >编辑</el-button
             >
             <el-button
+                @click="showEditLimitView(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                type="primary"
+                icon="el-icon-s-tools"
+                plain
+            >设置活动上限</el-button
+            >
+            <el-button
               @click="showadmin(scope.row)"
               style="padding: 4px"
               size="mini"
@@ -190,15 +199,15 @@
             placeholder="请输入单位名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="活动数上限:" prop="uplimit">
-          <el-input
-            size="mini"
-            style="width: 150px"
-            prefix-icon="el-icon-edit"
-            v-model="emp.uplimit"
-            placeholder="请输入单位活动数上限"
-          ></el-input>
-        </el-form-item>
+<!--        <el-form-item label="活动数上限:" prop="uplimit">-->
+<!--          <el-input-->
+<!--            size="mini"-->
+<!--            style="width: 150px"-->
+<!--            prefix-icon="el-icon-edit"-->
+<!--            v-model="emp.uplimit"-->
+<!--            placeholder="请输入单位活动数上限"-->
+<!--          ></el-input>-->
+<!--        </el-form-item>-->
         <el-form-item label="备 注:" prop="comment">
           <el-input
             prefix-icon="el-icon-edit"
@@ -225,6 +234,30 @@
         <el-button type="primary" @click="doAddEmp">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog :title="title" :visible.sync="dialogVisible_limit" width="35%" center>
+      <el-form
+          :label-position="labelPosition"
+          label-width="100px"
+          :model="emp"
+          :rules="rules"
+          ref="empForm"
+          style="margin-left:20px"
+      >
+        <el-form-item label="活动数上限:" prop="uplimit">
+          <el-input
+              size="mini"
+              style="width: 150px"
+              prefix-icon="el-icon-edit"
+              v-model="emp.uplimit"
+              placeholder="请输入单位活动数上限"
+          ></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="doAddEmp">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -245,6 +278,7 @@ export default {
       emps: [],
       loading: false,
       dialogVisible: false,
+      dialogVisible_limit:false,
       total: 0,
       page: 1,
       keyword: "",
@@ -272,7 +306,7 @@ export default {
             transform: (value) => Number(value),
           },
         ],
-        comment: [{ required: true, message: "请输入备注", trigger: "blur" }],
+        comment: [{ required: false, message: "请输入备注", trigger: "blur" }],
       },
       //表格取消选择
       multipleSelection: [],
@@ -322,6 +356,11 @@ export default {
       this.emp = data;
       this.dialogVisible = true;
     },
+    showEditLimitView(data){
+      this.title = "设置活动上限";
+      this.emp = data;
+      this.dialogVisible_limit = true;
+    },
     deleteEmp(data) {
       //console.log(data);
       this.$confirm(
@@ -351,6 +390,7 @@ export default {
               (resp) => {
                 if (resp) {
                   this.dialogVisible = false;
+                  this.dialogVisible_limit = false;
                   this.initEmps();
                   if(resp.msg==='更新成功!')
                   {Message.success(resp.msg)}
