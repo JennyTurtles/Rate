@@ -55,7 +55,7 @@
     </select>
     <select id="getInstitution_Current_Total" parameterType="org.sys.rate.model.Activities" resultType="java.lang.Integer">
         select count(*) from activities e
-        where e.institutionID = #{institutionID}
+        where e.institutionID = #{institutionID} and e.parentID is null
     </select>
     <select id="getInstitution_Total" parameterType="org.sys.rate.model.Activities" resultType="java.lang.Integer">
         select uplimit from institution
@@ -107,7 +107,9 @@
     <update id="insert_update" parameterType="org.sys.rate.model.Activities">
         UPDATE institution a SET a.activityCount = a.activityCount+1  WHERE a.id = #{institutionID,jdbcType=INTEGER}
     </update>
-
+    <update id="delete_update" parameterType="org.sys.rate.model.Activities">
+        UPDATE institution a SET a.activityCount = a.activityCount-1  WHERE a.id = #{institutionID,jdbcType=INTEGER}
+    </update>
     <update id="predelete" parameterType="java.lang.Integer">
         UPDATE activities SET deleteFlag = 1
         where id = #{id}
