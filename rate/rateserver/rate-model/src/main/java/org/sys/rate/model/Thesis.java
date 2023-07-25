@@ -13,11 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Thesis {
     private int comment_pass;
-
     private int comment_deny;
-
     private int comment_total;
-
 
     /**
      * 毕业论文或设计的ID

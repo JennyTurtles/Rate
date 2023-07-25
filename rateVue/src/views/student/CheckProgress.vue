@@ -1,11 +1,5 @@
 <template>
   <div>
-    <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-      <el-tab-pane label="全部" name="all"></el-tab-pane>
-      <el-tab-pane label="未审核" name="commit"></el-tab-pane>
-      <el-tab-pane label="审核通过" name="pass"></el-tab-pane>
-      <el-tab-pane label="审核拒绝" name="reject"></el-tab-pane>
-    </el-tabs>
 
     <el-table
         :data="tableData"
@@ -23,18 +17,6 @@
           width="50px"
           label="编号"
           type="index"
-      ></el-table-column>
-      <el-table-column
-          align="center"
-          width="100px"
-          label="学号"
-          prop="studentId"
-      ></el-table-column>
-      <el-table-column
-          align="center"
-          width="100px"
-          label="姓名"
-          prop="studentName"
       ></el-table-column>
       <el-table-column
           align="center"
@@ -73,10 +55,32 @@
       ></el-table-column>
       <el-table-column
           align="center"
-          width="200px"
+          width="150px"
           label="提交时间"
           prop="date"
       ></el-table-column>
+      <el-table-column
+          align="center"
+          width="100px"
+          label="审核状态"
+          prop="state"
+      >
+        <template slot-scope="scope">
+            <span
+                style="padding: 4px"
+                :style="scope.row.state=='reject' ? {'color':'red'}:{'color':'black'}"
+                size="mini"
+            >
+              {{
+                scope.row.state == "commit"
+                    ? "已提交"
+                    : scope.row.state == "pass"
+                        ? "管理员通过"
+                        : "管理员驳回"
+              }}
+              </span>
+        </template>
+      </el-table-column>
       <el-table-column
           align="center"
           width="100px"
@@ -141,7 +145,7 @@
           ><br/>
         </el-form-item>
         <el-form-item label="拒绝理由:" prop="comment" v-if="emp.comment !== null && emp.comment !== ''">
-          <span>{{ emp.comment }}</span><br/>
+          <span style="color: red;">{{ emp.comment }}</span><br/>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           <span
@@ -171,61 +175,15 @@
       </el-form>
       <span slot="footer" class="dialog-footer" :model="emp">
         <el-button
-            id="but_pass"
-            v-show="
-            emp.state == 'commit'
-              ? true
-              : false
-          "
-            @click="
-            () => {
-              auditing_commit('pass')
-            }
-          "
-            type="primary"
-        >审核通过</el-button
-        >
-        <el-button
             id="but_reject"
-            v-show="
-            emp.state == 'commit'
-              ? true
-              : false
-          "
-            @click="isShowInfo = true"
-            type="primary"
-        >审核拒绝</el-button
-        >
-        <el-button
-            id="but_reject"
-            v-show="
-            emp.state == 'reject' ||
-            emp.state == 'pass'
-              ? true
-              : false
-          "
+
             @click="dialogVisible_show = false"
             type="primary"
         >关闭</el-button
         >
       </span>
     </el-dialog>
-    <el-dialog v-model="emp" :visible.sync="isShowInfo">
-      <el-input
-          type="textarea"
-          :rows="4"
-          v-model="emp.comment"
-          placeholder="请输入论文驳回理由"
-      >
-      </el-input>
-      <span slot="footer">
-          <el-button @click=" (()=>{
-              auditing_commit('reject')
-              isShowInfo = false
-          })" type="primary">确定</el-button>
-          <el-button @click="isShowInfo = false">取消</el-button>
-        </span>
-    </el-dialog>
+
   </div>
 </template>
 
@@ -367,9 +325,9 @@ export default {
       }
     },
 
-    fetchData(state) {
+    init() {
       this.loading = true;
-      axios.get(`/publicationSubmission/get?state=` + state)
+      axios.get(`/publicationSubmission/getStuSubmission?stuID=` + JSON.parse(localStorage.getItem('user')).id)
           .then((response) => {
             this.loading = false;
             this.tableData = response.obj; // 将返回的数据赋值给 submission
@@ -378,14 +336,6 @@ export default {
           .catch((error) => {
             this.$message.error(error);
           });
-    },
-
-    handleClick(tab) {
-      this.fetchData(tab.name);
-    },
-
-    init() {
-      this.fetchData('commit');
     },
 
     rowClass() {

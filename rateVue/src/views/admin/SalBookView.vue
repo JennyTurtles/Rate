@@ -8,20 +8,20 @@
       </transition>
       <div class="xHandle">
         <XHandle
-          :showTooltip="false"
-          :isCanMove="true"
-          @widthChange="widthChange"
-          @visibleChange="visibleChange"
+            :showTooltip="false"
+            :isCanMove="true"
+            @widthChange="widthChange"
+            @visibleChange="visibleChange"
         />
       </div>
       <el-main :style="divStyle">
         <BookViewSearch
-          ref="search"
-          :category="nodeData.label"
-          :score="nodeData.score"
-          :type="nodeData.type"
-          :p1="nodeData.p1"
-          :p2="nodeData.p2"
+            ref="search"
+            :category="nodeData.label"
+            :score="nodeData.score"
+            :type="nodeData.type"
+            :p1="nodeData.p1"
+            :p2="nodeData.p2"
         ></BookViewSearch>
       </el-main>
     </el-container>
@@ -32,6 +32,7 @@
 import tree from "@/components/tree";
 import search from "@/components/search";
 import XHandle from "@/components/Xhandle";
+
 export default {
   name: "bookview",
   components: {
@@ -41,7 +42,7 @@ export default {
   },
   data() {
     return {
-      nodeData: "",
+      nodeData: {},
       width: 500,
       visible: false,
     };
@@ -57,6 +58,7 @@ export default {
   },
   methods: {
     getLabelInfo(nodeData) {
+      // console.log(nodeData);
       this.nodeData = nodeData;
       this.$refs.search.getData(nodeData.id, nodeData.type);
     },
@@ -93,6 +95,7 @@ export default {
 .router-slid-leave-active {
   transition: all 0.1s;
 }
+
 .router-slid-enter,
 .router-slid-leave-active {
   transform: translate3d(-3rem, 0, 0);
@@ -119,8 +122,9 @@ export default {
   border-radius: 10px;
   margin-right: 0.25%;
   box-shadow: 15px 0 15px -15px rgb(117, 119, 119),
-    -15px 0 15px -15px rgb(119, 117, 117);
+  -15px 0 15px -15px rgb(119, 117, 117);
 }
+
 .el-main {
   padding: 0px 0px;
   background-color: #f4f4f5;

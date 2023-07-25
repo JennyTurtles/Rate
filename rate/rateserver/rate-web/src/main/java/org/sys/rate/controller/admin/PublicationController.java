@@ -11,9 +11,12 @@ import org.sys.rate.mapper.PublicationMapper;
 import org.sys.rate.model.Indicator;
 import org.sys.rate.model.Publication;
 import org.sys.rate.model.RespBean;
+import org.sys.rate.model.RespPageBean;
 import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.admin.IndicatorService;
+
 import javax.annotation.Resource;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +47,7 @@ public class PublicationController {
 
     /**
      * 模糊查询相关期刊，返回期刊的全称
+     *
      * @param publicationName:
      * @Return RespBean
      */
@@ -65,21 +69,22 @@ public class PublicationController {
     /**
      * 修改保存刊物
      */
-    @PostMapping("/publication/basic/edit")
-    public RespBean editSave(Publication publication) {
-        return RespBean.ok("插入期刊成功", publicationService.updatePublication(publication));
+    @PutMapping("/publication/basic/edit")
+    public RespBean editSave(@Valid @RequestBody Publication publication) {
+        try {
+            // 参数校验通过，进行相关处理
+            publicationService.updatePublication(publication);
+            return RespBean.ok("修改期刊成功");
+        } catch (Exception e) {
+            // 异常处理，返回错误信息
+            return RespBean.error("插入期刊失败：" + e.getMessage());
+        }
     }
 
-    /**
-     * 删除刊物
-     */
-    @PostMapping("/publication/basic/remove")
-    public RespBean deletePublicationById(Integer ids) {
-        return RespBean.ok("删除期刊成功！",publicationService.deletePublicationById(Collections.singletonList(ids)));
-    }
 
     /**
      * 通过全称和year进行最佳搜索
+     *
      * @param year:
      * @param name:
      * @Return RespBean
@@ -98,6 +103,7 @@ public class PublicationController {
 
     /**
      * 搜索2分论文，返回2分论文的主键
+     *
      * @param stuId:
      */
     @GetMapping("/publication/checkScore/{stuId}")
@@ -143,6 +149,7 @@ public class PublicationController {
 
     /**
      * 根据期刊全称获取期刊在数据库中的详细信息。
+     *
      * @param name:
      * @Return RespBean
      */
@@ -152,6 +159,33 @@ public class PublicationController {
         return RespBean.ok("success", res);
     }
 
+    /**
+     * @author zyk
+     * @description 获取当前年份的期刊信息
+     * @date 2023/7/21 15:12
+     */
 
+    @GetMapping("/publicationByYear")
+    public RespPageBean listByName(@RequestParam("indicatorId") Integer indicatorId,
+                                   @RequestParam("year") Integer year,
+                                   @RequestParam("pageNum") Integer pageNum,
+                                   @RequestParam("pageSize") Integer pageSize) {
+        List<Publication> list = publicationService.selectPublicationListByYear(indicatorId, year, pageNum, pageSize);
+        int total = list.size();
+        RespPageBean respPageBean = new RespPageBean();
+        respPageBean.setData(list);
+        respPageBean.setTotal((long) total);
+        return respPageBean;
+    }
+
+    @DeleteMapping("publication")
+    public RespBean deletePublicationById(@RequestParam("id") Integer id, @RequestParam("year") Integer year){
+        try {
+            publicationService.deletePublicationById(id, year);
+            return RespBean.ok("delete publication successfully!");
+        } catch (Exception e) {
+            return RespBean.error("delete publication error!");
+        }
+    }
 
 }

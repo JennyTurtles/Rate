@@ -50,6 +50,14 @@ public class PublicationSubmissionController {
         }
         return RespBean.ok("200", submissions);
     }
+    @GetMapping("/getStuSubmission")
+    public RespBean getAllSubmission(Integer stuID) {
+        List<PublicationSubmission> submissions = submissionMapper.getAllStuSubmission(stuID);
+        if (submissions.isEmpty()) {
+            return RespBean.ok("没有找到任何提交记录", null);
+        }
+        return RespBean.ok("200", submissions);
+    }
 
     @GetMapping("/check")
     public RespBean checkSubmission(PublicationSubmission submission) {

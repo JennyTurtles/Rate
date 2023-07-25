@@ -21,7 +21,7 @@ public interface IndicatorMapper{
     @Select("select `order` from indicator where id = #{id}")
     public String selectOrder(Integer id);
 
-    @Insert("insert into indicator values(#{id},#{name},#{type},#{order},#{score},#{father})")
+    @Insert("insert into indicator(name, type, `order`, score, father_id) values(#{name},#{type},#{order},#{score},#{father})")
     public int save(Indicator indicator);
 
     //需要获取被删除记录的order,并调整其他记录的order（难点）,通过sql语句来实现有些困难，因此采用java来进行逻辑判断并Update

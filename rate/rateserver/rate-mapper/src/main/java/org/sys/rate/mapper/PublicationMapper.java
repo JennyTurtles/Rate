@@ -42,13 +42,9 @@ public interface PublicationMapper {
      */
     Integer updatePublication(Publication publication);
 
-    /**
-     * 批量删除刊物
-     *
-     * @param ids 需要删除的数据ID
-     * @return 结果
-     */
-    Integer deletePublicationByIds(List<Integer> ids);
+
+    @Delete("delete from indicator_publication where publication_id =#{id} and year=#{year}")
+    Integer deletePublicationByIds(Integer id, Integer year);
 
     /**
      * 根据name和year模糊查询，返回相关的刊物全称
@@ -97,4 +93,6 @@ public interface PublicationMapper {
      */
     @Insert("insert into indicator_publication(indicator_id, publication_id, year) values(#{indicatorId},#{publicationId},#{date})")
     Integer insertIndicatorPublication(Integer indicatorId, Integer publicationId, Integer date);
+
+    List<Publication> selectPublicationListByYear(Integer indicatorID, Integer year);
 }

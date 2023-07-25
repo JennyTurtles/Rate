@@ -246,8 +246,15 @@
             @click="openAddDialog"
         >
             点击添加新的期刊
+          </span>  &nbsp;&nbsp;&nbsp;&nbsp;
+        <span
+            style="color: #409eff;  cursor: pointer;"
+            @click="openCheckVue"
+        >
+            查看期刊审核进度
           </span>
       </div>
+
       <div style="margin-left: 20px;margin-top: 5px;">
         <span style="color:gray;font-size:10px">将会获得：{{ paperPoint }}积分</span>
       </div>
@@ -640,6 +647,10 @@ export default {
     }
   },
   methods: {
+    openCheckVue() {
+      // 使用路由导航进行页面跳转
+      this.$router.push({ path: '/student/CheckProgress' });
+    },
     // 和tree相关的代码
     showTreeDialog() {
       this.dialogVisible_publication = false;

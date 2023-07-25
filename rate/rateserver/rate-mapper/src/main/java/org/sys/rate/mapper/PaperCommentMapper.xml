@@ -44,7 +44,7 @@
                   AND ((t.year &lt; t2.year) OR (t.year = t2.year AND t.month &lt; t2.month))
             )
         GROUP BY tID
-        ORDER BY s.id ASC;
+        ORDER BY s.ID ASC;
     </select>
 
 

@@ -45,32 +45,41 @@
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="abbr != null">abbr = #{abbr},</if>
             <if test="publisher != null">publisher = #{publisher},</if>
-            <if test="url != null">url = #{url},</if>
+            <if test="url != null">url = #{url}</if>
         </trim>
         where id = #{id}
     </update>
 
-    <delete id="deletePublicationByIds" parameterType="String">
-        delete from i_publication where id in
-        <foreach collection="ids" item="id" open="(" separator="," close=")">
-            #{id}
-        </foreach>
-    </delete>
 
-<!--    <select id="getPublicationByNameYear" resultMap="PublicationResult">-->
-<!--        SELECT p.id, p.`name`, p.abbr, p.publisher, p.url, i.id as i_id, i.`name` as i_name, i.score as point, i.`order`-->
-<!--        FROM indicator_publication ip-->
-<!--                 LEFT JOIN i_publication p ON ip.publication_id = p.id-->
-<!--                 LEFT JOIN indicator i ON ip.indicator_id = i.id-->
-<!--        WHERE p.`name` = #{name} AND ip.year = #{year}-->
-<!--        ORDER BY i.score DESC, i.`order`-->
-<!--        LIMIT 1-->
-<!--    </select>-->
+    <select id="getPublicationByNameYear" resultMap="PublicationWithIndicators">
+        SELECT p.id,
+               p.name,
+               p.abbr,
+               p.publisher,
+               p.url,
+               i.name indicatorName,
+               i.order,
+               i.score,
+               i.id   indicatorID,
+               ip.year,
+               i.type
+        FROM i_publication p,
+             indicator_publication ip,
+             indicator i
+        WHERE p.id = ip.publication_id
+          AND i.id = ip.indicator_id
+          AND p.`name` = #{name}
+          AND <![CDATA[ year <= #{year}  ]]>
+            ORDER BY i.score DESC, year DESC, i.`order`
+    </select>
+    <select id="selectPublicationListByYear" resultMap="PublicationResult">
+        SELECT p.id, p.abbr, p.`name`, p.publisher, p.url
+        FROM i_publication p,
+        indicator_publication ip
+        WHERE ip.publication_id = p.id
+        AND ip.indicator_id = #{indicatorID}
+        AND ip.year = #{year}
 
-        <select id="getPublicationByNameYear" resultMap="PublicationWithIndicators">
-            SELECT p.id,p.name,p.abbr, p.publisher, p.url,i.name indicatorName,i.order,i.score,i.id indicatorID,ip.year,i.type FROM i_publication p, indicator_publication ip,indicator i
-            WHERE p.id = ip.publication_id AND i.id = ip.indicator_id
-              AND p.`name` = #{name} AND <![CDATA[ year <= #{year}  ]]>
-            ORDER BY i.score DESC,year DESC,i.`order`
-        </select>
+
+    </select>
 </mapper>
