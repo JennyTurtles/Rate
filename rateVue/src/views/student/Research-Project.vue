@@ -381,7 +381,7 @@ export default {
   },
   watch: {},
   created() {
-    this.debounceSearch = debounce(this.debounceSearchType,600);
+    this.debounceSearch = debounce(this.debounceSearchType,400);
   },
   mounted() {
     this.currentProjectCopy = JSON.parse(JSON.stringify(this.currentProject));
