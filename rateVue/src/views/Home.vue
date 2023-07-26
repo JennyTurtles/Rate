@@ -166,9 +166,9 @@
     </el-dialog>
    <el-dialog @close="registerRoleForm={};selectStuType='';tutorName=''" title="注册为本科生/研究生" :visible.sync="registerRoleVisible" width="30%">
     <el-form label-width="auto">
-    <el-form-item label="姓名:">
-     <el-input v-model="registerRoleForm.name"></el-input>
-    </el-form-item>
+<!--    <el-form-item label="姓名:">-->
+<!--     <el-input v-model="registerRoleForm.name"></el-input>-->
+<!--    </el-form-item>-->
     <el-form-item label="电话:">
      <el-input v-model="registerRoleForm.telephone"></el-input>
     </el-form-item>
@@ -285,6 +285,7 @@ export default {
    },
    registerRole(){
     this.registerRoleForm.ID = this.user.id
+    this.registerRoleForm.name = this.user.name
     if (this.selectStuType === '研究生'){
      this.postRequest1("/system/student/registerGraduate",this.registerRoleForm).then((res) => {
       if (res) {

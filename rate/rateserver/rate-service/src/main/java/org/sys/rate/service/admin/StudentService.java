@@ -67,29 +67,60 @@ public class StudentService implements UserDetailsService {
         return studentMapper.selectList();
     }
 
+    //   逆天逻辑
     //   要注册为研究生，就根据用户输入的学号去研究生表里查询
-    //   如果没查到就在研究生表添加记录
-    //   如果查到了就更新那条记录的studentID，然后去学生表把老的studentID删掉
-    public void registerGraduate(Student student) {
-        Integer studentID = studentMapper.getGraduateByStudentNumber(student.getStudentnumber());
-        if(studentID == null){ // 研究生表无记录
-            studentMapper.registerGraduate(student);
-        }else if (!studentID.equals(student.getID())){ // 检查该记录的studentID是否与当前用户ID相同
+    //   如果没查到，就检查表里是否有该学生的studentID，如果没有，就添加一条记录，如果有，就直接修改该记录（防止恶意添加）
+    //   如果查到了，核对姓名，然后更新那条记录的studentID，然后去学生表把老的studentID删掉
+    public boolean registerGraduate(Student student) {
+        Student studentInTable = studentMapper.getGraduateByStudentNumber(student.getStudentnumber());
+        if(studentInTable == null){ // 研究生表无该学号
+            Integer studentID = studentMapper.checkIDInGraduate(student.getID());
+            if(studentID == null) // 研究生表无该学生ID
+                studentMapper.registerGraduate(student);
+            else // 该学生已经是研究生了，重复注册，但是学号改了。修改研究生表的信息。
+                studentMapper.updateGraduate(student);
+            studentMapper.update(student);
+        }else if (!studentInTable.getID().equals(student.getID())){ // 查到了，但是studentID不是本人
+            // 检查姓名是否一样，防止填错学号
+            if (!studentInTable.getName().equals(student.getName())){
+                return false;
+            }
+            Integer studentID = studentInTable.getID();
             studentMapper.updateGraduateStudentID(studentID,student.getID());
+            studentMapper.updateGraduate(student);
             studentMapper.deleteStudent(studentID);
+            studentMapper.update(student);
+        }else {
+            studentMapper.updateGraduate(student);
+            studentMapper.update(student);
         }
-        studentMapper.update(student);
+        return true;
     }
 
-    public void registerUndergraduate(Student student) {
-        Integer studentID = studentMapper.getUndergraduateByStudentNumber(student.getStudentnumber());
-        if(studentID == null){ // 本科生表无记录
-            studentMapper.registerUndergraduate(student);
-        }else if (!studentID.equals(student.getID())){ // 检查该记录的studentID是否与当前用户ID相同
+    public boolean registerUndergraduate(Student student) {
+        Student studentInTable = studentMapper.getUndergraduateByStudentNumber(student.getStudentnumber());
+        if(studentInTable == null){ // 本科生表无该学号
+            Integer studentID = studentMapper.checkIDInUndergraduate(student.getID());
+            if(studentID == null) // 本科生表无该学生ID
+                studentMapper.registerUndergraduate(student);
+            else // 该学生已经是本科生了，重复注册，但是学号改了。修改研究生表的信息。
+                studentMapper.updateUnderGraduate(student);
+            studentMapper.update(student);
+        }else if (!studentInTable.getID().equals(student.getID())){ // 查到了，但是studentID不是本人
+            // 检查姓名是否一样，防止填错学号
+            if (!studentInTable.getName().equals(student.getName())){
+                return false;
+            }
+            Integer studentID = studentInTable.getID();
             studentMapper.updateUndergraduateStudentID(studentID,student.getID());
+            studentMapper.updateUnderGraduate(student);
             studentMapper.deleteStudent(studentID);
+            studentMapper.update(student);
+        }else {
+            studentMapper.updateUnderGraduate(student);
+            studentMapper.update(student);
         }
-        studentMapper.update(student);
+        return true;
     }
 }
 
