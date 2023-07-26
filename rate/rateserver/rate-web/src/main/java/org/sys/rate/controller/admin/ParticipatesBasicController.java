@@ -382,8 +382,11 @@ public class ParticipatesBasicController {
 
     @PostMapping("/addActSelf")
     public RespBean addActSelf(Integer studentID,Integer activityID,String code) {
-        participatesService.addActSelf(studentID,activityID,code);
-        return RespBean.ok("添加成功");
+        boolean res = participatesService.addActSelf(studentID,activityID,code);
+        if (res)
+            return RespBean.ok("添加成功");
+        else
+            return RespBean.error("添加失败，你未被管理员加入此活动。请检查活动编号和活动名称。");
     }
 
 

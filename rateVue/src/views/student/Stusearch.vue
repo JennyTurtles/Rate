@@ -288,7 +288,7 @@ export default {
         .then(response => {
          if (response.status === 200) {
           this.$message({
-           message: '添加成功',
+           message: response.msg,
            type: 'success'
           });
           this.addVisible = false;

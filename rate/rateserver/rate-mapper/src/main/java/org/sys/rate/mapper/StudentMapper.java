@@ -66,5 +66,6 @@ public interface StudentMapper {
     void registerUndergraduate(Student student);
 
 
-
+    @Select("select name from student where ID = #{studentID}")
+    String getNameByID(Integer studentID);
 }
