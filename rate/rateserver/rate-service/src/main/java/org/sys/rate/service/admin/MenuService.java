@@ -34,6 +34,8 @@ public class MenuService {
     GraduateStudentMapper graduateStudentMapper;
     @Autowired
     UnderGraduateMapper underGraduateMapper;
+    @Resource
+    StudentMapper studentMapper;
 
 
     //获取子菜单
@@ -90,8 +92,14 @@ public class MenuService {
     }
 
     public List<Menu> getMenusByAdminId(Integer id, String role) {
-        if (participatesMapper.isParticipants(id) != 0){//选手
-            if(!role.contains("7")){
+//        if (participatesMapper.isParticipants(id) != 0){//选手
+//            if(!role.contains("7")){
+//                role = role + ";7";
+//            }
+//        }
+        // 如果是学生
+        if (studentMapper.isStudent(id) != null){
+            if(!role.contains("7")){ // 让所有学生都显示参与活动
                 role = role + ";7";
             }
         }

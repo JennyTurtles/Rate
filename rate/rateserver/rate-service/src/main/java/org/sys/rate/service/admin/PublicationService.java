@@ -1,18 +1,29 @@
 package org.sys.rate.service.admin;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.mapper.PublicationMapper;
+import org.sys.rate.model.Indicator;
 import org.sys.rate.model.Publication;
 
+import javax.annotation.Resource;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class PublicationService {
 
-    @Autowired
+    @Resource
     private PublicationMapper publicationMapper;
+
+    @Resource
+    private IndicatorMapper indicatorMapper;
 
     /**
      * 查询刊物
@@ -20,26 +31,24 @@ public class PublicationService {
      * @param ID 刊物ID
      * @return 刊物
      */
-    public Publication selectPublicationById(Long ID){
-       return publicationMapper.selectPublicationById(ID);
+    public Publication selectPublicationById(Integer id) {
+        return publicationMapper.selectPublicationById(id);
     }
 
     /**
-     * 查询刊物列表
+     * 模糊查询期刊，获取相关期刊全称
      *
-     * @param publication 刊物
-     * @return 刊物集合
+     * @param publicationName :
+     * @param year
+     * @Return List<String>
      */
-    public List<Publication> selectPublicationList(Publication publication){
-        return publicationMapper.selectPublicationList(publication);
+    public List<String> selectPublicationListByName(String publicationName, Integer year) {
+        List<String> res = publicationMapper.getPublicationNamesByNameYear(publicationName);
+        return res;
     }
 
-    //模糊查询 返回pub
-    public List<Publication> selectPublicationListByName(@Param("publicationName") String publicationName){
-        List<Publication> res=publicationMapper.selectListByPubName(publicationName);
-//        List<String> res=paperMapper.selectListByPubName(publicationName);
-//        System.out.println("res:");
-//        System.out.println(res);
+    public List<String> selectPublicationListByName(String publicationName) {
+        List<String> res = publicationMapper.getPublicationNamesByName(publicationName);
         return res;
     }
 
@@ -49,8 +58,17 @@ public class PublicationService {
      * @param publication 刊物
      * @return 结果
      */
-    public int insertPublication(Publication publication){
-        return publicationMapper.insertPublication(publication);
+    public void insertPublication(Publication publication) {
+        if(publication.getId()==null) {
+            publicationMapper.insertPublication(publication);
+        }
+        if(publication.getIndicatorList()==null){
+            publicationMapper.insertIndicatorPublication(publication.getIndicatorId(), publication.getId(), publication.getYear());
+            return;
+        }
+        for (int i = 0; i < publication.getIndicatorList().size(); ++i) {
+            publicationMapper.insertIndicatorPublication(publication.getIndicatorList().get(i).getId(), publication.getId(), publication.getDateList().get(i));
+        }
     }
 
     /**
@@ -59,7 +77,7 @@ public class PublicationService {
      * @param publication 刊物
      * @return 结果
      */
-    public int updatePublication(Publication publication){
+    public Integer updatePublication(Publication publication) {
         return publicationMapper.updatePublication(publication);
     }
 
@@ -69,22 +87,34 @@ public class PublicationService {
      * @param ID 刊物ID
      * @return 结果
      */
-    public int deletePublicationById(Long ID){
-        return publicationMapper.deletePublicationById(ID);
+    public Integer deletePublicationById(Integer id, Integer year) {
+        return publicationMapper.deletePublicationByIds(id, year);
     }
 
-    public List<Publication> selectList(){
-        return publicationMapper.selectList();
+    public Indicator chooseBestIndicator(Publication publication , Integer year){
+        if (publication == null)
+            return null;
+        List<Indicator> indicatorList = publication.getIndicatorList();
+        Set<Integer> indicatorIDSet = new HashSet<>();
+        for (Indicator indicator : indicatorList) {
+            Integer indicatorID = indicator.getId();
+            if (indicatorIDSet.contains(indicatorID)) // 已经按年份降序排列。对于同一个指标点，只判断最大的年份即可。
+                continue;
+            indicatorIDSet.add(indicatorID);
+            Integer maxYear = indicatorMapper.getMaxYear(indicatorID, year);
+            if (maxYear <= indicator.getYear()) // 已经按照积分降序排列，找到第一个满足条件的指标点即可。
+                return indicator;
+        }
+        return null;
     }
 
-    public Long selectScoreById(long id)
-    {
-        return publicationMapper.selectScoreById(id);
-    }
+    public List<Publication> selectPublicationListByYear(Integer indicatorID, Integer year, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
 
-    public Publication selectPublicationByNameYear(String name, Integer year){return publicationMapper.selectPublicationByNameYear(name,year);}
+        List<Publication> publications = publicationMapper.selectPublicationListByYear(indicatorID, year);
 
-    public List<Publication> selectPublicationListByYear(Integer year){
-        return publicationMapper.selectPublicationByYear(year);
+        // 使用 PageInfo 包装查询结果，获取分页信息
+        PageInfo<Publication> pageInfo = new PageInfo<>(publications);
+        return pageInfo.getList();
     }
 }

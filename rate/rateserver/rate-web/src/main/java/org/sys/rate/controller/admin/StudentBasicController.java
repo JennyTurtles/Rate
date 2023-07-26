@@ -2,6 +2,7 @@ package org.sys.rate.controller.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.StudentMapper;
+import org.sys.rate.mapper.TeacherMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.GraduateStudentService;
 import org.sys.rate.service.admin.StudentService;
@@ -18,6 +19,8 @@ public class StudentBasicController {
     StudentService StudentService;
     @Autowired
     StudentMapper studentMapper;
+    @Autowired
+    TeacherMapper teacherMapper;
     @Autowired
     UnderGraduateService underGraduateService;
     @Autowired
@@ -79,6 +82,10 @@ public class StudentBasicController {
             return RespBean.ok("更新成功!");
         }
         return RespBean.error("更新失败!");
+    }
+    @GetMapping("/getTutorInfo")
+    public RespBean getTutorInfo(Integer id) {
+        return RespBean.ok("ok", teacherMapper.getTutorInfo(id));
     }
 }
 

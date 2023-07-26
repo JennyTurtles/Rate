@@ -1,95 +1,155 @@
 package org.sys.rate.controller.admin;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
-import org.sys.rate.model.Award;
-import org.sys.rate.model.AwardOper;
-import org.sys.rate.model.PatentOper;
+import org.sys.rate.mapper.IndicatorMapper;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.AwardService;
+import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.AwardService;
+import org.sys.rate.service.admin.PublicationService;
+import org.sys.rate.service.mail.MailToTeacherService;
 
+import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 
 /**
- * 类别Controller
+ * 专利成果Controller
  *
  * @author system
  * @date 2022-03-13
  */
 @RestController
 @RequestMapping("/award/basic")
-public class AwardController
-{
+public class AwardController {
+    
+    @Resource
+    private AwardService awardService;
+    @Resource
+    IndicatorMapper indicatorMapper;
+    @Resource
+    MailToTeacherService mailToTeacherService;
 
-    @Autowired
-    private AwardService awardtypeService;
+    private static final Logger logger = LoggerFactory.getLogger(AwardController.class);
+    private String uploadFileName;
 
-    /**
-     * 查询类别列表
-     */
-    @GetMapping("/list")
-    @ResponseBody
-    public JsonResult list(Award awardtype)
-    {
-        List<Award> list = awardtypeService.selectAwardList(awardtype);
-        return new JsonResult(list);
+    @GetMapping("/studentID")//无页码要求
+    public JsonResult<List> getById(Integer studentID) {
+        List<Award> list = awardService.selectAwardListById(studentID);
+        return new JsonResult<>(list);
+    }
+
+    //    修改专利状态
+    @GetMapping("/edit_state")
+    public JsonResult getById(String state, Long ID) throws MessagingException {
+        return new JsonResult(awardService.editState(state, ID));
+    }
+
+    @GetMapping("/List")
+    public Msg getCollect(@RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
+        //包括返回最早的提交时间 和多次驳回的理由列表
+        Page page = PageHelper.startPage(pageNum, pageSize);
+        List<Award> list = awardService.selectAllAwardList();
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()};
+        return Msg.success().add("res", res);
     }
 
     /**
-     * 查询类别列表
+     * 新增保存专利成果
      */
-    @PostMapping("/list")
+    @PostMapping("/add")
     @ResponseBody
-    public JsonResult postList(@RequestBody Award awardtype)
-    {
-        List<Award> list = awardtypeService.selectAwardList(awardtype);
-        return new JsonResult(list);
+    public JsonResult addSave(Award award) {
+        Integer res = awardService.insertAward(award);
+//        mailToTeacherService.sendTeaCheckMail(award, "科研奖励", uploadFileName);
+        return new JsonResult(award.getId());
     }
 
-
     /**
-     * 新增保存类别
-//     */
-//    @PostMapping("/add")
-//    @ResponseBody
-//    public JsonResult addSave(Award awardtype)
-//    {
-//        return new JsonResult(awardtypeService.insertAward(awardtype));
-//    }
-
-    /**
-     * 修改保存类别
+     * 修改保存专利成果
      */
     @PostMapping("/edit")
     @ResponseBody
-    public JsonResult editSave(Award awardtype)
-    {
-        return new JsonResult(awardtypeService.updateAward(awardtype));
+    public JsonResult editSave(Award award) throws FileNotFoundException {
+//        mailToTeacherService.sendTeaCheckMail(award, "科研奖励", uploadFileName);
+        return new JsonResult(awardService.updateAward(award));
     }
 
     /**
-     * 删除类别
+     * 删除专利成果
      */
-    @PostMapping( "/remove")
-    @ResponseBody
-    public JsonResult remove(Long ids)
-    {
-        return new JsonResult(awardtypeService.deleteAwardById(ids));
+    @DeleteMapping("/remove/{ID}")
+    public JsonResult remove(@PathVariable Long ID) {
+        Integer res = awardService.deleteAwardById(ID);
+        return new JsonResult(res);
     }
 
-    //    修改论文状态
-    @GetMapping("/edit_state")
-    public JsonResult getById(String state, Long ID) throws MessagingException {
-        return new JsonResult(awardtypeService.editState(state, ID));
+    @PostMapping("/upload")
+    public JsonResult upload(@RequestParam MultipartFile file) throws IOException {
+        String filename = file.getOriginalFilename();
+        String fPath = new File("upload").getAbsolutePath() + "/" + filename;
+        File newFile = new File(fPath);
+        file.transferTo(newFile);
+
+        uploadFileName = filename;
+        //返回文件存储路径
+        return new JsonResult(fPath);
     }
 
-    @PostMapping("/add")
+    @GetMapping("/download")
+    public RespBean download(Integer awardID, String filename) throws IOException {
+        File newFile = new File(new File("upload").getAbsolutePath() + "/" + filename);
+        return RespBean.ok("success", newFile);
+    }
+
+    @PostMapping("/deleteFile")//删除某个文件
     @ResponseBody
-    public JsonResult addSave(AwardOper paperoper)
-    {
-        return new JsonResult(awardtypeService.insertPaperOper(paperoper));
-//        return new JsonResult();
+    public JsonResult delete(String filepath) {
+        boolean flag = false;
+        File file = new File(filepath);
+        if (file.isFile() && file.exists()) {
+            flag = file.delete();
+        }
+        return new JsonResult(flag);
+    }
+    @GetMapping("/downloadByUrl")
+    @ResponseBody
+    public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
+        File file = new File(url);
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=test.pdf");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(resource);
+    }
+    @GetMapping("/getIndicatorByYearAndType")
+    public JsonResult getIndicatorByYearAndType(String year,String type) {
+        List<AwardType> list = awardService.getIndicatorByYearAndType(year,type);
+        return new JsonResult(list);
+    }
+    @GetMapping("/getIndicatorScore")
+    public JsonResult getScore(Integer id) {
+        return new JsonResult(indicatorMapper.getIndicatorById(id));
     }
 }

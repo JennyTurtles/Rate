@@ -29,6 +29,8 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @RestController
@@ -295,18 +297,18 @@ public class ParticipatesBasicController {
     // 点击添加按钮添加的选手，无信息项和评分项
     @Transactional
     @PostMapping("/addPars")
-    public RespBean addPars(@RequestBody List<Participates> list) throws ParseException {
-        Integer activityID = list.get(0).getActivityID();
-        Integer groupID = list.get(0).getGroupID();
+    public RespBean addPars(@RequestParam Integer activityID,@RequestParam Integer groupID,@RequestBody List<Participates> list) throws ParseException {
+//        Integer activityID = list.get(0).getActivityID();
+//        Integer groupID = list.get(0).getGroupID();
         RespPageBean bean=new RespPageBean();
         bean.setData(list);
         bean.setTotal((long) list.size());
         RespBean res = importPars(groupID,activityID,list.get(0).getInstitutionid(),bean);
         if(res.getStatus() == 200) {
             Integer res2 = groupsMapper.updateParCount(activityID, groupID);
-            if (res2 > 0)
+            if (res2 > 0 || groupID==0)
                 return RespBean.ok(res.getMsg());
-            return RespBean.error("更新选手数量失败");
+//            return RespBean.error("更新选手数量失败");
         }
         return RespBean.error(res.getMsg());
     }
@@ -343,15 +345,50 @@ public class ParticipatesBasicController {
                                   MultipartFile file) throws IOException, ParseException {
         RespPageBean bean=excel2p(groupid,activityid,file);
         RespBean respBean = importPars(groupid,activityid,insititutionID,bean); // 为了复用才返回respBean
-        if (respBean.getStatus() != 200){ // 检查当前选手是否在主活动中存在
-            RespBean.error(respBean.getMsg());
-        }
-        List<Participates> list= (List<Participates>) bean.getData();
-        for (Participates participates : list) { // 填上主活动的id和大组id
-            participates.setActivityID(actIDParent);
-            participates.setGroupID(groupIDParent);
-        }
-        participatesMapper.addParent(list); // 如果存在父活动则不新增，不存在则新增
+//        List<Participates> list= (List<Participates>) bean.getData();
+//        for (Participates participates : list) { // 填上主活动的id和大组id
+//            participates.setActivityID(actIDParent);
+//            participates.setGroupID(groupIDParent);
+//        }
+//        participatesMapper.addParent(list); // 如果存在父活动则不新增，不存在则新增
         return RespBean.ok(respBean.getMsg());
     }
+
+    @GetMapping("/getByInstitutionID")
+    public RespBean getByInstitutionID(@RequestParam("institutionID")Integer institutionID){
+        // 学号改为从研究生表和本科生表中获取，两个表中都有则只保留研究生表中的学号
+        List<Participates> graduates = participatesMapper.getGraduateByInstitutionID(institutionID);
+        List<Participates> undergraduates = participatesMapper.getUndergraduateByInstitutionID(institutionID);
+        // 合并两个List并去重，优先保留graduates中的数据
+        List<Participates> combined = new ArrayList<>(graduates);
+        undergraduates.stream()
+                .filter(p -> !graduates.contains(p))
+                .forEach(combined::add);
+        return RespBean.ok("success",combined);
+    }
+
+    @Transactional
+    @PostMapping("/manualAdd")
+    public RespBean manualAdd(Participates participates) throws ParseException {
+        participatesMapper.manualAdd(participates); // 添加到student表,里面的ID是学生的ID
+        participatesService.setParticipateRole(participates.getID()); // 将其角色设置为选手
+        return addPars(participates.getActivityID(),participates.getGroupID(),Arrays.asList(participates)); // 添加到participates表
+    }
+
+    @GetMapping("/getByCodeActivityID")
+    public RespBean getByIDNumber(@RequestParam("code") String code,@RequestParam("actID") Integer activityID){
+        return RespBean.ok("success",participatesMapper.getByCodeActivityID(code,activityID));
+    }
+
+    @PostMapping("/addActSelf")
+    public RespBean addActSelf(Integer studentID,Integer activityID,String code) {
+        boolean res = participatesService.addActSelf(studentID,activityID,code);
+        if (res)
+            return RespBean.ok("添加成功");
+        else
+            return RespBean.error("添加失败，你未被管理员加入此活动。请检查活动编号和活动名称。");
+    }
+
+
+
 }

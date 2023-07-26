@@ -4,7 +4,7 @@ package org.sys.rate.utils;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.*;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.PaperComment;
 import org.sys.rate.model.Student;
@@ -12,7 +12,7 @@ import org.sys.rate.model.Teacher;
 import org.sys.rate.model.Thesis;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.TeacherService;
-import org.sys.rate.service.underFunction.PaperCommentService;
+import org.sys.rate.service.admin.PaperCommentService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -32,6 +32,7 @@ import java.util.UUID;
  * @description 完成下载功能
  * @date 2023/4/4 16:50
  */
+@Slf4j
 @Service
 public class ExportPDF {
     @Resource
@@ -43,15 +44,13 @@ public class ExportPDF {
     @Resource
     PaperCommentService paperCommentService;
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportPDF.class);
-
     private final static int PRESUMROWS = 17;
     private final static int NEXTPLANROWS = 21;
     private final static int ONEROWMAXCOUNT = 35;
-    private final static String DEST = "upload/exportFiles/";
-    private final static String FONT_PATH_Song = "upload/templete/song.ttf";
-    private final static String TEMPLATE_PATH10 = "upload/templete/templete_10.pdf";
-    private final static String TEMPLATE_PATH20 = "upload/templete/templete_20.pdf";
+    private final static String DEST = "src/main/resources/exportFiles/";
+    private final String FONT_PATH_Song = "rate/rateserver/rate-web/src/main/resources/templete/song.ttf";
+    private final String TEMPLATE_PATH10 = "rate/rateserver/rate-web/src/main/resources/templete/templete_10.pdf";
+    private final String TEMPLATE_PATH20 = "rate/rateserver/rate-web/src/main/resources/templete/templete_20.pdf";
     private boolean necessaryFilesAndDirectoriesExist;
 
     public ExportPDF() {
@@ -64,28 +63,28 @@ public class ExportPDF {
         if (!directory.exists()) {
             boolean result = directory.mkdirs();
             if (result) {
-                logger.info("目录 " + DEST + " 创建成功！");
+                log.info("目录 " + DEST + " 创建成功！");
             } else {
-                logger.error("目录 " + DEST + " 创建失败！");
+                log.error("目录 " + DEST + " 创建失败！");
                 return false;
             }
         }
         // 检查字体文件是否存在
         File file = new File(FONT_PATH_Song);
         if (!file.exists()) {
-            logger.error("字体文件 " + FONT_PATH_Song + " 不存在！！！");
+            log.error("字体文件 " + FONT_PATH_Song + " 不存在！！！");
             return false;
         }
         // 检查TEMPLATE_PATH10是否存在
         File file10 = new File(TEMPLATE_PATH10);
         if (!file10.exists()) {
-            logger.error("模版文件 " + TEMPLATE_PATH10 + " 不存在！！！");
+            log.error("模版文件 " + TEMPLATE_PATH10 + " 不存在！！！");
             return false;
         }
         // 检查TEMPLATE_PATH20是否存在
         File file20 = new File(TEMPLATE_PATH10);
         if (!file20.exists()) {
-            logger.error("模版文件 " + TEMPLATE_PATH10 + " 不存在！！！");
+            log.error("模版文件 " + TEMPLATE_PATH10 + " 不存在！！！");
             return false;
         }
         return true;
@@ -98,7 +97,7 @@ public class ExportPDF {
         List<PaperComment> paperComments = paperCommentService.selectCommentListStu(thesisID);
 
         if (!necessaryFilesAndDirectoriesExist) {
-            logger.error("生成Pdf时必要的文件和目录不存在！");
+            log.error("生成Pdf时必要的文件和目录不存在！");
             return;
         }
 
@@ -121,7 +120,7 @@ public class ExportPDF {
             fillPDFTemplateFields(form, FontSong, model);
             ps.setFormFlattening(false);
         } catch (Exception e) {
-            logger.error("PDF导出失败");
+            log.error("PDF导出失败");
             e.printStackTrace();
         } finally {
             ps.close();
@@ -134,7 +133,7 @@ public class ExportPDF {
             } else {
                 getDownload(response, DEST + fileName, false);
             }
-            logger.info("PDF导出成功");
+            log.info("PDF导出成功");
             deleteAllFiles();
         }
     }
@@ -218,12 +217,12 @@ public class ExportPDF {
                             continue;
                         }
                     } catch (SecurityException e) {
-                        logger.error("Unable to delete file: " + file.getName(), e);
+                        log.error("Unable to delete file: " + file.getName(), e);
                     } finally {
                         lock.release();
                     }
                 } catch (IOException e) {
-                    logger.error("Unable to acquire lock on file: " + file.getName());
+                    log.error("Unable to acquire lock on file: " + file.getName());
                 }
             }
         }

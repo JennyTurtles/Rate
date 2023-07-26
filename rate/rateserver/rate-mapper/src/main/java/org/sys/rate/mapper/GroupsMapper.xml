@@ -129,4 +129,12 @@
     <select id="isGroupsExit" resultType="Integer">
         select COUNT(*) from `groups` where activityID = #{activityID}
     </select>
+
+    <insert id="insertGroups">
+        INSERT INTO `groups` (activityID, name, expertCount, participantCount,parentID)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.activityID}, #{item.name}, #{item.expertCount},#{item.participantCount}, #{item.parentID})
+        </foreach>
+    </insert>
 </mapper>

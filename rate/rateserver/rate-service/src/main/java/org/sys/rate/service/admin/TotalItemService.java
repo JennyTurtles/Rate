@@ -1,6 +1,5 @@
 package org.sys.rate.service.admin;
 
-import com.sun.org.apache.bcel.internal.generic.IF_ACMPEQ;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.*;
@@ -50,7 +49,7 @@ public class TotalItemService {
     }
 
     // 重构版的getFinalScore
-    // 需要包含1.基本信息（序号，编号，组名，姓名）2.信息项 3.专家评分totalscorewithdot 4.活动得分 5.总分项
+    // 需要包含1.基本信息（序号，编号，组名，姓名）2.信息项 3.专家评分totalscorewithdot 4.活动总评分 5.总分项
     // 每列以键值对的形式存储，key:列名，value:列值及附加信息（总分，数据类型等）
 //    public RespBean getFinalScore(Integer activityID, Integer groupID){
 //        // 0.获取该活动中所有的选手
@@ -76,7 +75,7 @@ public class TotalItemService {
                         par.setCode(single.getCode());
                         par.setName(single.getStudentName());
                         par.setGroupName(single.getGroupName());
-                        par.setScore(single.getActivityScore() == null ? 0 : single.getActivityScore()); // 活动得分
+                        par.setScore(single.getActivityScore() == null ? 0 : single.getActivityScore()); // 活动总评分
                         par.setID(single.getParticipantID());
                         Double activityFullScore = activitiesMapper.getFullScore(activityID);
                         par.setFullScore(activityFullScore);

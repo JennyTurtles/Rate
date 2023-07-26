@@ -1,121 +1,85 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.sys.rate.mapper.PublicationMapper">
-    
+
     <resultMap type="org.sys.rate.model.Publication" id="PublicationResult">
-        <result property="ID"    column="ID"    />
-        <result property="name"    column="name"    />
-        <result property="abbr"    column="abbr"    />
-        <result property="publisher"    column="publisher"    />
-        <result property="url"    column="url"    />
-        <result property="type"    column="type"    />
-        <result property="level"    column="level"    />
-        <result property="indicatorID"    column="indicatorID"    />
-        <association property="indicator" javaType="org.sys.rate.model.Indicator">
-            <id property="ID" column="ID" jdbcType="INTEGER"/>
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="abbr" column="abbr"/>
+        <result property="publisher" column="publisher"/>
+        <result property="url" column="url"/>
+        <collection property="indicatorList" ofType="org.sys.rate.model.Indicator">
+            <id property="id" column="i_id" jdbcType="INTEGER"/>
+            <result property="name" column="i_name"/>
+            <result property="score" column="point"/>
+            <result property="order" column="order"/>
+        </collection>
+    </resultMap>
+
+    <resultMap type="org.sys.rate.model.Publication" id="PublicationWithIndicators">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="abbr" column="abbr"/>
+        <result property="publisher" column="publisher"/>
+        <result property="url" column="url"/>
+        <collection property="indicatorList" ofType="org.sys.rate.model.Indicator">
+            <result property="id" column="indicatorID" jdbcType="INTEGER"/>
+            <result property="name" column="indicatorName"/>
             <result property="score" column="score"/>
-        </association>
+            <result property="order" column="order"/>
+            <result property="year" column="year"/>
+            <result property="type" column="type"/>
+        </collection>
     </resultMap>
 
     <sql id="selectPublicationVo">
-        select ID, name, abbr, publisher, url, level, indicatorID from publication
+        select id, name, abbr, publisher, url
+        from i_publication
     </sql>
 
-    <delete id="deleteByYearIndicatorNames">
-        DELETE FROM publication
-        WHERE year = #{year} AND indicatorID IN (SELECT ID from indicator WHERE name in
-        <foreach item="item" index="index" collection="IndicatorNames" open="(" separator="," close=")">
-            #{item}
-        </foreach> )
-
-    </delete>
-
-    <select id="selectList" resultMap="PublicationResult">
-        <include refid="selectPublicationVo"></include>
-    </select>
-
-<!--    <sql id="selectScore" >-->
-<!--        select score from indicator-->
-<!--    </sql>-->
-
-<!--    <select id="selectScoreById" resultMap="PublicationResult">-->
-<!--        select score from indicator where ID = 1-->
-<!--    </select>-->
-
-<!--    模糊查询-->
-    <select id="selectListByPubName" resultMap="PublicationResult" parameterType="String">
-        select pub.ID, pub.name, pub.abbr, pub.publisher, pub.url, pub.level, pub.indicatorID,ind.score
-        from publication pub,indicator ind
-        where pub.name != '' and pub.name like concat('%', #{publicationName}, '%') and pub.indicatorID=ind.ID
-    </select>
-
-    <select id="selectPublicationList" parameterType="org.sys.rate.model.Publication" resultMap="PublicationResult">
-        <include refid="selectPublicationVo"/>
-        <where>  
-            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
-            <if test="abbr != null  and abbr != ''"> and abbr = #{abbr}</if>
-            <if test="publisher != null  and publisher != ''"> and publisher = #{publisher}</if>
-            <if test="url != null  and url != ''"> and url = #{url}</if>
-            <if test="type != null  and type != ''"> and type = #{type}</if>
-            <if test="level != null  and level != ''"> and level = #{level}</if>
-            <if test="indicatorID != null "> and indicatorID = #{indicatorID}</if>
-        </where>
-    </select>
-    
-    <select id="selectPublicationById" parameterType="Long" resultMap="PublicationResult">
-        <include refid="selectPublicationVo"/>
-        where ID = #{ID}
-    </select>
-        
-    <insert id="insertPublication" parameterType="org.sys.rate.model.Publication">
-        insert into publication
-        <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="ID != null">ID,</if>
-            <if test="name != null and name != ''">name,</if>
-            <if test="abbr != null">abbr,</if>
-            <if test="publisher != null">publisher,</if>
-            <if test="url != null">url,</if>
-            <if test="type != null">type,</if>
-            <if test="level != null">level,</if>
-            <if test="indicatorID != null">indicatorID,</if>
-         </trim>
-        <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="ID != null">#{ID},</if>
-            <if test="name != null and name != ''">#{name},</if>
-            <if test="abbr != null">#{abbr},</if>
-            <if test="publisher != null">#{publisher},</if>
-            <if test="url != null">#{url},</if>
-            <if test="type != null">#{type},</if>
-            <if test="level != null">#{level},</if>
-            <if test="indicatorID != null">#{indicatorID},</if>
-         </trim>
-    </insert>
-
     <update id="updatePublication" parameterType="org.sys.rate.model.Publication">
-        update publication
+        update i_publication
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="abbr != null">abbr = #{abbr},</if>
             <if test="publisher != null">publisher = #{publisher},</if>
-            <if test="url != null">url = #{url},</if>
-            <if test="type != null">type = #{type},</if>
-            <if test="level != null">level = #{level},</if>
-            <if test="indicatorID != null">indicatorID = #{indicatorID},</if>
+            <if test="url != null">url = #{url}</if>
         </trim>
-        where ID = #{ID}
+        where id = #{id}
     </update>
 
-    <delete id="deletePublicationById" parameterType="Long">
-        delete from publication where ID = #{ID}
-    </delete>
 
-    <delete id="deletePublicationByIds" parameterType="String">
-        delete from publication where ID in 
-        <foreach item="ID" collection="array" open="(" separator="," close=")">
-            #{ID}
-        </foreach>
-    </delete>
+    <select id="getPublicationByNameYear" resultMap="PublicationWithIndicators">
+        SELECT p.id,
+               p.name,
+               p.abbr,
+               p.publisher,
+               p.url,
+               i.name indicatorName,
+               i.order,
+               i.score,
+               i.id   indicatorID,
+               ip.year,
+               i.type
+        FROM i_publication p,
+             indicator_publication ip,
+             indicator i
+        WHERE p.id = ip.publication_id
+          AND i.id = ip.indicator_id
+          AND p.`name` = #{name}
+          AND <![CDATA[ year <= #{year}  ]]>
+            ORDER BY i.score DESC, year DESC, i.`order`
+    </select>
+    <select id="selectPublicationListByYear" resultMap="PublicationResult">
+        SELECT p.id, p.abbr, p.`name`, p.publisher, p.url
+        FROM i_publication p,
+        indicator_publication ip
+        WHERE ip.publication_id = p.id
+        AND ip.indicator_id = #{indicatorID}
+        AND ip.year = #{year}
 
+
+    </select>
 </mapper>

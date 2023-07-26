@@ -13,7 +13,6 @@ import java.util.Objects;
 
 public class Account implements UserDetails {
     Integer ID;
-//    Integer id;
     String name;
     Integer institutionID;
 

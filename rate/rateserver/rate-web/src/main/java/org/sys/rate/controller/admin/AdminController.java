@@ -9,7 +9,6 @@ import org.sys.rate.mapper.ActivityGrantMapper;
 import org.sys.rate.mapper.AdminMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.AdminService;
-import org.sys.rate.service.admin.HrService;
 import org.sys.rate.service.admin.RoleService;
 import org.sys.rate.service.mail.MailService;
 
@@ -18,20 +17,10 @@ import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @作者 江南一点雨
- * @公众号 江南一点雨
- * @微信号 a_java_boy
- * @GitHub https://github.com/lenve
- * @博客 http://wangsong.blog.csdn.net
- * @网站 http://www.javaboy.org
- * @时间 2019-10-24 8:09
- */
 @RestController("ratesystemAdmin")
 @RequestMapping("/system/admin")
 public class AdminController {
-    @Autowired
-    HrService hrService;
+
     @Autowired
     AdminService adminService;
     @Autowired
@@ -87,14 +76,7 @@ public class AdminController {
     public List<Role> getAllRoles() {
         return roleService.getAllRoles();
     }
-
-    @PutMapping("/role")
-    public RespBean updateHrRole(Integer hrid, Integer[] rids) {
-        if (hrService.updateHrRole(hrid, rids)) {
-            return RespBean.ok("更新成功!");
-        }
-        return RespBean.error("更新失败!");
-    }
+    
 
     @PostMapping("/delete")
     public RespBean deleteAdminById(@RequestBody Admin id) {

@@ -34,7 +34,9 @@
                     <el-button type="primary" icon="el-icon-plus" @click='showAddEmpView' v-show="mode === 'admin' || mode === 'adminSub'">
                         添加活动
                     </el-button>
-
+                    <el-button type="primary" icon="el-icon-plus" @click='showAddEmpView_clone' v-show="mode === 'admin' || mode === 'adminSub'">
+                        克隆活动
+                    </el-button>
                     <span style="margin-left: 20px" v-show="mode === 'secretarySub'">当前管理的是： {{actName}} {{groupName}} </span>
                 </div>
                 <div style="margin-left: auto">
@@ -213,7 +215,7 @@
                                 icon="el-icon-plus"
                                 type="primary"
                                 plain
-                        >选手管理
+                        >人员管理
                         </el-button
                         >
                         <el-button
@@ -227,17 +229,17 @@
                         >选手管理
                         </el-button
                         >
-                        <el-button
-                                @click="showGroups(scope.row)"
-                                style="padding: 4px"
-                                size="mini"
-                                icon="el-icon-tickets"
-                                type="primary"
-                                v-show="mode==='admin' || mode==='secretary'"
-                                plain
-                        >专家管理
-                        </el-button
-                        >
+<!--                        <el-button-->
+<!--                                @click="showGroups(scope.row)"-->
+<!--                                style="padding: 4px"-->
+<!--                                size="mini"-->
+<!--                                icon="el-icon-tickets"-->
+<!--                                type="primary"-->
+<!--                                v-show="mode==='admin' || mode==='secretary'"-->
+<!--                                plain-->
+<!--                        >专家管理-->
+<!--                        </el-button-->
+<!--                        >-->
                         <el-button
                                 @click="showScore(scope.row)"
                                 v-show="scope.row.haveSub !== 1"
@@ -257,7 +259,7 @@
                                 icon="el-icon-tickets"
                                 type="primary"
                                 plain
-                        >分配选手和专家
+                        >人员管理
                         </el-button
                         >
                         <el-button
@@ -301,7 +303,7 @@
                                 icon="el-icon-download"
                                 type="primary"
                                 plain
-                                v-show="scope.row.haveSub === 1"
+                                v-show="scope.row.haveSub === 1 && scope.row.gradeFormType === 1"
                         >导出成绩评定表
                         </el-button
                         >
@@ -357,13 +359,18 @@
         </div>
 
         <el-dialog :title="title" :visible.sync="dialogVisible" width="46%"
-                   @close="emp_edit={};haveComment = false;haveSub = false" center>
+                   @close="emp_edit={};haveComment = false;haveSub = false;gradeFormType = 0;radio = 1;currentClone='';currentCloneid=''" center>
+<!--          <el-radio-group v-model="radio" style="padding-top: 5px" center>-->
+<!--            <el-radio :label="1" >添加新活动</el-radio>-->
+<!--            <el-radio :label="2" >克隆已有活动</el-radio>-->
+<!--          </el-radio-group>-->
             <el-form
                     :label-position="labelPosition"
                     label-width="120px"
                     :model="emp_edit"
                     :rules="rules"
                     ref="empForm"
+                    v-if="radio===1"
             >
                 <el-form-item label="活动名称:" prop="name">
                     <el-input
@@ -437,6 +444,110 @@
                     <el-checkbox v-model="haveComment"></el-checkbox>
                   <span class="tip-title" style="margin-left: 10px">专家在评分时是否需要写评语</span>
                 </el-form-item>
+                <el-form-item label="成绩评定表类型: ">
+                 <el-select
+                     style="width: 100%"
+                     v-model="gradeFormType"
+                     placeholder="请选择成绩评定表类型xxx"
+                 >
+                  <el-option
+                      v-for="item in gradeFormTypes"
+                      :key="item.id"
+                      :label="item.label"
+                      :value="item.id"
+                      :disabled="item.disabled">
+                  </el-option>
+                 </el-select>
+                </el-form-item>
+            </el-form>
+            <el-form
+              :label-position="labelPosition"
+              label-width="120px"
+              :model="emp_colone"
+              :rules="rules"
+              ref="empForm"
+              v-if="radio===2"
+            >
+              <div style="display: flex; justify-content: left">
+                <el-form-item label="活动名称:" prop="name">
+                  <el-input
+                      size="mini"
+                      style="width: 200px"
+                      prefix-icon="el-icon-edit"
+                      v-model="emp_colone.name"
+                      placeholder="请输入活动名称"
+                  ></el-input>
+                </el-form-item>
+                <el-form-item label="克隆自活动:" prop="name">
+                  <el-select placeholder="请选择" v-model="currentCloneid" @change="selectClone($event)">
+                    <el-option
+                        v-for="item in coloneActivity"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </div>
+              <el-form-item label="专家可见时间:" prop="visibleDate">
+                <div class="block">
+                  <div>
+                    <el-checkbox v-model="visibleDateSelected">不限</el-checkbox>
+                  </div>
+                  <div>
+                    <el-date-picker
+                        :disabled="visibleDateSelected"
+                        v-model="emp_colone.visibleDate"
+                        type="datetime"
+                        style="margin-left: 8px;"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        placeholder="选择日期和时间">
+                    </el-date-picker>
+                    <span class="tip-title">专家在活动列表中可以看到该活动的时间</span>
+                  </div>
+                </div>
+              </el-form-item>
+              <el-form-item label="专家可进入时间:" prop="enterDate">
+                <div class="block">
+                  <div>
+                    <el-checkbox v-model="enterDateSelected">不限</el-checkbox>
+                  </div>
+                  <div>
+                    <el-date-picker
+                        :disabled="enterDateSelected"
+                        v-model="emp_colone.enterDate"
+                        type="datetime"
+                        style="margin-left: 8px;"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        placeholder="选择日期和时间">
+                    </el-date-picker>
+                    <span class="tip-title">专家可进入到该活动中的时间</span>
+                  </div>
+                </div>
+              </el-form-item>
+              <el-form-item label="开始时间:" prop="startDate">
+                <div class="block">
+                  <el-date-picker
+                      v-model="emp_colone.startDate"
+                      type="datetime"
+                      value-format="yyyy-MM-dd HH:mm:ss"
+                      placeholder="选择日期和时间">
+                  </el-date-picker>
+                </div>
+              </el-form-item>
+              <el-form-item label="备 注: " prop="comment">
+                <el-input
+                    type="textarea"
+                    :rows="2"
+                    v-model="emp_colone.comment"
+                    placeholder="活动备注example：关于xxx的活动。备注信息将显示在专家评分表的活动标题下方。"
+                >
+                </el-input>
+              </el-form-item>
+              <el-form-item  label="包含子活动: ">
+                <el-checkbox v-model="currentClone.haveSub===1" :disabled="true"></el-checkbox>
+              </el-form-item>
+                <div>注：克隆活动时会克隆对应的评分项、信息项、展示项、子活动的对应信息</div><br/>
             </el-form>
             <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
@@ -752,6 +863,8 @@ export default {
             scoreItemsAll:[],
             haveSub:false,
             haveComment:false,
+            gradeFormType:0,
+            gradeFormTypes:[{label:'无',id:0},{label:'计算机学院',id:1}],
             startDate: '',
             experts:'',
             participates:'',
@@ -797,6 +910,13 @@ export default {
             dialogVisible: false,
             exportGradeFormVisible: false,
             dialogVisible_show: false,
+            visible_type:'',//区分添加活动和编辑的对话框
+            radio: 1,
+            coloneActivity:[],
+            emp_colone:{},
+            currentClone:'',
+            currentCloneid:'',
+            newID:'', //克隆活动的id
             total: 0,
             page: 1,
             keyword: "",
@@ -983,6 +1103,30 @@ export default {
                 }
             })
         },
+        getCloneActivity(){
+            this.getRequest("/activities/basic/getALl").then(resp=>{
+                console.log(resp);
+                if(resp.status === 200){
+                     this.coloneActivity = resp.obj;
+                }
+            })
+        },
+        selectClone(event){
+          for(var i=0;i<this.coloneActivity.length;i++){
+            if (this.coloneActivity[i].id===event) {
+              this.currentClone = this.coloneActivity[i];
+              break;
+            }
+          }
+          console.log(this.currentClone);
+          this.currentCloneid=event;
+          this.emp.comment=this.currentClone.comment;
+          this.emp.name=this.currentClone.name+"克隆活动";
+          this.emp.startDate=this.currentClone.startDate;
+          this.emp.enterDate=this.currentClone.enterDate;
+          this.emp.visibleDate=this.currentClone.visibleDate;
+          this.emp_colone = JSON.parse(JSON.stringify(this.emp));
+        },
         //活动进行授权给其他的管理员，在后端处理需要添加类字段，所以纯前端处理
         initAdminListofPermission(data){//点击按钮进行初始化本单位下所有管理员的数据列表，并做属性赋值，用于在界面做回显
             this.currentActivity = data
@@ -1070,15 +1214,25 @@ export default {
         },
         assignPE(data) {
             const _this = this;
+            console.log(data.groupID);
             _this.$router.push({
-                path: "/Expert/EassignPE",
-                query: {
-                    activityIDParent: this.$route.query.id,
-                    activityID: data.id,
-                    groupIDParent: this.$route.query.groupID, // 这里有问题
-                    groupID: data.groupID,
-                    mode:this.mode
-                }
+              path: "/participantsM",
+              query: {
+                activityIDParent: this.$route.query.id,
+                activityID: data.id,
+                groupIDParent: this.$route.query.groupID, // 这里有问题
+                groupID: this.groupID,
+                actName:this.$route.query.actName,
+                groupName:this.$route.query.groupName,
+                isGroup:this.$route.query.isGroup,
+                haveSub:this.$route.query.haveSub,
+                id:this.$route.query.id,
+                smallGroup:false, // 从活动管理进入的，因此不是小组
+                mode:this.mode,
+                keywords:this.keywords,
+                keyword_name:this.keywords_name,
+                ACNAME:this.keywords_name,
+              }
             })
         },
         // 转换为map
@@ -1168,6 +1322,7 @@ export default {
                 scoreItemCount: "0",
                 comment: "活动备注example：关于xxx的活动。备注信息将显示在专家评分表的活动标题下方。",
             };
+            this.gradeFormType = 0
         },
         exportEx(data){
             this.loading=true;
@@ -1183,6 +1338,7 @@ export default {
             this.emp = data;
             this.haveSub = data.haveSub === 1;
             this.haveComment = data.haveComment === 1;
+            this.gradeFormType = data.gradeFormType;
             this.dialogVisible = true;
             if(data.visibleDate) this.visibleDateSelected = false//判断是否有时间数据 不然就默认选择不限
             else this.visibleDateSelected = true
@@ -1223,6 +1379,7 @@ export default {
                         this.postRequest("/activities/basic/predelete", data).then((resp) => {
                             if (resp) {
                                 this.dialogVisible = false;
+                             this.$message({type: 'success',message: '删除成功!'});
                                 this.initEmps();
                             }
                         });
@@ -1237,8 +1394,10 @@ export default {
                             type: "warning",
                         }
                     ).then(() => {
+                     data.requireGroup = data.requireGroup ? 1 : 0
                         this.postRequest("/activities/basic/predelete", data).then((resp) => {
-                            if (resp) {
+                            if (resp.status === 200) {
+                             this.$message({type: 'success',message: '删除成功!'});
                                 this.dialogVisible = false;
                                 this.initEmps();
                             }
@@ -1301,6 +1460,7 @@ export default {
             this.emp.haveSub = this.haveSub ? 1 : 0
             this.emp.haveComment = this.haveComment ? 1 : 0
             this.emp.requireGroup = this.requireGroup ? 1 : 0
+            this.emp.gradeFormType = this.gradeFormType
             this.$set(this.emp,"adminID",this.user.id)
             this.emp.startDate = this.dateFormatFunc(this.emp.startDate)
             if (this.emp.id) {
@@ -1323,25 +1483,44 @@ export default {
                     }
                 });
             } else { //添加活动 能看见的小于能进入的小于开始时间
-                this.$refs["empForm"].validate((valid) => {
-                    if (valid) {
+                  if (this.radio===1){
+                    this.$refs["empForm"].validate((valid) => {
+                      if (valid) {
                         this.emp.institutionID = this.user.institutionID;
                         this.$set(this.emp,"adminID",this.user.id)
                         const _this = this;
                         this.postRequest("/activities/basic/insert", _this.emp).then(
                             (resp) => {
-                                if (resp) {
-                                    this.$message({
-                                        type: 'success',
-                                        message: '添加成功!'
-                                    });
-                                    this.dialogVisible = false;
-                                    this.initEmps();
-                                }
+                              if (resp) {
+                                this.$message({
+                                  type: 'success',
+                                  message: '添加成功!'
+                                });
+                                this.dialogVisible = false;
+                                this.initEmps();
+                              }
                             }
                         );
-                    }
-                });
+                      }
+                    });
+                  }
+                  else if (this.radio===2){
+                    this.emp=this.emp_colone;
+                    this.emp.id=this.currentCloneid;
+                    this.$set(this.emp,"adminID",this.user.id)
+                    this.postRequest("/activities/basic/clone", this.emp).then(
+                        (resp) => {
+                          if (resp) {
+                            this.$message({
+                              type: 'success',
+                              message: '克隆成功!'
+                            });
+                            this.dialogVisible = false;
+                            this.initEmps();
+                          }
+                        }
+                    );
+                  }
             }
         },
         sizeChange(currentSize) {
@@ -1353,13 +1532,36 @@ export default {
             this.initEmps("advanced");
         },
         showAddEmpView() {
-            this.emptyEmp();
-            this.title = "添加活动";
-            this.dialogVisible = true;
+            // this.emptyEmp();
+            // this.title = "添加活动";
+            // this.dialogVisible = true;
+         const _this = this;
+         // _this.$router.push({
+         //  path: "/ActivitM/score",
+         //  query: {
+         //   mode:this.mode,
+         //   backID:this.activityID,
+         //  },
+         // });
+         _this.$router.push({
+          path: "/Admin/addAct",
+          query: {
+           mode:this.mode,
+          },
+         });
+            this.getCloneActivity();
+        },
+        showAddEmpView_clone(){
+         this.emptyEmp();
+         this.title = "克隆活动";
+         this.dialogVisible = true;
+         this.getCloneActivity();
+         this.radio=2;
         },
         initEmps() { // 在此适配不同的组件
             this.loading = true;
             this.emp_edit = {};
+            this.emp_colone = {};
             if (this.mode === "admin"){ // 管理员活动管理
                 let url = "/activities/basic/?page=" + this.page + "&size=" + this.size + "&institutionID=" + this.user.institutionID + "&adminID=" + this.user.id;
                 this.getRequest(url).then((resp) => {
@@ -1477,6 +1679,7 @@ export default {
                     groupID:this.groupID,
                     mode:this.mode,
                     backID:this.activityID,
+                    haveSub:data.haveSub,
                 },
             });
         },
@@ -1687,7 +1890,7 @@ export default {
                 this.scoreItemsAll = resp.obj
                 for (var i = 0; i < this.scoreItemsAll.length; i++){
                     this.scoreItemsAll[i].disabled = false
-                    if (this.scoreItemsAll[i].name === "活动得分"){
+                    if (this.scoreItemsAll[i].name === "活动总评分"){
                         this.scoreItemsAll.splice(i,1)
                         i--;
                     }

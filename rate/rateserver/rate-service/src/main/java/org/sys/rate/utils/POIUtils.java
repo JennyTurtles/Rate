@@ -83,7 +83,7 @@ public class POIUtils {
         int count_zf=0;
         for(int i = 0; i<key.length; i++)
         {
-            if(hashPEexport.getSmap().get(key[i]).equals("活动得分"))
+            if(hashPEexport.getSmap().get(key[i]).equals("活动总评分"))
             {
                 r0.createCell(4+hashPEexport.getSmap().size()+hashPEexport.getSNotByEmap().size()).setCellStyle(headerStyle);
                 r0.createCell(4+hashPEexport.getSmap().size()+hashPEexport.getSNotByEmap().size()).setCellValue(hashPEexport.getSmap().get(key[i]));
@@ -97,7 +97,7 @@ public class POIUtils {
         }
         /*HSSFCell c4 = r0.createCell(4+scoreItem.size());
         c4.setCellStyle(headerStyle);
-        c4.setCellValue("活动得分");*/
+        c4.setCellValue("活动总评分");*/
         Integer count=0;
         for (Integer s : hashPEexport.getGmap().keySet()) {//这一层是groupid
             for (Integer ss : hashPEexport.getMap().get(s).keySet()) {//这一层是HashMap<Integer,HashMap<Integer,Participates>>
@@ -106,7 +106,7 @@ public class POIUtils {
                     HSSFRow row = sheet.createRow(1+count);
                     row.createCell(0).setCellValue(hashPEexport.getGmap().get(s));//groupName
                     row.createCell(1).setCellValue(hashPEexport.getEmap().get(ss));//ExpertName
-                    row.createCell(2).setCellValue(p.getDisplaySequence());//display
+                    row.createCell(2).setCellValue(p.getDisplaySequence() == null ? 0:p.getDisplaySequence());//display
                     row.createCell(3).setCellValue(p.getCode());//code
                     row.createCell(4).setCellValue(p.getName());//name
                     HashMap<Integer, ScoreItemValue>  map=p.getScoremap();
@@ -130,7 +130,7 @@ public class POIUtils {
                             ScoreItemValue value = map.get(key_m[it]);
                             if(value!=null&&value.getScore()!=null)
                             {
-                                if(value.getName().equals("活动得分"))
+                                if(value.getName().equals("活动总评分"))
                                 {
                                     row.createCell(4+hashPEexport.getSmap().size()+hashPEexport.getSNotByEmap().size()).setCellValue(value.getScore());
                                     count_zongfen--;
@@ -354,7 +354,7 @@ public class POIUtils {
                     {
                         if(countNameAndContent.get("信息项:"+InfoItem.get(n-ScoreItem.size()).getName())!=null)
                         map_info.put(InfoItem.get(n-ScoreItem.size()).getID(),countNameAndContent.get("信息项:"+InfoItem.get(n-ScoreItem.size()).getName()));
-                        //key是scoreitem的id，value是插入的分数
+                        //key是infoitem的id，value是插入的分数
                     }
                     p.setScoreItemMap(map_score);
                     p.setInfoItemMap(map_info);
@@ -371,7 +371,7 @@ public class POIUtils {
         return bean;
     }
 
-    // 表格由两部分组成：固定信息+附加信息。固定信息是序号、编号、组名、姓名、专家评分、活动得分。附加信息为总分项。
+    // 表格由两部分组成：固定信息+附加信息。固定信息是序号、编号、组名、姓名、专家评分、活动总评分。附加信息为总分项。
     public static ResponseEntity<byte[]> ExcelExport(HashFianlScore hashFianlScore) {
         // 0.基础配置
         HSSFWorkbook workbook = new HSSFWorkbook(); // 创建一个 Excel 文档
@@ -399,7 +399,7 @@ public class POIUtils {
         List<Integer> itemKey = new ArrayList<>(hashFianlScore.getTmap().keySet()); // 附加信息的key
 
         // 2.设置列宽
-        List<String> columnsBase = Arrays.asList("序号", "编号", "组名", "姓名", "专家评分", "活动得分");
+        List<String> columnsBase = Arrays.asList("序号", "编号", "组名", "姓名", "专家评分", "活动总评分");
         List<String> columnsAdd = new ArrayList<>(hashFianlScore.getTmap().values());
         for (int i = 0; i < columnsBase.size()+columnsAdd.size(); i++)
             sheet.setColumnWidth(i, 10 * 256);
@@ -880,28 +880,34 @@ public class POIUtils {
         c0.setCellValue("姓名");
         HSSFCell c1 = r0.createCell(1);
         c1.setCellValue("学号");
+//        HSSFCell c2 = r0.createCell(2);
+//        c2.setCellValue("身份证号码");
+//        HSSFCell c3 = r0.createCell(3);
+//        c3.setCellValue("手机号");
+//        HSSFCell c4 = r0.createCell(4);
+//        c4.setCellValue("邮箱");
+//        HSSFCell c5 = r0.createCell(5);
+//        c5.setCellValue("导师工号");
+//        HSSFCell c6 = r0.createCell(6);
+//        c6.setCellValue("导师姓名");
         HSSFCell c2 = r0.createCell(2);
-        c2.setCellValue("身份证号码");
+        c2.setCellValue("入学年份");
         HSSFCell c3 = r0.createCell(3);
-        c3.setCellValue("手机号");
+        c3.setCellValue("专业");
         HSSFCell c4 = r0.createCell(4);
-        c4.setCellValue("邮箱");
-        HSSFCell c5 = r0.createCell(5);
-        c5.setCellValue("导师工号");
-        HSSFCell c6 = r0.createCell(6);
-        c6.setCellValue("导师姓名");
-        HSSFCell c7 = r0.createCell(7);
-        c7.setCellValue("入学年份");
+        c4.setCellValue("班级");
         HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("张三");
         row.createCell(1).setCellValue("1111");
-        row.createCell(2).setCellValue("123456789123456789");
-        row.createCell(3).setCellValue("13812341234");
-        row.createCell(4).setCellValue("123@dhu.edu.cn");
-        row.createCell(5).setCellValue("1111");
-        row.createCell(6).setCellValue("李华");
-        row.createCell(7).setCellValue("2018");
-        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。导师工号和导师姓名如果不填写，则默认没有导师，如果两者都填写，按照导师工号查询。两者可填可不填");
+//        row.createCell(2).setCellValue("123456789123456789");
+//        row.createCell(3).setCellValue("13812341234");
+//        row.createCell(4).setCellValue("123@dhu.edu.cn");
+//        row.createCell(5).setCellValue("1111");
+//        row.createCell(6).setCellValue("李华");
+        row.createCell(2).setCellValue("2018");
+        row.createCell(3).setCellValue("软件工程");
+        row.createCell(4).setCellValue("软件工程1801");
+        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。入学年份、专业、班级非必填。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -949,12 +955,14 @@ public class POIUtils {
                     tea = new Teachers();
                     String stuNumber=null;//学号
                     String name=null;//姓名
-                    String phone=null;//手机号
-                    String idCard=null;//身份证号
-                    String email=null;//邮箱
-                    String teaJobNumber=null;
-                    String teaName=null;
+                    //String phone=null;//手机号
+                    //String idCard=null;//身份证号
+                    //String email=null;//邮箱
+                    //String teaJobNumber=null;
+                    //String teaName=null;
                     String year=null;
+                    String specialty=null;
+                    String className=null;
                     for (int k = 0; k < Cells; k++) {
                         HSSFCell cell = row.getCell(k);
                         if (cell!=null) {
@@ -967,50 +975,59 @@ public class POIUtils {
                                 case "学号":
                                     stuNumber=cellValue;
                                     break;
-                                case "手机号":
-                                    phone=cellValue;
-                                    break;
-                                case "身份证号码":
-                                    idCard=cellValue;
-                                    break;
-                                case "邮箱":
-                                    email=cellValue;
-                                    break;
-                                case "导师工号":
-                                    teaJobNumber=cellValue;
-                                    break;
-                                case "导师姓名":
-                                    teaName=cellValue;
-                                    break;
+//                                case "手机号":
+//                                    phone=cellValue;
+//                                    break;
+//                                case "身份证号码":
+//                                    idCard=cellValue;
+//                                    break;
+//                                case "邮箱":
+//                                    email=cellValue;
+//                                    break;
+//                                case "导师工号":
+//                                    teaJobNumber=cellValue;
+//                                    break;
+//                                case "导师姓名":
+//                                    teaName=cellValue;
+//                                    break;
                                 case "入学年份":
                                     year=cellValue;
+                                    break;
+                                case "专业":
+                                    specialty=cellValue;
+                                    break;
+                                case "班级":
+                                    className=cellValue;
                                     break;
                                 default:
                                     break;
                             }
                         }
                     }
-                    if(phone==null|| stuNumber==null|| email==null || name==null || idCard==null || year == null){
+                    if(stuNumber==null|| name==null || year == null || specialty == null || className == null){
                         continue;
                     }
-                    //工号和姓名都有按照工号来，都没有tutorid为空，只有姓名就按照姓名查找
-                    if(teaJobNumber == null || teaJobNumber.equals("")){
-                        teaJobNumber = null;
-                    }
-                    if(teaName == null || teaName.equals("")){
-                        teaName = null;
-                    }
+//                    //工号和姓名都有按照工号来，都没有tutorid为空，只有姓名就按照姓名查找
+//                    if(teaJobNumber == null || teaJobNumber.equals("")){
+//                        teaJobNumber = null;
+//                    }
+//                    if(teaName == null || teaName.equals("")){
+//                        teaName = null;
+//                    }
                     student.setName(name);
-                    student.setTelephone(phone);
-                    student.setIDNumber(idCard);
-                    student.setEmail(email);
-                    tea.setJobnumber(teaJobNumber);
-                    tea.setName(teaName);
+                    student.setStudentnumber(stuNumber);
+                    //student.setTelephone(phone);
+                    //student.setIDNumber(idCard);
+                    //student.setEmail(email);
+                    //tea.setJobnumber(teaJobNumber);
+                    //tea.setName(teaName);
                     underGraduate.setTeachers(tea);
                     underGraduate.setStuNumber(stuNumber);
                     underGraduate.setYear(Integer.parseInt(year));
                     underGraduate.setInstitutionID(institutionID);
-                    underGraduate.setIDNumber(idCard);
+                    underGraduate.setClassName(className);
+                    underGraduate.setSpecialty(specialty);
+                    //underGraduate.setIDNumber(idCard);
                     studentList.add(student);
                     underList.add(underGraduate);
                 }
@@ -1667,7 +1684,7 @@ public class POIUtils {
             ScoreItem sitem = scoreItems.get(i);
             HSSFCell col = r1.createCell(i+3+infoItemsShow.size());
             col.setCellStyle(headerStyle);
-            if(sitem.getName().equals("活动得分")){
+            if(sitem.getName().equals("活动总评分")){
                 col.setCellValue("总评分");
             }else {
                 col.setCellValue(sitem.getName());
@@ -1759,7 +1776,7 @@ public class POIUtils {
                     for (int k = 0; k <Cells; k ++) {
                         HSSFCell cell = row.getCell(k);
                         if(tableNameMap.get(k).equals("总评分")){
-                            //活动得分为空并且别的评分项也有空值,不存数据库
+                            //活动总评分为空并且别的评分项也有空值,不存数据库
                             if(cell == null && scoreFlage){
                                 nullRow.add(row.getCell(0).getStringCellValue());
                                 fullScoreFlage = true;

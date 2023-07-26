@@ -10,7 +10,7 @@
     <result column="iconCls" property="iconCls" jdbcType="VARCHAR" />
     <result column="parentId" property="parentId" jdbcType="INTEGER" />
     <result column="enabled" property="enabled" jdbcType="BIT" />
-    <association property="meta" javaType="org.sys.rate.model.Meta">
+    <association  javaType="org.sys.rate.model.Meta" property="meta">
       <result column="keepAlive" property="keepAlive" jdbcType="BIT" />
       <result column="requireAuth" property="requireAuth" jdbcType="BIT" />
     </association>

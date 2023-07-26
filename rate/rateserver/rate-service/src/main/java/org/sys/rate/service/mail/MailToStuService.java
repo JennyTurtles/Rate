@@ -1,9 +1,10 @@
 package org.sys.rate.service.mail;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.sys.rate.model.Productions;
+import org.sys.rate.model.Production;
 import org.sys.rate.model.Student;
 import org.sys.rate.model.Teacher;
 import org.sys.rate.service.admin.StudentService;
@@ -11,6 +12,7 @@ import org.sys.rate.service.admin.TeacherService;
 
 import javax.annotation.Resource;
 
+@Slf4j
 @Service
 public class MailToStuService {
     @Resource
@@ -22,17 +24,14 @@ public class MailToStuService {
     @Resource
     TeacherService teacherService;
 
-    private static final Logger logger = LoggerFactory.getLogger(MailToStuService.class);
-
-
     private String from = null;
 
-    public <T extends Productions> void sendStuMail(String state, T production, String type) {
+    public <T extends Production> void sendStuMail(String state, T production, String type) {
         if (state.equals("commit")) {
             return;
         }
 
-        Student student = studentService.getById(Math.toIntExact(production.getStudentID()));
+        Student student = studentService.getById(Math.toIntExact(production.getStudentId()));
         Teacher teacher = teacherService.getById(student.getTutorID());
 
         String subject = "", content = "";

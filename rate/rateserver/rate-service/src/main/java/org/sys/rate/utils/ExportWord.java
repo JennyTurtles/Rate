@@ -29,9 +29,7 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class ExportWord {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);
-//    private static final String TEMPLATE_PATH = "rate/rateserver/rate-service/src/main/java/org/sys/rate/utils/GradingTable.docx";
-    private static final String TEMPLATE_PATH = "upload/templete/GradingTable.docx";
-//    private static final String DEST = "upload/exportFiles/";
+    private static final String TEMPLATE_PATH = "rate/rateserver/rate-web/src/main/resources/templete/GradingTable.docx";
     private static final SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
     private static final SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
     private static final SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
@@ -51,20 +49,8 @@ public class ExportWord {
     }
 
     private boolean checkIfNecessaryFilesAndDirectoriesExist() {
-//        // 检查目录是否存在
-//        File directory = new File(DEST);
-//        if (!directory.exists()) {
-//            boolean result = directory.mkdirs();
-//            if (result) {
-//                logger.info("目录 " + DEST + " 创建成功！");
-//            } else {
-//                logger.error("目录 " + DEST + " 创建失败！");
-//                return false;
-//            }
-//        }
-        // 检查TEMPLATE_PATH是否存在
-        File file10 = new File(TEMPLATE_PATH);
-        if (!file10.exists()) {
+        File file = new File(TEMPLATE_PATH);
+        if (!file.exists()) {
             logger.error("模版文件 " + TEMPLATE_PATH + " 不存在！！！");
             return false;
         }
@@ -106,11 +92,11 @@ public class ExportWord {
 //        } else {
 //            generalModel.put("ThesisName", gradeForm.getThesisName().isEmpty()?"":formatTitlePageContent(gradeForm.getThesisName()));
 //        }
-        generalModel.put("ThesisName", gradeForm.getThesisName() == null ? formatTitlePageContent(" "):formatTitlePageContent(gradeForm.getThesisName()));
-        generalModel.put("Major", gradeForm.getSpecialty() == null ? formatTitlePageContent(" "):formatTitlePageContent(gradeForm.getSpecialty()));
-        generalModel.put("Class",gradeForm.getClassName() == null? formatTitlePageContent(" "):formatTitlePageContent(gradeForm.getClassName()));
-        generalModel.put("StuName", gradeForm.getName() == null? formatTitlePageContent(" "):formatTitlePageContent(gradeForm.getName()));
-        generalModel.put("StuID", gradeForm.getStuNumber() == null? formatTitlePageContent(" "):formatTitlePageContent(gradeForm.getStuNumber()));
+        generalModel.put("ThesisName", gradeForm.getThesisName() == null ? formatTitlePageContent(" ") : formatTitlePageContent(gradeForm.getThesisName()));
+        generalModel.put("Major", gradeForm.getSpecialty() == null ? formatTitlePageContent(" ") : formatTitlePageContent(gradeForm.getSpecialty()));
+        generalModel.put("Class", gradeForm.getClassName() == null ? formatTitlePageContent(" ") : formatTitlePageContent(gradeForm.getClassName()));
+        generalModel.put("StuName", gradeForm.getName() == null ? formatTitlePageContent(" ") : formatTitlePageContent(gradeForm.getName()));
+        generalModel.put("StuID", gradeForm.getStuNumber() == null ? formatTitlePageContent(" ") : formatTitlePageContent(gradeForm.getStuNumber()));
         return generalModel;
     }
 
@@ -233,10 +219,7 @@ public class ExportWord {
         if (instructors != null) {
             for (int i = 0; i < instructors.size(); i++) {
                 tmpCoef = instructors.get(i).getCoef();
-                if (instructors.get(i).getScore() == null)
-                    tmpScore = 0.0;
-                else
-                    tmpScore = instructors.get(i).getScore();
+                tmpScore = instructors.get(i).getScore() != null ? instructors.get(i).getScore() : 0.0;
                 suffixShort = typeInstructor + String.valueOf(i);
                 // 获得coef
                 scoreModel.put("coef" + suffixShort, tmpCoef);
@@ -257,10 +240,7 @@ public class ExportWord {
         if (reviewers != null) {
             for (int i = 0; i < reviewers.size(); i++) {
                 tmpCoef = reviewers.get(i).getCoef();
-                if (reviewers.get(i).getScore() == null)
-                    tmpScore = 0.0;
-                else
-                    tmpScore = reviewers.get(i).getScore();
+                tmpScore = reviewers.get(i).getScore() != null ? reviewers.get(i).getScore() : 0.0;
                 suffixShort = typeReviewers + String.valueOf(i);
                 // 获得coef
                 scoreModel.put("coef" + suffixShort, tmpCoef);
@@ -281,10 +261,7 @@ public class ExportWord {
         if (leaders != null) {
             for (int i = 0; i < leaders.size(); i++) {
                 tmpCoef = leaders.get(i).getCoef();
-                if (leaders.get(i).getScore() == null)
-                    tmpScore = 0.0;
-                else
-                    tmpScore = leaders.get(i).getScore();
+                tmpScore = leaders.get(i).getScore() != null ? leaders.get(i).getScore() : 0.0;
                 suffixShort = typeLeader + String.valueOf(i);
                 // 获得coef
                 scoreModel.put("coef" + suffixShort, tmpCoef);

@@ -117,6 +117,12 @@ export default new Router({
           meta: { title: '查看各个单位管理员列表' },
         },
         {
+          path: '/Admin/addAct',
+          name: '添加活动',
+          component: () => import('./views/admin/AddAct'),
+          meta: { title: '添加活动' },
+        },
+        {
           path: '/ActivitM/total',
           name: 'SalTotal',
           component: () => import('./views/admin/SalTotal'),
@@ -245,6 +251,14 @@ export default new Router({
           meta: {
             title: '论文',
           },
+        }, {
+          path: '/student/Standard',
+          name: '制定标准',
+          hidden: true,
+          component: () => import('./views/student/Standard'),
+          meta: {
+            title: '制定标准',
+          },
         },
         {
           path: '/student/infos',
@@ -262,6 +276,24 @@ export default new Router({
           component: () => import('./views/student/PaperComment'),
           meta: {
             title: '毕业论文评审',
+          },
+        },
+        {
+          path: '/student/addPublication',
+          name: '添加期刊',
+          hidden: true,
+          component: () => import('./views/student/AddPublication'),
+          meta: {
+            title: '添加期刊',
+          },
+        },
+        {
+          path: '/student/CheckProgress',
+          name: '查询审核进度',
+          hidden: true,
+          component: () => import('./views/student/CheckProgress'),
+          meta: {
+            title: '查询审核进度',
           },
         },
         {
@@ -292,7 +324,7 @@ export default new Router({
           },
         },
         {
-          path: '/teacher/tProduct',
+          path: '/teacher/tResearchProject',
           name: '科研项目2',
           hidden: true,
           component: () => import('./views/teacher/Research-Project'),
@@ -300,7 +332,15 @@ export default new Router({
             title: '科研项目2',
           },
         },
-
+        {
+          path: '/teacher/tProduct',
+          name: '科研产品',
+          hidden: true,
+          component: () => import('./views/teacher/Project'),
+          meta: {
+            title: '科研产品',
+          },
+        },
         {
           path: '/teacher/tperact/actList',
           name: '教师活动列表',
@@ -316,6 +356,13 @@ export default new Router({
           hidden: true,
           component: () => import('./components/ActManage.vue'),
           meta: { title: 'ActManage' },
+        },
+        {
+          path: 'AddActStep',
+          name: 'AddActStep',
+          hidden: true,
+          component: () => import('./components/AddActStep.vue'),
+          meta: { title: 'AddActStep' },
         },
         {
           path: '/secretary/ActManage',
@@ -369,6 +416,15 @@ export default new Router({
           component: () => import('./views/admin/Paper'),
           meta: {
             title: '论文',
+          },
+        },
+        {
+          path: '/admin/Check',
+          name: '审核期刊',
+          hidden: true,
+          component: () => import('./views/admin/Check'),
+          meta: {
+            title: '审核期刊',
           },
         },
         {

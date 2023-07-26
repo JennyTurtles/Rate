@@ -1,9 +1,6 @@
 package org.sys.rate.mapper;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.Activities;
 import org.sys.rate.model.ScoreDetail;
 
@@ -18,8 +15,9 @@ public interface ActivitiesMapper {
     int getInstitution_Current_Total(Activities record);
     int insert(Activities record);
     int insertScoreItem(Activities record);
+    int insertDisplayItem(Activities record);
     void insert_update(Activities record);
-
+    void delete_update(Activities record);
     int predelete(Integer id);
 
     int delete(Integer id);
@@ -38,7 +36,7 @@ public interface ActivitiesMapper {
 
     List<Activities> getActivitiesByPage(@Param("page") Integer page, @Param("size") Integer size, Integer institutionID,Integer ID);
 
-    @Select("SELECT * FROM activities WHERE parentID = #{activityID}")
+    @Select("SELECT * FROM activities WHERE parentID = #{activityID} AND deleteFlag = 0")
     List<Activities> getSubActivities(Integer activityID);
 
     @Select("SELECT ID FROM activities WHERE parentID = #{activityID}")
@@ -106,4 +104,41 @@ public interface ActivitiesMapper {
 
     @Select("SELECT * FROM activities WHERE ID = #{activityID}")
     Activities getByID(Integer id);
+
+    @Select("SELECT scoreSetByself FROM activities WHERE ID = #{activityID}")
+    Integer getScoreSet(Integer activityID);
+
+    @Update("UPDATE activities SET scoreSetByself = #{setByself} WHERE ID = #{activityID}")
+    int changeMethod(Integer activityID,Integer setByself);
+
+    @Select("SELECT * FROM activities WHERE deleteFlag = 0")
+    List<Activities> getAll();
+
+    @Insert("INSERT INTO scoreitem (activityID, name, score, coef,`comment`,byExpert)\n" +
+            "SELECT #{newActID},name, score, coef,`comment`,byExpert\n" +
+            "FROM scoreitem\n" +
+            "WHERE activityID = #{oldActID};")
+    void cloneScoreItem(Integer newActID, Integer oldActID);
+
+    @Insert("INSERT INTO infoitem (activityID, name, contentType, sizelimit,byParticipant,display)\n" +
+            "SELECT #{newActID},name, contentType, sizelimit,byParticipant,display\n" +
+            "FROM infoitem\n" +
+            "WHERE activityID = #{oldActID};")
+    void cloneInfoItem(Integer newActID, Integer oldActID);
+
+    void cloneDisplayItem(Integer newActID, Integer oldActID);
+
+    @Insert("INSERT INTO `groups` (activityID, name, expertCount, participantCount,parentID)\n" +
+            "SELECT #{newActID},name, 0, 0,parentID\n" +
+            "FROM `groups`\n" +
+            "WHERE activityID = #{oldActID};")
+    void cloneGroup(Integer newActID, Integer oldActID);
+
+    @Select("SELECT ID FROM `groups` WHERE activityID = #{activityID} LIMIT 1")
+    Integer checkHaveGroup(Integer activityID);
+
+
+    @Select("SELECT ID,name FROM activities\n" +
+            "WHERE name LIKE CONCAT('%', #{name}, '%') AND deleteFlag = 0")
+    List<Activities> searchByName(String name);
 }

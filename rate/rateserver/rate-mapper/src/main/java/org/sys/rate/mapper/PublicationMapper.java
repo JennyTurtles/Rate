@@ -1,10 +1,10 @@
 package org.sys.rate.mapper;
 
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
+import org.sys.rate.model.Indicator;
 import org.sys.rate.model.Publication;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -14,31 +14,25 @@ import java.util.List;
  * @date 2022-03-13
  */
 @Mapper
-public interface PublicationMapper
-{
+public interface PublicationMapper {
     /**
      * 查询刊物
      *
-     * @param ID 刊物ID
+     * @param id 刊物id
      * @return 刊物
      */
-    public Publication selectPublicationById(Long ID);
-
-    /**
-     * 查询刊物列表
-     *
-     * @param publication 刊物
-     * @return 刊物集合
-     */
-    public List<Publication> selectPublicationList(Publication publication);
+    @Select("select id, name, abbr, publisher, url from i_publication where id= #{id}")
+    Publication selectPublicationById(Integer id);
 
     /**
      * 新增刊物
      *
      * @param publication 刊物
-     * @return 结果
+     * @return 返回新增刊物的主键，然后加入到中间表
      */
-    public int insertPublication(Publication publication);
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    @Insert("insert into i_publication(name, abbr, publisher, url) values(#{name}, #{abbr}, #{publisher}, #{url})")
+    int insertPublication(Publication publication);
 
     /**
      * 修改刊物
@@ -46,93 +40,59 @@ public interface PublicationMapper
      * @param publication 刊物
      * @return 结果
      */
-    public int updatePublication(Publication publication);
+    Integer updatePublication(Publication publication);
+
+
+    @Delete("delete from indicator_publication where publication_id =#{id} and year=#{year}")
+    Integer deletePublicationByIds(Integer id, Integer year);
 
     /**
-     * 删除刊物
+     * 根据name和year模糊查询，返回相关的刊物全称
      *
-     * @param ID 刊物ID
-     * @return 结果
+     * @param name:
+     * @Return List<String>
      */
-    public int deletePublicationById(Long ID);
+//    @Select("SELECT DISTINCT NAME FROM i_publication p LEFT JOIN indicator_publication ip on p.id = ip.publication_id WHERE NAME LIKE CONCAT('%',#{name},'%') and ip.year=#{year}")
+//    List<String> getPublicationNamesByNameYear(String name, Integer year);
+
+    @Select("SELECT DISTINCT `name` FROM i_publication p, indicator_publication ip \n" +
+            "WHERE p.id = ip.publication_id AND NAME LIKE CONCAT('%',#{name},'%')")
+    List<String> getPublicationNamesByNameYear(String name);
 
     /**
-     * 批量删除刊物
+     * 根据name模糊查询，返回相关的刊物全称
      *
-     * @param IDs 需要删除的数据ID
-     * @return 结果
+     * @param name:
+     * @Return List<String>
      */
-    public int deletePublicationByIds(String[] IDs);
-
-    public List<Publication> selectList();
-    public List<Publication> selectListByPubName(String publicationName);
-
-    @Select("select `score` from indicator where ID = #{id}")
-    public Long selectScoreById(Long id);
-
-    @Select("SELECT * FROM publication WHERE name = #{name} AND year <= #{year} ORDER BY ABS(#{year}-year) LIMIT 1")
-    public Publication selectPublicationByNameYear(String name, Integer year);
-
-//    @Select("SELECT publication.ID,publication.name,indicator.score FROM publication JOIN indicator ON indicator.ID = publication.indicatorID WHERE year = #{year}")
-//    public List<Publication> selectPublicationByYear(Integer year);
-
-    @Select("SELECT publication.ID,publication.name,indicator.score \n" +
-            "FROM publication \n" +
-            "JOIN indicator ON indicator.ID = publication.indicatorID \n" +
-            "WHERE publication.ID in \n" +
-            "(SELECT t1.ID\n" +
-            "FROM publication t1\n" +
-            "WHERE year = (SELECT MAX(year) FROM publication t2 WHERE t1.indicatorID = t2.indicatorID AND `year`<=#{year}))")
-    public List<Publication> selectPublicationByYear(Integer year);
-
-    @Select("SELECT DISTINCT name FROM publication WHERE `name` LIKE CONCAT('%', #{name}, '%') LIMIT 10")
-    public List<String> getNamesByStr(String name);
-
-    @Select("SELECT * FROM publication t1\n" +
-            "WHERE year = (SELECT MAX(year) FROM publication t2 WHERE t1.indicatorID = t2.indicatorID AND `year`<=#{year}) AND name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
-    public List<Publication> getNamesByNameYear(String name, Integer year);
-
-    @Select("SELECT ID FROM paper WHERE studentID = #{stuID} AND point = 2 AND (state = 'commit' OR state = 'tea_pass' OR state = 'adm_pass')")
-    public Integer checkScore(Integer stuID);
-
-    @Select("SELECT score FROM indicator WHERE id = #{id}")
-    public Integer getScore(Integer id);
-
-//    @Select("SELECT publication.ID,publication.name,publication.indicatorID,indicator.score \n" +
-//            "FROM publication,indicator\n" +
-//            "WHERE `year` = #{year} AND publication.`name` = #{name} AND publication.indicatorID = indicator.ID ")
-//    public Publication getNamesByYearName(Integer year,String name);
-
-//    @Select("SELECT publication.ID,publication.name,publication.indicatorID,indicator.score FROM publication,indicator\n" +
-//            "WHERE `year` = (SELECT MAX(year) FROM publication WHERE name = #{name} AND year <= #{year})\n" +
-//            "AND publication.`name` = #{name}  AND publication.indicatorID = indicator.ID")
-//    public Publication getNamesByYearName(Integer year,String name);
-
-    // 获取最近年份和indicatorId
-    @Select("SELECT publication.ID,publication.name,publication.indicatorID,indicator.score,publication.year FROM publication,indicator\n" +
-            "WHERE `year` = (SELECT MAX(year) FROM publication WHERE publication.name = #{name} AND year <= #{year})\n" +
-            "AND publication.name = #{name} AND publication.indicatorID = indicator.ID")
-    public Publication getPubByYearName(Integer year,String name);
+    @Select("select distinct name from i_publication where name LIKE CONCAT('%', #{name}, '%')")
+    List<String> getPublicationNamesByName(String name);
 
 
+//    @Select("SELECT p.name,i.name indicatorName,i.order,i.score,ip.year,i.type FROM i_publication p, indicator_publication ip,indicator i\n" +
+//            "WHERE p.id = ip.publication_id AND i.id = ip.indicator_id AND p.`name` = #{name} AND year <= #{year}\n" +
+//            "ORDER BY i.score DESC, i.`order`")
+//    List<Publication> getPublicationByNameYear(String name, String year);
+
+    Publication getPublicationByNameYear(String name,Integer year);
 
 
-    @Select("SELECT MAX(`year`) FROM publication WHERE indicatorID = #{Id} AND `year` <= #{year}")
-    public Integer getMaxYearByIdYear(Integer Id,Integer year);
+    /**
+     * 获取期刊的详细信息，btw是每年没有删除的？
+     *
+     * @param name:
+     * @Return List<Publication>
+     */
+    @Select("select p.id, p.name, p.abbr, p.publisher, p.url, ip.year, i.id indicatorId, i.name, i.type, i.score from indicator_publication ip " +
+            "left join i_publication p on p.id = ip.publication_id left join indicator i on ip.indicator_id = i.id " +
+            "where p.name = #{name} order by ip.year")
+    List<Publication> getPublicationInfByName(String name);
 
+    /**
+     * 插入期刊时，也需要插入中间表中
+     */
+    @Insert("insert into indicator_publication(indicator_id, publication_id, year) values(#{indicatorId},#{publicationId},#{date})")
+    Integer insertIndicatorPublication(Integer indicatorId, Integer publicationId, Integer date);
 
-    public int deleteByYearIndicatorNames(@Param("year") int year, @Param("IndicatorNames") List<String> IndicatorNames);
-
-    @Select("SELECT DISTINCT `name` FROM publication WHERE indicatorID = #{indicatorID} AND name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
-    public List<String> getNamesByIdName(Integer indicatorID,String name);
-
-    @Select("SELECT DISTINCT `name` FROM publication WHERE name LIKE CONCAT('%', #{name}, '%') LIMIT 10")
-    public List<String> getNamesByName(String name);
-
-    @Select("SELECT * FROM publication WHERE name = #{name}")
-    public List<Publication> getPubsByName(String name);
-
-    @Select("SELECT p.ID,p.`name`,p.abbr,p.publisher,p.url,p.`level`,p.indicatorID,p.year,i.score,i.`name` as indicatorName,i.type from publication p, indicator i \n" +
-            "WHERE p.`name` = #{name} AND i.ID = p.indicatorID ORDER BY year DESC")
-    public List<Publication> getInfByName(String name);
+    List<Publication> selectPublicationListByYear(Integer indicatorID, Integer year);
 }

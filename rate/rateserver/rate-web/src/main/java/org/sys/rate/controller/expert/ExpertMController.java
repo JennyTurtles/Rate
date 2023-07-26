@@ -20,10 +20,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @RestController("ratesystemExperts")
 @RequestMapping("/systemM/Experts")
@@ -278,9 +275,7 @@ public class ExpertMController {
 
     @Transactional
     @PostMapping("/addExperts")
-    public RespBean addPars(@RequestBody List<Experts> list) throws ParseException {
-        Integer activityID = list.get(0).getActivityID();
-        Integer groupID = list.get(0).getGroupID();
+    public RespBean addExperts(@RequestParam Integer groupID,@RequestParam Integer activityID,@RequestBody List<Experts> list) throws ParseException {
         RespPageBean bean=new RespPageBean();
         bean.setData(list);
         bean.setTotal((long) list.size());
@@ -302,18 +297,56 @@ public class ExpertMController {
                                   MultipartFile file) throws IOException, ParseException {
         RespPageBean bean =  POIUtils.readExcel_expert(file);
         RespBean respBean = importExperts(groupid,activityid,insititutionID,bean); // 为了复用才返回respBean
-        if (respBean.getStatus() != 200){ // 检查当前专家是否在主活动中存在
+/*        if (respBean.getStatus() != 200){ // 检查当前专家是否在主活动中存在
             RespBean.error(respBean.getMsg());
-        }
-        List<Experts> list= (List<Experts>) bean.getData();
-        for (Experts experts : list) { // 填上主活动的id和大组id
-            experts.setActivityID(actIDParent);
-            experts.setGroupID(groupIDParent);
-            experts.setId(expertsMapper.getID(experts.getIdnumber())); // 懒得考虑性能了
-            experts.setFinished(false);
-            experts.setRole("专家");
-        }
-        expertsMapper.addParent(list); // 如果存在父活动则不新增，不存在则新增
+        }*/
+//        List<Experts> list= (List<Experts>) bean.getData();
+//        for (Experts experts : list) { // 填上主活动的id和大组id
+//            experts.setActivityID(actIDParent);
+//            experts.setGroupID(groupIDParent);
+//            experts.setId(expertsMapper.getID(experts.getIdnumber())); // 懒得考虑性能了
+//            experts.setFinished(false);
+//            experts.setRole("专家");
+//        }
+//        expertsMapper.addParent(list); // 如果存在父活动则不新增，不存在则新增
         return RespBean.ok(respBean.getMsg());
+    }
+
+    // 还能再狮山一点吗？选手类telephone，专家类phone；选手类IDNumber，专家类idnumber；选手类institutionid；专家类institutionID和institutionid都有！我真的会谢。
+    @Transactional
+    @PostMapping("/manualAdd")
+    public RespBean manualAdd(Experts experts) throws ParseException {
+        Integer res = 0;
+        if (!experts.isUpdateUserName())
+            res = expertsMapper.manualAdd(experts);
+        else
+            res = expertsMapper.manualAddWithUserName(experts);
+        if(res > 0){
+            return addExperts(experts.getGroupID(),experts.getActivityID(),Arrays.asList(experts));
+        }else {
+            return RespBean.error("已存在该用户名！");
+        }
+    }
+
+    @PostMapping("/setLeader")
+    public RespBean setLeader(@RequestParam Integer groupID,@RequestParam Integer teacherID){
+        Integer res = expertsMapper.setLeader(groupID,teacherID);
+        if(res > 0){
+            return RespBean.ok("设置组长成功");
+        }else {
+            return RespBean.error("设置组长失败");
+        }
+    }
+
+    @PostMapping("/checkAndSetLeader")
+    public RespBean checkAndSetLeader(@RequestParam Integer groupID){
+        if (expertsMapper.checkLeader(groupID) == null){
+            Experts experts = expertsMapper.getCandidateLeader(groupID);
+            expertsMapper.setLeader(groupID,experts.getID());
+            return RespBean.ok(experts.getName());
+        }
+        else {
+            return RespBean.error("exist leader");
+        }
     }
 }

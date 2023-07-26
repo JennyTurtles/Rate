@@ -38,8 +38,7 @@ public class ParticipatesService {
     GroupsMapper groupsMapper;
     @Autowired
     RabbitTemplate rabbitTemplate;
-    @Autowired
-    MailSendLogService mailSendLogService;
+
     public final static Logger logger = LoggerFactory.getLogger(ParticipatesService.class);
     SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
     SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
@@ -189,11 +188,12 @@ public class ParticipatesService {
         }
         last++;
         for (Participates participants : list) {
+            participants.setStudentID(participants.getID());
             Boolean flag=false;
             Student student=new Student();
             student.setName(participants.getName());
             student.setTelephone(participants.getTelephone());
-            student.setIDNumber(participants.getIDNumber());
+            student.setID(participants.getID());
             student.setEmail(participants.getEmail());
             student.setInstitutionid(insititutionID);
 //            student.setRole("7");
@@ -206,7 +206,7 @@ public class ParticipatesService {
 //            }else {
 //                student.setInstitutionid(null);
 //            }
-            if (studentMapper.check(participants.getIDNumber())!=0) {
+            if (studentMapper.checkID(participants.getStudentID())!=0) { // 以前根据身份号检查student表的记录，现在根据studentID
                 if(participants.getUsername()!=null)
                 {//不为空
                     student.setUsername(participants.getUsername());
@@ -268,28 +268,26 @@ public class ParticipatesService {
                 //System.out.println(student);
                 //在participants中加入专家
                 //先获得顺序的总数，order取top，然后循环的时候插入++插入。
-                participants.setStudentID(participatesMapper.getID(participants.getIDNumber()));
-                Integer studentID =participatesMapper.getID(participants.getIDNumber());
                 Integer groupid_temp=0;
                 if(groupid!=0)
                 {//组内选手管理
                     participants.setGroupID(groupid);
-                    /*if(participants.getDisplaySequence()==null)
-                        participants.setDisplaySequence(last);*/
+                    if(participants.getDisplaySequence()==null || participants.getDisplaySequence()==-1)
+                        participants.setDisplaySequence(last);
                 }
-                else if(participants.getGroupID()!=null)//全活动
+                else if(participants.getGroupID()!=null && participants.getGroupID()!=-1)//全活动
                 {//从活动中导入,且不是groupid=null
                     groupid_temp=participants.getGroupID();
-                    /*Integer last_uniq=participatesMapper.getlastDisplaySequence(groupid_temp);
+                    Integer last_uniq=participatesMapper.getlastDisplaySequence(groupid_temp);
                     System.out.println("name->last_uniq"+last_uniq);
                     if(last_uniq==null)
                     {
                         last_uniq=0;
-                    }*/
-                    //participants.setDisplaySequence(last_uniq+1);
+                    }
+                    participants.setDisplaySequence(last_uniq+1);
                 }
                 participants.setActivityID(activityid);
-                Integer pend = participatesMapper.checkByIDandActivityID(studentID, activityid);//返回的是groupid，null有可能是groupid=null也有可能是不存在
+                Integer pend = participatesMapper.checkByIDandActivityID(participants.getStudentID(), activityid);//返回的是groupid，null有可能是groupid=null也有可能是不存在
                 if ((pend != null && pend.equals(groupid)&&groupid!=0&&groupid!=-1)||(pend != null && pend.equals(groupid_temp)&&groupid==0)||(pend != null &&groupid==-1)) {
                     System.out.println("该组已经有选手： " + participants.getName()+"进行更新");
                     //participants.setDisplaySequence(null);//此时不需要更新顺序，只需要更新Code//new:如果display不为空，则更新
@@ -297,9 +295,12 @@ public class ParticipatesService {
                     participatesMapper.update_relationship(participants);
                 } else {
                     int insert=0;
-                    if(participatesMapper.checkGroupIDExists(studentID, activityid)==0)//真的不存在
+                    if(participatesMapper.checkGroupIDExists(participants.getStudentID(), activityid)==0)//真的不存在
                     {
                         participants.setID(null); // mark：如果其他地方的导入选手出bug，先检查此处
+                        if (participants.getCode() == null) {
+                            participants.setCode(participants.getStudentNumber());
+                        }
                         insert= participatesMapper.insert_relationship(participants);
                         last++;
                     }
@@ -394,6 +395,9 @@ public class ParticipatesService {
         if (NewPar.getID() != null
                 && NewPar.getDisplaySequence() > 0) {
             Participates old=participatesMapper.getEmployeeById(NewPar.getID());
+            if (old.getDisplaySequence() == null)
+                old.setDisplaySequence(0);
+
             // id确实存在
             if (old != null) {
                 // 显示顺序没有变化
@@ -402,18 +406,15 @@ public class ParticipatesService {
                     return "success";
                 // 修改的显示序号不能大于最大的显示序号
                 if (NewPar.getDisplaySequence() <= maxDisplaySequence) {
-                    if (NewPar.getDisplaySequence() > old
-                            .getDisplaySequence()) {
+                    if (NewPar.getDisplaySequence() > old.getDisplaySequence()) {
                         // 修正显示顺序
                         participatesMapper.subDisplaySequence(groupID,old.getDisplaySequence(),NewPar
                                 .getDisplaySequence());
                         // 保存
                         participatesMapper.saveDisplaySequence(groupID,NewPar.getDisplaySequence(),NewPar.getID());
                         return "success";
-
                     }
-                    if (NewPar.getDisplaySequence() < old
-                            .getDisplaySequence()) {
+                    if (NewPar.getDisplaySequence() < old.getDisplaySequence()) {
                         // 修正显示顺序
                         participatesMapper.addDisplaySequence(groupID,NewPar.getDisplaySequence(),old
                                 .getDisplaySequence());
@@ -428,16 +429,18 @@ public class ParticipatesService {
     }
 
     @Transactional
-    public Integer deleteParticipant(Integer groupID,Participates company) {
-        participatesMapper.delete(company);
-        int result = participatesMapper.deletePar(company.getID(),company.getActivityID());
-        if (participatesMapper.existPar(company.getStudentID()) == null){   // 该选手可能有其他活动，只有在选手表内无该选手时候，才能在student表删除
-            studentMapper.deleteStudent(company.getStudentID());
-        }
+    public Integer deleteParticipant(Integer groupID,Participates par) {
+        participatesMapper.delete(par);
+        updateParCount(par.getActivityID(),groupID);
+        int result = participatesMapper.deletePar(par.getID(),par.getActivityID());
+        // 不在学生表中删除
+//        if (participatesMapper.existPar(par.getStudentID()) == null){   // 该选手可能有其他活动，只有在选手表内无该选手时候，才能在student表删除
+//            studentMapper.deleteStudent(par.getStudentID());
+//        }
         if(result>0)
         {
             if (groupID != -1)
-                participatesMapper.subDisplaySequence(groupID,company.getDisplaySequence(),null);
+                participatesMapper.subDisplaySequence(groupID,par.getDisplaySequence(),null);
             return 1;
         }
         return 0;
@@ -617,5 +620,56 @@ public class ParticipatesService {
     }
     public List<Participates> getParticipantIDByStudentID(Integer studentID){
         return participatesMapper.getParticipantsBySID(studentID);
+    }
+
+    @Transactional
+    public void updateParCount(Integer activityID, Integer groupID){
+        participatesMapper.updateGroupParCount(groupID);
+        participatesMapper.updateActParCount(activityID);
+    }
+
+    // 将某个学生的角色设置为选手
+    public void setParticipateRole(Integer studentID){
+        String role;
+        role =  participatesMapper.getRole(studentID);
+//        if (studentID != null)
+//            role =  participatesMapper.getRole(studentID);
+//        else
+//            role = participatesMapper.getRoleByIDNumber(IDNumber);
+        List<String> roleList = Arrays.asList(role.split(","));
+        if(!roleList.contains("7")){
+            // 如果不在，则将7添加到list中
+            if (role.equals(""))
+                role = "7";
+            else
+                role = role + ",7";
+        }else
+            return;
+        participatesMapper.setParticipateRole(studentID,role);
+    }
+
+    //该选手不在选手表的活动内，则在选手表添加记录，之后管理员导入根据编号更新补全信息。
+    //该选手在选手表的活动内，但studentID不是他，则修改studentID，并在student表中删除该ID（老的）的记录
+    public boolean addActSelf(Integer studentID,Integer activityID,String code){
+        // 首先检查选手表中是否存在在选手，通过code和activityID
+        Participates participate = participatesMapper.getParticipateIDByCodeAndActivityID(code,activityID);
+        if (participate == null){
+//            participatesMapper.addPar(studentID,activityID,code); // 不存在，则添加
+            return false; // 不存在，则不允许添加
+        }else {
+            // 存在，则检查studentID是否是他
+            if (!Objects.equals(participate.getStudentID(), studentID)){
+                // 不是他，则核对姓名，如果姓名一样则修改studentID，并在student表中删除该ID（老的）的记录
+                String name = studentMapper.getNameByID(studentID);
+                if (name == null || !Objects.equals(name, participate.getName()))
+                    return false; // 姓名不一样，则不允许添加
+                else {
+                    // 姓名一样，则修改studentID，并在student表中删除该ID（老的）的记录
+                    participatesMapper.updatePar(studentID,participate.getID());
+                    participatesMapper.deleteStudent(participate.getStudentID());
+                }
+            }
+            return true;
+        }
     }
 }

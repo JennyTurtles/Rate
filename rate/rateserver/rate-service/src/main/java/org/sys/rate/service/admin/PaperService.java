@@ -4,7 +4,6 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.PaperMapper;
 import org.sys.rate.model.Paper;
-import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -15,8 +14,8 @@ public class PaperService {
 
     @Resource
     private PaperMapper paperMapper;
-    @Resource
-    MailToStuService mailToStuService;
+    //@Resource
+    //MailToStuService mailToStuService;
 
     public Paper selectPaperById(Long ID){
         return paperMapper.selectPaperById(ID);
@@ -87,15 +86,15 @@ public class PaperService {
         return paperMapper.deletePaperById(ID);
     }
 
-//    老师界面调用paper
+    //    老师界面调用paper
     public List<Paper> selectList(){
         return paperMapper.selectList();
     }
 
-//    修改论文状态
+    //    修改论文状态
     public int editState(String state, Long ID) throws MessagingException {
         Paper paper = paperMapper.selectByID(ID);
-        mailToStuService.sendStuMail(state, paper, "论文");
+        //mailToStuServicei.sendStuMail(state, paper, "论文");
         // 管理员通过的时候需要处理2分论文的情况，还要计算student的活动总分
         if (state.equals("adm_pass")){
             Long stuID = paper.getStudentID();

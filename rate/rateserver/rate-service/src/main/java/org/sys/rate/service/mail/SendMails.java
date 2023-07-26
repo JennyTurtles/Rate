@@ -1,5 +1,6 @@
 package org.sys.rate.service.mail;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,21 +18,11 @@ import java.io.File;
 import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * @projectName: Rate
- * @package: org.sys.rate.service.mail
- * @className: SendMail
- * @author: ZYK
- * @description: 完成发送邮件的单功能模块
- * @date: 2023/4/30 22:45
- * @version: 1.0
- */
+@Slf4j
 @Service
 public class SendMails {
     @Resource
     MailService mailService;
-
-    private static final Logger logger = LoggerFactory.getLogger(SendMails.class);
 
     private String from = null;
     private String password = null;
@@ -60,7 +51,6 @@ public class SendMails {
             throw new IllegalArgumentException("One or more parameters required for sending email is empty or null.");
         }
 
-        // SORRY, BUT IT NEEDED, CAUSE YOU NEED TO CHECK WHETHER IT HAD CHANGED!
         handleNullPointerException();
 
         CompletableFuture.runAsync(() -> {
@@ -95,10 +85,10 @@ public class SendMails {
                 message.setContent(multipart);
 
                 Transport.send(message);
-                logger.info("Email sent to {}", to);
+                log.info("Email sent to {}", to);
             } catch (MessagingException e) {
                 e.printStackTrace();
-                logger.error("Failed to send email: {}", e.getMessage(), e);
+                log.error("Failed to send email: {}", e.getMessage(), e);
             }
         });
     }
@@ -107,7 +97,6 @@ public class SendMails {
         if (StringUtils.isEmpty(to) || StringUtils.isEmpty(subject) || StringUtils.isEmpty(content)) {
             throw new IllegalArgumentException("One or more parameters required for sending email is empty or null.");
         }
-        // SORRY, BUT IT NEEDED, CAUSE YOU NEED TO CHECK WHETHER IT HAD CHANGED!
         handleNullPointerException();
 
         CompletableFuture.runAsync(() -> {
@@ -130,10 +119,10 @@ public class SendMails {
                 message.setSubject(subject);
                 message.setContent(content, "text/html;charset=utf-8");
                 Transport.send(message);
-                logger.info("Email sent to {}", to);
+                log.info("Email sent to {}", to);
             } catch (MessagingException e) {
                 e.printStackTrace();
-                logger.error("Failed to send email: {}", e.getMessage(), e);
+                log.error("Failed to send email: {}", e.getMessage(), e);
             }
         });
     }

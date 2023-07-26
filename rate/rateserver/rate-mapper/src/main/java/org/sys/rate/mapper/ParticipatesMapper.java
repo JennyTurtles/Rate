@@ -176,7 +176,7 @@ public interface ParticipatesMapper {
             "on pp.studentID = p.studentID WHERE pp.groupID != #{groupID}")
     List<Participates> checkInOtherGroup(Integer groupID);
 
-    void addParent(List<Participates> list); // 活动ID，小组ID，学生ID设置为唯一索引，如果重复则不添加
+//    void addParent(List<Participates> list); // 活动ID，小组ID，学生ID设置为唯一索引，如果重复则不添加
 
     @Select("SELECT studentID FROM participants WHERE groupID = #{groupID}")
     List<Integer> getStudentIDbyGroupID(Integer groupID);
@@ -188,4 +188,63 @@ public interface ParticipatesMapper {
             "FROM participants p1 LEFT JOIN participants p2 on p1.studentID = p2.studentID\n" +
             "WHERE p1.activityID = #{subID} and p2.activityID = #{parID}")
     List<subID2ParID> getSubID2ParID(Integer subID, Integer parID);
+
+
+    @Update("UPDATE `groups` set participantCount=\n" +
+            "(SELECT COUNT(*) from participants WHERE groupID = #{groupID} ) \n" +
+            "where ID=#{groupID}")
+    void updateGroupParCount(Integer groupID);
+
+    @Update("UPDATE activities set participantCount=\n" +
+            "(SELECT COUNT(*) from participants WHERE activityID = #{activityID} ) \n" +
+            "where ID=#{activityID}")
+    void updateActParCount(Integer activityID);
+
+    @Select("SELECT s.ID,gs.studentID,name,gs.institutionID,telephone,username,email,gs.stuNumber studentNumber\n" +
+            "FROM student s,graduatestudent gs \n" +
+            "WHERE gs.institutionID = #{institutionID} AND s.ID = gs.studentID AND gs.stuNumber IS NOT NULL")
+    List<Participates> getGraduateByInstitutionID(Integer institutionID);
+
+    @Select("SELECT s.ID,u.studentID,name,u.institutionID,telephone,username,email,u.stuNumber studentNumber\n" +
+            "FROM student s,undergraduate u \n" +
+            "WHERE u.institutionID = #{institutionID} AND s.ID = u.studentID AND u.stuNumber IS NOT NULL")
+    List<Participates> getUndergraduateByInstitutionID(Integer institutionID);
+
+
+    @Insert("INSERT IGNORE INTO student (name,telephone,email,institutionID) VALUES (#{name},#{telephone},#{email},#{institutionid})")
+    @Options(useGeneratedKeys = true, keyProperty = "ID")
+    Integer manualAdd(Participates participates);
+
+
+    @Select("SELECT s.ID,name,IDNumber,telephone,email\n" +
+            "FROM student s\n" +
+            "WHERE IDNumber = #{IDNumber}")
+    Participates getByIDNumber(String IDNumber);
+
+    @Select("SELECT s.ID,name,telephone,email,code\n" +
+            "FROM student s,participants p\n" +
+            "WHERE code = #{code} AND p.activityID = #{activityID} AND s.ID = p.studentID")
+    Participates getByCodeActivityID(String code, Integer activityID);
+
+    @Select("SELECT role FROM student WHERE ID = #{studentID}")
+    String getRole(Integer studentID);
+
+    @Update("UPDATE student SET role = #{role} WHERE ID = #{studentID}")
+    void setParticipateRole(Integer studentID, String role);
+
+    @Select("SELECT role FROM student WHERE IDNumber = #{IDNumber}")
+    String getRoleByIDNumber(String IDNumber);
+
+    @Select("SELECT p.ID, studentID, name FROM participants p,student s\n" +
+            "WHERE code = #{code} AND activityID = #{activityID} AND p.studentID = s.ID")
+    Participates getParticipateIDByCodeAndActivityID(String code, Integer activityID);
+
+    @Insert("INSERT INTO participants (studentID,activityID,code) VALUES (#{studentID},#{activityID},#{code})")
+    void addPar(Integer studentID, Integer activityID, String code);
+
+    @Update("UPDATE participants SET studentID = #{studentID} WHERE ID = #{id}")
+    void updatePar(Integer studentID, Integer id);
+
+    @Delete("DELETE FROM student WHERE ID = #{studentID}")
+    void deleteStudent(Integer studentID);
 }

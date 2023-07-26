@@ -1,9 +1,13 @@
 <template>
   <div>
+   <AddActStep ref="addActStep" v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name" :groupNum="hrs.length"></AddActStep>
+   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2PeopleManage" v-show="$route.query.addActive == 5 && $route.query.mode === 'admin' ">
+    活动人员管理
+   </el-button>
     <div style="display: flex; justify-content: left">
-      <div style="width: 100%;text-align: center">{{ keywords_name }}分组管理</div>
+      <div style="width: 100%;text-align: center;margin-left: 80px;margin-top: 12px" v-show="!$route.query.addActive">{{ keywords_name }}分组管理</div>
       <div style="margin-left: auto">
-        <el-button icon="el-icon-back" type="primary" @click="back">
+        <el-button icon="el-icon-back" type="primary" @click="back" v-show="typeof $route.query.addActive === 'undefined'">
           返回
         </el-button>
       </div>
@@ -101,13 +105,14 @@
             </el-button
             >
               <el-button
+                      v-show="typeof $route.query.addActive === 'undefined' || $route.query.addActive == 5"
                       @click="assignPE(scope.row)"
                       style="padding: 4px"
                       size="mini"
                       icon="el-icon-tickets"
                       type="primary"
                       plain
-              >分配选手和专家
+              >人员管理
               </el-button
               >
 <!--            <el-button-->
@@ -146,6 +151,7 @@
 <!--            >-->
             <el-button
                 @click="showFinalScore(scope.row)"
+                v-show="typeof $route.query.addActive === 'undefined'"
                 :loading="loading"
                 style="padding: 4px"
                 size="mini"
@@ -156,6 +162,7 @@
             </el-button
             >
             <el-button
+                v-show="typeof $route.query.addActive === 'undefined'"
                 @click="exportTG(scope.row)"
                 :loading="loading"
                 style="padding: 4px"
@@ -173,7 +180,7 @@
                 icon="el-icon-plus"
                 type="primary"
                 plain
-                v-show="haveSub == 1 && mode==='admin'"
+                v-show="haveSub == 1 && mode==='admin' && !$route.query.addActive"
             >子活动管理
             </el-button
             >
@@ -203,6 +210,7 @@
               @click="handleAddDetails()"
               type="primary"
               icon="el-icon-plus"
+              v-if="$route.query.addActive && $route.query.addActive == 4"
           >新增
           </el-button
           >
@@ -226,9 +234,11 @@
 import {Message} from 'element-ui'
 import da from "element-ui/src/locale/lang/da";
 import el from "element-ui/src/locale/lang/el";
+import AddActStep from "@/components/AddActStep.vue";
 
 export default {
   name: "SalTable",
+ components: {AddActStep},
   data() {
     return {
       editing:false,
@@ -322,6 +332,19 @@ export default {
     //this.initAd();
   },
   methods: {
+   change2PeopleManage(){ // 切换到活动人员管理
+    const _this = this;
+    _this.$router.push({
+     path: "/ActivitM/group",
+     query: {
+      keywords: this.keywords,
+      keyword_name: this.keywords_name,
+      mode:this.mode,
+      addActive:this.$route.query.addActive,
+      haveSub: this.$route.query.haveSub,
+     }
+    });
+   },
     Delete_Score_Item(si) {
         // console.log("si")
         // console.log(si)
@@ -341,7 +364,7 @@ export default {
                 }
                 this.initHrs();
               }else {
-                Message.warning("请先确保组内无选手和专家。")
+                Message.warning("请先确保组内无选手和专家")
               }
             });
           })
@@ -384,6 +407,9 @@ export default {
                 if (resp) {
                     this.hrs = resp.data;
                     this.total = this.hrs.length;
+                    // if (this.hrs.length === 0){
+                    //  this.change2PeopleManage()
+                    // }
                 }
             });
         }else
@@ -544,7 +570,7 @@ export default {
     },
     exportTG(row) {
       this.loading=true;
-      Message.success("正在导出");
+      Message.success("导出成功");
       let url = "/participants/basic/exportTG?groupID="+row.id;
       this.loading=false;
       window.open(url, '_parent');
@@ -566,22 +592,36 @@ export default {
           const _this = this;
           if (this.mode === 'secretary' || this.mode === 'secretarySub'|| this.mode === 'adminSub'){
             _this.$router.push({
-              path: "/Expert/EassignPE",
+              path: "/participantsM",
               query: {
-                activityIDParent: this.$route.query.backID,
-                activityID: data.activityID,
-                groupIDParent: this.$route.query.groupID,
+                activityIDParent: this.$route.query.id,
+                activityID: this.keywords,
+                groupIDParent: this.groupID,
+                smallGroup:true, // 从分组管理进入的，因此是小组
                 groupID: data.id,
-                mode:this.mode
+                mode:this.mode,
+                keywords:this.keywords,
+                keyword_name:this.keywords_name,
+                ACNAME:this.keywords_name,
+                groupName:this.$route.query.groupName,
+                backID:this.$route.query.backID,
+                backActName:this.$route.query.backActName,
+                isGroup:this.$route.query.isGroup,
               }
             })
           }else if (this.mode === 'admin'){
             _this.$router.push({
-              path: "/Admin/AssignPE",
+              path: "/participantsM",
               query: {
                 activityID: data.activityID,
                 groupID: data.id,
-                mode:this.mode
+                mode:this.mode,
+                keywords:this.keywords,
+                keyword_name:this.keywords_name,
+                actName:this.keywords_name,
+                ACNAME:this.keywords_name,
+                addActive:this.$route.query.addActive,
+                haveSub:this.$route.query.haveSub,
               }
             })
           }

@@ -335,4 +335,9 @@
     from scores
     where expertID = #{eID} and activityID = #{aID} and participantID = #{pID} and scoreItemID = #{sID}
   </select>
+  <select id="getTutorInfo" resultType="String">
+    select t.name
+    from teacher t,graduatestudent g
+    where g.studentID = #{id} and g.tutorID = t.ID
+  </select>
 </mapper>

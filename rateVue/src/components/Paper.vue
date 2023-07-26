@@ -9,7 +9,7 @@
                 style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
-                placeholder="学生姓名"
+                placeholder="学生姓名" autocomplete="off"
                 id="select_stuname">
               <label style="fontSize:10px;margin-left:16px">论文名称：</label>
               <input type="text" 
@@ -170,11 +170,9 @@
           label="发表刊物"
           align="center"
           width="240"
-          :formatter="checkScoreComent"
         >
         </el-table-column>
         <el-table-column
-
           prop="point"
           label="积分"
           align="center"
@@ -185,6 +183,7 @@
           prop="remark"
           label="备注"
           align="center"
+          :formatter="checkScoreComent"
         >
         </el-table-column>
         <el-table-column
@@ -213,31 +212,6 @@
         </el-pagination>
       </div>
     </div>
-
-    <el-dialog :title="title" :visible.sync="dialogVisible" width="30%" center>
-      <el-form
-        :label-position="labelPosition"
-        label-width="100px"
-        :model="emp"
-        :rules="rules"
-        ref="empForm"      
-      >
-        <el-form-item label="论文名称:" prop="name">
-          <el-input
-            size="mini"
-            style="width: 200px"
-            prefix-icon="el-icon-edit"
-            v-model="emp.name"
-            placeholder="请输入单位名称"
-          ></el-input>
-        </el-form-item>
-      </el-form>
-
-      <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="doAddEmp">确 定</el-button>
-      </span>
-    </el-dialog>
 
 <!-- 对话框 老师审核通过论文 -->
     <el-dialog :title="title" 
@@ -358,7 +332,7 @@
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
             <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
               <div style="font-size: 10px;">
-                <p>{{item.time|dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operation}}</p>
+                <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
               </div>
             </div>
@@ -368,18 +342,18 @@
         <span slot="footer" class="dialog-footer" :model="emp">
             <el-button
                   id="but_pass"
-                  v-show="(emp.state=='commit' || (emp.state=='tea_pass' && role == 1)) ? true:false"
+                  v-show="((emp.state=='commit' && role == 'teacher') || (emp.state=='tea_pass' && role == 'admin')) ? true:false"
                   @click="(()=>{
-                  if (this.role == 8)
+                  if (role == 'teacher')
                    auditing_commit('tea_pass')
-                  else if (this.role == 1)
+                  else if (role == 'admin')
                    auditing_commit('adm_pass')
                 }) "
                   type="primary"
                   >审核通过</el-button>
             <el-button
                   id="but_reject"
-                  v-show="(emp.state=='commit' || (emp.state=='tea_pass' && role == 1)) ? true:false"
+                  v-show="((emp.state=='commit' && role == 'teacher') || (emp.state=='tea_pass' && role == 'admin')) ? true:false"
                   @click="isShowInfo = true"
                   type="primary"
                   >审核不通过</el-button>
@@ -389,12 +363,6 @@
                   @click="dialogVisible_show = false"
                   type="primary"
                   >关闭</el-button>
-
-<!--                      <el-button-->
-<!--                          id="but_reject"-->
-<!--                          @click="dialogVisible_show = false"-->
-<!--                          type="primary"-->
-<!--                      >关闭</el-button>-->
         </span>     
     </el-dialog>
     <el-dialog v-model="emp" :visible.sync="isShowInfo">
@@ -407,9 +375,9 @@
         </el-input>
         <span slot="footer">
           <el-button @click=" (()=>{
-            if (this.role == 8)
+            if (role == 'teacher')
               auditing_commit('tea_reject')
-            else if (this.role == 1)
+            else if (role == 'admin')
               auditing_commit('adm_reject')
             isShowInfo = false
           })"
@@ -445,10 +413,8 @@ export default {
       importDataBtnIcon: "el-icon-upload2",
       importDataDisabled: false,
       showAdvanceSearchView: false,
-      allDeps: [],
       copyemps:[],
       emps: [],
-      role:-1,
       loading: false,
       dialogVisible: false,
       dialogVisible_pass: false,
@@ -456,21 +422,19 @@ export default {
       dialogVisible_show: false,
       total: 0,
       page: 1,
-      keyword: "",
       size: 10,
       positions: [],
       reason:"",
       oper:{
-        operatorRole:"teacher",
-        operatorID:JSON.parse(localStorage.getItem('user')).id,
-        operatorName:JSON.parse(localStorage.getItem('user')).name,
-        paperID:null,
-        paperName:null,
-        pubID:null,
-        pubName:null,
-        operation:"",
+        operatorRole: "",
+        operatorId: JSON.parse(localStorage.getItem('user')).id,
+        operatorName: JSON.parse(localStorage.getItem('user')).name,
+        prodType: '学术论文',
+        operationName:"",
         state:"",
-        remark:""
+        remark:"",
+        time: null,
+        prodId: null,
       },
       emp: {
         id: null,
@@ -482,16 +446,12 @@ export default {
         groupCount: "0",
         expertCount: "0",
         participantCount: "0",
-        comment: "javaboy",
+        comment: "",
         state:"",
         student:{},
         total:0,
         rank:0
         // reason:"",
-      },
-      defaultProps: {
-        children: "children",
-        label: "name",
       },
       rules: {
         name: [{ required: true, message: "请输入论文名", trigger: "blur" }],
@@ -513,18 +473,21 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.currentHr; //object信息
+      return JSON.parse(localStorage.getItem('user')); //object信息
     },
     menuHeight() {
       return this.select_pubName.length * 50 > 150
         ? 150 + 'px'
         : '${this.select_pubName.length * 50}px'
     },
+    role() {
+      return JSON.parse(localStorage.getItem('user')).role.indexOf('8') >= 0 ||
+          JSON.parse(localStorage.getItem('user')).role.indexOf('9') >= 0 ? 'teacher' : 'admin';
+    }
   },
   created() {},
   mounted() {
     this.initEmps();
-    this.initPositions();
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -592,58 +555,45 @@ export default {
       this.ispubShow=false
     },
     //点击对话框中的确定按钮 触发事件
-    auditing_commit(num){
+    auditing_commit(status){
       this.loading = true;
-      let url;
-      const _this=this
-      this.dialogVisible_show=false
-      url= "/paper/basic/edit_state?state="+num
-          +"&ID="+this.emp.id
-      if(false){
+      let url = "/paper/basic/edit_state?state=" + status + "&ID="+this.emp.id;
+      this.dialogVisible_show = false
+      this.getRequest(url).then((resp) => {
         this.loading = false;
-        this.$message.success('论文已通过，无法驳回')
-      }else{
-        this.getRequest(url).then((resp) => {
-          this.loading = false;
-          if (resp) {
-            this.emp.state=num
-            this.total = resp.total;
-            this.emp.pubid = this.emp.publicationID;
-            this.emp.pubName = this.emp.publication.name;
-            this.$message({
-              type: 'success',
-              message: '操作成功'
-            })
-            this.doAddOper(num,this.reason,
-                this.emp.id,this.emp.name,
-                this.emp.pubName,this.emp.pubid);
-          }
-        }).finally(()=>{
-
-          this.initEmps();
-        });
-      }
+        if (resp) {
+          this.emp.state = status
+          this.total = resp.total;
+          this.emp.pubid = this.emp.publicationID;
+          this.emp.pubName = this.emp.publication.name;
+          this.$message({
+            type: 'success',
+            message: '操作成功'
+          })
+          this.doAddOper(status, this.reason, this.emp.id);
+        }
+      }).finally(()=>{
+        this.initEmps();
+      });
     },
-    doAddOper(state,reamrk,paperID,paperName,pubName,pubID) {
-      this.oper.state=state
-      this.oper.remark=reamrk,
-      this.oper.paperID=paperID,
-      this.oper.paperName=paperName,
-      this.oper.pubName=pubName,
-      this.oper.pubID=pubID
-      if(this.oper.state=="tea_pass"){
-        this.oper.operation="教师审核通过"
-      }else if (this.oper.state == 'adm_pass')
-        this.oper.operation="管理员审核通过"
-      else if (this.oper.state =="tea_reject")
-        this.oper.operation="教师驳回"
-      else{
-        this.oper.operation="管理员驳回"
+    doAddOper(state, remark, paperID) {
+      this.oper.state = state;
+      this.oper.remark = remark;
+      this.oper.prodId = paperID;
+      this.oper.time = this.dateFormatFunc(new Date());
+      this.oper.operatorRole = this.role;
+      if(this.oper.state == "tea_pass"){
+        this.oper.operationName = "审核通过"
+      }else if (this.oper.state == 'adm_pass'){
+        this.oper.operationName = "审核通过"
+      } else if (this.oper.state =="tea_reject"){
+        this.oper.operationName = "审核驳回"
+      } else{
+        this.oper.operationName = "审核驳回"
       }
-      this.postRequest1("/paperoper/basic/add", this.oper).then(
+      this.postRequest1("/oper/basic/add", this.oper).then(
         (resp) => {
           if (resp) {
-            console.log(resp)
             this.initEmps()
           }
         }
@@ -651,26 +601,6 @@ export default {
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
-    },
-    /** 查询角色列表 */
-    onError(err, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-    },
-    onSuccess(response, file, fileList) {
-      this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
-      this.importDataDisabled = false;
-      this.initEmps();
-    },
-    beforeUpload() {
-      this.importDataBtnText = "正在导入";
-      this.importDataBtnIcon = "el-icon-loading";
-      this.importDataDisabled = true;
-    },
-    exportData() {
-      window.open("/employee/basic/export", "_parent");
     },
     emptyEmp() {
       this.emp = {
@@ -681,90 +611,20 @@ export default {
         comment: "论文备注example：关于xxx的论文",
       };
     },
-    showEditEmpView(data) {//修改论文
-      console.log(data.id)
-      this.initPositions();
-      this.title = "编辑单位信息";
-      this.emp = data;
-      this.dialogVisible = true;
-    },
     showEditEmpView_show(data) {
-      console.log(data.url)
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
-      this.getRequest("/paperoper/basic/List?ID="+data.id).then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=学术论文').then((resp) => {
           this.loading = false;
           if (resp) {
-            this.isShowInfo=false
-            this.operList=resp.data
+            this.isShowInfo = false;
+            this.operList = resp.obj;
             this.operList.sort(function(a,b){
             return a.time > b.time ? -1 : 1
             })
           }
       });
-    },
-    deleteEmp(data) {
-      console.log(data);
-      this.$confirm(
-        "此操作将永久删除【" + data.name + "】, 是否继续?",
-        "提示",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",  
-        }
-      ).then(() => {
-        this.postRequest("/paper/basic/remove", {ID:data.id}).then((resp) => {
-          if (resp) {
-            console.log(resp)
-            this.dialogVisible = false;
-            this.initEmps();
-          }
-        });
-      });
-    },
-    doAddEmp() {
-      if (this.emp.id) {
-        console.log(this.emp);
-        this.$refs["empForm"].validate((valid) => {
-          if (valid) {
-            const _this = this;
-            this.postRequest("/activities/basic/update", _this.emp).then(
-              (resp) => {
-                if (resp) {
-                  this.dialogVisible = false;
-                  this.initEmps();
-                }
-              }
-            );
-          }
-        });
-      } else {
-        this.$refs["empForm"].validate((valid) => {
-          if (valid) {
-            this.emp.institutionID = this.user.id;
-            console.log(this.emp);
-            console.log(this.user.id);
-            const _this = this;
-            this.postRequest("/activities/basic/insert", _this.emp).then(
-              (resp) => {
-                if (resp) {
-                  this.dialogVisible = false;
-                  this.initEmps();
-                }
-              }
-            );
-          }
-        });
-      }
-    },
-    initPositions() {
-      /*this.getRequest('/employee/basic/positions').then(resp => {
-        if (resp) {
-          this.positions = resp;
-        }
-      })*/
     },
     sizeChange(currentSize) {
       this.size = currentSize;
@@ -774,24 +634,18 @@ export default {
       this.page = currentPage;
       this.initEmps("advanced");
     },
-    showAddEmpView() {
-      this.emptyEmp();
-      this.title = "添加论文";
-      this.dialogVisible = true;
-    },
     initEmps() {
       this.loading = true;
-      this.role = JSON.parse(localStorage.getItem('user')).role
-      let url = "/paper/basic/List";
+      let url = "/paper/basic/List" ;
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          console.log(resp);
           this.emps = resp.data;
-          this.copyemps=this.emps
+          this.copyemps = this.emps
           this.total = resp.total;
-          for(var i=0;i<this.emps.length;i++){
-            var papername=this.emps[i].name
+          //什么意思？
+          for(var i = 0; i < this.emps.length; i ++){
+            var papername = this.emps[i].name
             if(this.select_paperName.indexOf(papername)==-1){
               this.select_paperName.push(papername)
             }
@@ -810,49 +664,8 @@ export default {
         }
       });
     },
-    showGroupmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/table",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showInsertmanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/group",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showteachermanagement(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/sobcfg",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
-    showScoreItem(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/ActivitM/month",
-        query: {
-          keywords: data.id,
-          keyword_name: data.name,
-        },
-      });
-    },
     searchEmps() {//根据条件搜索论文
       var newemps=new Set()
-      // var copyemps=this.emps
       var stuname=document.getElementById("select_stuname").value
       var state=document.getElementById("select_state").value
       if(state == '导师通过'){
@@ -866,7 +679,6 @@ export default {
       }else if (state == '管理员驳回') {
         state = 'adm_reject'
       }
-
       var paper=document.getElementById("select_paperName").value
       var pub=document.getElementById("select_pub").value
       var point1=document.getElementById("select_point1").value
@@ -881,7 +693,7 @@ export default {
             newemps.add(this.copyemps[i])
         }
       }
-      this.emps=Array.from(newemps)
+      this.emps = Array.from(newemps)
     },
     checkScoreComent(row){
       if (row.state === "adm_pass" && row.point === 2 && row.have_score === 0)
@@ -895,13 +707,6 @@ export default {
 </script>
 
 <style>
-/* 可以设置不同的进入和离开动画 */
-/* 设置持续时间和动画函数 */
-/* .selectInput { */
-  /* position: relative; */
-  /* display: inline-block; */
-
-/* } */
 .showInfo_dialog .el-form-item{
   margin-bottom: 5px;
 }

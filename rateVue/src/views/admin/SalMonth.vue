@@ -1,10 +1,11 @@
 <template>
 <!--评分项设置-->
   <div>
+   <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
     <div style="display: flex; justify-content: left">
-      <div style="width: 100%;text-align: center" v-if="mode==='admin' || mode==='adminSub'">{{ keywords_name }}评分项设置</div>
+      <div style="width: 100%;text-align: center" v-if="(mode==='admin' || mode==='adminSub') && !$route.query.addActive ">{{ keywords_name }}评分项设置</div>
       <div style="width: 100%;text-align: center" v-if="mode==='secretary' || mode==='secretarySub'">{{ keywords_name }}评分项查看</div>
-      <div style="margin-left: auto">
+      <div style="margin-left: auto" v-show="typeof $route.query.addActive === 'undefined' ">
         <el-button icon="el-icon-back" type="primary" @click="back">
           返回
         </el-button>
@@ -192,9 +193,15 @@
               @click="newScoring()"
               type="primary"
               icon="el-icon-plus"
+              v-if="$route.query.mode != 'admin' || !$route.query.addActive || $route.query.haveSub != 1"
           >新增
-          </el-button
-          >
+          </el-button>
+         <el-tooltip class="item" effect="dark" content="当前活动存在子活动，无法添加评分项。" placement="top-start" v-else :disabled='false'>
+       <span>
+        <el-button @click="newScoring()" type="primary" icon="el-icon-plus" :disabled="true">新增</el-button>
+       </span>
+         </el-tooltip>
+
         </div>
 <!--        <div style="margin-left: auto">-->
 <!--          <el-pagination-->
@@ -213,9 +220,11 @@
 
 <script>
 import {Message} from 'element-ui'
+import AddActStep from "@/components/AddActStep.vue";
 
 export default {
   name: "SalMonth",
+ components: {AddActStep},
   data() {
     return {
       editing: false,
@@ -361,6 +370,7 @@ export default {
         if (resp) {
           this.loading = false;
           this.hrs = resp.data;
+         console.log(this.hrs)
           for (var i = 0; i < this.hrs.length; i++){
             if (this.hrs[i].byexpert)
               this.hrs[i].byexpert = 1

@@ -1,170 +1,185 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.sys.rate.mapper.AwardMapper">
-
     <resultMap type="org.sys.rate.model.Award" id="AwardResult">
-        <result property="ID"    column="ID"    />
-        <result property="name"    column="name"    />
-        <result property="awardname"    column="awardname"    />
-        <result property="year"    column="year"    />
-        <result property="member"    column="member"    />
-        <result property="unit"    column="unit"    />
-        <result property="total"    column="total"    />
-        <result property="rank"    column="rank"    />
-        <result property="awardTypeID"    column="awardTypeID"    />
-        <result property="state"    column="state"    />
-        <result property="url"    column="url"    />
-        <result property="studentID"    column="studentID"    />
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="studentId" column="student_id"/>
+        <result property="name" column="name"/>
+        <result property="date" column="date"/>
+        <result property="author" column="author"/>
+        <result property="url" column="url"/>
+        <result property="state" column="state"/>
+        <result property="point" column="point"/>
+        <result property="rank" column="rank"/>
+        <result property="total" column="total"/>
+        <result property="awardLevel" column="award_level"/>
+        <result property="awardTypeId" column="award_type_id"/>
+        <result property="grantedStatus" column="granted_status"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>
         </association>
-        <association property="awardtype" javaType="org.sys.rate.model.Awardtype">
-            <id property="ID" column="ID" jdbcType="INTEGER"/>
-            <result property="name" column="pname"/>
+        <association property="indicator" javaType="org.sys.rate.model.Indicator">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="iname"/>
+            <result property="score" column="score"/>
         </association>
-        <collection property="awardOperList" ofType="org.sys.rate.model.AwardOper" column="pID">
+        <association property="awardType" javaType="org.sys.rate.model.AwardType">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="tname"/>
+            <result property="year" column="year"/>
+            <result property="indicatorId" column="indicator_id"/>
+        </association>
+        <collection property="operationList" ofType="org.sys.rate.model.Operation">
+            <result property="operatorRole" column="operator_role"/>
+            <result property="operatorId" column="operator_id"/>
+            <result property="operatorName" column="operator_name"/>
+            <result property="prodType" column="prod_type"/>
+            <result property="prodId" column="prod_id"/>
+            <result property="time" column="operdate"/>
+            <result property="operationName" column="operation_name"/>
+            <result property="state" column="state"/>
             <result property="remark" column="remark"/>
-            <result property="operatorRole" column="operatorRole"/>
-            <result property="operation" column="operation"/>
-            <result property="time" column="time"/>
         </collection>
     </resultMap>
 
     <sql id="selectAwardVo">
-        SELECT
-            a.*,
-            b.`name` AS sname,
-            c.`name` AS pname,
-            d.remark,
-            d.operatorRole,
-            d.operation,
-            d.time,
-            d.ID as pID
-        FROM
-            award a
-        LEFT JOIN student b ON a.studentID = b.ID
-        LEFT JOIN awardtype c ON a.awardTypeID = c.ID
-        LEFT JOIN award_oper d ON a.ID = d.awardID
+        select id,student_id,name,date,author,url,grantedStatus,state
+        from i_award
     </sql>
 
-    <select id="selectList" resultMap="AwardResult">
+    <select id="selectAllAwardList" resultMap="AwardResult">
+        -- 老师查询所有学生的获奖
+        SELECT p.*,
+               s.name as sname,
+               i.name as iname,
+               i.score,
+               oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
+               oper.state,oper.remark
+        FROM i_award p
+                 LEFT JOIN student s ON p.student_id = s.ID
+                 LEFT JOIN indicator i ON i.id = p.indicator_id
+                 LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '科研获奖'
+    </select>
+
+    <select id="selectListById" resultMap="AwardResult">
         <include refid="selectAwardVo"></include>
+        <where>
+            <if test="student_id != null  and student_id != ''">and student_id = #{student_id}</if>
+            <if test="page !=null and size!=null">
+                limit #{page},#{size}
+            </if>
+        </where>
+    </select>
+
+<!--    学生奖励页面初始化-->
+    <select id="selectAwardListById" resultMap="AwardResult" parameterType="Integer">
+        select a.id, a.name, student_id, a.date, author, a.state, url, granted_status, indicator_id, `rank`, total, point, a.award_level, a.award_type_id,
+               oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
+               oper.state,oper.remark,
+               i.name as iname,
+               i.score,
+               type.name as tname,type.year,type.indicator_id
+        FROM i_award a
+                 LEFT JOIN i_award_type type ON type.id = a.award_type_id
+                 LEFT JOIN indicator i ON i.id = type.indicator_id
+                 LEFT JOIN i_oper oper ON a.id = oper.prod_id and oper.prod_type = '科研获奖'
+        where a.student_id = #{studentID}
     </select>
 
     <select id="selectAwardList" parameterType="org.sys.rate.model.Award" resultMap="AwardResult">
         <include refid="selectAwardVo"/>
         <where>
-            <if test="ID !=null and ID !=''">and a.ID =#{ID}</if>
-            <if test="stuName !=null and stuName !=''">and b.name like concat('%',#{stuName},'%')</if>
-            <if test="zcName !=null and zcName !=''">and a.name like concat('%',#{zcName},'%')</if>
-            <if test="sScore !=null and sScore !='全部' and sScore !=''">and a.point >= #{sScore}</if>
-            <if test="eScore !=null and eScore !='全部' and eScore !=''">and a.point &lt;= #{eScore}</if>
-            <if test="sState !=null and sState !=''">and a.state = #{sState}</if>
+            <if test="id !=null and id !=''">and id =#{id}</if>
+            <if test="student_id != null ">and student_id = #{student_id}</if>
+            <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
+            <if test="year != null  and year != ''">and year = #{year}</if>
+            <if test="month != null ">and month = #{month}</if>
+            <if test="`rank` != null ">and `rank` = #{rank}</if>
+            <if test="total != null ">and total = #{total}</if>
+            <if test="point != null ">and point = #{point}</if>
+            <if test=" != null ">and  = #{}</if>
+            <if test="url != null ">and url = #{url}</if>
         </where>
     </select>
 
     <select id="selectAwardById" parameterType="Long" resultMap="AwardResult">
         <include refid="selectAwardVo"/>
-        where a.ID = #{ID}
+        where id = #{id}
     </select>
 
-    <insert id="insertAward" parameterType="org.sys.rate.model.Award">
-        insert into award
+    <insert id="insertAward" parameterType="org.sys.rate.model.Award" useGeneratedKeys="true" keyProperty="id">
+        insert into i_award
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="ID != null">ID,</if>
+            <if test="id != null">id,</if>
+            <if test="studentId != null">student_id,</if>
             <if test="name != null and name != ''">name,</if>
-            <if test="awardname != null and awardname != ''">awardname,</if>
-            <if test="year != null">year,</if>
-            <if test="member != null">member,</if>
-            <if test="unit != null">unit,</if>
+            <if test="date != null">date,</if>
+            <if test="author != null">author,</if>
+            <if test="`rank` != null">`rank`,</if>
             <if test="total != null">total,</if>
-            <if test="rank != null">rank,</if>
-            <if test="awardID != null">awardID,</if>
-         </trim>
+            <if test="point != null">point,</if>
+            <if test="state != null">state,</if>
+            <if test="url != null">url,</if>
+            <if test="grantedStatus != null">granted_status,</if>
+            <if test="awardLevel != null">award_level,</if>
+            <if test="awardTypeId != null">award_type_id</if>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="ID != null">#{ID},</if>
+            <if test="id != null">#{id},</if>
+            <if test="studentId != null">#{studentId},</if>
             <if test="name != null and name != ''">#{name},</if>
-            <if test="awardname != null and awardname != ''">#{awardname},</if>
-            <if test="year != null">#{year},</if>
-            <if test="member != null">#{member},</if>
-            <if test="unit != null">#{unit},</if>
+            <if test="date != null">#{date},</if>
+            <if test="author != null">#{author},</if>
+            <if test="`rank` != null">#{rank},</if>
             <if test="total != null">#{total},</if>
-            <if test="rank != null">#{rank},</if>
-            <if test="awardID != null">#{awardID},</if>
-         </trim>
-    </insert>
-    <insert id="insertPaperoper" parameterType="org.sys.rate.model.AwardOper">
-        insert into award_oper (ID, operatorRole,operatorID, operatorName,
-        awardID, awardName,operation,state,remark)
-        values (#{ID},
-        #{operatorRole},
-        #{operatorID,jdbcType=INTEGER}, #{operatorName,jdbcType=VARCHAR},
-        #{awardID,jdbcType=INTEGER}, #{awardName,jdbcType=VARCHAR},
-        #{operation,jdbcType=VARCHAR},
-        #{state},#{remark})
-        <!--        insert into paper_oper-->
-        <!--        <trim prefix="(" suffix=")" suffixOverrides=",">-->
-        <!--            <if test="ID != null">ID,</if>-->
-        <!--            <if test="operatorRole != null">operatorRole,</if>-->
-        <!--            <if test="operatorID != null ">operatorID,</if>-->
-        <!--            <if test="operatorName != null">operatorName,</if>-->
-        <!--            <if test="paperID != null">paperID,</if>-->
-        <!--            <if test="paperName != null">paperName,</if>-->
-        <!--            <if test="pubID != null">pubID,</if>-->
-        <!--            <if test="pubName != null">pubName,</if>-->
-        <!--            <if test="time != null">time,</if>-->
-        <!--            <if test="operation != null">operation,</if>-->
-        <!--            <if test="state != null">state,</if>-->
-        <!--            <if test="remark != null">remark,</if>-->
-        <!--         </trim>-->
-        <!--        <trim prefix="values (" suffix=")" suffixOverrides=",">-->
-        <!--            <if test="ID != null">#{ID},</if>-->
-        <!--            <if test="operatorRole != null">#{studentID},</if>-->
-        <!--            <if test="operatorID != null and name != ''">#{name},</if>-->
-        <!--            <if test="operatorName != null">#{operatorName},</if>-->
-        <!--            <if test="paperID != null">#{paperID},</if>-->
-        <!--            <if test="paperName != null">#{paperName},</if>-->
-        <!--            <if test="pubID != null">#{pubID},</if>-->
-        <!--            <if test="pubName != null">#{pubName},</if>-->
-        <!--            <if test="time != null">#{time},</if>-->
-        <!--            <if test="operation != null">#{operation},</if>-->
-        <!--            <if test="state != null">#{state},</if>-->
-        <!--            <if test="remark != null">#{remark},</if>-->
-        <!--         </trim>-->
+            <if test="point != null">#{point},</if>
+            <if test="state != null">#{state},</if>
+            <if test="url != null">#{url},</if>
+            <if test="grantedStatus != null">#{grantedStatus},</if>
+            <if test="awardLevel != null">#{awardLevel},</if>
+            <if test="awardTypeId != null">#{awardTypeId}</if>
+        </trim>
     </insert>
 
     <update id="updateAward" parameterType="org.sys.rate.model.Award">
-        update award
+        update i_award
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
-            <if test="awardname != null and awardname != ''">awardname = #{awardname},</if>
-            <if test="year != null">year = #{year},</if>
-            <if test="member != null">member = #{member},</if>
-            <if test="unit != null">unit = #{unit},</if>
+            <if test="date != null">date = #{date},</if>
+            <if test="author != null">author = #{author},</if>
+            <if test="`rank` != null">`rank` = #{rank},</if>
             <if test="total != null">total = #{total},</if>
-            <if test="rank != null">rank = #{rank},</if>
-            <if test="awardID != null">awardID = #{awardID},</if>
+            <if test="point != null">point = #{point},</if>
+            <if test="state != null">state =#{state},</if>
+            <if test="url != null">url = #{url},</if>
+            <if test="indicatorId != null">indicator_id = #{indicatorId},</if>
+            <if test="grantedStatus != null">granted_status = #{grantedStatus},</if>
+            <if test="awardLevel != null">award_level = #{awardLevel},</if>
+            <if test="awardClass != null">award_class = #{awardClass},</if>
+            <if test="awardRank != null">award_rank = #{awardRank}</if>
         </trim>
-        where ID = #{ID}
-    </update>
-    <update id="editState">
-        update award
-        <trim prefix="SET" suffixOverrides=",">
-            <if test="state != null">state=#{state},</if>
-        </trim>
-        where ID = #{ID}
+        where id = #{id}
     </update>
 
+    <update id="editState" parameterType="org.sys.rate.model.Award">
+        update i_award
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null">state = #{state},</if>
+        </trim>
+        where id = #{ID}
+    </update>
     <delete id="deleteAwardById" parameterType="Long">
-        delete from award where ID = #{ID}
+        delete
+        from i_award
+        where id = #{ID}
     </delete>
 
     <delete id="deleteAwardByIds" parameterType="String">
-        delete from award where ID in
-        <foreach item="ID" collection="array" open="(" separator="," close=")">
+        delete from i_award where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
             #{ID}
         </foreach>
     </delete>

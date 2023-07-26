@@ -4,7 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.model.PaperComment;
 import org.sys.rate.model.Student;
-import org.sys.rate.service.underFunction.PaperCommentService;
+import org.sys.rate.service.admin.PaperCommentService;
 import org.sys.rate.utils.ExportPDF;
 
 import javax.annotation.Resource;
@@ -57,8 +57,7 @@ public class PaperCommentController {
     /**
      * 新增保存评论
      */
-    @GetMapping("/add")
-    @ResponseBody
+    @PostMapping("/add")
     public JsonResult addSave(PaperComment paperComment) throws MessagingException {
         Integer res = paperCommentService.insertComment(paperComment);
         //System.out.println("新增的dateStu:" + paperComment.getDateStu());
@@ -118,7 +117,7 @@ public class PaperCommentController {
      * 通过thesisID返回需要打印的pdf文件
      */
     @ResponseBody
-    @PostMapping("/exportPDF")
+    @GetMapping("/exportPDF")
     public void exportDataPDF(HttpServletResponse response, @RequestParam Integer thesisID) throws Exception {
         exportPDF.generatePDF(response, thesisID);
     }

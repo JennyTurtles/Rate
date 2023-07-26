@@ -7,13 +7,29 @@
         <el-form-item label="请输入学生姓名:">
           <el-input style="width: 60%" v-model="user.name" :disabled="userInfoIsDisabled"></el-input>
         </el-form-item>
+        <el-form-item label="请输入单位:">
+          <el-autocomplete
+              class="inline-input"
+              v-model="currentInstitution"
+              :fetch-suggestions="querySearch"
+              placeholder="请输入"
+              :trigger-on-focus="false"
+              :popper-class="noInstitutionData ? 'platform-auto-complete' : ''"
+              @select="handleSelect"
+              value-key="company"
+          >
+<!--            <template v-if="user.institutionID===0" slot-scope="{ item }">-->
+<!--              <div class="default">{{ item.default }}</div>-->
+<!--            </template>-->
+          </el-autocomplete>
+        </el-form-item>
         <el-form-item label="请输入学生电话:">
           <el-input style="width: 60%" v-model="user.telephone" :disabled="userInfoIsDisabled"></el-input>
         </el-form-item>
         <el-form-item label="请输入学生邮箱:">
           <el-input style="width: 60%" v-model="user.email" :disabled="userInfoIsDisabled"></el-input>
         </el-form-item>
-        <el-form-item label="请选择注册的学生类型:">
+        <el-form-item label="请选择注册的学生类型:" v-show="user.institutionID!==''">
 <!--          <span class="selectTitle"></span>-->
           <el-select v-model="selectStuType" clearable>
             <el-option
@@ -25,7 +41,7 @@
           </el-select>
         </el-form-item>
 <!--        <div v-show="selectStuType == '本科生' || selectStuType == '研究生'">-->
-        <div v-show="selectStuType !== '没有本校学号' && selectStuType !== null && selectStuType !== ''">
+        <div v-show="selectStuType !== '没有本校学号' && selectStuType !== null && selectStuType !== '' && selectStuType !== '不是大学生'">
           <el-form-item label="请输入学号:">
             <el-input style="width: 60%" v-model="user.studentnumber" ></el-input>
           </el-form-item>
@@ -36,7 +52,7 @@
         <div v-show="selectStuType === '研究生'">
           <el-form-item label="请选择研究生类型:">
             <el-select v-model="user.gradType">
-              <el-option v-for="val in ['专硕','学硕']"
+              <el-option v-for="val in ['专硕','学硕','博士']"
                          :value="val"
                          :label="val"
                          :key="val">
@@ -80,7 +96,10 @@ export default {
       selectStuType:'',
       confirmPassword:'',
       checkPwdState:false,
-      stuType:['没有本校学号','本科生','研究生'],
+      institutions:[],
+      noInstitutionData:false,
+      currentInstitution:'',
+      stuType:['本科生','研究生','不是大学生'],
       user:{
         name:'',
         telephone:'',
@@ -92,7 +111,8 @@ export default {
         password:'',
         gradType:'',//专硕/学硕
         registerQuestion:'',
-        registerAnswer:''
+        registerAnswer:'',
+        institutionID:'',
       },
       rules:{
         confirmPassword: [
@@ -105,11 +125,19 @@ export default {
             }
           }
         ]
+      },
+      item:{
+        activityCount:'',
+        company:'',
+        id:'',
+        comment:'',
+        uplimit:'',
       }
     }
   },
   mounted() {
     // this.debounceCheckPwd = debounce(this.checkPwd(),300)
+    this.getInstitutions();
   },
   computed:{
     labelWidth(){
@@ -143,7 +171,12 @@ export default {
         this.$message.warning('请输入身份证号！')
         return
       }
-      if(this.selectStuType == null || this.selectStuType == ''){
+      if (this.currentInstitution == ''){
+        this.$message.warning('请输入单位！')
+        return
+      }
+      console.log(this.currentInstitution);
+      if((this.selectStuType == null || this.selectStuType == '') && this.currentInstitution !== '其他'){
         this.$message.warning('请选择注册的学生身份！')
         return
       }
@@ -156,6 +189,7 @@ export default {
         return
       }
       this.user.stuType = this.selectStuType
+      console.log(this.user);
       postRequest('/registerUser/stu',this.user).then((response)=>{
         if(response){
           this.$message.success('注册成功！')
@@ -196,6 +230,7 @@ export default {
             this.user.registerAnswer = ''
             this.user.username = ''
             this.user.password = ''
+            this.user.institutionID = ''
             this.usernameAndPwdIsDisabled = false
             this.userInfoIsDisabled = false
           }
@@ -216,8 +251,37 @@ export default {
         password:'',
         studentType:'',
         registerQuestion:'',
-        registerAnswer:''
+        registerAnswer:'',
+        institutionID:''
       }
+    },
+    getInstitutions(){
+      let url = '/institution/basic/getAll';
+      this.getRequest(url).then(resp => {
+        if (resp) {
+          this.institutions = resp.obj;
+        }
+      });
+    },
+    querySearch(queryString, callback) {
+      console.log(queryString);
+      var institutions = this.institutions;
+      var results = queryString ? institutions.filter(this.createFilter(queryString)) : institutions;
+      if (results.length === 0){
+        this.item.company = '其他';
+        console.log(this.item);
+        results.push(this.item);
+      }// 调用 callback 返回建议列表的数据
+      callback(results);
+    },
+    createFilter(queryString) {
+      return (institutions) => {
+        return (institutions.company.includes(queryString));
+      };
+    },
+    handleSelect(item) {
+      this.user.institutionID = item.id;
+      this.currentInstitution = item.company;
     }
   },
 }

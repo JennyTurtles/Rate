@@ -2,10 +2,7 @@ package org.sys.rate.mapper;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.*;
 
 @Mapper
@@ -73,4 +70,35 @@ public interface ExpertsMapper {
             "activityID = VALUES(activityID),typeID = VALUES(typeID),\n" +
             "targetID = VALUES(targetID),coef = VALUES(coef)")
     void saveGradeForm(GradeFormEntry gradeFormEntry);
+
+    @Select("SELECT ID,name,jobnumber,institutionID,sex,department,IDNumber,phone,email\n" +
+            "FROM teacher t\n" +
+            "WHERE deleteFlag = 0 AND institutionID = #{institutionID}")
+    List<Experts> getByInstitutionID(Integer institutionID);
+
+
+    @Insert("INSERT IGNORE INTO teacher (name,phone,IDNumber,email,institutionID) VALUES (#{name},#{phone},#{idnumber},#{email},#{institutionid})")
+    @Options(useGeneratedKeys = true, keyProperty = "ID")
+    Integer manualAdd(Experts experts);
+
+    @Select("SELECT * FROM teacher WHERE IDNumber = #{idnumber}")
+    Experts getByIDNumber(String idnumber);
+
+    @Insert("INSERT IGNORE INTO teacher (name,phone,IDNumber,email,institutionID,username,password) " +
+            "VALUES (#{name},#{phone},#{idnumber},#{email},#{institutionid},#{username},#{password})")
+    @Options(useGeneratedKeys = true, keyProperty = "ID")
+    Integer manualAddWithUserName(Experts experts);
+
+
+    @Update("UPDATE expertactivities SET role = '组长' WHERE groupID = #{groupID} AND teacherID = #{teacherID}")
+    Integer setLeader(Integer groupID, Integer teacherID);
+
+    @Select("SELECT ID \n" +
+            "FROM expertactivities \n" +
+            "WHERE role = '组长' AND groupID = #{groupID} LIMIT 1")
+    Integer checkLeader(Integer groupID);
+
+    @Select("SELECT t.ID,name FROM expertactivities e,teacher t\n" +
+            "WHERE groupID = #{groupID} AND e.teacherID = t.ID LIMIT 1")
+    Experts getCandidateLeader(Integer groupID);
 }

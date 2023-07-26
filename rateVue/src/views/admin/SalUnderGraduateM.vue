@@ -1,15 +1,15 @@
 <template>
   <div>
     <div>
-      <el-button type="primary" @click="downloadExcel">下载模版</el-button>
-      <el-upload
-          :show-file-list="false"
+     导入学生第一步：<el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="downloadExcel">下载模版</el-button>     第二步：<el-upload
+
+        :show-file-list="false"
           :before-upload="beforeUpload"
           :on-success="onSuccess"
-          style="display: inline-flex; margin-left: 8px"
+          style="display: inline-flex; margin-left: 1px"
           :action="UploadUrl()"
       >
-        <el-button type="primary">上传学生excel</el-button>
+        <el-button icon="el-icon-plus" type="primary">导入学生</el-button>
       </el-upload>
     </div>
     <div style="margin-top: 10px">
@@ -78,6 +78,8 @@
         :data="undergraduateStudents">
         <el-table-column prop="stuNumber" label="学号" align="center"></el-table-column>
         <el-table-column prop="name" label="姓名" align="center" width="80px"></el-table-column>
+        <el-table-column prop="specialty" label="专业" align="center"></el-table-column>
+        <el-table-column prop="className" label="班级" align="center"></el-table-column>
         <el-table-column prop="username" label="用户名" align="center"></el-table-column>
         <el-table-column prop="telephone" label="电话" align="center"></el-table-column>
         <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
@@ -127,6 +129,12 @@
           </el-form-item>
           <el-form-item label="学生姓名">
             <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.name"></el-input>
+          </el-form-item>
+          <el-form-item label="学生专业">
+            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.specialty"></el-input>
+          </el-form-item>
+          <el-form-item label="学生班级">
+            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.className"></el-input>
           </el-form-item>
           <el-form-item label="学生手机号">
             <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.telephone"></el-input>
@@ -197,6 +205,8 @@ export default {
       currentUnderStudentOfEdit:{
         ID:null,
         name:'',
+        specialty:'',
+        className:'',
         teachers:{
           name:'',
           jobnumber:''

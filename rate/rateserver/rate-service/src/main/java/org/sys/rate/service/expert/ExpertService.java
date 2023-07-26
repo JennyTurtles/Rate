@@ -1,6 +1,7 @@
 package org.sys.rate.service.expert;
 
 import cn.hutool.core.lang.Pair;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
+import org.sys.rate.service.admin.ExpertActivitiesService;
 import org.sys.rate.utils.PasswordUtils;
 
 import javax.annotation.Resource;
@@ -41,6 +43,8 @@ public class ExpertService implements UserDetailsService {
 	UnderGraduateMapper underGraduateMapper;
 	@Resource
 	CommentMapper commentMapper;
+	@Resource
+	ExpertActivitiesService expertActivitiesService;
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -305,6 +309,7 @@ public class ExpertService implements UserDetailsService {
 			expertactivities.setActivityid(activityid);
 			expertactivities.setGroupid(groupid);
 			expertactivities.setFinished(false);
+			expertactivities.setRole("专家");
 			//如果是1，则为本单位，再设置为管理员的instituteId，否则为null
 			if (experts.getInstitutionid() == 1) {
 				Integer instituteId = activitiesMapper.selectByActivityId(activityid);//通过活动号查找管理员组织号，新增的ActivitiesMapper方法
@@ -376,11 +381,17 @@ public class ExpertService implements UserDetailsService {
 		return expertactivitiesMapper.updategroupid(groupid, activityid, id);
 	}
 
+	@Transactional
 	public Integer deleteExActivityTable(Integer groupid, Integer activityid, Experts teacher) {
 		Integer id = expertsMapper.getID(teacher.getIdnumber());
-		if (groupid == -1)
-			return expertactivitiesMapper.deleteNogroupid(activityid,id);
-		return expertactivitiesMapper.deletegroupid(groupid, activityid, id);
+		if (groupid == -1){
+			Integer res = expertactivitiesMapper.deleteNogroupid(activityid,id);
+			expertactivitiesMapper.updateActExpertCount(activityid);
+			return res;
+		}
+		Integer res = expertactivitiesMapper.deletegroupid(groupid, activityid, id);
+		expertActivitiesService.updateExpertCount(activityid,groupid);
+		return res;
 	}
 
 	public HashPEexport  getExpertList(String defination,Integer activityID) {
@@ -390,9 +401,9 @@ public class ExpertService implements UserDetailsService {
 		HashMap<Integer, String> Smap = new LinkedHashMap<>();
 		HashMap<Integer, String> SNotByEmap = new LinkedHashMap<>();
 		List<PEexport> data = null;
-		if(defination=="activityID")
+		if(Objects.equals(defination, "activityID"))
 			data=participatesMapper.getPartByGroupIdForPEexpert(activityID);
-		if(defination=="groupID")
+		if(Objects.equals(defination, "groupID"))
 			data=participatesMapper.getPartByGroupIdForPEexpertByGID(activityID);
 		HashMap<Integer,HashMap<Integer,HashMap<Integer,Participates>>> map = new LinkedHashMap<>();//ID,map(ExpertID,map(PID,P))
 		for(PEexport experts:data)//获得expert对应的participants和他们的分数
@@ -675,7 +686,7 @@ public class ExpertService implements UserDetailsService {
 			// 遍历字典comments，把key中的<br/>删除
 			for (Map.Entry<Integer,List<Comment>> entry : comments.entrySet()){
 				for (Comment comment : entry.getValue()){
-					comment.setContent(comment.getContent().replace("<br/>",""));
+					comment.setContent(comment.getContent().replace("<br/>","\n"));
 				}
 			}
 			gradeForm.setComments(comments);

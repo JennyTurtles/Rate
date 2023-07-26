@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.sys.rate.model.InfoItem;
 import org.sys.rate.model.ScoreAverage;
 import org.sys.rate.model.ScoreItem;
 import org.sys.rate.model.ScoreItemValue;
@@ -94,4 +95,10 @@ public interface ScoreItemMapper {
 
     @Select("SELECT ID,activityID,name FROM scoreitem s WHERE activityID = #{activityID}")
     List<ScoreItem> selectScoreItemByActId(Integer activityID);
+
+    @Select("SELECT a.name FROM scoreitem s,activities a WHERE s.ID = #{ID} AND s.activityID = a.ID")
+    String getActivityName(Integer ID);
+
+    @Select("select ID from scoreitem where activityID = #{activityID}")
+    List<Integer> getIDByActivityID(Integer ID);
 }

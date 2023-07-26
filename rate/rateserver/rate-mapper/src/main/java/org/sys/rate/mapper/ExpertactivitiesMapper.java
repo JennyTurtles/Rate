@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.sys.rate.model.Expertactivities;
 import org.sys.rate.model.Experts;
@@ -53,4 +54,13 @@ public interface ExpertactivitiesMapper {
 
     List<Expertactivities> getActByExpertID(@Param("expertID") Integer expertID);
 
+    @Update("UPDATE activities set expertCount=\n" +
+            "(SELECT COUNT(*) from expertactivities WHERE activityID = #{activityID} ) \n" +
+            "where ID=#{activityID}")
+    void updateActExpertCount(Integer activityID);
+
+    @Update("UPDATE `groups` set expertCount=\n" +
+            "(SELECT COUNT(*) from expertactivities WHERE groupID = #{groupID} ) \n" +
+            "where ID = #{groupID}")
+    void updateGroupExpertCount(Integer groupID);
 }

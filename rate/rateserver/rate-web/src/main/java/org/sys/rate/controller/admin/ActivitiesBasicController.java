@@ -3,6 +3,7 @@ package org.sys.rate.controller.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.ActivitiesMapper;
+import org.sys.rate.mapper.GroupsMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.ActivitiesService;
 import org.sys.rate.service.admin.LogService;
@@ -10,6 +11,7 @@ import org.sys.rate.service.admin.ParticipatesService;
 import org.sys.rate.service.admin.ScoreItemService;
 
 import javax.annotation.Resource;
+import javax.validation.GroupSequence;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,6 +37,9 @@ public class ActivitiesBasicController {
     @Resource
     ActivitiesMapper activitiesMapper;
 
+    @Autowired
+    GroupsMapper groupsMapper;
+
     @GetMapping("/")
     public RespPageBean getActivitiesByPage(@RequestParam(defaultValue = "1") Integer page,
                                             @RequestParam(defaultValue = "10") Integer size,
@@ -42,6 +47,12 @@ public class ActivitiesBasicController {
                                             @RequestParam Integer adminID,
                                             Activities employee) {
         return activitiesService.getActivitiesPage(page, size, employee, institutionID,adminID);
+    }
+
+    @GetMapping("/one")
+    public RespBean getActivitiesByID(@RequestParam Integer activityID) {
+        Activities res = activitiesMapper.getByID(activityID);
+        return RespBean.ok("success",res);
     }
 
     @GetMapping("/sub")
@@ -201,6 +212,39 @@ public class ActivitiesBasicController {
             return RespBean.ok("有子活动", true);
         } else
             return RespBean.ok("无子活动",false);
+    }
+
+    // 返回所有活动和子活动的的信息
+    @GetMapping("/getALl")
+    public RespBean getALl() {
+        List<Activities> activities = activitiesMapper.getAll();
+        return RespBean.ok("成功", activities);
+    }
+
+    @PostMapping("/clone")
+    public RespBean cloneActivity(@RequestBody Activities activity) {
+        activitiesService.cloneActivity(activity);
+        return RespBean.ok("克隆成功");
+    }
+
+    @GetMapping("/checkHaveGroup")
+    public RespBean checkHaveGroup(@RequestParam Integer activityID) {
+        if (activitiesMapper.checkHaveGroup(activityID) != null) {
+            return RespBean.ok("已分组", true);
+        } else
+            return RespBean.ok("未分组",false);
+    }
+
+    @GetMapping("/getAllGroup")
+    public RespBean getAllGroup(@RequestParam Integer activityID){
+        List<Groups> res = groupsMapper.getGroupByActID(activityID);
+        return RespBean.ok("success",res);
+    }
+
+    @GetMapping("/searchByName")
+    public RespBean searchByName(@RequestParam String name) {
+        List<Activities> activities = activitiesMapper.searchByName(name);
+        return RespBean.ok("success", activities);
     }
 }
 

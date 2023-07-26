@@ -37,7 +37,7 @@
         e.`departmentId`=d.`id` and e.`jobLevelId`=j.`id` and e.`posId`=pos.`id` and e.`id`=#{id}
     </select>
     <select id="getActivitiesByPage" resultMap="BaseResultMap">
-        select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID,e.status,e.haveSub,aa.adminID,aa.activityID,aa.ID,e.haveComment,e.creatorID,e.enterDate,e.visibleDate
+        select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID,e.status,e.haveSub,aa.adminID,aa.activityID,aa.ID,e.haveComment,e.creatorID,e.enterDate,e.visibleDate,e.gradeFormType
         from activities e,activitygrant aa
         where e.deleteFlag = '0'
         and e.institutionID = #{institutionID}
@@ -55,7 +55,7 @@
     </select>
     <select id="getInstitution_Current_Total" parameterType="org.sys.rate.model.Activities" resultType="java.lang.Integer">
         select count(*) from activities e
-        where e.institutionID = #{institutionID}
+        where e.institutionID = #{institutionID} and e.parentID is null
     </select>
     <select id="getInstitution_Total" parameterType="org.sys.rate.model.Activities" resultType="java.lang.Integer">
         select uplimit from institution
@@ -88,21 +88,28 @@
         </where>
     </select>
     <insert id="insert" parameterType="org.sys.rate.model.Activities" useGeneratedKeys="true" keyProperty="id">
-        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID,parentID,haveSub,haveComment,creatorID,enterDate,visibleDate
+        insert into activities (name, startDate, scoreItemCount, comment, deleteFlag,score, groupCount, expertCount, participantCount,institutionID,parentID,haveSub,haveComment,creatorID,enterDate,visibleDate,gradeFormType,scoreSetByself,requireGroup
         )
         values  (#{name,jdbcType=VARCHAR}, #{startDate,jdbcType=TIMESTAMP}, #{scoreItemCount,jdbcType=INTEGER},
-                #{comment,jdbcType=VARCHAR},0,0,0,0,0,#{institutionID,jdbcType=INTEGER},#{parentID,jdbcType=INTEGER},#{haveSub,jdbcType=INTEGER},#{haveComment,jdbcType=INTEGER},
-                 #{adminID,jdbcType=INTEGER},#{enterDate,jdbcType=TIMESTAMP},#{visibleDate,jdbcType=TIMESTAMP});
+                #{comment,jdbcType=VARCHAR},0,#{score},0,0,0,#{institutionID,jdbcType=INTEGER},#{parentID,jdbcType=INTEGER},#{haveSub,jdbcType=INTEGER},#{haveComment,jdbcType=INTEGER},
+                 #{adminID,jdbcType=INTEGER},#{enterDate,jdbcType=TIMESTAMP},#{visibleDate,jdbcType=TIMESTAMP},#{gradeFormType,jdbcType=INTEGER},#{scoreSetByself,jdbcType=INTEGER},#{requireGroup,jdbcType=INTEGER});
     </insert>
     <insert id="insertScoreItem" parameterType="org.sys.rate.model.Activities">
         insert into scoreitem (activityID,name,score,coef,byExpert)
-        values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'活动得分',100,1,true)
+        values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'活动总评分',100,1,true)
+    </insert>
+    <insert id="insertDisplayItem">
+        insert into displayitem (activityID,name,source,displaySequence)
+        values ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'编号','code',1),
+               ((select ID from activities where name=#{name,jdbcType=VARCHAR}),'姓名','name',2)
     </insert>
 
     <update id="insert_update" parameterType="org.sys.rate.model.Activities">
         UPDATE institution a SET a.activityCount = a.activityCount+1  WHERE a.id = #{institutionID,jdbcType=INTEGER}
     </update>
-
+    <update id="delete_update" parameterType="org.sys.rate.model.Activities">
+        UPDATE institution a SET a.activityCount = a.activityCount-1  WHERE a.id = #{institutionID,jdbcType=INTEGER}
+    </update>
     <update id="predelete" parameterType="java.lang.Integer">
         UPDATE activities SET deleteFlag = 1
         where id = #{id}
@@ -131,7 +138,9 @@
             haveSub=#{haveSub,jdbcType=INTEGER},
             haveComment=#{haveComment,jdbcType=INTEGER},
             enterDate=#{enterDate,jdbcType=TIMESTAMP},
-            visibleDate=#{visibleDate,jdbcType=TIMESTAMP}
+            visibleDate=#{visibleDate,jdbcType=TIMESTAMP},
+            gradeFormType=#{gradeFormType,jdbcType=INTEGER},
+            requireGroup=#{requireGroup,jdbcType=INTEGER}
         </trim>
         where ID=#{id,jdbcType=INTEGER}
     </update>

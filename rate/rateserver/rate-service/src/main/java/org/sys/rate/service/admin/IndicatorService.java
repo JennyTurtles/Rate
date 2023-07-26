@@ -33,4 +33,10 @@ public class IndicatorService {
     public boolean updateAllField(Indicator indicator){return indicatorMapper.updateAllField(indicator) > 0;}
 
     public Integer selectScoreById(Integer id){return indicatorMapper.selectScoreById(id);}
+
+    public Integer getMaxYear(Integer id,Integer year){return indicatorMapper.getMaxYear(id,year);}
+
+    public Integer getIndicatorId(String order) {
+        return indicatorMapper.getIndicatorId(order);
+    }
 }

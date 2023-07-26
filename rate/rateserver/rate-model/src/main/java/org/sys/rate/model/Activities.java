@@ -32,6 +32,7 @@ public class Activities {
     private String parentName;//父活动名字
     private Integer requireGroup;
     private Integer haveSub;
+    private boolean isSub; // 是否为子活动
     private Integer adminID;//这个应该是和管理员-活动表相关联
     private Integer creatorID;//活动创建者id
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -40,7 +41,33 @@ public class Activities {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date visibleDate;//专家能看到该活动的时间
+    private Integer scoreSetByself; //成绩查看设置方式
+    private Integer gradeFormType;
 
+
+    public void cleanCount(){
+        this.groupCount = 0;
+        this.expertCount = 0;
+        this.participantCount = 0;
+    }
+
+    public void fillNewInfo(Activities newAct){
+        this.name = newAct.getName() != null ? newAct.getName() : this.name;
+        this.startDate = newAct.getStartDate() != null ? newAct.getStartDate() : this.startDate;
+        this.comment = newAct.getComment() != null ? newAct.getComment() : this.comment;
+        this.enterDate = newAct.getEnterDate() != null ? newAct.getEnterDate() : this.enterDate;
+        this.visibleDate = newAct.getVisibleDate() != null ? newAct.getVisibleDate() : this.visibleDate;
+        this.parentID = newAct.getParentID() != null ? newAct.getParentID() : this.parentID;
+        this.adminID = newAct.getAdminID() != null ? newAct.getAdminID() : this.adminID;
+    }
+
+    public Integer getGradeFormType() {
+        return gradeFormType;
+    }
+
+    public void setGradeFormType(Integer gradeFormType) {
+        this.gradeFormType = gradeFormType;
+    }
 
     public String getParentName() {
         return parentName;

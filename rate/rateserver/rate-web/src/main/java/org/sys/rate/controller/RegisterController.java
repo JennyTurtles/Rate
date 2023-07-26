@@ -44,7 +44,7 @@ public class RegisterController {
                 UnderGraduate under = new UnderGraduate();
                 under.setStuNumber(student.getStudentnumber());
                 under.setTutorID(null);
-                under.setInstitutionID(null);//怎么处理？
+                under.setInstitutionID(student.getInstitutionID());//怎么处理？
                 under.setYear(student.getYear());
                 under.setStudentID(student.getID());
                 if(underGraduateMapper.getUnderByStuID(student.getID()) == null){
@@ -54,7 +54,7 @@ public class RegisterController {
                 GraduateStudent grad = new GraduateStudent();
                 grad.setStuNumber(student.getStudentnumber());
                 grad.setTutorID(null);
-                grad.setInstitutionID(null);//怎么处理？
+                grad.setInstitutionID(student.getInstitutionID());//怎么处理？
                 grad.setYear(student.getYear());
                 grad.setStudentID(student.getID());
                 grad.setStudentType(student.getGradType());

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="display: flex; justify-content: left">
-      {{ keywords_name }}活动 {{groupName}} 选手总成绩
+      {{ keywords_name }}活动 {{groupName}} 选手成绩
 
       <div style="margin-left: auto">
         <el-button icon="el-icon-download" type="primary" @click="exportExcel">
@@ -60,7 +60,15 @@
 <!--              </el-checkbox-group>-->
 <!--            </div>-->
 <!--          </el-popover>-->
-
+      <router-link :to= "{path: '/ActivitM/total',query: {keywords: keywords,
+                          keyword_name:keywords_name,
+                          backID:keywords,
+                          mode:mode,}}"
+                   style="margin-left: 300px">
+            <span>
+              定制成绩查看界面
+            </span>
+      </router-link>
     </div>
     <div style="margin-top: 10px">
       <el-table
@@ -160,6 +168,7 @@ export default {
       keywords: '', // 活动id
       keyword: '',
       size: 10,
+      mode:'',
       columns: [{ label: "性别", prop: "name", width: 100, show: true },
         { label: "民族", prop: "sex", width: 150, show: true },
         { label: "政治面貌", prop: "age", width: 100, show: true }],
@@ -209,6 +218,9 @@ export default {
       var url = '/displayItem/allPar?activityID=' + this.keywords
       if (typeof this.groupID !== 'undefined')
         url += '&groupID=' + this.groupID
+      else if (typeof this.$route.query.backGroupID !== 'undefined'){
+       url += '&groupID=' + this.$route.query.backGroupID
+      }
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {

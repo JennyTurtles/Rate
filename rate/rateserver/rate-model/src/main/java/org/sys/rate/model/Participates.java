@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.sql.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 @Data
 public class Participates{
@@ -13,6 +14,7 @@ public class Participates{
     private String studentnumber;//new from stu
     private String telephone;//new from stu
     private String email;//new from stu
+    private Integer role;
     //private Integer institutionID;
     private String name;//from stu
     private  Double score;//p
@@ -57,6 +59,14 @@ public class Participates{
     }
     public String getPassword() {
         return password;
+    }
+
+    public Integer getRole() {
+        return role;
+    }
+
+    public void setRole(Integer role) {
+        this.role = role;
     }
 
     public void setPassword(String password) {
@@ -207,4 +217,16 @@ public class Participates{
         this.totalscorewithdot = totalscorewithdot;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Participates myObject = (Participates) o;
+        return Objects.equals(ID,myObject.ID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(ID);
+    }
 }

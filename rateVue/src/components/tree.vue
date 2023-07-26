@@ -2,7 +2,7 @@
   <div>
     <div>
       <div
-        style="
+          style="
           text-align: center;
           line-height: 35px;
           font-size: 20px;
@@ -11,22 +11,17 @@
       >
         指标点分类
         <el-button
-          icon="el-icon-plus"
-          @click="
+            icon="el-icon-plus"
+            @click="
             ruleForm = { name: '', score: '' };
             dialogVisibleRoot = true;
           "
-          style="float: right; padding: 6px; margin: 4px"
+            style="float: right; padding: 6px; margin: 4px"
         ></el-button>
       </div>
     </div>
-    <el-tooltip
-      class="item"
-      effect="dark"
-      content="拖动节点以交换位置"
-      placement="right"
-    >
-      <el-tree
+
+    <el-tree
         :data="data"
         :props="defaultProps"
         @node-click="handleNodeClick"
@@ -39,54 +34,53 @@
         :allow-drag="allowDrag"
         :highlight-current="true"
         default-expand-all
-      ></el-tree>
-    </el-tooltip>
+    ></el-tree>
     <!--添加到非一二级目录-->
     <el-dialog :visible.sync="dialogVisible" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
-        >请输入需要添加的指标点名称</span
+      >请输入需要添加的指标点名称</span
       >
       <p>
         添加位置：<b>{{ data1.label }}</b>
       </p>
       <el-input
-        v-model="label"
-        placeholder="指标点名称"
-        size="normal"
+          v-model="label"
+          placeholder="指标点名称"
+          size="normal"
       ></el-input>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button
-          type="primary"
-          @click="
+            type="primary"
+            @click="
             append(data1);
             dialogVisible = false;
           "
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
     <!--添加到一级目录-->
     <el-dialog :visible.sync="dialogVisibleRoot" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
-        >请输入分类名和积分值</span
+      >请输入分类名和积分值</span
       >
       <el-form
-        :rules="rules"
-        :model="ruleForm"
-        label-width="60px"
-        :label-position="left"
+          :rules="rules"
+          :model="ruleForm"
+          label-width="60px"
+          :label-position="'left'"
       >
         <el-form-item style="margin-top: 15px" prop="name" label="类型">
-          <el-input v-model="ruleForm.name" placeholder="请输入分类名" />
+          <el-input v-model="ruleForm.name" placeholder="请输入分类名"/>
         </el-form-item>
         <el-form-item prop="score" label="分值">
           <el-input-number
-            v-model="ruleForm.score"
-            :min="0"
-            :max="50"
-            @input="onScoreInput"
-            inline
+              v-model="ruleForm.score"
+              :min="0"
+              :max="50"
+              @input="onScoreInput"
+              inline
           />
         </el-form-item>
       </el-form>
@@ -98,7 +92,7 @@
     <!--添加到二级目录-->
     <el-dialog :visible.sync="dialogVisibleType" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
-        >请选择需要添加的分类</span
+      >请选择需要添加的分类</span
       >
       <p>
         添加位置：<b>{{ data1.label }}</b>
@@ -106,16 +100,16 @@
       <el-form label-width="auto">
         <el-form-item label="类型">
           <el-select
-            v-model="type"
-            placeholder="请从下拉菜单中选择"
-            style="width: 100%"
+              v-model="type"
+              placeholder="请从下拉菜单中选择"
+              style="width: 100%"
           >
             <el-option
-              v-for="item in TypeOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-              :disabled="item.disabled"
+                v-for="item in TypeOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+                :disabled="item.disabled"
             >
             </el-option>
           </el-select>
@@ -128,56 +122,56 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleType = false">取 消</el-button>
         <el-button
-          type="primary"
-          @click="
+            type="primary"
+            @click="
             dialogVisibleType = false;
             append(data1);
           "
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
     <!--修改非一二级目录的名字-->
     <el-dialog :visible.sync="dialogVisibleUpdate" width="35%">
       <span slot="title" style="float: left; font-size: 20px"
-        >请输入需要修改的名字</span
+      >请输入需要修改的名字</span
       >
       <el-input
-        v-model="labelUpdate"
-        placeholder="标签名"
-        size="normal"
+          v-model="labelUpdate"
+          placeholder="标签名"
+          size="normal"
       ></el-input>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdate = false">取 消</el-button>
         <el-button
-          type="primary"
-          @click="
+            type="primary"
+            @click="
             update(data1);
             dialogVisibleUpdate = false;
           "
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
     <!--修改一级目录的名字-->
     <el-dialog :visible.sync="dialogVisibleUpdateRoot" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
-        >请输入需要修改的分类名和积分值</span
+      >请输入需要修改的分类名和积分值</span
       >
       <el-form :rules="rules" :model="ruleForm" label-width="60px">
         <el-form-item style="margin-top: 15px" prop="name" label="类型">
           <el-input
-            @input="$forceUpdate()"
-            v-model="ruleForm.name"
-            placeholder="请输入要修改的分类名"
+              @input="$forceUpdate()"
+              v-model="ruleForm.name"
+              placeholder="请输入要修改的分类名"
           />
         </el-form-item>
         <el-form-item prop="score" label="分值">
           <el-input-number
-            @input="$forceUpdate()"
-            v-model="ruleForm.score"
-            :min="0"
-            :max="50"
+              @input="$forceUpdate()"
+              v-model="ruleForm.score"
+              :min="0"
+              :max="50"
           />
         </el-form-item>
       </el-form>
@@ -185,29 +179,29 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdateRoot = false">取 消</el-button>
         <el-button type="primary" @click="submitFormUpdate(data1)"
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
     <!--修改二级目录的名字-->
     <el-dialog :visible.sync="dialogVisibleUpdateType" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
-        >请输入需要修改的分类名</span
+      >请输入需要修改的分类名</span
       >
       <el-form label-width="auto">
         <el-form-item label="类型">
           <el-select
-            v-model="type"
-            placeholder="请从下拉菜单中选择"
-            disabled
-            style="width: 100%"
+              v-model="type"
+              placeholder="请从下拉菜单中选择"
+              disabled
+              style="width: 100%"
           >
             <el-option
-              v-for="item in TypeOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-              :disabled="item.disabled"
+                v-for="item in TypeOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+                :disabled="item.disabled"
             >
             </el-option>
           </el-select>
@@ -220,12 +214,12 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdateType = false">取 消</el-button>
         <el-button
-          type="primary"
-          @click="
+            type="primary"
+            @click="
             update(data1);
             dialogVisibleUpdateType = false;
           "
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
@@ -252,11 +246,11 @@ export default {
       scoreValid: true, // 是否输入合法
       scoreError: "", // 错误提示信息
       scores: [
-        { value: 2, label: 2 },
-        { value: 4, label: 4 },
-        { value: 6, label: 6 },
-        { value: 9, label: 9 },
-        { value: 12, label: 12 },
+        {value: 2, label: 2},
+        {value: 4, label: 4},
+        {value: 6, label: 6},
+        {value: 9, label: 9},
+        {value: 12, label: 12},
       ],
       score: "",
       type: "",
@@ -287,44 +281,50 @@ export default {
           disabled: false,
         },
         {
-          value: "纵向科研项目",
-          label: "纵向科研项目",
+          value: "授权专利",
+          label: "授权专利",
           disabled: false,
         },
         {
-          value: "科技奖",
-          label: "科技奖",
+          value: "科研获奖",
+          label: "科研获奖",
           disabled: false,
         },
         {
-          value: "决策咨询成果",
-          label: "决策咨询成果",
+          value: "科研项目",
+          label: "科研项目",
           disabled: false,
         },
         {
-          value: "教材",
-          label: "教材",
+          value: "制定标准",
+          label: "制定标准",
           disabled: false,
         },
         {
-          value: "竞赛获奖",
-          label: "竞赛获奖",
+          value: "决策咨询",
+          label: "决策咨询",
           disabled: false,
         },
         {
-          value: "软著专利",
-          label: "软著专利",
+          value: "学术专著和教材",
+          label: "学术专著和教材",
           disabled: false,
         },
         {
-          value: "其他",
-          label: "其他",
+          value: "制造或设计的产品",
+          label: "制造或设计的产品",
           disabled: false,
         },
+        {
+          value: "学科竞赛",
+          label: "学科竞赛",
+          disabled: false,
+        },
+
       ],
       rules: {
-        name: [{ required: true, message: "请输入分类名称", trigger: "blur" }],
-        score: [{ required: true, message: "请输入分值", trigger: "blur" }],
+        name: [{required: true, message: "请输入分类名称", trigger: "blur"}],
+        score: [{required: true, message: "请输入分值", trigger: "blur"}],
       },
     };
   },
@@ -354,61 +354,61 @@ export default {
       }
     },
     //点击标签传数据，发送请求
-    renderContent(h, { node, data, store }) {
+    renderContent(h, {node, data, store}) {
       return (
-        <span class="custom-tree-node">
+          <span class="custom-tree-node">
           <span class="tree-node-text" title={node.label}>
             {node.label}
           </span>
           <span class="inline-tree-node">
             <el-button
-              class="plus-button"
-              circle
-              // 添加
-              size="mini"
-              // type="text"
-              icon="el-icon-circle-plus-outline"
-              on-click={() => {
-                this.data1 = data;
-                if (node.level > 1) this.dialogVisible = true;
-                else this.dialogVisibleType = true;
-              }}
-            ></el-button>
-            <el-popconfirm
-              title="此操作将删除此标签及其所有子标签"
-              icon-color="red"
-              icon="el-icon-info"
-              on-confirm={() => this.remove(node, data)}
-            >
-              <el-button
                 class="plus-button"
-                circle //删除
-                slot="reference"
+                circle
+                // 添加
                 size="mini"
                 // type="text"
-                icon="el-icon-delete"
+                icon="el-icon-circle-plus-outline"
+                on-click={() => {
+                  this.data1 = data;
+                  if (node.level > 1) this.dialogVisible = true;
+                  else this.dialogVisibleType = true;
+                }}
+            ></el-button>
+            <el-popconfirm
+                title="此操作将删除此标签及其所有子标签"
+                icon-color="red"
+                icon="el-icon-info"
+                on-confirm={() => this.remove(node, data)}
+            >
+              <el-button
+                  class="plus-button"
+                  circle //删除
+                  slot="reference"
+                  size="mini"
+                  // type="text"
+                  icon="el-icon-delete"
               ></el-button>
             </el-popconfirm>
             <el-button
-              class="plus-button"
-              circle //修改
-              size="mini"
-              // type="text"
-              icon="el-icon-edit"
-              on-click={() => {
-                this.data1 = data;
-                this.labelUpdate = data.label.substring(data.order.length + 1);
-                if (node.level > 2) this.dialogVisibleUpdate = true;
-                else if (node.level === 1) {
-                  this.dialogVisibleUpdateRoot = true;
-                  this.scoreUpdate = data.score;
-                  this.ruleForm.name = this.labelUpdate;
-                  this.ruleForm.score = this.scoreUpdate;
-                } else if (node.level === 2) {
-                  this.type = data.type;
-                  this.dialogVisibleUpdateType = true;
-                }
-              }}
+                class="plus-button"
+                circle //修改
+                size="mini"
+                // type="text"
+                icon="el-icon-edit"
+                on-click={() => {
+                  this.data1 = data;
+                  this.labelUpdate = data.label.substring(data.order.length + 1);
+                  if (node.level > 2) this.dialogVisibleUpdate = true;
+                  else if (node.level === 1) {
+                    this.dialogVisibleUpdateRoot = true;
+                    this.scoreUpdate = data.score;
+                    this.ruleForm.name = this.labelUpdate;
+                    this.ruleForm.score = this.scoreUpdate;
+                  } else if (node.level === 2) {
+                    this.type = data.type;
+                    this.dialogVisibleUpdateType = true;
+                  }
+                }}
             ></el-button>
           </span>
         </span>
@@ -481,15 +481,30 @@ export default {
         };
         this.data.push(newChild);
       }
-      axios.post("/indicator", postData).then(function (resp) {
-        if (resp.status != 200) alert("添加失败！");
-        else {
-          that.$message({
-            type: "success",
-            message: "添加成功",
+      axios.post("/indicator", postData)
+          .then(function (resp) {
+            // console.log(resp);
+            if (resp.status != 200) {
+              alert("添加失败！");
+            } else {
+              that.$message({
+                type: "success",
+                message: "添加成功",
+              });
+
+              // 在 POST 请求成功后再发送 GET 请求
+              axios.get("/indicator")
+                  .then(function (resp) {
+                    that.id = resp.obj[0];
+                    that.data = resp.obj[1];
+                  });
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+            alert("添加指标失败：" + error.message);
           });
-        }
-      });
+
       this.id++;
       this.label = "";
       this.score = "";
@@ -569,23 +584,23 @@ export default {
         }
         //处理order
         if (dropNode.level === 1)
-          //处理都在一级目录的情况
+            //处理都在一级目录的情况
           postData.order = dropNodeData.order * 1 - 1;
         else {
           var startOrder = this.startNode.data.order;
           var dropOrder = dropNode.data.order;
           var dotIndex = dropOrder.lastIndexOf(".");
           var dropOrderLast =
-            dropOrder.substring(dotIndex + 1, dropOrder.size) * 1;
+              dropOrder.substring(dotIndex + 1, dropOrder.size) * 1;
           if (
-            startOrder.substring(0, dotIndex) ===
+              startOrder.substring(0, dotIndex) ===
               dropOrder.substring(0, dotIndex) &&
-            startOrder.substring(dotIndex + 1, dropOrder.size) * 1 <
+              startOrder.substring(dotIndex + 1, dropOrder.size) * 1 <
               dropOrderLast
           )
-            //父节点一样则比较先后顺序
+              //父节点一样则比较先后顺序
             postData.order =
-              dropOrder.substring(0, dotIndex + 1) + (dropOrderLast - 1);
+                dropOrder.substring(0, dotIndex + 1) + (dropOrderLast - 1);
           else postData.order = dropNodeData.order;
         }
       } else if (dropType === "after") {
@@ -599,31 +614,31 @@ export default {
         }
         //处理order
         if (dropNode.level === 1)
-          //处理都在一级目录的情况
+            //处理都在一级目录的情况
           postData.order = dropNodeData.order * 1 + 1;
         else {
           var startOrder = this.startNode.data.order;
           var dropOrder = dropNode.data.order;
           var dotIndex = dropOrder.lastIndexOf(".");
           var dropOrderLast =
-            dropOrder.substring(dotIndex + 1, dropOrder.size) * 1;
+              dropOrder.substring(dotIndex + 1, dropOrder.size) * 1;
           if (
-            startOrder.substring(0, dotIndex) ===
+              startOrder.substring(0, dotIndex) ===
               dropOrder.substring(0, dotIndex) &&
-            startOrder.substring(dotIndex + 1, dropOrder.size) * 1 <
+              startOrder.substring(dotIndex + 1, dropOrder.size) * 1 <
               dropOrderLast
           )
-            //父节点一样则比较先后顺序
+              //父节点一样则比较先后顺序
             postData.order = dropNodeData.order;
           else
             postData.order =
-              dropOrder.substring(0, dotIndex + 1) + (dropOrderLast + 1);
+                dropOrder.substring(0, dotIndex + 1) + (dropOrderLast + 1);
         }
       } else if (dropType === "inner") {
         if (dropNode.level === 1) postData.type = this.startNode.data.label;
         postData.father = dropNodeData.id;
         postData.order =
-          dropNodeData.order + "." + dropNodeData.children.length;
+            dropNodeData.order + "." + dropNodeData.children.length;
       }
       var that = this;
       axios.post("/indicator/insert", postData).then(function (resp) {
@@ -662,44 +677,44 @@ export default {
       else if (dropType === "after") location = "后面";
       else if (dropType === "inner") location = "内部";
       if (
-        (draggingNode.level === 3 &&
-          dropNode.level === 2 &&
-          dropType === "inner" &&
-          draggingNode.data.type === dropNode.data.type) ||
-        (draggingNode.level === 2 &&
-          dropNode.level === 1 &&
-          dropType === "inner") ||
-        (draggingNode.level === 3 &&
-          dropNode.level === 3 &&
-          dropType !== "inner" &&
-          draggingNode.data.type === dropNode.data.type) ||
-        (draggingNode.level === 2 &&
-          dropNode.level === 2 &&
-          dropType !== "inner")
+          (draggingNode.level === 3 &&
+              dropNode.level === 2 &&
+              dropType === "inner" &&
+              draggingNode.data.type === dropNode.data.type) ||
+          (draggingNode.level === 2 &&
+              dropNode.level === 1 &&
+              dropType === "inner") ||
+          (draggingNode.level === 3 &&
+              dropNode.level === 3 &&
+              dropType !== "inner" &&
+              draggingNode.data.type === dropNode.data.type) ||
+          (draggingNode.level === 2 &&
+              dropNode.level === 2 &&
+              dropType !== "inner")
       ) {
         //只允许同类节点拖拽
         this.$confirm(
-          '此标签及其子标签将被移动至："\n' +
+            '此标签及其子标签将被移动至："\n' +
             dropNode.data.label +
             '"' +
             location,
-          "提示",
-          {
-            confirmButtonText: "确定",
-            cancelButtonText: "取消",
-            type: "warning",
-          }
+            "提示",
+            {
+              confirmButtonText: "确定",
+              cancelButtonText: "取消",
+              type: "warning",
+            }
         )
-          .then(() => {
-            that.insert(draggingNode, dropNode, dropType, 0);
-          })
-          .catch(() => {
-            this.updateAll();
-            this.$message({
-              type: "info",
-              message: "已取消移动",
+            .then(() => {
+              that.insert(draggingNode, dropNode, dropType, 0);
+            })
+            .catch(() => {
+              this.updateAll();
+              this.$message({
+                type: "info",
+                message: "已取消移动",
+              });
             });
-          });
       } else {
         this.$message({
           type: "error",
@@ -713,6 +728,9 @@ export default {
         // data.append(node.parent.data.label)
         data["p2"] = node.parent.data.label;
         data["p1"] = node.parent.parent.data.label;
+        if (data.type == "授权专利") {
+          this.$message.warning("授权专利没有侧边栏！")
+        }
         this.$emit("getLabelInfo", data);
       }
     },
@@ -791,11 +809,13 @@ export default {
   font-size: 15px;
   padding-right: 0px;
 }
+
 .inline-tree-node {
   position: absolute;
   left: 0px;
   display: none;
 }
+
 .custom-tree-node:hover .inline-tree-node {
   display: inline-block;
 }

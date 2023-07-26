@@ -1,11 +1,25 @@
 <template>
   <div>
+   <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
+   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2GroupManage" v-show="$route.query.addActive == 5 && $route.query.mode == 'admin'">
+    组内人员管理
+   </el-button>
     <div >
+      <div style="display: flex; justify-content: left">
+        <div style="width: 100%;text-align: center;font-size: 20px" v-show="typeof $route.query.addActive === 'undefined'">选手管理</div>
+        <div style="margin-left: auto;float: right">
+          <el-button icon="el-icon-back" type="primary" @click="back" v-show="typeof $route.query.addActive === 'undefined'" style="float: right">
+            返回
+          </el-button>
+        </div>
+      </div>
+     <el-tabs v-model="activeName" style="width: 70%" @tab-click="change2Exp">
+      <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
+      <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
       <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
+     </el-tabs>
       <a>
-      选手导入到本组<br/><br/>
-      选手第一次导入时，可先不分组。此时可以将导入表格中的“分组名称”留空，进行导入操作。待分组后，再导入一次，从而实现分组。
-      选手的信息项以及评分项，也可在选手第一次导入时留空，待第二次、第三次（或之后）导入时填入那些信息。<br/>
+      选手添加有三种模式：手动添加、从本单位添加、批量导入。<br/><br/>
       </a>
       <div style="display: flex;justify-content: space-between;">
         <!-- <div>
@@ -19,37 +33,18 @@
           </el-button>
         </div> -->
         <div>
-          <span style="font-weight:600;">导入新数据</span> 第一步：
-<!--          <a href="/participants/basic/exportMoPar?activityid=15">Test ResponseEntity</a>-->
-          <el-button type="primary" @click="exportCheckbox" icon="el-icon-upload" style="margin-right: 8px">
-            下载模板
+          <el-button type="success" @click="showMethod">
+            添加选手
           </el-button>
-          第二步：
-          <el-upload
-              :show-file-list="false"
-              :before-upload="beforeUpload"
-              :on-success="onSuccess"
-              :on-error="onError"
-              :disabled="importDataDisabled"
-              style="display: inline-flex;margin-right: 8px"
-              action="#"
-              :http-request="handleChange">
-            <el-button :disabled="importDataDisabled" type="primary" :icon="importDataBtnIcon">
-              {{importDataBtnText}}
-            </el-button>
-          </el-upload>
         </div>
         <div>
           <el-button type="primary" @click="exportTG" icon="el-icon-download">
             导出专家打分
           </el-button>
-          <el-button
-              icon="el-icon-refresh"
-              type="primary"
-              @click="refreshact()">刷新</el-button>
-          <el-button icon="el-icon-back" type="primary" @click="back">
-            返回
-          </el-button>
+<!--          <el-button-->
+<!--              icon="el-icon-refresh"-->
+<!--              type="primary"-->
+<!--              @click="refreshact()">刷新</el-button>-->
         </div>
       </div>
     </div>
@@ -98,18 +93,6 @@
             >
         </el-table-column>
         <el-table-column
-            prop="code"
-            align="left"
-            label="编号"
-            min-width="10%">
-        </el-table-column>
-        <el-table-column
-            prop="idnumber"
-            align="left"
-            label="身份证号码"
-            min-width="10%">
-        </el-table-column>
-        <el-table-column
             prop="name"
             align="left"
             label="姓名"
@@ -118,7 +101,7 @@
         <el-table-column
             sortable
             prop="score"
-            label="活动得分"
+            label="活动总评分"
             align="center"
             min-width="10%">
         </el-table-column>
@@ -172,7 +155,6 @@
               style="width: 200px"
               prefix-icon="el-icon-edit"
               v-model="emp.displaySequence"
-              disabled
               placeholder="显示顺序"
           ></el-input>
         </el-form-item>
@@ -317,9 +299,9 @@
         </div><br/>
       <div style="font-size: 16px;margin-left: 15%">基本信息：<br/>
         <el-checkbox label="姓名" key="姓名" v-model="dymatic_list" disabled style="width: 150px">姓名</el-checkbox>
-        <el-checkbox label="身份证号码" v-model="dymatic_list" disabled style="width: 150px">身份证号码</el-checkbox>
-        <el-checkbox label="编号" v-model="dymatic_list"  style="width: 150px">编号</el-checkbox>
-        <el-checkbox label="序号" v-model="dymatic_list"  style="width: 150px">序号</el-checkbox>
+<!--        <el-checkbox label="身份证号码" v-model="dymatic_list" disabled style="width: 150px">身份证号码</el-checkbox>-->
+        <el-checkbox label="编号" v-model="dymatic_list"  disabled style="width: 150px">编号</el-checkbox>
+        <el-checkbox label="序号" v-model="dymatic_list"  style="width: 150px">组内序号</el-checkbox>
         <el-checkbox label="手机号" v-model="dymatic_list"  style="width: 150px">手机号</el-checkbox>
         <el-checkbox label="邮箱" v-model="dymatic_list"  style="width: 150px">邮箱</el-checkbox>
 <!--        <el-checkbox label="属于本单位" v-model="dymatic_list"  style="width: 150px">属于本单位</el-checkbox>-->
@@ -342,16 +324,158 @@
         </span>
     </el-dialog>
 
+    <el-dialog :title="title" ref="dia" :visible.sync="dialogVisible_method" width="55%" center @close="handleClose">
+      <el-tabs type="border-card">
+        <el-tab-pane label="手动添加">
+         <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
+<!--          <el-form-item label="身份证号:" prop="idnumber" >-->
+<!--           <el-input style="width: 60%"  v-model="manualAddForm.idnumber" @blur="getInfoByIDNumber()"></el-input>-->
+<!--          </el-form-item>-->
+          <el-form-item label="编号:" prop="code" >
+           <el-input style="width: 60%" v-model="manualAddForm.code" @blur="getInfoByCode"></el-input>
+          </el-form-item>
+          <el-form-item label="姓名:" prop="name" >
+           <el-input style="width: 60%" v-model="manualAddForm.name" :disabled="manualAddFormDisabled"></el-input>
+          </el-form-item>
+          <el-form-item label="电话:" prop="telephone">
+           <el-input style="width: 60%" v-model="manualAddForm.telephone" :disabled="manualAddFormDisabled"></el-input>
+          </el-form-item>
+          <el-form-item label="邮箱:" prop="email">
+           <el-input style="width: 60%" v-model="manualAddForm.email" :disabled="manualAddFormDisabled"></el-input>
+          </el-form-item>
+         </el-form>
+         <el-button type="primary" @click="manualAdd" v-if="allowManualAdd">添加</el-button>
+         <el-tooltip class="item" effect="dark" content="该选手已经在活动内了，无法重复添加" placement="top-start" v-else :disabled='false'>
+      <span>
+      <el-button type="primary" style="margin-top: 15px" :disabled="true">
+       添加
+      </el-button>
+      </span>
+         </el-tooltip>
+        </el-tab-pane>
+        <el-tab-pane label="从本单位添加">
+         <el-input
+             v-model="searchText"
+             placeholder="请输入学号或姓名进行搜索"
+             @keyup.enter.native="search"
+             @input="search"
+         >
+          <template #append>
+           <el-button icon="el-icon-search" type="success" @click="search"></el-button>
+          </template>
+         </el-input>
+          <el-table
+              ref="multipleTable"
+              :data="currentParticipants"
+              tooltip-effect="dark"
+              style="width: 100%"
+              @selection-change="handleSelectionChange"
+              :row-key="getRowKeys">
+            <el-table-column
+                :reserve-selection="true"
+                type="selection"
+                :selectable="checkSecletion"
+                width="40px">
+            </el-table-column>
+           <el-table-column
+               prop="studentNumber"
+               label="学号"
+               show-overflow-tooltip>
+           </el-table-column>
+            <el-table-column
+                prop="name"
+                label="姓名">
+            </el-table-column>
+
+          </el-table>
+          <div class="block" style="padding-top: 10px">
+            <el-pagination
+                @current-change="currentChange"
+                @size-change="sizeChange"
+                :current-page="page"
+                layout="sizes, prev, pager, next, jumper, ->, total, slot"
+                :total="total">
+            </el-pagination>
+          </div>
+          <div style="color: #4b8ffe ;float: right">
+            已选择{{multipleSelection.length}}位选手
+            <el-button type="primary" @click="add" style="padding-left: 10px">
+              添加
+            </el-button>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="批量导入">
+          <a>
+            选手第一次导入时，可先不分组。此时可以将导入表格中的“分组名称”留空，进行导入操作。待分组后，再导入一次，从而实现分组。
+            选手的信息项以及评分项，也可在选手第一次导入时留空，待第二次、第三次（或之后）导入时填入那些信息。<br/><br/>
+          </a>
+          <span style="font-weight:600;">导入新数据</span> 第一步：
+          <!--<a href="/participants/basic/exportMoPar?activityid=15">Test ResponseEntity</a>-->
+          <el-button type="primary" @click="exportCheckbox" icon="el-icon-upload" style="margin-right: 8px">
+            下载模板
+          </el-button>
+            第二步：
+          <el-upload
+              :show-file-list="false"
+              :before-upload="beforeUpload"
+              :on-success="onSuccess"
+              :on-error="onError"
+              :disabled="importDataDisabled"
+              style="display: inline-flex;margin-right: 8px"
+              action="#"
+              :http-request="handleChange">
+            <el-button :disabled="importDataDisabled" type="primary" :icon="importDataBtnIcon">
+              {{importDataBtnText}}
+            </el-button>
+          </el-upload>
+        </el-tab-pane>
+        <el-tab-pane label="从大组添加" v-if="mode==='secretarySub'">
+          <el-table
+              ref="multipleTable"
+              :data="parentGroup"
+              tooltip-effect="dark"
+              style="width: 100%"
+              @selection-change="handleSelectionChange">
+            <el-table-column
+                type="selection"
+                width="40px">
+            </el-table-column>
+            <el-table-column
+                prop="name"
+                label="姓名"
+                >
+            </el-table-column>
+            <el-table-column
+                prop="idnumber"
+                label="证件号码"
+                show-overflow-tooltip>
+            </el-table-column>
+          </el-table>
+          <el-button type="primary" @click="add" style="float: right;margin-top: 10px">
+            添加
+          </el-button>
+        </el-tab-pane>
+      </el-tabs>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 import {Message} from "element-ui";
+import {validateInputPhone,validateInputIdCard,validateInputEmail} from "@/utils/check";
+import {postRequest1} from "@/utils/api";
+import PinYinMatch from 'pinyin-match';
+import AddActStep from "@/components/AddActStep.vue";
 export default {
   name: "SalPar",
+ components: {AddActStep},
   data() {
     return{
+     allowManualAdd: true,
+     activeName: 'participant',
+     searchText: '',
+     manualAddFormDisabled: false,
       title: '',
       labelPosition: "left",
       importDataBtnText: '导入选手',
@@ -363,7 +487,7 @@ export default {
       allDeps: [],
       emps: [],
       unsureinfo: [],
-      dymatic_list:["姓名","身份证号码"],
+      dymatic_list:["姓名","编号"],
       scoreitem:[],
       infoitem:[],
       scoreitem_from_back:[],
@@ -372,6 +496,7 @@ export default {
       dialogVisible_checkbox: false,
       loading: false,
       dialogVisible: false,
+      dialogVisible_method:false,
       total: 0,
       page: 1,
       keywords: '',
@@ -381,6 +506,20 @@ export default {
       mode:'',
       size: 10,
       positions: [],
+      participants: [],
+      participants_raw:[],
+      currentParticipants:[],
+      multipleSelection: [],
+      parentGroup:[],
+      activityIDParent:0,
+      groupIDParent:0,
+      manualAddForm:{
+        code:'',
+        name: '',
+        telephone: '',
+       idnumber: '',
+        email:'',
+      },
       emp: {
         id:null,
         institutionID:null,
@@ -399,9 +538,13 @@ export default {
       },
       rules: {
         name: [{required: true, message: '请输入活动名', trigger: 'blur'}],
+        code: [{required: true, message: '请输入选手编号', trigger: 'blur'}],
         startDate: [{required: true, message: '请输入活动时间', trigger: 'blur'}],
         scoreItemCount: [{required: true, type: 'number', message: '请输入正确数据', trigger: 'blur', transform: (value) => Number(value)}],
         comment: [{required: true, message: '请输入备注', trigger: 'blur'}],
+      },
+      manualAddRules:{
+       code: [{required: true, message: '请输入选手编号', trigger: 'blur'}],
       }
     }
   },
@@ -413,17 +556,122 @@ export default {
   created() {
   },
   mounted() {
-    //this.init();//先获得评分项
     this.groupID = this.$route.query.groupID;
     this.activityID = this.$route.query.activityID;
     this.mode = this.$route.query.mode
-    this.keywords = this.$route.query.keywords;
+    this.keywords = this.$route.query.keywords ? this.$route.query.keywords :this.$route.query.activityID;
     this.keywords_name = this.$route.query.keyword_name;
     this.ACNAME=this.$route.query.keywords_name;
+    this.activityIDParent=this.$route.query.activityIDParent;
+    this.groupIDParent=this.$route.query.groupIDParent;
     this.initEmps();
+   if (typeof this.$route.query.back != 'undefined') {
+    this.back()
+   }
   },
   methods: {
-      preview(dymatic_list,infoitem,scoreitem){
+   change2GroupManage(){
+    const _this = this;
+    _this.$router.push({
+     path: "/ActivitM/table",
+     query: {
+      keywords: this.activityID,
+      keyword_name: this.keywords_name,
+      mode:this.mode,
+      addActive:this.$route.query.addActive,
+      haveSub: this.$route.query.haveSub,
+     }
+    });
+   },
+   change2Exp(){
+    this.change()
+   },
+   getRowKeys(row) {
+    return row.studentID;
+   },
+    search() {
+    if (this.searchText === ''){
+     this.participants = this.participants_raw
+    }else if (/^\d+$/.test(this.searchText)){ // 纯数字，按工号搜索
+     this.participants = this.participants_raw.filter(item => item.studentNumber != null &&  item.studentNumber.includes(this.searchText))
+    }else if (/^[a-zA-Z]*$/.test(this.searchText)){ //纯英文，考虑首字母
+      //const PinyinMatch = require('pinyin-match');
+      this.participants = this.participants_raw.filter(item => PinYinMatch.match(item.name,this.searchText))
+    } else { // 非纯数字，按姓名搜索
+     this.participants = this.participants_raw.filter(item => item.name.includes(this.searchText))
+    }
+    this.total = this.participants.length
+    this.getCurrentParticipants()
+    this.page = 1
+   },
+   handleClose(){
+    this.$refs.manualAddForm.resetFields();
+    this.manualAddFormDisabled=false;
+    this.searchText = ''
+    this.multipleSelection = []
+    this.participants = this.participants_raw
+    this.total = this.participants.length
+    this.page = 1
+    this.$refs.multipleTable.clearSelection()
+    this.allowManualAdd = true
+   },
+   // getInfoByIDNumber(){
+   //  if (this.manualAddFormDisabled === true){
+   //   this.manualAddForm = {idnumber: this.manualAddForm.idnumber}
+   //  }
+   //  this.manualAddFormDisabled = false
+   //  this.getRequest("/participants/basic/getByIDNumber?IDNumber="+this.manualAddForm.idnumber).then(resp => {
+   //   if (resp && resp.obj != null){
+   //    this.manualAddForm = {
+   //     code:resp.obj.code,
+   //     name: resp.obj.name,
+   //     telephone: resp.obj.telephone,
+   //     idnumber: resp.obj.idnumber,
+   //     email:resp.obj.email,
+   //    }
+   //    this.manualAddFormDisabled = true
+   //   }
+   //  })
+   // },
+   getInfoByCode(){
+    if (this.manualAddFormDisabled === true){
+     this.manualAddForm = {code: this.manualAddForm.code}
+    }
+    this.manualAddFormDisabled = false
+    this.getRequest("/participants/basic/getByCodeActivityID?code="+this.manualAddForm.code+"&actID="+this.activityID).then(resp => {
+     if (resp && resp.obj != null){
+      this.manualAddForm = {
+       code:resp.obj.code,
+       name: resp.obj.name,
+       telephone: resp.obj.telephone,
+       email:resp.obj.email,
+      }
+      this.manualAddFormDisabled = true
+      this.allowManualAdd = false
+     }
+    })
+   },
+   manualAdd(){
+    {
+     this.manualAddForm.institutionid = this.user.institutionID;
+     this.manualAddForm.activityID = this.keywords
+     this.manualAddForm.groupID = this.groupID
+     this.$refs['manualAddForm'].validate((valid) => {
+      if (valid) {
+       this.postRequest1("/participants/basic/manualAdd",this.manualAddForm).then(resp => {
+        if (resp && resp.status === 200) {
+         this.dialogVisible_method = false
+         this.initEmps(this.emps.length);
+        }
+       });
+      } else {
+       return false
+      }
+     })
+    }
+
+   },
+   preview(dymatic_list,infoitem,scoreitem){
           // 拼接3个list，然后转换为不带有引号的字符串
           var list = dymatic_list.concat(scoreitem).concat(infoitem);
           var str = list.join()
@@ -558,40 +806,125 @@ export default {
     },
     sizeChange(currentSize) {
       this.size = currentSize;
-      this.initEmps();
+      this.getCurrentParticipants();
     },
     currentChange(currentPage) {
       this.page = currentPage;
-      this.initEmps('advanced');
+      this.getCurrentParticipants('advanced');
     },
-    initEmps() {
+    getCurrentParticipants(){
+      let begin = (this.page - 1) * this.size;
+      let end = this.page * this.size;
+      this.currentParticipants = this.participants.slice(begin, end);
+      this.$nextTick(() => {
+        this.currentParticipants.forEach(item => {
+          for (let i = 0; i < this.emps.length; i++){
+            if (item.studentID === this.emps[i].studentID)
+              this.$refs.multipleTable.toggleRowSelection(item, true)
+          }
+        })
+      })
+    },
+    initEmps(oldLen) {
       this.loading = true;
       let url = '/participants/basic/?page=' + 1 + '&size=' + 1000+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
-          //console.log("aha",resp);
           this.emps = resp.data;
-          // console.log(this.emps);
-          this.total = resp.total;
-          //console.log("total",this.total);
+         if (typeof oldLen != "undefined" && this.emps.length > oldLen) {
+          this.$message({
+           type: "success",
+           message: "添加成功",
+          });
+         }else if (typeof oldLen != "undefined"){
+          this.$message({
+           type: "warning",
+           message: "该选手已存在，无需重复添加！",
+          });
+         }
+        }
+      });
+      this.initParticipants();
+      if (this.mode==='secretarySub')
+        this.initParentGroup();
+    },
+    checkSecletion(row,index){
+      for (let i = 0; i < this.emps.length; i++){
+        if (row.studentID === this.emps[i].studentID)
+          return false;
+      }
+      return true;
+    },
+    initParticipants(){
+      this.loading = true;
+      let url = '/participants/basic/getByInstitutionID/?institutionID=' + this.user.institutionID;
+      this.getRequest(url).then(resp => {
+        this.loading = false;
+        if (resp) {
+          this.participants = resp.obj;
+          this.participants_raw = resp.obj;
+          this.total = this.participants.length;
+        }
+      });
+    },
+    initParentGroup(){
+      this.loading = true;
+      let url = '/participants/basic/?page=' + 1 + '&size=' + 1000+ '&groupID=' + this.groupIDParent+ '&activitiesID=' + this.activityID;
+      this.getRequest(url).then(resp => {
+        this.loading = false;
+        if (resp) {
+          this.parentGroup = resp.data;
         }
       });
     },
     back(){
       const _this = this;
+      // // 大狮山，放弃优化了
+      // if (typeof this.$route.query.addActive !== 'undefined'){
+      //  _this.$router.push({
+      //   path: "/ActivitM/table",
+      //   query: {
+      //    keywords: this.$route.query.activityID,
+      //    keyword_name: this.$route.query.keywords_name,
+      //    mode:this.mode,
+      //    addActive:this.$route.query.addActive,
+      //    haveSub:this.$route.query.haveSub,
+      //   },
+      //  });
+      //  return
+      // }
+      // 小屎山，以后有时间再优化
       var url;
       if (this.mode==='admin')
         url="/ActivitM/table"
       else if (this.mode==='secretary')
         url="/secretary/ActManage"
+      else if (this.mode === 'secretarySub' && this.$route.query.smallGroup === 'false'){
+        url ="secretary/SubActManage"
+      }else if (this.mode === 'secretarySub' && this.$route.query.smallGroup === 'true'){
+        url="/ActivitM/table"
+      }
+      var keywords = this.activityID
+      if (this.mode==='secretarySub' && this.$route.query.smallGroup === 'false')
+        keywords = this.activityIDParent
+      var groupID = this.groupID
+      if (this.mode==='secretarySub' && this.$route.query.smallGroup === 'true')
+        groupID = this.groupIDParent
       _this.$router.push({
         path: url,
         query: {
-          keywords: this.activityID,
-          keyword_name: this.ACNAME,
-          groupID:this.groupID,
+          keywords: keywords,
+          keyword_name: typeof this.ACNAME !== 'undefined' ? this.ACNAME : this.$route.query.keyword_name,
+          groupID:groupID,
           mode:this.mode,
+          id:this.$route.query.id,
+          actName:this.$route.query.actName,
+          groupName:this.$route.query.groupName,
+          isGroup:this.$route.query.isGroup,
+          haveSub:this.$route.query.haveSub,
+          backID:this.$route.query.backID,
+          backActName:this.$route.query.backActName,
         },
       });
     },
@@ -637,6 +970,67 @@ export default {
         }
       })
     },
+    change(){
+      const _this = this
+      _this.$router.push({
+        path: '/ActivitM/sobcfg',
+        query:{
+          activityIDParent:this.$route.query.activityIDParent,
+          groupIDParent:this.$route.query.groupIDParent,
+          groupID:this.$route.query.groupID,
+          actName:this.$route.query.actName,
+          groupName:this.$route.query.groupName,
+          smallGroup:this.$route.query.smallGroup,
+          isGroup:this.$route.query.isGroup,
+          haveSub:this.$route.query.haveSub,
+          id:this.$route.query.id,
+          keywords: this.keywords,
+          keyword_name: typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
+          ACNAME:typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
+          mode:this.mode,
+          backActName:this.$route.query.backActName,
+          addActive:this.$route.query.addActive,
+          requireGroup:this.$route.query.requireGroup,
+        }
+      })
+    },
+    showMethod(){
+      this.title = "添加选手";
+      this.dialogVisible_method=true;
+      this.getCurrentParticipants();
+    },
+    handleSelectionChange(val){
+      for(let i=0;i<val.length;i++){
+        for (let j=0;j<this.emps.length;j++){
+          if (val[i].studentID===this.emps[j].studentID){
+            val.splice(i,1);
+            i--;
+            break;
+          }
+        }
+      }
+      this.multipleSelection=val;
+    },
+    add(){
+      if (this.multipleSelection.length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '请选择选手!'
+        });
+        return;
+      }
+      this.dialogVisible_method = false;
+      const _this = this;
+      this.postRequest("/participants/basic/addPars?activityID="+this.keywords + "&groupID=" + this.groupID,_this.multipleSelection).then((resp) => {
+        if (resp) {
+          this.initEmps();
+          this.$message({
+            type: 'success',
+            message: '添加成功!'
+          });
+        }
+      });
+    }
     // searchEmps() {
     //   this.loading = true;
     //   console.log(this.keyword);
@@ -672,5 +1066,10 @@ export default {
   transform: translateX(10px);
   opacity: 0;
 }
+
+.el-pagination {
+  text-align: center;
+}
+
 </style>
 

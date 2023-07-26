@@ -51,7 +51,6 @@
 
     <update id="update" parameterType="org.sys.rate.model.Student">
         UPDATE student SET name=#{name,jdbcType=VARCHAR},
-                                studentnumber=#{studentnumber,jdbcType=VARCHAR},
                                 telephone=#{telephone,jdbcType=VARCHAR},
                                 email=#{email,jdbcType=VARCHAR}
         where ID=#{ID,jdbcType=INTEGER};
@@ -67,9 +66,9 @@
     <select id="checkAndReturnID" resultMap="BaseResultMap">
         select *
         from student
-        where IDNumber in
+        where studentnumber in
         <foreach collection="list" close=")" open="(" item="item" separator=",">
-            #{item.IDNumber}
+            #{item.studentnumber}
         </foreach>
     </select>
     <insert id="insertFromAdminExcel" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
@@ -122,13 +121,13 @@
     </select>
 
     <insert id="insertFROMImport" parameterType="org.sys.rate.model.Student">
-        insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,tutorID,role
+        insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,role
         )
         values (#{ID,jdbcType=INTEGER},
                 #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
         <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
                 #{username,jdbcType=VARCHAR},
-                #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,0,'7'
+                #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,'7'
                )
     </insert>
     <insert id="insertStuFromExcel" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
@@ -142,9 +141,10 @@
         )
     </insert>
     <insert id="insertStuFromRegister" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
-        insert into student  (ID,name,IDNumber,username,password,telephone,email,deleteflag,tutorID,role,registerQuestion,registerAnswer)
+        insert into student  (ID,name,IDNumber,institutionID,username,password,telephone,email,deleteflag,tutorID,role,registerQuestion,registerAnswer)
         values (#{ID,jdbcType=INTEGER},
         #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
+        #{institutionID,jdbcType=INTEGER},
         #{username,jdbcType=VARCHAR},
         #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,null,'',
                 #{registerQuestion,jdbcType=VARCHAR}, #{registerQuestion,jdbcType=VARCHAR}
@@ -159,7 +159,7 @@
         <if test="password!=null">password=#{password,jdbcType=VARCHAR},</if>
         <if test="username!=null">username=#{username,jdbcType=VARCHAR},</if>
                 </set>
-        where IDNumber=#{IDNumber,jdbcType=VARCHAR} and ID!='0'
+        where ID=#{ID,jdbcType=VARCHAR} and ID!='0'
     </update>
 
     <update id="updatePasswordAndUsername" parameterType="org.sys.rate.model.Student">

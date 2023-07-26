@@ -1,17 +1,23 @@
 <template>
-  <!--评分项设置-->
   <div>
+   <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
     <div style="display: flex; justify-content: left">
-      <div style="width: 100%;text-align: center">{{ keywords_name }}活动 成绩查看设置</div>
-      <div style="margin-left: auto">
+      <div style="width: 100%;text-align: center" v-show="!$route.query.addActive">{{ keywords_name }}成绩查看设置</div>
+      <div style="margin-left: auto" v-show="typeof $route.query.addActive === 'undefined'">
         <el-button icon="el-icon-back" type="primary" @click="back">
           返回
         </el-button>
       </div>
     </div>
-
-    <div><br/>双击单元格可编辑显示名称与及格分数</div>
-    <div style="margin-top: 10px">
+    <div><br/>点击选择成绩展示方式：若选择默认方式则展示所有的评分项，若选择定制成绩查看界面则可进行自行定制</div>
+    <div><br/>
+      <el-radio-group v-model="setBySelf" style="padding-top: 5px" center @change="setChange">
+        <el-radio :label=0 border>默认展示方式</el-radio>
+        <el-radio :label=1 border>定制成绩查看界面</el-radio>
+      </el-radio-group>
+    </div>
+    <div v-show="setBySelf === 1"><br/>双击单元格可编辑显示名称与及格分数</div>
+    <div style="margin-top: 10px" v-show="setBySelf === 1">
       <el-table
           ref="multipleTable"
           :data="hrs"
@@ -53,6 +59,7 @@
                 icon="el-icon-collection"
                 type="primary"
                 plain
+                :disabled="scope.row.sourceName==='编号' || scope.row.sourceName==='姓名'"
             >保存
             </el-button
             >
@@ -64,6 +71,7 @@
                 type="danger"
                 plain
                 center
+                :disabled="scope.row.sourceName==='编号' || scope.row.sourceName==='姓名'"
             >删除</el-button
             >
           </template>
@@ -81,6 +89,7 @@
                        icon="el-icon-edit"
                        size="medium"
                        style="padding-left: 5px"
+                       v-show="scope.row.sourceName!=='编号' && scope.row.sourceName!=='姓名'"
                        @click="showEditView(scope.row)">
             </el-button>
             <el-button v-if="scope.row.source===null"
@@ -244,9 +253,11 @@
 
 <script>
 import {Message} from 'element-ui'
+import AddActStep from "@/components/AddActStep.vue";
 
 export default {
   name: "SalTotal",
+ components: {AddActStep},
   data() {
     return {
       title: "",
@@ -286,6 +297,7 @@ export default {
       currentActivity:null,//当前选择的活动
       subFirst:[],
       mode:'',
+      setBySelf:0, //设置方式
     };
   },
   computed: {
@@ -297,9 +309,19 @@ export default {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
     this.mode = this.$route.query.mode;
+    this.initMethod();
     this.initHrs();
   },
   methods: {
+    initMethod(){
+      this.loading = true;
+      this.getRequest(
+          "/displayItem/getSetMethod?activityID=" +
+          this.keywords
+      ).then((resp) => {
+        this.setBySelf = resp;
+      });
+    },
     initHrs() {
       this.loading = true;
       this.getRequest(
@@ -357,17 +379,19 @@ export default {
       }
     },
     tabClick(row, column, cell, event) {
-      switch (column.label) {
-        case "显示名称":
-          this.tabClickIndex = row.index;
-          this.tabClickLabel = column.label;
-          break;
-        case "及格分数":
-          this.tabClickIndex = row.index;
-          this.tabClickLabel = column.label;
-          break;
-        default:
-          return;
+      if (row.sourceName!=='姓名'&&row.sourceName!=='编号'){
+        switch (column.label) {
+          case "显示名称":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          case "及格分数":
+            this.tabClickIndex = row.index;
+            this.tabClickLabel = column.label;
+            break;
+          default:
+            return;
+        }
       }
     },
     tableRowClassName({row, rowIndex}) {
@@ -375,12 +399,14 @@ export default {
       row.index = rowIndex;
     },
     beforehandleEdit(index, row, label) {
-      if (label === 'name') {
-        this.currentfocusdata = row.name
-      } else if (label === 'score') {
-        this.currentfocusdata = row.passScore
+      if (row.sourceName!=='姓名'&&row.sourceName!=='编号'){
+        if (label === 'name') {
+          this.currentfocusdata = row.name
+        } else if (label === 'score') {
+          this.currentfocusdata = row.passScore
+        }
+        this.currentfocusdata = row[label]
       }
-      this.currentfocusdata = row[label]
     },
     handleEdit(index, row, label) {
       if (row[label] === ''&&label !== 'score') {
@@ -711,6 +737,15 @@ export default {
       this.UpdateOrNew(obj);
       this.initHrs();
     },
+    setChange(){
+      this.postRequest("/displayItem/changeMethod?activityID="+this.keywords+"&setByself="+this.setBySelf).then((resp) => {
+        if (resp.msg==='success'){
+          {Message.success('更改成功')}
+        }
+        else
+          {Message.success('更改失败')}
+      });
+    }
   },
 };
 </script>

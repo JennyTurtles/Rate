@@ -3,6 +3,7 @@ package org.sys.rate.controller.admin;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.ActivitiesMapper;
 import org.sys.rate.mapper.DisplayItemMapper;
+import org.sys.rate.mapper.ScoreItemMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.DisplayItemService;
 
@@ -19,6 +20,8 @@ public class DisplayItemController {
     DisplayItemService displayItemService;
     @Resource
     ActivitiesMapper activitiesMapper;
+    @Resource
+    ScoreItemMapper scoreItemMapper;
 
     @GetMapping("/all")
     public RespPageBean getAllDisplayItem(@RequestParam Integer activityID) {
@@ -35,7 +38,7 @@ public class DisplayItemController {
     @GetMapping("/first") // 获取所有第一类展示项
     public RespBean getFirst(@RequestParam Integer activityID) {
         List<DisplayItem> res = displayItemService.getFirstDisplayItem(activityID,1);
-        Collections.sort(res); // 按照sourceName排序，方便前端查看
+        //Collections.sort(res); // 按照sourceName排序，方便前端查看
         return RespBean.ok("success",res);
     }
 
@@ -50,7 +53,7 @@ public class DisplayItemController {
                 displayItem1.setID(displayItem.getID());
                 res.add(displayItem1);
             }
-        Collections.sort(res); // 按照sourceName排序
+        //Collections.sort(res); // 按照sourceName排序
         return RespBean.ok("success",res);
     }
 
@@ -102,7 +105,7 @@ public class DisplayItemController {
                 displayItems=displayItemService.getFirstDisplayItem(activities.getId(),1);
             else
                 displayItems=displayItemService.getFirstDisplayItem(activities.getId(),0);
-            Collections.sort(displayItems);//按展示项名称排序
+            //Collections.sort(displayItems);//按展示项名称排序
             for (DisplayItem item:displayItems){//循环遍历展示项，获得展示项哈希表
                 if (map.get(activities.getId())==null){//未添加当前活动，进行插入
                     HashMap<String,DisplayItem> value = new LinkedHashMap<>();
@@ -141,7 +144,7 @@ public class DisplayItemController {
                     displayItem1.setID(displayItem.getID());
                     displayItems.add(displayItem1);
                 }
-            Collections.sort(displayItems);//按展示项名称排序
+            //Collections.sort(displayItems);//按展示项名称排序
             for (DisplayItem item:displayItems){//循环遍历展示项，获得展示项哈希表
                 if (map.get(activities.getId())==null){//未添加当前活动，进行插入
                     HashMap<String,DisplayItem> value = new LinkedHashMap<>();
@@ -156,5 +159,18 @@ public class DisplayItemController {
         HashPEexport hashPEexport = new HashPEexport();
         hashPEexport.setDmap(map);//封装哈希表
         return RespBean.ok("success",hashPEexport);
+    }
+
+    @GetMapping("/getSetMethod") //获取成绩查看设置方式
+    public Integer getSetMethod(@RequestParam Integer activityID){
+        return activitiesMapper.getScoreSet(activityID);
+    }
+
+    @PostMapping("/changeMethod") //更改成绩查看设置方式
+    public RespBean changeMethod(@RequestParam Integer activityID,@RequestParam Integer setByself){
+        if (activitiesMapper.changeMethod(activityID,setByself)==1)
+            return RespBean.ok("success");
+        else
+            return RespBean.error("fail");
     }
 }
