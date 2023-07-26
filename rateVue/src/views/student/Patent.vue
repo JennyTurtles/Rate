@@ -411,16 +411,7 @@ export default {
     },
     //添加 编辑框点击取消出发事件
     cancelAddPatent() {
-      this.setCurrentPatent();
       this.dialogVisible = false;
-    },
-    setCurrentPatent() {
-      this.currentPatent.grantedStatus = this.patentGrantedStatus;
-      this.currentPatent.name = this.patentName;
-      this.currentPatent.author = this.patentee;
-      this.currentPatent.date = this.patentDate;
-      this.currentPatent.point = this.patentPoint;
-      this.currentPatent.date = this.patentDate;
     },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
@@ -445,6 +436,8 @@ export default {
       }
       this.postRequest1("/patent/basic/deleteFile",file).then(
           (response)=>{
+            this.urlFile = '';
+            this.files = [];
           },()=>{}
       )
     },
@@ -532,7 +525,7 @@ export default {
         }else this.patentPoint = '';
         this.isAuthorIncludeSelf = true;
       }
-      this.currentPatentCopy.total = num.length - 1;
+      this.currentPatentCopy.total = num.length;
       this.currentPatentCopy.rank = num.indexOf(info.name) + 1;
     },
 
@@ -541,16 +534,19 @@ export default {
     },
     showEditEmpView(data) {
       this.dialogVisible = true;
-      this.title = "编辑项目信息";
-      this.patentName = data.name;
-      this.patentDate = data.date;
-      this.patentGrantedStatus = data.grantedStatus;
-      this.patentee = data.author;
+      this.title = "编辑专利信息";
+      this.currentPatentCopy = JSON.parse(JSON.stringify(data));
+      this.files = [
+        {
+          name: this.currentPatentCopy.url.split('/').reverse()[0],
+          url: this.currentPatentCopy.url
+        }
+      ];
+      this.indicatorBtn = data.indicator.name;
       this.patentPoint = data.point;
-      this.currentPatent.indicatorId = data.indicatorId;
-      this.currentPatent.id = data.id;
-      this.currentPatent.rank = data.rank;
-      this.currentPatent.total = data.total;
+      this.urlFile = this.currentPatentCopy.url;
+      this.isAuthorIncludeSelf = true;
+      this.addButtonState = true;
     },
     showInfo(data){
       this.title_show = "显示详情";
@@ -575,13 +571,10 @@ export default {
         })
       }
     },
-    editAward() {
+    editAward(params) {
       this.$refs["currentPatentCopy"].validate((valid) => {
         if (valid) {
-          this.currentPatentCopy.point = this.patentPoint;
-          this.currentPatentCopy.url = this.urlFile;
-          this.currentPatentCopy.state = "commit";
-          if(this.currentPatent.url == '' ||this.currentPatent.url == null){
+          if(params.url == '' || params.url == null){
             this.$message({
               message:'请上传证明材料！'
             })
@@ -591,7 +584,7 @@ export default {
             this.$message.error('请仔细检查作者列表！');
             return;
           }
-          this.postRequest1("/patent/basic/edit", this.currentPatent).then(
+          this.postRequest1("/patent/basic/edit", params).then(
               (resp) => {
                 if (resp) {
                   this.dialogVisible = false;
@@ -604,16 +597,26 @@ export default {
       });
     },
     addAward() {//项目提交确认
+      const params = {};
+      params.id = this.currentPatentCopy.id;
+      params.name = this.currentPatentCopy.name;
+      params.url = this.urlFile;
+      params.rank = this.currentPatentCopy.rank;
+      params.total = this.currentPatentCopy.total;
+      params.author = this.currentPatentCopy.author;
+      params.grantedStatus = this.currentPatentCopy.grantedStatus;
+      params.indicatorId = this.currentPatentCopy.indicatorId;
+      params.author = this.currentPatentCopy.author;
+      params.date = this.currentPatentCopy.date;
+      params.point = this.patentPoint;
+      params.state = "commit";
       if (this.currentPatentCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        this.editAward();
+        this.editAward(params);
       } else {
         this.$refs["currentPatentCopy"].validate((valid) => {
           if (valid) {
-            this.currentPatentCopy.point = this.patentPoint
-            this.currentPatentCopy.url = this.urlFile;
-            this.currentPatentCopy.state = "commit"
-            this.currentPatentCopy.studentId = this.user.id
-            if(this.currentPatentCopy.url == '' ||this.currentPatentCopy.url == null){
+            params.studentId = this.user.id
+            if(params.url == '' || params.url == null){
               this.$message.error('请上传证明材料！')
               return
             }
@@ -621,7 +624,7 @@ export default {
               this.$message.error('请仔细检查作者列表！');
               return;
             }
-            this.postRequest1("/patent/basic/add",this.currentPatentCopy).then(
+            this.postRequest1("/patent/basic/add", params).then(
                 (resp) => {
                   if (resp) {
                     this.$message.success('添加成功！')
@@ -643,9 +646,15 @@ export default {
       await this.initEmps();
     },
     showAddEmpView() {//点击添加科研项目按钮
-      this.addButtonState = true
+      this.addButtonState = true;
+      this.isAuthorIncludeSelf = false;
       this.title = "添加专利";
       this.dialogVisible = true;
+      this.urlFile = '';
+      this.files = [];
+      this.patentPoint = '';
+      this.indicatorBtn = '选择指标点';
+      this.currentPatentCopy = {};
     },
     initEmps() {
       this.loading = true;

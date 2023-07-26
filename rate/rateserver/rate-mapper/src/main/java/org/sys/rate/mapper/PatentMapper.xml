@@ -120,7 +120,6 @@
     <update id="updatePatent" parameterType="org.sys.rate.model.Patent">
         update i_patent
         <trim prefix="SET" suffixOverrides=",">
-            <if test="studentId != null">student_id = #{studentId},</if>
             <if test="name != null and name != ''">name = #{name},</if>
             <if test="date != null">date = #{date},</if>
             <if test="author != null">author = #{author},</if>
