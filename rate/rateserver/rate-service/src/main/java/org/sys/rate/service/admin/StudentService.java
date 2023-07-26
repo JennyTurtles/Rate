@@ -83,7 +83,7 @@ public class StudentService implements UserDetailsService {
 
     public void registerUndergraduate(Student student) {
         Integer studentID = studentMapper.getUndergraduateByStudentNumber(student.getStudentnumber());
-        if(studentID == null){ // 研究生表无记录
+        if(studentID == null){ // 本科生表无记录
             studentMapper.registerUndergraduate(student);
         }else if (!studentID.equals(student.getID())){ // 检查该记录的studentID是否与当前用户ID相同
             studentMapper.updateUndergraduateStudentID(studentID,student.getID());
