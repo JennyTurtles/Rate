@@ -164,18 +164,26 @@
         <el-button type="primary" @click="submitPassword">确 定</el-button>
       </span>
     </el-dialog>
-   <el-dialog @close="registerRoleForm={};selectStuType=''" title="注册为本科生/研究生" :visible.sync="registerRoleVisible" width="30%">
+   <el-dialog @close="registerRoleForm={};selectStuType='';tutorName=''" title="注册为本科生/研究生" :visible.sync="registerRoleVisible" width="30%">
     <el-form label-width="auto">
-    <el-form-item label="请输入学生姓名:">
-     <el-input v-model="registerRoleForm.name"></el-input>
-    </el-form-item>
-    <el-form-item label="请输入学生电话:">
+<!--    <el-form-item label="姓名:">-->
+<!--     <el-input v-model="registerRoleForm.name"></el-input>-->
+<!--    </el-form-item>-->
+    <el-form-item label="电话:">
      <el-input v-model="registerRoleForm.telephone"></el-input>
     </el-form-item>
-    <el-form-item label="请输入学生邮箱:">
+    <el-form-item label="邮箱:">
      <el-input v-model="registerRoleForm.email"></el-input>
     </el-form-item>
-    <el-form-item label="请选择注册的学生类型:">
+     <el-form-item label="指导老师:">
+      <el-autocomplete
+          style="width: 90%"
+          v-model="tutorName"
+          :fetch-suggestions="querySearchAsync"
+          @select="handleSelectTutor">
+      </el-autocomplete>
+     </el-form-item>
+    <el-form-item label="学生类型:">
      <el-select v-model="selectStuType" clearable>
       <el-option
           v-for="val in stuType"
@@ -186,15 +194,15 @@
      </el-select>
     </el-form-item>
     <div >
-     <el-form-item label="请输入学号:">
+     <el-form-item label="学号:">
       <el-input  v-model="registerRoleForm.studentnumber" ></el-input>
      </el-form-item>
-     <el-form-item label="请输入入学年份:">
+     <el-form-item label="入学年份:">
       <el-input  v-model="registerRoleForm.year" ></el-input>
      </el-form-item>
     </div>
     <div v-show="selectStuType === '研究生'">
-     <el-form-item label="请选择研究生类型:">
+     <el-form-item label="研究生类型:">
       <el-select v-model="registerRoleForm.gradType">
        <el-option v-for="val in ['专硕','学硕','博士']"
                   :value="val"
@@ -220,6 +228,7 @@ export default {
   name: "Home",
  data: function () {
   return {
+   tutorName:'',
    stuType:['本科生','研究生'],
    selectStuType:'',
    registerRoleForm: {},
@@ -256,8 +265,27 @@ export default {
     },
   },
   methods: {
+   querySearchAsync(queryString, cb) {
+    if (queryString.length < 1) {
+     return cb([]);
+    }
+    this.getRequest('/system/teacher/searchByName?name='+queryString)
+        .then(response => {
+         let results = response.obj;
+         // 遍历result，把里面的name赋值给value
+         results.forEach(result => {
+          result.value = result.name;
+         });
+         // 调用回调函数返回搜索建议
+         cb(results);
+        })
+   },
+   handleSelectTutor(item){
+    this.registerRoleForm.tutorID = item.id
+   },
    registerRole(){
     this.registerRoleForm.ID = this.user.id
+    this.registerRoleForm.name = this.user.name
     if (this.selectStuType === '研究生'){
      this.postRequest1("/system/student/registerGraduate",this.registerRoleForm).then((res) => {
       if (res) {

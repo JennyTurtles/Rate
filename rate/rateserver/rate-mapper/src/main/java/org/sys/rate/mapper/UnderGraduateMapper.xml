@@ -8,6 +8,8 @@
         <result column="stuNumber" property="stuNumber" jdbcType="VARCHAR"/>
         <result column="year" property="year" jdbcType="INTEGER"/>
         <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
+        <result column="specialty" property="specialty" jdbcType="VARCHAR"/>
+        <result column="class" property="className" jdbcType="VARCHAR"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
         <result property="email" column="email" jdbcType="VARCHAR"/>
         <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
@@ -42,13 +44,13 @@
 <!--    </select>-->
 
     <insert id="insertFROMImport" parameterType="org.sys.rate.model.UnderGraduate">
-        insert into undergraduate(ID,studentID,institutionID,stuNumber,year,tutorID) values
+        insert into undergraduate(ID,studentID,stuNumber,institutionID,year,specialty,class) values
         <foreach collection="list" separator="," item="under">
                (#{under.ID,jdbcType=INTEGER},
                 #{under.studentID,jdbcType=INTEGER},
-                #{under.institutionID,jdbcType=INTEGER},
                 #{under.stuNumber,jdbcType=VARCHAR},
-                #{under.year,jdbcType=VARCHAR}, #{under.tutorID,jdbcType=INTEGER})
+                #{under.institutionID,jdbcType=INTEGER},
+                #{under.year,jdbcType=VARCHAR}, #{under.specialty,jdbcType=VARCHAR},#{under.className,jdbcType=VARCHAR})
         </foreach>
     </insert>
 
@@ -90,7 +92,7 @@
                                 email=#{email,jdbcType=VARCHAR}
         where ID=#{studentID,jdbcType=INTEGER};
         UPDATE undergraduate
-        SET tutorID = #{tutorID}
+        SET tutorID = #{tutorID},specialty = #{specialty,jdbcType=VARCHAR},class = #{className,jdbcType=VARCHAR}
         where ID=#{ID,jdbcType=INTEGER};
     </update>
     <select id="getTeaNamesBySelect" resultType="org.sys.rate.model.Teachers">

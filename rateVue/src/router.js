@@ -279,6 +279,24 @@ export default new Router({
           },
         },
         {
+          path: '/student/addPublication',
+          name: '添加期刊',
+          hidden: true,
+          component: () => import('./views/student/AddPublication'),
+          meta: {
+            title: '添加期刊',
+          },
+        },
+        {
+          path: '/student/CheckProgress',
+          name: '查询审核进度',
+          hidden: true,
+          component: () => import('./views/student/CheckProgress'),
+          meta: {
+            title: '查询审核进度',
+          },
+        },
+        {
           path:'/student/search',
           name:'学生活动列表',
           hidden:true,

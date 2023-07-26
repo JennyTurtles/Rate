@@ -3,7 +3,7 @@
   <div>
    <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
     <div style="display: flex; justify-content: left">
-      <div style="width: 100%;text-align: center" v-if="mode==='admin' || mode==='adminSub'">{{ keywords_name }}评分项设置</div>
+      <div style="width: 100%;text-align: center" v-if="(mode==='admin' || mode==='adminSub') && !$route.query.addActive ">{{ keywords_name }}评分项设置</div>
       <div style="width: 100%;text-align: center" v-if="mode==='secretary' || mode==='secretarySub'">{{ keywords_name }}评分项查看</div>
       <div style="margin-left: auto" v-show="typeof $route.query.addActive === 'undefined' ">
         <el-button icon="el-icon-back" type="primary" @click="back">

@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Activities;
 import org.sys.rate.model.ScoreItem;
 import org.sys.rate.model.Scores;
@@ -54,4 +55,7 @@ public interface TeacherMapper {
 
     int insertScore(Scores NewScore);
     String getTutorInfo(Integer id);
+
+    @Select("select * from teacher where name like CONCAT('%', #{name}, '%')")
+    List<Teachers> selectByName(String name);
 }

@@ -3,6 +3,7 @@ package org.sys.rate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import java.util.Set;
  * @date 2022-03-13
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class  Publication {

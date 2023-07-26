@@ -192,4 +192,6 @@
             and s.ID = book.student_id and book.project_type_id = type.id
         </where>
     </select>
+
+    <select id="selectProjectListByYear" resultType="org.sys.rate.model.Project"></select>
 </mapper>

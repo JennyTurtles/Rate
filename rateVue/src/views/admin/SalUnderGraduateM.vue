@@ -78,6 +78,8 @@
         :data="undergraduateStudents">
         <el-table-column prop="stuNumber" label="学号" align="center"></el-table-column>
         <el-table-column prop="name" label="姓名" align="center" width="80px"></el-table-column>
+        <el-table-column prop="specialty" label="专业" align="center"></el-table-column>
+        <el-table-column prop="className" label="班级" align="center"></el-table-column>
         <el-table-column prop="username" label="用户名" align="center"></el-table-column>
         <el-table-column prop="telephone" label="电话" align="center"></el-table-column>
         <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
@@ -127,6 +129,12 @@
           </el-form-item>
           <el-form-item label="学生姓名">
             <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.name"></el-input>
+          </el-form-item>
+          <el-form-item label="学生专业">
+            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.specialty"></el-input>
+          </el-form-item>
+          <el-form-item label="学生班级">
+            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.className"></el-input>
           </el-form-item>
           <el-form-item label="学生手机号">
             <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.telephone"></el-input>
@@ -197,6 +205,8 @@ export default {
       currentUnderStudentOfEdit:{
         ID:null,
         name:'',
+        specialty:'',
+        className:'',
         teachers:{
           name:'',
           jobnumber:''

@@ -19,8 +19,8 @@ public class StudentController {
     @Transactional
     @PostMapping("/registerGraduate")
     public RespBean registerGraduate(Student student){
-        studentService.registerGraduate(student);
-        return RespBean.ok("注册成功");
+        boolean res = studentService.registerGraduate(student);
+        return res ? RespBean.ok("注册成功") : RespBean.error("请检查学号是否正确！");
     }
 
 
@@ -28,8 +28,8 @@ public class StudentController {
     @Transactional
     @PostMapping("/registerUndergraduate")
     public RespBean registerUndergraduate(Student student){
-        studentService.registerUndergraduate(student);
-        return RespBean.ok("注册成功");
+        boolean res = studentService.registerUndergraduate(student);
+        return res ? RespBean.ok("注册成功") : RespBean.error("请检查学号是否正确！");
     }
 
 }

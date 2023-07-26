@@ -17,7 +17,7 @@ public interface ActivitiesMapper {
     int insertScoreItem(Activities record);
     int insertDisplayItem(Activities record);
     void insert_update(Activities record);
-
+    void delete_update(Activities record);
     int predelete(Integer id);
 
     int delete(Integer id);

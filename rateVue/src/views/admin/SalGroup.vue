@@ -477,6 +477,16 @@
       <el-tabs type="border-card">
         <el-tab-pane label="手动添加">
           <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
+            <el-form-item label="组别:" prop="groupID" v-show="!groupID">
+              <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px">
+                <el-option
+                    v-for="x in groups"
+                    :key="x.name"
+                    :label="x.name"
+                    :value="x.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
             <el-form-item label="编号:" prop="code" >
               <el-input style="width: 60%" v-model="manualAddForm.code" @blur="getInfoByCode"></el-input>
             </el-form-item>
@@ -500,6 +510,15 @@
          </el-tooltip>
         </el-tab-pane>
         <el-tab-pane label="从本单位添加">
+          <div style="display: flex; justify-content: left">
+          <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-right: 10px">
+            <el-option
+                v-for="x in groups"
+                :key="x.name"
+                :label="x.name"
+                :value="x.id">
+            </el-option>
+          </el-select>
           <el-input
               v-model="searchText"
               placeholder="请输入学号或姓名进行搜索"
@@ -510,6 +529,7 @@
               <el-button icon="el-icon-search" type="success" @click="search"></el-button>
             </template>
           </el-input>
+          </div>
           <el-table
               ref="multipleTable"
               :data="currentParticipants"
@@ -540,7 +560,7 @@
                 @size-change="sizeChange_all"
                 :current-page="page"
                 layout="sizes, prev, pager, next, jumper, ->, total, slot"
-                :total="total">
+                :total="total_all">
             </el-pagination>
           </div>
           <div style="color: #4b8ffe ;float: right">
@@ -631,6 +651,8 @@ export default {
       participants:[],
       currentParticipants:[],
       multipleSelection: [],
+      groups:[],
+      currentAddGroup:'',
       dialogVisible_edit: false,
       dialogVisible_checkbox: false,
       dialogVisible_method:false,
@@ -756,6 +778,13 @@ export default {
   },
   methods: {
    change2GroupManage(){
+    if (this.$route.query.groupNums == 0){
+     this.$message({
+      message: '请先返回上一步添加分组',
+      type: 'warning'
+     });
+     return
+    }
     const _this = this;
     _this.$router.push({
      path: "/ActivitM/table",
@@ -1095,6 +1124,7 @@ export default {
       this.page_all = 1
       this.$refs.multipleTable.clearSelection()
       this.allowManualAdd = true
+      this.currentAddGroup = ''
     },
     exportData() {
       this.loading=true;
@@ -1195,6 +1225,7 @@ export default {
         }
       });
       this.initParticipants();
+      this.getGroups();
     },
     back(){
       const _this = this;
@@ -1285,7 +1316,7 @@ export default {
       {
         this.manualAddForm.institutionid = this.user.institutionID;
         this.manualAddForm.activityID = this.keywords
-        this.manualAddForm.groupID = this.groupID
+        this.manualAddForm.groupID = this.groupID ? this.groupID : this.currentAddGroup
         this.$refs['manualAddForm'].validate((valid) => {
           if (valid) {
             this.postRequest1("/participants/basic/manualAdd",this.manualAddForm).then(resp => {
@@ -1336,6 +1367,16 @@ export default {
         })
       })
     },
+    chooseGroup(event){
+      this.currentAddGroup=event;
+    },
+    getGroups() {
+      this.getRequest('/activities/basic/getAllGroup?activityID='+this.keywords).then(res => {
+        if (res.obj){
+          this.groups = res.obj;
+        }
+      })
+    },
     add(){
       if (this.multipleSelection.length === 0) {
         this.$message({
@@ -1346,9 +1387,9 @@ export default {
       }
       this.dialogVisible_method = false;
       const _this = this;
-      this.groupID=0;
-      console.log(this.groupID);
-      this.postRequest("/participants/basic/addPars?activityID="+this.keywords + "&groupID=" + this.groupID,_this.multipleSelection).then((resp) => {
+      if (this.currentAddGroup === '')
+        this.currentAddGroup = 0;
+      this.postRequest("/participants/basic/addPars?activityID="+this.keywords + "&groupID=" + this.currentAddGroup,_this.multipleSelection).then((resp) => {
         if (resp) {
           this.initEmps();
           this.$message({

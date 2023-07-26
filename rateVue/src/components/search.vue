@@ -1,25 +1,27 @@
 <template>
   <div>
     <el-breadcrumb
-      separator-class="el-icon-arrow-right"
-      style="float: left; margin-top: 10px; font-size: 15px"
-      v-show="isRoot"
+        separator-class="el-icon-arrow-right"
+        style="float: left; margin-top: 10px; font-size: 15px"
+        v-show="isRoot"
     >
       <el-breadcrumb-item style="margin-left: 5px">
-        {{ p1 }}</el-breadcrumb-item
+        {{ p1 }}
+      </el-breadcrumb-item
       >
       <el-breadcrumb-item
-        >{{ category }}（{{ indicatorTypeZH }}）：{{
+      >{{ category }}（{{ indicatorTypeZH }}）：{{
           score
-        }}分</el-breadcrumb-item
+        }}分
+      </el-breadcrumb-item
       >
     </el-breadcrumb>
     <!--    选择年份-->
     <el-select
-      style="float: left; margin-left: 20px; width: 80px"
-      v-model="year"
-      v-show="isRoot"
-      @change="changeYear"
+        style="float: left; margin-left: 20px; width: 80px"
+        v-model="year"
+        v-show="isRoot"
+        @change="changeYear"
     >
       <el-option v-for="item in years" :key="item" :label="item" :value="item">
       </el-option>
@@ -28,77 +30,80 @@
       年
     </div>
     <div
-      style="text-align: center; margin-top: 100px; font-size: 30px"
-      v-show="!isRoot"
+        style="text-align: center; margin-top: 100px; font-size: 30px"
+        v-show="!isRoot"
     >
       请从左边选择一个分类
     </div>
     <!--添加-->
     <div
-      style="padding-bottom: 40px; margin-top: 5px; margin-right: 10px"
-      v-show="isRoot"
+        style="padding-bottom: 40px; margin-top: 5px; margin-right: 10px"
+        v-show="isRoot"
     >
       <el-button
-        type="primary"
-        style="float: right; margin-left: 10px"
-        @click="
+          type="primary"
+          style="float: right; margin-left: 10px"
+          @click="
           () => {
             publicationInf.year = year;
             if (indicatorType === 'publication')
               this.dialogVisibleAppendPublication = true;
             else if (indicatorType === 'award')
               this.dialogVisibleAppendAward = true;
-            else if (indicatorType === 'program')
+            else if (indicatorType === 'project')
               this.dialogVisibleAppendProgram = true;
             else if (indicatorType === 'decision')
               this.dialogVisibleAppendDecision = true;
           }
         "
-        icon="el-icon-circle-plus"
-        >添加</el-button
+          icon="el-icon-circle-plus"
+      >添加
+      </el-button
       >
       <el-button
-        type="primary"
-        style="float: right; margin-left: 10px"
-        @click="
+          type="primary"
+          style="float: right; margin-left: 10px"
+          @click="
           uploadVisible = true;
           importSelectYear = year;
           uploadResultError = false;
         "
-        icon="el-icon-s-order"
-        >批量导入</el-button
+          icon="el-icon-s-order"
+      >批量导入
+      </el-button
       >
       <el-button
-        @click="
+          @click="
           searchUnAvailable = false;
           dialogVisibleSearch = true;
         "
-        type="primary"
-        style="float: right"
-        icon="el-icon-search"
-        >搜索</el-button
+          type="primary"
+          style="float: right"
+          icon="el-icon-search"
+      >搜索
+      </el-button
       >
     </div>
     <!--    点击搜索按钮-->
     <el-dialog
-      :visible.sync="dialogVisibleSearch"
-      @close="closeSearch"
-      width="90%"
+        :visible.sync="dialogVisibleSearch"
+        @close="closeSearch"
+        width="90%"
     >
       <span slot="title" style="float: left; font-size: 20px"
-        >请输入需要搜索的名称</span
+      >请输入需要搜索的名称</span
       >
       <div style="margin-bottom: 10px">
         <span>请选择搜索的类别：</span>
         <el-select
-          style="margin-right: 20px; width: 120px"
-          v-model="searchSelectType"
+            style="margin-right: 20px; width: 120px"
+            v-model="searchSelectType"
         >
           <el-option
-            v-for="item in selectTypes"
-            :key="item"
-            :label="item"
-            :value="item"
+              v-for="item in selectTypes"
+              :key="item"
+              :label="item"
+              :value="item"
           >
           </el-option>
         </el-select>
@@ -106,8 +111,8 @@
 
       <div class="select_div_input">
         <input
-          autocomplete="off"
-          style="
+            autocomplete="off"
+            style="
             margin-left: 5px;
             width: 30%;
             line-height: 28px;
@@ -116,25 +121,25 @@
             border-radius: 4px;
             color: gray;
           "
-          placeholder="请输入期刊名称"
-          v-model="publicationName"
-          @focus="ispubShow = true"
-          @blur="ispubShow = ispubFlag"
-          id="input_publicationName"
+            placeholder="请输入期刊名称"
+            v-model="publicationName"
+            @focus="ispubShow = true"
+            @blur="ispubShow = ispubFlag"
+            id="input_publicationName"
         />
         <div
-          class="select_div"
-          v-show="ispubShow && publicationName ? true : false"
-          :style="'height:${menuHeight}'"
-          @mouseover="ispubFlag = true"
-          @mouseleave="ispubFlag = false"
+            class="select_div"
+            v-show="ispubShow && publicationName ? true : false"
+            :style="'height:${menuHeight}'"
+            @mouseover="ispubFlag = true"
+            @mouseleave="ispubFlag = false"
         >
           <div
-            class="select_div_div"
-            v-for="(val, idx) in select_pubName"
-            :key="idx"
-            :value="val.value"
-            @click="filter_pub(val.value)"
+              class="select_div_div"
+              v-for="(val, idx) in select_pubName"
+              :key="idx"
+              :value="val.value"
+              @click="filter_pub(val.value)"
           >
             {{ val.value }}
           </div>
@@ -145,66 +150,68 @@
       <!--      <div style="margin-top: 10px" v-show="pathVisible">分类：{{searchPathInf.name}}</div>-->
       <!--      searchInf2-->
       <el-table
-        v-if="searchPathInf.type === '论文'"
-        :data="listSearchPublicationsByName"
-        border
-        style="width: 100%"
+          v-if="searchPathInf.type === '学术论文'"
+          :data="listSearchPublicationsByName"
+          border
+          style="width: 100%"
       >
         <el-table-column fixed prop="indicatorName" label="指标点名称">
         </el-table-column>
         <el-table-column
-          fixed
-          width="50px"
-          prop="score"
-          align="center"
-          label="分值"
+            fixed
+            width="50px"
+            prop="score"
+            align="center"
+            label="分值"
         >
         </el-table-column>
-        <el-table-column fixed prop="name" label="刊物全称"> </el-table-column>
-        <el-table-column prop="abbr" label="刊物简称"> </el-table-column>
-        <el-table-column prop="publisher" label="出版社"> </el-table-column>
+        <el-table-column fixed prop="name" label="刊物全称"></el-table-column>
+        <el-table-column prop="abbr" label="刊物简称"></el-table-column>
+        <el-table-column prop="publisher" label="出版社"></el-table-column>
         <el-table-column
-          prop="year"
-          label="录入年份"
-          align="center"
-          width="70px"
+            prop="year"
+            label="录入年份"
+            align="center"
+            width="70px"
         >
         </el-table-column>
-        <el-table-column prop="level" label="收录级别"> </el-table-column>
+        <el-table-column prop="level" label="收录级别"></el-table-column>
         <el-table-column fixed="right" label="操作" width="150">
           <template slot-scope="scope">
             <el-button
-              @click="
+                @click="
                 rowData = JSON.parse(JSON.stringify(scope.row));
                 dialogVisibleUpdatePublication = true;
               "
-              size="mini"
-              >编辑</el-button
+                size="mini"
+            >编辑
+            </el-button
             >
             <el-button
-              @click="remove(scope.row.id, indicatorType)"
-              type="danger"
-              size="mini"
-              >删除</el-button
+                @click="remove(scope.row.id, indicatorType)"
+                type="danger"
+                size="mini"
+            >删除
+            </el-button
             >
           </template>
         </el-table-column>
       </el-table>
       <span slot="footer" class="dialog-footer">
         <el-button
-          type="danger"
-          v-show="pathVisible"
-          @click="searchDelete(searchInf2.id, searchPathInf.type)"
-          >删除</el-button
+            type="danger"
+            v-show="pathVisible"
+            @click="searchDelete(searchInf2.id, searchPathInf.type)"
+        >删除</el-button
         >
         <el-button
-          type="primary"
-          v-show="pathVisible"
-          @click="
+            type="primary"
+            v-show="pathVisible"
+            @click="
             dialogVisibleSearch = false;
             searchUpdate(searchPathInf.type);
           "
-          >修改</el-button
+        >修改</el-button
         >
         <el-button @click="closeSearch()">关 闭</el-button>
       </span>
@@ -213,190 +220,185 @@
     <!--批量导入-->
     <el-dialog :visible.sync="uploadVisible" @close="" width="80%">
       <span slot="title" style="float: left; font-size: 25px"
-        >请上传需要导入的文件</span
+      >请上传需要导入的文件</span
       >
       <span>请选择导入的年份：</span>
       <el-select
-        style="margin-right: 20px; width: 120px"
-        v-model="importSelectYear"
-        v-show="isRoot"
+          style="margin-right: 20px; width: 120px"
+          v-model="importSelectYear"
+          v-show="isRoot"
       >
         <el-option
-          v-for="item in years"
-          :key="item"
-          :label="item"
-          :value="item"
+            v-for="item in years"
+            :key="item"
+            :label="item"
+            :value="item"
         >
         </el-option>
       </el-select>
       <span>请选择导入的类别：</span>
       <el-select
-        style="margin-right: 20px; width: 120px"
-        v-model="importSelectType"
-        v-show="isRoot"
+          style="margin-right: 20px; width: 120px"
+          v-model="importSelectType"
+          v-show="isRoot"
       >
         <el-option
-          v-for="item in selectTypes"
-          :key="item"
-          :label="item"
-          :value="item"
+            v-for="item in selectTypes"
+            :key="item"
+            :label="item"
+            :value="item"
         >
         </el-option>
       </el-select>
       <div>
         <!--        <el-button @click="downloadExcel('PublicationSample')" type="warning">下载Excel模板</el-button>-->
         <el-button @click="btnClickExport" type="warning"
-          >下载Excel模板</el-button
+        >下载Excel模板
+        </el-button
         >
       </div>
       <!--      </template>-->
       <span
-        style="float: right; font-size: 16px; color: red"
-        v-show="uploadResultError"
-        >请检查期刊全称是否都不为空</span
+          style="float: right; font-size: 16px; color: red"
+          v-show="uploadResultError"
+      >请检查期刊全称是否都不为空</span
       >
       <span
-        style="float: right; font-size: 16px; color: green"
-        v-show="uploadResultValid"
-        >数据校验通过</span
+          style="float: right; font-size: 16px; color: green"
+          v-show="uploadResultValid"
+      >数据校验通过</span
       >
       <el-upload
-        action
-        :limit="1"
-        :file-list="fileList"
-        :auto-upload="false"
-        accept=".xlsx, .xls"
-        :on-change="handleAdd"
-        :on-remove="handleClose"
+          action
+          :limit="1"
+          :file-list="fileList"
+          :auto-upload="false"
+          accept=".xlsx, .xls"
+          :on-change="handleAdd"
+          :on-remove="handleClose"
       >
         <div style="margin-top: 10px">
           <el-button size="medium" type="primary">点击上传</el-button>
           <span style="color: gray; margin-left: 10px; font-size: 13px"
-            >请填写模版后上传</span
+          >请填写模版后上传</span
           >
         </div>
       </el-upload>
 
       <el-table
-        v-show="uploadResult"
-        :data="tableUploadData"
-        :row-class-name="checkUploadData"
-        style="width: 100%"
+          v-show="uploadResult"
+          :data="tableUploadData"
+          :row-class-name="checkUploadData"
+          style="width: 100%"
       >
-        <el-table-column prop="所属类别" label="所属类别"> </el-table-column>
-        <el-table-column prop="刊物全称" label="刊物全称"> </el-table-column>
-        <el-table-column prop="刊物简称" label="刊物简称"> </el-table-column>
-        <el-table-column prop="出版社" label="出版社"> </el-table-column>
-        <el-table-column prop="网址" label="网址"> </el-table-column>
+        <el-table-column prop="所属类别" label="所属类别"></el-table-column>
+        <el-table-column prop="刊物全称" label="刊物全称"></el-table-column>
+        <el-table-column prop="刊物简称" label="刊物简称"></el-table-column>
+        <el-table-column prop="出版社" label="出版社"></el-table-column>
+        <el-table-column prop="网址" label="网址"></el-table-column>
         <el-table-column
-          prop="收录级别 （收录级别1;级别2;（请用分号隔开））"
-          label="收录级别 （收录级别1;级别2;（请用分号隔开））"
+            prop="收录级别 （收录级别1;级别2;（请用分号隔开））"
+            label="收录级别 （收录级别1;级别2;（请用分号隔开））"
         >
         </el-table-column>
       </el-table>
 
       <span slot="footer" class="dialog-footer">
         <el-button
-          type="primary"
-          v-show="uploadResultValid === true"
-          @click="uploadConfirm()"
-          >确认</el-button
+            type="primary"
+            v-show="uploadResultValid === true"
+            @click="uploadConfirm()"
+        >确认</el-button
         >
         <el-button
-          @click="
+            @click="
             uploadVisible = false;
             handleClose();
           "
-          >关 闭</el-button
+        >关 闭</el-button
         >
       </span>
     </el-dialog>
 
-    <!--    :data="tableData.slice((currentPage-1)*PageSize,currentPage*PageSize)"-->
-    <!--期刊-->
     <el-table
-      v-if="indicatorType === 'publication'"
-      :data="tableData"
-      border
-      :header-cell-style="{ textAlign: 'center' }"
-      style="width: 100%"
+        v-if="indicatorType === 'publication'"
+        :data="tableData"
+        border
+        :header-cell-style="{ textAlign: 'center' }"
+        style="width: 100%"
     >
       <el-table-column prop="name" width="200px" label="刊物全称">
       </el-table-column>
-      <el-table-column prop="abbr" width="80px" label="刊物简称">
+      <el-table-column prop="abbr" width="100px" label="刊物简称">
       </el-table-column>
-      <el-table-column prop="publisher" label="出版社"> </el-table-column>
+      <el-table-column prop="publisher" label="出版社"></el-table-column>
+      <el-table-column prop="url" width="200px" label="刊物网址"></el-table-column>
       <el-table-column prop="year" width="70px" label="录入年份" align="center">
       </el-table-column>
-      <el-table-column prop="level" label="收录级别"> </el-table-column>
       <el-table-column fixed="right" label="操作" width="150">
         <template slot-scope="scope">
           <el-button
-            @click="
+              @click="
               rowData = JSON.parse(JSON.stringify(scope.row));
               dialogVisibleUpdatePublication = true;
             "
-            size="mini"
-            >编辑</el-button
+              size="mini"
+          >编辑
+          </el-button
           >
           <el-button
-            @click="remove(scope.row.id, indicatorType)"
-            type="danger"
-            size="mini"
-            >删除</el-button
+              @click="remove(scope.row.id, indicatorType)"
+              type="danger"
+              size="mini"
+          >删除
+          </el-button
           >
         </template>
       </el-table-column>
     </el-table>
     <!--新增-->
-    <el-dialog :visible.sync="dialogVisibleAppendPublication" width="30%">
-      <span slot="title" style="float: left; font-size: 20px"
-        >请输入期刊的相关信息</span
-      >
-      <el-form :model="publicationInf">
-        <el-form-item label="期刊全称">
+    <el-dialog :title="titleAddPublication" :visible.sync="dialogVisibleAppendPublication" width="30%" center>
+
+      <el-form :model="publicationInf" :hide-required-asterisk="true"
+               :label-position="labelPosition"
+               label-width="180px">
+        <el-form-item label="期刊全称" label-width="90px">
           <el-input v-model="publicationInf.name"></el-input>
         </el-form-item>
-        <el-form-item label="刊物简称">
+        <el-form-item label="刊物简称" label-width="90px">
           <el-input v-model="publicationInf.abbr"></el-input>
         </el-form-item>
-        <el-form-item label="出版社">
+        <el-form-item label="出版社" label-width="90px">
           <el-input v-model="publicationInf.publisher"></el-input>
         </el-form-item>
-        <el-form-item label="网址">
+        <el-form-item label="网址" label-width="90px">
           <el-input v-model="publicationInf.url"></el-input>
         </el-form-item>
-        <el-form-item label="收录级别">
+        <el-form-item label="录入年份" label-width="90px">
           <el-input
-            v-model="publicationInf.level"
-            placeholder="多个级别请用英文分号隔开"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="录入年份">
-          <el-input
-            v-model="publicationInf.year"
-            :placeholder="nowYear"
+              v-model="publicationInf.year"
+              :placeholder="nowYear"
           ></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleAppendPublication = false"
-          >取 消</el-button
+        >取 消</el-button
         >
         <el-button
-          type="primary"
-          @click="
+            type="primary"
+            @click="
             dialogVisibleAppendPublication = false;
             appendPublication();
           "
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
     <!--编辑-->
     <el-dialog :visible.sync="dialogVisibleUpdatePublication" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-        >请输入期刊的相关信息</span
+      >请输入期刊的相关信息</span
       >
       <el-form :model="rowData">
         <el-form-item label="期刊全称">
@@ -411,51 +413,50 @@
         <el-form-item label="网址">
           <el-input v-model="rowData.url"></el-input>
         </el-form-item>
-        <el-form-item label="收录级别">
-          <el-input v-model="rowData.level"></el-input>
-        </el-form-item>
-        <el-form-item label="录入年份">
-          <el-input v-model="rowData.year"></el-input>
-        </el-form-item>
+        <!--        <el-form-item label="录入年份">-->
+        <!--          <el-input v-model="rowData.year"></el-input>-->
+        <!--        </el-form-item>-->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdatePublication = false"
-          >取 消</el-button
+        >取 消</el-button
         >
         <el-button
-          type="primary"
-          @click="
+            type="primary"
+            @click="
             update(indicatorType);
             dialogVisibleUpdatePublication = false;
           "
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
 
     <!--科技奖-->
     <el-table
-      v-if="indicatorType === 'award'"
-      :data="
+        v-if="indicatorType === 'award'"
+        :data="
         tableData.slice((currentPage - 1) * PageSize, currentPage * PageSize)
       "
-      border
-      style="width: 100%"
+        border
+        style="width: 100%"
     >
-      <el-table-column fixed prop="name" label="奖项名"> </el-table-column>
+      <el-table-column fixed prop="name" label="奖项名"></el-table-column>
       <el-table-column fixed="right" label="操作" width="150">
         <template slot-scope="scope">
           <el-button
-            @click="
+              @click="
               rowData = JSON.parse(JSON.stringify(scope.row));
               dialogVisibleUpdateAward = true;
             "
-            >编辑</el-button
+          >编辑
+          </el-button
           >
           <el-button
-            @click="remove(scope.row.id, this.indicatorType)"
-            type="danger"
-            >删除</el-button
+              @click="remove(scope.row.id, this.indicatorType)"
+              type="danger"
+          >删除
+          </el-button
           >
         </template>
       </el-table-column>
@@ -463,7 +464,7 @@
     <!--新增-->
     <el-dialog :visible.sync="dialogVisibleAppendAward" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-        >请输入科技奖的相关信息</span
+      >请输入科技奖的相关信息</span
       >
       <el-form :model="awardInf">
         <el-form-item label="奖项名">
@@ -473,19 +474,19 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleAppendAward = false">取 消</el-button>
         <el-button
-          type="primary"
-          @click="
+            type="primary"
+            @click="
             appendAward();
             dialogVisibleAppendAward = false;
           "
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
     <!--编辑-->
     <el-dialog :visible.sync="dialogVisibleUpdateAward" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-        >请输入科技奖的相关信息</span
+      >请输入科技奖的相关信息</span
       >
       <el-form :model="rowData">
         <el-form-item label="奖项名">
@@ -495,41 +496,41 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdateAward = false">取 消</el-button>
         <el-button
-          type="primary"
-          @click="
+            type="primary"
+            @click="
             update(indicatorType);
             dialogVisibleUpdateAward = false;
           "
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
 
-    <!--纵向科研项目-->
+    <!--科研项目-->
     <el-table
-      v-if="indicatorType === 'program'"
-      :data="
-        tableData.slice((currentPage - 1) * PageSize, currentPage * PageSize)
-      "
-      border
-      style="width: 100%"
+        v-if="indicatorType === 'project'"
+        :data="tableData"
+        border
+        style="width: 100%"
     >
-      <el-table-column fixed prop="name" label="项目名"> </el-table-column>
+      <el-table-column fixed prop="name" label="项目名"></el-table-column>
       <el-table-column fixed="right" label="操作" width="150">
         <template slot-scope="scope">
           <el-button
-            @click="
+              @click="
               rowData = JSON.parse(JSON.stringify(scope.row));
               dialogVisibleUpdateProgram = true;
             "
-            size="small"
-            >编辑</el-button
+              size="small"
+          >编辑
+          </el-button
           >
           <el-button
-            @click="remove(scope.row.id, this.indicatorType)"
-            type="danger"
-            size="small"
-            >删除</el-button
+              @click="remove(scope.row.id, indicatorType)"
+              type="danger"
+              size="small"
+          >删除
+          </el-button
           >
         </template>
       </el-table-column>
@@ -537,7 +538,7 @@
     <!--新增-->
     <el-dialog :visible.sync="dialogVisibleAppendProgram" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-        >请输入纵向科研项目的的相关信息</span
+      >请输入科研项目的的相关信息</span
       >
       <el-form :model="programInf">
         <el-form-item label="项目名">
@@ -547,64 +548,71 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleAppendProgram = false">取 消</el-button>
         <el-button
-          type="primary"
-          @click="
+            type="primary"
+            @click="
             appendProgram();
             dialogVisibleAppendProgram = false;
           "
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
     <!--编辑-->
     <el-dialog :visible.sync="dialogVisibleUpdateProgram" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-        >请输入纵向科研项目的相关信息</span
+      >请输入科研项目的相关信息</span
       >
       <el-form :model="rowData">
         <el-form-item label="项目名">
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
       </el-form>
+      <!--      <el-form :model="rowData">-->
+      <!--        <el-form-item label="录入年份">-->
+      <!--          <el-input v-model="rowData.year"></el-input>-->
+      <!--        </el-form-item>-->
+      <!--      </el-form>-->
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdateProgram = false">取 消</el-button>
         <el-button
-          type="primary"
-          @click="
+            type="primary"
+            @click="
             update(indicatorType);
             dialogVisibleUpdateProgram = false;
           "
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
 
     <!--决策咨询成果-->
     <el-table
-      v-if="indicatorType === 'decision'"
-      :data="
+        v-if="indicatorType === 'decision'"
+        :data="
         tableData.slice((currentPage - 1) * PageSize, currentPage * PageSize)
       "
-      border
-      style="width: 100%"
+        border
+        style="width: 100%"
     >
       <el-table-column fixed prop="name" label="决策咨询成果名">
       </el-table-column>
       <el-table-column fixed="right" label="操作" width="150">
         <template slot-scope="scope">
           <el-button
-            @click="
+              @click="
               rowData = JSON.parse(JSON.stringify(scope.row));
               dialogVisibleUpdateDecision = true;
             "
-            size="small"
-            >编辑</el-button
+              size="small"
+          >编辑
+          </el-button
           >
           <el-button
-            @click="remove(scope.row.id, this.indicatorType)"
-            type="danger"
-            size="small"
-            >删除</el-button
+              @click="remove(scope.row.id, this.indicatorType)"
+              type="danger"
+              size="small"
+          >删除
+          </el-button
           >
         </template>
       </el-table-column>
@@ -612,7 +620,7 @@
     <!--新增-->
     <el-dialog :visible.sync="dialogVisibleAppendDecision" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-        >请输入纵向科研项目的的相关信息</span
+      >请输入纵向科研项目的的相关信息</span
       >
       <el-form :model="decisionInf">
         <el-form-item label="决策咨询成果名">
@@ -621,22 +629,22 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleAppendDecision = false"
-          >取 消</el-button
+        >取 消</el-button
         >
         <el-button
-          type="primary"
-          @click="
+            type="primary"
+            @click="
             appendDecision();
             dialogVisibleAppendDecision = false;
           "
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
     <!--编辑-->
     <el-dialog :visible.sync="dialogVisibleUpdateDecision" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-        >请输入决策咨询成果的相关信息</span
+      >请输入决策咨询成果的相关信息</span
       >
       <el-form :model="rowData">
         <el-form-item label="决策咨询成果名">
@@ -645,29 +653,29 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdateDecision = false"
-          >取 消</el-button
+        >取 消</el-button
         >
         <el-button
-          type="primary"
-          @click="
+            type="primary"
+            @click="
             update(indicatorType);
             dialogVisibleUpdateDecision = false;
           "
-          >确 定</el-button
+        >确 定</el-button
         >
       </span>
     </el-dialog>
 
     <div style="margin-top: 10px; text-align: right" v-show="isRoot">
       <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="pageSizes"
-        :page-size="PageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="totalCount"
-        background
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="pageSizes"
+          :page-size="PageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="totalCount"
+          background
       >
       </el-pagination>
     </div>
@@ -689,11 +697,14 @@ import axios from "axios";
 import * as XLSX from "xlsx/xlsx.mjs";
 import FileSaver from "file-saver";
 import th from "element-ui/src/locale/lang/th";
+
 export default {
   name: "search",
   props: ["category", "type", "order", "score", "p1", "p2"],
   data() {
     return {
+      titleAddPublication: "请添加期刊的相关信息",
+      labelPosition: "left",
       typeOfAllPaper: [],
       typeOfAllProject: [],
       typeOfAllDecision: [],
@@ -745,7 +756,7 @@ export default {
       searchInf: {}, //存放某个期刊（或其他）的indicatorID,名称,表格内id
       searchInf2: {}, //存放某个期刊（或其他）的具体信息
       searchResult: {}, //存放所有的结果
-      searchPathInf: { type: "论文" }, //存放某个期刊（或其他）的目录信息(来自indicator)
+      searchPathInf: {type: "论文"}, //存放某个期刊（或其他）的目录信息(来自indicator)
       publicationInf: {
         name: "",
         abbr: "",
@@ -940,74 +951,113 @@ export default {
         });
       }, 300);
     },
-    getTableByYear(indicatorID, year, a) {
+    getTableByYear(indicatorId, year, type) {
       var that = this;
       axios
-        .get(
-          "/publicationByYear?indicatorID=" +
-            indicatorID +
-            "&year=" +
-            year +
-            "&pageNum=" +
-            that.currentPage +
-            "&pageSize=" +
-            that.PageSize
-        )
-        .then(function (resp) {
-          that.tableData = resp.obj[0];
-          that.totalCount = resp.obj[1];
-        });
+          .get(
+              "/" + type + "ByYear?indicatorId=" +
+              indicatorId +
+              "&year=" +
+              year +
+              "&pageNum=" +
+              that.currentPage +
+              "&pageSize=" +
+              that.PageSize
+          )
+          .then(function (resp) {
+            that.tableData = resp.data;
+            that.totalCount = resp.total
+          });
     },
     changeYear() {
-      this.getTableByYear(this.indicatorID, this.year);
+      this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
     },
     remove(id, indicatorType) {
-      var that = this;
-      this.$confirm("确定要删除该条记录吗？", "提示", { type: "warning" }).then(
-        function () {
-          const index = that.tableData.findIndex((d) => d.id === id);
-          that.tableData.splice(index, 1);
-          axios.delete("/" + indicatorType + "/" + id).then(function (resp) {
-            if (resp.status != 200)
-              that.$message({
-                type: "error",
-                message: "删除失败!",
-              });
-            else
-              that.$message({
+      let url = "";
+
+      if (indicatorType === 'publication') {
+        url = `/${indicatorType}?id=${id}&year=${this.year}`;
+      } else if (indicatorType === 'project') {
+        url = `/${indicatorType}Type?id=${id}`;
+      } else {
+        url = `/${indicatorType}?id=${id}`;
+      }
+
+
+      this.$confirm("确定要删除该条记录吗？", "提示", { type: "warning" })
+          .then(() => {
+            return axios.delete(url);
+          })
+          .then((resp) => {
+            if (resp.status === 200) {
+              this.$message({
                 type: "success",
                 message: "删除成功!",
               });
-            that.totalCount--;
-            if (that.currentPage > (that.totalCount - 1) / that.PageSize + 1)
-              that.currentPage--;
+              const index = this.tableData.findIndex((d) => d.id === id);
+              this.tableData.splice(index, 1);
+              this.totalCount--;
+              if (this.currentPage > (this.totalCount - 1) / this.pageSize + 1) {
+                this.currentPage--;
+              }
+            } else {
+              this.$message({
+                type: "error",
+                message: "删除失败!",
+              });
+            }
+          })
+          .catch((error) => {
+            this.$message({
+              type: "error",
+              message: error.message || "删除失败!",
+            });
+          })
+          .finally(() => {
+            this.closeSearch();
           });
-        }
-      );
-      that.closeSearch();
     },
+
     update(indicatorType) {
-      var that = this;
-      if (this.rowData.name === "") {
-        alert("名称不能为空");
-        return;
-      }
-      axios.put("/" + indicatorType, this.rowData).then(function (resp) {
-        if (that.indicatorID === that.rowData.indicatorID) {
-          that.getTableByYear(that.indicatorID, that.year);
+      try {
+        const rowData = this.rowData;
+        if (!rowData.name) {
+          throw new Error("名称不能为空");
         }
-        if (resp.status != 200)
-          that.$message({
-            type: "error",
-            message: "修改失败!",
-          });
-        else
-          that.$message({
-            type: "success",
-            message: "修改成功!",
-          });
-      });
+
+        rowData.indicatorId = this.indicatorID;
+
+        const paths = {
+          project: "projectType",
+          publication: "publication/basic/edit"
+        };
+
+        const url = `/${paths[indicatorType] || indicatorType}`;
+
+        axios.put(url, rowData)
+            .then(() => {
+              this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
+            })
+            .catch(error => {
+              this.$message({
+                type: "error",
+                message: error.message || "修改失败!"
+              });
+            });
+
+
+        this.$message({
+          type: "success",
+          message: "修改成功!"
+        });
+      } catch (error) {
+        this.$message({
+          type: "error",
+          message: error.message || "修改失败!"
+        });
+      }
     },
+
     appendPublication() {
       if (this.publicationInf.name === "") {
         alert("期刊名称不能为空");
@@ -1019,13 +1069,13 @@ export default {
         abbr: this.publicationInf.abbr,
         publisher: this.publicationInf.publisher,
         url: this.publicationInf.url,
-        level: this.publicationInf.level,
-        indicatorID: this.indicatorID,
+        indicatorId: this.indicatorID,
         year: this.publicationInf.year,
       };
       var that = this;
-      axios.post("/publication", postData).then(function (resp) {
-        that.getTableByYear(that.indicatorID, that.year);
+      console.log(postData);
+      this.postRequest1("/publication/basic/add", postData).then(function (resp) {
+        that.getTableByYear(that.indicatorID, that.year, that.indicatorType);
         if (resp.status != 200)
           that.$message({
             type: "error",
@@ -1043,8 +1093,8 @@ export default {
     },
     appendPublicationAsync() {
       var token = localStorage.getItem("user")
-        ? JSON.parse(localStorage.getItem("user")).token
-        : "";
+          ? JSON.parse(localStorage.getItem("user")).token
+          : "";
       var that = this;
       var indicatorNames = [];
 
@@ -1059,18 +1109,18 @@ export default {
       }
       var promise = new Promise((resolve, reject) => {
         axios
-          .post("/publication/dels", {
-            year: this.importSelectYear,
-            indicatorNames: indicatorNames,
-            headers: {
-              token: token,
-            },
-          })
-          .then((resp) => {
-            if (resp) {
-              resolve(resp);
-            }
-          });
+            .post("/publication/dels", {
+              year: this.importSelectYear,
+              indicatorNames: indicatorNames,
+              headers: {
+                token: token,
+              },
+            })
+            .then((resp) => {
+              if (resp) {
+                resolve(resp);
+              }
+            });
       });
       var publicationInfList = [];
       for (let i = 0; i < this.tableUploadData.length; i++) {
@@ -1088,15 +1138,15 @@ export default {
       }
       promise.then((resp) => {
         that.postRequest("/publications", publicationInfList).then(
-          (res) => {
-            // that.getTableByYear(that.indicatorID,that.year)
-          },
-          () => {
-            that.$message({
-              type: "error",
-              message: "添加失败!",
-            });
-          }
+            (res) => {
+              // that.getTableByYear(that.indicatorID,that.year)
+            },
+            () => {
+              that.$message({
+                type: "error",
+                message: "添加失败!",
+              });
+            }
         );
       });
     },
@@ -1126,24 +1176,41 @@ export default {
     appendProgram() {
       var postData = {
         name: this.programInf.name,
-        indicatorID: this.indicatorID,
+        indicatorId: this.indicatorID,
+        year: this.year
       };
+      // console.log(postData);
       var that = this;
-      axios.post("/program", postData).then(function (resp) {
-        axios.get("/program/" + that.indicatorID).then(function (resp) {
-          that.tableData = resp.obj[1];
-        });
-        if (resp.status != 200)
-          that.$message({
-            type: "error",
-            message: "添加失败!",
+      axios.post("/projectType", postData)
+          .then(function (resp) {
+            if (resp.status !== 200) {
+              throw new Error("Failed to add project type");
+            }
+
+            const queryParams = new URLSearchParams({
+              indicatorId: postData.indicatorId,
+              year: postData.year,
+              pageNum: that.currentPage,
+              pageSize: that.PageSize
+            });
+
+            return axios.get("/projectByYear?" + queryParams.toString());
+          })
+          .then(function (resp) {
+            that.tableData = resp.data;
+            that.totalCount = resp.data.total;
+
+            that.$message({
+              type: "success",
+              message: "添加成功!",
+            });
+          })
+          .catch(function (error) {
+            that.$message({
+              type: "error",
+              message: error.message || "请求失败!",
+            });
           });
-        else
-          that.$message({
-            type: "success",
-            message: "添加成功!",
-          });
-      });
       this.programInf = {};
     },
     appendDecision() {
@@ -1172,18 +1239,32 @@ export default {
 
     getData(indicatorID, type) {
       //初始化
-      this.isRoot = true;
-      this.indicatorTypeZH = type;
-      var that = this;
-      if (type === "论文") this.indicatorType = "publication";
-      else if (type === "科技奖") this.indicatorType = "award";
-      else if (type === "纵向科研项目") this.indicatorType = "program";
-      else if (type === "决策咨询成果") this.indicatorType = "decision";
-      this.indicatorID = indicatorID;
-      this.years = [];
-      this.year = this.nowYear;
-      for (var i = 0; i < 5; i++) this.years.push(this.nowYear - i);
-      that.getTableByYear(indicatorID, that.year);
+      if (type != "授权专利") {
+        this.isRoot = true;
+        this.indicatorTypeZH = type;
+        var that = this;
+        const typeMapping = {
+          "学术论文": "publication",
+          "授权专利": "patent",
+          "科研获奖": "award",
+          "科研项目": "project",
+          "制定标准": "standard",
+          "决策咨询": "decision",
+          "学术专著和教材": "book",
+          "制造或设计的产品": "application",
+          "学科竞赛": "competition"
+        };
+
+        this.indicatorType = typeMapping[type];
+        this.indicatorID = indicatorID;
+        this.years = [];
+        this.year = this.nowYear;
+        for (var i = 0; i < 5; i++) this.years.push(this.nowYear - i);
+        that.getTableByYear(indicatorID, that.year, that.indicatorType);
+      } else {
+        this.indicatorType = ''
+        this.isRoot = false;
+      }
     },
     closeSearch() {
       this.dialogVisibleSearch = false;
@@ -1194,21 +1275,22 @@ export default {
     searchUpdate(indicatorType) {
       this.rowData = this.searchInf2;
       var type = "";
-      if (indicatorType === "论文") type = "publication";
-      else if (indicatorType === "纵向科研项目") type = "program";
-      else if (indicatorType === "科技奖") type = "award";
-      else if (indicatorType === "决策咨询成果") type = "decision";
+      if (indicatorType === "学术论文") type = "publication";
+      else if (indicatorType === "科研项目") type = "program";
+      else if (indicatorType === "科研获奖奖") type = "award";
+      else if (indicatorType === "决策咨询") type = "decision";
       this.update(type);
     },
     searchDelete(id, indicatorType) {
       var type = "";
-      if (indicatorType === "论文") type = "publication";
-      else if (indicatorType === "纵向科研项目") type = "program";
-      else if (indicatorType === "科技奖") type = "award";
-      else if (indicatorType === "决策咨询成果") type = "decision";
+      if (indicatorType === "学术论文") type = "publication";
+      else if (indicatorType === "科研项目") type = "program";
+      else if (indicatorType === "科研获奖奖") type = "award";
+      else if (indicatorType === "决策咨询") type = "decision";
       this.remove(id, type);
     },
-    importData() {},
+    importData() {
+    },
 
     // 每页显示的条数
     handleSizeChange(val) {
@@ -1216,13 +1298,13 @@ export default {
       this.PageSize = val;
       // 注意：在改变每页显示的条数时，要将页码显示到第一页
       this.currentPage = 1;
-      this.getTableByYear(this.indicatorID, this.year);
+      this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
     },
     // 显示第几页
     handleCurrentChange(val) {
       // 改变默认的页数
       this.currentPage = val;
-      this.getTableByYear(this.indicatorID, this.year);
+      this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
     },
     readFile(file) {
       //文件读取
@@ -1242,16 +1324,16 @@ export default {
         return;
       } else {
         let data = await this.readFile(file);
-        let workbook = XLSX.read(data, { type: "binary" }); //解析二进制格式数据
+        let workbook = XLSX.read(data, {type: "binary"}); //解析二进制格式数据
         var results = {};
         for (var i = 0; i < workbook.SheetNames.length; i++) {
           const firstSheetName = workbook.SheetNames[i];
           results[firstSheetName] = [];
           const worksheet = workbook.Sheets[firstSheetName];
           if (
-            typeof worksheet.A1 != "undefined" &&
-            (worksheet.A2.v != "《东华大学计算机学报》" ||
-              typeof worksheet.A3 != "undefined")
+              typeof worksheet.A1 != "undefined" &&
+              (worksheet.A2.v != "《东华大学计算机学报》" ||
+                  typeof worksheet.A3 != "undefined")
           ) {
             //判断一下有没有空表 或者空白表格
             results[firstSheetName] = [
@@ -1265,7 +1347,7 @@ export default {
           const firstSheetName = workbook.SheetNames[i];
           if (results[firstSheetName].length) {
             if (
-              results[firstSheetName][0]["刊物全称"] == "《东华大学计算机学报》"
+                results[firstSheetName][0]["刊物全称"] == "《东华大学计算机学报》"
             )
               results[firstSheetName].shift();
           }
@@ -1313,36 +1395,36 @@ export default {
       //确认上传导入的文件
       var that = this;
       this.$confirm(
-        "是否确定添加" +
+          "是否确定添加" +
           this.tableUploadData.length +
           "条记录，批量导入后将覆盖所有" +
           this.year +
           "年的数据",
-        "提示",
-        {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-        }
+          "提示",
+          {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning",
+          }
       )
-        .then(() => {
-          //点击确认
-          this.uploadAppendPublication().then(() => {
-            that.$message({
-              type: "success",
-              message: "添加成功",
+          .then(() => {
+            //点击确认
+            this.uploadAppendPublication().then(() => {
+              that.$message({
+                type: "success",
+                message: "添加成功",
+              });
+              that.uploadVisible = false;
+              that.handleClose();
+              // that.getTableByYear(that.indicatorID,that.year)
             });
-            that.uploadVisible = false;
-            that.handleClose();
-            // that.getTableByYear(that.indicatorID,that.year)
+          })
+          .catch(() => {
+            this.$message({
+              type: "info",
+              message: "已取消",
+            });
           });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消",
-          });
-        });
     },
     async uploadAppendPublication() {
       await this.appendPublicationAsync();
@@ -1394,6 +1476,7 @@ export default {
         type: "binary",
       };
       var wbout = XLSX.write(workbook, wopts);
+
       // 将字符串转ArrayBuffer
       function s2ab(s) {
         var buf = new ArrayBuffer(s.length);
@@ -1401,6 +1484,7 @@ export default {
         for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xff;
         return buf;
       }
+
       var blob = new Blob([s2ab(wbout)], {
         type: "application/octet-stream",
       });
@@ -1420,21 +1504,21 @@ export default {
       else {
         event = document.createEvent("MouseEvents");
         event.initMouseEvent(
-          "click",
-          true,
-          false,
-          window,
-          0,
-          0,
-          0,
-          0,
-          0,
-          false,
-          false,
-          false,
-          false,
-          0,
-          null
+            "click",
+            true,
+            false,
+            window,
+            0,
+            0,
+            0,
+            0,
+            0,
+            false,
+            false,
+            false,
+            false,
+            0,
+            null
         );
       }
       aLink.dispatchEvent(event);
@@ -1458,7 +1542,7 @@ export default {
       // }
       // return table_write;
     },
-    checkUploadData({ row, rowIndex }) {
+    checkUploadData({row, rowIndex}) {
       if (typeof row["刊物全称"] === "undefined") {
         return "warning-row";
       }
@@ -1476,6 +1560,7 @@ export default {
   position: relative;
   display: inline-block;
 }
+
 .select_div {
   border: 0.5px solid #fff;
   border-radius: 3px;
@@ -1488,18 +1573,22 @@ export default {
   width: 300px;
   cursor: pointer;
 }
+
 .select_div_div:hover {
   color: blue;
 }
+
 .select_div_div {
   padding-bottom: 7px;
   padding-top: 7px;
   padding-left: 12px;
   width: 100%;
 }
+
 .el-form-item__label-wrap {
   margin-left: 0px !important;
 }
+
 .el-table.el-table__fixed-right {
   top: 0px;
   left: auto;
@@ -1507,6 +1596,7 @@ export default {
   border-left: 1px solid rgb(223, 230, 236);
   box-sizing: content-box;
 }
+
 .el-table .warning-row {
   background: oldlace;
 }

@@ -1,5 +1,8 @@
 package org.sys.rate.model;
 
+import lombok.Data;
+
+@Data
 public class UnderGraduate extends Student{
     private Integer ID;
     private Integer institutionID;
@@ -7,6 +10,8 @@ public class UnderGraduate extends Student{
     private Integer studentID;
     private Integer year;
     private Integer tutorID;
+    private String specialty;
+    private String className;
 
     @Override
     public Integer getID() {

@@ -415,6 +415,16 @@
         <el-tabs type="border-card">
           <el-tab-pane label="手动添加">
            <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
+             <el-form-item label="组别:" prop="groupID" v-show="!groupID">
+               <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px">
+                 <el-option
+                     v-for="x in groups"
+                     :key="x.name"
+                     :label="x.name"
+                     :value="x.id">
+                 </el-option>
+               </el-select>
+             </el-form-item>
             <el-form-item label="身份证号:" prop="idnumber">
              <el-input style="width: 60%"  v-model="manualAddForm.idnumber" @blur="getInfoByIDNumber();fillPassword()"></el-input>
             </el-form-item>
@@ -439,21 +449,19 @@
             <el-form-item label="密码:" prop="password">
              <el-input style="width: 60%" v-model="manualAddForm.password" @input="$forceUpdate()" :disabled="manualAddFormDisabled"></el-input>
             </el-form-item>
-             <el-form-item label="组别:" prop="groupID" v-show="!groupID">
-               <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px">
-                 <el-option
-                     v-for="x in groups"
-                     :key="x.name"
-                     :label="x.name"
-                     :value="x.id">
-                 </el-option>
-               </el-select>
-             </el-form-item>
            </el-form>
            <el-button type="primary" @click="manualAdd">添加</el-button>
           </el-tab-pane>
           <el-tab-pane label="从本单位添加">
            <div style="display: flex; justify-content: left">
+             <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-right: 10px" v-show="!groupID">
+               <el-option
+                   v-for="x in groups"
+                   :key="x.name"
+                   :label="x.name"
+                   :value="x.id">
+               </el-option>
+             </el-select>
             <el-input
                 v-model="searchText"
                 placeholder="请输入工号或姓名进行搜索"
@@ -464,14 +472,6 @@
               <el-button icon="el-icon-search" type="success" @click="search"></el-button>
              </template>
             </el-input>
-             <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px" v-show="!groupID">
-               <el-option
-                   v-for="x in groups"
-                   :key="x.name"
-                   :label="x.name"
-                   :value="x.id">
-               </el-option>
-             </el-select>
            </div>
             <el-table
                 ref="multipleTable"
@@ -1481,7 +1481,6 @@ export default {
     },
     chooseGroup(event){
       this.currentAddGroup=event;
-      console.log(this.currentAddGroup)
     },
     add(){
       if (this.multipleSelection.length === 0) {

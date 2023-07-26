@@ -1,6 +1,7 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Institution;
 
 import java.util.List;
@@ -27,6 +28,8 @@ public interface InstitutionMapper {
 
     Integer maxWorkID();
 
+    @Select("select * from institution")
+    List<Institution> getAll();
 
     Integer updateEmployeeSalaryById(@Param("eid") Integer eid, @Param("sid") Integer sid);
 }

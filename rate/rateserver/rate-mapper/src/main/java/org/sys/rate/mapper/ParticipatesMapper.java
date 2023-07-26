@@ -235,7 +235,8 @@ public interface ParticipatesMapper {
     @Select("SELECT role FROM student WHERE IDNumber = #{IDNumber}")
     String getRoleByIDNumber(String IDNumber);
 
-    @Select("SELECT ID, studentID FROM participants WHERE code = #{code} AND activityID = #{activityID}")
+    @Select("SELECT p.ID, studentID, name FROM participants p,student s\n" +
+            "WHERE code = #{code} AND activityID = #{activityID} AND p.studentID = s.ID")
     Participates getParticipateIDByCodeAndActivityID(String code, Integer activityID);
 
     @Insert("INSERT INTO participants (studentID,activityID,code) VALUES (#{studentID},#{activityID},#{code})")

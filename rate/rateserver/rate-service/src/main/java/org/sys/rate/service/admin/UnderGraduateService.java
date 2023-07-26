@@ -32,11 +32,11 @@ public class UnderGraduateService {
         List<Student> insertStus = new ArrayList<>();
         if(checkStudents.size() != 0){
             for(Student i : checkStudents){//拿到已经存在的student的idnumber
-                checkIDNumbers.add(i.getIDNumber());
+                checkIDNumbers.add(i.getStudentnumber());
             }
             for(int i = 0;i < stuList.size();i++){
                 //不在更新列表中，说明表里没有这个数据
-                if(checkIDNumbers.indexOf(stuList.get(i).getIDNumber()) == -1){
+                if(checkIDNumbers.indexOf(stuList.get(i).getStudentnumber()) == -1){
                     insertStus.add(stuList.get(i));
                 }
             }
@@ -81,7 +81,7 @@ public class UnderGraduateService {
         List<String> nameTeas = new ArrayList<>();
         for(int i = 0;i < underList.size();i++){
             for(int j = 0;j < newStuList.size();j++){
-                if(underList.get(i).getIDNumber().equals(newStuList.get(j).getIDNumber())){
+                if(underList.get(i).getStuNumber().equals(newStuList.get(j).getStudentnumber())){
                     underList.get(i).setStudentID(newStuList.get(j).getID());
                     break;
                 }

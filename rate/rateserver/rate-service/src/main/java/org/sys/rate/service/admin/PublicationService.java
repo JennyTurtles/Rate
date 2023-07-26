@@ -1,5 +1,7 @@
 package org.sys.rate.service.admin;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,6 +62,10 @@ public class PublicationService {
         if(publication.getId()==null) {
             publicationMapper.insertPublication(publication);
         }
+        if(publication.getIndicatorList()==null){
+            publicationMapper.insertIndicatorPublication(publication.getIndicatorId(), publication.getId(), publication.getYear());
+            return;
+        }
         for (int i = 0; i < publication.getIndicatorList().size(); ++i) {
             publicationMapper.insertIndicatorPublication(publication.getIndicatorList().get(i).getId(), publication.getId(), publication.getDateList().get(i));
         }
@@ -81,8 +87,8 @@ public class PublicationService {
      * @param ID 刊物ID
      * @return 结果
      */
-    public Integer deletePublicationById(List<Integer> ids) {
-        return publicationMapper.deletePublicationByIds(ids);
+    public Integer deletePublicationById(Integer id, Integer year) {
+        return publicationMapper.deletePublicationByIds(id, year);
     }
 
     public Indicator chooseBestIndicator(Publication publication , Integer year){
@@ -100,5 +106,15 @@ public class PublicationService {
                 return indicator;
         }
         return null;
+    }
+
+    public List<Publication> selectPublicationListByYear(Integer indicatorID, Integer year, Integer pageNum, Integer pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+
+        List<Publication> publications = publicationMapper.selectPublicationListByYear(indicatorID, year);
+
+        // 使用 PageInfo 包装查询结果，获取分页信息
+        PageInfo<Publication> pageInfo = new PageInfo<>(publications);
+        return pageInfo.getList();
     }
 }
