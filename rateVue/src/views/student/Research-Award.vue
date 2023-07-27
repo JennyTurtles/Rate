@@ -208,7 +208,7 @@
               size="mini"
               style="width: 80%"
               prefix-icon="el-icon-edit"
-              v-model="member"
+              v-model="currentAwardCopy.author"
               @blur="judgeMember()"
               placeholder="请输入完成人,如有多个用分号分隔"
           ></el-input>
@@ -286,7 +286,15 @@
           ><br />
         </el-form-item>
         <el-form-item label="奖励状态:">
-          <span>{{ currentAward.state }}</span
+          <span>{{currentAward.state=="commit"
+              ? "已提交"
+              :currentAward.state=="tea_pass"
+                  ? "导师通过"
+                  :currentAward.state=="tea_reject"
+                      ? "导师驳回"
+                      :currentAward.state=="adm_pass"
+                          ? "管理员通过"
+                          :"管理员驳回"}}</span
           ><br />
         </el-form-item>
         <el-form-item label="备  注:">
@@ -333,7 +341,7 @@ export default {
     return {
       isAuthorIncludeSelf: false,
       awardLimitRankN: '',
-      selectAwardType: '',
+      selectAwardType: {},
       selectAwardTypeList: [],
       disabledSelectAwardType: true,
       awardPoint:0,
@@ -344,7 +352,6 @@ export default {
       urlFile:'',//文件路径
       addButtonState:true,//是否允许添加项目
       operList:[],//每个项目的历史操作记录
-      member:'',//和输入的作者列表绑定
       options:[],//存储所有类型对象
       labelPosition: "left",
       title: "",
@@ -358,7 +365,6 @@ export default {
       size: 10,
       positions: [],
       awardTypename:"",//奖励类别
-      awardTypeID:-1,
       awardLevelList: [
         {
           label:'国家级',
@@ -489,8 +495,10 @@ export default {
         filepath:this.urlFile
       }
       this.postRequest1("/award/basic/deleteFile",file).then(
-          (response)=>{
-          },()=>{}
+        ()=>{
+          this.files = [];
+          this.urlFile = '';
+        }
       )
     },
     handleExceed(){//超过限制数量
@@ -528,7 +536,7 @@ export default {
       )
     },
     judgeMember(){//输入作者框 失去焦点触发事件
-      var val = this.member;
+      var val = this.currentAwardCopy.author;
       var isalph = false//判断输入中是否有英文字母
       for(var i in val){
         var asc = val.charCodeAt(i)
@@ -546,11 +554,10 @@ export default {
       }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//中英都有
         this.$message.error();('输入不合法请重新输入！')
       }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(this.member != info.name){
+        if(val != info.name){
           this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
           this.isAuthorIncludeSelf = false;
-        }else if (this.member === info.name) {
-          this.currentAwardCopy.author = this.member
+        }else if (val === info.name) {
           this.currentAwardCopy.rank = 1
           this.currentAwardCopy.total = 1
           this.isAuthorIncludeSelf = true;
@@ -571,8 +578,8 @@ export default {
         }
         this.isAuthorIncludeSelf = true;
       }
+      this.currentAwardCopy.total = num.length
       this.currentAwardCopy.rank = num.indexOf(info.name) + 1
-      this.currentAwardCopy.author = this.member
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
@@ -581,11 +588,22 @@ export default {
     showEditEmpView(data, idx) {
       this.title = "编辑奖励信息";
       this.currentAwardCopy = JSON.parse(JSON.stringify(data));
-      this.dialogVisible = true;
-      this.member = this.currentAwardCopy.author
+      this.isAuthorIncludeSelf = true;
+      this.addButtonState = true;
+      this.disabledSelectAwardType = false;
       this.options = []
       this.awardPoint = data.point;
-      console.log(data)
+      const { id, name } = data.awardType;
+      this.selectAwardType = name;
+      this.dialogVisible = true;
+      this.awardLimitRankN = data.indicator.rankN;
+      this.files = [
+        {
+          name: this.currentAwardCopy.url.split('/').reverse()[0],
+          url: this.currentAwardCopy.url
+        }
+      ]
+      this.urlFile = this.currentAwardCopy.url;
     },
     showInfo(data){
       this.loading = true;
@@ -610,20 +628,12 @@ export default {
         })
       }
     },
-    editAward() {
+    editAward(params) {
       this.$refs["currentAwardCopy"].validate((valid) => {
         if (valid) {
-          const params = {};
-          this.currentAwardCopy.url = this.urlFile;
-          this.currentAwardCopy.state = "commit";
-          this.currentAwardCopy.awardTypeId = this.selectAwardType.id;
-          this.currentAwardCopy.point = this.awardPoint;
-          for(let key in this.currentAwardCopy) {
-            if(key !== 'indicator' && key !== 'student' && key !== 'operationList') {
-              params[key] = this.currentAwardCopy[key];
-            }
-          }
-          if(this.currentAwardCopy.url == '' ||this.currentAwardCopy.url == null){
+          params.id = this.currentAwardCopy.id;
+          params.awardTypeId = this.currentAwardCopy.awardType.id;
+          if(params.url == '' || params.url == null){
             this.$message.error('请上传证明材料！')
             return
           }
@@ -631,6 +641,7 @@ export default {
             this.$message.error('请仔细检查作者列表！');
             return;
           }
+
           this.postRequest1("/award/basic/edit", params).then(
               (resp) => {
                 if (resp) {
@@ -644,17 +655,25 @@ export default {
       });
     },
     addAward() {//项目提交确认
+      const params = {};
+      params.name = this.currentAwardCopy.name;
+      params.url = this.urlFile;
+      params.rank = this.currentAwardCopy.rank;
+      params.total = this.currentAwardCopy.total;
+      params.author = this.currentAwardCopy.author;
+      params.date = this.currentAwardCopy.date;
+      params.point = this.awardPoint;
+      params.grantedStatus = this.currentAwardCopy.grantedStatus;
+      params.awardLevel = this.currentAwardCopy.awardLevel;
+      params.state = "commit";
       if (this.currentAwardCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        this.editAward();
+        this.editAward(params);
       } else {
         this.$refs["currentAwardCopy"].validate((valid) => {
           if (valid) {
-            this.currentAwardCopy.url = this.urlFile;
-            this.currentAwardCopy.state = "commit"
-            this.currentAwardCopy.studentId = this.user.id
-            this.currentAwardCopy.awardTypeId = this.selectAwardType.id;
-            this.currentAwardCopy.point = this.awardPoint;
-            if(this.currentAwardCopy.url == '' ||this.currentAwardCopy.url == null){
+            params.studentId = this.user.id;
+            params.awardTypeId = this.selectAwardType.id;
+            if(params.url == '' || params.url == null){
               this.$message.error('请上传证明材料！')
               return
             }
@@ -662,7 +681,7 @@ export default {
               this.$message.error('请仔细检查作者列表！');
               return;
             }
-            this.postRequest1("/award/basic/add",this.currentAwardCopy).then(
+            this.postRequest1("/award/basic/add", params).then(
                 (resp) => {
                   if (resp) {
                     this.$message.success('添加成功！')
@@ -687,8 +706,7 @@ export default {
       this.urlFile = ''
       this.currentAwardCopy = {};
       this.addButtonState = false;
-      this.member=''
-      this.selectAwardType = '';
+      this.selectAwardType = {};
       this.title = "添加科研获奖";
       this.dialogVisible = true;
       this.awardLimitRankN = '';

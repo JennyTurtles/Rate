@@ -25,6 +25,7 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
+            <result property="rankN" column="rankN"/>
         </association>
         <association property="awardType" javaType="org.sys.rate.model.AwardType">
             <id property="id" column="id" jdbcType="INTEGER"/>
@@ -80,7 +81,7 @@
                oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
                oper.state,oper.remark,
                i.name as iname,
-               i.score,
+               i.score,i.rankN,
                type.name as tname,type.year,type.indicator_id
         FROM i_award a
                  LEFT JOIN i_award_type type ON type.id = a.award_type_id
@@ -155,11 +156,8 @@
             <if test="point != null">point = #{point},</if>
             <if test="state != null">state =#{state},</if>
             <if test="url != null">url = #{url},</if>
-            <if test="indicatorId != null">indicator_id = #{indicatorId},</if>
             <if test="grantedStatus != null">granted_status = #{grantedStatus},</if>
-            <if test="awardLevel != null">award_level = #{awardLevel},</if>
-            <if test="awardClass != null">award_class = #{awardClass},</if>
-            <if test="awardRank != null">award_rank = #{awardRank}</if>
+            <if test="awardLevel != null">award_level = #{awardLevel}</if>
         </trim>
         where id = #{id}
     </update>
