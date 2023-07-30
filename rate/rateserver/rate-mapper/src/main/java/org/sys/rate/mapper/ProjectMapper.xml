@@ -5,7 +5,7 @@
 <mapper namespace="org.sys.rate.mapper.ProjectMapper">
     <resultMap type="org.sys.rate.model.Project" id="ProjectResult">
         <id property="id" column="id" jdbcType="INTEGER"/>
-        <result property="studentId" column="student_id"/>
+        <result property="studentId" column="student_id" jdbcType="INTEGER"/>
         <result property="name" column="name"/>
         <result property="startDate" column="start_date"/>
         <result property="endDate" column="end_date"/>
@@ -76,18 +76,22 @@
     </select>
 
 <!--    学生科研项目页面初始化-->
-    <select id="selectProjectListById" resultMap="ProjectResult" parameterType="Integer">
-        select a.id, a.name, student_id, author, a.state, url, project_type_id, `rank`, total, point, a.start_date, a.end_date,
-               oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
-               oper.state,oper.remark,
-               i.name as iname,
-               i.score,
-               type.id as projectTypeId, type.name as tname,type.year,type.indicator_id
+    <select id="selectProjectListById" resultMap="ProjectResult">
+        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id
         FROM i_project a
-                 LEFT JOIN i_project_type type ON type.id = a.project_type_id
-                 LEFT JOIN indicator i ON i.id = type.indicator_id
-                 LEFT JOIN i_oper oper ON a.id = oper.prod_id and oper.prod_type = '科研项目'
-        where a.student_id = #{studentID}
+                 JOIN (
+            SELECT prod_id,MAX(i_oper.date) max_date
+            FROM i_oper
+            WHERE prod_type = '科研项目'
+            GROUP BY prod_id
+        ) i ON a.id = i.prod_id
+                 JOIN (
+            SELECT prod_id,remark,`date`
+            FROM i_oper
+            WHERE prod_type = '科研项目'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+                 JOIN i_project_type ip ON a.project_type_id = ip.id AND a.student_id = #{studentID}
+        ORDER BY a.id DESC;
     </select>
 
     <select id="selectProjectList" parameterType="org.sys.rate.model.Project" resultMap="ProjectResult">

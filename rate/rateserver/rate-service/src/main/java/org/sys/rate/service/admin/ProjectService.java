@@ -26,9 +26,9 @@ public class ProjectService {
     @Resource
     private OperationMapper operationMapper;
 
-    public List<Project> selectProjectListById(@Param("studentID") Integer studentID){
+    public List<Project> selectProjectListById(Integer studentID){
         List<Project> list = projectMapper.selectProjectListById(studentID);
-        return setProjectOperation(list);
+        return list;
     }
 
     /**

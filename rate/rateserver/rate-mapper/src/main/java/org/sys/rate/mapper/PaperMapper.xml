@@ -78,6 +78,7 @@
     </select>
 
     <select id="selectListByIds" resultMap="PaperResult" parameterType="Integer">
+-- 学生初始化
         SELECT p.*,i.max_date,j.remark,ip.`name` as pubName
         FROM paper p
                  JOIN (
