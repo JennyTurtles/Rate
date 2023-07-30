@@ -94,5 +94,7 @@ public interface PublicationMapper {
     @Insert("insert into indicator_publication(indicator_id, publication_id, year) values(#{indicatorId},#{publicationId},#{date})")
     Integer insertIndicatorPublication(Integer indicatorId, Integer publicationId, Integer date);
 
+    List<Publication> getlistByName(String name);
+
     List<Publication> selectPublicationListByYear(Integer indicatorID, Integer year);
 }

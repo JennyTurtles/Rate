@@ -158,7 +158,11 @@ public class PublicationController {
         List<Publication> res = publicationMapper.getPublicationInfByName(name);
         return RespBean.ok("success", res);
     }
-
+    @GetMapping("/publication/basic/listByName")
+    public RespBean getlistByName(String publicationName) {
+        List<Publication> res = publicationMapper.getlistByName(publicationName);
+        return RespBean.ok("success", res);
+    }
     /**
      * @author zyk
      * @description 获取当前年份的期刊信息
