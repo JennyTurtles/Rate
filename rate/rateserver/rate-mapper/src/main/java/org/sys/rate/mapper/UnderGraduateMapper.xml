@@ -121,7 +121,7 @@
         select exists (select * from undergraduate where tutorID = #{tutorID} and ID != #{ID})
     </select>
     <select id="getUnderByStuID" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,s.password,s.registerQuestion,s.registerAnswer
+        select u.*,s.name,s.telephone,s.email,s.username,s.password,s.registerQuestion,s.registerAnswer
         from undergraduate u,student s
         where u.studentID = #{studentID} and s.ID = u.studentID
     </select>

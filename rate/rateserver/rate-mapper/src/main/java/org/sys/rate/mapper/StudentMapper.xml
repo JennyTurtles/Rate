@@ -141,12 +141,12 @@
         )
     </insert>
     <insert id="insertStuFromRegister" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
-        insert into student  (ID,name,IDNumber,institutionID,username,password,telephone,email,deleteflag,tutorID,role,registerQuestion,registerAnswer)
+        insert into student  (ID,name,institutionID,username,password,telephone,email,deleteflag,role,registerQuestion,registerAnswer)
         values (#{ID,jdbcType=INTEGER},
-        #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
+        #{name,jdbcType=VARCHAR},
         #{institutionID,jdbcType=INTEGER},
         #{username,jdbcType=VARCHAR},
-        #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,null,'',
+        #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,'',
                 #{registerQuestion,jdbcType=VARCHAR}, #{registerQuestion,jdbcType=VARCHAR}
         )
     </insert>
