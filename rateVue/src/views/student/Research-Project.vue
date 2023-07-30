@@ -463,7 +463,7 @@ export default {
       var file={filepath:this.urlFile}
       this.postRequest1("/project/basic/deleteFile",file).then((response)=>{
         this.urlFile = '';
-        this.addButtonState = false;
+        this.files = [];
       });
     },
     handleExceed(){//超过限制数量
@@ -525,10 +525,10 @@ export default {
       }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//不允许同时包含中文和英文逗号
         this.$message.error();('输入不合法请重新输入！')
       }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(val != info.name && isalph){//有英文字符
+        if(val != info.name){//有英文字符
           this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
           this.isAuthorIncludeSelf = false;
-        }else{
+        }else if (val === info.name) {
           this.currentProjectCopy.rank = 1;
           this.currentProjectCopy.total = 1;
           this.isAuthorIncludeSelf = true;
@@ -545,7 +545,7 @@ export default {
       } else { //自己在里面
         this.isAuthorIncludeSelf = true;
       }
-      this.currentProjectCopy.total = num.length - 1;
+      this.currentProjectCopy.total = num.length;
       this.currentProjectCopy.rank = num.indexOf(info.name) + 1;
     },
     rowClass(){
@@ -556,11 +556,18 @@ export default {
       this.title = "编辑科研项目信息";
       this.currentProjectCopy = JSON.parse(JSON.stringify(data));
       this.dialogVisible = true;
-      if(this.currentProjectCopy.startDate) {
-        this.disabledSelectProjectType = false;
-      }
-      this.selectProjectType = JSON.parse(JSON.stringify(this.currentProjectCopy.projectType));
+      this.disabledSelectProjectType = false;
+      this.files = [
+        {
+          name: this.currentProjectCopy.url.split('/').reverse()[0],
+          url: this.currentProjectCopy.url
+        }
+      ];
+      this.urlFile = this.currentProjectCopy.url;
+      this.selectProjectType = data.projectType.name;
       this.projectPoint = data.point;
+      this.isAuthorIncludeSelf = true;
+      this.addButtonState = true;
     },
     showInfo(data){
       this.loading = true;
@@ -586,22 +593,21 @@ export default {
         })
       }
     },
-    editProject() {
+    editProject(params) {
       this.$refs["currentProjectCopy"].validate((valid) => {
         if (valid) {
-          const params = {};
-          this.currentProjectCopy.url = this.urlFile;
-          this.currentProjectCopy.state = "commit";
-          this.currentProjectCopy.projectTypeId = this.selectProjectType.id;
-          this.currentProjectCopy.point = this.projectPoint;
-          for(let key in this.currentProjectCopy) {
-            if(key !== 'projectType' && key !== 'student' && key !== 'operationList' && key !== 'indicator') {
-              params[key] = this.currentProjectCopy[key];
-            }
+          params.id = this.currentProjectCopy.id;
+          if(JSON.parse(JSON.stringify(this.selectProjectType)) == '{}' || this.selectProjectType == '') {
+            this.$message.error('请选择项目类别！')
+            return;
           }
-          if(this.currentProjectCopy.url == '' ||this.currentProjectCopy.url == null){
+          if(params .url == '' || params == null){
             this.$message.error('请上传证明材料！')
             return
+          }
+          if(!this.isAuthorIncludeSelf) {
+            this.$message.error('请仔细检查作者列表！');
+            return;
           }
           this.postRequest1("/project/basic/edit", params).then(
               (resp) => {
@@ -616,20 +622,28 @@ export default {
       });
     },
     addProject() {//科研项目提交确认
+      const params = {};
+      params.name = this.currentProjectCopy.name;
+      params.url = this.urlFile;
+      params.rank = this.currentProjectCopy.rank;
+      params.total = this.currentProjectCopy.total;
+      params.author = this.currentProjectCopy.author;
+      params.startDate = this.currentProjectCopy.startDate;
+      params.endDate = this.currentProjectCopy.endDate;
+      params.point = this.projectPoint;
+      params.projectTypeId = this.selectProjectType.id;
+      params.state = "commit";
       if (this.currentProjectCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        this.editProject();
+        this.editProject(params);
       } else {
         this.$refs["currentProjectCopy"].validate((valid) => {
           if (valid) {
-            if(JSON.parse(JSON.stringify(this.selectProjectType)) == '{}') {
+            if(JSON.parse(JSON.stringify(this.selectProjectType)) == '{}' || this.selectProjectType == '') {
+              this.$message.error('请选择项目类别！')
               return;
             }
-            this.currentProjectCopy.url = this.urlFile;
-            this.currentProjectCopy.state = "commit";
-            this.currentProjectCopy.studentId = this.user.id;
-            this.currentProjectCopy.projectTypeId = this.selectProjectType.id;
-            this.currentProjectCopy.point = this.projectPoint;
-            if(this.currentProjectCopy.url == '' || this.currentProjectCopy.url == null){
+            params.studentId = this.user.id;
+            if(params.url == '' || params.url == null){
               this.$message.error('请上传证明材料！')
               return
             }
@@ -637,7 +651,7 @@ export default {
               this.$message.error('请仔细检查作者列表！');
               return;
             }
-            this.postRequest1("/project/basic/add", this.currentProjectCopy).then(
+            this.postRequest1("/project/basic/add", params).then(
                 (resp) => {
                   if (resp) {
                     this.$message.success('添加成功！')
@@ -660,11 +674,16 @@ export default {
     },
     addProjectDialog() {//点击添加科研科研项目按钮
       this.urlFile = '';
+      this.files = [];
       this.currentProjectCopy = {};
       this.addButtonState = false;
       this.projectPoint = '';
       this.title = "添加项目";
+      this.selectProjectType = '';
+      this.isAuthorIncludeSelf = false;
+      this.disabledSelectProjectType = true;
       this.dialogVisible = true;
+      this.selectProjectTypeList = [];
     },
     initProjectsList() {
       this.loading = true;

@@ -26,7 +26,7 @@
             <result property="score" column="score"/>
         </association>
         <association property="projectType" javaType="org.sys.rate.model.ProjectType">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="projectTypeId" jdbcType="INTEGER"/>
             <result property="name" column="tname"/>
             <result property="year" column="year"/>
             <result property="indicatorId" column="indicator_id"/>
@@ -82,7 +82,7 @@
                oper.state,oper.remark,
                i.name as iname,
                i.score,
-               type.name as tname,type.year,type.indicator_id
+               type.id as projectTypeId, type.name as tname,type.year,type.indicator_id
         FROM i_project a
                  LEFT JOIN i_project_type type ON type.id = a.project_type_id
                  LEFT JOIN indicator i ON i.id = type.indicator_id
