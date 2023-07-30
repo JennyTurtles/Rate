@@ -352,7 +352,6 @@ export default {
       urlFile:'',//文件路径
       addButtonState:true,//是否允许添加项目
       operList:[],//每个项目的历史操作记录
-      options:[],//存储所有类型对象
       labelPosition: "left",
       title: "",
       title_show: "",
@@ -591,7 +590,6 @@ export default {
       this.isAuthorIncludeSelf = true;
       this.addButtonState = true;
       this.disabledSelectAwardType = false;
-      this.options = []
       this.awardPoint = data.point;
       const { id, name } = data.awardType;
       this.selectAwardType = name;
