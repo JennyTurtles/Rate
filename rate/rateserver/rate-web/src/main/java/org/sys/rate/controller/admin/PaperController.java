@@ -1,5 +1,8 @@
 package org.sys.rate.controller.admin;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -9,9 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
-import org.sys.rate.model.Operation;
-import org.sys.rate.model.Paper;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.*;
 import org.sys.rate.service.mail.MailToTeacherService;
 
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -53,35 +55,6 @@ public class PaperController {
     @GetMapping("/studentID")//无页码要求
     public JsonResult<List> getById(Integer studentID) {
         List<Paper> list = paperService.selectListByIds(studentID);
-        //好像是要返回时间最晚的被驳回记录的那条理由？
-        List<Paper> pp;
-        for (int i = 0; i < list.size(); i++) {
-            Paper paper = list.get(i);
-            List<Operation> paperOperation = paper.getPaperoperList();
-            int j;
-            Timestamp time = paperOperation.get(0).getTime();
-            //说明只有学生提交的那一条操作记录，不需要继续
-            if (paperOperation.size() == 1) {
-                continue;
-            }
-            int flag = 0, maxTimeIndex = 0;
-            for (j = 0; j < paperOperation.size(); j++) {
-                if (paperOperation.get(j).getOperationName().equals("审核驳回") && paperOperation.get(j).getOperatorRole().equals("teacher")) {
-                    flag = 1;
-                    if (time.getTime() < paperOperation.get(j).getTime().getTime()) {
-                        maxTimeIndex = j;
-                        time = paperOperation.get(j).getTime();
-                    }
-                }
-            }
-            if (paperOperation.get(maxTimeIndex).getRemark() != "" && flag == 1) {
-                if (paper.getState().equals("commit") || paper.getState().equals("tea_pass")) {
-                    paper.setRemark(" ");
-                } else {
-                    paper.setRemark(paperOperation.get(maxTimeIndex).getRemark());
-                }
-            }
-        }
         return new JsonResult<>(list);
     }
 
@@ -95,53 +68,8 @@ public class PaperController {
     public JsonResult<List> getCollect() {//老师查询所有学生提交的论文
         //包括返回最早的提交时间 和多次驳回的理由列表
         List<Paper> list = paperService.selectList();
-        List<Paper> pp;
-        for (int i = 0; i < list.size(); i++) {
-            Paper paper = list.get(i);
-            List<Operation> paperoperList = paper.getPaperoperList();
-            if (paperoperList == null || paperoperList.size() == 0){
-                continue;
-            }
-            if (paperoperList.size() == 1) {//只有一个提交
-                paper.setTime(paperoperList.get(0).getTime());
-                continue;
-            }
-            int indexReject = -1;
-            Timestamp timeCommit = new Timestamp(new Date().getTime());
-            Timestamp timeReject = paperoperList.get(0).getTime();
-            for (int paperOper = 0; paperOper < paperoperList.size(); paperOper ++) {
-                if (paperoperList.get(paperOper).getOperationName().equals("提交论文") && paperoperList.get(paperOper).getOperatorRole().equals("student")) {
-//                    因为可能有多次提交（如老师驳回、再次提交），所以找到时间最早的一条记录
-                    if (timeCommit.getTime() > paperoperList.get(paperOper).getTime().getTime()) {
-                        timeCommit = paperoperList.get(paperOper).getTime();
-                    }
-                }
-                if (paperoperList.get(paperOper).getOperationName().equals("审核驳回") && paperoperList.get(paperOper).getOperatorRole().equals("teacher")) {
-//                    可能有多次驳回，所以找到时间最晚的一条记录
-                    if (timeReject.getTime() < paperoperList.get(paperOper).getTime().getTime()) {
-                        indexReject = paperOper; //有可能该论文没有被驳回过，所以后续通过indexReject判断是否为初始值-1
-                        timeReject = paperoperList.get(paperOper).getTime();
-                    }
-                }
-            }
-            if (indexReject != -1) { //说明有驳回记录
-                if (paper.getState().equals("commit") || paper.getState().equals("tea_pass")) {
-                    //但是如果当前的论文处于通过或再次被提交状态就不返回驳回理由
-                    paper.setRemark(" ");
-                } else {
-                    paper.setRemark(paperoperList.get(indexReject).getRemark());
-                }
-            }
-            paper.setTime(timeCommit);
-        }
         return new JsonResult<>(list);
     }
-
-    //    添加论文 搜索期刊类别
-    //@GetMapping("/publicationList")
-    //public JsonResult<List> getPublicationList(String publicationName) {
-    //    return new JsonResult<>(publicationService.selectPublicationListByName(publicationName, year));
-    //}
 
     /**
      * 查询论文成果列表
@@ -213,18 +141,6 @@ public class PaperController {
         return new JsonResult(flag);
     }
 
-    //@PostMapping("/score")
-    //@ResponseBody
-    //public JsonResult getScore(@RequestBody Publication publication) { // name+year 得到对应的publication
-    //    String name = publication.getName();
-    //    int year = publication.getYear();
-    //    Publication pub = publicationService.selectPublicationByNameYear(name, year);
-    //    if (pub != null) {
-    //        pub.setScore(indicatorService.selectScoreById((int) (long) pub.getIndicatorID()));
-    //    }
-    //    return new JsonResult(pub);
-    //}
-
     @GetMapping("/downloadByUrl")
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
@@ -240,4 +156,14 @@ public class PaperController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
+    @PostMapping("/searchPaperByConditions")
+    public Msg searchPaperByConditions(@RequestBody Map<String, String> params) {
+        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
+        List<Paper> list = paperService.searchPaperByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"), params.get("pub"));
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
+    }
+
 }

@@ -49,22 +49,22 @@
 
     <select id="selectList" resultMap="PaperResult">
         -- 老师查询所有学生的论文
-        SELECT p.*,
-               s.NAME   AS sname,
-               pub.NAME AS pname,
-               paperoper.operator_role,
-               paperoper.operator_id,
-               paperoper.operator_name,
-               paperoper.prod_type,
-               paperoper.prod_id,
-               paperoper.date,
-               paperoper.operation_name,
-               paperoper.state,
-               paperoper.remark
+        SELECT p.*,i.max_date,j.remark,ip.`name` as pubName, s.name as sname
         FROM paper p
-                 LEFT JOIN student s ON p.studentID = s.ID
-                 LEFT JOIN i_publication pub ON p.publicationID = pub.id
-                 LEFT JOIN i_oper paperoper ON p.ID = paperoper.prod_id and paperoper.prod_type = '学术论文'
+                 JOIN (
+            SELECT prod_id,MAX(date) max_date
+            FROM i_oper
+            WHERE prod_type = '学术论文'
+            GROUP BY prod_id
+        ) i ON p.ID = i.prod_id
+                 JOIN (
+            SELECT prod_id,remark,`date`
+            FROM i_oper
+            WHERE prod_type = '学术论文'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+                 JOIN i_publication ip ON p.publicationID = ip.id
+                 JOIN student s ON s.ID = p.studentID
+        ORDER BY p.ID DESC;
     </select>
 
     <select id="selectListById" resultMap="PaperResult">
@@ -78,26 +78,21 @@
     </select>
 
     <select id="selectListByIds" resultMap="PaperResult" parameterType="Integer">
-        select p.*,
-               pub.name as pname,
-               paperoper.operator_role,
-               paperoper.operator_id,
-               paperoper.operator_name,
-               paperoper.prod_type,
-               paperoper.prod_id,
-               paperoper.date,
-               paperoper.operation_name,
-               paperoper.state,
-               paperoper.remark
-        from paper p,
-             student s,
-             i_publication pub,
-             i_oper paperoper
-        where p.studentID = #{studentID}
-          and p.publicationID = pub.id
-          and p.ID = paperoper.prod_id
-          and paperoper.prod_type = '学术论文'
-
+        SELECT p.*,i.max_date,j.remark,ip.`name` as pubName
+        FROM paper p
+                 JOIN (
+            SELECT prod_id,MAX(date) max_date
+            FROM i_oper
+            WHERE prod_type = '学术论文'
+            GROUP BY prod_id
+        ) i ON p.ID = i.prod_id
+                 JOIN (
+            SELECT prod_id,remark,`date`
+            FROM i_oper
+            WHERE prod_type = '学术论文'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+                 JOIN i_publication ip ON p.publicationID = ip.id
+        ORDER BY p.ID DESC;
     </select>
 
     <select id="selectPaperList" parameterType="org.sys.rate.model.Paper" resultMap="PaperResult">
@@ -197,5 +192,17 @@
             #{ID}
         </foreach>
     </delete>
-
+    <select id="searchPaperByConditions" resultMap="PaperResult">
+        select p.*, s.name as sname, pub.name as pname
+        from paper p, student s, i_publication pub
+        <where>
+            <if test="name != null and name != ''">and p.name like concat('%', #{name}, '%')</if>
+            <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
+            <if test="state != null and state != ''">and state = #{state}</if>
+            <if test="pub != null and pub != ''">and pub.name = #{pub}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and point between #{pointFront} and #{pointBack}</if>
+            and s.ID = p.studentID
+            and p.publicationID = pub.id
+        </where>
+    </select>
 </mapper>
