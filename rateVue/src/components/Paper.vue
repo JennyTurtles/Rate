@@ -490,7 +490,7 @@ export default {
   },
   mounted() {
     // this.initEmps();
-    this.searchEmps(1, 15);
+    this.searchEmps(1, 3);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来

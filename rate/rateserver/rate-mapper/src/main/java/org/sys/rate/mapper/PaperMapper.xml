@@ -194,16 +194,28 @@
         </foreach>
     </delete>
     <select id="searchPaperByConditions" resultMap="PaperResult">
-        select p.*, s.name as sname, pub.name as pname
-        from paper p, student s, i_publication pub
+        SELECT p.*,i.max_date,j.remark,ip.`name` as pubName, s.name as sname
+        FROM paper p
+        JOIN (
+        SELECT prod_id,MAX(date) max_date
+        FROM i_oper
+        WHERE prod_type = '学术论文'
+        GROUP BY prod_id
+        ) i ON p.ID = i.prod_id
+        JOIN (
+        SELECT prod_id,remark,`date`
+        FROM i_oper
+        WHERE prod_type = '学术论文'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+        JOIN i_publication ip ON p.publicationID = ip.id
+        JOIN student s ON s.ID = p.studentID
         <where>
             <if test="name != null and name != ''">and p.name like concat('%', #{name}, '%')</if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
-            <if test="state != null and state != ''">and state = #{state}</if>
-            <if test="pub != null and pub != ''">and pub.name = #{pub}</if>
-            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and point between #{pointFront} and #{pointBack}</if>
-            and s.ID = p.studentID
-            and p.publicationID = pub.id
+            <if test="state != null and state != ''">and p.state = #{state}</if>
+            <if test="pub != null and pub != ''">and ip.name = #{pub}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and p.point between #{pointFront} and #{pointBack}</if>
         </where>
+        ORDER BY p.ID DESC
     </select>
 </mapper>

@@ -118,8 +118,8 @@ public class PaperService {
         }
         return paperMapper.editState(state,ID);
     }
-    public List<Paper> searchPaperByConditions(String studentName, String state, String name, String pointFront, String pointBack, String pub) {
-        List<Paper> list = paperMapper.searchPaperByConditions(studentName, state, name, pointFront, pointBack, pub);
+    public List<Paper> searchPaperByConditions(String studentName, String state, String name, String pointFront, String pointBack, String pub, String pageNum, String pageSize) {
+        List<Paper> list = paperMapper.searchPaperByConditions(studentName, state, name, pointFront, pointBack, pub, Integer.parseInt(pageNum), Integer.parseInt(pageSize));
 //        List<Operation> operationList = operationMapper.selectTypeAllOperationList("学术论文");
 //        List<Operation> monographList = new ArrayList<>();
 //        //可优化
