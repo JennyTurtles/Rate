@@ -160,7 +160,6 @@ public class PaperController {
     @PostMapping("/searchPaperByConditions")
     public Msg searchPaperByConditions(@RequestBody Map<String, String> params) {
 //        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
-        PageHelper.clearPage();
         List<Paper> list = paperService.searchPaperByConditions(params.get("studentName"), params.get("state"),
                 params.get("name"), params.get("pointFront"),
                 params.get("pointBack"), params.get("pub"),
