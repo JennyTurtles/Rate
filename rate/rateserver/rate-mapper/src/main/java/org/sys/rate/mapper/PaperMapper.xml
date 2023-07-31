@@ -93,6 +93,7 @@
             WHERE prod_type = '学术论文'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_publication ip ON p.publicationID = ip.id
+                 JOIN student s ON s.ID = p.studentID and p.studentID = #{studentID}
         ORDER BY p.ID DESC;
     </select>
 
