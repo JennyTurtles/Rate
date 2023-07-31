@@ -159,14 +159,12 @@ public class PaperController {
 
     @PostMapping("/searchPaperByConditions")
     public Msg searchPaperByConditions(@RequestBody Map<String, String> params) {
-//        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
-        PageHelper.clearPage();
+        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
         List<Paper> list = paperService.searchPaperByConditions(params.get("studentName"), params.get("state"),
                 params.get("name"), params.get("pointFront"),
-                params.get("pointBack"), params.get("pub"),
-                params.get("pageNum"), params.get("pageSize"));
-//        PageInfo info = new PageInfo<>(page.getResult());
-        Object[] res = {list, list.size()}; // res是分页后的数据，info.getTotal()是总条数
+                params.get("pointBack"), params.get("pub"));
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
     }
 

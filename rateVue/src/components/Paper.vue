@@ -97,7 +97,7 @@
               <el-button
                   icon="el-icon-search"
                   type="primary"
-                  @click="searchEmps(1, 15)"
+                  @click="searchEmps(1, 3)"
                   :disabled="showAdvanceSearchView"
                   style="margin-left:30px"
                   >
@@ -158,7 +158,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="publication.name"
+          prop="pubName"
           label="发表刊物"
           align="center"
           width="240"
@@ -196,10 +196,13 @@
       <div style="display: flex; justify-content: flex-end; margin: 10px 0">
         <el-pagination
           background
+          :current-page="currentPage"
+          :page-size="pageSize"
+          :page-sizes="pageSizes"
           @current-change="currentChange"
           @size-change="sizeChange"
           layout="sizes, prev, pager, next, jumper, ->, total, slot"
-          :total="total"
+          :total="totalCount"
         >
         </el-pagination>
       </div>
@@ -394,6 +397,10 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      totalCount:0,
+      currentPage:1,
+      pageSize: 3,
+      pageSizes:[3,5,10,20,30],
       searchPaperPublicationName: '',
       tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
       ispubFlag:false,
@@ -489,7 +496,6 @@ export default {
     this.debounceSearch = debounce(this.searchPublicationMethod,400);
   },
   mounted() {
-    // this.initEmps();
     this.searchEmps(1, 3);
   },
   filters:{
@@ -571,7 +577,7 @@ export default {
           this.doAddOper(status, this.reason, this.emp.id);
         }
       }).finally(()=>{
-        this.initEmps();
+        this.searchEmps(this.currentPage, this.pageSize);
       });
     },
     doAddOper(state, remark, paperID) {
@@ -592,7 +598,7 @@ export default {
       this.postRequest1("/oper/basic/add", this.oper).then(
         (resp) => {
           if (resp) {
-            this.initEmps()
+            this.searchEmps(this.currentPage, this.pageSize);
           }
         }
       );    
@@ -625,36 +631,36 @@ export default {
       });
     },
     sizeChange(currentSize) {
-      this.size = currentSize;
-      this.initEmps();
+      this.pageSize = currentSize;
+      this.searchEmps(this.currentPage, this.pageSize);
     },
     currentChange(currentPage) {
-      this.page = currentPage;
-      this.initEmps("advanced");
+      this.currentPage = currentPage;
+      this.searchEmps(this.currentPage, this.pageSize);
     },
-    initEmps() {
-      this.loading = true;
-      let url = "/paper/basic/List" ;
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.emps = resp.data;
-          this.copyemps = this.emps
-          this.total = resp.total;
-          //什么意思？
-          for(var i = 0; i < this.emps.length; i ++){
-            var papername = this.emps[i].name
-            if(this.select_paperName.indexOf(papername)==-1){
-              this.select_paperName.push(papername)
-            }
-            var judge=this.emps[i].student.sname
-            if(this.select_stuName.indexOf(judge)==-1){
-              this.select_stuName.push(judge)
-            }
-          }
-        }
-      });
-    },
+    // initEmps() {
+    //   this.loading = true;
+    //   let url = "/paper/basic/List" ;
+    //   this.getRequest(url).then((resp) => {
+    //     this.loading = false;
+    //     if (resp) {
+    //       this.emps = resp.data;
+    //       this.copyemps = this.emps
+    //       this.total = resp.total;
+    //       //什么意思？
+    //       for(var i = 0; i < this.emps.length; i ++){
+    //         var papername = this.emps[i].name
+    //         if(this.select_paperName.indexOf(papername)==-1){
+    //           this.select_paperName.push(papername)
+    //         }
+    //         var judge=this.emps[i].student.sname
+    //         if(this.select_stuName.indexOf(judge)==-1){
+    //           this.select_stuName.push(judge)
+    //         }
+    //       }
+    //     }
+    //   });
+    // },
     searchEmps(pageNum, pageSize) {//根据条件搜索论文
       const params = {};
       params.studentName = document.getElementById("select_stuname").value

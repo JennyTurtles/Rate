@@ -58,7 +58,7 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="publication.name"
+            prop="pubName"
             label="发表刊物"
             align="center"
             width="250px"
@@ -1109,8 +1109,10 @@ export default {
       this.paperPoint = data.point;
       this.urlFile = this.currentEmp.url;
       this.dialogVisible = true;
-      this.publicationName = this.currentEmp.publication.name
+      this.publicationName = this.currentEmp.pubName
       this.isInitEditDialog = true;
+      this.addButtonState = true;
+      this.isAuthorIncludeSelf = true;
     },
     deleteEmp(data) {//点击删除按钮
       this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?",).then(() => {
