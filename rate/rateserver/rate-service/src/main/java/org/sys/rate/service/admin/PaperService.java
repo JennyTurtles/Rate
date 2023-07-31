@@ -120,19 +120,6 @@ public class PaperService {
     }
     public List<Paper> searchPaperByConditions(String studentName, String state, String name, String pointFront, String pointBack, String pub) {
         List<Paper> list = paperMapper.searchPaperByConditions(studentName, state, name, pointFront, pointBack, pub);
-//        List<Operation> operationList = operationMapper.selectTypeAllOperationList("学术论文");
-//        List<Operation> monographList = new ArrayList<>();
-//        //可优化
-//        for (int i = 0;i < list.size(); i++) {
-//            monographList = new ArrayList<>();
-//            for (int j = 0;j < operationList.size(); j++) {
-//                if(operationList.get(j).getProdId() == (int)list.get(i).getID()) {
-//                    monographList.add(operationList.get(j));
-//                }
-//            }
-//            list.get(i).s(monographList);
-//        }
-//        return setMonographOperation(list);
         return list;
     }
 }

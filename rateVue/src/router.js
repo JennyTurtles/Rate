@@ -251,7 +251,16 @@ export default new Router({
           meta: {
             title: '论文',
           },
-        }, {
+        },
+        {
+          path: '/student/AcademicCompetition',
+          name: '学科竞赛',
+          hidden: true,
+          component: () => import('./views/student/Academic-Competition'),
+          meta: {
+            title: '学科竞赛',
+          },
+        },{
           path: '/student/Standard',
           name: '制定标准',
           hidden: true,
