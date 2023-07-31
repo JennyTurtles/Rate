@@ -217,5 +217,6 @@
             <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and p.point between #{pointFront} and #{pointBack}</if>
         </where>
         ORDER BY p.ID DESC
+        LIMIT #{pN}, #{pS}
     </select>
 </mapper>
