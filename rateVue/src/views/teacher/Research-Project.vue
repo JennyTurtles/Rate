@@ -355,10 +355,10 @@ export default {
       searchProjectName: '',
       searchStatus: '',
       searchStudentName: '',
-      pageSizes:[2,20,30],
+      pageSizes:[15,20,30],
       totalCount:0,
       currentPage: 1,
-      pageSize: 2,
+      pageSize: 15,
       operList:[],
       isShowInfo: false,
       select_stuName:["全部"],//筛选框
@@ -416,7 +416,7 @@ export default {
   created() {},
   mounted() {
     // this.test();
-    this.searchProject(1,2);
+    this.searchProject(1,15);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -580,9 +580,9 @@ export default {
       params.pageSize = pageSize.toString();
       this.postRequest('/project/basic/searchProjectByConditions', params).then((response) => {
         if(response) {
-          this.projectList = response.extend.res;
-          // this.totalCount = response.extend.res[1];
-        }
+          this.projectList = response.extend.res[0];
+          this.totalCount = response.extend.res[1];
+        }else this.projectList = [];
       })
     }
   }
