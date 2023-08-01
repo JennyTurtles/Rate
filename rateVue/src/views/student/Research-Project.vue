@@ -201,6 +201,9 @@
                 :value="item">
             </el-option>
           </el-select>
+          <el-tooltip class="item" effect="dark" content="Top Left 提示文字" placement="top-start">
+            <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
+          </el-tooltip>
         </el-form-item>
 
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">

@@ -172,6 +172,9 @@
               v-model="currentMonographCopy.publisher"
               placeholder="请输入专著或教材出版社"
           ></el-input>
+          <el-tooltip class="item" effect="dark" content="Top Left 提示文字" placement="top-start">
+            <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
+          </el-tooltip>
         </el-form-item>
         <el-form-item label="ISBN:" label-width="80px" style="margin-left: 20px;" prop="isbn">
           <span class="isMust">*</span>
@@ -182,6 +185,9 @@
               v-model="currentMonographCopy.isbn"
               placeholder="请输入专著或教材ISBN"
           ></el-input>
+          <el-tooltip class="item" effect="dark" content="Top Left 提示文字" placement="top-start">
+            <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
+          </el-tooltip>
         </el-form-item>
         <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
