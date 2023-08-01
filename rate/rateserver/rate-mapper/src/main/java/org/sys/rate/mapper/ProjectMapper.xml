@@ -222,7 +222,7 @@
             <if test="state != null and state != ''">and book.state = #{state}</if>
             <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
         </where>
-        ORDER BY book.id DESC;
+        ORDER BY book.id DESC
     </select>
 
     <select id="selectProjectListByYear" resultType="org.sys.rate.model.Project"></select>
