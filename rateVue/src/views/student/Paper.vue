@@ -1114,18 +1114,33 @@ export default {
       this.addButtonState = true;
       this.isAuthorIncludeSelf = true;
     },
+    deleteEmpMethod(data) {
+      return  new Promise((resolve, reject) => {
+          this.deleteRequest("/paper/basic/remove/" + data.id).then((resp) => {
+            this.dialogVisible = false;
+            resolve('success');
+          })
+        }
+      )
+    },
     deleteEmp(data) {//点击删除按钮
       this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?",).then(() => {
-        this.deleteRequest("/paper/basic/remove/" + data.id).then((resp) => {
-          if (resp) {
-            this.dialogVisible = false;
-            this.$message.success('删除成功!')
-            this.initEmps();
-          }
+        Promise.all([this.deleteEmpMethod(data), this.deleteOperationList(data)]).then(res => {
+          this.$message.success('删除成功!');
+          this.initEmps();
         }).catch(() => {
-          this.$message.error('删除失败!')
+          this.$message.error('删除失败!');
         })
-      }).catch(() => {
+      })
+    },
+    deleteOperationList(data) {
+      const params = {}
+      params.prodId = data.id;
+      params.prodType = '学术论文'
+      return new Promise((resolve, reject) => {
+        this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
+          resolve('success');
+        })
       })
     },
     editPaper() {
