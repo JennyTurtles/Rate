@@ -53,9 +53,9 @@ public class PatentController {
     private String uploadFileName;
 
     @GetMapping("/studentID")//无页码要求
-    public JsonResult<List> getById(Integer studentID) {
+    public RespBean getById(Integer studentID) {
         List<Patent> list = patentService.selectListByIds(studentID);
-        return new JsonResult<>(patentService.setPatentOperation(list));
+        return RespBean.ok("success", list);
     }
 
     //    修改专利状态

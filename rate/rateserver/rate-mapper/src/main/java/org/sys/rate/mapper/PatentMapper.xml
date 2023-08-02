@@ -80,10 +80,10 @@
 
 <!--    学生专利页面初始化-->
     <select id="selectListByIds" resultMap="PatentResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.granted_status, a.indicator_id, a.`date`, j.remark,ind.name as iname,ind.score
+        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.granted_status, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score
         FROM i_patent a
                  JOIN (
-            SELECT prod_id,MAX(date) max_date
+            SELECT prod_id,MAX(i_oper.date) max_date
             FROM i_oper
             WHERE prod_type = '授权专利'
             GROUP BY prod_id
