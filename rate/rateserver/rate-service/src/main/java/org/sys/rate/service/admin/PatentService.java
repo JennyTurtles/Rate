@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.PatentMapper;
 import org.sys.rate.model.Operation;
 import org.sys.rate.model.Patent;
+import org.sys.rate.model.Project;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -138,5 +139,9 @@ public class PatentService {
     public int editState(String state, Long ID) throws MessagingException {
         //mailToStuServicei.sendStuMail(state, paper, "论文");
         return patentMapper.editState(state,ID);
+    }
+    public List<Patent> searchPatentByConditions(String studentName, String state, String projectName, String pointFront, String pointBack) {
+        List<Patent> list = patentMapper.searchPatentByConditions(studentName, state, projectName, pointFront, pointBack);
+        return list;
     }
 }
