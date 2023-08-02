@@ -584,17 +584,34 @@ export default {
         }
       });
     },
-    deleteProject(data) {
-      if(confirm(
-          "此操作将永久删除【" + data.name + "】, 是否继续?",)){
-        this.deleteRequest("/project/basic/remove/" + data.id).then((resp) => {
-          if (resp) {
-            this.dialogVisible = false;
-            this.$message.success('删除成功！');
-            this.initProjectsList();
+    deleteProjectMethod(data) {
+      return new Promise((resolve, reject) => {
+            this.deleteRequest("/project/basic/remove/" + data.id).then((resp) => {
+              this.dialogVisible = false;
+              resolve('success');
+            })
           }
+      )
+    },
+    deleteProject(data) {
+      this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?").then(() => {
+        Promise.all([this.deleteProjectMethod(data), this.deleteOperationList(data)]).then(res => {
+          this.$message.success('删除成功!');
+          this.initEmps();
+        }).catch(() => {
+          this.$message.error('删除失败!');
         })
-      }
+      })
+    },
+    deleteOperationList(data) {
+      const params = {}
+      params.prodId = data.id;
+      params.prodType = '科研项目'
+      return new Promise((resolve, reject) => {
+        this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
+          resolve('success');
+        })
+      })
     },
     editProject(params) {
       this.$refs["currentProjectCopy"].validate((valid) => {
