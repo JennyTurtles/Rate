@@ -1,13 +1,11 @@
 package org.sys.rate.controller.admin;
 
 import org.apache.ibatis.annotations.Param;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.OperationMapper;
 import org.sys.rate.model.Operation;
 import org.sys.rate.model.RespBean;
+import org.sys.rate.service.admin.OperationService;
 
 import javax.annotation.Resource;
 import javax.xml.crypto.Data;
@@ -21,6 +19,8 @@ import java.util.List;
 public class OperationController {
     @Resource
     private OperationMapper operMapper;
+    @Resource
+    private OperationService operationService;
 
     @PostMapping("/add")
     public RespBean addOper(Operation oper) {
@@ -49,5 +49,11 @@ public class OperationController {
             return RespBean.error("error", null);
         }
         return RespBean.ok("success", operationList);
+    }
+    @PostMapping("/deleteOperationList")
+    public RespBean deleteOperationList(@RequestBody Operation operation) {
+        Integer res = operationService.deleteOperationList(operation);
+        if(res > 0) return RespBean.ok("success", res);
+        return RespBean.error("error", null);
     }
 }
