@@ -559,17 +559,34 @@ export default {
         }
       });
     },
-    deleteEmp(data) {
-      if(confirm(
-          "此操作将永久删除【" + data.name + "】, 是否继续?",)){
-        this.deleteRequest("/patent/basic/remove/" + data.id).then((resp) => {
-          if (resp) {
-            this.dialogVisible = false;
-            this.$message.success('删除成功！');
-            this.initEmps();
+    deleteEmpMethod(data) {
+      return new Promise((resolve, reject) => {
+            this.deleteRequest("/patent/basic/remove/" + data.id).then((resp) => {
+              this.dialogVisible = false;
+              resolve('success');
+            })
           }
+      )
+    },
+    deleteEmp(data) {
+      this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?").then(() => {
+        Promise.all([this.deleteEmpMethod(data), this.deleteOperationList(data)]).then(res => {
+          this.$message.success('删除成功!');
+          this.initEmps();
+        }).catch(() => {
+          this.$message.error('删除失败!');
         })
-      }
+      })
+    },
+    deleteOperationList(data) {
+      const params = {}
+      params.prodId = data.id;
+      params.prodType = '授权专利'
+      return new Promise((resolve, reject) => {
+        this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
+          resolve('success');
+        })
+      })
     },
     editAward(params) {
       this.$refs["currentPatentCopy"].validate((valid) => {
