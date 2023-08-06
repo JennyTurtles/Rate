@@ -293,7 +293,7 @@
                                 type="primary"
                                 plain
                                 v-show="mode !== 'secretarySub' && mode !== 'adminSub' && scope.row.haveSub === 1"
-                        >子活动管理
+                        >子活动信息管理
                         </el-button
                         >
                         <el-button
