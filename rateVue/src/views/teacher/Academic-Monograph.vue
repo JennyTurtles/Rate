@@ -73,7 +73,7 @@
         <el-button
             icon="el-icon-search"
             type="primary"
-            @click="searchMonograph(1, 15)"
+            @click="searchMonograph(1, 10)"
             style="margin-left:30px"
         >
           搜索
@@ -354,10 +354,10 @@ export default {
       searchMonographName: '',
       searchStatus: '',
       searchStudentName: '',
-      pageSizes:[15,20,30],
+      pageSizes:[10, 20, 50, 100],
       totalCount:0,
       currentPage: 1,
-      pageSize: 15,
+      pageSize: 10,
       operList:[],
       isShowInfo: false,
       select_stuName:["全部"],//筛选框
@@ -411,7 +411,7 @@ export default {
   },
   created() {},
   mounted() {
-    this.searchMonograph(1,15);
+    this.searchMonograph(1,10);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -513,29 +513,6 @@ export default {
       this.currentPage = currentPage;
       this.searchMonograph(currentPage,this.pageSize);
     },
-    //先做个备份，可以删除
-    setDataRemark(data) {
-      //初始化页面需要根据学生提交时间做降序
-      //页面的table的备注列需要展示驳回时间最晚的一条记录，两者操作无法合并
-      let dataRejectList;
-      let dataCommitList;
-      data.map(item => {
-        dataRejectList = [];
-        dataCommitList = [];
-        item.operationList.map(operation => {
-          //将每个著作的提交和驳回单独提取
-          if(operation.state === 'commit') dataCommitList.push(operation);
-          if(operation.state === 'tea_reject' || operation.state === 'adm_reject') dataRejectList.push(operation);
-        })
-        //找出最晚驳回理由
-        if(dataRejectList.length) {
-          dataRejectList.sort((a,b) => {
-            return b.time - a.time;
-          })
-          item.remark = dataRejectList[0].remark;
-        }
-      })
-    },
     searchMonograph(pageNum, pageSize) {//根据条件搜索
       const params = {};
       params.studentName = this.searchStudentName;
@@ -569,7 +546,6 @@ export default {
         if(response) {
           this.monographList = response.extend.res[0];
           this.totalCount = response.extend.res[1];
-          // this.setDataRemark(this.monographList);
         }
       })
     }

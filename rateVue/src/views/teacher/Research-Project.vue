@@ -73,7 +73,7 @@
         <el-button
             icon="el-icon-search"
             type="primary"
-            @click="searchProject(1, 2)"
+            @click="searchProject(1, 10)"
             style="margin-left:30px"
         >
           搜索
@@ -355,10 +355,10 @@ export default {
       searchProjectName: '',
       searchStatus: '',
       searchStudentName: '',
-      pageSizes:[15,20,30],
+      pageSizes:[10, 20, 50, 100],
       totalCount:0,
       currentPage: 1,
-      pageSize: 15,
+      pageSize: 10,
       operList:[],
       isShowInfo: false,
       select_stuName:["全部"],//筛选框
@@ -416,7 +416,7 @@ export default {
   created() {},
   mounted() {
     // this.test();
-    this.searchProject(1,15);
+    this.searchProject(1,10);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
