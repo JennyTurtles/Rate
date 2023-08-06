@@ -81,7 +81,7 @@
         <el-button
             icon="el-icon-search"
             type="primary"
-            @click="searchPatentListByCondicitions(1, 15)"
+            @click="searchPatentListByCondicitions(1, 10)"
             :disabled="showAdvanceSearchView"
             style="margin-left:30px"
         >
@@ -356,10 +356,10 @@ export default {
       searchPatentState: '',
       searchPatentName: '',
       searchStudentName: '',
-      pageSizes:[5,10,15,20,30],
+      pageSizes:[10, 20, 50, 100],
       totalCount:0,
       currentPage:1,
-      pageSize:15,
+      pageSize:10,
       tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
       ispubFlag:false,
       ispubShow:false,
@@ -432,7 +432,7 @@ export default {
   },
   created() {},
   mounted() {
-    this.searchPatentListByCondicitions(1, 15)
+    this.searchPatentListByCondicitions(1, 10)
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来

@@ -97,7 +97,7 @@
               <el-button
                   icon="el-icon-search"
                   type="primary"
-                  @click="searchEmps(1, 3)"
+                  @click="searchEmps(1, 10)"
                   :disabled="showAdvanceSearchView"
                   style="margin-left:30px"
                   >
@@ -399,8 +399,8 @@ export default {
     return {
       totalCount:0,
       currentPage:1,
-      pageSize: 3,
-      pageSizes:[3,5,10,20,30],
+      pageSize: 10,
+      pageSizes:[10, 20, 50, 100],
       searchPaperPublicationName: '',
       tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
       ispubFlag:false,
@@ -496,7 +496,7 @@ export default {
     this.debounceSearch = debounce(this.searchPublicationMethod,400);
   },
   mounted() {
-    this.searchEmps(1, 3);
+    this.searchEmps(1, 10);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来

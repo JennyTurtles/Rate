@@ -201,7 +201,12 @@
                 :value="item">
             </el-option>
           </el-select>
-          <el-tooltip class="item" effect="dark" content="Top Left 提示文字" placement="top-start">
+          <el-tooltip class="item" effect="dark"
+                      content="如：国家自然科学基金面上项目、
+                                  973计划、
+                                  863计划、
+                                  上海市科委项目、
+                                  人才计划项目(曙光、晨光、扬帆、浦江、启明星A类等）等" placement="top-start">
             <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
           </el-tooltip>
         </el-form-item>
