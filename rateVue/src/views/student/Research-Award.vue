@@ -56,13 +56,6 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="grantedStatus"
-            label="申请状态"
-            align="center"
-            width="100px"
-        >
-        </el-table-column>
-        <el-table-column
             prop="awardType.name"
             label="奖励类别"
             align="center"
@@ -155,7 +148,7 @@
             <el-option v-for="item in awardLevelList" :key="item.value" :value="item.label" :label="item.label"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="申报日期:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="获奖年月:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-date-picker
               style="width: 80%"
@@ -163,7 +156,7 @@
               @change="changeProjectStartDate($event)"
               type="month"
               value-format="yyyy-MM"
-              placeholder="选择日期">
+              placeholder="选择年月">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="奖励类别:" label-width="80px" style="margin-left: 20px;">
@@ -187,24 +180,11 @@
                 :value="item">
             </el-option>
           </el-select>
-          <el-tooltip class="item" effect="dark" content="Top Left 提示文字" placement="top-start">
+          <el-tooltip class="item" effect="dark" content="如：国家科技进步奖、国家技术发明奖、国家自然科学奖等" placement="top-start">
             <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
           </el-tooltip>
         </el-form-item>
-
-        <el-form-item prop="grantedStatus" label="奖励状态" label-width="80px" style="margin-left: 20px;">
-          <span class="isMust">*</span>
-          <el-select
-              size="mini"
-              style="width: 80%"
-              prefix-icon="el-icon-edit"
-              v-model="currentAwardCopy.grantedStatus"
-              placeholder="请选择奖励状态"
-          >
-            <el-option v-for="item in awardStatusList" :key="item" :value="item" :label="item"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="完成人:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="获奖人:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               id="input_member"
@@ -213,7 +193,7 @@
               prefix-icon="el-icon-edit"
               v-model="currentAwardCopy.author"
               @blur="judgeMember()"
-              placeholder="请输入完成人,如有多个用分号分隔"
+              placeholder="请输入获奖人,如有多个用分号分隔"
           ></el-input>
         </el-form-item>
 
@@ -264,7 +244,7 @@
           <span>{{ currentAward.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作  者:">
+        <el-form-item label="获奖人:">
           <span>{{ currentAward.author }}</span
           >
         </el-form-item>
@@ -280,15 +260,11 @@
           <span>{{ currentAward.rank }}</span
           >
         </el-form-item>
-        <el-form-item label="获得年份:">
+        <el-form-item label="获奖年月:">
           <span>{{ currentAward.date }}</span
           >
         </el-form-item>
-        <el-form-item label="申请状态:">
-          <span>{{ currentAward.grantedStatus}}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="奖励状态:">
+        <el-form-item label="成果状态:">
           <span>{{currentAward.state=="commit"
               ? "已提交"
               :currentAward.state=="tea_pass"
@@ -377,7 +353,6 @@ export default {
           value: 2
         }
       ],
-      awardStatusList: ['受理', '初审', '公布', '实审', '授权', '转让'],
       oper:{
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
@@ -394,7 +369,6 @@ export default {
         id: null,
         name: null,
         author:"",
-        grantedStatus: '',
         state: '',
         date: "",
         rank: "",
@@ -682,7 +656,6 @@ export default {
       params.author = this.currentAwardCopy.author;
       params.date = this.currentAwardCopy.date;
       params.point = this.awardPoint;
-      params.grantedStatus = this.currentAwardCopy.grantedStatus;
       params.awardLevel = this.currentAwardCopy.awardLevel;
       params.state = "commit";
       if (this.currentAwardCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
