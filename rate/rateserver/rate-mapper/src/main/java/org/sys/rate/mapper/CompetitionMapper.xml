@@ -6,12 +6,10 @@
     <resultMap type="org.sys.rate.model.Competition" id="CompetitionResult">
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="studentId" column="student_id" jdbcType="INTEGER"/>
-        <result property="indicatorId" column="indicator_id" jdbcType="INTEGER"/>
         <result property="name" column="name"/>
         <result property="author" column="author"/>
         <result property="url" column="url"/>
         <result property="state" column="state"/>
-        <result property="order" column="order"/>
         <result property="point" column="point"/>
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
@@ -55,25 +53,12 @@
                  JOIN (
             SELECT prod_id,remark,`date`
             FROM i_oper
-            WHERE prod_type = '科研项目'
+            WHERE prod_type = '学科竞赛'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_competition_type type ON p.competition_type_id = type.id
                  JOIN student s ON s.ID = p.student_id
                 JOIN indicator i ON i.id = type.indicator_id
-        ORDER BY p.id DESC;
-        -- 老师查询所有学生的获奖
---         SELECT p.*,
---                s.name as sname,
---                i.name as iname,
---                i.score,
---                oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
---                oper.state,oper.remark,
---                type.name as tname,type.year,type.indicator_id
---         FROM i_competition p
---                  LEFT JOIN i_competition_type type ON type.id = p.competition_type_id
---                  LEFT JOIN student s ON p.student_id = s.ID
---                  LEFT JOIN indicator i ON i.id = p.indicator_id
---                  LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '科研项目'
+        ORDER BY p.id DESC
     </select>
 
     <select id="selectListById" resultMap="CompetitionResult">
@@ -88,7 +73,7 @@
 
 <!--    学生科研项目页面初始化-->
     <select id="selectCompetitionListById" resultMap="CompetitionResult">
-        SELECT a.*,i.max_date,j.remark
+        SELECT a.*,i.max_date,j.remark, type.`name` as tname, type.id as projectTypeId, type.year, type.indicator_id
         FROM i_competition a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -101,7 +86,7 @@
             FROM i_oper
             WHERE prod_type = '学科竞赛'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
-                 JOIN indicator ip ON a.indicator_id = ip.id AND a.student_id = #{studentID}
+                 JOIN i_competition_type type ON type.id = a.competition_type_id AND a.student_id = #{studentID}
         ORDER BY a.id DESC;
     </select>
 
@@ -131,30 +116,28 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
             <if test="studentId != null">student_id,</if>
-            <if test="competitionTypeId != null">competition_type_id,</if>
             <if test="name != null and name != ''">name,</if>
-            <if test="startDate != null">start_date,</if>
-            end_date,
+            <if test="date != null">date,</if>
             <if test="author != null">author,</if>
             <if test="`rank` != null">`rank`,</if>
             <if test="total != null">total,</if>
             <if test="point != null">point,</if>
             <if test="state != null">state,</if>
-            <if test="url != null">url</if>
+            <if test="url != null">url,</if>
+            <if test="competitionLevel != null">competition_level</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="studentId != null">#{studentId},</if>
-            <if test="competitionTypeId != null">#{competitionTypeId},</if>
             <if test="name != null and name != ''">#{name},</if>
-            <if test="startDate != null">#{startDate},</if>
-            #{endDate},
+            <if test="date != null">#{date},</if>
             <if test="author != null">#{author},</if>
             <if test="`rank` != null">#{rank},</if>
             <if test="total != null">#{total},</if>
             <if test="point != null">#{point},</if>
             <if test="state != null">#{state},</if>
-            <if test="url != null">#{url}</if>
+            <if test="url != null">#{url},</if>
+            <if test="competitionLevel != null">#{competitionLevel}</if>
         </trim>
     </insert>
 
@@ -162,15 +145,14 @@
         update i_competition
         <trim prefix="SET" suffixOverrides=",">
             <if test="name != null and name != ''">name = #{name},</if>
-            <if test="startDate != null">start_date = #{startDate},</if>
-            end_date = #{endDate},
+            <if test="date != null">date = #{date},</if>
             <if test="author != null">author = #{author},</if>
             <if test="`rank` != null">`rank` = #{rank},</if>
             <if test="total != null">total = #{total},</if>
             <if test="point != null">point = #{point},</if>
             <if test="state != null">state =#{state},</if>
             <if test="url != null">url = #{url},</if>
-            <if test="competitionTypeId != null">competition_type_id = #{competitionTypeId}</if>
+            <if test="competitionLevel != null">competition_level = #{competitionLevel}</if>
         </trim>
         where id = #{id}
     </update>
