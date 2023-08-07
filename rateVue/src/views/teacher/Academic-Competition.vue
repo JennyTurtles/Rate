@@ -168,7 +168,7 @@
         >
         </el-table-column>
         <el-table-column
-            prop="remark"
+            prop="operationList[0].remark"
             label="备注"
             align="center"
         >

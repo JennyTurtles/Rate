@@ -84,7 +84,7 @@
         >
         </el-table-column>
         <el-table-column
-            prop="remark"
+            prop="operationList[0].remark"
             width="140px"
             align="center"
             label="备注"
