@@ -111,4 +111,10 @@ public interface GroupsMapper {
 
 
     void insertGroups(List<Groups> newGroups);
+
+    @Select("SELECT * FROM `groups` WHERE activityID = #{activityID} LIMIT 1")
+    Groups getGroupsByActivityID(Integer activityID);
+
+    @Select("SELECT * FROM `groups` WHERE activityID = #{activityID}")
+    List<Groups> getAllGroupsByActivityID(Integer activityID);
 }

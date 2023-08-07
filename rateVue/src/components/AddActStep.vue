@@ -143,11 +143,12 @@ export default {
    }},
   goAct(){
    // 弹出一个对话框，提示是否要添加子活动
+   // 后续添加改为：是否继续添加子活动？
    const _this = this;
    if (this.$route.query.mode == 'adminSub' || this.$route.query.haveSub == 1){
-    _this.$confirm('是否要添加子活动？', '提示', {
-     confirmButtonText: '确定',
-     cancelButtonText: '取消',
+    _this.$confirm(this.$route.query.haveSub == 1 ? '是否要添加子活动？' : '是否要继续添加子活动？', '提示', {
+     confirmButtonText: '是',
+     cancelButtonText: '否',
      type: 'warning'
     }).then(() => {
      _this.$router.push({

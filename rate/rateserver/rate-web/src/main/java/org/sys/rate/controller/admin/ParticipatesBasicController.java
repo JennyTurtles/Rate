@@ -310,7 +310,7 @@ public class ParticipatesBasicController {
                 return RespBean.ok(res.getMsg());
 //            return RespBean.error("更新选手数量失败");
         }
-        return RespBean.error(res.getMsg());
+        return RespBean.ok(res.getMsg());
     }
 
     @Transactional

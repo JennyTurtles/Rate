@@ -199,4 +199,14 @@ public class GroupsController {
         }
         return RespBean.ok("success", new ArrayList<>(Arrays.asList(groupID,groupsMapper.getGroupExperts(groupID))));
     }
+
+    @GetMapping("/getByActivityID")
+    public RespBean getGroupsByActivityID(@RequestParam Integer activityID) {
+        return RespBean.ok("success", groupsMapper.getGroupsByActivityID(activityID));
+    }
+
+    @GetMapping("/getAllByActivityID")
+    public RespBean getAllGroupsByActivityID(@RequestParam Integer activityID) {
+        return RespBean.ok("success", groupsMapper.getAllGroupsByActivityID(activityID));
+    }
 }
