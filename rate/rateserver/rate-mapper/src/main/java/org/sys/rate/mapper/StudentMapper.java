@@ -57,8 +57,8 @@ public interface StudentMapper {
             "where stuNumber = #{studentNumber} AND s.ID = g.studentID")
     Student getUndergraduateByStudentNumber(String studentNumber);
 
-    @Insert("INSERT INTO graduatestudent(institutionID,studentID,stuNumber,year,studentType,point,tutorID)\n" +
-            "VALUES (#{institutionid},#{ID},#{studentnumber},#{year},#{gradType},0,#{tutorID})")
+    @Insert("INSERT INTO graduatestudent(institutionID,studentID,stuNumber,year,studentType,point)\n" +
+            "VALUES (#{institutionid},#{ID},#{studentnumber},#{year},#{gradType},0)")
     void registerGraduate(Student student);
 
     @Update("UPDATE graduatestudent SET studentID = #{newID}\n" +
@@ -69,17 +69,17 @@ public interface StudentMapper {
             "WHERE ID = (SELECT ID2 FROM (SELECT ID ID2 FROM undergraduate WHERE studentID = #{oldID}) AS a)")
     void updateUndergraduateStudentID(Integer oldID, Integer newID);
 
-    @Insert("INSERT INTO undergraduate(institutionID,studentID,stuNumber,year,tutorID)\n" +
-            "VALUES (#{institutionid},#{ID},#{studentnumber},#{year},#{tutorID})")
+    @Insert("INSERT INTO undergraduate(institutionID,studentID,stuNumber,year)\n" +
+            "VALUES (#{institutionid},#{ID},#{studentnumber},#{year})")
     void registerUndergraduate(Student student);
 
 
     @Select("select name from student where ID = #{studentID}")
     String getNameByID(Integer studentID);
 
-    @Update("UPDATE graduatestudent SET year = #{year},tutorID = #{tutorID},studentType = #{gradType} WHERE studentID = #{ID}")
+    @Update("UPDATE graduatestudent SET year = #{year},studentType = #{gradType} WHERE studentID = #{ID}")
     void updateGraduate(Student student);
 
-    @Update("UPDATE undergraduate SET year = #{year},tutorID = #{tutorID} WHERE studentID = #{ID}")
+    @Update("UPDATE undergraduate SET year = #{year} WHERE studentID = #{ID}")
     void updateUnderGraduate(Student student);
 }
