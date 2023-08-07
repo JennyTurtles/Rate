@@ -1,10 +1,14 @@
 package org.sys.rate.service.admin;
 
 import org.springframework.stereotype.Service;
+import org.sys.rate.mapper.CompetitionTypeMapper;
 import org.sys.rate.mapper.OperationMapper;
 import org.sys.rate.mapper.CompetitionMapper;
+import org.sys.rate.mapper.ProjectTypeMapper;
+import org.sys.rate.model.CompetitionType;
 import org.sys.rate.model.Operation;
 import org.sys.rate.model.Competition;
+import org.sys.rate.model.ProjectType;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -16,6 +20,8 @@ import java.util.List;
 public class CompetitionService {
     @Resource
     private CompetitionMapper competitionMapper;
+    @Resource
+    private CompetitionTypeMapper competitionTypeMapper;
     @Resource
     private OperationMapper operationMapper;
 
@@ -104,6 +110,9 @@ public class CompetitionService {
         List<Competition> list = competitionMapper.searchCompetitionByConditions(studentName, state, competitionName, pointFront, pointBack);
         return list;
     }
-
+    public List<CompetitionType> getIndicatorByYearAndType(String year, String type) {
+        List<CompetitionType> list = competitionTypeMapper.getIndicatorByYearAndType(year,type);
+        return list;
+    }
 
 }
