@@ -42,7 +42,7 @@
      <span style="margin-left: 20px"
            v-show="mode === 'secretarySub'">当前管理的是：{{ actName }}的 </span>
      <el-select ref="optionRef"
-         @change="goAnotherGroupForSub" style="width: auto" v-model="groupIDForSub" v-show="$route.query.isGroup">
+         @change="goAnotherGroupForSub"  v-model="groupIDForSub" v-show="$route.query.isGroup">
       <el-option
           v-for="item in groupList"
           :key="item.id"
@@ -1028,11 +1028,12 @@ export default {
  },
  methods: {
   goAnotherGroupForSub(){
+   const label = this.groupList.find(item => item.id == this.groupIDForSub).name;
    var query = {
     id: this.$route.query.id,
     keywords: this.$route.query.keywords,
     actName: this.$route.query.actName,
-    groupName: this.$refs.optionRef.selected.label,
+    groupName: label,
     groupID: this.groupIDForSub,
     isGroup: true,
     haveSub: 1
@@ -1303,7 +1304,7 @@ export default {
      activityIDParent: this.$route.query.id,
      activityID: data.id ? data.id : this.$route.query.id,
      groupIDParent: this.$route.query.groupID, // 这里有问题
-     groupID: this.$route.query.groupID ? this.$route.query.groupID : this.groupID,
+     // groupID: this.$route.query.groupID ? this.$route.query.groupID : this.groupID,
      actName: this.$route.query.actName,
      groupName: this.$route.query.groupName,
      isGroup: this.$route.query.isGroup,
@@ -1630,6 +1631,7 @@ export default {
     path: "/Admin/addAct",
     query: {
      mode: this.mode,
+     parentID: this.activityID,
     },
    });
    this.getCloneActivity();

@@ -247,4 +247,9 @@ public interface ParticipatesMapper {
 
     @Delete("DELETE FROM student WHERE ID = #{studentID}")
     void deleteStudent(Integer studentID);
+
+    @Select("SELECT * FROM participants WHERE groupID = #{groupID}")
+    List<Participates> getPartByGroupID(@Param("groupID") Integer groupID);
+
+    void insertParticipates(List<Participates> list);
 }

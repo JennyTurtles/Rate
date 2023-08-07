@@ -143,9 +143,8 @@ export default {
    }},
   goAct(){
    // 弹出一个对话框，提示是否要添加子活动
-   // 后续添加改为：是否继续添加子活动？
    const _this = this;
-   if (this.$route.query.mode == 'adminSub' || this.$route.query.haveSub == 1){
+   if (this.$route.query.subActNo || this.$route.query.haveSub == 1){
     _this.$confirm(this.$route.query.haveSub == 1 ? '是否要添加子活动？' : '是否要继续添加子活动？', '提示', {
      confirmButtonText: '是',
      cancelButtonText: '否',
@@ -160,7 +159,15 @@ export default {
       path: "/ActivitM/search",
      });
     });
-   }else {
+   }else if (this.$route.query.mode === 'adminSub'){ // 在子活动里面添加返回子活动管理界面
+    this.$router.push({
+     path: "/ActivitM/SubActManage",
+     query: {
+      id: this.$route.query.parentID,
+     },
+    })
+   }
+   else {
     _this.$router.push({
      path: "/ActivitM/search",
     });

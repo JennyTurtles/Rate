@@ -311,6 +311,7 @@ public class ExpertService implements UserDetailsService {
 			expertactivities.setFinished(false);
 			expertactivities.setRole("专家");
 			//如果是1，则为本单位，再设置为管理员的instituteId，否则为null
+
 			if (experts.getInstitutionid() == 1) {
 				Integer instituteId = activitiesMapper.selectByActivityId(activityid);//通过活动号查找管理员组织号，新增的ActivitiesMapper方法
 				experts.setInstitutionid(instituteId);
