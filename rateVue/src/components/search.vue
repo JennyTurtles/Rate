@@ -828,16 +828,21 @@
       </span>
     </el-dialog>
 
-    <!--科技奖-->
+    <!--科研获奖-->
     <el-table
         v-if="indicatorType === 'award'"
-        :data="
-        tableData.slice((currentPage - 1) * PageSize, currentPage * PageSize)
-      "
+        :data="tableData"
         border
         style="width: 100%"
     >
       <el-table-column fixed prop="name" label="奖项名"></el-table-column>
+      <el-table-column fixed prop="rankN" label="排名限制">
+        <template slot-scope="scope">
+          <span v-if="scope.row.rankN === 0">排名不限</span>
+          <span v-else>{{ scope.row.rankN }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column fixed="right" label="操作" width="150">
         <template slot-scope="scope">
           <el-button
@@ -858,7 +863,7 @@
     <!--新增-->
     <el-dialog :visible.sync="dialogVisibleAppendAward" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-      >请输入科技奖的相关信息</span
+      >请输入科研获奖的相关信息</span
       >
       <el-form :model="awardInf">
         <el-form-item label="奖项名">
@@ -885,6 +890,9 @@
       <el-form :model="rowData">
         <el-form-item label="奖项名">
           <el-input v-model="rowData.name"></el-input>
+        </el-form-item>
+        <el-form-item label="排名限制">
+          <el-input v-model="rowData.rankN" placeholder="若输入为 0 则为排名不限"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -1162,6 +1170,7 @@ export default {
       },
       awardInf: {
         name: "",
+        rankN: "",
       },
       programInf: {
         name: "",
@@ -1172,8 +1181,8 @@ export default {
       isRoot: false,
       currentPage: 1,
       totalCount: 0,
-      pageSizes: [2, 15, 20, 25],
-      PageSize: 15,
+      pageSizes: [10, 20, 50, 100],
+      PageSize: 10,
       tablePaperSample: [
         //论文
         {
@@ -1382,10 +1391,10 @@ export default {
     async getTableByYear(indicatorId, year, type) {
       try {
         const resp = await axios.get(
-            `/${type}ByYear?indicatorId=${indicatorId}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}`
+            `/indicator/getProductByYear?indicatorId=${indicatorId}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}&type=${type}`
         );
-        this.tableData = resp.data;
-        this.totalCount = resp.total;
+        this.tableData = resp.extend.res[0];
+        this.totalCount = resp.extend.res[1];
       } catch (error) {
         console.error(error);
       }
@@ -1438,8 +1447,7 @@ export default {
             this.closeSearch();
           });
     },
-
-    update(indicatorType) {
+    async update(indicatorType) {
       try {
         const rowData = this.rowData;
         if (!rowData.name) {
@@ -1451,34 +1459,23 @@ export default {
         const paths = {
           project: "projectType",
           publication: "publication/basic/edit",
+          award: "award/basic/awardType"
         };
 
         const url = `/${paths[indicatorType] || indicatorType}`;
 
-        axios
-            .put(url, rowData)
-            .then(() => {
-              this.getTableByYear(
-                  this.indicatorID,
-                  this.year,
-                  this.indicatorType
-              );
-            })
-            .catch((error) => {
-              this.$message({
-                type: "error",
-                message: error.message || "修改失败!",
-              });
-            });
+        await axios.put(url, rowData);
+
+        await this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
 
         this.$message({
           type: "success",
-          message: "修改成功!",
+          message: "修改成功!"
         });
       } catch (error) {
         this.$message({
           type: "error",
-          message: error.message || "修改失败!",
+          message: error.message || "修改失败!"
         });
       }
     },
@@ -1577,29 +1574,28 @@ export default {
         );
       });
     },
-    appendAward() {
-      var postData = {
-        name: this.awardInf.name,
-        indicatorID: this.indicatorID,
-      };
-      var that = this;
-      axios.post("/award", postData).then(function (resp) {
-        axios.get("/award/" + that.indicatorID).then(function (resp) {
-          that.tableData = resp.obj[1];
+    async appendAward() {
+      try {
+        // 默认 rankN 为 null 时，为不限制排名
+        const postData = {
+          name: this.awardInf.name,
+          indicatorId: this.indicatorID,
+          year: this.year
+        };
+
+        await axios.post("/award/basic/awardType", postData);
+
+        await this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
+
+        this.awardInf = {};
+      } catch (error) {
+        this.$message({
+          type: "error",
+          message: error.message || "追加奖项失败！"
         });
-        if (resp.status != 200)
-          that.$message({
-            type: "error",
-            message: "添加失败!",
-          });
-        else
-          that.$message({
-            type: "success",
-            message: "添加成功!",
-          });
-      });
-      this.awardInf = {};
+      }
     },
+
     appendProgram() {
       var postData = {
         name: this.programInf.name,

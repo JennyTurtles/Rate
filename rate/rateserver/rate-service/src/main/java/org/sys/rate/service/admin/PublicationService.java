@@ -108,13 +108,9 @@ public class PublicationService {
         return null;
     }
 
-    public List<Publication> selectPublicationListByYear(Integer indicatorID, Integer year, Integer pageNum, Integer pageSize) {
-        PageHelper.startPage(pageNum, pageSize);
-
+    public List<Publication> selectPublicationListByYear(Integer indicatorID, Integer year) {
         List<Publication> publications = publicationMapper.selectPublicationListByYear(indicatorID, year);
 
-        // 使用 PageInfo 包装查询结果，获取分页信息
-        PageInfo<Publication> pageInfo = new PageInfo<>(publications);
-        return pageInfo.getList();
+        return publications;
     }
 }

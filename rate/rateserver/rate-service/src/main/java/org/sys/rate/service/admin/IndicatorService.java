@@ -4,12 +4,11 @@ import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.sys.rate.mapper.AwardTypeMapper;
 import org.sys.rate.mapper.IndicatorMapper;
+import org.sys.rate.mapper.ProjectTypeMapper;
 import org.sys.rate.mapper.PublicationMapper;
-import org.sys.rate.model.Indicator;
-import org.sys.rate.model.Production;
-import org.sys.rate.model.Project;
-import org.sys.rate.model.Publication;
+import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -23,6 +22,12 @@ public class IndicatorService {
     private IndicatorMapper indicatorMapper;
     @Resource
     private PublicationMapper publicationMapper;
+
+    @Resource
+    private ProjectTypeMapper projectTypeMapper;
+
+    @Resource
+    private AwardTypeMapper awardTypeMapper;
 
 
     public List<Indicator> getAll (){return indicatorMapper.getAll();}
@@ -73,6 +78,7 @@ public class IndicatorService {
             List<Publication> publications = publicationMapper.getPublicationInfByName(fullName);
             return castList(publications);
         } else if ("project".equals(indicatorType)) {
+            // 这里需要传入indicator的相关信息，所以用project来作为返回类型
             List<Project> projects = indicatorMapper.getProjectByName(fullName);
             return castList(projects);
         }
@@ -85,4 +91,17 @@ public class IndicatorService {
                 .collect(Collectors.toList());
     }
 
+    public <T> List<T> selectProductListByYear(Integer indicatorId, Integer year, String type) {
+        if ("publication".equals(type)) {
+            List<Publication> publications = publicationMapper.selectPublicationListByYear(indicatorId, year);
+            return castList(publications);
+        } else if ("project".equals(type)) {
+            List<ProjectType> projectTypes = projectTypeMapper.selectProjectTypeListByYear(indicatorId,year);
+            return castList(projectTypes);
+        }else if ("award".equals(type)) {
+            List<AwardType> awardTypes = awardTypeMapper.selectAwardTypeListByYear(indicatorId,year);
+            return castList(awardTypes);
+        }
+        return new ArrayList<>();
+    }
 }

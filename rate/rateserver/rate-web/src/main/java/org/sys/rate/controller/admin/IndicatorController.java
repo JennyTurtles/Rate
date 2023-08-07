@@ -1,13 +1,15 @@
 package org.sys.rate.controller.admin;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.IndicatorMapper;
-import org.sys.rate.model.Indicator;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.IndicatorService;
-import org.sys.rate.model.TreeNode;
+import org.sys.rate.service.admin.PublicationService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -22,6 +24,23 @@ public class IndicatorController {
     private IndicatorService indicatorService;
     @Resource
     private IndicatorMapper indicatorMapper;
+
+    @GetMapping("/getProductByYear")
+    public Msg listByName(@RequestParam("indicatorId") Integer indicatorId,
+                          @RequestParam("year") Integer year,
+                          @RequestParam("pageNum") Integer pageNum,
+                          @RequestParam("pageSize") Integer pageSize,
+                          @RequestParam("type") String type) {
+        Page page = PageHelper.startPage(pageNum,pageSize);
+        List<T> list = indicatorService.selectProductListByYear(indicatorId, year, type);
+        if (list.isEmpty()) {
+            return Msg.success().add("没有找到任何提交记录", null);
+        }
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
+    }
+
 
     // 根据成果类型和具体的名字进行查询，返回包含indicator的全部信息
     // 算了，写在一起吧，虽然冗余了代码

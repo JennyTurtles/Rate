@@ -48,6 +48,7 @@ public class AwardController {
     private static final Logger logger = LoggerFactory.getLogger(AwardController.class);
     private String uploadFileName;
 
+
     @GetMapping("/studentID")//无页码要求
     public JsonResult<List> getById(Integer studentID) {
         List<Award> list = awardService.selectAwardListById(studentID);
@@ -152,4 +153,28 @@ public class AwardController {
     public JsonResult getScore(Integer id) {
         return new JsonResult(indicatorMapper.getIndicatorById(id));
     }
+
+    @PostMapping("/awardType")
+    public RespBean addAwardType(@RequestBody AwardType awardType){
+        // 1.向awardType插入
+        // 2.向indicator中插入，no，这里其实就只需要设置indicator中的rankN就可以了！
+        try {
+            awardService.addAwardType(awardType);
+            return RespBean.ok("插入awardType成功！");
+        } catch (Exception e) {
+            return RespBean.error("插入awardType失败！");
+        }
+
+    }
+
+    @PutMapping("/awardType")
+    public RespBean editAwardType(@RequestBody AwardType awardType){
+        try {
+            awardService.editAwardType(awardType);
+            return RespBean.ok("修改awardType成功！");
+        } catch (Exception e) {
+            return RespBean.error("修改awardType失败！");
+        }
+    }
+
 }
