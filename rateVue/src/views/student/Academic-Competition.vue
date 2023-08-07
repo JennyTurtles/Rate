@@ -6,7 +6,7 @@
       >
         <div>
           <el-button type="primary" icon="el-icon-plus" @click="addCompetitionDialog">
-            添加科研竞赛
+            添加学科竞赛
           </el-button>
         </div>
       </div>
@@ -27,7 +27,7 @@
             fixed
             prop="name"
             align="center"
-            label="科研竞赛名称"
+            label="学科竞赛名称"
             width="200px"
         >
         </el-table-column>
@@ -56,13 +56,6 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="competitionType.name"
-            label="竞赛类别"
-            align="center"
-            width="100px"
-        >
-        </el-table-column>
-        <el-table-column
             prop="author"
             align="center"
             label="完成人"
@@ -70,17 +63,10 @@
         >
         </el-table-column>
         <el-table-column
-            prop="startDate"
-            label="立项时间"
-            align="center"
-            width="75px"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="endDate"
+            prop="date"
             width="140px"
             align="center"
-            label="结项时间"
+            label="时间"
         >
         </el-table-column>
         <el-table-column
@@ -129,7 +115,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <!-- 添加科研科研竞赛对话框 -->
+    <!-- 添加科研学科竞赛对话框 -->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
       <el-form
           :hide-required-asterisk="true"
@@ -146,10 +132,10 @@
               style="width:80%"
               prefix-icon="el-icon-edit"
               v-model="currentCompetitionCopy.name"
-              placeholder="请输入科研竞赛名称"
+              placeholder="请输入学科竞赛名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="立项时间:" label-width="80px" style="margin-left: 20px;" prop="startDate">
+        <el-form-item label="获奖年月:" label-width="80px" style="margin-left: 20px;" prop="startDate">
           <span class="isMust">*</span>
           <el-date-picker
               style="width: 80%"
@@ -157,19 +143,10 @@
               type="month"
               @change="changeCompetitionStartDate($event)"
               value-format="yyyy-MM"
-              placeholder="选择立项时间">
+              placeholder="选择获奖年月">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="结项时间:" label-width="80px" style="margin-left: 20px;">
-          <el-date-picker
-              style="width: 80%"
-              v-model="currentCompetitionCopy.endDate"
-              type="month"
-              value-format="yyyy-MM"
-              placeholder="选择结项时间">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item label="参与人:" label-width="80px" style="margin-left: 20px;" prop="author">
+        <el-form-item label="获奖人:" label-width="80px" style="margin-left: 20px;" prop="author">
           <span class="isMust">*</span>
           <el-input
               size="mini"
@@ -177,7 +154,7 @@
               prefix-icon="el-icon-edit"
               v-model="currentCompetitionCopy.author"
               @blur="judgeMember()"
-              placeholder="请输入参与人,如有多个用分号分隔"
+              placeholder="请输入获奖人,如有多个用分号分隔"
           ></el-input>
         </el-form-item>
         <el-form-item label="竞赛类别:" label-width="80px" style="margin-left: 20px;">
@@ -191,7 +168,7 @@
               clearable
               reserve-keyword
               @change="selectOption($event)"
-              placeholder="请输入科研竞赛类别"
+              placeholder="请输入学科竞赛类别"
               :remote-method="selectCompetitionTypeMethod"
               :loading="loading">
             <el-option
@@ -201,6 +178,9 @@
                 :value="item">
             </el-option>
           </el-select>
+          <el-tooltip class="item" effect="dark" content="如：挑战杯、互联网+等" placement="top-start">
+            <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
+          </el-tooltip>
         </el-form-item>
 
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
@@ -250,29 +230,33 @@
           <span>{{ currentCompetition.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者列表:">
+        <el-form-item label="获奖人:">
           <span>{{ currentCompetition.author }}</span
           >
         </el-form-item>
-        <el-form-item label="立项日期:">
-          <span>{{ currentCompetition.startDate }}</span
+        <el-form-item label="获奖年月:">
+          <span>{{ currentCompetition.date }}</span
           >
         </el-form-item>
-        <el-form-item label="结项日期:">
-          <span>{{ currentCompetition.endDate }}</span
-          >
-        </el-form-item>
-        <el-form-item label="竞赛类别:">
-          <span>{{ currentCompetition.competitionType.name }}</span
-          >
-        </el-form-item>
-        <el-form-item label="作者人数:">
+        <el-form-item label="获奖人数:">
           <span>{{ currentCompetition.total }}</span
           >
         </el-form-item>
-        <el-form-item label="作者排名:">
+        <el-form-item label="获奖排名:">
           <span>{{ currentCompetition.rank }}</span
           >
+        </el-form-item>
+        <el-form-item label="成果状态:">
+          <span>{{currentCompetition.state=="commit"
+              ? "已提交"
+              :currentCompetition.state=="tea_pass"
+                  ? "导师通过"
+                  :currentCompetition.state=="tea_reject"
+                      ? "导师驳回"
+                      :currentCompetition.state=="adm_pass"
+                          ? "管理员通过"
+                          :"管理员驳回"}}</span
+          ><br />
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           <span v-if="currentCompetition.url == '' || currentCompetition.url == null ? true:false" >无证明材料</span>
@@ -330,8 +314,8 @@ export default {
       },
       files:[],//选择上传的文件列表
       urlFile:'',//文件路径
-      addButtonState: false,//是否允许添加科研竞赛
-      operList:[],//每个科研竞赛的历史操作记录
+      addButtonState: false,//是否允许添加学科竞赛
+      operList:[],//每个学科竞赛的历史操作记录
       labelPosition: "left",
       title: "",
       title_show: "",
@@ -344,7 +328,7 @@ export default {
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '科研竞赛',
+        prodType: '学科竞赛',
         operationName: '',
         state: '',
         remark: '',
@@ -368,9 +352,9 @@ export default {
         competitionType: {}
       },
       rules: {
-        name: [{ required: true, message: "请输入科研竞赛名称", trigger: "blur" }],
-        startDate: [{ required: true, message: "请输入科研竞赛立项时间", trigger: "blur" }],
-        author: [{ required: true, message: "请输入科研竞赛作者", trigger: "blur" }],
+        name: [{ required: true, message: "请输入学科竞赛名称", trigger: "blur" }],
+        startDate: [{ required: true, message: "请输入学科竞赛立项时间", trigger: "blur" }],
+        author: [{ required: true, message: "请输入学科竞赛作者", trigger: "blur" }],
       },
     };
   },
@@ -553,7 +537,7 @@ export default {
     },
     //编辑按钮
     showEditEmpView(data, idx) {
-      this.title = "编辑科研竞赛信息";
+      this.title = "编辑学科竞赛信息";
       this.currentCompetitionCopy = JSON.parse(JSON.stringify(data));
       this.dialogVisible = true;
       this.disabledSelectCompetitionType = false;
@@ -574,24 +558,41 @@ export default {
       this.title_show = "显示详情";
       this.currentCompetition = data
       this.dialogVisible_showInfo = true
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研竞赛').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=学科竞赛').then((resp) => {
         this.loading = false;
         if (resp) {
           this.operList = resp.obj
         }
       });
     },
-    deleteCompetition(data) {
-      if(confirm(
-          "此操作将永久删除【" + data.name + "】, 是否继续?",)){
-        this.deleteRequest("/competition/basic/remove/" + data.id).then((resp) => {
-          if (resp) {
-            this.dialogVisible = false;
-            this.$message.success('删除成功！');
-            this.initCompetitionsList();
+    deleteEmpMethod(data) {
+      return new Promise((resolve, reject) => {
+            this.deleteRequest("/competition/basic/remove/" + data.id).then((resp) => {
+              this.dialogVisible = false;
+              resolve('success');
+            })
           }
+      )
+    },
+    deleteCompetition(data) {
+      this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?").then(() => {
+        Promise.all([this.deleteEmpMethod(data), this.deleteOperationList(data)]).then(res => {
+          this.$message.success('删除成功!');
+          this.initCompetitionsList();
+        }).catch(() => {
+          this.$message.error('删除失败!');
         })
-      }
+      })
+    },
+    deleteOperationList(data) {
+      const params = {}
+      params.prodId = data.id;
+      params.prodType = '学科竞赛'
+      return new Promise((resolve, reject) => {
+        this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
+          resolve('success');
+        })
+      })
     },
     editCompetition(params) {
       this.$refs["currentCompetitionCopy"].validate((valid) => {
@@ -621,7 +622,7 @@ export default {
         }
       });
     },
-    addCompetition() {//科研竞赛提交确认
+    addCompetition() {//学科竞赛提交确认
       const params = {};
       params.name = this.currentCompetitionCopy.name;
       params.url = this.urlFile;
@@ -672,7 +673,7 @@ export default {
       await this.postRequest1("/oper/basic/add", this.oper);
       await this.initCompetitionsList();
     },
-    addCompetitionDialog() {//点击添加科研科研竞赛按钮
+    addCompetitionDialog() {//点击添加科研学科竞赛按钮
       this.urlFile = '';
       this.files = [];
       this.currentCompetitionCopy = {};
