@@ -161,4 +161,28 @@ public class AwardController {
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
     }
+
+    @PostMapping("/awardType")
+    public RespBean addAwardType(@RequestBody AwardType awardType){
+        // 1.向awardType插入
+        // 2.向indicator中插入，no，这里其实就只需要设置indicator中的rankN就可以了！
+        try {
+            awardService.addAwardType(awardType);
+            return RespBean.ok("插入awardType成功！");
+        } catch (Exception e) {
+            return RespBean.error("插入awardType失败！");
+        }
+
+    }
+
+    @PutMapping("/awardType")
+    public RespBean editAwardType(@RequestBody AwardType awardType){
+        try {
+            awardService.editAwardType(awardType);
+            return RespBean.ok("修改awardType成功！");
+        } catch (Exception e) {
+            return RespBean.error("修改awardType失败！");
+        }
+    }
+
 }

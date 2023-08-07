@@ -1,6 +1,9 @@
 package org.sys.rate.controller.admin;
 
 import com.baomidou.mybatisplus.extension.api.R;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
@@ -8,10 +11,7 @@ import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.mapper.PaperMapper;
 import org.sys.rate.mapper.PublicationMapper;
 
-import org.sys.rate.model.Indicator;
-import org.sys.rate.model.Publication;
-import org.sys.rate.model.RespBean;
-import org.sys.rate.model.RespPageBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.admin.IndicatorService;
 
@@ -163,24 +163,7 @@ public class PublicationController {
         List<Publication> res = publicationMapper.getlistByName(publicationName);
         return RespBean.ok("success", res);
     }
-    /**
-     * @author zyk
-     * @description 获取当前年份的期刊信息
-     * @date 2023/7/21 15:12
-     */
 
-    @GetMapping("/publicationByYear")
-    public RespPageBean listByName(@RequestParam("indicatorId") Integer indicatorId,
-                                   @RequestParam("year") Integer year,
-                                   @RequestParam("pageNum") Integer pageNum,
-                                   @RequestParam("pageSize") Integer pageSize) {
-        List<Publication> list = publicationService.selectPublicationListByYear(indicatorId, year, pageNum, pageSize);
-        int total = list.size();
-        RespPageBean respPageBean = new RespPageBean();
-        respPageBean.setData(list);
-        respPageBean.setTotal((long) total);
-        return respPageBean;
-    }
 
     @DeleteMapping("publication")
     public RespBean deletePublicationById(@RequestParam("id") Integer id, @RequestParam("year") Integer year){

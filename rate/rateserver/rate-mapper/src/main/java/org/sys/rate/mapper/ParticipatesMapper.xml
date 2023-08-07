@@ -350,14 +350,13 @@
         ON DUPLICATE KEY UPDATE studentID = values(studentID);
     </insert>
 
-<!--    <insert id="addParent" parameterType="org.sys.rate.model.Participates">-->
-<!--        INSERT INTO participants (`activityID`, `groupID`, `studentID`, `code`,`displaySequence`)-->
-<!--        values-->
-<!--        <foreach close=")" open="(" collection="list" item="item" separator=",">-->
-<!--            #{item.activityID}, #{item.groupID}, #{item.studentID}, #{item.code},#{item.displaySequence}-->
-<!--        </foreach>-->
-<!--        ON DUPLICATE KEY UPDATE studentID = values(studentID);-->
-<!--    </insert>-->
+    <insert id="insertParticipates" parameterType="java.util.List">
+        INSERT INTO participants (activityID, groupID, studentID, code, displaySequence,school,major,sex)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.activityID}, #{item.groupID}, #{item.studentID},#{item.code},#{item.displaySequence}, #{item.school}, #{item.major},#{item.sex})
+        </foreach>
+    </insert>
 
     <update id="update_relationship" parameterType="org.sys.rate.model.Participates">
         UPDATE participants

@@ -173,17 +173,17 @@
             >导出本组专家打分
             </el-button
             >
-            <el-button
-                @click="showSubActivity(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-plus"
-                type="primary"
-                plain
-                v-show="haveSub == 1 && mode==='admin' && !$route.query.addActive"
-            >子活动管理
-            </el-button
-            >
+<!--            <el-button-->
+<!--                @click="showSubActivity(scope.row)"-->
+<!--                style="padding: 4px"-->
+<!--                size="mini"-->
+<!--                icon="el-icon-plus"-->
+<!--                type="primary"-->
+<!--                plain-->
+<!--                v-show="haveSub == 1 && mode==='admin' && !$route.query.addActive"-->
+<!--            >子活动管理-->
+<!--            </el-button-->
+<!--            >-->
             <el-button
                 @click="Delete_Score_Item(scope.row)"
                 style="padding: 4px"
@@ -210,7 +210,7 @@
               @click="handleAddDetails()"
               type="primary"
               icon="el-icon-plus"
-              v-if="$route.query.addActive && $route.query.addActive == 4"
+              v-if="!$route.query.addActive || $route.query.addActive != 5"
           >新增
           </el-button
           >

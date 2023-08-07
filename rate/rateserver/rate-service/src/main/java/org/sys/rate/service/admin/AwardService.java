@@ -109,4 +109,14 @@ public class AwardService {
         List<Award> list = awardMapper.searchAwardByConditions(studentName, state, awardName, pointFront, pointBack);
         return list;
     }
+
+    public void addAwardType(AwardType awardType) {
+        awardTypeMapper.addAwardType(awardType);
+    }
+
+    public void editAwardType(AwardType awardType) {
+        // 这里不好判断之前的rankN是否修改了，那就都修改一下
+        awardTypeMapper.editAwardType(awardType);
+        awardTypeMapper.editIndicatorAwardRankN(awardType);
+    }
 }

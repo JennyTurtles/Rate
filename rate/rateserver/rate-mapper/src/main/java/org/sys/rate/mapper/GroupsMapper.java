@@ -64,7 +64,7 @@ public interface GroupsMapper {
     @Select("select * from `groups` where activityID = #{activityID}")
     List<Groups> getGroupByActID(Integer activityID);
 
-    @Select("SELECT p.ID,name,IDNumber,code,activityID,groupID,studentID,s.institutionID,telephone,username,email,password FROM student s,participants p\n" +
+    @Select("SELECT p.ID,name,code,activityID,groupID,studentID,s.institutionID,telephone,username,email,password FROM student s,participants p\n" +
             "WHERE s.ID = p.studentID AND groupID = #{groupID}")
     List<Participates> getGroupPars(Integer groupID);
 

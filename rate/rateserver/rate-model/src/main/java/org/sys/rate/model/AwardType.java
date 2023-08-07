@@ -12,4 +12,5 @@ public class AwardType {
     private String name;
     private Integer indicatorId;
     private String year;
+    private Integer rankN;
 }

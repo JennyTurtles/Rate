@@ -672,4 +672,17 @@ public class ParticipatesService {
             return true;
         }
     }
+
+    // 将选手从主活动复制到子活动，适用于无需分组的子活动
+    public void copyParticipates(Integer groupIDParent, Integer activityIDSon, Integer groupIDSon){
+        List<Participates> ParInParent = participatesMapper.getPartByGroupID(groupIDParent);
+        if (ParInParent == null || ParInParent.isEmpty())
+            return;
+        for (Participates participate : ParInParent){
+            participate.setScore(0.0);
+            participate.setActivityID(activityIDSon);
+            participate.setGroupID(groupIDSon);
+        }
+        participatesMapper.insertParticipates(ParInParent);
+    }
 }

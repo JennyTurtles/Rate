@@ -17,9 +17,6 @@
     <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
    </el-tabs>
     <div style="display: flex; justify-content: left">
-      <a>
-        专家添加有三种模式：手动添加、从本单位添加、批量导入。
-      </a>
 <!--    {{ keywords_name }} <a v-show="flag===0">专家名单</a> <a v-show="flag==1">专家打分</a>-->
 <!--      <div style="margin-left: auto">-->
 <!--        <el-button icon="el-icon-back" type="primary" @click="back">-->
@@ -554,20 +551,23 @@
                 :data="parentGroup"
                 tooltip-effect="dark"
                 style="width: 100%"
-                @selection-change="handleSelectionChange">
+                @selection-change="handleSelectionChange"
+                :row-key="getRowKeys">
               <el-table-column
+                  :reserve-selection="true"
+                  :selectable="checkSecletion"
                   type="selection"
                   width="40px">
               </el-table-column>
+             <el-table-column
+                 prop="jobNumber"
+                 label="工号"
+                 show-overflow-tooltip>
+             </el-table-column>
               <el-table-column
                   prop="name"
                   label="姓名"
               >
-              </el-table-column>
-              <el-table-column
-                  prop="idnumber"
-                  label="证件号码"
-                  show-overflow-tooltip>
               </el-table-column>
             </el-table>
             <el-button type="primary" @click="add" style="float: right;margin-top: 10px">
@@ -588,6 +588,7 @@ import {validateInputIdCard,checkIdCard} from "@/utils/check";
 import sha1 from "sha1";
 import PinYinMatch from 'pinyin-match';
 import AddActStep from "@/components/AddActStep.vue";
+import {log} from "@/utils/sockjs";
 
 export default {
   name: "SalSobCfg",
@@ -1493,7 +1494,8 @@ export default {
       this.dialogVisible_method=false;
       const _this = this
       for (let i = 0; i < this.multipleSelection.length; i++) {
-       this.multipleSelection[i].institutionid = this.multipleSelection[i].institutionID;
+        if (this.multipleSelection[i].institutionid === null)
+         this.multipleSelection[i].institutionid = this.multipleSelection[i].institutionID;
       }
       if (typeof this.groupID !== 'undefined'){
         this.currentAddGroup = this.groupID;
@@ -1518,6 +1520,7 @@ export default {
       })
     },
     handleSelectionChange(val){
+     console.log(val)
       for(let i=0;i<val.length;i++){
         for (let j=0;j<this.hrs.length;j++){
           if (val[i].idnumber===this.hrs[j].idnumber){
