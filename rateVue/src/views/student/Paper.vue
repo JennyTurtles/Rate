@@ -65,7 +65,7 @@
         >
         </el-table-column>
         <el-table-column
-            prop="remark"
+            prop="paperoperList[0].remark"
             label="备注"
             :formatter="checkScoreComent"
             align="center"
