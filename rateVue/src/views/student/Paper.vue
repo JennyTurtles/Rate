@@ -634,7 +634,7 @@ export default {
   },
   mounted() {
     this.initEmps();
-    this.initTutor(this.user);
+    // this.initTutor(this.user);
   },
   filters: {
     fileNameFilter: function (data) {//将证明材料显示出来
