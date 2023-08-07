@@ -12,15 +12,35 @@
                v-model="searchStudentName"
                placeholder="学生姓名"
                autocomplete="off">
-        <label style="fontSize:10px;margin-left:16px">项目名称：</label>
+        <label style="fontSize:10px;margin-left:16px">竞赛名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
-               placeholder="项目名称"
+               placeholder="竞赛名称"
                v-model="searchCompetitionName"
                id="select_paperName">
-        <label style="fontSize:10px;margin-left:40px;">项目状态：</label>
+<!--        <label style="fontSize:10px;margin-left:16px">竞赛类别：</label>-->
+<!--        <div class="select_div_input">-->
+<!--          <el-select-->
+<!--              v-model="searchCompetitionTypeName"-->
+<!--              filterable-->
+<!--              remote-->
+<!--              clearable-->
+<!--              reserve-keyword-->
+<!--              @change="selectOption($event)"-->
+<!--              :remote-method="searchPublicationMethod"-->
+<!--              placeholder="期刊名称"-->
+<!--              :loading="loading">-->
+<!--            <el-option-->
+<!--                v-for="item in select_pubName"-->
+<!--                :key="item.index"-->
+<!--                :label="item.value"-->
+<!--                :value="item.value">-->
+<!--            </el-option>-->
+<!--          </el-select>-->
+<!--        </div>-->
+        <label style="fontSize:10px;margin-left:40px;">成果状态：</label>
         <el-select
             v-model="searchStatus"
             style="margin-left:3px;width:120px"
@@ -96,15 +116,15 @@
             fixed
             prop="author"
             align="center"
-            label="作者列表"
-            width="100"
+            label="获奖人"
+            width="130"
         >
         </el-table-column>
         <el-table-column
             fixed
             prop="name"
             align="center"
-            label="项目名称"
+            label="竞赛名称"
             width="200"
         >
         </el-table-column>
@@ -135,9 +155,9 @@
         </el-table-column>
         <el-table-column
             prop="competitionType.name"
-            label="项目类别"
+            label="竞赛类别"
             align="center"
-            width="80"
+            width="180"
         >
         </el-table-column>
         <el-table-column
@@ -183,10 +203,10 @@
       </div>
     </div>
 
-    <!-- 对话框 老师审核通过项目 -->
+    <!-- 对话框 老师审核通过竞赛 -->
     <el-dialog :title="title"
                :visible.sync="dialogVisiblePass" width="30%" center>
-      <!-- 确定审核通过该学生项目？ -->
+      <!-- 确定审核通过该学生竞赛？ -->
       <el-form
           :label-position="labelPosition"
           label-width="80px"
@@ -194,7 +214,7 @@
           ref="empForm"
           style="margin-left: 60px"
       >
-        <el-form-item label="项目ID:" prop="id">
+        <el-form-item label="竞赛ID:" prop="id">
           <span>{{ currentCompetition.id }}</span>
         </el-form-item>
       </el-form>
@@ -203,7 +223,7 @@
         <el-button type="primary" @click="auditing_commit('tea_pass')">确 定</el-button>
       </span>
     </el-dialog>
-    <!-- 对话框 老师驳回该学生项目 -->
+    <!-- 对话框 老师驳回该学生竞赛 -->
     <el-dialog :title="title"
                :visible.sync="dialogVisibleReject" width="30%" center>
 
@@ -214,7 +234,7 @@
           ref="empForm"
           style="margin-left: 40px"
       >
-        <el-form-item label="项目ID:" prop="id">
+        <el-form-item label="竞赛ID:" prop="id">
           <span>{{ currentCompetition.id }}</span>
         </el-form-item>
         <el-form-item label="驳回理由:">
@@ -247,28 +267,31 @@
           ref="empForm"
           style="margin-left: 20px"
       >
-        <el-form-item label="项目名称:">
+        <el-form-item label="竞赛名称:">
           <span>{{ currentCompetition.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者列表:">
+        <el-form-item label="获奖人:">
           <span>{{ currentCompetition.author }}</span
           ><br />
         </el-form-item>
-
-        <el-form-item label="项目状态:">
-          <span>{{currentCompetition.state}}</span
+        <el-form-item label="成果状态:">
+          <span>{{currentCompetition.state == "commit"
+              ? "已提交"
+              : currentCompetition.state == "tea_pass"
+                  ? "导师通过"
+                  : currentCompetition.state == "tea_reject"
+                      ? "导师驳回"
+                      : currentCompetition.state == "adm_pass"
+                          ? "管理员通过"
+                          : "管理员驳回"}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="立项日期:">
-          <span>{{currentCompetition.startDate}}</span
+        <el-form-item label="获奖年月:">
+          <span>{{currentCompetition.date}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="结项日期:">
-          <span>{{currentCompetition.endDate}}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="项目类别:">
+        <el-form-item label="竞赛类别:">
           <span>{{currentCompetition.competitionType.name}}</span
           ><br />
         </el-form-item>
@@ -350,6 +373,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      searchCompetitionTypeName: '',
       searchPointFront: '',
       searchPointBack: '',
       searchCompetitionName: '',
@@ -379,7 +403,7 @@ export default {
         operatorRole: "",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '科研项目',
+        prodType: '学科竞赛',
         operationName:"",
         state:"",
         remark:"",
@@ -415,7 +439,6 @@ export default {
   },
   created() {},
   mounted() {
-    // this.test();
     this.searchCompetition(1,10);
   },
   filters:{
@@ -498,7 +521,7 @@ export default {
     },
     //获取改专著的操作列表
     getOperationListOfCompetition(data) {
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研项目').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=学科竞赛').then((resp) => {
         this.loading = false;
         if (resp) {
           this.isShowInfo = false;
@@ -518,38 +541,8 @@ export default {
       this.currentPage = currentPage;
       this.searchCompetition(currentPage,this.pageSize);
     },
-    //先做个备份，可以删除
-    setDataRemark(data) {
-      //初始化页面需要根据学生提交时间做降序
-      //页面的table的备注列需要展示驳回时间最晚的一条记录，两者操作无法合并
-      let dataRejectList;
-      let dataCommitList;
-      data.map(item => {
-        dataRejectList = [];
-        dataCommitList = [];
-        item.operationList.map(operation => {
-          //将每个项目的提交和驳回单独提取
-          if(operation.state === 'commit') dataCommitList.push(operation);
-          if(operation.state === 'tea_reject' || operation.state === 'adm_reject') dataRejectList.push(operation);
-        })
-        //找出最晚驳回理由
-        if(dataRejectList.length) {
-          dataRejectList.sort((a,b) => {
-            return b.time - a.time;
-          })
-          item.remark = dataRejectList[0].remark;
-        }
-      })
-    },
-    test(){
-      this.getRequest('/competition/basic/List').then((response) => {
-        if(response) {
-          this.competitionList = response.extend.res;
-          // this.totalCount = response.extend.res[1];
-        }
-      })
-    },
     searchCompetition(pageNum, pageSize) {//根据条件搜索
+      this.loading = true;
       const params = {};
       params.studentName = this.searchStudentName;
       var state = this.searchStatus;
@@ -582,6 +575,7 @@ export default {
         if(response) {
           this.competitionList = response.extend.res[0];
           this.totalCount = response.extend.res[1];
+          this.loading = false;
         }else this.competitionList = [];
       })
     }

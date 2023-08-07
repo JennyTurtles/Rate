@@ -186,17 +186,28 @@
         </foreach>
     </delete>
     <select id="searchCompetitionByConditions" resultMap="CompetitionResult">
-        select book.*, s.name as sname,
-            oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
-            oper.state,oper.remark,type.name as tname,type.year,type.indicator_id
-        from i_competition book, student s, i_oper oper, i_competition_type type
+        SELECT book.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, s.name as sname
+        FROM i_competition book
+        JOIN (
+        SELECT prod_id,MAX(i_oper.date) max_date
+        FROM i_oper
+        WHERE prod_type = '学科竞赛'
+        GROUP BY prod_id
+        ) i ON book.id = i.prod_id
+        JOIN (
+        SELECT prod_id,remark,`date`
+        FROM i_oper
+        WHERE prod_type = '学科竞赛'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+        JOIN i_competition_type ip ON book.competition_type_id = ip.id
+        JOIN student s ON s.ID = book.student_id
         <where>
             <if test="competitionName != null and competitionName != ''">and book.name like concat('%', #{competitionName}, '%')</if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
             <if test="state != null and state != ''">and book.state = #{state}</if>
             <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
-            and s.ID = book.student_id and book.competition_type_id = type.id
         </where>
+        ORDER BY book.id DESC
     </select>
 
     <select id="selectCompetitionListByYear" resultType="org.sys.rate.model.Competition"></select>

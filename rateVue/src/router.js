@@ -344,11 +344,11 @@ export default new Router({
         },
         {
           path: '/teacher/tResearchProject',
-          name: '科研项目2',
+          name: '科研项目',
           hidden: true,
           component: () => import('./views/teacher/Research-Project'),
           meta: {
-            title: '科研项目2',
+            title: '科研项目',
           },
         },
         {
