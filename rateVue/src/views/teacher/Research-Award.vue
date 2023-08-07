@@ -11,25 +11,24 @@
                 border-radius:4px;color:grey"
                placeholder="学生姓名"
                autocomplete="off"
-               id="select_stuname">
+               v-model="searchStudentName">
         <label style="fontSize:10px;margin-left:16px">奖励名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
                placeholder="奖励名称"
-               id="select_paperName">
+               v-model="searchCompetitionName">
 
         <label style="fontSize:10px;margin-left:40px;">奖励状态：</label>
         <el-select
-            v-model="tmp1"
+            v-model="searchStatus"
             style="margin-left:3px;width:120px"
             prefix-icon="el-icon-edit"
             clearable
             filterable
             placeholder="状态筛选"
             @change="((val) => filter(val,'select_state'))"
-            id="select_state"
         >
           <el-option
               v-for="val in option"
@@ -40,14 +39,13 @@
         </el-select>
         <label style="fontSize:10px;margin-left:16px">积分范围：</label>
         <el-select
-            v-model="tmp2"
+            v-model="searchPointFront"
             style="margin-left:3px;width:60px"
             prefix-icon="el-icon-edit"
             clearable
             filterable
             placeholder="1"
             @change="((val) => filter(val,'select_point1'))"
-            id="select_point1"
         >
           <el-option
               style=""
@@ -59,14 +57,13 @@
         </el-select>
         <label >&nbsp; - &nbsp;</label>
         <el-select
-            v-model="tmp3"
+            v-model="searchPointBack"
             style="margin-left:3px;width:60px"
             prefix-icon="el-icon-edit"
             clearable
             filterable
             placeholder="12"
             @change="((val) => filter(val,'select_point2'))"
-            id="select_point2"
         >
           <el-option
               style=""
@@ -80,7 +77,6 @@
             icon="el-icon-search"
             type="primary"
             @click="searchEmps"
-            :disabled="showAdvanceSearchView"
             style="margin-left:30px"
         >
           搜索
@@ -350,11 +346,15 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      searchStudentName: '',
+      searchStatus: '',
+      searchPointFront: '',
+      searchPointBack: '',
+      searchCompetitionName: '',
       pageSizes:[10, 20, 50, 100],
       totalCount:0,
       currentPage:1,
       pageSize:10,
-      tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
       operList:[],
       isShowInfo:false,
       select_stuName:["全部"],//筛选框
@@ -409,7 +409,7 @@ export default {
   },
   created() {},
   mounted() {
-    this.initAwardsList(1,10);
+    this.searchEmps(1,10);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -504,31 +504,17 @@ export default {
     //应该要分是否有无筛选条件
     sizeChange(currentSize) {
       this.pageSize = currentSize;
-      this.initAwardsList(this.currentPage,currentSize);
+      this.searchEmps(this.currentPage,currentSize);
     },
     currentChange(currentPage) {
       this.currentPage = currentPage;
-      this.initAwardsList(currentPage,this.pageSize);
+      this.searchEmps(currentPage,this.pageSize);
     },
-    initAwardsList(pageNum,pageSize) {
+    searchEmps(pageNum, pageSize) {//根据条件搜索论文
       this.loading = true;
-      let url = '/award/basic/List?pageNum=' + pageNum + '&pageSize=' + pageSize;
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.emps = resp.extend.res[0];
-          this.copyemps = this.emps
-          this.totalCount = resp.extend.res[1];
-          this.emps.sort(function(a,b){
-            return a.date > b.date ? -1 : 1
-          })
-        }
-      });
-    },
-    searchEmps() {//根据条件搜索论文
-      var newemps=new Set()
-      var stuname=document.getElementById("select_stuname").value
-      var state=document.getElementById("select_state").value
+      const params = {};
+      params.studentName = this.searchStudentName;
+      var state = this.searchStatus;
       if(state == '导师通过'){
         state = 'tea_pass'
       }else if(state == '导师驳回'){
@@ -539,20 +525,28 @@ export default {
         state = 'adm_pass'
       }else if (state == '管理员驳回') {
         state = 'adm_reject'
+      }else state = '';
+      if(this.searchPointFront == '全部') {
+        params.pointFront = '';
+      }else {
+        params.pointFront = this.searchPointFront;
       }
-      var paper=document.getElementById("select_paperName").value
-      var point1=document.getElementById("select_point1").value
-      var point2=document.getElementById("select_point2").value
-      for(var i=0;i<this.copyemps.length;i++){
-        if((((this.copyemps[i].student.name.indexOf(stuname) >= 0 ))||(stuname == '全部' || stuname == ''))&&
-            (((this.copyemps[i].state == state))||(state == '全部' || state == ''))&&
-            (((this.copyemps[i].name.indexOf(paper) >= 0) )||(paper == '全部' || paper == ''))&&
-            (((this.copyemps[i].indicator.score <= point2 && this.copyemps[i].indicator.score >= point1))||(point1 == '全部' || point1 == '' || point2 == '全部' || point2 == ''))
-        ){
-          newemps.add(this.copyemps[i])
-        }
+      if(this.searchPointBack == '全部') {
+        params.pointBack = '';
+      }else {
+        params.pointBack = this.searchPointBack;
       }
-      this.emps = Array.from(newemps)
+      params.state = state;
+      params.name = this.searchCompetitionName;
+      params.pageNum = pageNum.toString();
+      params.pageSize = pageSize.toString();
+      this.postRequest('/award/basic/searchAwardByConditions', params).then((response) => {
+        if(response) {
+          this.loading = false;
+          this.emps = response.extend.res[0];
+          this.totalCount = response.extend.res[1];
+        }else this.emps = [];
+      })
     }
   }
 };

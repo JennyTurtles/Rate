@@ -105,6 +105,10 @@ public class AwardService {
         List<AwardType> list = awardTypeMapper.getIndicatorByYearAndType(year,type);
         return list;
     }
+    public List<Award> searchAwardByConditions(String studentName, String state, String awardName, String pointFront, String pointBack) {
+        List<Award> list = awardMapper.searchAwardByConditions(studentName, state, awardName, pointFront, pointBack);
+        return list;
+    }
 
     public void addAwardType(AwardType awardType) {
         awardTypeMapper.addAwardType(awardType);

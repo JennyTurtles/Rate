@@ -178,4 +178,28 @@
         </foreach>
     </delete>
 
+    <select id="searchAwardByConditions" resultMap="AwardResult">
+        SELECT book.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, s.name as sname
+        FROM i_award book
+        JOIN (
+        SELECT prod_id,MAX(i_oper.date) max_date
+        FROM i_oper
+        WHERE prod_type = '科研获奖'
+        GROUP BY prod_id
+        ) i ON book.id = i.prod_id
+        JOIN (
+        SELECT prod_id,remark,`date`
+        FROM i_oper
+        WHERE prod_type = '科研获奖'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+        JOIN i_award_type ip ON book.award_type_id = ip.id
+        JOIN student s ON s.ID = book.student_id
+        <where>
+            <if test="awardName != null and awardName != ''">and book.name like concat('%', #{awardName}, '%')</if>
+            <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
+            <if test="state != null and state != ''">and book.state = #{state}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
+        </where>
+        ORDER BY book.id DESC
+    </select>
 </mapper>
