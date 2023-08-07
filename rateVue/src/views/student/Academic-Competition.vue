@@ -66,7 +66,7 @@
             prop="date"
             width="140px"
             align="center"
-            label="时间"
+            label="获奖年月"
         >
         </el-table-column>
         <el-table-column
@@ -135,11 +135,11 @@
               placeholder="请输入学科竞赛名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="获奖年月:" label-width="80px" style="margin-left: 20px;" prop="startDate">
+        <el-form-item label="获奖年月:" label-width="80px" style="margin-left: 20px;" prop="date">
           <span class="isMust">*</span>
           <el-date-picker
               style="width: 80%"
-              v-model="currentCompetitionCopy.startDate"
+              v-model="currentCompetitionCopy.date"
               type="month"
               @change="changeCompetitionStartDate($event)"
               value-format="yyyy-MM"
@@ -183,6 +183,12 @@
           </el-tooltip>
         </el-form-item>
 
+        <el-form-item label="竞赛级别:" label-width="80px" style="margin-left: 20px;" prop="competitionLevel">
+          <span class="isMust">*</span>
+          <el-select v-model="currentCompetitionCopy.competitionLevel">
+            <el-option v-for="item in competitionLevelList" :key="item" :value="item" :label="item"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-upload
@@ -232,6 +238,10 @@
         </el-form-item>
         <el-form-item label="获奖人:">
           <span>{{ currentCompetition.author }}</span
+          >
+        </el-form-item>
+        <el-form-item label="获奖级别:">
+          <span>{{ currentCompetition.competitionLevel }}</span
           >
         </el-form-item>
         <el-form-item label="获奖年月:">
@@ -312,6 +322,7 @@ export default {
       headers: {
         'Content-Type': 'multipart/form-data'
       },
+      competitionLevelList: ['全国一等奖', '全国二等奖', '全国三等奖', '省部级一等奖', '省部级二等奖'],
       files:[],//选择上传的文件列表
       urlFile:'',//文件路径
       addButtonState: false,//是否允许添加学科竞赛
@@ -341,8 +352,8 @@ export default {
         name: null,
         author:"",
         state: '',
-        startDate: "",
-        endDate: "",
+        date: "",
+        competitionLevel: '',
         rank: "",
         total:"",
         point:"",
@@ -353,8 +364,9 @@ export default {
       },
       rules: {
         name: [{ required: true, message: "请输入学科竞赛名称", trigger: "blur" }],
-        startDate: [{ required: true, message: "请输入学科竞赛立项时间", trigger: "blur" }],
-        author: [{ required: true, message: "请输入学科竞赛作者", trigger: "blur" }],
+        date: [{ required: true, message: "请输入学科竞赛获奖年月", trigger: "blur" }],
+        author: [{ required: true, message: "请输入学科竞赛获奖人", trigger: "blur" }],
+        competitionLevel: [{ required: true, message: "请选择学科竞赛级别", trigger: "blur" }]
       },
     };
   },
@@ -399,7 +411,7 @@ export default {
         }
       } else this.addButtonState = false;
     },
-    //改变竞赛的立项时间
+    //改变竞赛的时间
     changeCompetitionStartDate(data) {
       if(data) {
         this.disabledSelectCompetitionType = false;
@@ -408,8 +420,8 @@ export default {
       }
     },
     debounceSearchType(data) {
-      if (this.currentCompetitionCopy.startDate != null && this.currentCompetitionCopy.startDate != '' && data != null && data != '') {
-        this.getRequest('/competition/basic/getIndicatorByYearAndType?year=' + this.currentCompetitionCopy.startDate.split('-')[0] + '&type=' + data).then(response => {
+      if (this.currentCompetitionCopy.date != null && this.currentCompetitionCopy.date != '' && data != null && data != '') {
+        this.getRequest('/competition/basic/getIndicatorByYearAndType?year=' + this.currentCompetitionCopy.date.split('-')[0] + '&type=' + data).then(response => {
           if(response) {
             this.selectCompetitionTypeList = response.data;
           }
@@ -629,10 +641,10 @@ export default {
       params.rank = this.currentCompetitionCopy.rank;
       params.total = this.currentCompetitionCopy.total;
       params.author = this.currentCompetitionCopy.author;
-      params.startDate = this.currentCompetitionCopy.startDate;
-      params.endDate = this.currentCompetitionCopy.endDate;
+      params.date = this.currentCompetitionCopy.date;
       params.point = this.competitionPoint;
       params.competitionTypeId = this.selectCompetitionType.id;
+      params.competitionLevel = this.currentCompetitionCopy.competitionLevel;
       params.state = "commit";
       if (this.currentCompetitionCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editCompetition(params);

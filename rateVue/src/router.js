@@ -325,6 +325,15 @@ export default new Router({
           },
         },
         {
+          path: '/teacher/AcademicCompetition',
+          name: '学科竞赛',
+          hidden: true,
+          component: () => import('./views/teacher/Academic-Competition'),
+          meta: {
+            title: '学科竞赛',
+          },
+        },
+        {
           path: '/teacher/tAcademicMonograph',
           name: '学术专著和教材2',
           hidden: true,

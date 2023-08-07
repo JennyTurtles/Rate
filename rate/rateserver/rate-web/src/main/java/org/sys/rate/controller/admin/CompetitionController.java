@@ -1,5 +1,8 @@
 package org.sys.rate.controller.admin;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -140,17 +143,21 @@ public class CompetitionController {
                 .body(resource);
     }
 
+    @GetMapping("/getIndicatorByYearAndType")
+    public JsonResult getIndicatorByYearAndType(String year,String type) {
+        List<CompetitionType> list = competitionService.getIndicatorByYearAndType(year,type);
+        return new JsonResult(list);
+    }
     @GetMapping("/getIndicatorScore")
     public JsonResult getScore(Integer id) {
         return new JsonResult(indicatorMapper.getScore(id));
     }
     @PostMapping("/searchCompetitionByConditions")
     public Msg searchCompetitionByConditions(@RequestBody Map<String, String> params) {
-//        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
+        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
         List<Competition> list = competitionService.searchCompetitionByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"));
-//        PageInfo info = new PageInfo<>(page.getResult());
-//        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
-//        return Msg.success().add("res", res);
-        return Msg.success().add("res", list);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
     }
 }

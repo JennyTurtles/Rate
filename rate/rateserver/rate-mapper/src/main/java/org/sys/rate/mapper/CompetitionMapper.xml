@@ -7,6 +7,7 @@
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="studentId" column="student_id" jdbcType="INTEGER"/>
         <result property="name" column="name"/>
+        <result property="date" column="date"/>
         <result property="author" column="author"/>
         <result property="url" column="url"/>
         <result property="state" column="state"/>
@@ -22,6 +23,12 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
+        </association>
+        <association property="competitionType" javaType="org.sys.rate.model.CompetitionType">
+            <id property="id" column="competitionTypeId" jdbcType="INTEGER"/>
+            <result property="name" column="tname"/>
+            <result property="year" column="year"/>
+            <result property="indicatorId" column="indicator_id"/>
         </association>
         <collection property="operationList" ofType="org.sys.rate.model.Operation">
             <result property="operatorRole" column="operator_role"/>
@@ -116,6 +123,7 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
             <if test="studentId != null">student_id,</if>
+            <if test="competitionTypeId != null">competition_type_id,</if>
             <if test="name != null and name != ''">name,</if>
             <if test="date != null">date,</if>
             <if test="author != null">author,</if>
@@ -129,6 +137,7 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="studentId != null">#{studentId},</if>
+            <if test="competitionTypeId != null">#{competitionTypeId},</if>
             <if test="name != null and name != ''">#{name},</if>
             <if test="date != null">#{date},</if>
             <if test="author != null">#{author},</if>
