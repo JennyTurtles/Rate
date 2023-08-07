@@ -729,7 +729,7 @@ export default {
         data["p2"] = node.parent.data.label;
         data["p1"] = node.parent.parent.data.label;
         if (data.type == "授权专利") {
-          this.$message.warning("授权专利没有侧边栏！")
+          this.$message.warning("专利类别无需设置！")
         }
         this.$emit("getLabelInfo", data);
       }

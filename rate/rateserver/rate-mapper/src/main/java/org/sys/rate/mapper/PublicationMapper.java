@@ -83,9 +83,9 @@ public interface PublicationMapper {
      * @param name:
      * @Return List<Publication>
      */
-    @Select("select p.id, p.name, p.abbr, p.publisher, p.url, ip.year, i.id indicatorId, i.name, i.type, i.score from indicator_publication ip " +
+    @Select("select p.id, p.name, p.abbr, p.publisher, p.url, ip.year, i.id indicatorId, concat(i.`order`,i.name) indicatorName, i.type, i.score from indicator_publication ip " +
             "left join i_publication p on p.id = ip.publication_id left join indicator i on ip.indicator_id = i.id " +
-            "where p.name = #{name} order by ip.year")
+            "where p.name = #{name} order by ip.year desc")
     List<Publication> getPublicationInfByName(String name);
 
     /**

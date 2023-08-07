@@ -25,7 +25,7 @@
         <span class="isMust">*</span>
         <el-input
             size="mini"
-            style="width:80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.publicationName"
             @blur="queryPublication"
@@ -37,7 +37,7 @@
         <span class="isMust">*</span>
         <el-input
             size="mini"
-            style="width:80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.publicationAbbr"
             :disabled="inputDisabled"
@@ -48,7 +48,7 @@
         <span class="isMust">*</span>
         <el-input
             size="mini"
-            style="width:80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.publisherName"
             :disabled="inputDisabled"
@@ -59,7 +59,7 @@
         <span class="isMust">*</span>
         <el-input
             size="mini"
-            style="width:80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.publicationUrl"
             :disabled="inputDisabled"
@@ -70,7 +70,7 @@
         <span class="isMust">*</span>
         <el-input
             size="mini"
-            style="width:80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.year"
             @blur="checkYear"

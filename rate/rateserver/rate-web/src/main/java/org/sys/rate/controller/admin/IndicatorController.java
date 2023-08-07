@@ -1,5 +1,6 @@
 package org.sys.rate.controller.admin;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.IndicatorMapper;
@@ -21,6 +22,54 @@ public class IndicatorController {
     private IndicatorService indicatorService;
     @Resource
     private IndicatorMapper indicatorMapper;
+
+    // 根据成果类型和具体的名字进行查询，返回包含indicator的全部信息
+    // 算了，写在一起吧，虽然冗余了代码
+    @GetMapping("/getProductByTypeName")
+    public RespBean getProductByTypeName(@RequestParam("indicatorType") String indicatorType, @RequestParam("fullName") String fullName) {
+        try {
+            List<T> product = indicatorService.getProductByTypeName(indicatorType, fullName);
+            return RespBean.ok("200", product);
+        } catch (Exception e) {
+            return RespBean.error("error when getProductByTypeName");
+        }
+    }
+
+
+    // 根据成果类型和部分具体的名字进行查询，对每种类型获取不同的内容
+    @GetMapping("/getProductNamesByTypeName")
+    public RespBean getProductNamesByTypeName(@RequestParam("indicatorType") String indicatorType, @RequestParam("name") String name) {
+        try {
+            List<String> productNamesByTypeName = indicatorService.getProductNamesByTypeName(indicatorType, name);
+            return RespBean.ok("200", productNamesByTypeName);
+        } catch (Exception e) {
+            return RespBean.error("error when getProductNamesByTypeName");
+        }
+    }
+
+    // 根据indicator_id返回中间表中所有的年份并进行去重和排序
+    @GetMapping("/getAllYear/{indicatorId}/{indicatorType}")
+    public RespBean getAllYearById(@PathVariable Integer indicatorId, @PathVariable String indicatorType){
+        try {
+            ArrayList<Integer> yearList = indicatorService.getAllYearById(indicatorId, indicatorType);
+            return RespBean.ok("getAllYear", yearList);
+        } catch (Exception e) {
+            return RespBean.error("getAllYear wrong!");
+        }
+    }
+
+    // 从fromYear和indicator_id获取所有的publication_id列表1，从toYear和indicator_id获取所有的publication_id列表2，
+    // list1中要首先去除list2的内容，然后再加入list2
+    @PostMapping("clone/{fromYear}/{toYear}/{indicatorId}/{indicatorType}")
+    public RespBean clone(@PathVariable Integer fromYear, @PathVariable Integer toYear, @PathVariable Long indicatorId, @PathVariable String indicatorType){
+        try {
+            indicatorService.clone(fromYear, toYear, indicatorId, indicatorType);
+            return RespBean.ok("clone success!");
+        } catch (Exception e) {
+            return RespBean.error("clone wrong!");
+        }
+    }
+
 
     // 上限为7层，每层最多99个节点，因为order字段最大长度为20。
     // 依赖order字段确定父子关系并保持有序，仅使用id和parent不能保持有序。

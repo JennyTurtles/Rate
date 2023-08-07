@@ -1,8 +1,11 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.annotations.Param;
 import org.sys.rate.model.Indicator;
+import org.sys.rate.model.Project;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Mapper
@@ -55,4 +58,21 @@ public interface IndicatorMapper{
 
     @Select("select * from indicator i where id = #{id}")
     Indicator getIndicatorById(Integer id);
+
+
+    ArrayList<Integer> getAllYearByIdType(@Param("indicatorId") Integer indicatorId, @Param("indicatorType") String indicatorType);
+
+    @Insert("INSERT INTO indicator_publication (indicator_id, publication_id, YEAR) " +
+            "SELECT indicator_id, publication_id, #{toYear} FROM indicator_publication " +
+            "WHERE indicator_id = #{indicatorId} AND YEAR = #{fromYear} AND publication_id NOT IN " +
+            "(SELECT publication_id FROM indicator_publication WHERE indicator_id = #{indicatorId} AND YEAR = #{toYear})")
+    Integer clonePublication(Integer fromYear, Integer toYear, Long indicatorId);
+    @Insert("INSERT INTO i_project_type (indicator_id, `name`, `year`) SELECT indicator_id, `name`, #{toYear} FROM i_project_type WHERE indicator_id = #{indicatorId} AND `year` = #{fromYear} AND `name` NOT IN (SELECT `name` FROM i_project_type WHERE indicator_id = #{indicatorId} AND `year` = #{toYear})")
+    Integer cloneProject(Integer fromYear, Integer toYear, Long indicatorId);
+
+
+    List<String> getProductNamesByTypeName(String indicatorType, String name);
+
+    @Select("SELECT pt.id projectTypeId, pt.`name` projectTypeName, pt.year, CONCAT(i.`order`, i.`name`) indicatorName, i.score FROM i_project_type pt, indicator i WHERE pt.`name` = #{fullName} AND i.id = pt.indicator_id")
+    List<Project> getProjectByName(String fullName);
 }

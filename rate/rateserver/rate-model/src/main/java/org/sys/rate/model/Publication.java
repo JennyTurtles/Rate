@@ -60,7 +60,11 @@ public class  Publication {
 
     private Integer indicatorId;
 
+    private String indicatorName;
+
     private Integer year;
+
+    private Integer score;
 
 
 

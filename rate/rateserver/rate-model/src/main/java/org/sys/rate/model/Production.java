@@ -24,6 +24,14 @@ public class Production {
 
     Indicator indicator;
 
+    Integer indicatorId;
+
+    String indicatorName;
+
+    Integer year;
+
+    Integer score;
+
     @DateTimeFormat(pattern = "yyyy-MM")
     @JsonFormat(pattern = "yyyy-MM", timezone = "GMT+8")
     Date date;

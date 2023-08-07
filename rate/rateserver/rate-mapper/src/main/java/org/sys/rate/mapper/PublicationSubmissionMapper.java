@@ -10,12 +10,12 @@ import java.util.List;
 public interface PublicationSubmissionMapper {
     // 搜索所有的提交记录
     @Select("select p.id, s.name as studentName, CONCAT(i.order, i.name) as indicatorName,publication_id, indicator_id, p.year, student_id, date, state, publication_name, publication_abbr, publisher_name , publication_url, publication_proof_url, comment " +
-            "from publication_submission p left join student s on p.student_id = s.ID left join indicator i on p.indicator_id = i.id order by p.date")
+            "from publication_submission p left join student s on p.student_id = s.ID left join indicator i on p.indicator_id = i.id order by p.date DESC")
     List<PublicationSubmission> getAllSubmission();
 
     @Select("select p.id, s.name as studentName, CONCAT(i.order, ' ', i.name) as indicatorName,publication_id, indicator_id, p.year, student_id, date, state, publication_name, publication_abbr, publisher_name , publication_url, publication_proof_url, comment " +
             "from publication_submission p left join student s on p.student_id = s.ID left join indicator i on p.indicator_id = i.id " +
-            "where p.student_id = #{stuID} order by p.date")
+            "where p.student_id = #{stuID} order by p.date DESC")
     List<PublicationSubmission> getAllStuSubmission(Integer stuID);
 
     // 同意或拒绝某个提交记录，修改记录状态
@@ -24,7 +24,7 @@ public interface PublicationSubmissionMapper {
     void editState(Integer id, String state, String comment);
 
     @Select("select p.id, s.name as studentName, CONCAT(i.order, i.name) as indicatorName, publication_id, indicator_id, p.year, student_id, date, state, publication_name, publication_abbr, publisher_name , publication_url, publication_proof_url, comment " +
-            "from publication_submission p left join student s on p.student_id = s.ID left join indicator i on p.indicator_id = i.id where state=#{state} order by p.date")
+            "from publication_submission p left join student s on p.student_id = s.ID left join indicator i on p.indicator_id = i.id where state=#{state} order by p.date DESC")
     List<PublicationSubmission> getSubmissionByState(String state);
 
     @Insert("INSERT INTO publication_submission (publication_id, indicator_id, year, student_id, date, state, publication_name, publication_abbr, publisher_name, publication_url, publication_proof_url) " +

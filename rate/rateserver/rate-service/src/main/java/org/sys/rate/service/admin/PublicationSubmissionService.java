@@ -8,11 +8,16 @@ package org.sys.rate.service.admin;/**
  * @Version 1.0
  */
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.PublicationMapper;
 import org.sys.rate.mapper.PublicationSubmissionMapper;
+import org.sys.rate.model.Publication;
+import org.sys.rate.model.PublicationSubmission;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @Description:
@@ -22,10 +27,10 @@ import javax.annotation.Resource;
 @Service
 public class PublicationSubmissionService {
     @Resource
-    private PublicationSubmissionMapper publicationSubmissionMapper;
+    private PublicationSubmissionMapper submissionMapper;
 
-    @Resource
-    private PublicationMapper publicationMapper;
-
-
+    public List<PublicationSubmission> getAllStuSubmission(Integer stuID) {
+        List<PublicationSubmission> submissions = submissionMapper.getAllStuSubmission(stuID);
+        return submissions;
+    }
 }
