@@ -77,7 +77,7 @@
                     :style="
                     scope.row.isPass == 'tea_deny'
                       ? { color: 'red' }
-                      : { color: 'black' }
+                      : { color: 'green' }
                   "
                 >
                   {{
@@ -476,13 +476,10 @@ export default {
 
     //编辑按钮
     showEditEmpView(data) {
-      // this.initPositions();
       this.title = "编辑记录信息";
-      // console.log("编辑开始！");
 
       this.emp = data;
       this.emp.id = 1;
-      // this.emps.num = data.num; console.log(this.emps);  也就是这个可以获取当前表格中的所有数据
       // 修改编辑时日期的显示状态
       this.showTimeSelect = this.emp.isPass !== "tea_pass" ? false : true;
       this.showTimeSelect2 = this.emp.isPass !== "tea_pass" ? true : false;
@@ -514,16 +511,11 @@ export default {
       this.dialogVisible = true;
     },
     deleteEmp(data) {
-      //点击删除按钮
-      console.log(data.thesisID);
-      if (confirm("此操作将永久删除【第" + data.num + "条记录】, 是否继续?")) {
-        axios
-            .delete(
-                "/paperComment/basic/remove/" + data.num + "/" + data.thesisID
-            )
+      const confirmationMessage = "此操作将永久删除【第" + data.num + "条记录】, 是否继续?";
+      if (confirm(confirmationMessage)) {
+        axios.delete("/paperComment/basic/remove/" + data.num + "/" + data.thesisID)
             .then((resp) => {
               if (resp) {
-                console.log(resp);
                 this.dialogVisible = false;
                 this.initEmps();
               }
@@ -531,10 +523,7 @@ export default {
       }
     },
     doAddEmp() {
-      //确定是添加记录还是新增记录
       if (this.emp.id == 1) {
-        //emptyEmp中没有将id设置为空 所以可以判断
-        // console.log("编辑记录：");
         var empdata = this.emp;
         this.emptyEmp();
         this.$refs["empForm"].validate((valid) => {
@@ -545,27 +534,21 @@ export default {
             this.emp.dateStu = empdata.dateStu;
             this.emp.studentID = JSON.parse(localStorage.getItem("user")).id;
             this.emp.thesisID = empdata.thesisID;
-            // 更新导师的一些信息
             this.emp.dateTea = null;
             this.emp.isPass = null;
             this.emp.tutorComment = "";
-            const _this = this;
-            // console.log("_this.emp:");
-            // console.log(_this.emp);
 
-            this.postRequest1("/paperComment/basic/edit", _this.emp).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                  }
-                }
-            );
+            const _this = this;
+
+            this.postRequest1("/paperComment/basic/edit", _this.emp).then((resp) => {
+              if (resp) {
+                this.dialogVisible = false;
+                this.initEmps();
+              }
+            });
           }
         });
       } else {
-        // console.log("新增记录：");
-        // console.log(this.emp);
         var empdata = this.emp;
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
@@ -584,18 +567,17 @@ export default {
               let date2 = Date.parse(this.emp.dateStu);
 
               if (date1 + 86400000 > date2) {
-                this.$message.error({message: "请选择合适的指导时间！"});
+                this.$message.error({ message: "请选择合适的指导时间！" });
                 return;
               }
             }
-            this.postRequest1("/paperComment/basic/add", _this.emp).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible = false;
-                    this.initEmps();
-                  }
-                }
-            );
+
+            this.postRequest1("/paperComment/basic/add", _this.emp).then((resp) => {
+              if (resp) {
+                this.dialogVisible = false;
+                this.initEmps();
+              }
+            });
           }
         });
       }
@@ -624,38 +606,34 @@ export default {
       }
     },
 
-    initEmps() {
-      this.loading = true;
-      const user = JSON.parse(localStorage.getItem("user"));
-      const studentID = user && user.id;
-      if (!studentID) {
-        console.error("Unable to get student ID from storage.");
-        return;
+    async initEmps() {
+      try {
+        this.loading = true;
+        const user = JSON.parse(localStorage.getItem("user"));
+        const studentID = user && user.id;
+        if (!studentID) {
+          console.error("无法从存储中获取学生ID。");
+          return;
+        }
+        const tidResp = await this.getRequest("/paperComment/basic/getThesisID?stuID=" + studentID);
+        if (tidResp.data) {
+          this.thesisID = tidResp.data;
+          const url = "/paperComment/basic/getAllCommentStu?thesisID=" + this.thesisID;
+          this.isShowAddButton = true;
+          const resp = await this.getRequest(url);
+          this.emps = resp.data;
+          this.total = resp.data.length;
+        } else {
+          this.$message.info("请首先添加毕业论文！")
+          throw new Error("获取TID错误");
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        this.loading = false;
       }
-      this.getRequest("/paperComment/basic/getTID?stuID=" + studentID)
-          .then((resp) => {
-            if (resp.data) {
-              this.thesisID = resp.data;
-              const url =
-                  "/paperComment/basic/getAllCommentStu?thesisID=" + this.thesisID;
-              this.isShowAddButton = true;
-              return this.getRequest(url);
-            } else {
-              throw new Error("Error getting TID");
-            }
-          })
-          .then((resp) => {
-            this.loading = false;
-            if (resp && resp.data) {
-              this.emps = resp.data;
-              this.total = resp.data.length;
-            }
-          })
-          .catch((err) => {
-            // console.error(err);
-            this.loading = false;
-          });
     },
+
   },
 };
 </script>

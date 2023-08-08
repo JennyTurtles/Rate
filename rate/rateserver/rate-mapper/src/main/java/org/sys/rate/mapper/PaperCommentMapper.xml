@@ -27,24 +27,39 @@
 
 
     <select id="getStuThesis" resultMap="PaperCommentResult">
-        -- 老师查询其下所有学生的毕业设计
-        SELECT s.ID, t.ID as tID, s.name, t.name as tName,
-               sum( CASE p.isPass WHEN 'tea_pass' THEN 1 ELSE 0 END ) AS comment_pass,
-               sum( CASE isPass WHEN 'tea_deny' THEN 1 ELSE 0 END ) AS comment_deny,
-               MAX(num) AS comment_total
+        --  老师查询其下所有学生的毕业设计，这里需要返回最新的论文
+        SELECT
+            s.ID,
+            t.ID AS tID,
+            s.NAME,
+            t.NAME AS tName,
+            SUM( CASE WHEN p.isPass = 'tea_pass' THEN 1 ELSE 0 END ) AS comment_pass,
+            SUM( CASE WHEN p.isPass = 'tea_deny' THEN 1 ELSE 0 END ) AS comment_deny,
+            SUM( CASE WHEN p.isPass IN ( 'tea_pass', 'tea_deny', '') THEN 1 ELSE 0 END ) AS comment_total
+        FROM
+            student s
+                JOIN (
+                SELECT
+                    t1.studentID,
+                    MAX( t1.YEAR * 100 + t1.MONTH ) AS max_year_month
+                FROM
+                    thesis t1
+                WHERE
+                    t1.tutorID = #{teaID}
+                GROUP BY
+                    t1.studentID
+            ) t2 ON s.ID = t2.studentID
+                JOIN thesis t ON t.studentID = t2.studentID
+                AND t.YEAR * 100 + t.MONTH = t2.max_year_month
+                LEFT JOIN papercomment p ON p.thesisID = t.ID
+        GROUP BY
+            s.ID,
+            t.ID,
+            s.NAME,
+            t.NAME
+        ORDER BY
+            s.ID ASC;
 
-        FROM student s
-                 JOIN thesis t ON s.ID = t.studentID
-                 JOIN papercomment p ON p.thesisID = t.ID
-        WHERE s.tutorID = #{teaID}
-          AND NOT EXISTS(
-                SELECT 1
-                FROM thesis t2
-                WHERE t.studentID = t2.studentID
-                  AND ((t.year &lt; t2.year) OR (t.year = t2.year AND t.month &lt; t2.month))
-            )
-        GROUP BY tID
-        ORDER BY s.ID ASC;
     </select>
 
 

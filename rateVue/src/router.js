@@ -529,13 +529,23 @@ export default new Router({
         },
         {
           path: '/admin/UnderGraduateM',
-          name: '本科生管理',
+          name: '学生管理',
           hidden: true,
           component: () => import('./views/admin/SalUnderGraduateM'),
           meta: {
-            title: '本科生管理',
+            title: '学生管理',
           },
         },
+        {
+          path: '/admin/Thesis',
+          name: '毕业论文',
+          hidden: true,
+          component: () => import('./views/admin/Thesis'),
+          meta: {
+            title: '毕业论文',
+          },
+        },
+
       ],
     },
       //新打开一个页面

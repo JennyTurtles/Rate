@@ -218,22 +218,16 @@ export default {
         console.log(resp);
         if (resp) {
           _this.emps = resp.data;
-          // console.log(this.emps);
         }
       });
-      // console.log(this.emps);
     },
 
     // 导出pdf
     exportPDF(data) {
-      console.log("导出PDF");
-      console.log(data);
       this.loading = true;
-      // Message.success("正在导出");
       let url = "/paperComment/basic/exportPDF?thesisID=" + data.thesis.id;
       this.getRequest(url).then((resp) => {
         this.loading = false;
-        // window.open(url);
         window.location.href = url;
       });
     },

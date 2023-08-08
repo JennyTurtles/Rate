@@ -389,9 +389,6 @@
                 return "background:#b3d8ff;color:black;font-size:13px;text-align:center";
             },
 
-            exportData() {
-                window.open("/employee/basic/export", "_parent");
-            },
             emptyEmp() {
                 this.emp = {
                     dateTea: null,
@@ -407,8 +404,7 @@
 
             // 驳回按钮
             showRefuseEmpView(data) {
-                console.log("驳回学生的一条记录！");
-                console.log(data);
+
                 this.emptyEmp();
                 this.emp.num = data.num
                 this.emp.dateTea = null
@@ -431,8 +427,6 @@
             showEditEmpView(data) {
                 // this.initPositions();
                 this.title = "填写评价";
-                console.log("编辑开始！");
-                console.log(data);
                 this.emp = data;
                 this.showDateStu = data.dateStu;
                 let sortedEmps = this
@@ -484,7 +478,6 @@
             },
             deleteEmp(data) {
                 //点击删除按钮
-                console.log(data.thesisID);
                 if (confirm("此操作将永久删除【第" + data.num + "条记录】, 是否继续?")) {
                     axios
                         .delete("/paperComment/basic/remove/" + data.num + "/" + data.thesisID)
@@ -499,9 +492,7 @@
             },
             doAddEmp() {
                 //确定是添加记录还是新增记录 emptyEmp中没有将id设置为空 所以可以判断
-                console.log("编辑记录：");
                 var empdata = this.emp;
-                // console.log(empdata);
                 this.emptyEmp();
                 this
                     .$refs["empForm"]
@@ -516,8 +507,6 @@
 
 
                             const _this = this;
-                            console.log("_this.emp:" + _this.emp);
-
                             this
                                 .postRequest1("/paperComment/basic/updateTea", _this.emp)
                                 .then((resp) => {
@@ -542,7 +531,6 @@
                             if (resp) {
                                 this.thesis = resp.data;
                                 resolve(this.thesis);
-                                // console.log("test:"+resp);
                             } else {
                                 reject(Error("Error getting thesis"));
                             }
@@ -557,11 +545,8 @@
                         .then((resp) => {
                             this.loading = false;
                             if (resp) {
-                                console.log("初始化页面:");
-                                console.log(resp);
                                 this.emps = resp.data;
                                 this.total = resp.data.length;
-                                console.log("this.emps:" + this.emps);
                             }
                         });
 

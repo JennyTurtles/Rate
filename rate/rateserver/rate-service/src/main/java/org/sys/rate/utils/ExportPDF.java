@@ -93,7 +93,7 @@ public class ExportPDF {
     public void generatePDF(HttpServletResponse response, Integer thesisID) throws Exception {
         Thesis thesis = paperCommentService.getThesisByTID(thesisID);
         Student student = studentService.getById(thesis.getStudentID());
-        Teacher teacher = teacherService.getById(student.getTutorID());
+        Teacher teacher = teacherService.getById(thesis.getTutorID());
         List<PaperComment> paperComments = paperCommentService.selectCommentListStu(thesisID);
 
         if (!necessaryFilesAndDirectoriesExist) {

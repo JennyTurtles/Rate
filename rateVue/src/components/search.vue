@@ -107,11 +107,7 @@
           ></el-option>
         </el-select>
         年克隆到
-        <el-input
-            v-model="toYear"
-            placeholder="输入年份"
-            style="width: 120px"
-        ></el-input>
+        <el-input-number v-model="toYear" :min="1999" :max="new Date().getFullYear()" style="width: 120px"></el-input-number>
         年
       </div>
 
@@ -1129,8 +1125,8 @@ export default {
       importSelectYear: null,
       years: [],
       year: 0,
-      fromYear: "",
-      toYear: "",
+      fromYear: new Date().getFullYear() - 1,
+      toYear: new Date().getFullYear(),
       yearList: [],
       nowYear: new Date().getFullYear(),
       tableData: [],
@@ -1701,8 +1697,8 @@ export default {
       // this.searchPathInf = ''
     },
     closeClone() {
-      this.fromYear = "";
-      this.toYear = "";
+      this.fromYear = new Date().getFullYear() - 1;
+      this.toYear =  new Date().getFullYear(),
       this.yearList = [];
       this.dialogVisibleClone = false;
     },
