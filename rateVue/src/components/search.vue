@@ -1389,8 +1389,13 @@ export default {
         const resp = await axios.get(
             `/indicator/getProductByYear?indicatorId=${indicatorId}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}&type=${type}`
         );
-        this.tableData = resp.extend.res[0];
-        this.totalCount = resp.extend.res[1];
+        if(resp.extend.res!=null) {
+          this.tableData = resp.extend.res[0];
+          this.totalCount = resp.extend.res[1];
+        }else{
+          this.tableData = "";
+          this.totalCount = 0;
+        }
       } catch (error) {
         console.error(error);
       }

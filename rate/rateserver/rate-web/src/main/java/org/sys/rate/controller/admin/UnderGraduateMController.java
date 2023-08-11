@@ -33,62 +33,68 @@ public class UnderGraduateMController {
     StudentMapper studentMapper;
 
     @GetMapping("/exportUnderGraduate")
-    public ResponseEntity<byte[]> downloadExample_UnderGraduateStudents(HttpServletResponse response){
-        return POIUtils.writeUnderGraduate();
+    public ResponseEntity<byte[]> downloadExample_UnderGraduateStudents(@RequestParam("type") String type, HttpServletResponse response) {
+        return POIUtils.writeUnderGraduate(type);
     }
+
     @PostMapping("/importUnderGraduate")
-    public RespBean importUnderGraduate(Integer institutionID,MultipartFile file) throws ParseException {
-        Map<String,List> mm = POIUtils.readExcel_undergraduate(institutionID,file);
+    public RespBean importUnderGraduate(Integer institutionID, MultipartFile file) throws ParseException {
+        Map<String, List> mm = POIUtils.readExcel_undergraduate(institutionID, file);
         List<UnderGraduate> under = mm.get("underlist");
         List<Student> stu = mm.get("studentlist");
-        if(under.size() == 0 || stu.size() == 0 || under.size() != stu.size())
-        {
+        if (under.size() == 0 || stu.size() == 0 || under.size() != stu.size()) {
             return RespBean.error("未读取到有效导入数据");
         }
-        RespBean res = underGraduateService.addUnderGraduate(under,stu);
+        RespBean res = underGraduateService.addUnderGraduate(under, stu);
         return res;
     }
+
     @GetMapping("/getUnderGraduateStudents")
-    public Msg getUnderStudent(@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
+    public Msg getUnderStudent(@RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
         Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
         List<UnderGraduate> t = underGraduateService.getUnderStudent();
         PageInfo info = new PageInfo<>(page.getResult());
-        Object[] res = {t,info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
-        return Msg.success().add("res",res);
+        Object[] res = {t, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
     }
+
     @PostMapping("/deleteUnderGraduateStudent")
-    public Msg deleteUnderStudent(@RequestBody UnderGraduate under){
+    public Msg deleteUnderStudent(@RequestBody UnderGraduate under) {
         return underGraduateService.deleteUnderStudent(under);
     }
+
     @PostMapping("/editUnderGraduateStudent")
-    public RespBean editUnderStudent(@RequestBody UnderGraduate under){
+    public RespBean editUnderStudent(@RequestBody UnderGraduate under) {
         return underGraduateService.editUnderStudent(under);
     }
+
     //根据页面的筛选框进行查找本科生信息
     @GetMapping("/getTeaNamesBySelect")
-    public RespBean getTeaNamesBySelect(String teaName){
+    public RespBean getTeaNamesBySelect(String teaName) {
         return underGraduateService.getTeaNamesBySelect(teaName);
     }
+
     @GetMapping("/getUnderStudentsBySelect")
-    public RespBean getUnderStudentsBySelect(@RequestParam("year")Integer year,@RequestParam("teaName")String teaName,@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
+    public RespBean getUnderStudentsBySelect(@RequestParam("year") Integer year, @RequestParam("teaName") String teaName, @RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
         Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
-        List<UnderGraduate> t = underGraduateService.getUnderStudentsBySelect(year,teaName);
+        List<UnderGraduate> t = underGraduateService.getUnderStudentsBySelect(year, teaName);
         PageInfo info = new PageInfo<>(page.getResult());
-        Object[] res = {t,info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
-        return RespBean.ok("ok",res);
+        Object[] res = {t, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return RespBean.ok("ok", res);
     }
+
     @PostMapping("/resetUnderPassword")
-    public RespBean resetUnderPassword(@RequestBody UnderGraduate under){
+    public RespBean resetUnderPassword(@RequestBody UnderGraduate under) {
         Integer res = 0;
-        try{
+        try {
             String p = ExpertService.sh1(under.getPassword());
-            res = studentMapper.updatePassword(under.getStudentID(),p);
-        }catch (Exception e){
-            return RespBean.error("error",null);
+            res = studentMapper.updatePassword(under.getStudentID(), p);
+        } catch (Exception e) {
+            return RespBean.error("error", null);
         }
-        if(res > 0){
-            return RespBean.ok("ok",null);
+        if (res > 0) {
+            return RespBean.ok("ok", null);
         }
-        return RespBean.error("error",null);
+        return RespBean.error("error", null);
     }
 }

@@ -406,7 +406,7 @@ export default {
       return url;
     },
     downloadExcel(){
-      let url = '/undergraduateM/basic/exportUnderGraduate'
+      let url = '/undergraduateM/basic/exportUnderGraduate?type=student'
       this.$message.success('正在下载')
       window.open(url,'_parent')
     },

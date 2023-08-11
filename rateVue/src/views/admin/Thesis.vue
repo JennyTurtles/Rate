@@ -22,7 +22,7 @@
           style="display: inline-flex; margin-left: 1px"
           :action="UploadUrl()"
       >
-        <el-button icon="el-icon-plus" type="primary" @click="checkSemester">导入学生</el-button>
+        <el-button icon="el-icon-plus" type="primary" :disabled="selectSemester==''">导入学生</el-button>
       </el-upload>
 
     </div>
@@ -276,14 +276,8 @@ export default {
     this.initUnderGraduateStudents(this.currentPage, this.pageSize)
   },
   methods: {
-    checkSemester() {
-      if (this.selectSemester === '春季' || this.selectSemester === '秋季') {
-        this.canImportStudents = true;
-      } else {
-        this.canImportStudents = false;
-        this.$message.error("请在选择学期后进行导入学生操作！")
-      }
-    },
+
+
     //编辑框中 搜索老师姓名之后点击下拉框的某个选项
     filterEditTeacher(val) {
       this.currentUnderStudentOfEdit.teachers.name = val.split(":")[1]
@@ -430,12 +424,15 @@ export default {
     },
     UploadUrl() {
       if(this.canImportStudents) {
+        console.log(this.user);
         let url = '/undergraduateM/basic/importUnderGraduate?institutionID=' + this.user.institutionID
         return url;
+      }else{
+        return
       }
     },
     downloadExcel() {
-      let url = '/undergraduateM/basic/exportUnderGraduate'
+      let url = `/undergraduateM/basic/exportUnderGraduate?type=thesis`
       this.$message.success('正在下载')
       window.open(url, '_parent')
     },

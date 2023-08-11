@@ -34,7 +34,7 @@ public class IndicatorController {
         Page page = PageHelper.startPage(pageNum,pageSize);
         List<T> list = indicatorService.selectProductListByYear(indicatorId, year, type);
         if (list.isEmpty()) {
-            return Msg.success().add("没有找到任何提交记录", null);
+            return Msg.success().add("res", null);
         }
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
