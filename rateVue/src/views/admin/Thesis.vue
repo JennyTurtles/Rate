@@ -429,8 +429,10 @@ export default {
       this.$message.success("正在导入")
     },
     UploadUrl() {
-      let url = '/undergraduateM/basic/importUnderGraduate?institutionID=' + this.user.institutionID
-      return url;
+      if(this.canImportStudents) {
+        let url = '/undergraduateM/basic/importUnderGraduate?institutionID=' + this.user.institutionID
+        return url;
+      }
     },
     downloadExcel() {
       let url = '/undergraduateM/basic/exportUnderGraduate'
