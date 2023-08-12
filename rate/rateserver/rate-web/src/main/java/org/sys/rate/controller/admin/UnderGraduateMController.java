@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.mapper.StudentMapper;
+import org.sys.rate.mapper.UnderGraduateMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.LogService;
 import org.sys.rate.service.admin.UnderGraduateService;
@@ -31,6 +32,8 @@ public class UnderGraduateMController {
     UnderGraduateService underGraduateService;
     @Autowired
     StudentMapper studentMapper;
+    @Autowired
+    UnderGraduateMapper underGraduateMapper;
 
     @GetMapping("/exportUnderGraduate")
     public ResponseEntity<byte[]> downloadExample_UnderGraduateStudents(@RequestParam("type") String type, HttpServletResponse response) {
@@ -96,5 +99,17 @@ public class UnderGraduateMController {
             return RespBean.ok("ok", null);
         }
         return RespBean.error("error", null);
+    }
+    @PostMapping("/update")
+    public RespBean updateStudent(@RequestBody UnderGraduate record) {
+        if (underGraduateMapper.checkHaveStudentOfStuNumber(record.getInstitutionID(),record.getStuNumber(),record.getStudentID())==1){
+            return RespBean.error("学号已存在，请重新修改或联系管理员！");
+        }
+        if (studentMapper.update(record) == 1){
+            if (underGraduateMapper.update(record) == 1) {
+                return RespBean.ok("更新成功!");
+            }
+        }
+        return RespBean.error("更新失败!");
     }
 }

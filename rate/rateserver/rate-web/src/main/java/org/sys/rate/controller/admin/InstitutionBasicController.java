@@ -7,6 +7,7 @@ import org.sys.rate.mapper.InstitutionMapper;
 import org.sys.rate.model.Institution;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.model.RespPageBean;
+import org.sys.rate.model.Teachers;
 import org.sys.rate.service.admin.InstitutionService;
 
 import java.util.List;
@@ -59,5 +60,11 @@ public class InstitutionBasicController {
     public RespBean getAll(){
         List<Institution> res = institutionMapper.getAll();
         return RespBean.ok("success",res);
+    }
+
+    @GetMapping("/searchByName")
+    public RespBean searchByName(String name) {
+        List<Institution> institutions = institutionMapper.selectByName(name);
+        return RespBean.ok("success", institutions);
     }
 }

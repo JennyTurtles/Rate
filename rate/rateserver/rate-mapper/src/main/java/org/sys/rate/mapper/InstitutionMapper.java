@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Institution;
+import org.sys.rate.model.Teachers;
 
 import java.util.List;
 
@@ -32,4 +33,7 @@ public interface InstitutionMapper {
     List<Institution> getAll();
 
     Integer updateEmployeeSalaryById(@Param("eid") Integer eid, @Param("sid") Integer sid);
+
+    @Select("select * from institution where company like CONCAT('%', #{name}, '%')")
+    List<Institution> selectByName(String name);
 }

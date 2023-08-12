@@ -1,14 +1,14 @@
 package org.sys.rate.controller.admin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.sys.rate.mapper.StudentMapper;
-import org.sys.rate.mapper.TeacherMapper;
+import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.GraduateStudentService;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.UnderGraduateService;
 import org.sys.rate.service.expert.ExpertService;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.applet.AppletStub;
 import java.util.List;
 
@@ -25,6 +25,12 @@ public class StudentBasicController {
     UnderGraduateService underGraduateService;
     @Autowired
     GraduateStudentService graduateStudentService;
+    @Autowired
+    GraduateStudentMapper graduateStudentMapper;
+    @Autowired
+    UnderGraduateMapper underGraduateMapper;
+    @Autowired
+    TeachersMapper teachersMapper;
 
     @GetMapping("/getall")
     public List<Student> getAllStudent() {
@@ -86,6 +92,26 @@ public class StudentBasicController {
     @GetMapping("/getTutorInfo")
     public RespBean getTutorInfo(Integer id) {
         return RespBean.ok("ok", teacherMapper.getTutorInfo(id));
+    }
+
+    @GetMapping("/getStuInfo")
+    public RespBean getStuInfo(@RequestParam Integer id, @RequestParam String stuType){
+        if (stuType.equals("本科生")){
+            UnderGraduate underGraduate = underGraduateMapper.getUnderByStuID(id);
+            underGraduate.setStuType("本科生");
+            return RespBean.ok("success",underGraduate);
+        }
+        else if (stuType.equals("研究生")){
+            GraduateStudent graduateStudent = graduateStudentMapper.getGradByStuID(id);
+            graduateStudent.setStuType("研究生");
+            return RespBean.ok("success",graduateStudent);
+        }
+        else
+        {
+            Student student = studentMapper.getById(id);
+            student.setStuType("不是大学生");
+            return RespBean.ok("success",student);
+        }
     }
 }
 

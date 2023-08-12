@@ -76,7 +76,7 @@ public class AdminController {
     public List<Role> getAllRoles() {
         return roleService.getAllRoles();
     }
-    
+
 
     @PostMapping("/delete")
     public RespBean deleteAdminById(@RequestBody Admin id) {
@@ -114,5 +114,16 @@ public class AdminController {
         }
         return Msg.success().add("adm", res).add("aa", adminActivities).add("allAdmList", allAdmList);//返回形式不太好
 
+    }
+
+    @GetMapping("/getAdminInfo")
+    public RespBean getAdminInfo(@RequestParam Integer id){
+        Admin admin = null;
+        try{
+            admin = adminMapper.getById(id);
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        return RespBean.ok("ok",admin);
     }
 }

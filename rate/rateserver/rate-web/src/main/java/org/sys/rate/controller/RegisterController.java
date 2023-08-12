@@ -33,6 +33,11 @@ public class RegisterController {
         try{
             String password = ExpertService.sh1(student.getPassword());
             student.setPassword(password);
+            switch (stuType){
+                case "本科生" : student.setRole("10");break;
+                case "研究生" : student.setRole("11");break;
+                default:student.setRole("7");break; //选手
+            }
             //可以直接根据id判断，因为在填写时已经做了查询，查到了id会存在，没查到就是null
             if(student.getID() == null){//插入学生表 并返回id
                 studentMapper.insertStuFromRegister(student);

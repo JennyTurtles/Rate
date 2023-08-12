@@ -15,7 +15,7 @@ public interface UnderGraduateMapper {
     List<UnderGraduate> getUnderStudent();
     UnderGraduate getUnderByStuID(Integer studentID);
     int insert(UnderGraduate record);
-    int update(Student record);
+    int update(UnderGraduate record);
     int deleteUnderStudent(UnderGraduate under);
     int editUnderStudent(UnderGraduate under);
     List<Teachers> getTeaNamesBySelect(String teaName);
@@ -23,6 +23,7 @@ public interface UnderGraduateMapper {
     List<Integer> check(List<UnderGraduate> under);
     int checkHaveStudentOfstudenID(Integer studentID);
     int checkHaveStudentOftutorID(Integer tutorID,Integer ID);
+    int checkHaveStudentOfStuNumber(Integer institutionID,String stuNumber,Integer studentID);
     int insertFROMImport(List<UnderGraduate> record);
 
     int updateFROMImport(List<UnderGraduate> record);

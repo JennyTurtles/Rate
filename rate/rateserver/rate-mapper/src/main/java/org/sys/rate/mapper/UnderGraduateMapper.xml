@@ -30,13 +30,12 @@
     </sql>
 
     <insert id="insert" parameterType="org.sys.rate.model.UnderGraduate">
-        insert into undergraduate (ID,studentID,institutionID,stuNumber,year,tutorID)
+        insert into undergraduate (ID,studentID,institutionID,stuNumber,year)
         values  (#{ID,jdbcType=INTEGER},
                  #{studentID,jdbcType=INTEGER},
                  #{institutionID,jdbcType=INTEGER},
                  #{stuNumber,jdbcType=VARCHAR},
-                 #{year,jdbcType=VARCHAR},
-                 #{tutorID,jdbcType=INTEGER})
+                 #{year,jdbcType=VARCHAR})
     </insert>
 
 <!--    <select id="check" resultType="java.lang.Integer">-->
@@ -75,7 +74,7 @@
         </foreach>
     </select>
     <select id="getUnderStudent" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,t.name as tname,t.jobnumber as tjobnumber
+        select u.*,s.name,s.telephone,s.email,s.username,t.name as tname,t.jobnumber as tjobnumber
         from undergraduate u
         left join teacher t
         on u.tutorID=t.ID
@@ -94,6 +93,13 @@
         UPDATE undergraduate
         SET tutorID = #{tutorID},specialty = #{specialty,jdbcType=VARCHAR},class = #{className,jdbcType=VARCHAR}
         where ID=#{ID,jdbcType=INTEGER};
+    </update>
+    <update id="update">
+        UPDATE undergraduate SET  stuNumber=#{stuNumber,jdbcType=VARCHAR},
+                           year=#{year,jdbcType=INTEGER},
+                           specialty=#{specialty,jdbcType=VARCHAR},
+                           class=#{className,jdbcType=VARCHAR}
+        where studentID=#{studentID,jdbcType=INTEGER};
     </update>
     <select id="getTeaNamesBySelect" resultType="org.sys.rate.model.Teachers">
         select t.*
@@ -124,5 +130,8 @@
         select u.*,s.name,s.telephone,s.email,s.username,s.password,s.registerQuestion,s.registerAnswer
         from undergraduate u,student s
         where u.studentID = #{studentID} and s.ID = u.studentID
+    </select>
+    <select id="checkHaveStudentOfStuNumber" resultType="java.lang.Integer">
+        select exists (select * from undergraduate where institutionID = #{institutionID} and stuNumber = #{stuNumber} and studentID != #{studentID} )
     </select>
 </mapper>

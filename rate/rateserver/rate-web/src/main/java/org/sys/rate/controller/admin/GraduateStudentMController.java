@@ -7,11 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.RsaUtil;
+import org.sys.rate.mapper.GraduateStudentMapper;
 import org.sys.rate.mapper.StudentMapper;
-import org.sys.rate.model.GraduateStudent;
-import org.sys.rate.model.Msg;
-import org.sys.rate.model.RespBean;
-import org.sys.rate.model.Student;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.GraduateStudentService;
 import org.sys.rate.service.admin.LogService;
 import org.sys.rate.service.expert.ExpertService;
@@ -35,6 +33,8 @@ public class GraduateStudentMController {
     StudentMapper studentMapper;
     @Resource
     RsaUtil rsaUtil;
+    @Resource
+    GraduateStudentMapper graduateStudentMapper;
 
     @GetMapping("/exportGraduate")
     public ResponseEntity<byte[]> downloadExample_Participants_exportMoPar_Group(HttpServletResponse response){
@@ -109,5 +109,17 @@ public class GraduateStudentMController {
             return RespBean.ok("ok",null);
         }
         return RespBean.error("error",null);
+    }
+    @PostMapping("/update")
+    public RespBean updateStudent(@RequestBody GraduateStudent record) {
+        if (graduateStudentMapper.checkHaveStudentOfStuNumber(record.getInstitutionID(),record.getStuNumber(),record.getStudentID()) == 1){
+            return RespBean.error("学号已存在，请重新修改或联系管理员！");
+        }
+        if (studentMapper.update(record) == 1){
+            if (graduateStudentMapper.update(record) == 1) {
+                return RespBean.ok("更新成功!");
+            }
+        }
+        return RespBean.error("更新失败!");
     }
 }

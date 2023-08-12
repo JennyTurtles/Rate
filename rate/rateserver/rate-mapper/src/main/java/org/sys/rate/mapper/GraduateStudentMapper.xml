@@ -7,6 +7,8 @@
         <result column="institutionID" jdbcType="INTEGER" property="institutionID" />
         <result column="stuNumber" property="stuNumber" jdbcType="VARCHAR"/>
         <result column="year" property="year" jdbcType="INTEGER"/>
+        <result column="specialty" property="specialty" jdbcType="VARCHAR"/>
+        <result column="class" property="className" jdbcType="VARCHAR"/>
         <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
         <result column="studentType" property="studentType" jdbcType="VARCHAR"/>
         <result column="point" property="point" jdbcType="VARCHAR"/>
@@ -99,6 +101,15 @@
             point = #{point}
         where ID=#{ID,jdbcType=INTEGER};
     </update>
+    <update id="update">
+        UPDATE graduatestudent SET tutorID=#{tutorID,jdbcType=INTEGER},
+                                   stuNumber=#{stuNumber,jdbcType=VARCHAR},
+                                 year=#{year,jdbcType=INTEGER},
+                                 studentType=#{studentType,jdbcType=VARCHAR},
+                                 specialty=#{specialty,jdbcType=VARCHAR},
+                                 class=#{className,jdbcType=VARCHAR}
+        where studentID=#{studentID,jdbcType=INTEGER};
+    </update>
     <select id="getTeaNamesBySelect" resultType="org.sys.rate.model.Teachers">
         select t.*
         from graduatestudent g,teacher t
@@ -125,7 +136,7 @@
         select exists (select * from graduatestudent where tutorID = #{tutorID} and ID != #{ID})
     </select>
     <select id="getGradByStuID" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,s.password,s.registerQuestion,s.registerAnswer
+        select u.*,s.name,s.telephone,s.email,s.username,s.password,s.registerQuestion,s.registerAnswer
         from graduatestudent u,student s
         where u.studentID=#{studentID} and s.ID = u.studentID
     </select>
@@ -163,5 +174,8 @@
           AND s.deleteflag = 0
         ORDER BY
             g.stuNumber
+    </select>
+    <select id="checkHaveStudentOfStuNumber" resultType="java.lang.Integer">
+        select exists (select * from graduatestudent where institutionID = #{institutionID} and stuNumber = #{stuNumber} and studentID != #{studentID} )
     </select>
 </mapper>

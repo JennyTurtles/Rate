@@ -127,6 +127,15 @@ public class TeacherBasicController {
         }
         return RespBean.ok("ok",tea);
     }
-
+    @GetMapping("/getTeaInfo")
+    public RespBean getTeaInfo(@RequestParam Integer id){
+        Teachers tea = null;
+        try{
+            tea = teachersMapper.getByID(id);
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        return RespBean.ok("ok",tea);
+    }
 }
 

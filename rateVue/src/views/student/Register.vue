@@ -13,7 +13,6 @@
               v-model="currentInstitution"
               :fetch-suggestions="querySearch"
               :trigger-on-focus="false"
-              :popper-class="noInstitutionData ? 'platform-auto-complete' : ''"
               @select="handleSelect"
               value-key="company"
           >
@@ -95,8 +94,6 @@ export default {
       selectStuType:'',
       confirmPassword:'',
       checkPwdState:false,
-      institutions:[],
-      noInstitutionData:false,
       currentInstitution:'',
       stuType:['本科生','研究生','不是大学生'],
       user:{
@@ -136,7 +133,6 @@ export default {
   },
   mounted() {
     // this.debounceCheckPwd = debounce(this.checkPwd(),300)
-    this.getInstitutions();
   },
   computed:{
     labelWidth(){
@@ -254,28 +250,23 @@ export default {
         institutionID:''
       }
     },
-    getInstitutions(){
-      let url = '/institution/basic/getAll';
-      this.getRequest(url).then(resp => {
-        if (resp) {
-          this.institutions = resp.obj;
-        }
-      });
-    },
     querySearch(queryString, callback) {
-      console.log(queryString);
-      var institutions = this.institutions;
-      var results = queryString ? institutions.filter(this.createFilter(queryString)) : institutions;
-      if (results.length === 0){
-        this.item.company = '其他';
+      let results = []
+      if (queryString.length == 0){
         results.push(this.item);
-      }// 调用 callback 返回建议列表的数据
-      callback(results);
-    },
-    createFilter(queryString) {
-      return (institutions) => {
-        return (institutions.company.includes(queryString));
-      };
+        callback(results);
+      }
+      this.getRequest('/institution/basic/searchByName?name='+queryString)
+          .then((resp) => {
+            if (resp) {
+              results = resp.obj;
+              if (results.length === 0 ) {
+                this.item.company = '其他';
+                results.push(this.item);
+              }// 调用 callback 返回建议列表的数据
+              callback(results);
+            }
+          })
     },
     handleSelect(item) {
       this.user.institutionID = item.id;
