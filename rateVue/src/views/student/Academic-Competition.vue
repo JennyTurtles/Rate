@@ -58,8 +58,8 @@
         <el-table-column
             prop="author"
             align="center"
-            label="完成人"
-            width="100px"
+            label="获奖人"
+            width="160px"
         >
         </el-table-column>
         <el-table-column
@@ -78,7 +78,7 @@
         </el-table-column>
         <el-table-column
             prop="operationList[0].remark"
-            width="140px"
+            width="220px"
             align="center"
             label="备注"
         >
