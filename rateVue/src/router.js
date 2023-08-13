@@ -465,6 +465,15 @@ export default new Router({
           },
         },
         {
+          path: '/teacher/gradeForm',
+          name: '成绩评定表导出',
+          hidden: true,
+          component: () => import('./views/teacher/GradeForm.vue'),
+          meta: {
+            title: '成绩评定表导出',
+          },
+        },
+        {
           path: '/teacher/stuPaperComment',
           name: '教师毕业论文评审记录详情界面',
           hidden: true,
