@@ -1744,7 +1744,7 @@ export default {
      query: {
       keywords: id,
       keyword_name: data.name,
-      groupID: this.groupID, // 用于读取主活动的组内的选手
+      groupID: this.$route.query.groupID, // 用于读取主活动的组内的选手
       groupName: this.groupName,
       mode: this.mode,
       backID: this.activityID,

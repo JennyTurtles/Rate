@@ -8,7 +8,6 @@ import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.UnderGraduateService;
 import org.sys.rate.service.expert.ExpertService;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.applet.AppletStub;
 import java.util.List;
 
