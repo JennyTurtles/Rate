@@ -175,14 +175,6 @@
     <el-form-item label="邮箱:">
      <el-input v-model="registerRoleForm.email"></el-input>
     </el-form-item>
-<!--     <el-form-item label="指导老师:">-->
-<!--      <el-autocomplete-->
-<!--          style="width: 90%"-->
-<!--          v-model="tutorName"-->
-<!--          :fetch-suggestions="querySearchAsync"-->
-<!--          @select="handleSelectTutor">-->
-<!--      </el-autocomplete>-->
-<!--     </el-form-item>-->
     <el-form-item label="学生类型:">
      <el-select v-model="selectStuType" clearable>
       <el-option
@@ -193,6 +185,14 @@
       </el-option>
      </el-select>
     </el-form-item>
+     <el-form-item v-show="selectStuType === '研究生'" label="指导老师:">
+      <el-autocomplete
+          style="width: 90%"
+          v-model="tutorName"
+          :fetch-suggestions="querySearchAsync"
+          @select="handleSelectTutor">
+      </el-autocomplete>
+     </el-form-item>
     <div >
      <el-form-item label="学号:">
       <el-input  v-model="registerRoleForm.studentnumber" ></el-input>

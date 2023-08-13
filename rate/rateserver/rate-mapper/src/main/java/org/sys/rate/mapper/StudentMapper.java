@@ -57,8 +57,8 @@ public interface StudentMapper {
             "where stuNumber = #{studentNumber} AND s.ID = g.studentID")
     Student getUndergraduateByStudentNumber(String studentNumber);
 
-    @Insert("INSERT INTO graduatestudent(institutionID,studentID,stuNumber,year,studentType,point)\n" +
-            "VALUES (#{institutionid},#{ID},#{studentnumber},#{year},#{gradType},0)")
+    @Insert("INSERT INTO graduatestudent(institutionID,studentID,stuNumber,year,studentType,point,tutorID)\n" +
+            "VALUES (#{institutionid},#{ID},#{studentnumber},#{year},#{gradType},0,#{tutorID})")
     void registerGraduate(Student student);
 
     @Update("UPDATE graduatestudent SET studentID = #{newID}\n" +
@@ -77,7 +77,7 @@ public interface StudentMapper {
     @Select("select name from student where ID = #{studentID}")
     String getNameByID(Integer studentID);
 
-    @Update("UPDATE graduatestudent SET year = #{year},studentType = #{gradType} WHERE studentID = #{ID}")
+    @Update("UPDATE graduatestudent SET year = #{year}, tutorID = #{tutorID} ,studentType = #{gradType} WHERE studentID = #{ID}")
     void updateGraduate(Student student);
 
     @Update("UPDATE undergraduate SET year = #{year} WHERE studentID = #{ID}")

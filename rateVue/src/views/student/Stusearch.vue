@@ -250,7 +250,7 @@ export default {
         });
    },
    querySearchAsync(queryString, cb) {
-    if (queryString.length < 2) {
+    if (queryString.length < 1) {
      return cb([]);
     }
     this.getRequest('/activities/basic/searchByName?name='+queryString)
