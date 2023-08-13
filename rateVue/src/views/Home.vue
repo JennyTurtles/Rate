@@ -20,7 +20,7 @@
             <el-dropdown-menu slot="dropdown">
              <el-dropdown-item command="registerRole"
                                v-show="
-                  (user.role == ''  || user.role.indexOf('9') !== -1 || user.role.indexOf('10') !== -1)"
+                  (user.role == ''  || user.role.indexOf('11') !== -1 || user.role.indexOf('10') !== -1)"
              >注册为本科生/研究生</el-dropdown-item
              >
               <el-dropdown-item command="changePassword"
