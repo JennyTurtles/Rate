@@ -39,8 +39,10 @@
                 v-show="mode === 'admin' || mode === 'adminSub'">
       克隆活动
      </el-button>
+<!--     <span style="margin-left: 20px"-->
+<!--           v-show="mode === 'secretarySub'">当前管理的是：{{ actName }}的 </span>-->
      <span style="margin-left: 20px"
-           v-show="mode === 'secretarySub'">当前管理的是：{{ actName }}的 </span>
+           v-show="mode === 'secretarySub'">{{ $route.query.groupName }} 组内管理&nbsp&nbsp&nbsp&nbsp切换到： </span>
      <el-select ref="optionRef"
          @change="goAnotherGroupForSub"  v-model="groupIDForSub" v-show="$route.query.isGroup">
       <el-option
@@ -210,13 +212,24 @@
       >
       <el-button
           @click="showGroupmanagement(scope.row)"
-          v-show="mode !== 'secretary' && mode !== 'secretarySub' && mode !== 'adminSub'|| (scope.row.requireGroup === true && mode === 'secretarySub')"
+          v-show="mode !== 'secretary' && mode !== 'secretarySub' && mode !== 'adminSub'"
           style="padding: 4px"
           size="mini"
           icon="el-icon-s-operation"
           type="primary"
           plain
       >分组管理
+      </el-button
+      >
+      <el-button
+          @click="showGroupmanagement(scope.row)"
+          v-show="scope.row.requireGroup === true && mode === 'secretarySub'"
+          style="padding: 4px"
+          size="mini"
+          icon="el-icon-s-operation"
+          type="primary"
+          plain
+      >小组管理
       </el-button
       >
       <el-button
@@ -1019,6 +1032,7 @@ export default {
        res => {
         if (res.obj) {
          this.groupList = res.obj
+         console.log(this.groupList)
          this.groupIDForSub = parseInt(this.$route.query.groupID)
         }
        }
