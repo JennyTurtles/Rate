@@ -389,6 +389,8 @@
         @size-change="sizeChange"
         layout="sizes, prev, pager, next, jumper, ->, total, slot"
         :total="total"
+        :page-size="size"
+        :page-sizes="[10, 20, 30, 40]"
     >
     </el-pagination>
    </div>
@@ -645,7 +647,6 @@
                    :current-page="dialogAddTeaPermissionPage"
                    :page-size="dialogAddTeaPermissionSize" layout="total, sizes, prev, pager, next, jumper"
                    :total="dialogAddTeaPermissionTotal"
-                   :page-sizes="[20,20,20,20,20]"
                    background
     >
     </el-pagination>
@@ -1883,23 +1884,27 @@ export default {
   },
   searchEmps() {
    this.loading = true;
-   const _this = this;
-   //let url =
-   this.getRequest(
-       "/activities/basic/search?company=" +
-       this.keyword +
-       "&page=" +
-       this.page +
-       "&size=" +
-       this.size +
-       "&institutionID=" + this.user.institutionID
-   ).then((resp) => {
-    this.loading = false;
-    if (resp) {
-     this.emps = resp.data;
-     this.total = resp.total;
-    }
-   });
+   if (this.keyword === '')
+    this.initEmps()
+   else
+   {
+    const _this = this;
+    this.getRequest(
+        "/activities/basic/search?company=" +
+        this.keyword +
+        "&page=" +
+        this.page +
+        "&size=" +
+        this.size +
+        "&institutionID=" + this.user.institutionID
+    ).then((resp) => {
+     this.loading = false;
+     if (resp) {
+      this.emps = resp.data;
+      this.total = resp.total;
+     }
+    });
+   }
   },
   back() {
    const _this = this;

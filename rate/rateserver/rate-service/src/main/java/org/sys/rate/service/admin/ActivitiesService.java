@@ -42,16 +42,16 @@ public class ActivitiesService {
     DecimalFormat decimalFormat = new DecimalFormat("##.00");
 
     // 获得主活动
-    public RespPageBean getActivitiesPage(Integer page, Integer size, Activities employee, Integer institutionID,Integer ID) {
-        if (page != null && size != null) {
-            page = (page - 1) * size;
-        }
-        List<Activities> data = activitiesMapper.getActivitiesByPage(page, size, institutionID,ID);
-        Long total = (long) data.size();
-        RespPageBean bean = new RespPageBean();
-        bean.setData(data);
-        bean.setTotal(total);
-        return bean;
+    public List<Activities> getActivitiesPage(Integer institutionID,Integer ID) {
+//        if (page != null && size != null) {
+//            page = (page - 1) * size;
+//        }
+        List<Activities> data = activitiesMapper.getActivitiesByPageHelper(institutionID,ID);
+//        Long total = (long) data.size();
+//        RespPageBean bean = new RespPageBean();
+//        bean.setData(data);
+//        bean.setTotal(total);
+        return data;
     }
 
     public List<Activities> getAllActivity_info() {

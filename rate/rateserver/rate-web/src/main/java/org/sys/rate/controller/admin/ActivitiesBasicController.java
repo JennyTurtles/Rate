@@ -1,5 +1,9 @@
 package org.sys.rate.controller.admin;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.ActivitiesMapper;
@@ -44,9 +48,14 @@ public class ActivitiesBasicController {
     public RespPageBean getActivitiesByPage(@RequestParam(defaultValue = "1") Integer page,
                                             @RequestParam(defaultValue = "10") Integer size,
                                             @RequestParam(defaultValue = "1") Integer institutionID,
-                                            @RequestParam Integer adminID,
-                                            Activities employee) {
-        return activitiesService.getActivitiesPage(page, size, employee, institutionID,adminID);
+                                            @RequestParam Integer adminID) {
+        Page p = PageHelper.startPage(page,size);
+        List<Activities> res = activitiesService.getActivitiesPage(institutionID,adminID);
+        PageInfo info = new PageInfo<>(p.getResult());
+        RespPageBean bean = new RespPageBean();
+        bean.setData(res);
+        bean.setTotal(info.getTotal());
+        return bean;
     }
 
     @GetMapping("/one")
