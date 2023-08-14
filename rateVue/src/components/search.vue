@@ -107,7 +107,8 @@
           ></el-option>
         </el-select>
         年克隆到
-        <el-input-number v-model="toYear" :min="1999" :max="new Date().getFullYear()" style="width: 120px"></el-input-number>
+        <el-input-number v-model="toYear" :min="1999" :max="new Date().getFullYear()"
+                         style="width: 120px"></el-input-number>
         年
       </div>
 
@@ -887,9 +888,21 @@
         <el-form-item label="奖项名">
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
-        <el-form-item label="排名限制">
-          <el-input v-model="rowData.rankN" placeholder="若输入为 0 则为排名不限"></el-input>
-        </el-form-item>
+
+        <div>
+          <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+            <el-radio :label="1">有排名限制</el-radio>
+            <el-radio :label="0">无排名限制</el-radio>
+          </el-radio-group>
+
+          <div v-if="selectedOption === 1">
+            限排名前
+            <el-input-number v-model="rowData.rankN" :min="1" :max="99" style="width: 120px"></el-input-number> 有积分
+          </div>
+
+          <div v-if="selectedOption === 0">
+          </div>
+        </div>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdateAward = false">取 消</el-button>
@@ -1097,6 +1110,7 @@ export default {
   props: ["category", "type", "order", "score", "p1", "p2"],
   data() {
     return {
+      selectedOption:1,
       titleAddPublication: "请添加期刊的相关信息",
       labelPosition: "left",
       typeOfAllPaper: [],
@@ -1258,6 +1272,11 @@ export default {
     });
   },
   methods: {
+    handleRadioChange() {
+      if (this.selectedOption === 0) {
+        this.rowData.rankN = 0
+      }
+    },
     async getYearList() {
       try {
         const url = `/indicator/getAllYear/${this.indicatorID}/${this.indicatorType}`;
@@ -1323,7 +1342,7 @@ export default {
         this.loading = false;
         if (resp && resp.obj.length !== 0) {
           resp.obj.forEach((item) => {
-            const data = { name: item.name };
+            const data = {name: item.name};
             if (this.searchPathInf.type == "publication") {
               data.abbr = item.abbr;
               data.id = item.id;
@@ -1371,7 +1390,7 @@ export default {
           const resp = await this.getRequest(url);
           this.loading = false;
           if (resp && resp.obj != null) {
-            this.select_pubName = resp.obj.map(item => ({ value: item }));
+            this.select_pubName = resp.obj.map(item => ({value: item}));
           } else {
             this.select_pubName = [];
             this.ispubShow = false;
@@ -1389,10 +1408,10 @@ export default {
         const resp = await axios.get(
             `/indicator/getProductByYear?indicatorId=${indicatorId}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}&type=${type}`
         );
-        if(resp.extend.res!=null) {
+        if (resp.extend.res != null) {
           this.tableData = resp.extend.res[0];
           this.totalCount = resp.extend.res[1];
-        }else{
+        } else {
           this.tableData = "";
           this.totalCount = 0;
         }
@@ -1703,8 +1722,8 @@ export default {
     },
     closeClone() {
       this.fromYear = new Date().getFullYear() - 1;
-      this.toYear =  new Date().getFullYear(),
-      this.yearList = [];
+      this.toYear = new Date().getFullYear(),
+          this.yearList = [];
       this.dialogVisibleClone = false;
     },
     searchUpdate(indicatorType) {
