@@ -1284,7 +1284,7 @@ export default {
         this.getRequest(url).then((resp) => {
           // console.log(resp);
           this.yearList = resp.obj;
-          if(this.yearList.length>0){
+          if (this.yearList.length > 0) {
             this.fromYear = this.yearList[0]
           }
         });
@@ -1299,31 +1299,39 @@ export default {
       const minYear = 1999; // 最小年份
       const maxYear = currentYear; // 最大年份（可以根据实际需求进行调整）
 
+      if(this.fromYear == ''){
+        this.$message.info("被克隆的年份没有选择！");
+        this.closeClone();
+        return
+      }
+
+
       if (this.toYear < minYear || this.toYear > maxYear) {
         // toYear 不在允许的范围内
         this.$message.error("年份不合法！");
-      } else {
-        const fromYear = this.fromYear;
-        const toYear = this.toYear;
-        const indicatorId = this.indicatorID; // 替换为实际的indicatorId
-        const indicatorType = this.indicatorType;
-        const url = `/indicator/clone/${fromYear}/${toYear}/${indicatorId}/${indicatorType}`;
-
-        this.postRequest(url).then((data) => {
-          // 克隆操作成功的处理逻辑
-          if (data.status == 200) {
-            this.$message.success("克隆成功！");
-            this.getTableByYear(
-                this.indicatorID,
-                this.year,
-                this.indicatorType
-            );
-          } else {
-            this.$message.error("克隆失败！");
-          }
-          this.closeClone();
-        });
+        this.closeClone();
+        return
       }
+      const fromYear = this.fromYear;
+      const toYear = this.toYear;
+      const indicatorId = this.indicatorID; // 替换为实际的indicatorId
+      const indicatorType = this.indicatorType;
+      const url = `/indicator/clone/${fromYear}/${toYear}/${indicatorId}/${indicatorType}`;
+
+      this.postRequest(url).then((data) => {
+        // 克隆操作成功的处理逻辑
+        if (data.status == 200) {
+          this.$message.success("克隆成功！");
+          this.getTableByYear(
+              this.indicatorID,
+              this.year,
+              this.indicatorType
+          );
+        } else {
+          this.$message.error("克隆失败！");
+        }
+        this.closeClone();
+      });
     },
     handleOptionChange() {
       // console.log(this.searchSelectType);
@@ -1331,6 +1339,7 @@ export default {
       this.searchPathInf.type = this.searchSelectType;
     },
     filter_pub(val) {
+      this.listSearchPublicationsByName = [];
       this.select_pubName = [];
       this.publicationName = val;
       this.ispubFlag = false;

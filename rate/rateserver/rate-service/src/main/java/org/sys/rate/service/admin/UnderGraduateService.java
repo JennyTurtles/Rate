@@ -1,6 +1,7 @@
 package org.sys.rate.service.admin;
 
 import com.baomidou.mybatisplus.extension.api.R;
+import com.github.pagehelper.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -278,8 +279,8 @@ public class UnderGraduateService {
     public RespBean importThesis(Integer institutionID, Integer year, String semester, MultipartFile file) {
         // 1. 从excel解析出来的数据
         // thesis中记录开启年份，学期，学生姓名，学生学号，（入学年份、专业、班级），导师工号，导师姓名
-        // 其中导师工号和学生学号不能为空，否则报错！
-        Msg excelData = readExcel.readExcelData(file);
+        // !这里仅仅学生学号不为空，其他都可以为空
+        Msg excelData = readExcel.readStartThesisExcelData(file);
         if (excelData.getCode() == 500) {
             return RespBean.error(excelData.getMsg());
         }
@@ -298,9 +299,7 @@ public class UnderGraduateService {
         Integer month = "春季".equals(semester) ? 3 : 9;
 
         // 4.插入thesis表！
-        Set<Thesis> thesisSet = (Set<Thesis>) excelData.getExtend().get("thesis");
-
-        List<Thesis> thesisList = new ArrayList<>(thesisSet);
+        List<Thesis> thesisList = new ArrayList<>((Set<Thesis>) excelData.getExtend().get("thesis"));
 
         return insertThesis(thesisList, institutionID, year, month);
 
@@ -310,7 +309,9 @@ public class UnderGraduateService {
 
         // 1.利用institutionID和teacher.JobNumber获取tutorID重新写回thesis中  && studentId类似
         for (Thesis thesis : thesisList) {
-            thesis.setTutorID(teachersMapper.getTutorIdByJobNumAndInstitutionID(thesis.getTutorNumber(), institutionID));
+            if(StringUtil.isNotEmpty(thesis.getTutorNumber())) {
+                thesis.setTutorID(teachersMapper.getTutorIdByJobNumAndInstitutionID(thesis.getTutorNumber(), institutionID));
+            }
             thesis.setStudentID(studentMapper.getStuIdByStuNumAndInstitutionID(thesis.getStudentNumber(), institutionID));
         }
 
@@ -324,7 +325,6 @@ public class UnderGraduateService {
         return RespBean.ok("");
     }
 
-    // 感觉这里老师查重有必要咩？确实有必要，虽然老师这边只有id和name，但是不存在的需要insert
     private RespBean duplicateTeacherChecker(Set<Teachers> teachersSet, Integer institutionID) {
         for (Teachers teachers : teachersSet) {
             if (teachersMapper.getTutorIdByJobNumAndInstitutionID(teachers.getJobnumber(), institutionID) == null) {
@@ -360,7 +360,11 @@ public class UnderGraduateService {
                 student.setInstitutionid(institutionID);
                 student.setDeleteflag(0);
                 student.setRole("10");
-                studentMapper.insertReturnId(student);
+                try {
+                    studentMapper.insertReturnId(student);
+                } catch (Exception e) {
+                    return RespBean.error("插入学生出错！");
+                }
 
                 underGraduate.setStudentID(student.getID());
                 try {

@@ -22,5 +22,5 @@ public interface ThesisMapper {
     Integer add(Integer studentID, Integer year, Integer month, Integer tutorID);
 
 
-    Integer addBatch(List<Thesis> thesisList, Integer year, Integer month);
+     Integer addBatch(List<Thesis> thesisList, Integer year, Integer month);
 }
