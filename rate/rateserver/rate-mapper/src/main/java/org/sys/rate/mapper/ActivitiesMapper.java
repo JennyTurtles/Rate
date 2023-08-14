@@ -141,4 +141,9 @@ public interface ActivitiesMapper {
     @Select("SELECT ID,name FROM activities\n" +
             "WHERE name LIKE CONCAT('%', #{name}, '%') AND deleteFlag = 0")
     List<Activities> searchByName(String name);
+
+    @Select("SELECT a.ID, a.`name`\n" +
+            "FROM expertactivities e, activities a\n" +
+            "WHERE e.activityID = a.ID AND teacherID = #{teacherID} AND deleteFlag = 0 AND finished = 0 AND gradeFormType != 0 ")
+    List<Activities> getWithGradeForm(Integer teacherID);
 }

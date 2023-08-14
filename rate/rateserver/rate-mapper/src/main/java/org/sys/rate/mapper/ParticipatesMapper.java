@@ -184,6 +184,11 @@ public interface ParticipatesMapper {
     @Select("SELECT studentID FROM participants WHERE activityID = #{activityID}")
     List<Integer> getStudentIDbyActID(Integer activityID);
 
+    @Select("SELECT t.studentID \n" +
+            "FROM participants p, thesis t\n" +
+            "WHERE activityID = #{activityID} AND t.tutorID = #{tutorID} AND t.studentID = p.studentID")
+    List<Integer> getStudentIDForTutor(Integer activityID, Integer tutorID);
+
     @Select("SELECT p1.ID as subID, p2.ID as parID\n" +
             "FROM participants p1 LEFT JOIN participants p2 on p1.studentID = p2.studentID\n" +
             "WHERE p1.activityID = #{subID} and p2.activityID = #{parID}")

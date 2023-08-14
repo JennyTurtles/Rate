@@ -246,5 +246,12 @@ public class ActivitiesBasicController {
         List<Activities> activities = activitiesMapper.searchByName(name);
         return RespBean.ok("success", activities);
     }
+
+    // 获取该教师参与的含有成绩评定表的活动
+    @GetMapping("/getWithGradeForm")
+    public RespBean getWithGradeForm(@RequestParam Integer teacherID) {
+        List<Activities> activities = activitiesMapper.getWithGradeForm(teacherID);
+        return RespBean.ok("success", activities);
+    }
 }
 

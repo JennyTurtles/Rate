@@ -21,5 +21,5 @@ public class ExportGradeMapper {
     public Map<String, Integer> reviewScoreName2ID;
     public Map<String, Integer> defenseScoreName2ID;
     public List<String> orderList;
-
+    public boolean exportForTutor; // 是否导出给指导教师
 }

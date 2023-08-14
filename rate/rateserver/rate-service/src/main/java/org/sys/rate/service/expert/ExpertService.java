@@ -669,7 +669,10 @@ public class ExpertService implements UserDetailsService {
 
 	public List<GradeForm> getGradeForms(ExportGradeMapper exportGradeMapper) {
 		List<Integer> studentIDs;
-		if (exportGradeMapper.getGroupID() == null)
+		if (exportGradeMapper.isExportForTutor()){
+			studentIDs = participatesMapper.getStudentIDForTutor(exportGradeMapper.getActivityID(),exportGradeMapper.getTeacherID());
+		}
+		else if (exportGradeMapper.getGroupID() == null)  // 获取当前活动下所有的学生ID
 			studentIDs = participatesMapper.getStudentIDbyActID(exportGradeMapper.getActivityID());
 		else
 			studentIDs = participatesMapper.getStudentIDbyGroupID(exportGradeMapper.getGroupID());

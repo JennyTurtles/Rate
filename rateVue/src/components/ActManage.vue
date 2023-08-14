@@ -339,7 +339,7 @@
           icon="el-icon-download"
           type="primary"
           plain
-          v-show="scope.row.haveSub === 1 && scope.row.gradeFormType === 1"
+          v-show="scope.row.haveSub === 1 && scope.row.gradeFormType !== 0"
       >导出成绩评定表
       </el-button
       >
@@ -1032,7 +1032,6 @@ export default {
        res => {
         if (res.obj) {
          this.groupList = res.obj
-         console.log(this.groupList)
          this.groupIDForSub = parseInt(this.$route.query.groupID)
         }
        }
@@ -1681,6 +1680,7 @@ export default {
      this.loading = false;
      if (resp) { // 后续再包装成函数
       this.emps = resp.obj;
+      console.log(this.emps)
       this.total = this.emps.length;
      }
     })
