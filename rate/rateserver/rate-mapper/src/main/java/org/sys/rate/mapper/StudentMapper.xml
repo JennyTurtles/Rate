@@ -121,21 +121,21 @@
         where IDNumber = #{IDNumber}
     </select>
 
-    <insert id="insertFROMImport" parameterType="org.sys.rate.model.Student">
-        insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,role
+    <insert id="insertFROMImport" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
+        insert into student  (ID,name,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,role
         )
         values (#{ID,jdbcType=INTEGER},
-                #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
+                #{name,jdbcType=VARCHAR},
         <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
                 #{username,jdbcType=VARCHAR},
                 #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,'7'
                )
     </insert>
     <insert id="insertStuFromExcel" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
-        insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,tutorID,role
+        insert into student  (ID,name,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,tutorID,role
         )
         values (#{ID,jdbcType=INTEGER},
-        #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
+        #{name,jdbcType=VARCHAR},
         <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
         #{username,jdbcType=VARCHAR},
         #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,0,''

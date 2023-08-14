@@ -149,7 +149,7 @@ public class ActivitiesService {
 
     public Boolean noRelative(Integer id) {
         Activities activities = activitiesMapper.queryById(id);
-        return activities.getScoreItemCount() == 0 && activities.getGroupCount() == 0 && activities.getExpertCount() == 0;
+        return (activities.getScoreItemCount() == null || activities.getScoreItemCount() == 0) && activities.getGroupCount() == 0 && activities.getExpertCount() == 0;
     }
     public List<Activities> getActivity(Integer activityID){
         List<Activities> activities= activitiesMapper.selectActivity(activityID);

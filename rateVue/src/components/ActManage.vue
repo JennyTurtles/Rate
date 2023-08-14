@@ -6,6 +6,7 @@
    >
     <div>
      <el-input
+         v-show="mode !== 'secretarySub'"
          placeholder="请输入活动名称进行搜索，可以直接回车搜索..."
          prefix-icon="el-icon-search"
          clearable
@@ -20,6 +21,7 @@
          type="primary"
          @click="searchEmps"
          :disabled="showAdvanceSearchView"
+         v-show="mode !== 'secretarySub'"
      >
       搜索
      </el-button>
@@ -28,6 +30,7 @@
          type="primary"
          @click="initEmps"
          :disabled="showAdvanceSearchView"
+         v-show="mode !== 'secretarySub'"
      >
       重置
      </el-button>
@@ -39,19 +42,18 @@
                 v-show="mode === 'admin' || mode === 'adminSub'">
       克隆活动
      </el-button>
-<!--     <span style="margin-left: 20px"-->
-<!--           v-show="mode === 'secretarySub'">当前管理的是：{{ actName }}的 </span>-->
-     <span style="margin-left: 20px"
-           v-show="mode === 'secretarySub'">{{ $route.query.groupName }} 组内管理&nbsp&nbsp&nbsp&nbsp切换到： </span>
-     <el-select ref="optionRef"
-         @change="goAnotherGroupForSub"  v-model="groupIDForSub" v-show="$route.query.isGroup">
-      <el-option
-          v-for="item in groupList"
-          :key="item.id"
-          :label="item.name"
-          :value="item.id">
-      </el-option>
-     </el-select>
+     <div style="text-align:center">
+     <span v-show="mode === 'secretarySub'">{{ $route.query.groupName }} 组内管理</span>
+     <el-dropdown @command='goAnotherGroupForSub'>
+     <span style="margin-left: 20px" class="el-dropdown-link" v-show="mode === 'secretarySub'">
+     切换到<i class="el-icon-arrow-down el-icon--right"></i>
+     </span>
+      <el-dropdown-menu  slot="dropdown">
+       <el-dropdown-item :disabled="$route.query.groupID == item.id" :command="item.id" v-for="item in groupList"
+       >{{item.name}}</el-dropdown-item>
+      </el-dropdown-menu>
+     </el-dropdown>
+     </div>
     </div>
     <div style="margin-left: auto">
      <el-button
@@ -384,6 +386,7 @@
 
    <div style="display: flex; justify-content: flex-end; margin: 10px 0">
     <el-pagination
+        v-show="mode !== 'secretarySub'"
         background
         @current-change="currentChange"
         @size-change="sizeChange"
@@ -1027,6 +1030,7 @@ export default {
  created() {
  },
  mounted() {
+  console.log(this.mode)
   this.isGroup = this.$route.query.isGroup;
   if (this.isGroup) {
    this.getRequest("groups/basic/getAllByActivityID?activityID=" + this.$route.query.id).then(
@@ -1041,14 +1045,14 @@ export default {
   this.initEmps();
  },
  methods: {
-  goAnotherGroupForSub(){
-   const label = this.groupList.find(item => item.id == this.groupIDForSub).name;
+  goAnotherGroupForSub(groupIDForSub){
+   const label = this.groupList.find(item => item.id == groupIDForSub).name;
    var query = {
     id: this.$route.query.id,
     keywords: this.$route.query.keywords,
     actName: this.$route.query.actName,
     groupName: label,
-    groupID: this.groupIDForSub,
+    groupID: groupIDForSub,
     isGroup: true,
     haveSub: 1
    }
@@ -2184,5 +2188,13 @@ export default {
  margin-left: 3px;
  font-size: 9px;
  color: darkgray;
+}
+
+.el-dropdown-link {
+ cursor: pointer;
+ color: #409EFF;
+}
+.el-icon-arrow-down {
+ font-size: 12px;
 }
 </style>

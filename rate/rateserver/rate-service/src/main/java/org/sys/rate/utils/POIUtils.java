@@ -207,9 +207,6 @@ public class POIUtils {
                                 case "手机号":
                                     phone = cellValue;
                                     break;
-                                case "身份证号码":
-                                    idCard = cellValue;
-                                    break;
                                 case "邮箱":
                                     email = cellValue;
                                     break;
@@ -244,9 +241,6 @@ public class POIUtils {
                                 case "手机号":
                                     phone = "";
                                     break;
-                                case "身份证号码":
-                                    idCard = "";
-                                    break;
                                 case "邮箱":
                                     email = "";
                                     break;
@@ -275,7 +269,7 @@ public class POIUtils {
                             //break;
                         }
                     }
-                    if (name == null || idCard == null || name.equals("") || idCard.equals("")) {
+                    if (name == null || name.equals("")) {
                         continue;
 //                        System.out.println("头或者内容有问题！");
 //                        RespPageBean bean=new RespPageBean();

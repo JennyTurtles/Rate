@@ -35,7 +35,7 @@
           </el-button>
         </div>
         <div>
-          <el-button type="primary" @click="exportTG" icon="el-icon-download">
+          <el-button v-show="!$route.query.addActive" type="primary" @click="exportTG" icon="el-icon-download">
             导出专家打分
           </el-button>
 <!--          <el-button-->

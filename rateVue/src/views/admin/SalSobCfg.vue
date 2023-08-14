@@ -1033,7 +1033,7 @@ export default {
     },
     initParentGroup(){
       this.getRequest(
-          "/systemM/Experts/?keywords=" + this.groupIDParent +
+          "/systemM/Experts/?keywords=" + (this.groupIDParent ? this.groupIDParent : this.groupID) +
           "&page=" + 1 +
           "&size=" + 1000 // 避免分页
       ).then((resp) => {
@@ -1050,7 +1050,7 @@ export default {
           keywords: this.keywords,
           keyword_name: this.ACNAME,
           keywords_name:this.keywords_name,
-          groupID: this.groupID !== null ? this.groupID : data.groupID,
+          groupID: this.groupID ? this.groupID : data.groupID,
           expertID:data.id,
           expertName:data.name,
           institutionID:this.user.institutionID,
@@ -1348,15 +1348,12 @@ export default {
     },
     onError(err, file, fileList) {
       this.importDataBtnText = "导入专家";
-      this.importDataBtnIcon = "el-icon-upload2";
+      this.importDataBtnIcon = "el-icon-plus";
       this.importDataDisabled = false;
     },
     onSuccess(res) {
       // console.log("res", res);
-      if (typeof res.obj !== 'undefined'){
-        Message.warning(res.obj)
-        return
-      }
+     this.loading = false
 
       if (res.msg === 'file error') {
         Message.error("文件内容或者格式有误，请不要修改表头，信息按格式填写！")
@@ -1369,7 +1366,7 @@ export default {
         Message.error("上传失败！",res.msg)
       }
       this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
+      this.importDataBtnIcon = "el-icon-plus";
       this.importDataDisabled = false;
       this.initHrs(true);
     },
@@ -1463,7 +1460,7 @@ export default {
         type: "warning",
       })
           .then(() => {
-            this.postRequest("/systemM/Experts/withdraw?activityID=" + this.keywords + "&groupID=" + this.groupID +"&expertID=" + row.id).then(resp => {
+            this.postRequest("/systemM/Experts/withdraw?activityID=" + this.keywords + "&groupID=" + (this.groupID ? this.groupID : row.groupID) +"&expertID=" + row.id).then(resp => {
               if (resp) {
                 this.initHrs();
                 this.$message({
@@ -1473,12 +1470,6 @@ export default {
               }
             });
           })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消退回",
-            });
-          });
     },
     chooseGroup(event){
       this.currentAddGroup=event;

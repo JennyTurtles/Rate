@@ -206,7 +206,7 @@ public class ParticipatesService {
 //            }else {
 //                student.setInstitutionid(null);
 //            }
-            if (studentMapper.checkID(participants.getStudentID())!=0) { // 以前根据身份号检查student表的记录，现在根据studentID
+            if (participants.getStudentID() != null && studentMapper.checkID(participants.getStudentID())!=0) { // 以前根据身份号检查student表的记录，现在根据studentID
                 if(participants.getUsername()!=null)
                 {//不为空
                     student.setUsername(participants.getUsername());
@@ -234,7 +234,7 @@ public class ParticipatesService {
                 }
                 flag=true;
             } else {
-                if(participants.getUsername()!=null)
+                if(participants.getUsername()!=null && !participants.getUsername().isEmpty())
                 {//不为空
                     student.setUsername(participants.getUsername());
                 }
@@ -250,8 +250,8 @@ public class ParticipatesService {
                     encodePass = ExpertService.sh1(participants.getPassword());
                 }
                 else
-                {//默认密码为手机号
-                    encodePass = ExpertService.sh1(participants.getTelephone());
+                {//默认密码为空
+                    encodePass = "";
                 }
                 student.setPassword(encodePass);
                 //如果没有就插入选手信息
@@ -301,6 +301,8 @@ public class ParticipatesService {
                         if (participants.getCode() == null) {
                             participants.setCode(participants.getStudentNumber());
                         }
+                        if (participants.getStudentID() == null)
+                            participants.setStudentID(student.getID());
                         insert= participatesMapper.insert_relationship(participants);
                         last++;
                     }
