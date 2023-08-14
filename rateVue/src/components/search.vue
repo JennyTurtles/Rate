@@ -897,7 +897,8 @@
 
           <div v-if="selectedOption === 1">
             限排名前
-            <el-input-number v-model="rowData.rankN" :min="1" :max="99" style="width: 120px"></el-input-number> 有积分
+            <el-input-number v-model="rowData.rankN" :min="1" :max="99" style="width: 120px"></el-input-number>
+            有积分
           </div>
 
           <div v-if="selectedOption === 0">
@@ -1110,7 +1111,7 @@ export default {
   props: ["category", "type", "order", "score", "p1", "p2"],
   data() {
     return {
-      selectedOption:1,
+      selectedOption: 1,
       titleAddPublication: "请添加期刊的相关信息",
       labelPosition: "left",
       typeOfAllPaper: [],
@@ -1139,7 +1140,7 @@ export default {
       importSelectYear: null,
       years: [],
       year: 0,
-      fromYear: new Date().getFullYear() - 1,
+      fromYear: "",
       toYear: new Date().getFullYear(),
       yearList: [],
       nowYear: new Date().getFullYear(),
@@ -1282,8 +1283,10 @@ export default {
         const url = `/indicator/getAllYear/${this.indicatorID}/${this.indicatorType}`;
         this.getRequest(url).then((resp) => {
           // console.log(resp);
-
           this.yearList = resp.obj;
+          if(this.yearList.length>0){
+            this.fromYear = this.yearList[0]
+          }
         });
       } catch (error) {
         this.$message.error("获取年份错误");
@@ -1293,8 +1296,8 @@ export default {
     //克隆操作
     clone() {
       const currentYear = new Date().getFullYear();
-      const minYear = 2000; // 最小年份
-      const maxYear = currentYear + 1; // 最大年份（可以根据实际需求进行调整）
+      const minYear = 1999; // 最小年份
+      const maxYear = currentYear; // 最大年份（可以根据实际需求进行调整）
 
       if (this.toYear < minYear || this.toYear > maxYear) {
         // toYear 不在允许的范围内
@@ -1721,9 +1724,9 @@ export default {
       // this.searchPathInf = ''
     },
     closeClone() {
-      this.fromYear = new Date().getFullYear() - 1;
-      this.toYear = new Date().getFullYear(),
-          this.yearList = [];
+      this.fromYear = "";
+      this.toYear = new Date().getFullYear();
+      this.yearList = [];
       this.dialogVisibleClone = false;
     },
     searchUpdate(indicatorType) {

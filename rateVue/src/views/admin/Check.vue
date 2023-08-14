@@ -81,7 +81,7 @@
         <template slot-scope="scope">
           <span v-if="scope.row.state === 'pass'" style="color: green">通过</span>
           <span v-else-if="scope.row.state === 'reject'" style="color: red">拒绝</span>
-          <span v-else style="color: darkgray">未审核</span>
+          <span v-else>未审核</span>
         </template>
       </el-table-column>
 
