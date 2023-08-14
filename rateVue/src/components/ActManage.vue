@@ -520,7 +520,7 @@
           placeholder="请输入活动名称"
       ></el-input>
      </el-form-item>
-     <el-form-item label="克隆自活动:" prop="name">
+     <el-form-item style="margin-left: 20px" label="克隆自活动:" prop="name">
       <el-select placeholder="请选择" v-model="currentCloneid" @change="selectClone($event)">
        <el-option
            v-for="item in coloneActivity"
@@ -1206,7 +1206,7 @@ export default {
    })
   },
   getCloneActivity() {
-   this.getRequest("/activities/basic/getALl").then(resp => {
+   this.getRequest("/activities/basic/getALlWithoutSub").then(resp => {
     if (resp.status === 200) {
      this.coloneActivity = resp.obj;
     }

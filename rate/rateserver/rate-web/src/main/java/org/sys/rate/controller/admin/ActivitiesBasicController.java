@@ -223,10 +223,17 @@ public class ActivitiesBasicController {
             return RespBean.ok("无子活动",false);
     }
 
-    // 返回所有活动和子活动的的信息
+    // 返回所有活动和子活动的信息
     @GetMapping("/getALl")
     public RespBean getALl() {
         List<Activities> activities = activitiesMapper.getAll();
+        return RespBean.ok("成功", activities);
+    }
+
+    // 返回所有主活动的信息
+    @GetMapping("/getALlWithoutSub")
+    public RespBean getALlWithoutSub() {
+        List<Activities> activities = activitiesMapper.getALlWithoutSub();
         return RespBean.ok("成功", activities);
     }
 
