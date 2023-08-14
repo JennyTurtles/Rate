@@ -101,6 +101,18 @@
                            class=#{className,jdbcType=VARCHAR}
         where studentID=#{studentID,jdbcType=INTEGER};
     </update>
+
+    <update id="updateWithInstitutionID" parameterType="org.sys.rate.model.UnderGraduate">
+        UPDATE undergraduate
+        <set>
+            <if test="year != null">year = #{year},</if>
+            <if test="specialty != null">specialty = #{specialty},</if>
+            <if test="className != null">class = #{className}</if>
+        </set>
+        WHERE institutionID = #{institutionID} AND stuNumber = #{stuNumber}
+    </update>
+
+
     <select id="getTeaNamesBySelect" resultType="org.sys.rate.model.Teachers">
         select t.*
         from undergraduate g,teacher t
@@ -134,4 +146,8 @@
     <select id="checkHaveStudentOfStuNumber" resultType="java.lang.Integer">
         select exists (select * from undergraduate where institutionID = #{institutionID} and stuNumber = #{stuNumber} and studentID != #{studentID} )
     </select>
+
+
+
+
 </mapper>

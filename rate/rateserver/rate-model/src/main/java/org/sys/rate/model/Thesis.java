@@ -47,5 +47,7 @@ public class Thesis {
 
     private Integer tutorID;
 
+    private String tutorNumber;
+    private String studentNumber;
 
 }

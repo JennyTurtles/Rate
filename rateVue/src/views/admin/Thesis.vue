@@ -20,7 +20,7 @@
           :before-upload="beforeUpload"
           :on-success="onSuccess"
           style="display: inline-flex; margin-left: 1px"
-          :action="UploadUrl()"
+          :action="`/undergraduateM/basic/importThesis?institutionID=${this.user.institutionID}&year=${this.startYear}&semester=${encodeURIComponent(this.selectSemester)}`"
       >
         <el-button icon="el-icon-plus" type="primary" :disabled="selectSemester==''">导入学生</el-button>
       </el-upload>
@@ -276,7 +276,9 @@ export default {
     this.initUnderGraduateStudents(this.currentPage, this.pageSize)
   },
   methods: {
-
+    // uploadUrl() {
+    //   return `/undergraduateM/basic/importUnderGraduate?institutionID=${this.user.institutionID}`; // 使用计算属性来动态生成上传请求的URL
+    // },
 
     //编辑框中 搜索老师姓名之后点击下拉框的某个选项
     filterEditTeacher(val) {
@@ -412,25 +414,18 @@ export default {
       })
     },
     onSuccess(res) {//上传excel成功的回调
+      console.log(res);
       if (res.status == 200) {
         this.$message.success("导入成功")
         this.initUnderGraduateStudents(1, this.pageSize);
       } else {
-        this.$message.error("导入失败")
+        this.$message.error(res.msg)
       }
     },
     beforeUpload() {//上传前
       this.$message.success("正在导入")
     },
-    UploadUrl() {
-      if(this.canImportStudents) {
-        console.log(this.user);
-        let url = '/undergraduateM/basic/importUnderGraduate?institutionID=' + this.user.institutionID
-        return url;
-      }else{
-        return
-      }
-    },
+
     downloadExcel() {
       let url = `/undergraduateM/basic/exportUnderGraduate?type=thesis`
       this.$message.success('正在下载')
