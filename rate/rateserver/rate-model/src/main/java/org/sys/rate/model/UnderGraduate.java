@@ -12,6 +12,25 @@ public class UnderGraduate extends Student{
     private Integer tutorID;
     private String specialty;
     private String className;
+    private String tutorName;
+
+
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getTutorName() {
+        return tutorName;
+    }
+
+    public void setTutorName(String tutorName) {
+        this.tutorName = tutorName;
+    }
 
     @Override
     public Integer getID() {

@@ -35,4 +35,11 @@ public interface UnderGraduateMapper {
 //    @Select("SELECT u.studentID,stuNumber,specialty,class as className,s.name FROM undergraduate u,student s WHERE u.studentID = #{studentID} AND s.ID = u.studentID  LIMIT 1")
     @Select("SELECT name FROM student s WHERE s.ID = #{studentID} LIMIT 1")
     GradeForm getGradeFormByStuID(Integer studentID);
+
+    @Select("select id from undergraduate  where stuNumber =#{stuNumber} and institutionID = #{institutionID}")
+    Integer checkStudentExist(String stuNumber, Integer institutionID);
+
+    @Insert("insert into undergraduate (institutionID, studentID, stuNumber, year, specialty, class) " +
+            "values (#{institutionID}, #{studentID}, #{stuNumber}, #{year}, #{specialty}, #{className})")
+    void add(UnderGraduate underGraduate);
 }

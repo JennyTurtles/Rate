@@ -14,7 +14,9 @@ import org.sys.rate.service.admin.LogService;
 import org.sys.rate.service.admin.UnderGraduateService;
 import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.POIUtils;
+import org.sys.rate.utils.ReadExcel;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -111,5 +113,13 @@ public class UnderGraduateMController {
             }
         }
         return RespBean.error("更新失败!");
+    }
+
+
+    @PostMapping("/importThesis")
+    public RespBean importThesis(@RequestParam(value = "institutionID") Integer institutionID,
+                                 @RequestParam(value = "year") Integer year,
+                                 @RequestParam(value = "semester") String semester, MultipartFile file) {
+        return underGraduateService.importThesis(institutionID, year, semester, file);
     }
 }

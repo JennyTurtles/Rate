@@ -32,6 +32,8 @@ public class Student extends Account {
     private String role;
     private Thesis thesis;
 
+
+
     public String getStuType() {
         return stuType;
     }
@@ -84,6 +86,7 @@ public class Student extends Account {
 
 //    public Integer getRole(){ return role;}
 //    public void setRole(Integer role){this.role = role;}
+
 
     public Integer getID() {
         return ID;

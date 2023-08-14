@@ -10,11 +10,14 @@ public interface StudentMapper {
     List<Student> getTotal();
 
     Student loadUserByUsername(String username);
-//    List<Role> getAdminRolesById(Integer id);
+
+    //    List<Role> getAdminRolesById(Integer id);
     Student getStuByIDNumber(String IDNumber);
+
     Student getById(Integer ID);
 
-    int updatePassword(Integer ID,String pass);
+    int updatePassword(Integer ID, String pass);
+
     int insert(Student record);
 
     int delete(Student record);
@@ -35,14 +38,21 @@ public interface StudentMapper {
     List<Student> checkAndReturnID(List<Student> stuList);
 
     int updatePasswordAndUsername(Student record);
+
     int insertStuFromRegister(Student record);//注册添加
+
     int insertFROMImport(Student record);
+
     int insertStuFromExcel(Student record);
+
     int updateFROMImport(Student record);
+
     public List<Student> selectList();
+
     int deleteStudent(Integer ID);
 
     int insertFromAdminExcel(List<Student> record);
+
     int updateFromAdminExcel(List<Student> record);
 
 
@@ -82,4 +92,12 @@ public interface StudentMapper {
 
     @Update("UPDATE undergraduate SET year = #{year} WHERE studentID = #{ID}")
     void updateUnderGraduate(Student student);
+
+    @Select("select distinct id from undergraduate where stuNumber = #{stuNumber} and institutionID = #{institutionID}")
+    Integer getStuIdByStuNumAndInstitutionID(String stuNumber, Integer institutionID);
+
+    @Insert("INSERT INTO student (name, institutionid, deleteflag, role) " +
+            "VALUES (#{name}, #{institutionid}, #{deleteflag}, #{role})")
+    @Options(useGeneratedKeys = true, keyProperty = "ID")
+    void insertReturnId(Student student);
 }

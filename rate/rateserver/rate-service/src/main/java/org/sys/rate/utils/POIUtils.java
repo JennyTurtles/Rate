@@ -859,9 +859,9 @@ public class POIUtils {
 //        HSSFCell c4 = r0.createCell(4);
 //        c4.setCellValue("邮箱");
         if ("thesis".equals(type)) {
-            HSSFCell c5 = r0.createCell(5);
+            HSSFCell c5 = r0.createCell(6);
             c5.setCellValue("导师工号");
-            HSSFCell c6 = r0.createCell(6);
+            HSSFCell c6 = r0.createCell(5);
             c6.setCellValue("导师姓名");
         }
         HSSFCell c2 = r0.createCell(2);
@@ -877,8 +877,8 @@ public class POIUtils {
 //        row.createCell(3).setCellValue("13812341234");
 //        row.createCell(4).setCellValue("123@dhu.edu.cn");
         if ("thesis".equals(type)) {
-            row.createCell(5).setCellValue("1111");
-            row.createCell(6).setCellValue("李华");
+            row.createCell(6).setCellValue("1111");
+            row.createCell(5).setCellValue("李华");
         }
         row.createCell(2).setCellValue("2018");
         row.createCell(3).setCellValue("软件工程");
