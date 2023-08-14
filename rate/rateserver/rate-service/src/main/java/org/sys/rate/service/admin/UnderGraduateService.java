@@ -349,7 +349,7 @@ public class UnderGraduateService {
 
             if (underGraduateMapper.checkStudentExist(underGraduate.getStuNumber(), institutionID) != null) {
                 try {
-                    underGraduateMapper.update(underGraduate);
+                    underGraduateMapper.updateWithInstitutionID(underGraduate);
                 } catch (Exception e) {
                     return RespBean.error("更新本科生表出现错误！");
                 }

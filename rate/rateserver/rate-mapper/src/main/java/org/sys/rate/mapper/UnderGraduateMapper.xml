@@ -102,7 +102,7 @@
         where studentID=#{studentID,jdbcType=INTEGER};
     </update>
 
-    <update id="update" parameterType="org.sys.rate.model.UnderGraduate">
+    <update id="updateWithInstitutionID" parameterType="org.sys.rate.model.UnderGraduate">
         UPDATE undergraduate
         <set>
             <if test="year != null">year = #{year},</if>

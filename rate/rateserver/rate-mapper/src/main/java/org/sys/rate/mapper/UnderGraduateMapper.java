@@ -1,5 +1,6 @@
 package org.sys.rate.mapper;
 
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.GradeForm;
@@ -16,6 +17,7 @@ public interface UnderGraduateMapper {
     UnderGraduate getUnderByStuID(Integer studentID);
     int insert(UnderGraduate record);
     int update(UnderGraduate record);
+    int updateWithInstitutionID(UnderGraduate record);
     int deleteUnderStudent(UnderGraduate under);
     int editUnderStudent(UnderGraduate under);
     List<Teachers> getTeaNamesBySelect(String teaName);
