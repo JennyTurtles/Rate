@@ -401,6 +401,14 @@
     select ID from teacher where IDNumber=#{idNumber}
   </select>
 
+  <insert id="saveAllGradeForm" parameterType="java.util.List">
+    INSERT INTO grade_form (activityID, typeID, targetID,coef)
+    VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.activityID}, #{item.typeID}, #{item.targetID},#{item.coef})
+    </foreach>
+  </insert>
+
   <!--
   <update id="updateByIdNumber" parameterType="org.sys.rate.model.Experts">
     update teacher set

@@ -35,6 +35,8 @@ public class ActivitiesService {
     InfoItemMapper infoItemMapper;
     @Resource
     GroupsMapper groupsMapper;
+    @Resource
+    ExpertsMapper expertsMapper;
 
     public final static Logger logger = LoggerFactory.getLogger(ActivitiesService.class);
     SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
@@ -165,7 +167,7 @@ public class ActivitiesService {
 
 
     @Transactional
-    public void cloneActivity(Activities newActivityInfo){ // newActivityInfo中ID为老活动ID，三个时间和备注为新活动的
+    public Integer cloneActivity(Activities newActivityInfo){ // newActivityInfo中ID为老活动ID，三个时间和备注为新活动的
         Activities activity = activitiesMapper.queryById(newActivityInfo.getId()); // 老活动
         activity.setHaveSub(activity.getHaveSub() == null ? 0 : activity.getHaveSub());
         activity.cleanCount();
@@ -184,6 +186,7 @@ public class ActivitiesService {
             }else
                 cloneGroup(newActID,oldActID);
         }
+        return newActID;
     }
 
     @Transactional
@@ -219,12 +222,48 @@ public class ActivitiesService {
 
     @Transactional
     public void cloneSubActivity(Integer newActID, Integer oldActID){
+        // k-v: 老子活动ID -> 新子活动ID
+        Map<Integer,Integer> subActMap = new HashMap<>();
         activitiesMapper.getSubActivities(oldActID).forEach(subActivity -> {
             subActivity.setParentID(newActID);
             subActivity.setSub(true);
-            cloneActivity(subActivity);
+            Integer newSubActID =  cloneActivity(subActivity); // 获得克隆后的子活动ID
+            subActMap.put(subActivity.getId(),newSubActID);
         });
+        // k-v : 老子活动评分项ID -> 新子活动评分项ID
+        // 遍历subActMap，获取老子活动的评分项和新子活动的评分项，通过评分项名字判断是否为同一评分项，若是则将老评分项ID和新评分项ID存入map
+        Map<Integer,Integer> scoreItemMap = new HashMap<>();
+        subActMap.forEach((oldSubActID,newSubActID) -> {
+            List<ScoreItem> oldScoreItems = scoreItemMapper.getAllByActicityID(oldSubActID);
+            List<ScoreItem> newScoreItems = scoreItemMapper.getAllByActicityID(newSubActID);
+            for (ScoreItem oldScoreItem : oldScoreItems) {
+                for (ScoreItem newScoreItem : newScoreItems) {
+                    if (oldScoreItem.getName().equals(newScoreItem.getName())){
+                        scoreItemMap.put(oldScoreItem.getId(),newScoreItem.getId());
+                        break;
+                    }
+                }
+            }
+        });
+        // 克隆成绩评定表设置
+        // 获取老主活动的所有成绩评定表
+        List<GradeFormEntry> oldGradeForms = expertsMapper.getGradeForm(oldActID);
+        // 遍历旧的成绩评定表，将其activityID改为新的主活动ID，如果typeID在1到3之间，则基于subActMap修改targetID，否则基于scoreItemMap修改targetID
+        for (GradeFormEntry oldGradeForm : oldGradeForms) {
+            oldGradeForm.setActivityID(newActID);
+            if (oldGradeForm.getTypeID() >= 1 && oldGradeForm.getTypeID() <= 3){
+                oldGradeForm.setTargetID(subActMap.get(oldGradeForm.getTargetID()));
+            }else {
+                oldGradeForm.setTargetID(scoreItemMap.get(oldGradeForm.getTargetID()));
+            }
+        }
+        // 将新的成绩评定表插入数据库
+        expertsMapper.saveAllGradeForm(oldGradeForms);
     }
+
+//    public void cloneGradeForm(Integer newActID, Integer oldActID){
+//        activitiesMapper.cloneGradeForm(newActID,oldActID);
+//    }
 
     // 克隆评分项，信息项，成绩查看设置，小组信息
     @Transactional

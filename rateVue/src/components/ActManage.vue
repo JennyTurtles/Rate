@@ -42,18 +42,18 @@
                 v-show="mode === 'admin' || mode === 'adminSub'">
       克隆活动
      </el-button>
-     <div style="text-align:center">
+<!--     <div style="text-align:center">-->
      <span v-show="mode === 'secretarySub'">{{ $route.query.groupName }} 组内管理</span>
      <el-dropdown @command='goAnotherGroupForSub'>
      <span style="margin-left: 20px" class="el-dropdown-link" v-show="mode === 'secretarySub'">
-     切换到<i class="el-icon-arrow-down el-icon--right"></i>
+     切换<i class="el-icon-arrow-down el-icon--right"></i>
      </span>
       <el-dropdown-menu  slot="dropdown">
        <el-dropdown-item :disabled="$route.query.groupID == item.id" :command="item.id" v-for="item in groupList"
        >{{item.name}}</el-dropdown-item>
       </el-dropdown-menu>
      </el-dropdown>
-     </div>
+<!--     </div>-->
     </div>
     <div style="margin-left: auto">
      <el-button
@@ -726,7 +726,7 @@
     </el-form-item>
     <el-divider>指导教师评分项设置
      <el-button type="danger"
-                @click="emptyScoreItem('指导教师评语');;disableScoreItem()"
+                @click="emptyScoreItem('指导教师评语');disableScoreItem()"
                 size="mini" style="margin: 5px;padding: 5px" v-show="mode!=='secretary'">清空
      </el-button>
     </el-divider>
@@ -1207,7 +1207,6 @@ export default {
   },
   getCloneActivity() {
    this.getRequest("/activities/basic/getALl").then(resp => {
-    console.log(resp);
     if (resp.status === 200) {
      this.coloneActivity = resp.obj;
     }

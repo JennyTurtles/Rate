@@ -71,6 +71,8 @@ public interface ExpertsMapper {
             "targetID = VALUES(targetID),coef = VALUES(coef)")
     void saveGradeForm(GradeFormEntry gradeFormEntry);
 
+    void saveAllGradeForm(List<GradeFormEntry> gradeFormEntryList);
+
     @Select("SELECT ID,name,jobnumber,institutionID,sex,department,IDNumber,phone,email\n" +
             "FROM teacher t\n" +
             "WHERE deleteFlag = 0 AND institutionID = #{institutionID}")
@@ -101,4 +103,6 @@ public interface ExpertsMapper {
     @Select("SELECT t.ID,name FROM expertactivities e,teacher t\n" +
             "WHERE groupID = #{groupID} AND e.teacherID = t.ID LIMIT 1")
     Experts getCandidateLeader(Integer groupID);
+
+
 }
