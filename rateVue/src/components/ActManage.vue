@@ -39,7 +39,7 @@
       添加活动
      </el-button>
      <el-button type="primary" icon="el-icon-plus" @click='showAddEmpView_clone'
-                v-show="mode === 'admin' || mode === 'adminSub'">
+                v-show="mode === 'admin'">
       克隆活动
      </el-button>
 <!--     <div style="text-align:center">-->
@@ -895,6 +895,7 @@ export default {
   return {
    groupIDForSub: -1,
    groupList: [],
+   requireGroup: false,
    visibleDateSelected: true,
    enterDateSelected: true,
    enterDateOptions: {},
@@ -1439,6 +1440,7 @@ export default {
    this.emp = data;
    this.haveSub = data.haveSub === 1;
    this.haveComment = data.haveComment === 1;
+   this.requireGroup = data.requireGroup;
    this.gradeFormType = data.gradeFormType;
    this.dialogVisible = true;
    if (data.visibleDate) this.visibleDateSelected = false//判断是否有时间数据 不然就默认选择不限
@@ -1561,6 +1563,8 @@ export default {
    }
    this.emp.haveSub = this.haveSub ? 1 : 0
    this.emp.haveComment = this.haveComment ? 1 : 0
+   console.log("xx")
+   console.log(this.requireGroup)
    this.emp.requireGroup = this.requireGroup ? 1 : 0
    this.emp.gradeFormType = this.gradeFormType
    this.$set(this.emp, "adminID", this.user.id)
