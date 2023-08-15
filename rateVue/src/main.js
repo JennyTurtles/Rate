@@ -206,7 +206,7 @@ router.beforeEach((to, from, next) => {
                 next()
                 return
             }
-            if (JSON.parse(localStorage.getItem('user')).role.indexOf("3") >= 0 && (to.path == '/Expert/peract/actList' || to.path == '/Expert/peract/score')) {
+            if (JSON.parse(localStorage.getItem('user')).role.indexOf("3") >= 0) {
                 next()
                 return
             }
