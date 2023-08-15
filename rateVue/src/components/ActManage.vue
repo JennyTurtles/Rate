@@ -2,10 +2,10 @@
  <div>
   <div>
    <div
-       style="display: flex; justify-content: space-between; margin: 15px 0">
+       style="display: flex; justify-content: space-between; margin: 5px 0">
     <div>
      <el-input
-         v-show="mode !== 'secretarySub' && mode !== 'adminSub'"
+         v-show="mode !== 'secretarySub' && mode !== 'adminSub' && mode !== 'secretary'"
          placeholder="请输入活动名称进行搜索，可以直接回车搜索..."
          prefix-icon="el-icon-search"
          clearable
@@ -20,7 +20,7 @@
          type="primary"
          @click="searchEmps"
          :disabled="showAdvanceSearchView"
-         v-show="mode !== 'secretarySub' && mode !== 'adminSub'"
+         v-show="mode !== 'secretarySub' && mode !== 'adminSub' && mode !== 'secretary' "
      >
       搜索
      </el-button>
@@ -29,7 +29,7 @@
          type="primary"
          @click="initEmps"
          :disabled="showAdvanceSearchView"
-         v-show="mode !== 'secretarySub' && mode !== 'adminSub' "
+         v-show="mode !== 'secretarySub' && mode !== 'adminSub' && mode !== 'secretary'"
      >
       重置
      </el-button>
@@ -44,7 +44,7 @@
 <!--     <div style="text-align:center">-->
      <span v-show="mode === 'secretarySub'">{{ $route.query.groupName }} 组内管理</span>
      <el-dropdown @command='goAnotherGroupForSub'>
-     <span style="margin-left: 20px" class="el-dropdown-link" v-show="mode === 'secretarySub'">
+     <span style="margin-left: 20px" class="el-dropdown-link" v-show="mode === 'secretarySub' && !this.$route.query.forSecretary">
      切换<i class="el-icon-arrow-down el-icon--right"></i>
      </span>
       <el-dropdown-menu  slot="dropdown">
@@ -54,7 +54,7 @@
      </el-dropdown>
 <!--     </div>-->
     </div>
-    <div style="margin-left: auto">
+    <div style="margin-left: auto;margin-bottom: 10px">
      <el-button
          v-show="mode === 'adminSub' || mode === 'secretarySub'"
          type="primary"
@@ -65,7 +65,7 @@
     </div>
    </div>
   </div>
-  <div style="margin-top: 10px">
+  <div style="margin-top: 0px">
    <el-table
        :data="emps"
        stripe
@@ -98,7 +98,7 @@
         prop="startDate"
         label="开始时间"
         align="center"
-        width="130"
+        width="170"
     >
     </el-table-column>
     <el-table-column
@@ -252,7 +252,7 @@
           icon="el-icon-tickets"
           type="primary"
           plain
-      >选手管理
+      >人员管理
       </el-button
       >
       <!--                        <el-button-->
@@ -329,7 +329,7 @@
           icon="el-icon-plus"
           type="primary"
           plain
-          v-show="mode !== 'secretarySub' && mode !== 'adminSub' && scope.row.haveSub === 1"
+          v-show="mode !== 'secretarySub' && mode !== 'adminSub' && scope.row.haveSub === 1 && mode !== 'secretary' "
       >子活动信息管理
       </el-button
       >
@@ -1034,7 +1034,7 @@ export default {
  mounted() {
   console.log(this.mode)
   this.isGroup = this.$route.query.isGroup;
-  if (this.isGroup) {
+  if (this.isGroup && !this.$route.query.forSecretary) {
    this.getRequest("groups/basic/getAllByActivityID?activityID=" + this.$route.query.id).then(
        res => {
         if (res.obj) {
@@ -1043,6 +1043,8 @@ export default {
         }
        }
    )
+  }else{
+   this.groupIDForSub = parseInt(this.$route.query.groupID)
   }
   this.initEmps();
  },
@@ -1061,28 +1063,43 @@ export default {
    this.$router.push({path: "/secretary/SubActManage", query: query})
   },
   showSubActivityGroup(data) {
-   this.getRequest("groups/basic/getByActivityID?activityID=" + data.id).then(
-       res => {
-        if (res.obj) {
-         var query = {
-          id: data.id,
-          keywords: data.id,
-          actName: data.name,
-          groupName: res.obj.name,
-          groupID: res.obj.id,
-          isGroup: true,
-          haveSub: 1
+   if (this.mode === 'admin'){
+    this.getRequest("groups/basic/getByActivityID?activityID=" + data.id).then(
+        res => {
+         if (res.obj) {
+          var query = {
+           id: data.id,
+           keywords: data.id,
+           actName: data.name,
+           groupName: res.obj.name,
+           groupID: res.obj.id,
+           isGroup: true,
+           haveSub: 1
+          }
+          this.$router.push({path: "/secretary/SubActManage", query: query})
+         } else {
+          this.$message({
+           type: 'warning',
+           message: '请先为该活动分组！'
+          });
+          return
          }
-         this.$router.push({path: "/secretary/SubActManage", query: query})
-        } else {
-         this.$message({
-          type: 'warning',
-          message: '请先为该活动分组！'
-         });
-         return
         }
-       }
-   )
+    )
+   }else if (this.mode === 'secretary'){
+    var query = {
+     id: data.id,
+     keywords: data.id,
+     actName: data.name,
+     groupName: data.groupName,
+     groupID: data.groupID,
+     isGroup: true,
+     haveSub: 1,
+     forSecretary: true, // 秘书访问时，只能看到自己分组的活动
+    }
+    this.$router.push({path: "/secretary/SubActManage", query: query})
+   }
+
   },
   disableScoreItem() {
    this.$forceUpdate()
@@ -1334,6 +1351,7 @@ export default {
      keywords: this.keywords,
      keyword_name: this.keywords_name,
      ACNAME: this.keywords_name,
+     forSecretary: this.$route.query.forSecretary
     }
    })
   },
@@ -1779,7 +1797,6 @@ export default {
    }
   },
   showInsertmanagement(data) {
-   console.log(1)
    const _this = this;
    _this.$router.push({
     path: "/ActivitM/group",
@@ -1919,20 +1936,7 @@ export default {
    const _this = this;
    var url = ""
    var query = ""
-   if (this.isGroup) {
-    // var id = this.$route.query.keywords
-    // if (typeof id === "undefined")
-    //     id = this.$route.query.id
-    // _this.$router.push({
-    //     path: "/ActivitM/table",
-    //     query:{
-    //         keywords:id,
-    //         keyword_name:this.$route.query.actName,
-    //         mode:"admin",
-    //         haveSub:this.$route.query.haveSub,
-    //         actName:this.$route.query.actName,
-    //     }
-    // });
+   if (this.isGroup && !this.$route.query.forSecretary) {
     this.$router.push({
      path: "/ActivitM/search",
     });
@@ -1972,7 +1976,8 @@ export default {
      keyword_name: data.name,
      keywords_name: this.keywords_name,
      groupID: data.groupID,
-     mode: this.mode
+     mode: this.mode,
+     forSecretary: this.$route.query.forSecretary
     }
    })
   },

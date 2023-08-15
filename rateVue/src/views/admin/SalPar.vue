@@ -817,7 +817,7 @@ export default {
     },
     initEmps(oldLen) {
       this.loading = true;
-      let url = '/participants/basic/?page=' + 1 + '&size=' + 1000+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
+      let url = '/participants/basic/?page=' + 1 + '&size=' + 1000+ '&groupID=' + (this.groupID ? this.groupID : this.$route.query.groupID )+ '&activitiesID=' + this.activityID;
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
@@ -918,6 +918,7 @@ export default {
           haveSub:this.$route.query.haveSub,
           backID:this.$route.query.backID,
           backActName:this.$route.query.backActName,
+          forSecretary:this.$route.query.forSecretary,
         },
       });
     },
@@ -984,6 +985,7 @@ export default {
           backActName:this.$route.query.backActName,
           addActive:this.$route.query.addActive,
           requireGroup:this.$route.query.requireGroup,
+          forSecretary:this.$route.query.forSecretary,
         }
       })
     },

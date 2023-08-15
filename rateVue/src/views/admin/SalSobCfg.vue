@@ -12,7 +12,7 @@
      </el-button>
     </div>
    </div>
-   <el-tabs v-show="$route.query.mode !== 'adminSub'" v-model="activeName" style="width: 70%" @tab-click="change2Par">
+   <el-tabs v-show="!$route.query.flag" v-model="activeName" style="width: 70%" @tab-click="change2Par">
     <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
     <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
    </el-tabs>
@@ -60,7 +60,7 @@
 <!--        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。-->
 <!--    </div>-->
     <div>
-      <el-button type="success" @click="showMethod" style="margin-top: 15px" v-if="haveGroup || groupID" v-show="$route.query.mode !== 'adminSub'">
+      <el-button type="success" @click="showMethod" style="margin-top: 0px" v-if="haveGroup || groupID" v-show="!$route.query.flag ">
         添加专家
       </el-button>
      <el-tooltip class="item" effect="dark" content="当前活动无分组，无法添加专家。请先在分组管理中添加分组后再试。" placement="top-start" v-else :disabled='false'>
@@ -1437,6 +1437,7 @@ export default {
             smallGroup:this.$route.query.smallGroup,
             addActive:this.$route.query.addActive,
             requireGroup:this.$route.query.requireGroup,
+            forSecretary:this.$route.query.forSecretary,
           }
         })
       }
