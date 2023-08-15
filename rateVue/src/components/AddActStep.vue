@@ -22,11 +22,6 @@
 </template>
 
 <script>
-import store from '../store'
-import router from '../router.js'
-import sha1 from "sha1";
-import { initMenu } from "../utils/menus.js";
-import this_ from "@/main";
 export default {
   name: "AddActStep",
   props:["active","actID","actName","groupNum"],
@@ -84,9 +79,16 @@ export default {
   back(){
    switch (this.active){
     case 0:
-     this.$router.push({
-      path: "/ActivitM/search",
-     });
+     if (this.$route.query.mode === 'adminSub'){
+      this.$router.push({
+       path: "/ActivitM/SubActManage",
+       query:{id:this.$route.query.parentID}
+      });
+     }else{
+      this.$router.push({
+       path: "/ActivitM/search",
+      });
+     }
      break
     case 1:
      this.goAddAct(this.actID,this.actName,false)

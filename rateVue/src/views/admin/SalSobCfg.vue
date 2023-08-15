@@ -1,6 +1,6 @@
 <template>
   <div>
-   <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
+   <AddActStep v-show="typeof $route.query.addActive !== 'undefined' " :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
    <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2GroupManage" v-show="$route.query.addActive == 5 && $route.query.mode == 'admin' ">
     组内人员管理
    </el-button>
@@ -12,7 +12,7 @@
      </el-button>
     </div>
    </div>
-   <el-tabs v-model="activeName" style="width: 70%" @tab-click="change2Par">
+   <el-tabs v-show="$route.query.mode !== 'adminSub'" v-model="activeName" style="width: 70%" @tab-click="change2Par">
     <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
     <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
    </el-tabs>
@@ -60,7 +60,7 @@
 <!--        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。-->
 <!--    </div>-->
     <div>
-      <el-button type="success" @click="showMethod" style="margin-top: 15px" v-if="haveGroup || groupID">
+      <el-button type="success" @click="showMethod" style="margin-top: 15px" v-if="haveGroup || groupID" v-show="$route.query.mode !== 'adminSub'">
         添加专家
       </el-button>
      <el-tooltip class="item" effect="dark" content="当前活动无分组，无法添加专家。请先在分组管理中添加分组后再试。" placement="top-start" v-else :disabled='false'>
@@ -1191,14 +1191,20 @@ export default {
             mode:this.mode,
           },
         });
-      }
+      } // ActivitM/score?keywords=50&keyword_name=人员管理开发专用-子活动1&mode=adminSub&backID=49
+          // ActivitM/sobcfg?keywords=50&keyword_name=人员管理子活动1.1&keywords_name=人员管理开发专用-子活动1&groupID=49&mode=adminSub&flag=1
       else if (this.mode === "adminSub"){
-          _this.$router.push({
-              path: "/ActivitM/SubActManage",
-              query: {
-                  id: this.$route.query.backID,
-              },
-          });
+          // _this.$router.push({
+          //     path: "/ActivitM/score",
+          //     query: {
+          //         keywords:this.$route.query.keywords,
+          //         keyword_name:this.$route.query.keyword_name,
+          //         mode:this.$route.query.mode,
+          //         backID:49,
+          //         id: this.$route.query.backID,
+          //     },
+          // });
+       this.$router.go(-1);
       }else{
        const _this = this
        this.$router.go(-1);

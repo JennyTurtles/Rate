@@ -370,12 +370,13 @@ export default {
           path: "/ActivitM/search",
         });
       }else if (this.mode === "adminSub") {
-        _this.$router.push({
-          path: "/ActivitM/SubActManage",
-          query: {
-            id: this.$route.query.backID,
-          }
-        });
+        // _this.$router.push({
+        //   path: "/ActivitM/SubActManage",
+        //   query: {
+        //     id: this.$route.query.backID,
+        //   }
+        // });
+       this.$router.go(-1);
       }
     },
     tabClick(row, column, cell, event) {
