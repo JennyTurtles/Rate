@@ -5,7 +5,7 @@
        style="display: flex; justify-content: space-between; margin: 15px 0">
     <div>
      <el-input
-         v-show="mode !== 'secretarySub'"
+         v-show="mode !== 'secretarySub' && mode !== 'adminSub'"
          placeholder="请输入活动名称进行搜索，可以直接回车搜索..."
          prefix-icon="el-icon-search"
          clearable
@@ -20,7 +20,7 @@
          type="primary"
          @click="searchEmps"
          :disabled="showAdvanceSearchView"
-         v-show="mode !== 'secretarySub'"
+         v-show="mode !== 'secretarySub' && mode !== 'adminSub'"
      >
       搜索
      </el-button>
@@ -29,12 +29,12 @@
          type="primary"
          @click="initEmps"
          :disabled="showAdvanceSearchView"
-         v-show="mode !== 'secretarySub'"
+         v-show="mode !== 'secretarySub' && mode !== 'adminSub' "
      >
       重置
      </el-button>
      <el-button type="primary" icon="el-icon-plus" @click='showAddEmpView'
-                v-show="mode === 'admin' || mode === 'adminSub'">
+                v-show="mode === 'admin' || mode === 'adminSub' ">
       添加活动
      </el-button>
      <el-button type="primary" icon="el-icon-plus" @click='showAddEmpView_clone'
@@ -385,7 +385,7 @@
 
    <div style="display: flex; justify-content: flex-end; margin: 10px 0">
     <el-pagination
-        v-show="mode !== 'secretarySub'"
+        v-show="mode !== 'secretarySub' && mode !== 'adminSub' "
         background
         @current-change="currentChange"
         @size-change="sizeChange"
@@ -886,9 +886,11 @@ import {Message} from "element-ui";
 import fa from "element-ui/src/locale/lang/fa";
 import axios from "axios";
 import index from "vuex";
+import Score from "@/views/expert/Escore.vue";
 
 export default {
  name: "ActManage",
+ components: {Score},
  props: ["mode", "activityID", "actName", "groupName", "groupID"], // 四个地方复用组件
  data() {
   return {
@@ -1510,6 +1512,7 @@ export default {
    })
   },
   endEmp(data) {
+   data.requireGroup = data.requireGroup ? 1 : 0
    data.institutionID = this.user.institutionID;
    this.$confirm(
        "此操作将永久停止活动【" + data.name + "】, 是否继续?",
@@ -2168,7 +2171,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 /* 可以设置不同的进入和离开动画 */
 /* 设置持续时间和动画函数 */
 .slide-fade-enter-active {
