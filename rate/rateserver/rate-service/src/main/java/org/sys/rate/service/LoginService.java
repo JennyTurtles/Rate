@@ -3,15 +3,23 @@ import cn.hutool.core.bean.BeanUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.test.annotation.Repeat;
 import org.sys.rate.mapper.LoginMapper;
+import org.sys.rate.mapper.RoleMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.utils.TokenUtils;
 import cn.hutool.core.bean.BeanUtil;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class LoginService {
     @Autowired
     private LoginMapper loginMapper;
+    @Resource
+    private RoleMapper roleMapper;
 
     public LoginInf login(LoginInf loginInf)
     {
@@ -35,7 +43,13 @@ public class LoginService {
             loginInf.setToken(token);
             loginInf.setID(account.getID());
             loginInf.setInstitutionID(account.getInstitutionID());
-
+            List<String> rs = Arrays.asList(loginInf.getRole().split(";"));
+            List<String> roleNameList = roleMapper.selectNameByRoleID(rs);
+            String loginInfRoleName = "";
+            for(int i = 0;i < roleNameList.size();i ++) {
+                loginInfRoleName += roleNameList.get(i) + ";";
+            }
+            loginInf.setRoleName(loginInfRoleName);
             return loginInf;
         }
         else

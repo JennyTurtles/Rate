@@ -352,6 +352,15 @@ export default new Router({
           },
         },
         {
+          path: '/teacher/Standard',
+          name: '制定标准',
+          hidden: true,
+          component: () => import('./views/teacher/Standard'),
+          meta: {
+            title: '制定标准',
+          },
+        },
+        {
           path: '/teacher/tProduct',
           name: '科研产品',
           hidden: true,
