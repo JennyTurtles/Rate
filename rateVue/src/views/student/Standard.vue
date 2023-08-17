@@ -63,6 +63,13 @@
         >
         </el-table-column>
         <el-table-column
+            prop="indicator.name"
+            align="center"
+            label="标准类别"
+            width="200px"
+        >
+        </el-table-column>
+        <el-table-column
             prop="point"
             label="积分"
             align="center"

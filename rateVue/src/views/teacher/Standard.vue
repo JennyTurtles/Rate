@@ -30,8 +30,6 @@
             clearable
             filterable
             placeholder="状态筛选"
-            @change="((val) => filter(val,'select_state'))"
-            id="select_state"
         >
           <el-option
               v-for="val in option"
@@ -48,8 +46,6 @@
             clearable
             filterable
             placeholder="1"
-            @change="((val) => filter(val,'select_point1'))"
-            id="select_point1"
         >
           <el-option
               style=""
@@ -138,6 +134,13 @@
                             :"管理员驳回"}}
               </span>
           </template>
+        </el-table-column>
+        <el-table-column
+            prop="indicator.name"
+            label="标准类别"
+            align="center"
+            width="200"
+        >
         </el-table-column>
         <el-table-column
             prop="point"
