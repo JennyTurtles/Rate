@@ -525,7 +525,6 @@ export default {
       this.searchStandardListByCondicitions(this.currentPage, this.pageSize)
     },
     searchStandardListByCondicitions(pageNum, pageSize) {//根据条件搜索论文
-      console.log(this.role)
       const params = {};
       params.studentName = this.searchStudentName;
       var state = this.searchStandardState;

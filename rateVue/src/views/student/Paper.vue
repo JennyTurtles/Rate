@@ -633,8 +633,8 @@ export default {
     this.debounceSearch = debounce(this.debounceSearchInput,400);
   },
   mounted() {
+    this.initTutor(this.user);
     this.initEmps();
-    // this.initTutor(this.user);
   },
   filters: {
     fileNameFilter: function (data) {//将证明材料显示出来
@@ -1243,6 +1243,7 @@ export default {
     },
     initEmps() {
       this.loading = true;
+      console.log(this.user)
       let url = "/paper/basic/studentID?studentID=" + this.user.id
       this.getRequest(url).then((resp) => {
         this.loading = false;

@@ -274,7 +274,7 @@ Vue.prototype.dateFormatFunc = function (originVal){
 Vue.prototype.initTutor = function (user){
     if(!user.teacherName) {
         this.getRequest('/student/basic/getTutorInfo?id=' + user.id).then(response => {
-            if(response) {
+            if(response.obj) {
                 user.teacherName =  response.obj;
             }
         })

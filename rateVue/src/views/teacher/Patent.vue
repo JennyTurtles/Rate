@@ -277,7 +277,7 @@
           <span>{{emp.rank}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="受理日期:" prop="date">
+        <el-form-item label="受理年月:" prop="date">
           <span>{{emp.date}}</span
           ><br />
         </el-form-item>
