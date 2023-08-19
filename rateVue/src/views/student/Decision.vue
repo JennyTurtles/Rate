@@ -13,7 +13,7 @@
     </div>
     <div style="margin-top: 10px;">
       <el-table
-          :data="awardsList"
+          :data="decisionsList"
           stripe
           border
           v-loading="loading"
@@ -56,7 +56,7 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="awardType.name"
+            prop="decisionType.name"
             label="决策类别"
             align="center"
             width="220px"
@@ -65,7 +65,7 @@
         <el-table-column
             prop="author"
             align="center"
-            label="申请人"
+            label="制定人"
             width="160px"
         >
         </el-table-column>
@@ -115,15 +115,15 @@
         </el-table-column>
       </el-table>
     </div>
-    <!-- 添加科研获奖对话框 -->
+    <!-- 添加决策咨询对话框 -->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
       <el-form
           :hide-required-asterisk="true"
           :label-position="labelPosition"
           label-width="150px"
-          :model="currentAwardCopy"
+          :model="currentDecisionCopy"
           :rules="rules"
-          ref="currentAwardCopy"
+          ref="currentDecisionCopy"
       >
         <el-form-item label="决策名称:" label-width="80px" style="margin-left: 20px;" prop="name">
           <span class="isMust">*</span>
@@ -131,21 +131,15 @@
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
-              v-model="currentAwardCopy.name"
+              v-model="currentDecisionCopy.name"
               placeholder="请输入决策名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="决策级别:" label-width="80px" style="margin-left: 20px;" prop="awardLevel">
-          <span class="isMust">*</span>
-          <el-select size="mini" v-model="currentAwardCopy.awardLevel" placeholder="请选择决策级别" style="width: 80%">
-            <el-option v-for="item in awardLevelList" :key="item.value" :value="item.label" :label="item.label"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="获奖年月:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="制定年月:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-date-picker
               style="width: 80%"
-              v-model="currentAwardCopy.date"
+              v-model="currentDecisionCopy.date"
               @change="changeProjectStartDate($event)"
               type="month"
               value-format="yyyy-MM"
@@ -155,36 +149,37 @@
         <el-form-item label="决策类别:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-select
-              :disabled="disabledSelectAwardType"
-              v-model="selectAwardType"
+              :disabled="disabledSelectDecisionType"
+              v-model="selectDecisionType"
               value-key="id"
               filterable
               remote
               clearable
               reserve-keyword
               @change="selectOption($event)"
-              placeholder="请输入科研获奖类别"
-              :remote-method="selectAwardTypeMethod"
-              :loading="loading">
+              loading-text="搜索中..."
+              :loading="searchTypeLoading"
+              placeholder="请输入决策咨询类别"
+              :remote-method="selectDecisionTypeMethod">
             <el-option
-                v-for="item in selectAwardTypeList"
+                v-for="item in selectDecisionTypeList"
                 :key="item.id"
                 :label="item.name"
                 :value="item">
             </el-option>
           </el-select>
-          <el-tooltip class="item" effect="dark" content="如：国家科技进步奖、国家技术发明奖、国家自然科学奖等" placement="top-start">
+          <el-tooltip class="item" effect="dark" content="如：xxx等" placement="top-start">
             <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
           </el-tooltip>
         </el-form-item>
-        <el-form-item label="获奖人:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="制定人:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               id="input_member"
               size="mini"
               style="width: 80%"
               prefix-icon="el-icon-edit"
-              v-model="currentAwardCopy.author"
+              v-model="currentDecisionCopy.author"
               @blur="judgeMember()"
               placeholder="请输入获奖人,如有多个用分号分隔"
           ></el-input>
@@ -212,11 +207,11 @@
         </el-form-item>
       </el-form>
       <div style="margin-left: 20px;">
-        <span style="color:gray;font-size:10px">将会获得：{{awardPoint}}积分</span>
+        <span style="color:gray;font-size:10px">将会获得：{{decisionPoint}}积分</span>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAdd">取 消</el-button>
-        <el-button type="primary" @click="addAward">提 交</el-button>
+        <el-button type="primary" @click="addDecision">提 交</el-button>
       </span>
     </el-dialog>
 
@@ -231,54 +226,50 @@
       <el-form
           :label-position="labelPosition"
           label-width="120px"
-          :model="currentAward"
+          :model="currentDecision"
           style="margin-left: 20px">
         <el-form-item label="决策名称:">
-          <span>{{ currentAward.name }}</span
+          <span>{{ currentDecision.name }}</span
           ><br />
         </el-form-item>
         <el-form-item label="获奖人:">
-          <span>{{ currentAward.author }}</span
+          <span>{{ currentDecision.author }}</span
           >
         </el-form-item>
         <el-form-item label="决策类别:">
-          <span>{{ currentAward.awardType.name }}</span
-          >
-        </el-form-item>
-        <el-form-item label="决策级别:">
-          <span>{{ currentAward.awardLevel }}</span
+          <span>{{ currentDecision.decisionType.name }}</span
           >
         </el-form-item>
         <el-form-item label="作者排名:">
-          <span>{{ currentAward.rank }}</span
+          <span>{{ currentDecision.rank }}</span
           >
         </el-form-item>
         <el-form-item label="获奖年月:">
-          <span>{{ currentAward.date }}</span
+          <span>{{ currentDecision.date }}</span
           >
         </el-form-item>
         <el-form-item label="成果状态:">
-          <span>{{currentAward.state=="commit"
+          <span>{{currentDecision.state=="commit"
               ? "已提交"
-              :currentAward.state=="tea_pass"
+              :currentDecision.state=="tea_pass"
                   ? "导师通过"
-                  :currentAward.state=="tea_reject"
+                  :currentDecision.state=="tea_reject"
                       ? "导师驳回"
-                      :currentAward.state=="adm_pass"
+                      :currentDecision.state=="adm_pass"
                           ? "管理员通过"
                           :"管理员驳回"}}</span
           ><br />
         </el-form-item>
         <el-form-item label="备  注:">
-          <span>{{ currentAward.remark }}</span>
+          <span>{{ currentDecision.remark }}</span>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
-          <span v-if="currentAward.url == '' || currentAward.url == null ? true:false" >无证明材料</span>
+          <span v-if="currentDecision.url == '' || currentDecision.url == null ? true:false" >无证明材料</span>
           <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
-             @click="download(currentAward)"
+             @click="download(currentDecision)"
              onmouseover="this.style.color = 'blue'"
              onmouseleave="this.style.color = 'gray'">
-            {{currentAward.url|fileNameFilter}}</a>
+            {{currentDecision.url|fileNameFilter}}</a>
           <br />
         </el-form-item>
         <div >
@@ -311,12 +302,13 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      searchTypeLoading: false,
       isAuthorIncludeSelf: false,
-      awardLimitRankN: '',
-      selectAwardType: {},
-      selectAwardTypeList: [],
-      disabledSelectAwardType: true,
-      awardPoint:0,
+      decisionLimitRankN: '',
+      selectDecisionType: {},
+      selectDecisionTypeList: [],
+      disabledSelectDecisionType: true,
+      decisionPoint:0,
       headers: {
         'Content-Type': 'multipart/form-data'
       },
@@ -327,7 +319,7 @@ export default {
       labelPosition: "left",
       title: "",
       title_show: "",
-      awardsList: [],
+      decisionsList: [],
       loading: false,
       dialogVisible: false,
       dialogVisible_show: false,
@@ -335,8 +327,8 @@ export default {
       total: 0,
       size: 10,
       positions: [],
-      awardTypename:"",//决策类别
-      awardLevelList: [
+      decisionTypename:"",//决策类别
+      decisionLevelList: [
         {
           label:'国家级',
           value: 1
@@ -350,15 +342,15 @@ export default {
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '科研获奖',
+        prodType: '决策咨询',
         operationName: '',
         state: '',
         remark: '',
         prodId: null,
         time: null
       },
-      currentAwardCopy: {},
-      currentAward: {
+      currentDecisionCopy: {},
+      currentDecision: {
         id: null,
         name: null,
         author:"",
@@ -369,14 +361,13 @@ export default {
         point:"",
         url:'',
         remark:'',
-        awardLevel:'',
-        awardTypeId:'',
-        awardType: {}
+        decisionLevel:'',
+        decisionTypeId:'',
+        decisionType: {}
       },
       rules: {
         name: [{ required: true, message: "请输入决策名称", trigger: "blur" }],
-        awardClass: [{ required: true, message: "请输入决策类别", trigger: "blur" }],
-        awardLevel: [{ required: true, message: "请输入决策级别", trigger: "blur" }]
+        decisionClass: [{ required: true, message: "请输入决策类别", trigger: "blur" }]
       },
     };
   },
@@ -385,18 +376,17 @@ export default {
       return JSON.parse(localStorage.getItem('user')); //object信息
     },
     menuHeight() {
-      return this.awardTypename.length * 50 > 150
+      return this.decisionTypename.length * 50 > 150
           ? 150 + 'px'
-          : '${this.awardTypename.length * 50}px'
+          : '${this.decisionTypename.length * 50}px'
     },
   },
   created() {
     this.debounceSearch = debounce(this.debounceSearchType,400);
   },
   mounted() {
-    this.currentAwardCopy = JSON.parse(JSON.stringify(this.currentAward));
-    this.initAwardsList();
-    this.initTutor(this.user);
+    this.currentDecisionCopy = JSON.parse(JSON.stringify(this.currentDecision));
+    this.initDecisionsList();
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -411,21 +401,21 @@ export default {
   methods: {
     changeProjectStartDate(data) {
       if(data) {
-        this.disabledSelectAwardType = false;
+        this.disabledSelectDecisionType = false;
       }else {
-        this.disabledSelectAwardType = true;
+        this.disabledSelectDecisionType = true;
       }
     },
     //选择下拉框的某个选项
     selectOption(data) {
       if(data) {
-        this.getRequest('/award/basic/getIndicatorScore?id=' + data.indicatorId).then(response => {
+        this.getRequest('/decision/basic/getIndicatorScore?id=' + data.indicatorId).then(response => {
           if(response) {
-            this.awardPoint = response.data.score;
-            this.awardLimitRankN = response.data.rankN;
+            this.decisionPoint = response.data.score;
+            this.decisionLimitRankN = response.data.rankN;
           }else {
-            this.awardPoint = 0;
-            this.awardLimitRankN = '';
+            this.decisionPoint = 0;
+            this.decisionLimitRankN = '';
           }
         })
         if(this.urlFile) {
@@ -436,15 +426,17 @@ export default {
       } else this.addButtonState = false;
     },
     debounceSearchType(data) {
-      if (this.currentAwardCopy.date != null && this.currentAwardCopy.date != '' && data != null && data != '') {
-        this.getRequest('/award/basic/getIndicatorByYearAndType?year=' + this.currentAwardCopy.date.split('-')[0] + '&type=' + data).then(response => {
+      if (this.currentDecisionCopy.date != null && this.currentDecisionCopy.date != '' && data != null && data != '') {
+        this.getRequest('/decision/basic/getIndicatorByYearAndType?year=' + this.currentDecisionCopy.date.split('-')[0] + '&type=' + data).then(response => {
           if(response) {
-            this.selectAwardTypeList = response.data;
+            this.selectDecisionTypeList = response.data;
+            this.searchTypeLoading = false;
           }
         })
       }
     },
-    selectAwardTypeMethod(data) {
+    selectDecisionTypeMethod(data) {
+      this.searchTypeLoading = true;
       this.debounceSearch(data);
     },
     cancelAdd() {
@@ -453,7 +445,7 @@ export default {
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
       if(localStorage.getItem("user")){
-        var url="/award/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
+        var url="/decision/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
         window.location.href = encodeURI(url);
       }else{
         this.$message.error("请重新登录！");
@@ -463,7 +455,7 @@ export default {
       var file={
         filepath:this.urlFile
       }
-      this.postRequest1("/award/basic/deleteFile",file).then(
+      this.postRequest1("/decision/basic/deleteFile",file).then(
         ()=>{
           this.files = [];
           this.urlFile = '';
@@ -489,7 +481,7 @@ export default {
       var formData=new FormData();
       this.files.push(file);
       formData.append("file",this.files[0].raw)
-      axios.post("/award/basic/upload",formData,{
+      axios.post("/decision/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? this.user.token : ''
         }
@@ -505,7 +497,10 @@ export default {
       )
     },
     judgeMember(){//输入作者框 失去焦点触发事件
-      var val = this.currentAwardCopy.author;
+      var val = this.currentDecisionCopy.author;
+      if(!val) {
+        return;
+      }
       var isalph = false//判断输入中是否有英文字母
       for(var i in val){
         var asc = val.charCodeAt(i)
@@ -527,8 +522,8 @@ export default {
           this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
           this.isAuthorIncludeSelf = false;
         }else if (val === info.name) {
-          this.currentAwardCopy.rank = 1
-          this.currentAwardCopy.total = 1
+          this.currentDecisionCopy.rank = 1
+          this.currentDecisionCopy.total = 1
           this.isAuthorIncludeSelf = true;
         }
         return
@@ -542,13 +537,13 @@ export default {
         this.isAuthorIncludeSelf = false;
       } else {
         //作者列表的rank大于规定的rankN，积分为0
-        if(this.awardLimitRankN != '' && num.indexOf(info.name) + 1 > this.awardLimitRankN) {
-          this.awardPoint = 0;
+        if(this.decisionLimitRankN != '' && num.indexOf(info.name) + 1 > this.decisionLimitRankN) {
+          this.decisionPoint = 0;
         }
         this.isAuthorIncludeSelf = true;
       }
-      this.currentAwardCopy.total = num.length
-      this.currentAwardCopy.rank = num.indexOf(info.name) + 1
+      this.currentDecisionCopy.total = num.length
+      this.currentDecisionCopy.rank = num.indexOf(info.name) + 1
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
@@ -556,29 +551,29 @@ export default {
     //编辑按钮
     showEditEmpView(data, idx) {
       this.title = "编辑决策信息";
-      this.currentAwardCopy = JSON.parse(JSON.stringify(data));
+      this.currentDecisionCopy = JSON.parse(JSON.stringify(data));
       this.isAuthorIncludeSelf = true;
       this.addButtonState = true;
-      this.disabledSelectAwardType = false;
-      this.awardPoint = data.point;
-      const { id, name } = data.awardType;
-      this.selectAwardType = name;
+      this.disabledSelectDecisionType = false;
+      this.decisionPoint = data.point;
+      const { id, name } = data.decisionType;
+      this.selectDecisionType = name;
       this.dialogVisible = true;
-      this.awardLimitRankN = data.indicator.rankN;
+      this.decisionLimitRankN = data.indicator.rankN;
       this.files = [
         {
-          name: this.currentAwardCopy.url.split('/').reverse()[0],
-          url: this.currentAwardCopy.url
+          name: this.currentDecisionCopy.url.split('/').reverse()[0],
+          url: this.currentDecisionCopy.url
         }
       ]
-      this.urlFile = this.currentAwardCopy.url;
+      this.urlFile = this.currentDecisionCopy.url;
     },
     showInfo(data){
       this.loading = true;
       this.title_show = "显示详情";
-      this.currentAward = data
+      this.currentDecision = data
       this.dialogVisible_showInfo = true
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研获奖').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=决策咨询').then((resp) => {
         this.loading = false;
         if (resp) {
           this.operList = resp.obj
@@ -587,7 +582,7 @@ export default {
     },
     deleteEmpMethod(data) {
       return new Promise((resolve, reject) => {
-            this.deleteRequest("/award/basic/remove/" + data.id).then((resp) => {
+            this.deleteRequest("/decision/basic/remove/" + data.id).then((resp) => {
               this.dialogVisible = false;
               resolve('success');
             })
@@ -598,7 +593,7 @@ export default {
       this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?",).then(() => {
         Promise.all([this.deleteEmpMethod(data), this.deleteOperationList(data)]).then(res => {
           this.$message.success('删除成功!');
-          this.initAwardsList();
+          this.initDecisionsList();
         }).catch(() => {
           this.$message.error('删除失败!');
         })
@@ -607,18 +602,18 @@ export default {
     deleteOperationList(data) {
       const params = {}
       params.prodId = data.id;
-      params.prodType = '科研获奖'
+      params.prodType = '决策咨询'
       return new Promise((resolve, reject) => {
         this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
           resolve('success');
         })
       })
     },
-    editAward(params) {
-      this.$refs["currentAwardCopy"].validate((valid) => {
+    editDecision(params) {
+      this.$refs["currentDecisionCopy"].validate((valid) => {
         if (valid) {
-          params.id = this.currentAwardCopy.id;
-          params.awardTypeId = this.currentAwardCopy.awardType.id;
+          params.id = this.currentDecisionCopy.id;
+          params.decisionTypeId = this.currentDecisionCopy.decisionType.id;
           if(params.url == '' || params.url == null){
             this.$message.error('请上传证明材料！')
             return
@@ -628,36 +623,36 @@ export default {
             return;
           }
 
-          this.postRequest1("/award/basic/edit", params).then(
+          this.postRequest1("/decision/basic/edit", params).then(
               (resp) => {
                 if (resp) {
                   this.dialogVisible = false;
                   this.$message.success('编辑成功！')
-                  this.doAddOper("commit", this.currentAwardCopy.id);
+                  this.doAddOper("commit", this.currentDecisionCopy.id);
                 }
               }
           );
         }
       });
     },
-    addAward() {//项目提交确认
+    addDecision() {//项目提交确认
       const params = {};
-      params.name = this.currentAwardCopy.name;
+      params.name = this.currentDecisionCopy.name;
       params.url = this.urlFile;
-      params.rank = this.currentAwardCopy.rank;
-      params.total = this.currentAwardCopy.total;
-      params.author = this.currentAwardCopy.author;
-      params.date = this.currentAwardCopy.date;
-      params.point = this.awardPoint;
-      params.awardLevel = this.currentAwardCopy.awardLevel;
+      params.rank = this.currentDecisionCopy.rank;
+      params.total = this.currentDecisionCopy.total;
+      params.author = this.currentDecisionCopy.author;
+      params.date = this.currentDecisionCopy.date;
+      params.point = this.decisionPoint;
+      params.decisionLevel = this.currentDecisionCopy.decisionLevel;
       params.state = "commit";
-      if (this.currentAwardCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        this.editAward(params);
+      if (this.currentDecisionCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
+        this.editDecision(params);
       } else {
-        this.$refs["currentAwardCopy"].validate((valid) => {
+        this.$refs["currentDecisionCopy"].validate((valid) => {
           if (valid) {
             params.studentId = this.user.id;
-            params.awardTypeId = this.selectAwardType.id;
+            params.decisionTypeId = this.selectDecisionType.id;
             if(params.url == '' || params.url == null){
               this.$message.error('请上传证明材料！')
               return
@@ -666,7 +661,7 @@ export default {
               this.$message.error('请仔细检查作者列表！');
               return;
             }
-            this.postRequest1("/award/basic/add", params).then(
+            this.postRequest1("/decision/basic/add", params).then(
                 (resp) => {
                   if (resp) {
                     this.$message.success('添加成功！')
@@ -679,34 +674,34 @@ export default {
         });
       }
     },
-    async doAddOper(state,awardID) {
+    async doAddOper(state,decisionID) {
       this.oper.state = state
-      this.oper.prodId = awardID
+      this.oper.prodId = decisionID
       this.oper.operationName = "提交决策"
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper);
-      await this.initAwardsList();
+      await this.initDecisionsList();
     },
-    showAddEmpView() {//点击添加科研获奖按钮
+    showAddEmpView() {//点击添加决策咨询按钮
       this.urlFile = ''
-      this.currentAwardCopy = {};
+      this.currentDecisionCopy = {};
       this.addButtonState = false;
-      this.selectAwardType = {};
-      this.title = "添加科研获奖";
+      this.selectDecisionType = {};
+      this.title = "添加决策咨询";
       this.dialogVisible = true;
-      this.awardLimitRankN = '';
-      this.awardPoint = '';
+      this.decisionLimitRankN = '';
+      this.decisionPoint = '';
       this.isAuthorIncludeSelf = false;
-      this.disabledSelectAwardType = true;
-      this.selectAwardTypeList = [];
+      this.disabledSelectDecisionType = true;
+      this.selectDecisionTypeList = [];
     },
-    initAwardsList() {
+    initDecisionsList() {
       this.loading = true;
-      let url = "/award/basic/studentID?studentID=" + this.user.id
+      let url = "/decision/basic/studentID?studentID=" + this.user.id
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.awardsList = resp.data;
+          this.decisionsList = resp.data;
         }
       });
     },

@@ -403,7 +403,6 @@ export default {
   mounted() {
     this.currentAwardCopy = JSON.parse(JSON.stringify(this.currentAward));
     this.initAwardsList();
-    this.initTutor(this.user);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -513,6 +512,9 @@ export default {
     },
     judgeMember(){//输入作者框 失去焦点触发事件
       var val = this.currentAwardCopy.author;
+      if(!val) {
+        return;
+      }
       var isalph = false//判断输入中是否有英文字母
       for(var i in val){
         var asc = val.charCodeAt(i)
