@@ -171,8 +171,9 @@
               reserve-keyword
               @change="selectOption($event)"
               placeholder="请输入科研获奖类别"
+              loading-text="搜索中..."
               :remote-method="selectAwardTypeMethod"
-              :loading="loading">
+              :loading="searchTypeLoading">
             <el-option
                 v-for="item in selectAwardTypeList"
                 :key="item.id"
@@ -318,6 +319,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      searchTypeLoading: false,
       isAuthorIncludeSelf: false,
       awardLimitRankN: '',
       selectAwardType: {},
@@ -445,12 +447,14 @@ export default {
       if (this.currentAwardCopy.date != null && this.currentAwardCopy.date != '' && data != null && data != '') {
         this.getRequest('/award/basic/getIndicatorByYearAndType?year=' + this.currentAwardCopy.date.split('-')[0] + '&type=' + data).then(response => {
           if(response) {
+            this.searchTypeLoading = false;
             this.selectAwardTypeList = response.data;
           }
         })
       }
     },
     selectAwardTypeMethod(data) {
+      this.searchTypeLoading = true;
       this.debounceSearch(data);
     },
     cancelAdd() {

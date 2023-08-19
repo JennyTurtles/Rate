@@ -192,8 +192,9 @@
               reserve-keyword
               @change="selectOption($event)"
               placeholder="请输入科研项目类别"
+              loading-text="搜索中..."
               :remote-method="selectProjectTypeMethod"
-              :loading="loading">
+              :loading="searchTypeLoading">
             <el-option
                 v-for="item in selectProjectTypeList"
                 :key="item.id"
@@ -325,6 +326,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      searchTypeLoading: false,
       selectProjectType: '',
       selectProjectTypeName: '',
       isAuthorIncludeSelf: true,
@@ -435,6 +437,7 @@ export default {
       if (this.currentProjectCopy.startDate != null && this.currentProjectCopy.startDate != '' && data != null && data != '') {
         this.getRequest('/project/basic/getIndicatorByYearAndType?year=' + this.currentProjectCopy.startDate.split('-')[0] + '&type=' + data).then(response => {
           if(response) {
+            this.searchTypeLoading = false;
             this.selectProjectTypeList = response.data;
           }
         })
@@ -442,6 +445,7 @@ export default {
     },
     //输入项目类别 发送请求调用的函数
     selectProjectTypeMethod(data) {
+      this.searchTypeLoading = true;
       this.debounceSearch(data);
     },
     cancelAdd() {

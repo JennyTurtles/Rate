@@ -181,7 +181,7 @@
               prefix-icon="el-icon-edit"
               v-model="currentDecisionCopy.author"
               @blur="judgeMember()"
-              placeholder="请输入获奖人,如有多个用分号分隔"
+              placeholder="请输入制定人,如有多个用分号分隔"
           ></el-input>
         </el-form-item>
 
@@ -232,7 +232,7 @@
           <span>{{ currentDecision.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="获奖人:">
+        <el-form-item label="制定人:">
           <span>{{ currentDecision.author }}</span
           >
         </el-form-item>
@@ -244,7 +244,7 @@
           <span>{{ currentDecision.rank }}</span
           >
         </el-form-item>
-        <el-form-item label="获奖年月:">
+        <el-form-item label="制定年月:">
           <span>{{ currentDecision.date }}</span
           >
         </el-form-item>

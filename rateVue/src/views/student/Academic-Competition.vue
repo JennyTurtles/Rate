@@ -169,8 +169,9 @@
               reserve-keyword
               @change="selectOption($event)"
               placeholder="请输入学科竞赛类别"
+              loading-text="搜索中..."
               :remote-method="selectCompetitionTypeMethod"
-              :loading="loading">
+              :loading="searchTypeLoading">
             <el-option
                 v-for="item in selectCompetitionTypeList"
                 :key="item.id"
@@ -311,6 +312,7 @@ export default {
   name: "Academic-Competition",
   data() {
     return {
+      searchTypeLoading: false,
       selectCompetitionType: '',
       selectCompetitionTypeName: '',
       isAuthorIncludeSelf: true,
@@ -423,6 +425,7 @@ export default {
       if (this.currentCompetitionCopy.date != null && this.currentCompetitionCopy.date != '' && data != null && data != '') {
         this.getRequest('/competition/basic/getIndicatorByYearAndType?year=' + this.currentCompetitionCopy.date.split('-')[0] + '&type=' + data).then(response => {
           if(response) {
+            this.searchTypeLoading = false;
             this.selectCompetitionTypeList = response.data;
           }
         })
@@ -430,6 +433,7 @@ export default {
     },
     //输入竞赛类别 发送请求调用的函数
     selectCompetitionTypeMethod(data) {
+      this.searchTypeLoading = true;
       this.debounceSearch(data);
     },
     cancelAdd() {
