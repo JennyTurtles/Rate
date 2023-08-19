@@ -325,12 +325,30 @@ export default new Router({
           },
         },
         {
+          path:'/student/Decision',
+          name:'决策咨询',
+          hidden:true,
+          component:()=>import('./views/student/Decision'),
+          meta: {
+            title: '决策咨询',
+          },
+        },
+        {
           path: '/teacher/AcademicCompetition',
           name: '学科竞赛',
           hidden: true,
           component: () => import('./views/teacher/Academic-Competition'),
           meta: {
             title: '学科竞赛',
+          },
+        },
+        {
+          path: '/teacher/Decision',
+          name: '决策咨询',
+          hidden: true,
+          component: () => import('./views/teacher/Decision'),
+          meta: {
+            title: '决策咨询',
           },
         },
         {
