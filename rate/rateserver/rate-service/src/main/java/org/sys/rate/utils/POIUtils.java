@@ -836,6 +836,7 @@ public class POIUtils {
         c0.setCellValue("姓名");
         HSSFCell c1 = r0.createCell(1);
         c1.setCellValue("学号");
+        HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("张三");
         row.createCell(1).setCellValue("1111");
 
@@ -1057,7 +1058,6 @@ public class POIUtils {
         c7.setCellValue("入学年份");
         HSSFCell c8 = r0.createCell(8);
         c8.setCellValue("学生类别");
-        HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("张三");
         row.createCell(1).setCellValue("1111");
         row.createCell(2).setCellValue("123456789123456789");
