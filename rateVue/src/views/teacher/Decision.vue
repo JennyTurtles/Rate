@@ -12,15 +12,15 @@
                placeholder="学生姓名"
                autocomplete="off"
                v-model="searchStudentName">
-        <label style="fontSize:10px;margin-left:16px">奖励名称：</label>
+        <label style="fontSize:10px;margin-left:16px">决策名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
-               placeholder="奖励名称"
+               placeholder="决策名称"
                v-model="searchCompetitionName">
 
-        <label style="fontSize:10px;margin-left:40px;">奖励状态：</label>
+        <label style="fontSize:10px;margin-left:40px;">决策状态：</label>
         <el-select
             v-model="searchStatus"
             style="margin-left:3px;width:120px"
@@ -107,7 +107,7 @@
             fixed
             prop="name"
             align="center"
-            label="奖励名称"
+            label="决策名称"
             width="230"
         >
         </el-table-column>
@@ -187,10 +187,10 @@
       </div>
     </div>
 
-    <!-- 对话框 老师审核通过奖励 -->
+    <!-- 对话框 老师审核通过决策 -->
     <el-dialog :title="title"
                :visible.sync="dialogVisible_pass" width="30%" center>
-      <!-- 确定审核通过该学生奖励？ -->
+      <!-- 确定审核通过该学生决策？ -->
       <el-form
           :label-position="labelPosition"
           label-width="80px"
@@ -198,7 +198,7 @@
           ref="empForm"
           style="margin-left: 60px"
       >
-        <el-form-item label="奖励ID:" prop="id">
+        <el-form-item label="决策ID:" prop="id">
           <span>{{ emp.id }}</span>
         </el-form-item>
       </el-form>
@@ -207,7 +207,7 @@
         <el-button type="primary" @click="auditing_commit('tea_pass')">确 定</el-button>
       </span>
     </el-dialog>
-    <!-- 对话框 老师驳回该学生奖励 -->
+    <!-- 对话框 老师驳回该学生决策 -->
     <el-dialog :title="title"
                :visible.sync="dialogVisible_reject" width="30%" center>
 
@@ -218,7 +218,7 @@
           ref="empForm"
           style="margin-left: 40px"
       >
-        <el-form-item label="奖励ID:" prop="id">
+        <el-form-item label="决策ID:" prop="id">
           <span>{{ emp.id }}</span>
         </el-form-item>
         <el-form-item label="驳回理由:">
@@ -251,7 +251,7 @@
           ref="empForm"
           style="margin-left: 20px"
       >
-        <el-form-item label="奖励名称:" prop="name">
+        <el-form-item label="决策名称:" prop="name">
           <span>{{ emp.name }}</span
           ><br />
         </el-form-item>
@@ -260,7 +260,7 @@
           ><br />
         </el-form-item>
         
-        <el-form-item label="奖励状态:" prop="state">
+        <el-form-item label="决策状态:" prop="state">
           <span>{{emp.state}}</span
           ><br />
         </el-form-item>
@@ -433,7 +433,7 @@ export default {
       var fileName = data.url.split('/').reverse()[0]
       var url = data.url
       axios({
-        url: '/award/basic/downloadByUrl?url='+url,
+        url: '/decision/basic/downloadByUrl?url='+url,
         method: 'GET',
         responseType: 'blob'
       }).then(response => {
@@ -452,7 +452,7 @@ export default {
     //点击对话框中的确定按钮 触发事件
     auditing_commit(num){
       this.loading = true;
-      let url = "/award/basic/edit_state?state=" + num + "&ID=" + this.emp.id;
+      let url = "/decision/basic/edit_state?state=" + num + "&ID=" + this.emp.id;
       this.dialogVisible_show=false
       if(num.indexOf('reject') >= 0){
         this.emp.remark = this.reason;
@@ -469,10 +469,10 @@ export default {
         }
       })
     },
-    async doAddOper(state,remark,awardID) {
+    async doAddOper(state,remark,decisionID) {
       this.oper.state = state;
       this.oper.remark = remark;
-      this.oper.prodId = awardID;
+      this.oper.prodId = decisionID;
       this.oper.time = this.dateFormatFunc(new Date());
       this.oper.operatorRole = this.role;
       if(this.oper.state == "tea_pass" || this.oper.state == 'adm_pass'){
@@ -490,7 +490,7 @@ export default {
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研获奖').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=决策咨询').then((resp) => {
         this.loading = false;
         if (resp) {
           this.isShowInfo = false;
@@ -540,7 +540,7 @@ export default {
       params.name = this.searchCompetitionName;
       params.pageNum = pageNum.toString();
       params.pageSize = pageSize.toString();
-      this.postRequest('/award/basic/searchAwardByConditions', params).then((response) => {
+      this.postRequest('/decision/basic/searchDecisionByConditions', params).then((response) => {
         if(response) {
           this.loading = false;
           this.emps = response.extend.res[0];
