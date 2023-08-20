@@ -324,20 +324,7 @@ export default {
       dialogVisible: false,
       dialogVisible_show: false,
       dialogVisible_showInfo:false,
-      total: 0,
-      size: 10,
-      positions: [],
       decisionTypename:"",//决策类别
-      decisionLevelList: [
-        {
-          label:'国家级',
-          value: 1
-        },
-        {
-          label:'省部级',
-          value: 2
-        }
-      ],
       oper:{
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
@@ -366,8 +353,7 @@ export default {
         decisionType: {}
       },
       rules: {
-        name: [{ required: true, message: "请输入决策名称", trigger: "blur" }],
-        decisionClass: [{ required: true, message: "请输入决策类别", trigger: "blur" }]
+        name: [{ required: true, message: "请输入决策名称", trigger: "blur" }]
       },
     };
   },
