@@ -9,11 +9,12 @@ public class UnderGraduate extends Student{
     private String stuNumber;
     private Integer studentID;
     private Integer year;
+    private Integer month;
     private Integer tutorID;
     private String specialty;
     private String className;
     private String tutorName;
-
+    private String tutorJobNumber;
 
 
     public String getClassName() {

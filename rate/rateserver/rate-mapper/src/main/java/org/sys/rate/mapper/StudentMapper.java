@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.Student;
+import org.sys.rate.model.UnderGraduate;
 
 import java.util.List;
 
@@ -100,4 +101,7 @@ public interface StudentMapper {
             "VALUES (#{name}, #{institutionid}, #{deleteflag}, #{role})")
     @Options(useGeneratedKeys = true, keyProperty = "ID")
     void insertReturnId(Student student);
+
+    @Update("update student set name = #{name}, email=#{email}, telephone=#{telephone} where ID=#{studentID}")
+    void edit(UnderGraduate under);
 }

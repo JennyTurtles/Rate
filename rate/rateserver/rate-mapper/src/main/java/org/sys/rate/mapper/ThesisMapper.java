@@ -1,12 +1,10 @@
 package org.sys.rate.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.Thesis;
+import org.sys.rate.model.UnderGraduate;
 
 import java.util.List;
-import java.util.Set;
 
 @Mapper
 public interface ThesisMapper {
@@ -22,5 +20,15 @@ public interface ThesisMapper {
     Integer add(Integer studentID, Integer year, Integer month, Integer tutorID);
 
 
-     Integer addBatch(List<Thesis> thesisList, Integer year, Integer month);
+    Integer addBatch(List<Thesis> thesisList, Integer year, Integer month);
+
+    void updateBatch(List<Thesis> thesisList, Integer year, Integer month);
+
+    @Update("update thesis set tutorID = #{tutorID} where studentID=#{studentID} and year=#{year} and month=#{month}")
+    void update(UnderGraduate underGraduate);
+
+    @Delete("DELETE FROM thesis " +
+            "WHERE studentID IN (SELECT ID FROM undergraduate WHERE studentID = #{studentID}) " +
+            "AND (tutorID = #{tutorID} OR tutorID IS NULL) AND YEAR = #{year} AND MONTH = #{month}")
+    void delete(UnderGraduate under);
 }

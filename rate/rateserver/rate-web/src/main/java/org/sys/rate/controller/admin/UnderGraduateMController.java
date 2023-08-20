@@ -18,6 +18,7 @@ import org.sys.rate.utils.ReadExcel;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -102,12 +103,13 @@ public class UnderGraduateMController {
         }
         return RespBean.error("error", null);
     }
+
     @PostMapping("/update")
     public RespBean updateStudent(@RequestBody UnderGraduate record) {
-        if (underGraduateMapper.checkHaveStudentOfStuNumber(record.getInstitutionID(),record.getStuNumber(),record.getStudentID())==1){
+        if (underGraduateMapper.checkHaveStudentOfStuNumber(record.getInstitutionID(), record.getStuNumber(), record.getStudentID()) == 1) {
             return RespBean.error("学号已存在，请重新修改或联系管理员！");
         }
-        if (studentMapper.update(record) == 1){
+        if (studentMapper.update(record) == 1) {
             if (underGraduateMapper.update(record) == 1) {
                 return RespBean.ok("更新成功!");
             }
@@ -117,9 +119,66 @@ public class UnderGraduateMController {
 
 
     @PostMapping("/importThesis")
-    public RespBean importThesis(@RequestParam(value = "institutionID") Integer institutionID,
-                                 @RequestParam(value = "year") Integer year,
-                                 @RequestParam(value = "semester") String semester, MultipartFile file) {
-        return underGraduateService.importThesis(institutionID, year, semester, file);
+    public RespBean importThesis(@RequestParam("type") String type,
+                                 @RequestParam("institutionID") Integer institutionID,
+                                 @RequestParam("year") Integer year,
+                                 @RequestParam("semester") String semester, MultipartFile file) {
+        return underGraduateService.importThesis(type, institutionID, year, semester, file);
     }
+
+    @GetMapping("/getStudents")
+    public Msg getStudents(@RequestParam("institutionID") Integer institutionID,
+                           @RequestParam("year") Integer year,
+                           @RequestParam("semester") String semester,
+                           @RequestParam("pageNum") Integer pageNum,
+                           @RequestParam("pageSize") Integer pageSize) {
+        Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
+        Integer month;
+        if(semester.length()>1) {
+             month= "春季".equals(semester) ? 3 : 9;
+        }else {
+            month= Integer.valueOf(semester);
+            semester = 3 == month ? "春季" : "秋季";
+        }
+        List<UnderGraduate> student = underGraduateService.getStudent(institutionID, year, month);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {student, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        // 再加上一个判断，该年该月该单位是否开启
+        boolean havingStart = underGraduateMapper.havingStartThisThesis(institutionID, year, semester);
+        return Msg.success().add("res", res).add("havingStart", havingStart);
+    }
+
+    @GetMapping("/getThesisExistDate")
+    public RespBean getThesisExistDate(@RequestParam("institutionID") Integer institutionID) {
+        return underGraduateService.getThesisExistDate(institutionID);
+    }
+
+    @PostMapping("/startThesis")
+    public RespBean startThesis(@RequestParam("institutionID") @NotNull Integer institutionID,
+                                @RequestParam("year") @NotNull Integer year,
+                                @RequestParam("semester") @NotNull String semester) {
+        return underGraduateService.startThesis(institutionID, year, semester);
+    }
+
+    @PutMapping("/updateUndergraduate")
+    public RespBean updateUndergraduate(@RequestBody UnderGraduate under) {
+        return underGraduateService.updateUndergraduate(under);
+    }
+
+    @PostMapping("/deleteThesis")
+    public RespBean deleteThesis(@RequestParam("studentID") @NotNull Integer studentID,
+                                 @RequestParam("tutorID") String tutorIDStr,
+                                 @RequestParam("year") @NotNull Integer year,
+                                 @RequestParam("month") @NotNull Integer month)  {
+        Integer tutorID = tutorIDStr.equals("none") ? null : Integer.parseInt(tutorIDStr);
+
+        UnderGraduate underGraduate = new UnderGraduate();
+        underGraduate.setStudentID(studentID);
+        underGraduate.setTutorID(tutorID);
+        underGraduate.setYear(year);
+        underGraduate.setMonth(month);
+
+        return underGraduateService.deleteThesis(underGraduate);
+    }
+
 }

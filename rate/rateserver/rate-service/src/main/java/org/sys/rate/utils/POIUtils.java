@@ -807,7 +807,6 @@ public class POIUtils {
 
     //管理员下载本科生模版excel
     public static ResponseEntity<byte[]> writeUnderGraduate(String type) {
-        //1. 创建一个 Excel 文档
         HSSFWorkbook workbook = new HSSFWorkbook();
         //2. 创建文档摘要
         workbook.createInformationProperties();
@@ -815,69 +814,63 @@ public class POIUtils {
         DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
         //4. 获取文档摘要信息
         SummaryInformation summInfo = workbook.getSummaryInformation();
-        //文档标题
         summInfo.setTitle("undergraduate");
-        //文档作者
         summInfo.setAuthor("东华大学");
         // 文档备注
         summInfo.setComments("本文档由东华大学计算机学院提供");
-        //5. 创建样式
-        //创建标题行的样式
+
         HSSFCellStyle headerStyle = workbook.createCellStyle();
         headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
         headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         HSSFCellStyle dateCellStyle = workbook.createCellStyle();
         dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
         HSSFSheet sheet = workbook.createSheet("undergraduate");
-        //设置列的宽度
-        sheet.setColumnWidth(0, 15 * 256);
-        sheet.setColumnWidth(1, 20 * 256);
-        sheet.setColumnWidth(2, 20 * 256);
-        sheet.setColumnWidth(3, 20 * 256);
-        sheet.setColumnWidth(4, 20 * 256);
-        sheet.setColumnWidth(5, 20 * 256);
-        sheet.setColumnWidth(6, 15 * 256);
-        sheet.setColumnWidth(7, 10 * 256);
-//        sheet.setColumnWidth(8, 20 * 256);
-//        sheet.setColumnWidth(9, 20 * 256);
-        //6. 创建标题行
+
+        int[] columnWidths = {15, 20, 20, 20, 20, 20, 15, 10};
+        for (int i = 0; i < columnWidths.length; i++) {
+            sheet.setColumnWidth(i, columnWidths[i] * 256);
+        }
+
         HSSFRow r0 = sheet.createRow(0);
         HSSFCell c0 = r0.createCell(0);
         c0.setCellValue("姓名");
         HSSFCell c1 = r0.createCell(1);
         c1.setCellValue("学号");
-//        HSSFCell c2 = r0.createCell(2);
-//        c2.setCellValue("身份证号码");
-//        HSSFCell c3 = r0.createCell(3);
-//        c3.setCellValue("手机号");
-//        HSSFCell c4 = r0.createCell(4);
-//        c4.setCellValue("邮箱");
-        if ("thesis".equals(type)) {
-            HSSFCell c5 = r0.createCell(6);
-            c5.setCellValue("导师工号");
-            HSSFCell c6 = r0.createCell(5);
-            c6.setCellValue("导师姓名");
-        }
-        HSSFCell c2 = r0.createCell(2);
-        c2.setCellValue("入学年份");
-        HSSFCell c3 = r0.createCell(3);
-        c3.setCellValue("专业");
-        HSSFCell c4 = r0.createCell(4);
-        c4.setCellValue("班级");
-        HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("张三");
         row.createCell(1).setCellValue("1111");
-//        row.createCell(2).setCellValue("123456789123456789");
-//        row.createCell(3).setCellValue("13812341234");
-//        row.createCell(4).setCellValue("123@dhu.edu.cn");
-        if ("thesis".equals(type)) {
-            row.createCell(6).setCellValue("1111");
-            row.createCell(5).setCellValue("李华");
+
+        HSSFCell c2 = r0.createCell(2);
+        HSSFCell c3 = r0.createCell(3);
+
+        String info = "";
+
+        if (!"teacher".equals(type)) {
+            c2.setCellValue("入学年份");
+            c3.setCellValue("专业");
+            HSSFCell c4 = r0.createCell(4);
+            c4.setCellValue("班级");
+            row.createCell(2).setCellValue("2018");
+            row.createCell(3).setCellValue("软件工程");
+            row.createCell(4).setCellValue("软件工程1801");
+            info = "请删除提示行。入学年份、专业、班级非必填。";
+        } else {
+            c2.setCellValue("导师姓名");
+            c3.setCellValue("导师工号");
+            row.createCell(2).setCellValue("张老师");
+            row.createCell(3).setCellValue("1044");
         }
-        row.createCell(2).setCellValue("2018");
-        row.createCell(3).setCellValue("软件工程");
-        row.createCell(4).setCellValue("软件工程1801");
-        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。入学年份、专业、班级非必填。");
+
+        if ("thesis".equals(type)) {
+            HSSFCell c5 = r0.createCell(5);
+            c5.setCellValue("导师姓名");
+            HSSFCell c6 = r0.createCell(6);
+            c6.setCellValue("导师工号");
+            row.createCell(5).setCellValue("张老师");
+            row.createCell(6).setCellValue("1044");
+        }
+
+
+        sheet.createRow(2).createCell(0).setCellValue(info);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -889,6 +882,7 @@ public class POIUtils {
         }
         return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
     }
+
 
     //管理员上传本科生模版excel
     public static Map<String, List> readExcel_undergraduate(Integer institutionID, MultipartFile file) {
@@ -1015,17 +1009,13 @@ public class POIUtils {
     public static ResponseEntity<byte[]> writeGraduateStudent() {
         //1. 创建一个 Excel 文档
         HSSFWorkbook workbook = new HSSFWorkbook();
-        //2. 创建文档摘要
         workbook.createInformationProperties();
-        //3. 获取并配置文档信息
         DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
-        //4. 获取文档摘要信息
         SummaryInformation summInfo = workbook.getSummaryInformation();
         //文档标题
         summInfo.setTitle("graduatestudent");
         //文档作者
         summInfo.setAuthor("东华大学");
-        // 文档备注
         summInfo.setComments("本文档由东华大学计算机学院提供");
         //5. 创建样式
         //创建标题行的样式
@@ -1047,6 +1037,8 @@ public class POIUtils {
         sheet.setColumnWidth(8, 15 * 256);
         //6. 创建标题行
         HSSFRow r0 = sheet.createRow(0);
+        HSSFRow row = sheet.createRow(1);
+
         HSSFCell c0 = r0.createCell(0);
         c0.setCellValue("姓名");
         HSSFCell c1 = r0.createCell(1);

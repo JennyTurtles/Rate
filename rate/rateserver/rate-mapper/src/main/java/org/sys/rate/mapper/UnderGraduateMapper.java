@@ -1,8 +1,6 @@
 package org.sys.rate.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.GradeForm;
 import org.sys.rate.model.Student;
 import org.sys.rate.model.Teachers;
@@ -44,4 +42,23 @@ public interface UnderGraduateMapper {
     @Insert("insert into undergraduate (institutionID, studentID, stuNumber, year, specialty, class) " +
             "values (#{institutionID}, #{studentID}, #{stuNumber}, #{year}, #{specialty}, #{className})")
     void add(UnderGraduate underGraduate);
+
+    @Select("SELECT u.institutionID, u.specialty, u.stuNumber, u.studentID, u.`year`, t.tutorID, s.email, s.telephone, s.NAME, tea.`name` AS tutorName, tea.jobnumber as tutorJobNumber  FROM thesis t " +
+            "INNER JOIN undergraduate u ON t.studentID = u.ID INNER JOIN student s ON s.ID = u.studentID " +
+            "LEFT JOIN teacher tea ON t.tutorID = tea.id " +
+            "WHERE t.YEAR = #{year} AND t.`month` = #{month} and u.institutionID=#{institutionID} Order BY stuNumber")
+    List<UnderGraduate> getStudent(Integer institutionID, Integer year, Integer month);
+
+//    @Select("SELECT DISTINCT CONCAT(t.year, t.month) AS date FROM thesis t, undergraduate u " +
+//            "WHERE u.institutionID = #{institutionID} AND t.studentID = u.ID")
+    @Select("select concat(s.year,'年',s.semester) from startThesis s where s.institutionID = #{institutionID}")
+    List<String> getThesisExistDate(Integer institutionID);
+
+    @Insert("insert ignore into startThesis (year, semester, institutionID) values (#{year}, #{semester}, #{institutionID})")
+    void startThesis(Integer institutionID, Integer year, String semester);
+
+    @Select("SELECT COUNT(*) > 0 FROM startThesis WHERE year = #{year} AND semester = #{semester} AND institutionID = #{institutionID}")
+    boolean havingStartThisThesis(@Param("institutionID") Integer institutionID, @Param("year") Integer year, @Param("semester") String semester);
+
+
 }

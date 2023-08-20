@@ -573,12 +573,21 @@ export default new Router({
           },
         },
         {
-          path: '/admin/Thesis',
-          name: '毕业论文',
+          path: '/admin/StartThesis',
+          name: '开启毕业论文',
           hidden: true,
-          component: () => import('./views/admin/Thesis'),
+          component: () => import('./views/admin/StartThesis'),
           meta: {
-            title: '毕业论文',
+            title: '开启毕业论文',
+          },
+        },
+        {
+          path: '/admin/ManageThesis',
+          name: '管理毕业论文',
+          hidden: true,
+          component: () => import('./views/admin/ManageThesis'),
+          meta: {
+            title: '管理毕业论文',
           },
         },
 

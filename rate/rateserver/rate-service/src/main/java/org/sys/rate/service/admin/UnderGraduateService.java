@@ -276,40 +276,45 @@ public class UnderGraduateService {
     }
 
     @Transactional
-    public RespBean importThesis(Integer institutionID, Integer year, String semester, MultipartFile file) {
+    public RespBean importThesis(String type, Integer institutionID, Integer year, String semester, MultipartFile file) {
         // 1. 从excel解析出来的数据
-        // thesis中记录开启年份，学期，学生姓名，学生学号，（入学年份、专业、班级），导师工号，导师姓名
-        // !这里仅仅学生学号不为空，其他都可以为空
-        Msg excelData = readExcel.readStartThesisExcelData(file);
+        Msg excelData = readExcel.readStartThesisExcelData(type, file);
         if (excelData.getCode() == 500) {
             return RespBean.error(excelData.getMsg());
         }
 
         // 2.对于studentID和tutorID`分别`进行查重，顺便更新，注意这里要用到institutionID
-        RespBean stuRespbean = duplicateStudentChecker((Set<UnderGraduate>) excelData.getExtend().get("student"), institutionID);
-        if (stuRespbean.getStatus() == 500) {
-            return stuRespbean;
-        }
-        RespBean teaRespBean = duplicateTeacherChecker((Set<Teachers>) excelData.getExtend().get("teacher"), institutionID);
-        if (teaRespBean.getStatus() == 500) {
-            return teaRespBean;
+        if ("student".equals(type)) {
+            RespBean stuRespbean = duplicateStudentChecker((Set<UnderGraduate>) excelData.getExtend().get("student"), institutionID);
+            if (stuRespbean.getStatus() == 500) {
+                return stuRespbean;
+            }
+            RespBean teaRespBean = duplicateTeacherChecker((Set<Teachers>) excelData.getExtend().get("teacher"), institutionID);
+            if (teaRespBean.getStatus() == 500) {
+                return teaRespBean;
+            }
         }
 
         // 3.对于学期进行分解，3-春季，9-秋季
-        Integer month = "春季".equals(semester) ? 3 : 9;
+        Integer month;
+        if (semester.length() > 1) {
+            month = "春季".equals(semester) ? 3 : 9;
+        } else {
+            month = Integer.valueOf(semester);
+        }
 
-        // 4.插入thesis表！
+        // !4.插入thesis表(或者当type==teacher时，需要更新thesis表)
         List<Thesis> thesisList = new ArrayList<>((Set<Thesis>) excelData.getExtend().get("thesis"));
 
-        return insertThesis(thesisList, institutionID, year, month);
+        return insertOrUpdateThesis(type, thesisList, institutionID, year, month);
 
     }
 
-    private RespBean insertThesis(List<Thesis> thesisList, Integer institutionID, Integer year, Integer month) {
+    private RespBean insertOrUpdateThesis(String type, List<Thesis> thesisList, Integer institutionID, Integer year, Integer month) {
 
         // 1.利用institutionID和teacher.JobNumber获取tutorID重新写回thesis中  && studentId类似
         for (Thesis thesis : thesisList) {
-            if(StringUtil.isNotEmpty(thesis.getTutorNumber())) {
+            if (StringUtil.isNotEmpty(thesis.getTutorNumber())) {
                 thesis.setTutorID(teachersMapper.getTutorIdByJobNumAndInstitutionID(thesis.getTutorNumber(), institutionID));
             }
             thesis.setStudentID(studentMapper.getStuIdByStuNumAndInstitutionID(thesis.getStudentNumber(), institutionID));
@@ -317,9 +322,19 @@ public class UnderGraduateService {
 
         // 2.进行插入thesis表  !!!这个还需要查重
         try {
-            thesisMapper.addBatch(thesisList, year, month);
+            if ("student".equals(type)) {
+                thesisMapper.addBatch(thesisList, year, month);
+            } else {
+                thesisMapper.updateBatch(thesisList, year, month);
+            }
         } catch (Exception e) {
-            RespBean.error("插入毕业论文信息时出错！");
+            String errorMessage = "操作毕业论文信息时出错！";
+            if ("student".equals(type)) {
+                errorMessage = "插入" + errorMessage;
+            } else {
+                errorMessage = "更新" + errorMessage;
+            }
+            RespBean.error(errorMessage);
         }
 
         return RespBean.ok("");
@@ -375,5 +390,50 @@ public class UnderGraduateService {
             }
         }
         return RespBean.ok("");
+    }
+
+    public List<UnderGraduate> getStudent(Integer institutionID, Integer year, Integer month) {
+        return underGraduateMapper.getStudent(institutionID, year, month);
+    }
+
+    public RespBean getThesisExistDate(Integer institutionID) {
+        try {
+            List<String> date = underGraduateMapper.getThesisExistDate(institutionID);
+            return RespBean.ok("", date);
+        } catch (Exception e) {
+            return RespBean.error("");
+        }
+    }
+
+    public RespBean startThesis(Integer institutionID, Integer year, String semester) {
+        try {
+            underGraduateMapper.startThesis(institutionID, year, semester);
+            return RespBean.ok("");
+        } catch (Exception e) {
+            return RespBean.error("开启毕业设计失败！");
+        }
+    }
+
+    @Transactional
+    public RespBean updateUndergraduate(UnderGraduate under) {
+        // 修改student表，undergraduate表和thesis表即可！
+        try {
+            studentMapper.edit(under);
+            underGraduateMapper.update(under);
+            thesisMapper.update(under);
+            return RespBean.ok("");
+        } catch (Exception e) {
+            return RespBean.error("");
+        }
+
+    }
+
+    public RespBean deleteThesis(UnderGraduate under) {
+        try {
+            thesisMapper.delete(under);
+            return RespBean.ok("");
+        } catch (Exception e) {
+            return RespBean.error("");
+        }
     }
 }

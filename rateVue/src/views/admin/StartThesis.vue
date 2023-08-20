@@ -3,13 +3,17 @@
     <div>
       <label>开启毕业设计：</label>
       <el-input-number v-model="startYear" :min="1999" :max="new Date().getFullYear()"
-                       style="width: 120px"></el-input-number>
+                       style="width: 120px"
+                       @change="handleSelectSemesterChange"></el-input-number>
       <span style="margin-left: 10px">学期：</span>
-      <el-select v-model="selectSemester" style="width: 100px; height: 30px;">
+      <el-select v-model="selectSemester" style="width: 100px; height: 30px;" @change="handleSelectSemesterChange">
         <el-option value="春季">春季</el-option>
         <el-option value="秋季">秋季</el-option>
       </el-select>
+      <el-button @click="startThesis" type="primary" style="margin-left: 10px">开启</el-button>
     </div>
+
+
     <div style="margin-top: 10px">
       导入参加的学生第一步：
       <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="downloadExcel">下载模版
@@ -20,9 +24,9 @@
           :before-upload="beforeUpload"
           :on-success="onSuccess"
           style="display: inline-flex; margin-left: 1px"
-          :action="`/undergraduateM/basic/importThesis?institutionID=${this.user.institutionID}&year=${this.startYear}&semester=${encodeURIComponent(this.selectSemester)}`"
+          :action="`/undergraduateM/basic/importThesis?type=student&institutionID=${this.user.institutionID}&year=${this.startYear}&semester=${encodeURIComponent(this.selectSemester)}`"
       >
-        <el-button icon="el-icon-plus" type="primary" :disabled="selectSemester==''">导入学生</el-button>
+        <el-button icon="el-icon-plus" type="primary" :disabled=havingStart>导入学生</el-button>
       </el-upload>
 
     </div>
@@ -94,14 +98,12 @@
         <el-table-column prop="name" label="姓名" align="center" width="80px"></el-table-column>
         <el-table-column prop="specialty" label="专业" align="center"></el-table-column>
         <el-table-column prop="className" label="班级" align="center"></el-table-column>
-        <el-table-column prop="username" label="用户名" align="center"></el-table-column>
         <el-table-column prop="telephone" label="电话" align="center"></el-table-column>
         <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
         <el-table-column prop="year" label="入学年份" align="center"></el-table-column>
-        <el-table-column prop="idnumber" label="身份证号" align="center"></el-table-column>
         <el-table-column label="操作" align="center" width="180px">
           <template slot-scope="scope">
-            <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary" style="padding: 4px">编辑
+            <el-button size="mini" type="primary" plain @click="editDialogShow(scope.row)" style="padding: 4px">编辑
             </el-button>
             <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)" style="padding: 4px">删除
             </el-button>
@@ -113,58 +115,56 @@
       </el-table>
     </div>
     <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px" @close="closeDialogEdit">
-      <template>
-        <el-form :model="currentUnderStudentOfEdit" :label-width="labelWidth">
-          <el-form-item label="导师">
-            <div class="select_div_input" style="width: 70%">
-              <input
-                  autocomplete="off"
-                  style="width:95%;line-height:28px;
-                              border:1px solid lightgrey;padding:0 10px 1px 15px;
-                              border-radius:4px;color:gray"
-                  placeholder="请输入老师姓名"
-                  v-model="currentUnderStudentOfEdit.teachers.name"
-                  @focus="inputSelectTeacerNameFocus"
-                  @blur="isSelectShow = isSelectFlag"/>
-              <div class="select_div"
-                   v-show="isSelectShow && currentUnderStudentOfEdit.teachers.name ? true:false"
-                   :style="'height:${menuHeight}'"
-                   @mouseover="isSelectFlag = true"
-                   @mouseleave="isSelectFlag = false"
-              >
-                <div
-                    class="select_div_div"
-                    v-for="val in selectTeaNameAndJobnumber"
-                    :key="val"
-                    :value="val"
-                    @click="filterEditTeacher(val)"
-                >
-                  {{ val }}
-                </div>
-              </div>
-            </div>
-          </el-form-item>
-          <el-form-item label="学生姓名">
-            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.name"></el-input>
-          </el-form-item>
-          <el-form-item label="学生专业">
-            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.specialty"></el-input>
-          </el-form-item>
-          <el-form-item label="学生班级">
-            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.className"></el-input>
-          </el-form-item>
-          <el-form-item label="学生手机号">
-            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.telephone"></el-input>
-          </el-form-item>
-          <el-form-item label="学生邮箱">
-            <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.email"></el-input>
-          </el-form-item>
-        </el-form>
-        <span slot="footer" class="dialog-footer">
+      <el-form :model="currentUnderStudentOfEdit" label-width="100px" style="margin-left: 20px" label-position="left">
+        <!--          <el-form-item label="导师">-->
+        <!--            <div class="select_div_input" style="width: 70%">-->
+        <!--              <input-->
+        <!--                  autocomplete="off"-->
+        <!--                  style="width:95%;line-height:28px;-->
+        <!--                              border:1px solid lightgrey;padding:0 10px 1px 15px;-->
+        <!--                              border-radius:4px;color:gray"-->
+        <!--                  placeholder="请输入老师姓名"-->
+        <!--                  v-model="currentUnderStudentOfEdit.teachers.name"-->
+        <!--                  @focus="inputSelectTeacerNameFocus"-->
+        <!--                  @blur="isSelectShow = isSelectFlag"/>-->
+        <!--              <div class="select_div"-->
+        <!--                   v-show="isSelectShow && currentUnderStudentOfEdit.teachers.name ? true:false"-->
+        <!--                   :style="'height:${menuHeight}'"-->
+        <!--                   @mouseover="isSelectFlag = true"-->
+        <!--                   @mouseleave="isSelectFlag = false"-->
+        <!--              >-->
+        <!--                <div-->
+        <!--                    class="select_div_div"-->
+        <!--                    v-for="val in selectTeaNameAndJobnumber"-->
+        <!--                    :key="val"-->
+        <!--                    :value="val"-->
+        <!--                    @click="filterEditTeacher(val)"-->
+        <!--                >-->
+        <!--                  {{ val }}-->
+        <!--                </div>-->
+        <!--              </div>-->
+        <!--            </div>-->
+        <!--                  </el-form-item>-->
+        <el-form-item label="学生姓名">
+          <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.name"></el-input>
+        </el-form-item>
+        <el-form-item label="学生专业">
+          <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.specialty"></el-input>
+        </el-form-item>
+        <el-form-item label="学生班级">
+          <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.className"></el-input>
+        </el-form-item>
+        <el-form-item label="学生手机号">
+          <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.telephone"></el-input>
+        </el-form-item>
+        <el-form-item label="学生邮箱">
+          <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.email"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
           <el-button @click="editUnder" type="primary">确定</el-button>
           <el-button @click="closeDialogEdit">关闭</el-button>
         </span>
-      </template>
     </el-dialog>
     <el-dialog title="重置密码" :visible.sync="dialogResetPassword" center width="400px" @close="closeDialogReset">
       <el-form>
@@ -200,6 +200,7 @@ export default {
   name: "SalStudentM",
   data() {
     return {
+      havingStart: true,  // 默认没有开启
       canImportStudents: false,
       selectSemester: '',
       startYear: new Date().getFullYear(),
@@ -207,7 +208,7 @@ export default {
       newPassword: '',//重置密码中的新密码
       conNewPassword: '',//重置密码中的确认新密码
       dialogResetPassword: false,
-      pageSizes: [20, 20, 20, 20, 30],
+      pageSizes: [10, 20, 50, 100],
       totalCount: 0,
       currentPage: 1,
       pageSize: 20,
@@ -272,13 +273,27 @@ export default {
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
-    this.initSelectYearsList()
-    this.initUnderGraduateStudents(this.currentPage, this.pageSize)
+    // this.initSelectYearsList()
+    // this.initUnderGraduateStudents(this.currentPage, this.pageSize)
   },
   methods: {
-    // uploadUrl() {
-    //   return `/undergraduateM/basic/importUnderGraduate?institutionID=${this.user.institutionID}`; // 使用计算属性来动态生成上传请求的URL
-    // },
+    async startThesis() {
+      const url = `/undergraduateM/basic/startThesis?institutionID=${this.user.institutionID}&year=${this.startYear}&semester=${encodeURIComponent(this.selectSemester)}`;
+      try {
+        const resp = await this.postRequest1(url);
+        if (resp.status == 200) {
+          this.$message.success("开启毕业设计成功！");
+        } else {
+          this.$message.error("开启毕业设计失败！");
+        }
+
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async handleSelectSemesterChange() {
+      await this.initUnderGraduateStudents(1, 10);
+    },
 
     //编辑框中 搜索老师姓名之后点击下拉框的某个选项
     filterEditTeacher(val) {
@@ -366,24 +381,23 @@ export default {
     },
     closeDialogEdit() {//关闭对话框
       this.dialogEdit = false
-      this.initUnderGraduateStudents(this.currentPage, this.pageSize)
-      // this.currentUnderStudentOfEdit = {}
     },
     editDialogShow(data) {//控制变量
+      console.log(data);
       this.dialogEdit = true
       this.currentUnderStudentOfEdit = data
     },
     editUnder() {//点击编辑中的确定按钮
-      if (this.currentUnderStudentOfEdit.teachers.name == '' || this.currentUnderStudentOfEdit.teachers.name == null) {
-        // this.currentUnderStudentOfEdit.teachers.jobnumber = ''
-        this.$message.warning('请填写老师姓名！')
-        return
-      }
-      if (this.currentUnderStudentOfEdit.teachers.jobnumber == '' || this.currentUnderStudentOfEdit.teachers.jobnumber == null) {
-        // this.currentUnderStudentOfEdit.teachers.name = ''
-        this.$message.warning('请填写老师工号！')
-        return
-      }
+      // if (this.currentUnderStudentOfEdit.teachers.name == '' || this.currentUnderStudentOfEdit.teachers.name == null) {
+      //   // this.currentUnderStudentOfEdit.teachers.jobnumber = ''
+      //   this.$message.warning('请填写老师姓名！')
+      //   return
+      // }
+      // if (this.currentUnderStudentOfEdit.teachers.jobnumber == '' || this.currentUnderStudentOfEdit.teachers.jobnumber == null) {
+      //   // this.currentUnderStudentOfEdit.teachers.name = ''
+      //   this.$message.warning('请填写老师工号！')
+      //   return
+      // }
       let data = this.currentUnderStudentOfEdit
       this.postRequest('/undergraduateM/basic/editUnderGraduateStudent', data).then((resp) => {
         if (resp) {
@@ -406,7 +420,7 @@ export default {
         this.postRequest('/undergraduateM/basic/deleteUnderGraduateStudent', data).then((resp) => {
           if (resp.code == 200) {
             this.$message.success('删除成功')
-            this.initUnderGraduateStudents(1, this.pageSize)
+            this.initUnderGraduateStudents(this.currentPage, this.pageSize)
           } else {
             this.$message.warning('删除失败！')
           }
@@ -414,7 +428,6 @@ export default {
       })
     },
     onSuccess(res) {//上传excel成功的回调
-      console.log(res);
       if (res.status == 200) {
         this.$message.success("导入成功")
         this.initUnderGraduateStudents(1, this.pageSize);
@@ -425,7 +438,6 @@ export default {
     beforeUpload() {//上传前
       this.$message.success("正在导入")
     },
-
     downloadExcel() {
       let url = `/undergraduateM/basic/exportUnderGraduate?type=thesis`
       this.$message.success('正在下载')
@@ -461,20 +473,48 @@ export default {
         this.filterBtn()
       }
     },
-    initUnderGraduateStudents(curr, pagesize) {//初始化本科生
-      //因为很多不同情况下都要初始化数据，所以不能只依靠data中都两个参数
-      this.getRequest('/undergraduateM/basic/getUnderGraduateStudents?pageNum=' + curr + '&pageSize=' + pagesize).then((response) => {
-        if (response.code == 200) {
-          this.undergraduateStudents = response.extend.res[0]
-          this.totalCount = response.extend.res[1]
+    async initUnderGraduateStudents(curr, pageSize) {
+      try {
+        const url = `/undergraduateM/basic/getStudents?institutionID=${this.user.institutionID}&year=${this.startYear}&semester=${this.selectSemester}&pageNum=${curr}&pageSize=${pageSize}`;
+
+        const response = await this.getRequest(url);
+        const {code, extend} = response;
+        if (code === 200) {
+          const [students, totalCount] = extend.res;
+          this.undergraduateStudents = students;
+          this.totalCount = totalCount;
+          this.havingStart = !extend.havingStart;
+          if (extend.havingStart) {
+            this.$message.success("本学期已经开启毕业设计活动！");
+
+            setTimeout(() => {
+              if (this.totalCount == 0) {
+                this.$message.info("本学期没有导入毕业论文信息！");
+              }
+            }, 1000);
+          } else {
+            if (this.totalCount == 0) {
+              this.$message.info("本学期没有导入毕业论文信息！");
+            }
+          }
+
+        } else {
+          // 处理请求失败的情况
+          this.$message.error("请求失败!")
         }
-      })
+      } catch (error) {
+        this.$message.error("请求出现异常！");
+      }
     }
+
   }
 }
 </script>
 
 <style scoped>
+
+
+
 .footer {
   text-align: center;
 }

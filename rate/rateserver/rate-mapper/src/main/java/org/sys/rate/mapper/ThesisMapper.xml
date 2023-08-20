@@ -12,4 +12,14 @@
             (#{thesis.studentID}, #{thesis.tutorID}, #{year}, #{month})
         </foreach>
     </insert>
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="thesisList" item="thesis" separator=";">
+            update thesis
+            set tutorID = #{thesis.tutorID}
+            where studentID = #{thesis.studentID}
+            and year = #{year}
+            and month = #{month}
+        </foreach>
+    </update>
+
 </mapper>
