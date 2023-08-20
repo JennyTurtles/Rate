@@ -45,7 +45,7 @@
      <span v-show="mode === 'secretarySub'">{{ $route.query.groupName }} 组内管理</span>
      <el-dropdown @command='goAnotherGroupForSub'>
      <span style="margin-left: 20px" class="el-dropdown-link" v-show="mode === 'secretarySub' && !this.$route.query.forSecretary">
-     切换<i class="el-icon-arrow-down el-icon--right"></i>
+     切换分组<i class="el-icon-arrow-down el-icon--right"></i>
      </span>
       <el-dropdown-menu  slot="dropdown">
        <el-dropdown-item :disabled="$route.query.groupID == item.id" :command="item.id" v-for="item in groupList"
