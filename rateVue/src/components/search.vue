@@ -833,12 +833,7 @@
         style="width: 100%"
     >
       <el-table-column fixed prop="name" label="奖项名"></el-table-column>
-      <el-table-column fixed prop="rankN" label="排名限制">
-        <template slot-scope="scope">
-          <span v-if="scope.row.rankN === 0">排名不限</span>
-          <span v-else>{{ scope.row.rankN }}</span>
-        </template>
-      </el-table-column>
+
 
       <el-table-column fixed="right" label="操作" width="150">
         <template slot-scope="scope">
@@ -889,21 +884,6 @@
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
 
-        <div>
-          <el-radio-group v-model="selectedOption" @change="handleRadioChange">
-            <el-radio :label="1">有排名限制</el-radio>
-            <el-radio :label="0">无排名限制</el-radio>
-          </el-radio-group>
-
-          <div v-if="selectedOption === 1">
-            限排名前
-            <el-input-number v-model="rowData.rankN" :min="1" :max="99" style="width: 120px"></el-input-number>
-            有积分
-          </div>
-
-          <div v-if="selectedOption === 0">
-          </div>
-        </div>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdateAward = false">取 消</el-button>
@@ -1312,6 +1292,10 @@ export default {
         this.closeClone();
         return
       }
+      if(this.fromYear==this.toYear){
+        this.$message.warning("年份选择相同，请重新选择！");
+        return
+      }
       const fromYear = this.fromYear;
       const toYear = this.toYear;
       const indicatorId = this.indicatorID; // 替换为实际的indicatorId
@@ -1424,7 +1408,7 @@ export default {
           this.tableData = resp.extend.res[0];
           this.totalCount = resp.extend.res[1];
         } else {
-          this.tableData = "";
+          this.tableData = [];
           this.totalCount = 0;
         }
       } catch (error) {

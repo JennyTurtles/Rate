@@ -31,7 +31,7 @@ public interface IndicatorMapper{
     @Delete("delete from indicator where id = #{id}")
     public int delete(Integer id);
 
-    @Update("update indicator set name = #{name} where id = #{id}")
+    @Update("update indicator set name = #{name}, rankN = #{rankN} where id = #{id}")
     public int update(Indicator indicator);
 
     @Update("update indicator set `order` = #{order} where id = #{id}")
