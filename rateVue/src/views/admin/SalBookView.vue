@@ -58,7 +58,7 @@ export default {
   },
   methods: {
     getLabelInfo(nodeData) {
-      console.log(nodeData);
+      // console.log(nodeData);
       this.nodeData = nodeData;
       this.$refs.search.getData(nodeData.id, nodeData.type);
     },

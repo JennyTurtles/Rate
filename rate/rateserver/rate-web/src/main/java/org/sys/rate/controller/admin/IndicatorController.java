@@ -73,7 +73,7 @@ public class IndicatorController {
             ArrayList<Integer> yearList = indicatorService.getAllYearById(indicatorId, indicatorType);
             return RespBean.ok("getAllYear", yearList);
         } catch (Exception e) {
-            return RespBean.error("getAllYear wrong!");
+            return RespBean.error("获取所有有数据的年份失败！");
         }
     }
 

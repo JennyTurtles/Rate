@@ -1,7 +1,9 @@
 package org.sys.rate.service.admin;
 
+import cn.hutool.core.util.StrUtil;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.sys.rate.mapper.AwardMapper;
 import org.sys.rate.mapper.AwardMapper;
 import org.sys.rate.mapper.AwardTypeMapper;
@@ -115,8 +117,6 @@ public class AwardService {
     }
 
     public void editAwardType(AwardType awardType) {
-        // 这里不好判断之前的rankN是否修改了，那就都修改一下
         awardTypeMapper.editAwardType(awardType);
-        awardTypeMapper.editIndicatorAwardRankN(awardType);
     }
 }
