@@ -22,4 +22,5 @@ public class ExportGradeMapper {
     public Map<String, Integer> defenseScoreName2ID;
     public List<String> orderList;
     public boolean exportForTutor; // 是否导出给指导教师
+    public List<Integer> studentIDs; // 用于指导老师导出学生评定表，存储该指导老师的学生
 }

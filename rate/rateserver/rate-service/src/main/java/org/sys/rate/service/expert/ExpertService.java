@@ -669,8 +669,8 @@ public class ExpertService implements UserDetailsService {
 
 	public List<GradeForm> getGradeForms(ExportGradeMapper exportGradeMapper) {
 		List<Integer> studentIDs;
-		if (exportGradeMapper.isExportForTutor()){
-			studentIDs = participatesMapper.getStudentIDForTutor(exportGradeMapper.getActivityID(),exportGradeMapper.getTeacherID());
+		if (exportGradeMapper.studentIDs != null){
+			studentIDs = exportGradeMapper.studentIDs;
 		}
 		else if (exportGradeMapper.getGroupID() == null)  // 获取当前活动下所有的学生ID
 			studentIDs = participatesMapper.getStudentIDbyActID(exportGradeMapper.getActivityID());
@@ -679,7 +679,7 @@ public class ExpertService implements UserDetailsService {
 		List<GradeForm> result = new ArrayList<>();
 		for (Integer studentID : studentIDs) {
 			// 未使用到thesis表和undergraduate表
-			GradeForm gradeForm = underGraduateMapper.getGradeFormByStuID(studentID);
+			GradeForm gradeForm = underGraduateMapper.getGradeFormByStuIdAndTutorId(studentID,exportGradeMapper.getTeacherID());
 			if (gradeForm == null) // 本科生表中没有记录，或毕设表中没有记录
 				continue;
 			// 获取评语，后续可以将将数据库操作合并
