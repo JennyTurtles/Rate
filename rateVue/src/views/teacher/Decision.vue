@@ -100,7 +100,7 @@
             prop="student.name"
             align="center"
             label="学生姓名"
-            width="75"
+            width="130"
         >
         </el-table-column>
         <el-table-column
@@ -140,13 +140,6 @@
         <el-table-column
             prop="point"
             label="积分"
-            align="center"
-            width="80"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="grantedStatus"
-            label="授权状态"
             align="center"
             width="80"
         >
