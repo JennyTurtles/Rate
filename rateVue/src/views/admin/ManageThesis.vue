@@ -11,22 +11,74 @@
         </el-option>
       </el-select>
     </div>
-    <div style="margin-top: 10px">
-      导入指导教师信息第一步：
-      <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="downloadExcel">下载模版
-      </el-button>
-      第二步：
-      <el-upload
-          :show-file-list="false"
-          :before-upload="beforeUpload"
-          :on-success="onSuccess"
-          style="display: inline-flex; margin-left: 1px"
-          :action="`/undergraduateM/basic/importThesis?type='teacher'&institutionID=${this.user.institutionID}&year=${this.startYear}&semester=${this.selectSemester}`"
-      >
-        <el-button icon="el-icon-plus" type="primary" :disabled="selectDate==''">导入教师</el-button>
-      </el-upload>
 
+    <div style="margin-top: 10px">
+      <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="importStudents">导入学生
+      </el-button>
+
+      <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="groupStudents">学生分组
+      </el-button>
+
+      <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="importTeachers">导入教师
+      </el-button>
     </div>
+
+    <el-dialog :visible.sync="dialogTeacherVisible" width="30%" >
+      <template v-slot:title>
+        <div style="text-align: center; font-size: 20px;">导入指导教师信息</div>
+      </template>
+      <div style="margin-left: 10px">第一步：
+        <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="downloadExcel">下载模版
+        </el-button>
+      </div>
+
+      <div style="margin-top: 10px;margin-left: 10px">第二步：
+        <el-upload
+            :show-file-list="false"
+            :before-upload="beforeUpload"
+            :on-success="onSuccess"
+            style="display: inline-flex; margin-left: 1px"
+            :action="`/undergraduateM/basic/importThesis?type=teacher&institutionID=${user.institutionID}&year=${startYear}&semester=${selectSemester}`"
+        >
+          <el-button icon="el-icon-plus" type="primary" :disabled="selectDate==''">导入教师</el-button>
+        </el-upload>
+      </div>
+      <template #footer>
+        <div>
+          <el-button @click="dialogTeacherVisible = false">关闭</el-button>
+        </div>
+      </template>
+
+    </el-dialog>
+
+    <el-dialog :visible.sync="dialogStudentVisible" width="30%" >
+      <template v-slot:title>
+        <div style="text-align: center; font-size: 20px;">导入学生信息</div>
+      </template>
+      <div style="margin-left: 10px">第一步：
+        <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="downloadExcel">下载模版
+        </el-button>
+      </div>
+
+      <div style="margin-top: 10px;margin-left: 10px">第二步：
+        <el-upload
+            :show-file-list="false"
+            :before-upload="beforeUpload"
+            :on-success="onSuccess"
+            style="display: inline-flex; margin-left: 1px"
+            :action="`/undergraduateM/basic/importThesis?type=student&institutionID=${user.institutionID}&year=${startYear}&semester=${selectSemester}`"
+        >
+          <el-button icon="el-icon-plus" type="primary" :disabled="selectDate==''">导入学生</el-button>
+        </el-upload>
+      </div>
+      <template #footer>
+        <div>
+          <el-button @click="dialogStudentVisible = false">关闭</el-button>
+        </div>
+      </template>
+
+    </el-dialog>
+
     <div style="margin-top: 10px">
       <span>
         请选择条件进行搜索：
@@ -179,6 +231,8 @@ export default {
   name: "SalStudentM",
   data() {
     return {
+      dialogTeacherVisible: false,
+      dialogStudentVisible: false,
       options: [],
       selectDate: '',
       canImportStudents: false,
@@ -256,6 +310,16 @@ export default {
     this.fetchThesisExistDate()
   },
   methods: {
+    groupStudents(){
+      return
+    },
+    importStudents(){
+      this.dialogStudentVisible = true;
+    },
+    importTeachers() {
+      this.dialogTeacherVisible = true;
+    },
+
     async fetchThesisExistDate() {
       try {
         const url = `/undergraduateM/basic/getThesisExistDate?institutionID=${this.user.institutionID}`;

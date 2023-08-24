@@ -36,6 +36,11 @@ public interface UnderGraduateMapper {
     @Select("SELECT name FROM student s WHERE s.ID = #{studentID} LIMIT 1")
     GradeForm getGradeFormByStuID(Integer studentID);
 
+    @Select("SELECT s.name, t.name thesisName\n" +
+            "FROM student s, undergraduate u, thesis t\n" +
+            "WHERE s.ID = #{studentID} AND u.studentID = s.ID AND u.ID = t.studentID AND t.tutorID = #{tutorID} LIMIT 1")
+    GradeForm getGradeFormByStuIdAndTutorId(Integer studentID, Integer tutorID);
+
     @Select("select id from undergraduate  where stuNumber =#{stuNumber} and institutionID = #{institutionID}")
     Integer checkStudentExist(String stuNumber, Integer institutionID);
 
@@ -51,7 +56,7 @@ public interface UnderGraduateMapper {
 
 //    @Select("SELECT DISTINCT CONCAT(t.year, t.month) AS date FROM thesis t, undergraduate u " +
 //            "WHERE u.institutionID = #{institutionID} AND t.studentID = u.ID")
-    @Select("select concat(s.year,'年',s.semester) from startThesis s where s.institutionID = #{institutionID}")
+    @Select("select concat(s.year,'年',s.semester) from startThesis s where s.institutionID = #{institutionID} order by id desc")
     List<String> getThesisExistDate(Integer institutionID);
 
     @Insert("insert ignore into startThesis (year, semester, institutionID) values (#{year}, #{semester}, #{institutionID})")

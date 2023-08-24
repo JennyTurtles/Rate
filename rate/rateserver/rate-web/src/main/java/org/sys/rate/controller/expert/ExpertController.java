@@ -384,6 +384,15 @@ public class ExpertController {
         return RespBean.ok("success",expertsMapper.getByIDNumber(idNumber));
     }
 
+    // 导师导出成绩评定表，通过tutorID和activityID获取该导师所有的学生
+    @GetMapping("/studentsForTutor")
+    public RespBean getStudentsForTutor(@RequestParam("tutorID")Integer tutorID,@RequestParam("activityID")Integer activityID){
+        return RespBean.ok("success",expertsMapper.getStudentsForTutor(tutorID,activityID));
+    }
+
+
+
+
 }
 
 

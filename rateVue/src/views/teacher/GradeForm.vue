@@ -1,7 +1,7 @@
 <template>
-<div>
+<div class="el-main my-page">
  <div >请选择需要导出成绩评定表的活动：
-  <el-select style="width: 400px" @change="allowExport=false" v-model="selectedActivityID">
+  <el-select style="width: 400px" @change="allowConfirm=false" v-model="selectedActivityID">
    <el-option
        v-for="item in options"
        :key="item.id"
@@ -9,9 +9,10 @@
        :value="item.id">
    </el-option>
   </el-select>
-  <el-button style="margin-left: 20px" :disabled="allowExport" type="primary" @click="exportGradeForm(selectedActivityID)">导出</el-button>
+  <el-button style="margin-left: 20px" :disabled="allowConfirm" type="primary" @click="exportGradeForm(selectedActivityID)">确定</el-button>
+  <el-button style="margin-left: 20px" :disabled="allowExport" type="success" @click="getAllStudents">导出</el-button>
  </div>
- <el-dialog title="成绩评定表导出设置" :visible.sync="exportGradeFormVisible" width="70%">
+ <div v-show="showGradeFormSetting" style="color: #FFFFFF">
   <el-form
       label-position="left"
       label-width="120px"
@@ -85,11 +86,11 @@
    <el-form
        label-position="left"
        :model="gradeForm"
-       label-width="600px"
+       label-width="800px"
        :inline="true"
    >
     <div v-for="(value, key) in gradeForm.instructorScoreItemsMap" :key="key">
-     <el-form-item :label="value[0]">
+     <el-form-item  :label="value[0]">
       <el-select
           style="width: 80%"
           v-model="gradeForm.instructorScoreItemsMap.get(value[0]).id"
@@ -122,7 +123,7 @@
    <el-form
        label-position="left"
        :model="gradeForm"
-       label-width="600px"
+       label-width="800px"
        :inline="true"
    >
     <div v-for="(value, key) in gradeForm.reviewScoreItemsMap" :key="key">
@@ -158,7 +159,7 @@
    <el-form
        label-position="left"
        :model="gradeForm"
-       label-width="600px"
+       label-width="800px"
        :inline="true"
    >
     <div v-for="(value, key) in gradeForm.defenseScoreItemsMap" :key="key">
@@ -186,12 +187,197 @@
     </div>
    </el-form>
   </el-form>
-
-  <span slot="footer" class="dialog-footer">
-        <el-button @click="exportGradeFormVisible = false">取 消</el-button>
-        <el-button type="success" @click="goExportGradeForm()">下 载</el-button>
-      </span>
+ </div>
+ <el-dialog title="请选择您要导出的学生" v-loading="exportGradeFormLoading" :visible.sync="showStudents">
+  <el-checkbox-group v-model="checkedStudents" @change="">
+   <el-checkbox v-for="student in students" :label="student.id" :key="student.id">{{student.name}}</el-checkbox>
+  </el-checkbox-group>
+   <span slot="footer" class="dialog-footer">
+    <el-button @click="showStudents = false;checkedStudents=[]">取 消</el-button>
+    <el-button type="primary" @click="showStudents = false;goExportGradeForm()">确 定</el-button>
+  </span>
  </el-dialog>
+<!-- <el-dialog title="成绩评定表导出设置" :visible.sync="exportGradeFormVisible" width="70%">-->
+<!--  <el-form-->
+<!--      label-position="left"-->
+<!--      label-width="120px"-->
+<!--      :model="gradeForm"-->
+<!--      element-loading-body="element-loading-body"-->
+<!--      v-loading="exportGradeFormLoading" element-loading-text="导出中..."-->
+<!--  >-->
+<!--   <el-divider>评语设置-->
+<!--    <el-button type="danger"-->
+<!--               @click="gradeForm.instructorCommentActID='';gradeForm.reviewCommentActID='';gradeForm.defenseCommentActID='';disableComment()"-->
+<!--               size="mini" style="margin: 5px;padding: 5px" v-show="mode!=='secretary'">清空-->
+<!--    </el-button>-->
+<!--   </el-divider>-->
+<!--   <el-form-item label="指导教师评语:">-->
+<!--    <el-select-->
+<!--        style="width: 100%"-->
+<!--        v-model="gradeForm.instructorCommentActID"-->
+<!--        placeholder="请选择对应的子活动"-->
+<!--        @change="disableComment()"-->
+<!--        :disabled="mode==='secretary'"-->
+<!--    >-->
+<!--     <el-option-->
+<!--         v-for="item in subActsWithComment"-->
+<!--         :key="item.id"-->
+<!--         :label="item.name"-->
+<!--         :value="item.id"-->
+<!--         :disabled="item.disabled">-->
+<!--     </el-option>-->
+<!--    </el-select>-->
+<!--   </el-form-item>-->
+<!--   <el-form-item label="评阅教师评语:" prop="startDate">-->
+<!--    <el-select-->
+<!--        style="width: 100%"-->
+<!--        v-model="gradeForm.reviewCommentActID"-->
+<!--        placeholder="请选择对应的子活动"-->
+<!--        @change="disableComment()"-->
+<!--        :disabled="mode==='secretary'"-->
+<!--    >-->
+<!--     <el-option-->
+<!--         v-for="item in subActsWithComment"-->
+<!--         :key="item.id"-->
+<!--         :label="item.name"-->
+<!--         :value="item.id"-->
+<!--         :disabled="item.disabled">-->
+<!--     </el-option>-->
+<!--    </el-select>-->
+<!--   </el-form-item>-->
+<!--   <el-form-item label="答辩教师评语:" prop="startDate">-->
+<!--    <el-select-->
+<!--        style="width: 100%"-->
+<!--        v-model="gradeForm.defenseCommentActID"-->
+<!--        placeholder="请选择对应的子活动"-->
+<!--        @change="disableComment()"-->
+<!--        :disabled="mode==='secretary'"-->
+<!--    >-->
+<!--     <el-option-->
+<!--         v-for="item in subActsWithComment"-->
+<!--         :key="item.id"-->
+<!--         :label="item.name"-->
+<!--         :value="item.id"-->
+<!--         :disabled="item.disabled">-->
+<!--     </el-option>-->
+<!--    </el-select>-->
+<!--   </el-form-item>-->
+<!--   <el-divider>指导教师评分项设置-->
+<!--    <el-button type="danger"-->
+<!--               @click="emptyScoreItem('指导教师评语');disableScoreItem()"-->
+<!--               size="mini" style="margin: 5px;padding: 5px" v-show="mode!=='secretary'">清空-->
+<!--    </el-button>-->
+<!--   </el-divider>-->
+<!--   <el-form-->
+<!--       label-position="left"-->
+<!--       :model="gradeForm"-->
+<!--       label-width="600px"-->
+<!--       :inline="true"-->
+<!--   >-->
+<!--    <div v-for="(value, key) in gradeForm.instructorScoreItemsMap" :key="key">-->
+<!--     <el-form-item :label="value[0]">-->
+<!--      <el-select-->
+<!--          style="width: 80%"-->
+<!--          v-model="gradeForm.instructorScoreItemsMap.get(value[0]).id"-->
+<!--          placeholder="请选择对应的评分项"-->
+<!--          @change="disableScoreItem()"-->
+<!--          :disabled="mode==='secretary'"-->
+<!--      >-->
+<!--       <el-option-->
+<!--           v-for="item in scoreItemsAll"-->
+<!--           :key="item.id"-->
+<!--           :label="item.name"-->
+<!--           :value="item.id"-->
+<!--           :disabled="item.disabled">-->
+<!--       </el-option>-->
+<!--      </el-select>-->
+<!--     </el-form-item>-->
+<!--     <el-form-item label="系数" label-width="40px">-->
+<!--      <el-input @input="$forceUpdate()" style="width: 60px"-->
+<!--                v-model="gradeForm.instructorScoreItemsMap.get(value[0]).coef"-->
+<!--                :disabled="mode==='secretary'"></el-input>-->
+<!--     </el-form-item>-->
+<!--    </div>-->
+<!--   </el-form>-->
+<!--   <el-divider>评阅教师评分项设置-->
+<!--    <el-button type="danger"-->
+<!--               @click="emptyScoreItem('评阅教师评语');;disableScoreItem()"-->
+<!--               size="mini" style="margin: 5px;padding: 5px" v-show="mode!=='secretary'">清空-->
+<!--    </el-button>-->
+<!--   </el-divider>-->
+<!--   <el-form-->
+<!--       label-position="left"-->
+<!--       :model="gradeForm"-->
+<!--       label-width="600px"-->
+<!--       :inline="true"-->
+<!--   >-->
+<!--    <div v-for="(value, key) in gradeForm.reviewScoreItemsMap" :key="key">-->
+<!--     <el-form-item :label="value[0]">-->
+<!--      <el-select-->
+<!--          style="width: 80%"-->
+<!--          v-model="gradeForm.reviewScoreItemsMap.get(value[0]).id"-->
+<!--          placeholder="请选择对应的评分项"-->
+<!--          @change="disableScoreItem"-->
+<!--          :disabled="mode==='secretary'"-->
+<!--      >-->
+<!--       <el-option-->
+<!--           v-for="item in scoreItemsAll"-->
+<!--           :key="item.id"-->
+<!--           :label="item.name"-->
+<!--           :value="item.id"-->
+<!--           :disabled="item.disabled">-->
+<!--       </el-option>-->
+<!--      </el-select>-->
+<!--     </el-form-item>-->
+<!--     <el-form-item label="系数" label-width="40px">-->
+<!--      <el-input @input="$forceUpdate()" style="width: 60px" v-model="gradeForm.reviewScoreItemsMap.get(value[0]).coef"-->
+<!--                :disabled="mode==='secretary'"></el-input>-->
+<!--     </el-form-item>-->
+<!--    </div>-->
+<!--   </el-form>-->
+<!--   <el-divider>答辩评分项设置-->
+<!--    <el-button type="danger"-->
+<!--               @click="emptyScoreItem('答辩教师评语');;disableScoreItem()"-->
+<!--               size="mini" style="margin: 5px;padding: 5px" v-show="mode!=='secretary'">清空-->
+<!--    </el-button>-->
+<!--   </el-divider>-->
+<!--   <el-form-->
+<!--       label-position="left"-->
+<!--       :model="gradeForm"-->
+<!--       label-width="600px"-->
+<!--       :inline="true"-->
+<!--   >-->
+<!--    <div v-for="(value, key) in gradeForm.defenseScoreItemsMap" :key="key">-->
+<!--     <el-form-item :label="value[0]">-->
+<!--      <el-select-->
+<!--          style="width: 80%"-->
+<!--          v-model="gradeForm.defenseScoreItemsMap.get(value[0]).id"-->
+<!--          placeholder="请选择对应的评分项"-->
+<!--          @change="disableScoreItem"-->
+<!--          :disabled="mode==='secretary'"-->
+<!--      >-->
+<!--       <el-option-->
+<!--           v-for="item in scoreItemsAll"-->
+<!--           :key="item.id"-->
+<!--           :label="item.name"-->
+<!--           :value="item.id"-->
+<!--           :disabled="item.disabled">-->
+<!--       </el-option>-->
+<!--      </el-select>-->
+<!--     </el-form-item>-->
+<!--     <el-form-item label="系数" label-width="40px">-->
+<!--      <el-input @input="$forceUpdate()" style="width: 60px" v-model="gradeForm.defenseScoreItemsMap.get(value[0]).coef"-->
+<!--                :disabled="mode==='secretary'"></el-input>-->
+<!--     </el-form-item>-->
+<!--    </div>-->
+<!--   </el-form>-->
+<!--  </el-form>-->
+
+<!--  <span slot="footer" class="dialog-footer">-->
+<!--        <el-button @click="exportGradeFormVisible = false">取 消</el-button>-->
+<!--        <el-button type="success" @click="goExportGradeForm()">下 载</el-button>-->
+<!--      </span>-->
+<!-- </el-dialog>-->
 </div>
 </template>
 
@@ -203,10 +389,15 @@ export default {
  name: "gradeForm",
  data() {
   return {
+   checkedStudents: [],
+   students:[],
+   showStudents:false,
+   allowExport:true,
+   showGradeFormSetting:false,
    scoreItemsAll: [],
    options:[],
    selectedActivityID:'',
-   allowExport:true,
+   allowConfirm:true,
    exportGradeFormLoading: false,
    gradeFormOrderList: [
     '指导教师评语',
@@ -262,14 +453,25 @@ export default {
     }
    }
   },
+  getAllStudents(){
+   let tutorID = this.user.id
+   let activityID = this.selectedActivityID
+   this.getRequest("/system/Experts/studentsForTutor?tutorID="+tutorID+"&activityID="+activityID).then(res => {
+    this.students = res.obj;
+    for (let i = 0; i < this.students.length; i++) {
+     this.checkedStudents.push(this.students[i].id)
+    }
+    this.showStudents = true
+   })
+  },
   goExportGradeForm() {
    this.exportGradeFormLoading = true
-   if (this.user.role.indexOf(3) !== -1) // 如果为秘书，下载时不会保存
-    var gradeFormConverted = this.saveGradeForm(false)
+   // // 下载时不会保存
+   var gradeFormConverted = this.saveGradeForm(false)
    if (gradeFormConverted === null)
     return
    gradeFormConverted.teacherID = this.user.id
-   gradeFormConverted.exportForTutor = true
+   gradeFormConverted.studentIDs = this.checkedStudents
    this.postRequest("/system/Experts/checkLeader", gradeFormConverted).then((res) => { // 接收文件的时候无法同时接收信息，因此单独请求一次后端
     if (res.msg == 0) {
      this.$message({type: 'warning', message: '未获取到任何有效数据！'});
@@ -294,8 +496,8 @@ export default {
     }
     this.exportGradeFormLoading = false
     this.exportGradeFormVisible = false
+    this.checkedStudents = []
    })
-
   },
   disableScoreItem() {
    this.$forceUpdate()
@@ -461,6 +663,8 @@ export default {
    return flag === 0 ? form : null
   },
   exportGradeForm(actID) {
+   this.showGradeFormSetting = true
+   this.allowExport = false
    // 这里按照老师的要求，直接把名字写死
    const gradeFormScoreItemNames = this.gradeFormOrderList
    this.getRequest("/scoreItem/basic/SubScoreItem?activityID=" + actID).then((resp) => {
@@ -512,6 +716,8 @@ export default {
 };
 </script>
 
-<style>
-
+<style scoped>
+.my-page {
+ background-color:#FFFFFF;
+}
 </style>

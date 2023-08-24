@@ -43,15 +43,16 @@
 <!--    </select>-->
 
     <insert id="insertFROMImport" parameterType="org.sys.rate.model.UnderGraduate">
-        insert into undergraduate(ID,studentID,stuNumber,institutionID,year,specialty,class) values
+        insert into undergraduate(studentID,stuNumber,institutionID,year,specialty,class) values
         <foreach collection="list" separator="," item="under">
-               (#{under.ID,jdbcType=INTEGER},
-                #{under.studentID,jdbcType=INTEGER},
+                (#{under.studentID,jdbcType=INTEGER},
                 #{under.stuNumber,jdbcType=VARCHAR},
                 #{under.institutionID,jdbcType=INTEGER},
                 #{under.year,jdbcType=VARCHAR}, #{under.specialty,jdbcType=VARCHAR},#{under.className,jdbcType=VARCHAR})
         </foreach>
     </insert>
+
+
 
     <update id="updateFROMImport" parameterType="org.sys.rate.model.UnderGraduate">
         <foreach collection="list" item="item" open="" close="" separator=";">
@@ -59,8 +60,7 @@
             <set>
                 institutionID=#{item.institutionID},
                 stuNumber = #{item.stuNumber},
-                year = #{item.year},
-                tutorID = #{item.tutorID}
+                year = #{item.year}
             </set>
             where studentID = #{item.studentID}
         </foreach>

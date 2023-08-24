@@ -188,7 +188,7 @@
       <span slot="title" style="float: left; font-size: 25px"
       >请输入需要修改的分类名</span
       >
-      <el-form label-width="auto">
+      <el-form label-width="auto" >
         <el-form-item label="类型">
           <el-select
               v-model="type"
@@ -209,6 +209,22 @@
         <el-form-item label="分类名">
           <el-input v-model="labelUpdate"></el-input>
         </el-form-item>
+        <div v-if="type=='科研获奖'">
+          <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+            <el-radio :label="1">有排名限制</el-radio>
+            <el-radio :label="0">无排名限制</el-radio>
+          </el-radio-group>
+
+          <div v-if="selectedOption === 1">
+            限排名前
+            <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+            有积分
+          </div>
+
+          <div v-if="selectedOption === 0">
+          </div>
+        </div>
+
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -237,11 +253,14 @@ export default {
       //此处可以让父组件向子组件传递url,提高复用性
       that.id = resp.obj[0];
       that.data = resp.obj[1];
+      console.log(resp);
     });
   },
 
   data() {
     return {
+      selectedOption: 1,
+      rank: null,
       label: "",
       scoreValid: true, // 是否输入合法
       scoreError: "", // 错误提示信息
@@ -330,6 +349,11 @@ export default {
   },
 
   methods: {
+    handleRadioChange() {
+      if (this.selectedOption === 0) {
+        this.rank = 0
+      }
+    },
     onScoreInput(value) {
       const pattern = /^[0-9]*$/;
       if (!pattern.test(value)) {
@@ -406,6 +430,7 @@ export default {
                     this.ruleForm.score = this.scoreUpdate;
                   } else if (node.level === 2) {
                     this.type = data.type;
+                    this.rank = data.rankN;
                     this.dialogVisibleUpdateType = true;
                   }
                 }}
@@ -533,6 +558,7 @@ export default {
         name: this.labelUpdate,
         score: this.scoreUpdate,
         order: data.order,
+        rankN: this.rank
       };
       var that = this;
       axios.put("/indicator", postData).then(function (resp) {

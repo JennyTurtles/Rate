@@ -50,4 +50,7 @@ public class Thesis {
     private String tutorNumber;
     private String studentNumber;
 
+    private Float grade;
+    private Integer startThesisId;
+
 }
