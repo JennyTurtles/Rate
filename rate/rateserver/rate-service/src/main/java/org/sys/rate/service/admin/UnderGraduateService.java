@@ -2,6 +2,7 @@ package org.sys.rate.service.admin;
 
 import com.baomidou.mybatisplus.extension.api.R;
 import com.github.pagehelper.util.StringUtil;
+import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -293,7 +294,7 @@ public class UnderGraduateService {
 
         // !4.插入thesis表(或者当type==teacher时，需要更新thesis表)
         List thesisList = (List<Thesis>) excelData.getExtend().get("thesis");
-        RespBean thesisResBean = this.insertOrUpdateThesis(type, thesisList, institutionID, year, month);
+        RespBean thesisResBean = this.insertOrUpdateThesis(thesisList, year, month);
         if (thesisResBean.getStatus() == 500) {
             return thesisResBean;
         }
@@ -309,24 +310,22 @@ public class UnderGraduateService {
     }
 
 
-    private RespBean insertOrUpdateThesis(String type, List<Thesis> thesisList, Integer institutionID, Integer year, Integer month) {
+    private RespBean insertOrUpdateThesis(List<Thesis> thesisList, Integer year, Integer month) {
         int rows = 0;
         try {
-            if ("student".equals(type)) {
-                // 修改为返回更新和插入的条数，若某条记录已经存在（判断标准为studentID+year+month）则更新
-                // 如果是student就认为他是在插入数据
-                rows = thesisMapper.addBatch(thesisList, year, month);
-            } else {
-                // 如果是teacher就认为他是在更新数据
-                rows = thesisMapper.updateBatch(thesisList, year, month);
+            for(var thesis:thesisList){
+                thesis.setYear(year);
+                thesis.setMonth(month);
+
+                if(thesisMapper.ifExist(thesis)){
+                    thesisMapper.edit(thesis);
+                }else {
+                    ++rows;
+                    thesisMapper.insert(thesis);
+                }
             }
         } catch (Exception e) {
-            String errorMessage = "插入操作毕业论文信息时出错！";
-            if ("student".equals(type)) {
-                errorMessage = "插入" + errorMessage;
-            } else {
-                errorMessage = "更新" + errorMessage;
-            }
+            String errorMessage = "插入或者更新操作毕业论文信息时出错！";
             RespBean.error(errorMessage);
         }
 

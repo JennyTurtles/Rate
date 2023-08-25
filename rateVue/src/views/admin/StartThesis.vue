@@ -119,6 +119,29 @@
       >
       </el-pagination>
     </div>
+
+    <el-dialog :visible.sync="dialogImportResult" width="40%" title="导入学生结果统计" :center="true">
+      <p>
+        共计<span :style="{ color: 'blue', fontWeight: 'bold' }">{{ totalRows }}</span>条记录，
+        成功插入<span :style="{ color: 'green', fontWeight: 'bold' }">{{ successfulRowsCount }}</span>条记录，
+        成功更新<span :style="{ color: 'orange', fontWeight: 'bold' }">{{ duplicateInsertRowsCount }}</span>条记录，
+        有<span :style="{ color: 'red', fontWeight: 'bold' }">{{ failedRowsCount }}</span>条记录插入或更新失败。
+      </p>
+
+
+
+      <p v-show="failedRowsCount>0">以下是失败原因的统计：</p>
+      <ul>
+        <li v-for="(reason, code) in failureReasons" :key="code">第{{ code }}行: {{ reason }}</li>
+      </ul>
+
+      <template #footer>
+        <div>
+          <el-button @click="dialogImportResult = false">关闭</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -130,6 +153,12 @@ export default {
   name: "SalStudentM",
   data() {
     return {
+      duplicateInsertRowsCount: 0,
+      failedRowsCount: 0,
+      successfulRowsCount: 0,
+      totalRows: 0,
+      failureReasons: [],
+      dialogImportResult: false,
       havingStart: true,  // 默认没有开启
       canImportStudents: false,
       selectSemester: '',
@@ -223,7 +252,7 @@ export default {
       }
     },
     async handleSelectSemesterChange() {
-      if(this.selectSemester==''){
+      if (this.selectSemester == '') {
         return
       }
       await this.initUnderGraduateStudents(1, 10);
@@ -361,14 +390,39 @@ export default {
         })
       })
     },
-    onSuccess(res) {//上传excel成功的回调
-      if (res.status == 200) {
-        this.$message.success("导入成功")
-        this.initUnderGraduateStudents(1, this.pageSize);
+    onSuccess(res) {
+      const { status, msg, obj } = res;
+
+      if (status === 200) {
+        this.handleSuccessfulImport(obj);
       } else {
-        this.$message.error(res.msg)
+        this.handleFailedImport(msg);
       }
     },
+
+    handleSuccessfulImport(obj) {
+      const {
+        duplicateInsertRowsCount,
+        failedRowsCount,
+        failureReasons,
+        successfulRowsCount,
+        total,
+      } = obj;
+
+      this.$message.success("导入成功");
+      this.initUnderGraduateStudents(1, this.pageSize);
+      this.duplicateInsertRowsCount = duplicateInsertRowsCount;
+      this.failedRowsCount = failedRowsCount;
+      this.failureReasons = failureReasons;
+      this.successfulRowsCount = successfulRowsCount;
+      this.totalRows = total;
+      this.dialogImportResult = true;
+    },
+
+    handleFailedImport(msg) {
+      this.$message.error(msg);
+    },
+
     beforeUpload() {//上传前
       this.$message.success("正在导入")
     },

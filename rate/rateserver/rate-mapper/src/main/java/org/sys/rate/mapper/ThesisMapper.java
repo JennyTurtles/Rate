@@ -24,6 +24,7 @@ public interface ThesisMapper {
 
     Integer updateBatch(List<Thesis> thesisList, Integer year, Integer month);
 
+
     @Update("update thesis set tutorID = #{tutorID} where studentID=#{studentID} and year=#{year} and month=#{month}")
     void update(UnderGraduate underGraduate);
 
@@ -31,4 +32,13 @@ public interface ThesisMapper {
             "WHERE studentID IN (SELECT ID FROM undergraduate WHERE studentID = #{studentID}) " +
             "AND (tutorID = #{tutorID} OR tutorID IS NULL) AND YEAR = #{year} AND MONTH = #{month}")
     void delete(UnderGraduate under);
+
+    @Select("select count(id)>0 from thesis where studentID=#{studentID} and year =#{year} and month=#{month}")
+    boolean ifExist(Thesis thesis);
+
+    @Update("update thesis set tutorID = #{tutorID} where studentID=#{studentID} and year=#{year} and month=#{month}")
+    void edit(Thesis thesis);
+
+    @Insert("insert into thesis (studentID, year, month, tutorID, grade) VALUES (#{studentID}, #{year}, #{month}, #{tutorID}, #{grade})")
+    void insert(Thesis thesis);
 }

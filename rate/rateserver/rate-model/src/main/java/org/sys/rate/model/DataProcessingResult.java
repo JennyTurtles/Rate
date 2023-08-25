@@ -22,7 +22,10 @@ public class DataProcessingResult {
     private Integer successfulRowsCount;
     private Integer failedRowsCount;
     private Integer duplicateInsertRowsCount;
-    private HashMap<Integer, String> failureReasons; // 行号和失败原因的映射
+    private HashMap<Integer, String> failureReasons = new HashMap<>();
     private Integer total;
 
+    public void setFailReasonForRowIndex(int rowIndex, String reason) {
+        failureReasons.put(rowIndex, reason);
+    }
 }

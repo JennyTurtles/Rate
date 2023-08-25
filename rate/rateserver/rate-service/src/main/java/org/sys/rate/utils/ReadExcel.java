@@ -88,11 +88,11 @@ public class ReadExcel {
                     try {
                         year = yearCell.getCellType() == CellType.NUMERIC ? (int) yearCell.getNumericCellValue() : Integer.parseInt(yearCell.getStringCellValue());
                         if (year < 2000 || year > LocalDateTime.now().getYear()) {
-                            record.getFailureReasons().put(rowIndex, "入学年份不合法");
+                            record.setFailReasonForRowIndex(rowIndex, "入学年份不合法");
                             continue;
                         }
                     } catch (NumberFormatException e) {
-                        record.getFailureReasons().put(rowIndex, "入学年份格式错误");
+                        record.setFailReasonForRowIndex(rowIndex, "入学年份格式错误");
                         continue;
                     }
                 }
@@ -101,26 +101,25 @@ public class ReadExcel {
                 Integer undergraduateId = null;
                 try {
                     studentNumber = idCell.getCellType() == CellType.NUMERIC ? String.valueOf((int) idCell.getNumericCellValue()) : idCell.getStringCellValue();
-                    UnderGraduate underGraduate =  new UnderGraduate();
+                    UnderGraduate underGraduate = new UnderGraduate();
                     underGraduate.setInstitutionID(institutionID);
                     underGraduate.setName(name);
                     underGraduate.setSpecialty(major);
                     underGraduate.setClassName(className);
                     underGraduate.setStuNumber(studentNumber);
                     underGraduate.setYear(year);
-                    RespBean existOrInsertResBean = updateExistOrInsertUndergraduate(underGraduate);
-                    if (existOrInsertResBean.getStatus()==500){
-                        record.getFailureReasons().put(rowIndex, existOrInsertResBean.getMsg());
+                    RespBean existOrInsertResBean = updateExistOrInsertUndergraduate(underGraduate, type);
+                    if (existOrInsertResBean.getStatus() == 500) {
+                        record.setFailReasonForRowIndex(rowIndex, existOrInsertResBean.getMsg());
                         continue;
-                    }else {
+                    } else {
                         // 获取到undergraduate.id
                         undergraduateId = (Integer) existOrInsertResBean.getObj();
                     }
                 } catch (NumberFormatException e) {
-                    record.getFailureReasons().put(rowIndex, "学生学号单元格式错误");
+                    record.setFailReasonForRowIndex(rowIndex, "学生学号单元格式错误");
                     continue;
                 }
-
 
 
                 Double grade = 0.0;
@@ -128,11 +127,10 @@ public class ReadExcel {
                     try {
                         grade = gradeCell.getCellType() == CellType.NUMERIC ? gradeCell.getNumericCellValue() : Double.parseDouble(gradeCell.getStringCellValue());
                     } catch (NumberFormatException e) {
-                        record.getFailureReasons().put(rowIndex, "绩点格式错误");
+                        record.setFailReasonForRowIndex(rowIndex, "绩点格式错误");
                         continue;
                     }
                 }
-
 
 
                 String teacherJobNumber = "";
@@ -142,16 +140,16 @@ public class ReadExcel {
                         teacherJobNumber = teacherJobNumberCell.getCellType() == CellType.NUMERIC ? String.valueOf((int) teacherJobNumberCell.getNumericCellValue()) : teacherJobNumberCell.getStringCellValue();
                         tutorID = teachersMapper.getTutorIdByJobNumAndInstitutionID(teacherJobNumber, institutionID);
                         if (tutorID == null) {
-                            record.getFailureReasons().put(rowIndex, "教师工号不存在");
+                            record.setFailReasonForRowIndex(rowIndex, "教师工号不存在");
                             continue;
                         }
                     } catch (NumberFormatException e) {
-                        record.getFailureReasons().put(rowIndex, "教师工号格式错误");
+                        record.setFailReasonForRowIndex(rowIndex, "教师工号格式错误");
                         continue;
                     }
                 } else {
                     if ("teacher".equals(type)) {
-                        record.getFailureReasons().put(rowIndex, "教师工号为空");
+                        record.setFailReasonForRowIndex(rowIndex, "教师工号为空");
                         continue;
                     }
                 }
@@ -175,16 +173,16 @@ public class ReadExcel {
         return successMsg;
     }
 
-    private RespBean updateExistOrInsertUndergraduate(UnderGraduate underGraduate) {
+    private RespBean updateExistOrInsertUndergraduate(UnderGraduate underGraduate, String type) {
         Integer id = underGraduateMapper.checkStudentExist(underGraduate.getStuNumber(), underGraduate.getInstitutionID());
-        if (id != null) {
+        if (id != null && "student".equals(type)) {
             try {
                 underGraduateMapper.updateWithInstitutionID(underGraduate);
-                return RespBean.ok("", id);
+                return RespBean.ok("exist", id);
             } catch (Exception e) {
                 return RespBean.error("更新本科生表出现错误！");
             }
-        } else {
+        } else if (id == null) {
             // 首先插入到student表，获取主键id，然后插入undergraduate表中
             Student student = new Student();
             student.setName(underGraduate.getName());
@@ -205,5 +203,6 @@ public class ReadExcel {
                 return RespBean.error("插入本科生出错！");
             }
         }
+        return RespBean.ok("", id);
     }
 }

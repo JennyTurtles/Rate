@@ -874,16 +874,11 @@ public class POIUtils {
             c3.setCellValue("专业");
             HSSFCell c4 = r0.createCell(4);
             c4.setCellValue("班级");
-            HSSFCell c5 = r0.createCell(5);
-            c5.setCellValue("导师姓名");
-            HSSFCell c6 = r0.createCell(6);
-            c6.setCellValue("导师工号");
 
             row.createCell(2).setCellValue("2018");
             row.createCell(3).setCellValue("软件工程");
             row.createCell(4).setCellValue("软件工程1801");
-            row.createCell(5).setCellValue("张老师");
-            row.createCell(6).setCellValue("1044");
+
             info = "请删除提示行。入学年份、专业、班级非必填。";
         }
 
