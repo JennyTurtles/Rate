@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface ThesisMapper {
     // 通过学生ID获取学生所有的毕业论文或设计
-    @Select("select id, studentid, name, url, year, month, tutorid from thesis where studentID=#{studentID}")
+    @Select("select id, studentid, name, url, year, month, tutorid, grade from thesis where studentID=#{studentID}")
     List<Thesis> getAll(int studentID);
 
     // 通过thesisID获取thesis
@@ -22,7 +22,7 @@ public interface ThesisMapper {
 
     Integer addBatch(List<Thesis> thesisList, Integer year, Integer month);
 
-    void updateBatch(List<Thesis> thesisList, Integer year, Integer month);
+    Integer updateBatch(List<Thesis> thesisList, Integer year, Integer month);
 
     @Update("update thesis set tutorID = #{tutorID} where studentID=#{studentID} and year=#{year} and month=#{month}")
     void update(UnderGraduate underGraduate);

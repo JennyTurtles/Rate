@@ -1,8 +1,12 @@
 package org.sys.rate.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UnderGraduate extends Student{
     private Integer ID;
     private Integer institutionID;
@@ -15,7 +19,6 @@ public class UnderGraduate extends Student{
     private String className;
     private String tutorName;
     private String tutorJobNumber;
-
 
     public String getClassName() {
         return className;

@@ -845,30 +845,48 @@ public class POIUtils {
 
         String info = "";
 
-        if (!"teacher".equals(type)) {
-            c2.setCellValue("入学年份");
-            c3.setCellValue("专业");
-            HSSFCell c4 = r0.createCell(4);
-            c4.setCellValue("班级");
-            row.createCell(2).setCellValue("2018");
-            row.createCell(3).setCellValue("软件工程");
-            row.createCell(4).setCellValue("软件工程1801");
-            info = "请删除提示行。入学年份、专业、班级非必填。";
-        } else {
+        if ("teacher".equals(type)) {
             c2.setCellValue("导师姓名");
             c3.setCellValue("导师工号");
             row.createCell(2).setCellValue("张老师");
             row.createCell(3).setCellValue("1044");
-        }
+        } else if("thesis".equals(type)){
+            c2.setCellValue("绩点");
+            c3.setCellValue("入学年份");
+            HSSFCell c4 = r0.createCell(4);
+            c4.setCellValue("专业");
+            HSSFCell c5 = r0.createCell(5);
+            c5.setCellValue("班级");
+            HSSFCell c6 = r0.createCell(6);
+            c6.setCellValue("导师姓名");
+            HSSFCell c7 = r0.createCell(7);
+            c7.setCellValue("导师工号");
 
-        if ("thesis".equals(type)) {
+            row.createCell(2).setCellValue("3.8");
+            row.createCell(3).setCellValue("2018");
+            row.createCell(4).setCellValue("软件工程");
+            row.createCell(5).setCellValue("软件工程1801");
+            row.createCell(6).setCellValue("张老师");
+            row.createCell(7).setCellValue("1044");
+            info = "请删除提示行。入学年份、专业、班级非必填。";
+        }else{
+            c2.setCellValue("入学年份");
+            c3.setCellValue("专业");
+            HSSFCell c4 = r0.createCell(4);
+            c4.setCellValue("班级");
             HSSFCell c5 = r0.createCell(5);
             c5.setCellValue("导师姓名");
             HSSFCell c6 = r0.createCell(6);
             c6.setCellValue("导师工号");
+
+            row.createCell(2).setCellValue("2018");
+            row.createCell(3).setCellValue("软件工程");
+            row.createCell(4).setCellValue("软件工程1801");
             row.createCell(5).setCellValue("张老师");
             row.createCell(6).setCellValue("1044");
+            info = "请删除提示行。入学年份、专业、班级非必填。";
         }
+
 
 
         sheet.createRow(2).createCell(0).setCellValue(info);

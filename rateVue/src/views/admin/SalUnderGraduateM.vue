@@ -9,7 +9,7 @@
           style="display: inline-flex; margin-left: 1px"
           :action="UploadUrl()"
       >
-        <el-button icon="el-icon-plus" type="primary">导入学生</el-button>
+        <el-button icon="el-icon-plus" type="success">导入学生</el-button>
       </el-upload>
     </div>
     <div style="margin-top: 10px">

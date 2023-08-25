@@ -13,10 +13,17 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.sys.rate.mapper.StudentMapper;
+import org.sys.rate.mapper.TeachersMapper;
+import org.sys.rate.mapper.UnderGraduateMapper;
 import org.sys.rate.model.*;
 
+import javax.annotation.Resource;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -26,107 +33,134 @@ import java.util.Set;
  */
 @Service
 public class ReadExcel {
-    public Msg readStartThesisExcelData(String type, MultipartFile file) {
+    @Resource
+    private TeachersMapper teachersMapper;
+    @Resource
+    private UnderGraduateMapper underGraduateMapper;
+    @Resource
+    private StudentMapper studentMapper;
+
+    public Msg readStartThesisExcelData(String type, Integer institutionID, MultipartFile file) {
         Msg msg = new Msg();
-        Set<UnderGraduate> studentList = new HashSet<>();
-        Set<Thesis> thesisList = new HashSet<>();
-        Set<Teachers> teachersSet = new HashSet<>();
+        List<Thesis> thesisList = new ArrayList<>();
+        // 还需要记录多少行成功，多少行失败，多少行重复插入，还有第几行是因为什么原因失败
+        DataProcessingResult record = new DataProcessingResult();
+        int rowIndex = 0;
 
 
         try (Workbook workbook = new HSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0); // 获取第一个工作表
-            int rowIndex = 0;
             for (Row row : sheet) {
-                if (rowIndex == 0) {
-                    rowIndex++;
+                ++rowIndex;
+                if (rowIndex == 1) {
                     continue; // 跳过第一行
                 }
+
                 Cell nameCell = row.getCell(0);
                 Cell idCell = row.getCell(1);
 
+                Cell gradeCell = null;
                 Cell yearCell = null;
                 Cell majorCell = null;
                 Cell classCell = null;
-                Cell teacherNameCell;
                 Cell teacherJobNumberCell;
 
                 if ("student".equals(type)) {
-                    yearCell = row.getCell(2);
-                    majorCell = row.getCell(3);
-                    classCell = row.getCell(4);
-                    teacherNameCell = row.getCell(5);
-                    teacherJobNumberCell = row.getCell(6);
+                    gradeCell = row.getCell(2);
+                    yearCell = row.getCell(3);
+                    majorCell = row.getCell(4);
+                    classCell = row.getCell(5);
+                    teacherJobNumberCell = row.getCell(7);
                 } else {
-                    teacherNameCell = row.getCell(2);
                     teacherJobNumberCell = row.getCell(3);
-                    if (teacherJobNumberCell == null) {
-                        msg.setMsg("教师学号不能为空！");
-                        return msg.fail();
-                    }
                 }
 
                 if (idCell == null) {
-                    msg.setMsg("学生学号不能为空！");
-                    return msg.fail();
+                    record.getFailureReasons().put(rowIndex, "学生学号为空");
+                    continue;
                 }
-
                 String name = nameCell != null ? nameCell.getStringCellValue() : "";
                 String major = majorCell != null ? majorCell.getStringCellValue() : "";
                 String className = classCell != null ? classCell.getStringCellValue() : "";
-                String teacherName = teacherNameCell != null ? teacherNameCell.getStringCellValue() : "";
 
-                String studentNumber;
-                try {
-                    studentNumber = idCell.getCellType() == CellType.NUMERIC ? String.valueOf((int) idCell.getNumericCellValue()) : idCell.getStringCellValue();
-                } catch (NumberFormatException e) {
-                    msg.setMsg("无法获取学生学号！");
-                    return msg.fail();
-                }
-
-
-                Integer year;
+                Integer year = null;
                 if (yearCell != null) {
                     try {
                         year = yearCell.getCellType() == CellType.NUMERIC ? (int) yearCell.getNumericCellValue() : Integer.parseInt(yearCell.getStringCellValue());
+                        if (year < 2000 || year > LocalDateTime.now().getYear()) {
+                            record.getFailureReasons().put(rowIndex, "入学年份不合法");
+                            continue;
+                        }
                     } catch (NumberFormatException e) {
-                        msg.setMsg("无法获取年份！");
-                        return msg.fail();
+                        record.getFailureReasons().put(rowIndex, "入学年份格式错误");
+                        continue;
                     }
-                } else {
-                    year = null;
                 }
 
-                String teacherJobNumber;
+                String studentNumber;
+                Integer undergraduateId = null;
+                try {
+                    studentNumber = idCell.getCellType() == CellType.NUMERIC ? String.valueOf((int) idCell.getNumericCellValue()) : idCell.getStringCellValue();
+                    UnderGraduate underGraduate =  new UnderGraduate();
+                    underGraduate.setInstitutionID(institutionID);
+                    underGraduate.setName(name);
+                    underGraduate.setSpecialty(major);
+                    underGraduate.setClassName(className);
+                    underGraduate.setStuNumber(studentNumber);
+                    underGraduate.setYear(year);
+                    RespBean existOrInsertResBean = updateExistOrInsertUndergraduate(underGraduate);
+                    if (existOrInsertResBean.getStatus()==500){
+                        record.getFailureReasons().put(rowIndex, existOrInsertResBean.getMsg());
+                        continue;
+                    }else {
+                        // 获取到undergraduate.id
+                        undergraduateId = (Integer) existOrInsertResBean.getObj();
+                    }
+                } catch (NumberFormatException e) {
+                    record.getFailureReasons().put(rowIndex, "学生学号单元格式错误");
+                    continue;
+                }
+
+
+
+                Double grade = 0.0;
+                if (gradeCell != null) {
+                    try {
+                        grade = gradeCell.getCellType() == CellType.NUMERIC ? gradeCell.getNumericCellValue() : Double.parseDouble(gradeCell.getStringCellValue());
+                    } catch (NumberFormatException e) {
+                        record.getFailureReasons().put(rowIndex, "绩点格式错误");
+                        continue;
+                    }
+                }
+
+
+
+                String teacherJobNumber = "";
+                Integer tutorID = null;
                 if (teacherJobNumberCell != null) {
                     try {
                         teacherJobNumber = teacherJobNumberCell.getCellType() == CellType.NUMERIC ? String.valueOf((int) teacherJobNumberCell.getNumericCellValue()) : teacherJobNumberCell.getStringCellValue();
+                        tutorID = teachersMapper.getTutorIdByJobNumAndInstitutionID(teacherJobNumber, institutionID);
+                        if (tutorID == null) {
+                            record.getFailureReasons().put(rowIndex, "教师工号不存在");
+                            continue;
+                        }
                     } catch (NumberFormatException e) {
-                        msg.setMsg("无法获取导师编号！");
-                        return msg.fail();
+                        record.getFailureReasons().put(rowIndex, "教师工号格式错误");
+                        continue;
                     }
                 } else {
-                    teacherJobNumber = null;
-                }
-
-                Thesis thesis = new Thesis();
-                if ("student".equals(type)) {
-                    UnderGraduate student = new UnderGraduate();
-                    Teachers teacher = new Teachers();
-                    student.setName(name);
-                    student.setStuNumber(studentNumber);
-                    student.setYear(year);
-                    student.setSpecialty(major);
-                    student.setClassName(className);
-                    teacher.setName(teacherName);
-                    teacher.setJobnumber(teacherJobNumber);
-
-                    studentList.add(student);
-                    if (StringUtil.isNotEmpty(teacherJobNumber)) {
-                        teachersSet.add(teacher);
+                    if ("teacher".equals(type)) {
+                        record.getFailureReasons().put(rowIndex, "教师工号为空");
+                        continue;
                     }
                 }
-                thesis.setStudentNumber(studentNumber);
-                thesis.setTutorNumber(teacherJobNumber);
+
+
+                Thesis thesis = new Thesis();
+                thesis.setGrade(grade);
+                thesis.setStudentID(undergraduateId);
+                thesis.setTutorID(tutorID);
 
                 thesisList.add(thesis);
             }
@@ -136,7 +170,40 @@ public class ReadExcel {
             return msg.fail();
         }
         Msg successMsg = Msg.success();
-        successMsg.add("student", studentList).add("teacher", teachersSet).add("thesis", thesisList);
+        // 这里获取的都是学生学号、教师工号合法的数据，已经不合法的数据。
+        successMsg.add("thesis", thesisList).add("record", record).add("total", rowIndex - 1);
         return successMsg;
+    }
+
+    private RespBean updateExistOrInsertUndergraduate(UnderGraduate underGraduate) {
+        Integer id = underGraduateMapper.checkStudentExist(underGraduate.getStuNumber(), underGraduate.getInstitutionID());
+        if (id != null) {
+            try {
+                underGraduateMapper.updateWithInstitutionID(underGraduate);
+                return RespBean.ok("", id);
+            } catch (Exception e) {
+                return RespBean.error("更新本科生表出现错误！");
+            }
+        } else {
+            // 首先插入到student表，获取主键id，然后插入undergraduate表中
+            Student student = new Student();
+            student.setName(underGraduate.getName());
+            student.setInstitutionid(underGraduate.getInstitutionID());
+            student.setDeleteflag(0);
+            student.setRole("10");
+            try {
+                studentMapper.insertReturnId(student);
+            } catch (Exception e) {
+                return RespBean.error("插入学生出错！");
+            }
+
+            underGraduate.setStudentID(student.getID());
+            try {
+                underGraduateMapper.addReturnId(underGraduate);
+                return RespBean.ok("", underGraduate.getID());
+            } catch (Exception e) {
+                return RespBean.error("插入本科生出错！");
+            }
+        }
     }
 }

@@ -17,15 +17,6 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-/**
- * @projectName: Rate
- * @package: org.sys.rate.utils
- * @className: exportWord
- * @author: ZYK
- * @description: TODO
- * @date: 2023/4/28 20:45
- * @version: 1.0
- */
 @Service
 public class ExportWord {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);

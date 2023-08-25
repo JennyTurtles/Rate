@@ -13,13 +13,13 @@
     </div>
 
     <div style="margin-top: 10px">
-      <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="importStudents">导入学生
+      <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importStudents">导入学生
       </el-button>
 
       <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="groupStudents">学生分组
       </el-button>
 
-      <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="importTeachers">导入教师
+      <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importTeachers">导入教师
       </el-button>
     </div>
 
@@ -28,8 +28,8 @@
         <div style="text-align: center; font-size: 20px;">导入指导教师信息</div>
       </template>
       <div style="margin-left: 10px">第一步：
-        <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="downloadExcel">下载模版
-        </el-button>
+          <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="downloadExcel('teacher')">下载模版
+          </el-button>
       </div>
 
       <div style="margin-top: 10px;margin-left: 10px">第二步：
@@ -40,7 +40,7 @@
             style="display: inline-flex; margin-left: 1px"
             :action="`/undergraduateM/basic/importThesis?type=teacher&institutionID=${user.institutionID}&year=${startYear}&semester=${selectSemester}`"
         >
-          <el-button icon="el-icon-plus" type="primary" :disabled="selectDate==''">导入教师</el-button>
+          <el-button icon="el-icon-plus" type="success" :disabled="selectDate==''">导入教师</el-button>
         </el-upload>
       </div>
       <template #footer>
@@ -56,7 +56,7 @@
         <div style="text-align: center; font-size: 20px;">导入学生信息</div>
       </template>
       <div style="margin-left: 10px">第一步：
-        <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="downloadExcel">下载模版
+        <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="downloadExcel('thesis')">下载模版
         </el-button>
       </div>
 
@@ -68,7 +68,7 @@
             style="display: inline-flex; margin-left: 1px"
             :action="`/undergraduateM/basic/importThesis?type=student&institutionID=${user.institutionID}&year=${startYear}&semester=${selectSemester}`"
         >
-          <el-button icon="el-icon-plus" type="primary" :disabled="selectDate==''">导入学生</el-button>
+          <el-button icon="el-icon-plus" type="success" :disabled="selectDate==''">导入学生</el-button>
         </el-upload>
       </div>
       <template #footer>
@@ -509,8 +509,8 @@ export default {
       this.$message.success("正在导入")
     },
 
-    downloadExcel() {
-      let url = `/undergraduateM/basic/exportUnderGraduate?type=teacher`
+    downloadExcel(val) {
+      let url = `/undergraduateM/basic/exportUnderGraduate?type=`+val
       this.$message.success('正在下载')
       window.open(url, '_parent')
     },

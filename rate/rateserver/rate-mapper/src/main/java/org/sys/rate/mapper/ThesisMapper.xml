@@ -6,10 +6,10 @@
 
 <mapper namespace="org.sys.rate.mapper.ThesisMapper">
     <insert id="addBatch" parameterType="java.util.List">
-        INSERT IGNORE INTO thesis (studentid, tutorid, year, month)
+        INSERT IGNORE INTO thesis (studentid, tutorid, year, month, grade)
         VALUES
         <foreach collection="thesisList" item="thesis" separator=",">
-            (#{thesis.studentID}, #{thesis.tutorID}, #{year}, #{month})
+            (#{thesis.studentID}, #{thesis.tutorID}, #{year}, #{month}, #{thesis.grade})
         </foreach>
     </insert>
     <update id="updateBatch" parameterType="java.util.List">

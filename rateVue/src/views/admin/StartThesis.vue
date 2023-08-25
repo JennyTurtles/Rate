@@ -26,7 +26,7 @@
           style="display: inline-flex; margin-left: 1px"
           :action="`/undergraduateM/basic/importThesis?type=student&institutionID=${this.user.institutionID}&year=${this.startYear}&semester=${encodeURIComponent(this.selectSemester)}`"
       >
-        <el-button icon="el-icon-plus" type="primary" :disabled=havingStart>导入学生</el-button>
+        <el-button icon="el-icon-plus" type="success" :disabled=havingStart>导入学生</el-button>
       </el-upload>
 
     </div>
@@ -213,6 +213,7 @@ export default {
         const resp = await this.postRequest1(url);
         if (resp.status == 200) {
           this.$message.success("开启毕业设计成功！");
+          await this.initUnderGraduateStudents(1, 10);
         } else {
           this.$message.error("开启毕业设计失败！");
         }
@@ -222,6 +223,9 @@ export default {
       }
     },
     async handleSelectSemesterChange() {
+      if(this.selectSemester==''){
+        return
+      }
       await this.initUnderGraduateStudents(1, 10);
     },
 
@@ -414,7 +418,7 @@ export default {
           this.undergraduateStudents = students;
           this.totalCount = totalCount;
           this.havingStart = !extend.havingStart;
-          if (extend.havingStart) {
+          if (extend.havingStart == true) {
             this.$message.success("本学期已经开启毕业设计活动！");
 
             setTimeout(() => {
@@ -423,9 +427,7 @@ export default {
               }
             }, 1000);
           } else {
-            if (this.totalCount == 0) {
-              this.$message.info("本学期没有导入毕业论文信息！");
-            }
+            this.$message.info("本学期没有开启毕业设计活动！");
           }
 
         } else {
@@ -442,7 +444,6 @@ export default {
 </script>
 
 <style scoped>
-
 
 
 .footer {

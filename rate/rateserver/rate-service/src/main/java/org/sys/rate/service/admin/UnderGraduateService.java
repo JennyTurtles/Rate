@@ -278,21 +278,9 @@ public class UnderGraduateService {
     @Transactional
     public RespBean importThesis(String type, Integer institutionID, Integer year, String semester, MultipartFile file) {
         // 1. 从excel解析出来的数据
-        Msg excelData = readExcel.readStartThesisExcelData(type, file);
+        Msg excelData = readExcel.readStartThesisExcelData(type, institutionID, file);
         if (excelData.getCode() == 500) {
             return RespBean.error(excelData.getMsg());
-        }
-
-        // 2.对于studentID和tutorID`分别`进行查重，顺便更新，注意这里要用到institutionID
-        if ("student".equals(type)) {
-            RespBean stuRespbean = duplicateStudentChecker((Set<UnderGraduate>) excelData.getExtend().get("student"), institutionID);
-            if (stuRespbean.getStatus() == 500) {
-                return stuRespbean;
-            }
-            RespBean teaRespBean = duplicateTeacherChecker((Set<Teachers>) excelData.getExtend().get("teacher"), institutionID);
-            if (teaRespBean.getStatus() == 500) {
-                return teaRespBean;
-            }
         }
 
         // 3.对于学期进行分解，3-春季，9-秋季
@@ -304,31 +292,36 @@ public class UnderGraduateService {
         }
 
         // !4.插入thesis表(或者当type==teacher时，需要更新thesis表)
-        List<Thesis> thesisList = new ArrayList<>((Set<Thesis>) excelData.getExtend().get("thesis"));
-
-        return insertOrUpdateThesis(type, thesisList, institutionID, year, month);
-
-    }
-
-    private RespBean insertOrUpdateThesis(String type, List<Thesis> thesisList, Integer institutionID, Integer year, Integer month) {
-
-        // 1.利用institutionID和teacher.JobNumber获取tutorID重新写回thesis中  && studentId类似
-        for (Thesis thesis : thesisList) {
-            if (StringUtil.isNotEmpty(thesis.getTutorNumber())) {
-                thesis.setTutorID(teachersMapper.getTutorIdByJobNumAndInstitutionID(thesis.getTutorNumber(), institutionID));
-            }
-            thesis.setStudentID(studentMapper.getStuIdByStuNumAndInstitutionID(thesis.getStudentNumber(), institutionID));
+        List thesisList = (List<Thesis>) excelData.getExtend().get("thesis");
+        RespBean thesisResBean = this.insertOrUpdateThesis(type, thesisList, institutionID, year, month);
+        if (thesisResBean.getStatus() == 500) {
+            return thesisResBean;
         }
 
-        // 2.进行插入thesis表  !!!这个还需要查重
+        // *5. 全部成功后，要记录多少行成功，多少行失败，多少行重复插入，还有第几行是因为什么原因失败
+        Integer total = (Integer) excelData.getExtend().get("total");
+        DataProcessingResult record = (DataProcessingResult) excelData.getExtend().get("record");
+        record.setTotal(total);
+        record.setFailedRowsCount(total - thesisList.size());
+        record.setSuccessfulRowsCount((Integer) thesisResBean.getObj());
+        record.setDuplicateInsertRowsCount(thesisList.size() - (Integer) thesisResBean.getObj());
+        return RespBean.ok("", record);
+    }
+
+
+    private RespBean insertOrUpdateThesis(String type, List<Thesis> thesisList, Integer institutionID, Integer year, Integer month) {
+        int rows = 0;
         try {
             if ("student".equals(type)) {
-                thesisMapper.addBatch(thesisList, year, month);
+                // 修改为返回更新和插入的条数，若某条记录已经存在（判断标准为studentID+year+month）则更新
+                // 如果是student就认为他是在插入数据
+                rows = thesisMapper.addBatch(thesisList, year, month);
             } else {
-                thesisMapper.updateBatch(thesisList, year, month);
+                // 如果是teacher就认为他是在更新数据
+                rows = thesisMapper.updateBatch(thesisList, year, month);
             }
         } catch (Exception e) {
-            String errorMessage = "操作毕业论文信息时出错！";
+            String errorMessage = "插入操作毕业论文信息时出错！";
             if ("student".equals(type)) {
                 errorMessage = "插入" + errorMessage;
             } else {
@@ -337,7 +330,7 @@ public class UnderGraduateService {
             RespBean.error(errorMessage);
         }
 
-        return RespBean.ok("");
+        return RespBean.ok("", rows);
     }
 
     private RespBean duplicateTeacherChecker(Set<Teachers> teachersSet, Integer institutionID) {
@@ -357,40 +350,8 @@ public class UnderGraduateService {
         return RespBean.ok("");
     }
 
-    // 若存在，则更新；若不存在，则插入！
-    private RespBean duplicateStudentChecker(Set<UnderGraduate> studentList, Integer institutionID) {
-        for (UnderGraduate underGraduate : studentList) {
-            underGraduate.setInstitutionID(institutionID);
 
-            if (underGraduateMapper.checkStudentExist(underGraduate.getStuNumber(), institutionID) != null) {
-                try {
-                    underGraduateMapper.updateWithInstitutionID(underGraduate);
-                } catch (Exception e) {
-                    return RespBean.error("更新本科生表出现错误！");
-                }
-            } else {
-                // 首先插入到student表，获取主键id，然后插入undergraduate表中
-                Student student = new Student();
-                student.setName(underGraduate.getName());
-                student.setInstitutionid(institutionID);
-                student.setDeleteflag(0);
-                student.setRole("10");
-                try {
-                    studentMapper.insertReturnId(student);
-                } catch (Exception e) {
-                    return RespBean.error("插入学生出错！");
-                }
 
-                underGraduate.setStudentID(student.getID());
-                try {
-                    underGraduateMapper.add(underGraduate);
-                } catch (Exception e) {
-                    return RespBean.error("插入本科生出错！");
-                }
-            }
-        }
-        return RespBean.ok("");
-    }
 
     public List<UnderGraduate> getStudent(Integer institutionID, Integer year, Integer month) {
         return underGraduateMapper.getStudent(institutionID, year, month);
