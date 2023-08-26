@@ -122,7 +122,7 @@ public class UnderGraduateMController {
     public RespBean importThesis(@RequestParam("type") String type,
                                  @RequestParam("institutionID") Integer institutionID,
                                  @RequestParam("year") Integer year,
-                                 @RequestParam("semester") String semester, MultipartFile file) {
+                                 @RequestParam("semester") String semester, MultipartFile file) throws RespBean {
         return underGraduateService.importThesis(type, institutionID, year, semester, file);
     }
 

@@ -277,11 +277,11 @@ public class UnderGraduateService {
     }
 
     @Transactional
-    public RespBean importThesis(String type, Integer institutionID, Integer year, String semester, MultipartFile file) {
+    public RespBean importThesis(String type, Integer institutionID, Integer year, String semester, MultipartFile file) throws RespBean {
         // 1. 从excel解析出来的数据
         Msg excelData = readExcel.readStartThesisExcelData(type, institutionID, file);
         if (excelData.getCode() == 500) {
-            return RespBean.error(excelData.getMsg());
+            throw RespBean.error(excelData.getMsg());
         }
 
         // 3.对于学期进行分解，3-春季，9-秋季
@@ -292,14 +292,14 @@ public class UnderGraduateService {
             month = Integer.valueOf(semester);
         }
 
-        // !4.插入thesis表(或者当type==teacher时，需要更新thesis表)
+        // 4.插入thesis表(或者当type==teacher时，需要更新thesis表)
         List thesisList = (List<Thesis>) excelData.getExtend().get("thesis");
         RespBean thesisResBean = this.insertOrUpdateThesis(thesisList, year, month);
         if (thesisResBean.getStatus() == 500) {
-            return thesisResBean;
+            throw thesisResBean;
         }
 
-        // *5. 全部成功后，要记录多少行成功，多少行失败，多少行重复插入，还有第几行是因为什么原因失败
+        // 5. 全部成功后，要记录多少行成功，多少行失败，多少行重复插入，还有第几行是因为什么原因失败
         Integer total = (Integer) excelData.getExtend().get("total");
         DataProcessingResult record = (DataProcessingResult) excelData.getExtend().get("record");
         record.setTotal(total);
