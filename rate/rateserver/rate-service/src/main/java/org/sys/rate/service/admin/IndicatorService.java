@@ -4,10 +4,7 @@ import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.sys.rate.mapper.AwardTypeMapper;
-import org.sys.rate.mapper.IndicatorMapper;
-import org.sys.rate.mapper.ProjectTypeMapper;
-import org.sys.rate.mapper.PublicationMapper;
+import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
@@ -28,6 +25,9 @@ public class IndicatorService {
 
     @Resource
     private AwardTypeMapper awardTypeMapper;
+
+    @Resource
+    private DecisionTypeMapper decisionTypeMapper;
 
 
     public List<Indicator> getAll (){return indicatorMapper.getAll();}
@@ -101,6 +101,9 @@ public class IndicatorService {
         }else if ("award".equals(type)) {
             List<AwardType> awardTypes = awardTypeMapper.selectAwardTypeListByYear(indicatorId,year);
             return castList(awardTypes);
+        }else if ("decision".equals(type)){
+            List<DecisionType> decisionTypes = decisionTypeMapper.selectDecisionTypeListByYear(indicatorId,year);
+            return castList(decisionTypes);
         }
         return new ArrayList<>();
     }

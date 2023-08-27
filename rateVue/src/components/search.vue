@@ -19,8 +19,12 @@
         v-show="isRoot"
         @change="changeYear"
     >
-      <el-option v-for="item in years" :key="item" :label="item" :value="item">
-      </el-option>
+      <el-option
+          v-for="year in yearList"
+          :key="year"
+          :value="year"
+          :label="year"
+      ></el-option>
     </el-select>
     <div style="float: left; margin-top: 4px; margin-left: 3px" v-show="isRoot">
       年
@@ -88,7 +92,7 @@
     <el-dialog
         :visible.sync="dialogVisibleClone"
         width="90%"
-        @open="getYearList"
+        @open="getYearList(indicatorID,indicatorType)"
     >
       <span slot="title" style="text-align: center; font-size: 20px">克隆</span>
       <div>
@@ -603,71 +607,43 @@
     </el-dialog>
 
     <!--批量导入-->
-    <el-dialog :visible.sync="uploadVisible" @close="" width="80%">
+    <el-dialog :visible.sync="uploadVisible" @close="handleClose" width="80%">
       <span slot="title" style="float: left; font-size: 25px"
       >请上传需要导入的文件</span
       >
       <span>请选择导入的年份：</span>
-      <el-select
-          style="margin-right: 20px; width: 120px"
-          v-model="importSelectYear"
-          v-show="isRoot"
-      >
-        <el-option
-            v-for="item in years"
-            :key="item"
-            :label="item"
-            :value="item"
-        >
-        </el-option>
-      </el-select>
-      <span>请选择导入的类别：</span>
-      <el-select
-          style="margin-right: 20px; width: 120px"
-          v-model="importSelectType"
-          v-show="isRoot"
-      >
-        <el-option
-            v-for="item in selectTypes"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-        >
-        </el-option>
-      </el-select>
+        <el-input-number v-model="importSelectYear" :min="1999" :max="new Date().getFullYear()" v-show="isRoot"
+                         style="width: 120px"></el-input-number>
+        年
       <div>
-        <!--        <el-button @click="downloadExcel('PublicationSample')" type="warning">下载Excel模板</el-button>-->
-        <el-button @click="btnClickExport" type="warning"
-        >下载Excel模板
-        </el-button>
+        <div style="margin-left: 10px;margin-top: 10px">第一步：
+          <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="btnClickExport">下载模版
+          </el-button>
+        </div>
       </div>
-      <!--      </template>-->
       <span
           style="float: right; font-size: 16px; color: red"
           v-show="uploadResultError"
-      >请检查期刊全称是否都不为空</span
+      >{{errorMessage}}</span
       >
       <span
           style="float: right; font-size: 16px; color: green"
           v-show="uploadResultValid"
       >数据校验通过</span
       >
-      <el-upload
-          action
-          :limit="1"
+      <div style="margin-left: 10px">
+        <el-upload
           :file-list="fileList"
           :auto-upload="false"
           accept=".xlsx, .xls"
           :on-change="handleAdd"
           :on-remove="handleClose"
       >
-        <div style="margin-top: 10px">
-          <el-button size="medium" type="primary">点击上传</el-button>
-          <span style="color: gray; margin-left: 10px; font-size: 13px"
-          >请填写模版后上传</span
-          >
+        <div style="margin-top: 10px">第二步：
+          <el-button icon="el-icon-plus" type="success">点击上传</el-button>
         </div>
       </el-upload>
+      </div>
 
       <el-table
           v-show="uploadResult"
@@ -675,16 +651,14 @@
           :row-class-name="checkUploadData"
           style="width: 100%"
       >
-        <el-table-column prop="所属类别" label="所属类别"></el-table-column>
-        <el-table-column prop="刊物全称" label="刊物全称"></el-table-column>
-        <el-table-column prop="刊物简称" label="刊物简称"></el-table-column>
-        <el-table-column prop="出版社" label="出版社"></el-table-column>
-        <el-table-column prop="网址" label="网址"></el-table-column>
-        <el-table-column
-            prop="收录级别 （收录级别1;级别2;（请用分号隔开））"
-            label="收录级别 （收录级别1;级别2;（请用分号隔开））"
-        >
-        </el-table-column>
+        <el-table-column prop="刊物全称" label="刊物全称" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
+        <el-table-column prop="刊物简称" label="刊物简称" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
+        <el-table-column prop="出版社" label="出版社" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
+        <el-table-column prop="网址" label="网址" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
+        <el-table-column prop="收录级别 （不同收录级别请用分号隔开）" label="收录级别 （不同收录级别请用分号隔开）" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
+        <el-table-column prop="项目名称" label="项目名称" v-if="indicatorTypeZH=='科研项目'"></el-table-column>
+        <el-table-column prop="奖项名称" label="奖项名称" v-if="indicatorTypeZH=='科研获奖'"></el-table-column>
+        <el-table-column prop="成果名称" label="成果名称" v-if="indicatorTypeZH=='决策咨询'"></el-table-column>
       </el-table>
 
       <span slot="footer" class="dialog-footer">
@@ -1134,6 +1108,7 @@ export default {
       indicatorID: 0,
       indicatorType: "",
       indicatorTypeZH: "",
+      indicatorName: "",
       dialogVisibleAppendPublication: false,
       dialogVisibleUpdatePublication: false,
       dialogVisibleAppendAward: false,
@@ -1146,6 +1121,7 @@ export default {
       dialogVisibleClone: false,
       pathVisible: false,
       uploadVisible: false,
+      errorMessage:'',
       rowData: "",
       searchInf: {}, //存放某个期刊（或其他）的indicatorID,名称,表格内id
       searchInf2: {}, //存放某个期刊（或其他）的具体信息
@@ -1175,29 +1151,29 @@ export default {
       pageSizes: [10, 20, 50, 100],
       PageSize: 10,
       tablePaperSample: [
-        //论文
+        //学术论文
         {
           刊物全称: "Artificial Intelligence",
           刊物简称: "AI",
           出版社: "Elsevier",
           网址: "http://dblp.uni-trier.de/db/journals/ai/",
-          "收录级别 （收录级别1;级别2;（请用分号隔开））": "SCI;",
+          "收录级别 （不同收录级别请用分号隔开）": "SCI;",
         },
       ],
       tableTechnicalSample: [
-        //科技奖
+        //科研获奖
         {
           奖项名称: "",
         },
       ],
       tableProjectSample: [
-        //项目
+        //科研项目
         {
           项目名称: "",
         },
       ],
       tableDecisionSample: [
-        //咨询
+        //决策咨询
         {
           成果名称: "你的决策咨询成果名称（必填项）",
         },
@@ -1224,26 +1200,26 @@ export default {
           // console.log(item)
           item.children.forEach((subItem, idx2) => {
             //大类下面的4个小类
-            if (subItem.type == "论文") {
+            if (subItem.type == "学术论文") {
               //添加所有是论文类别的，所有大类
               that.typeOfAllPaper = [
                 ...that.typeOfAllPaper,
-                ...subItem.children,
+                subItem,
               ];
-            } else if (subItem.type == "纵向科研项目") {
+            } else if (subItem.type == "科研项目") {
               that.typeOfAllProject = [
                 ...that.typeOfAllProject,
-                ...subItem.children,
+                subItem,
               ];
-            } else if (subItem.type == "科技奖") {
+            } else if (subItem.type == "科研获奖") {
               that.typeOfAllTechnical = [
                 ...that.typeOfAllTechnical,
-                ...subItem.children,
+                subItem,
               ];
-            } else if (subItem.type == "决策咨询成果") {
+            } else if (subItem.type == "决策咨询") {
               that.typeOfAllDecision = [
                 ...that.typeOfAllDecision,
-                ...subItem.children,
+                subItem,
               ];
             }
           });
@@ -1265,7 +1241,8 @@ export default {
           // console.log(resp);
           this.yearList = resp.obj;
           if (this.yearList.length > 0) {
-            this.fromYear = this.yearList[0]
+            this.fromYear = this.yearList[0];
+            this.year = this.yearList[0];
           }
         });
       } catch (error) {
@@ -1536,32 +1513,17 @@ export default {
           ? JSON.parse(localStorage.getItem("user")).token
           : "";
       var that = this;
-      var indicatorNames = [];
-
-      for (var i = 0; i < this.tableUploadData.length; i++) {
-        indicatorNames.push(this.tableUploadData[i]["所属类别"]);
-      }
-      var setIndicatorNames = new Set(indicatorNames); //去重
-      indicatorNames = [];
-      for (var val of setIndicatorNames) {
-        //所有sheet的indicator名
-        indicatorNames.push(val);
-      }
-      var promise = new Promise((resolve, reject) => {
-        axios
-            .post("/publication/dels", {
-              year: this.importSelectYear,
-              indicatorNames: indicatorNames,
-              headers: {
-                token: token,
-              },
-            })
-            .then((resp) => {
-              if (resp) {
-                resolve(resp);
-              }
-            });
-      });
+      // var indicatorNames = [];
+      //
+      // for (var i = 0; i < this.tableUploadData.length; i++) {
+      //   indicatorNames.push(this.tableUploadData[i]["所属类别"]);
+      // }
+      // var setIndicatorNames = new Set(indicatorNames); //去重
+      // indicatorNames = [];
+      // for (var val of setIndicatorNames) {
+      //   //所有sheet的indicator名
+      //   indicatorNames.push(val);
+      // }
       var publicationInfList = [];
       for (let i = 0; i < this.tableUploadData.length; i++) {
         if (typeof this.tableUploadData[i]["刊物全称"] === "undefined") return;
@@ -1572,14 +1534,14 @@ export default {
           url: this.tableUploadData[i]["网址"],
           level: this.tableUploadData[i]["收录级别"],
           year: this.importSelectYear,
-          indicatorName: this.tableUploadData[i]["所属类别"],
+          indicatorName: this.indicatorName,
         };
         publicationInfList.push(publicationInf);
       }
-      promise.then((resp) => {
-        that.postRequest("/publications", publicationInfList).then(
+      that.postRequest("/publications", publicationInfList).then(
             (res) => {
-              // that.getTableByYear(that.indicatorID,that.year)
+             that.getTableByYear(that.indicatorID,that.year,that.indicatorType);
+             that.getYearList();
             },
             () => {
               that.$message({
@@ -1587,8 +1549,7 @@ export default {
                 message: "添加失败!",
               });
             }
-        );
-      });
+      );
     },
     async appendAward() {
       try {
@@ -1611,7 +1572,56 @@ export default {
         });
       }
     },
-
+    appendAwardAsync() {
+      var that = this;
+      var AwardInfList = [];
+      for (let i = 0; i < this.tableUploadData.length; i++) {
+        if (typeof this.tableUploadData[i]["奖项名称"] === "undefined") return;
+        var awardInfList = {
+          name: this.tableUploadData[i]["奖项名称"],
+          year: this.importSelectYear,
+          indicatorId: this.indicatorID,
+        };
+        AwardInfList.push(awardInfList);
+      }
+      that.postRequest("/award/basic/awardType/import", AwardInfList).then(
+            (res) => {
+              that.getTableByYear(that.indicatorID,that.year,that.indicatorType);
+              that.getYearList();
+            },
+            () => {
+              that.$message({
+                type: "error",
+                message: "添加失败!",
+              });
+            }
+      );
+    },
+    appendProjectAsync() {
+      var that = this;
+      var ProjectInfList = [];
+      for (let i = 0; i < this.tableUploadData.length; i++) {
+        if (typeof this.tableUploadData[i]["项目名称"] === "undefined") return;
+        var projectInfList = {
+          name: this.tableUploadData[i]["项目名称"],
+          year: this.importSelectYear,
+          indicatorId: this.indicatorID,
+        };
+        ProjectInfList.push(projectInfList);
+      }
+      that.postRequest("/projectType/import", ProjectInfList).then(
+            (res) => {
+              that.getTableByYear(that.indicatorID,that.year,that.indicatorType);
+              that.getYearList();
+            },
+            () => {
+              that.$message({
+                type: "error",
+                message: "添加失败!",
+              });
+            }
+        );
+    },
     appendProgram() {
       var postData = {
         name: this.programInf.name,
@@ -1676,8 +1686,32 @@ export default {
       });
       this.decisionInf = {};
     },
-
-    getData(indicatorID, type) {
+    appendDecisionAsync() {
+      var that = this;
+      var DecisionInfList = [];
+      for (let i = 0; i < this.tableUploadData.length; i++) {
+        if (typeof this.tableUploadData[i]["成果名称"] === "undefined") return;
+        var decisionInfList = {
+          name: this.tableUploadData[i]["成果名称"],
+          year: this.importSelectYear,
+          indicatorId: this.indicatorID,
+        };
+        DecisionInfList.push(decisionInfList);
+      }
+      that.postRequest("/decision/basic/decisionType/import", DecisionInfList).then(
+          (res) => {
+            that.getTableByYear(that.indicatorID,that.year,that.indicatorType);
+            that.getYearList();
+          },
+          () => {
+            that.$message({
+              type: "error",
+              message: "添加失败!",
+            });
+          }
+      );
+    },
+    getData(indicatorName, indicatorID, type) {
       //初始化
       if (type != "授权专利") {
         this.isRoot = true;
@@ -1695,12 +1729,14 @@ export default {
           学科竞赛: "competition",
         };
 
+        this.indicatorName = indicatorName;
         this.indicatorType = typeMapping[type];
         this.indicatorID = indicatorID;
-        this.years = [];
-        this.year = this.nowYear;
-        for (var i = 0; i < 5; i++) this.years.push(this.nowYear - i);
-        that.getTableByYear(indicatorID, that.year, that.indicatorType);
+        // this.years = [];
+        // this.year = this.nowYear;
+        // for (var i = 0; i < 5; i++) this.years.push(this.nowYear - i);
+        this.getYearList();
+        this.getTableByYear(indicatorID, this.year, this.indicatorType);
       } else {
         this.indicatorType = "";
         this.isRoot = false;
@@ -1776,8 +1812,9 @@ export default {
         let data = await this.readFile(file);
         let workbook = XLSX.read(data, {type: "binary"}); //解析二进制格式数据
         var results = {};
+        console.log(workbook);
         for (var i = 0; i < workbook.SheetNames.length; i++) {
-          const firstSheetName = workbook.SheetNames[i];
+          const firstSheetName = "sheet1";
           results[firstSheetName] = [];
           const worksheet = workbook.Sheets[firstSheetName];
           if (
@@ -1794,7 +1831,7 @@ export default {
         }
         for (var i = 0; i < workbook.SheetNames.length; i++) {
           //比如有6种论文类别
-          const firstSheetName = workbook.SheetNames[i];
+          const firstSheetName = "sheet1";
           if (results[firstSheetName].length) {
             if (
                 results[firstSheetName][0]["刊物全称"] == "《东华大学计算机学报》"
@@ -1804,8 +1841,26 @@ export default {
           for (var j = 0; j < results[firstSheetName].length; j++) {
             if (results[firstSheetName].length) {
               results[firstSheetName][j]["所属类别"] = firstSheetName;
-              if (typeof results[firstSheetName][j]["刊物全称"] == "undefined")
+              if (this.indicatorTypeZH == "学术论文" && typeof results[firstSheetName][j]["刊物全称"] == "undefined") {
                 this.uploadResultError = true;
+                this.errorMessage="刊物全称不可为空";
+              }
+              else if (this.indicatorTypeZH == "学术论文" && typeof results[firstSheetName][j]["出版社"] == "undefined") {
+                this.uploadResultError = true;
+                this.errorMessage="出版社不可为空";
+              }
+              else if (this.indicatorTypeZH == "科研项目" && typeof results[firstSheetName][j]["项目名称"] == "undefined"){
+                this.uploadResultError = true;
+                this.errorMessage="项目名称不可为空";
+              }
+              else if (this.indicatorTypeZH == "决策咨询" && typeof results[firstSheetName][j]["成果名称"] == "undefined"){
+                this.uploadResultError = true;
+                this.errorMessage="成果名称不可为空";
+              }
+              else if (this.indicatorTypeZH == "科研获奖" && typeof results[firstSheetName][j]["奖项名称"] == "undefined"){
+                this.uploadResultError = true;
+                this.errorMessage="奖项名称不可为空";
+              }
             }
           }
           if (results[firstSheetName].length) {
@@ -1845,11 +1900,11 @@ export default {
       //确认上传导入的文件
       var that = this;
       this.$confirm(
-          "是否确定添加" +
+          "是否确定添加向" +
+          this.importSelectYear +
+          "年添加" +
           this.tableUploadData.length +
-          "条记录，批量导入后将覆盖所有" +
-          this.year +
-          "年的数据",
+          "条记录" ,
           "提示",
           {
             confirmButtonText: "确定",
@@ -1859,15 +1914,15 @@ export default {
       )
           .then(() => {
             //点击确认
-            this.uploadAppendPublication().then(() => {
-              that.$message({
-                type: "success",
-                message: "添加成功",
+              this.uploadAppend(this.indicatorTypeZH).then(() => {
+                that.$message({
+                  type: "success",
+                  message: "添加成功",
+                });
+                that.uploadVisible = false;
+                that.handleClose();
+                // that.getTableByYear(that.indicatorID,that.year)
               });
-              that.uploadVisible = false;
-              that.handleClose();
-              // that.getTableByYear(that.indicatorID,that.year)
-            });
           })
           .catch(() => {
             this.$message({
@@ -1876,45 +1931,48 @@ export default {
             });
           });
     },
-    async uploadAppendPublication() {
-      await this.appendPublicationAsync();
+    async uploadAppend(type) {
+      switch (type){
+        case "学术论文":await this.appendPublicationAsync();break;
+        case "科研项目":await this.appendProjectAsync();break;
+        case "科研获奖":await this.appendAwardAsync();break;
+        case "决策咨询":await this.appendDecisionAsync();break;
+      }
     },
 
     //导出excel模版按钮
     btnClickExport() {
-      var sheetTitlesAndId = []; //保存所有sheet信息
+      var sheetTitlesAndId = this.indicatorName; //保存所有sheet信息
       var tableSample = []; //sheet表头信息 标题
-      if (this.importSelectType == "论文") {
-        this.typeOfAllPaper.forEach((item) => {
-          sheetTitlesAndId.push(item);
-        });
+      this.importSelectType = this.indicatorType;
+      if (this.importSelectType == "publication") {
+        // this.typeOfAllPaper.forEach((item) => {
+        //   sheetTitlesAndId.push(item);
+        // });
         tableSample = this.tablePaperSample;
-      } else if (this.importSelectType == "科技奖") {
-        this.typeOfAllTechnical.forEach((item) => {
-          sheetTitlesAndId.push(item);
-        });
+      } else if (this.importSelectType == "award") {
+        // this.typeOfAllTechnical.forEach((item) => {
+        //   sheetTitlesAndId.push(item);
+        // });
         tableSample = this.tableTechnicalSample;
-      } else if (this.importSelectType == "咨询决策成果") {
-        this.typeOfAllDecision.forEach((item) => {
-          sheetTitlesAndId.push(item);
-        });
+      } else if (this.importSelectType == "decision") {
+        // this.typeOfAllDecision.forEach((item) => {
+        //   sheetTitlesAndId.push(item);
+        // });
         tableSample = this.tableDecisionSample;
-      } else if (this.importSelectType == "纵向科研成果") {
-        this.typeOfAllProject.forEach((item) => {
-          sheetTitlesAndId.push(item);
-        });
+      } else if (this.importSelectType == "project") {
+        // this.typeOfAllProject.forEach((item) => {
+        //   sheetTitlesAndId.push(item);
+        // });
         tableSample = this.tableProjectSample;
       }
       // console.log(sheetTitlesAndId)
       var wb = XLSX.utils.book_new();
-      for (var i = 0; i < sheetTitlesAndId.length; i++) {
-        var sheet = XLSX.utils.json_to_sheet(tableSample); //设置每个sheet的表头标题
-        // console.log(sheet);
-        XLSX.utils.book_append_sheet(wb, sheet, sheetTitlesAndId[i].label);
-      }
+      var sheet = XLSX.utils.json_to_sheet(tableSample); //设置每个sheet的表头标题
+      XLSX.utils.book_append_sheet(wb, sheet, 'sheet1');
       // console.log(wb);
       const workbookBlob = this.workbook2blob(wb);
-      this.openDownloadDialog(workbookBlob, "模版.xlsx");
+      this.openDownloadDialog(workbookBlob, this.indicatorTypeZH+"模版.xlsx");
     },
     workbook2blob(workbook) {
       // 生成excel的配置项
@@ -1993,7 +2051,16 @@ export default {
       // return table_write;
     },
     checkUploadData({row, rowIndex}) {
-      if (typeof row["刊物全称"] === "undefined") {
+      if (this.indicatorTypeZH == "学术论文" && (typeof row["刊物全称"] === "undefined" || typeof row["出版社"] === "undefined")) {
+        return "warning-row";
+      }
+      if (this.indicatorTypeZH == "科研项目" && typeof row["项目名称"] === "undefined") {
+        return "warning-row";
+      }
+      if (this.indicatorTypeZH == "决策咨询" && typeof row["成果名称"] === "undefined") {
+        return "warning-row";
+      }
+      if (this.indicatorTypeZH == "科研获奖" && typeof row["奖项名称"] === "undefined") {
         return "warning-row";
       }
       return "";

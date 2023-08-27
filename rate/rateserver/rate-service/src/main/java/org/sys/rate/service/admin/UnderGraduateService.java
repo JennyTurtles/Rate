@@ -11,12 +11,10 @@ import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.ReadExcel;
+import org.sys.rate.utils.createGroups;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class UnderGraduateService {
@@ -34,6 +32,8 @@ public class UnderGraduateService {
     private ThesisMapper thesisMapper;
     @Resource
     private ReadExcel readExcel;
+    @Autowired
+    GroupsService groupsService;
 
     //管理员导入本科生，只添加，即使已经存在了该条数据也不更新
     public RespBean addUnderGraduate(List<UnderGraduate> underList, List<Student> stuList) {
@@ -395,5 +395,40 @@ public class UnderGraduateService {
         } catch (Exception e) {
             return RespBean.error("");
         }
+    }
+    public String createGroup(Integer year,Integer month,List<Integer> arr,Integer exchangeNums,Integer groupsNums,List<Double> selectGrade){
+        List<Double> point = new ArrayList<>();
+        List<Thesis> students = new ArrayList<>();
+        List<double []> point_participant = new ArrayList<>();
+        for (int i = 0;i<selectGrade.size();i++){
+            List<Thesis> par = new ArrayList<>();
+            par = underGraduateMapper.getByGrade(year,month,selectGrade.get(i));
+            students.addAll(par);
+        }
+        for (Thesis student:students){
+            double [] temp = new double[3];
+            point.add(Double.valueOf(student.getGrade()));
+            temp[0] = Double.valueOf(student.getGrade());//分数
+            temp[1] = Double.valueOf(student.getID());//学生id
+            temp[2] = Double.valueOf(-1);//组号标识
+            point_participant.add(temp);
+        }
+        //得到交换后的groups
+        List<List<double []>>res = groupsService.createGroupsByScore(arr,exchangeNums,groupsNums,point,point_participant);
+        String name = "";
+            //对每组遍历
+        try {
+            for(int residx = 0;residx < res.size();residx ++){
+                name = "第" + Integer.toString(residx + 1) + "组";
+                for(int item = 0;item < res.get(residx).size(); item ++){
+                    Integer id = (int) res.get(residx).get(item)[1];
+                    underGraduateMapper.updateGroup(id,name);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "分组失败";
+        }
+        return "分组成功";
     }
 }

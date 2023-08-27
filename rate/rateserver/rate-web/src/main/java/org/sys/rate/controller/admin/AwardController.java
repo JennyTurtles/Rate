@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.AwardTypeMapper;
 import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.AwardService;
@@ -38,13 +39,15 @@ import java.util.Map;
 @RestController
 @RequestMapping("/award/basic")
 public class AwardController {
-    
+
     @Resource
     private AwardService awardService;
     @Resource
     IndicatorMapper indicatorMapper;
     @Resource
     MailToTeacherService mailToTeacherService;
+    @Resource
+    AwardTypeMapper awardTypeMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(AwardController.class);
     private String uploadFileName;
@@ -182,6 +185,26 @@ public class AwardController {
             return RespBean.ok("修改awardType成功！");
         } catch (Exception e) {
             return RespBean.error("修改awardType失败！");
+        }
+    }
+    @PostMapping("/awardType/dels")
+    public RespBean deleteByYearId(@RequestParam Integer year, @RequestParam Integer indicatorID){
+        try {
+            awardTypeMapper.deleteByYearIndicatorID(year,indicatorID);
+            return RespBean.ok("删除成功！");
+        } catch (Exception e){
+            return RespBean.error("删除失败！");
+        }
+    }
+    @PostMapping("/awardType/import")
+    public RespBean multiImportPublication(@RequestBody List<AwardType> awardTypes){
+        try {
+            for (AwardType awardType:awardTypes){
+                awardTypeMapper.addAwardType(awardType);
+            }
+            return RespBean.ok("添加成功！");
+        } catch (Exception e){
+            return RespBean.error("添加失败！");
         }
     }
 

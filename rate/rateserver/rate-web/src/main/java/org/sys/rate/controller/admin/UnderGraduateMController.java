@@ -181,4 +181,26 @@ public class UnderGraduateMController {
         return underGraduateService.deleteThesis(underGraduate);
     }
 
+    @GetMapping("/getUngrouped")
+    public RespBean getUngrouped(@RequestParam("year") Integer year,@RequestParam("month") Integer month) {
+        List<Thesis> res = underGraduateMapper.getUngrouped(year,month);
+        for (Thesis par:res){
+            if (par.getGrade()==null)
+                par.setGrade(0.00d);
+        }
+        return RespBean.ok("success",res);
+    }
+
+    @PostMapping("/createGroups")
+    public String createGroup(@RequestBody Map<String,Object> data) {
+        Integer year = (Integer) data.get("year");
+        Integer month = (Integer) data.get("month");
+        List<Integer> arr = (List<Integer>) data.get("arr");
+        Integer exchangeNums = (Integer) data.get("exchangeNums");
+        Integer groupsNums = (Integer) data.get("groupsNums");
+        //List<Thesis> students = (List<Thesis>) data.get("students");
+        List<Double> selectGrade = (List<Double>) data.get("selectGrade");
+        return underGraduateService.createGroup(year,month,arr,exchangeNums,groupsNums,selectGrade);
+        //返回分好组的选手信息
+    }
 }

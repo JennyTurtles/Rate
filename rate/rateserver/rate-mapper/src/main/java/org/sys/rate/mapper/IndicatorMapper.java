@@ -56,6 +56,9 @@ public interface IndicatorMapper{
     @Select("select id from indicator i  where i.order =#{order} limit 1")
     Integer getIndicatorId(String order);
 
+    @Select("select id from indicator where name =#{name}")
+    Integer getIdByName(String name);
+
     @Select("select * from indicator i where id = #{id}")
     Indicator getIndicatorById(Integer id);
 

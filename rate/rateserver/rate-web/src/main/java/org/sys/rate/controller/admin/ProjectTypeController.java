@@ -38,9 +38,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("")
 public class ProjectTypeController {
-    
+
     @Resource
     private ProjectTypeService projectTypeService;
+    @Resource
+    private ProjectTypeMapper projectTypeMapper;
 
 
     @GetMapping("/projectByYear")
@@ -88,7 +90,24 @@ public class ProjectTypeController {
             return RespBean.error("delete project error!");
         }
     }
-
-
-
+    @PostMapping("/projectType/dels")
+    public RespBean deleteByYearId(@RequestParam Integer year, @RequestParam Integer indicatorID){
+        try {
+            projectTypeMapper.deleteByYearIndicatorID(year,indicatorID);
+            return RespBean.ok("删除成功！");
+        } catch (Exception e){
+            return RespBean.error("删除失败！");
+        }
+    }
+    @PostMapping("/projectType/import")
+    public RespBean multiImportPublication(@RequestBody List<ProjectType> projectTypes){
+        try {
+            for (ProjectType projectType:projectTypes){
+                projectTypeMapper.addProjectType(projectType);
+            }
+            return RespBean.ok("添加成功！");
+        } catch (Exception e){
+            return RespBean.error("添加失败！");
+        }
+    }
 }

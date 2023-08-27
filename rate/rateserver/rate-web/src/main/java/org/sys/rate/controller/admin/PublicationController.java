@@ -16,6 +16,7 @@ import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.admin.IndicatorService;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -125,13 +126,12 @@ public class PublicationController {
 
     // 文档2.14 功能6 -> 2.21 功能1
     // 待修改
-    //@PostMapping("/publication/dels")
-    //@ResponseBody
-    //public RespBean deleteByYearId(@RequestBody IndicatorPublication indicatorPublication){
-    //
-    //    int res = publicationMapper.deleteByYearIndicatorNames(indicatorPublication.getYear(),indicatorPublication.getIndicatorNames());
-    //    return RespBean.ok("success",res);
-    //}
+    @PostMapping("/publication/dels")
+    public RespBean deleteByYearId(@RequestParam Integer year, @RequestParam String indicatorName){
+        if (publicationMapper.deleteByYearIndicatorNames(year,indicatorName) < 0)
+            return RespBean.error("删除失败！");
+        return RespBean.ok("删除成功！");
+    }
 
     // 文档2.14 功能7 用部分名字搜全称 -> 2.21 功能3
     // 待修改
@@ -175,4 +175,15 @@ public class PublicationController {
         }
     }
 
+    @PostMapping("/publications")
+    public RespBean multiImportPublication(@RequestBody List<Publication> publications){
+        for (Publication publication:publications){
+            if (publicationMapper.checkByNames(publication.getName())!=1){
+                publicationMapper.insertPublication(publication);
+            }
+            String[] names = publication.getIndicatorName().split(" ");
+            publicationMapper.insertIndicatorPublication(indicatorMapper.getIdByName(names[1]), publicationMapper.getIdByName(publication.getName()), publication.getYear());
+        }
+        return RespBean.ok("添加成功！");
+    }
 }

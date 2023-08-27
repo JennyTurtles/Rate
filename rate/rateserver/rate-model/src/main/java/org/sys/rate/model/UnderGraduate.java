@@ -19,6 +19,7 @@ public class UnderGraduate extends Student{
     private String className;
     private String tutorName;
     private String tutorJobNumber;
+    private String group;
 
     public String getClassName() {
         return className;

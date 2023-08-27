@@ -49,6 +49,12 @@
         </trim>
         where id = #{id}
     </update>
+    <delete id="deleteByYearIndicatorNames">
+        delete ip
+        from indicator i,
+        indicator_publication ip
+        where i.id = ip.indicator_id and i.name=#{name} and ip.year=#{year}
+    </delete>
 
 
     <select id="getPublicationByNameYear" resultMap="PublicationWithIndicators">
@@ -88,5 +94,8 @@
         <where>
             <if test="name != null and name != ''">and name like concat('%', #{name}, '%')</if>
         </where>
+    </select>
+    <select id="checkByNames" resultType="java.lang.Integer">
+        select exists (select * from i_publication where name = #{name})
     </select>
 </mapper>

@@ -30,5 +30,7 @@ public interface AwardTypeMapper {
 
     @Update("update indicator set rankN = #{rankN} where id = #{indicatorId}")
     void editIndicatorAwardRankN(AwardType awardType);
+
+    int deleteByYearIndicatorID(Integer year,Integer indicatorID);
 }
 

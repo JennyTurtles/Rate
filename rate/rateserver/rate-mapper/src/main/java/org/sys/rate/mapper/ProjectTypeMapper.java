@@ -27,5 +27,7 @@ public interface ProjectTypeMapper {
 
     @Delete("delete from i_project_type where id = #{id}")
     Integer deleteById(Integer id);
+
+    int deleteByYearIndicatorID(Integer year,Integer indicatorID);
 }
 

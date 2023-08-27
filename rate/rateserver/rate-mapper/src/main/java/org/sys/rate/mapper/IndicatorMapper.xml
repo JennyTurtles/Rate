@@ -15,6 +15,12 @@
       <when test="indicatorType == 'award'">
         i_award_type
       </when>
+      <when test="indicatorType == 'award'">
+        i_award_type
+      </when>
+      <when test="indicatorType == 'decision'">
+        i_decision_type
+      </when>
     </choose>
     WHERE indicator_id = #{indicatorId}
     ORDER BY year desc

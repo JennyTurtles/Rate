@@ -92,9 +92,16 @@ public interface PublicationMapper {
      * 插入期刊时，也需要插入中间表中
      */
     @Insert("insert into indicator_publication(indicator_id, publication_id, year) values(#{indicatorId},#{publicationId},#{date})")
-    Integer insertIndicatorPublication(Integer indicatorId, Integer publicationId, Integer date);
+    int insertIndicatorPublication(Integer indicatorId, Integer publicationId, Integer date);
 
     List<Publication> getlistByName(String name);
 
     List<Publication> selectPublicationListByYear(Integer indicatorID, Integer year);
+
+    int deleteByYearIndicatorNames(Integer year,String name);
+
+    int checkByNames(String name);
+
+    @Select("select id from i_publication where name =#{name}")
+    Integer getIdByName(String name);
 }
