@@ -34,7 +34,7 @@
         <el-table-column
             prop="state"
             label="状态"
-            width="127px"
+            width="100px"
             align="center"
         >
           <template slot-scope="scope">
@@ -315,7 +315,7 @@ export default {
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '授权产品',
+        prodType: '科研产品',
         operationName: '',
         state: '',
         remark: '',
@@ -527,7 +527,7 @@ export default {
       this.title_show = "显示详情";
       this.currentProduct = data
       this.dialogVisible_showInfo = true
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=授权产品').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研产品').then((resp) => {
         this.loading = false;
         if (resp) {
           this.operList = resp.obj
@@ -556,7 +556,7 @@ export default {
     deleteOperationList(data) {
       const params = {}
       params.prodId = data.id;
-      params.prodType = '授权产品'
+      params.prodType = '科研产品'
       return new Promise((resolve, reject) => {
         this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
           resolve('success');

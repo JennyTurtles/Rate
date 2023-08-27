@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.model.Msg;
-import org.sys.rate.model.Patent;
+import org.sys.rate.model.Product;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.IndicatorService;
-import org.sys.rate.service.admin.PatentService;
+import org.sys.rate.service.admin.ProductService;
 import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
@@ -40,9 +40,7 @@ import java.util.Map;
 public class ProductController {
     
     @Resource
-    private PatentService productService;
-    @Resource
-    PublicationService publicationService;
+    private ProductService productService;
     @Resource
     IndicatorService indicatorService;
     @Resource
@@ -53,7 +51,7 @@ public class ProductController {
 
     @GetMapping("/studentID")//无页码要求
     public RespBean getById(Integer studentID) {
-        List<Patent> list = productService.selectListByIds(studentID);
+        List<Product> list = productService.selectListByIds(studentID);
         return RespBean.ok("success", list);
     }
 
@@ -67,16 +65,10 @@ public class ProductController {
     public Msg getCollect(@RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
         //包括返回最早的提交时间 和多次驳回的理由列表
         Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
-        List<Patent> list = productService.selectList();
+        List<Product> list = productService.selectList();
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()};
         return Msg.success().add("res", res);
-    }
-
-    //    添加专利 搜索期刊类别
-    @GetMapping("/publicationList")
-    public JsonResult<List> getPublicationList(String publicationName) {
-        return new JsonResult<>(publicationService.selectPublicationListByName(publicationName));
     }
 
     /**
@@ -84,8 +76,8 @@ public class ProductController {
      */
     @PostMapping("/list")
     @ResponseBody
-    public JsonResult list(Patent product) {
-        List<Patent> list = productService.selectPatentList(product);
+    public JsonResult list(Product product) {
+        List<Product> list = productService.selectProductList(product);
         return new JsonResult(list);
     }
 
@@ -95,8 +87,8 @@ public class ProductController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Patent product) {
-        Integer res = productService.insertPatent(product);
+    public JsonResult addSave(Product product) {
+        Integer res = productService.insertProduct(product);
 //        mailToTeacherService.sendTeaCheckMail(product, "授权专利", uploadFileName);
         return new JsonResult(product.getId());
     }
@@ -106,9 +98,9 @@ public class ProductController {
      */
     @PostMapping("/edit")
     @ResponseBody
-    public JsonResult editSave(Patent product) throws FileNotFoundException {
+    public JsonResult editSave(Product product) throws FileNotFoundException {
 //        mailToTeacherService.sendTeaCheckMail(product, "授权专利", uploadFileName);
-        return new JsonResult(productService.updatePatent(product));
+        return new JsonResult(productService.updateProduct(product));
     }
 
     /**
@@ -116,7 +108,7 @@ public class ProductController {
      */
     @DeleteMapping("/remove/{ID}")
     public JsonResult remove(@PathVariable Long ID) {
-        Integer res = productService.deletePatentById(ID);
+        Integer res = productService.deleteProductById(ID);
         return new JsonResult(res);
     }
 
@@ -163,10 +155,10 @@ public class ProductController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
-    @PostMapping("/searchPatentByConditions")
+    @PostMapping("/searchProductByConditions")
     public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
         Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
-        List<Patent> list = productService.searchPatentByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"));
+        List<Product> list = productService.searchProductByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"));
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);

@@ -388,7 +388,7 @@ export default new Router({
           },
         },
         {
-          path: '/teacher/tProduct',
+          path: '/teacher/Product',
           name: '科研产品',
           hidden: true,
           component: () => import('./views/teacher/Product'),
