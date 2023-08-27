@@ -566,12 +566,6 @@ export default {
     editAward(params) {
       this.$refs["currentProductCopy"].validate((valid) => {
         if (valid) {
-          if(params.url == '' || params.url == null){
-            this.$message({
-              message:'请上传证明材料！'
-            })
-            return
-          }
           if(!this.isAuthorIncludeSelf) {
             this.$message.error('请仔细检查作者列表！');
             return;
@@ -601,16 +595,20 @@ export default {
       params.date = this.currentProductCopy.date;
       params.point = this.productPoint;
       params.state = "commit";
+      if(params.url == '' || params.url == null){
+        this.$message.warning('请上传证明材料！')
+        return
+      }
+      if(!params.indicatorId) {
+        this.$message.warning('请选择指标点！')
+        return;
+      }
       if (this.currentProductCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editAward(params);
       } else {
         this.$refs["currentProductCopy"].validate((valid) => {
           if (valid) {
             params.studentId = this.user.id
-            if(params.url == '' || params.url == null){
-              this.$message.error('请上传证明材料！')
-              return
-            }
             if(!this.isAuthorIncludeSelf) {
               this.$message.error('请仔细检查作者列表！');
               return;
