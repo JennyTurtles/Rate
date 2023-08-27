@@ -528,7 +528,7 @@ export default {
       if (status === 200) {
         this.handleSuccessfulImport(obj);
       } else {
-        this.$message.error("网络原因，导入失败！")
+        this.$message.error(msg)
       }
     },
     handleSuccessfulImport(obj) {
