@@ -9,20 +9,22 @@
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
-               v-model="searchStudentName"
                placeholder="学生姓名"
-               autocomplete="off">
-        <label style="fontSize:10px;margin-left:16px">项目名称：</label>
+               autocomplete="off"
+               v-model="searchStudentName"
+               id="select_stuname">
+        <label style="fontSize:10px;margin-left:16px">产品名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
-               placeholder="项目名称"
-               v-model="searchProjectName"
+               placeholder="产品名称"
+               v-model="searchProductName"
                id="select_paperName">
-        <label style="fontSize:10px;margin-left:40px;">项目状态：</label>
+
+        <label style="fontSize:10px;margin-left:40px;">产品状态：</label>
         <el-select
-            v-model="searchStatus"
+            v-model="searchProductState"
             style="margin-left:3px;width:120px"
             prefix-icon="el-icon-edit"
             clearable
@@ -40,12 +42,14 @@
         </el-select>
         <label style="fontSize:10px;margin-left:16px">积分范围：</label>
         <el-select
-            v-model="searchPointFront"
+            v-model="pointFront"
             style="margin-left:3px;width:60px"
             prefix-icon="el-icon-edit"
             clearable
             filterable
             placeholder="1"
+            @change="((val) => filter(val,'select_point1'))"
+            id="select_point1"
         >
           <el-option
               style=""
@@ -57,12 +61,14 @@
         </el-select>
         <label >&nbsp; - &nbsp;</label>
         <el-select
-            v-model="searchPointBack"
+            v-model="tmp3"
             style="margin-left:3px;width:60px"
             prefix-icon="el-icon-edit"
             clearable
             filterable
             placeholder="12"
+            @change="((val) => filter(val,'select_point2'))"
+            id="select_point2"
         >
           <el-option
               style=""
@@ -75,7 +81,7 @@
         <el-button
             icon="el-icon-search"
             type="primary"
-            @click="searchProject(1, 15)"
+            @click="searchProductListByCondicitions(1, 10)"
             :disabled="showAdvanceSearchView"
             style="margin-left:30px"
         >
@@ -85,7 +91,7 @@
     </div>
     <div style="margin-top: 10px">
       <el-table
-          :data="ProjectList"
+          :data="products"
           stripe
           border
           v-loading="loading"
@@ -96,7 +102,6 @@
           style="width: 100%"
       >
         <el-table-column
-            fixed
             prop="student.name"
             align="center"
             label="学生姓名"
@@ -104,13 +109,13 @@
         >
         </el-table-column>
         <el-table-column
-            fixed
             prop="name"
             align="center"
-            label="项目名称"
+            label="产品名称"
             width="230"
         >
         </el-table-column>
+        <!-- width="200" -->
         <el-table-column
             prop="state"
             label="状态"
@@ -121,7 +126,7 @@
             <span
                 style="padding: 4px"
                 size="mini"
-                :model="currentProject.state"
+                :model="emp.state"
                 :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
             >
               {{scope.row.state=="commit"
@@ -144,21 +149,7 @@
         >
         </el-table-column>
         <el-table-column
-            prop="publisher"
-            label="出版社"
-            align="center"
-            width="80"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="isbn"
-            label="ISBN"
-            align="center"
-            width="80"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="remark"
+            prop="operationList[0].remark"
             label="备注"
             align="center"
         >
@@ -193,39 +184,39 @@
       </div>
     </div>
 
-    <!-- 对话框 老师审核通过项目 -->
+    <!-- 对话框 老师审核通过产品 -->
     <el-dialog :title="title"
-               :visible.sync="dialogVisiblePass" width="30%" center>
-      <!-- 确定审核通过该学生项目？ -->
+               :visible.sync="dialogVisible_pass" width="30%" center>
+      <!-- 确定审核通过该学生产品？ -->
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="currentProject"
+          :model="emp"
           ref="empForm"
           style="margin-left: 60px"
       >
-        <el-form-item label="项目ID:" prop="id">
-          <span>{{ currentProject.id }}</span>
+        <el-form-item label="产品ID:" prop="id">
+          <span>{{ emp.id }}</span>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <!-- <el-button @click="dialogVisiblePass = false">取 消</el-button> -->
+        <!-- <el-button @click="dialogVisible_pass = false">取 消</el-button> -->
         <el-button type="primary" @click="auditing_commit('tea_pass')">确 定</el-button>
       </span>
     </el-dialog>
-    <!-- 对话框 老师驳回该学生项目 -->
+    <!-- 对话框 老师驳回该学生产品 -->
     <el-dialog :title="title"
-               :visible.sync="dialogVisibleReject" width="30%" center>
+               :visible.sync="dialogVisible_reject" width="30%" center>
 
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="currentProject"
+          :model="emp"
           ref="empForm"
           style="margin-left: 40px"
       >
-        <el-form-item label="项目ID:" prop="id">
-          <span>{{ currentProject.id }}</span>
+        <el-form-item label="产品ID:" prop="id">
+          <span>{{ emp.id }}</span>
         </el-form-item>
         <el-form-item label="驳回理由:">
           <el-input
@@ -238,7 +229,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <!-- <el-button @click="dialogVisiblePass = false">取 消</el-button> -->
+        <!-- <el-button @click="dialogVisible_pass = false">取 消</el-button> -->
         <el-button type="primary" @click="auditing_commit('tea_reject')">确 定</el-button>
       </span>
     </el-dialog>
@@ -246,49 +237,50 @@
     <!-- 查看详情按钮 -->
     <el-dialog
         class="showInfo_dialog"
-        :title="titleName"
+        :title="title_show"
         :visible.sync="dialogVisible_show"
         width="520px"
         center>
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="currentProject"
+          :model="emp"
           ref="empForm"
           style="margin-left: 20px"
       >
-        <el-form-item label="项目名称:" prop="name">
-          <span>{{ currentProject.name }}</span
+        <el-form-item label="产品名称:" prop="name">
+          <span>{{ emp.name }}</span
           ><br />
         </el-form-item>
         <el-form-item label="学生姓名:" prop="student.name">
-          <span>{{ currentProject.student.name }}</span
+          <span>{{ emp.student.name }}</span
           ><br />
         </el-form-item>
 
-        <el-form-item label="项目状态:" prop="state">
-          <span>{{currentProject.state}}</span
+
+        <el-form-item label="产品状态:" prop="state">
+          <span>{{emp.state}}</span
           ><br />
         </el-form-item>
         <el-form-item label="作者人数:" prop="total">
-          <span>{{currentProject.total}}</span
+          <span>{{emp.total}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者排名:" prop="rank">
-          <span>{{currentProject.rank}}</span
+        <el-form-item label="排名:" prop="rank">
+          <span>{{emp.rank}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="受理日期:" prop="date">
-          <span>{{currentProject.date | dataFormat}}</span
+        <el-form-item label="受理年月:" prop="date">
+          <span>{{emp.date}}</span
           ><br />
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <span v-if="currentProject.url == '' || currentProject.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(currentProject)"
+          <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
+          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(emp)"
              onmouseover="this.style.color = 'blue'"
              onmouseleave="this.style.color = 'gray'">
-            {{currentProject.url | fileNameFilter}}</a>
+            {{emp.url | fileNameFilter}}</a>
           <br />
         </el-form-item>
         <div >
@@ -303,10 +295,10 @@
           </div>
         </div>
       </el-form>
-      <span slot="footer" class="dialog-footer" :model="currentProject">
+      <span slot="footer" class="dialog-footer" :model="emp">
             <el-button
                 id="but_pass"
-                v-show="((currentProject.state=='commit' && role == 'teacher') || (currentProject.state=='tea_pass' && role == 'admin')) ? true:false"
+                v-show="((emp.state=='commit' && role == 'teacher') || (emp.state=='tea_pass' && role == 'admin')) ? true:false"
                 @click="(()=>{
                   if (role == 'teacher')
                    auditing_commit('tea_pass')
@@ -317,24 +309,24 @@
             >审核通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="((currentProject.state=='commit' && role == 'teacher') || (currentProject.state=='tea_pass' && role == 'admin')) ? true:false"
+                v-show="((emp.state=='commit' && role == 'teacher') || (emp.state=='tea_pass' && role == 'admin')) ? true:false"
                 @click="isShowInfo = true"
                 type="primary"
             >审核不通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="(currentProject.state=='tea_reject' || currentProject.state=='adm_reject' || currentProject.state == 'adm_pass' || (currentProject.state=='tea_pass' && role == 8))? true:false"
+                v-show="(emp.state=='tea_reject' || emp.state=='adm_reject' || emp.state == 'adm_pass' || (emp.state=='tea_pass' && role == 8))? true:false"
                 @click="dialogVisible_show = false"
                 type="primary"
             >关闭</el-button>
         </span>
     </el-dialog>
-    <el-dialog v-model="currentProject" :visible.sync="isShowInfo">
+    <el-dialog v-model="emp" :visible.sync="isShowInfo">
       <el-input
           type="textarea"
           :rows="4"
           v-model="reason"
-          placeholder="请输入驳回理由"
+          placeholder="请输入产品驳回理由"
       >
       </el-input>
       <span slot="footer">
@@ -352,69 +344,83 @@ export default {
   name: "SalSearch",
   data() {
     return {
-      searchPointFront: '',
-      searchPointBack: '',
-      searchProjectName: '',
-      searchStatus: '',
+      pointBack: '',
+      pointFront: '',
+      searchProductState: '',
+      searchProductName: '',
       searchStudentName: '',
-      pageSizes:[15,20,30],
+      pageSizes:[10, 20, 50, 100],
       totalCount:0,
       currentPage:1,
-      pageSize:15,
+      pageSize:10,
+      tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
+      ispubFlag:false,
+      ispubShow:false,
       operList:[],
       isShowInfo:false,
       select_stuName:["全部"],//筛选框
       select_paperName:["全部"],
       select_point:['全部',1,3,4,6,9,12,15],
+      select_pubName:[],
       option:["全部","学生提交","导师通过","管理员通过","导师驳回","管理员驳回"],
       labelPosition: "left",
       title: "",
-      titleName: "",
-      emps: [],
+      title_show: "",
+      importDataBtnText: "导入数据",
+      importDataBtnIcon: "el-icon-upload2",
+      importDataDisabled: false,
+      showAdvanceSearchView: false,
+      copyemps:[],
+      products: [],
       loading: false,
       dialogVisible: false,
-      dialogVisiblePass: false,
-      dialogVisibleReject: false,
+      dialogVisible_pass: false,
+      dialogVisible_reject: false,
       dialogVisible_show: false,
+      positions: [],
       reason:"",
       oper:{
         operatorRole: "",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '科研项目',
+        prodType: '科研产品',
         operationName:"",
         state:"",
         remark:"",
         time: null,
         prodId: null,
       },
-      currentProject: {
+      emp: {
         id: null,
         institutionID: null,
         name: null,
-        scoreItemCount: "0",
-        score: "",
-        remark: "",
-        state: "",
-        student: {},
-        total: '',
-        rank: ''
+        score: "100",
+        comment: "",
+        state:"",
+        student:{},
+        total:0,
+        rank:0
+        // reason:"",
       },
-      ProjectList: []
     };
   },
   computed: {
     user() {
       return this.$store.state.currentHr; //object信息
     },
+    menuHeight() {
+      return this.select_pubName.length * 50 > 150
+          ? 150 + 'px'
+          : '${this.select_pubName.length * 50}px'
+    },
     role() {
-      return JSON.parse(localStorage.getItem('user')).role.indexOf('8') >= 0 ||
-      JSON.parse(localStorage.getItem('user')).role.indexOf('9') >= 0 ? 'teacher' : 'admin';
+      return JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ||
+      JSON.parse(localStorage.getItem('user')).roleName.indexOf('expert') >= 0 ? 'teacher' : 'admin';
     }
   },
   created() {},
   mounted() {
-    this.searchProject(1,15);
+    this.searchProductListByCondicitions(1, 10)
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -438,7 +444,7 @@ export default {
       var fileName = data.url.split('/').reverse()[0]
       var url = data.url
       axios({
-        url: '/project/basic/downloadByUrl?url='+url,
+        url: '/product/basic/downloadByUrl?url='+url,
         method: 'GET',
         responseType: 'blob'
       }).then(response => {
@@ -451,30 +457,33 @@ export default {
         document.body.removeChild(link);
       });
     },
+    filter(val,options){
+      document.getElementById(options).value=val
+    },
     //点击对话框中的确定按钮 触发事件
     auditing_commit(num){
       this.loading = true;
-      let url = "/project/basic/edit_state?state=" + num + "&ID=" + this.currentProject.id;
+      let url = "/product/basic/edit_state?state=" + num + "&ID="+this.emp.id;
       this.dialogVisible_show=false
-      if(num.indexOf('reject') >= 0){
-        this.currentProject.remark = this.reason;
-      }
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.currentProject.state = num
+          this.emp.state = num
+          this.total = resp.total;
           this.$message({
             type: 'success',
             message: '操作成功'
           })
-          this.doAddOper(num, this.reason, this.currentProject.id);
+          this.doAddOper(num, this.reason, this.emp.id);
         }
-      })
+      }).finally(()=>{
+        this.searchProductListByCondicitions(this.currentPage, this.pageSize)
+      });
     },
-    doAddOper(state,remark,projectID) {
+    async doAddOper(state,remark,productID) {
       this.oper.state = state;
       this.oper.remark = remark;
-      this.oper.prodId = projectID;
+      this.oper.prodId = productID;
       this.oper.time = this.dateFormatFunc(new Date());
       this.oper.operatorRole = this.role;
       if(this.oper.state == "tea_pass" || this.oper.state == 'adm_pass'){
@@ -482,21 +491,31 @@ export default {
       } else if (this.oper.state =="tea_reject" || this.oper.state == 'adm_reject'){
         this.oper.operationName = "审核驳回"
       }
-      this.postRequest1("/oper/basic/add", this.oper);
+      await this.postRequest1("/oper/basic/add", this.oper);
+      await this.searchProductListByCondicitions(this.currentPage, this.pageSize)
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
-    showEditEmpView_show(data) {
-      this.loading = true;
-      this.titleName = "显示详情";
-      this.currentProject = data;
-      this.dialogVisible_show = true;
-      this.getOperationListOfProject(data);
+    emptyEmp() {
+      this.emp = {
+        id: null,
+        startDate: null,
+        name: "",
+        scoreItemCount: "0",
+        comment: "备注example：关于xxx的产品",
+      };
     },
-    //获取改项目的操作列表
-    getOperationListOfProject(data) {
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研项目').then((resp) => {
+    showEditEmpView(data) {//修改论文
+      this.title = "编辑单位信息";
+      this.emp = data;
+      this.dialogVisible = true;
+    },
+    showEditEmpView_show(data) {
+      this.title_show = "显示详情";
+      this.emp = data;
+      this.dialogVisible_show = true;
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研产品').then((resp) => {
         this.loading = false;
         if (resp) {
           this.isShowInfo = false;
@@ -510,38 +529,16 @@ export default {
     //应该要分是否有无筛选条件
     sizeChange(currentSize) {
       this.pageSize = currentSize;
-      this.searchProject(this.currentPage,currentSize);
+      this.searchProductListByCondicitions(this.currentPage, this.pageSize)
     },
     currentChange(currentPage) {
       this.currentPage = currentPage;
-      this.searchProject(currentPage,this.pageSize);
+      this.searchProductListByCondicitions(this.currentPage, this.pageSize)
     },
-    setDataRemark(data) {
-      //初始化页面需要根据学生提交时间做降序
-      //页面的table的备注列需要展示驳回时间最晚的一条记录，两者操作无法合并
-      let dataRejectList;
-      let dataCommitList;
-      data.map(item => {
-        dataRejectList = [];
-        dataCommitList = [];
-        item.operationList.map(operation => {
-          //将每个项目的提交和驳回单独提取
-          if(operation.state === 'commit') dataCommitList.push(operation);
-          if(operation.state === 'tea_reject' || operation.state === 'adm_reject') dataRejectList.push(operation);
-        })
-        //找出最晚驳回理由
-        if(dataRejectList.length) {
-          dataRejectList.sort((a,b) => {
-            return a.time - b.time;
-          })
-          item.remark = dataRejectList[0].remark;
-        }
-      })
-    },
-    searchProject(pageNum, pageSize) {//根据条件搜索
+    searchProductListByCondicitions(pageNum, pageSize) {//根据条件搜索论文
       const params = {};
       params.studentName = this.searchStudentName;
-      var state = this.searchStatus;
+      var state = this.searchProductState;
       if(state == '导师通过'){
         state = 'tea_pass'
       }else if(state == '导师驳回'){
@@ -553,29 +550,29 @@ export default {
       }else if (state == '管理员驳回') {
         state = 'adm_reject'
       }else state = '';
-      if(this.searchPointFront == '全部') {
+      if(this.pointFront == '全部') {
         params.pointFront = '';
       }else {
-        params.pointFront = this.searchPointFront;
+        params.pointFront = this.pointFront;
       }
-      if(this.searchPointBack == '全部') {
+      if(this.pointBack == '全部') {
         params.pointBack = '';
       }else {
-        params.pointBack = this.searchPointBack;
+        params.pointBack = this.pointBack;
       }
       params.state = state;
-      params.name = this.searchProjectName;
+      params.name = this.searchProductName;
       params.pageNum = pageNum.toString();
       params.pageSize = pageSize.toString();
-      this.postRequest('/project/basic/searchProjectByConditions', params).then((response) => {
+      this.postRequest('/product/basic/searchProductByConditions', params).then((response) => {
         if(response) {
-          this.ProjectList = response.extend.res[0];
+          this.products = response.extend.res[0];
           this.totalCount = response.extend.res[1];
-          this.setDataRemark(this.ProjectList);
-        }
+        }else this.projectList = [];
       })
     }
-  }
+
+  },
 };
 </script>
 

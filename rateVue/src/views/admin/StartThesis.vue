@@ -396,7 +396,7 @@ export default {
       if (status === 200) {
         this.handleSuccessfulImport(obj);
       } else {
-        this.handleFailedImport(msg);
+        this.$message.error(msg);
       }
     },
 
@@ -417,10 +417,6 @@ export default {
       this.successfulRowsCount = successfulRowsCount;
       this.totalRows = total;
       this.dialogImportResult = true;
-    },
-
-    handleFailedImport(msg) {
-      this.$message.error(msg);
     },
 
     beforeUpload() {//上传前

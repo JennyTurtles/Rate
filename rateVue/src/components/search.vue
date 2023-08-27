@@ -1216,7 +1216,7 @@ export default {
                 ...that.typeOfAllTechnical,
                 subItem,
               ];
-            } else if (subItem.type == "决策咨询") {
+            } else if (subItem.type == "决策咨询") {  // 修改1
               that.typeOfAllDecision = [
                 ...that.typeOfAllDecision,
                 subItem,
@@ -1812,7 +1812,6 @@ export default {
         let data = await this.readFile(file);
         let workbook = XLSX.read(data, {type: "binary"}); //解析二进制格式数据
         var results = {};
-        console.log(workbook);
         for (var i = 0; i < workbook.SheetNames.length; i++) {
           const firstSheetName = "sheet1";
           results[firstSheetName] = [];

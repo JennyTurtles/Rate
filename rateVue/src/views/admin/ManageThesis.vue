@@ -634,8 +634,7 @@ export default {
       if (status === 200) {
         this.handleSuccessfulImport(obj);
       } else {
-        this.$message.error(res.msg)
-
+        this.$message.error(msg)
       }
     },
     handleSuccessfulImport(obj) {
