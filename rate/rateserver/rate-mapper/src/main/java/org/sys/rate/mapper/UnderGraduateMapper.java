@@ -36,7 +36,7 @@ public interface UnderGraduateMapper {
     @Select("SELECT name FROM student s WHERE s.ID = #{studentID} LIMIT 1")
     GradeForm getGradeFormByStuID(Integer studentID);
 
-    @Select("SELECT s.name, t.name thesisName\n" +
+    @Select("SELECT s.name, t.name thesisName,u.stuNumber,u.class className,u.specialty\n" +
             "FROM student s, undergraduate u, thesis t\n" +
             "WHERE s.ID = #{studentID} AND u.studentID = s.ID AND u.ID = t.studentID AND t.tutorID = #{tutorID} LIMIT 1")
     GradeForm getGradeFormByStuIdAndTutorId(Integer studentID, Integer tutorID);
