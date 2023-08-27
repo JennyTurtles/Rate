@@ -325,6 +325,15 @@ export default new Router({
           },
         },
         {
+          path: '/student/Product',
+          name: '科研产品',
+          hidden: true,
+          component: () => import('./views/student/Product'),
+          meta: {
+            title: '科研产品',
+          },
+        },
+        {
           path:'/student/Decision',
           name:'决策咨询',
           hidden:true,
@@ -382,7 +391,7 @@ export default new Router({
           path: '/teacher/tProduct',
           name: '科研产品',
           hidden: true,
-          component: () => import('./views/teacher/Project'),
+          component: () => import('./views/teacher/Product'),
           meta: {
             title: '科研产品',
           },
