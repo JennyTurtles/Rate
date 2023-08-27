@@ -1224,23 +1224,23 @@ export default {
           // console.log(item)
           item.children.forEach((subItem, idx2) => {
             //大类下面的4个小类
-            if (subItem.type == "论文") {
+            if (subItem.type == "学术论文") {
               //添加所有是论文类别的，所有大类
               that.typeOfAllPaper = [
                 ...that.typeOfAllPaper,
                 ...subItem.children,
               ];
-            } else if (subItem.type == "纵向科研项目") {
+            } else if (subItem.type == "科研项目") {
               that.typeOfAllProject = [
                 ...that.typeOfAllProject,
                 ...subItem.children,
               ];
-            } else if (subItem.type == "科技奖") {
+            } else if (subItem.type == "科研获奖") {
               that.typeOfAllTechnical = [
                 ...that.typeOfAllTechnical,
                 ...subItem.children,
               ];
-            } else if (subItem.type == "决策咨询成果") {
+            } else if (subItem.type == "决策咨询") {  // 修改1
               that.typeOfAllDecision = [
                 ...that.typeOfAllDecision,
                 ...subItem.children,
@@ -1884,7 +1884,7 @@ export default {
     btnClickExport() {
       var sheetTitlesAndId = []; //保存所有sheet信息
       var tableSample = []; //sheet表头信息 标题
-      if (this.importSelectType == "论文") {
+      if (this.importSelectType == "学术论文") {
         this.typeOfAllPaper.forEach((item) => {
           sheetTitlesAndId.push(item);
         });
