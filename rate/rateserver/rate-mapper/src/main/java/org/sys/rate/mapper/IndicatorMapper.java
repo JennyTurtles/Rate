@@ -43,7 +43,7 @@ public interface IndicatorMapper{
     @Update("update indicator set name = #{name}, score = #{score} where id = #{id}")
     public int updateScoreName(Indicator indicator);
 
-    @Update("update indicator set type = #{type},`order` = #{order}, score = #{score}, father = #{father} where id = #{id}")
+    @Update("update indicator set type = #{type},`order` = #{order}, score = #{score}, father_id = #{father} where id = #{id}")
     public int updateAllField(Indicator indicator);
 
     @Select("select score from indicator where id = #{id}")

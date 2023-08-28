@@ -32,4 +32,14 @@ public class CompetitionTypeController {
             return RespBean.error("delete competitionType error!");
         }
     }
+
+    @PutMapping("")
+    public RespBean editCompetitionType(@RequestBody CompetitionType competitionType){
+        try {
+            competitionTypeMapper.editCompetitionType(competitionType);
+            return RespBean.ok("修改CompetitionType成功！");
+        } catch (Exception e) {
+            return RespBean.error("修改CompetitionType失败！");
+        }
+    }
 }

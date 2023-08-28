@@ -42,6 +42,8 @@ public interface PublicationMapper {
      */
     Integer updatePublication(Publication publication);
 
+    @Update("update indicator_publication set year = #{year} where publication_id=#{id} AND indicator_id = #{indicatorId}")
+    Integer updateIndicatorPublicationYear(Publication publication);
 
     @Delete("delete from indicator_publication where publication_id =#{id} and year=#{year}")
     Integer deletePublicationByIds(Integer id, Integer year);

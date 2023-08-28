@@ -688,6 +688,7 @@
       </span>
     </el-dialog>
 
+   <!--期刊-->
     <el-table
         v-if="indicatorType === 'publication'"
         :data="tableData"
@@ -873,6 +874,9 @@
         <el-form-item label="奖项名">
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
+       <el-form-item label="录入年份">
+        <el-input v-model="rowData.year"></el-input>
+       </el-form-item>
 
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -946,9 +950,12 @@
       >请输入科研项目的相关信息</span
       >
       <el-form :model="rowData">
-        <el-form-item label="类别名">
+        <el-form-item label="科研项目名">
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
+       <el-form-item label="录入年份">
+        <el-input v-model="rowData.year"></el-input>
+       </el-form-item>
       </el-form>
       <!--      <el-form :model="rowData">-->
       <!--        <el-form-item label="录入年份">-->
@@ -1034,6 +1041,9 @@
         <el-form-item label="决策咨询成果名">
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
+       <el-form-item label="录入年份">
+        <el-input v-model="rowData.year"></el-input>
+       </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdateDecision = false"
@@ -1115,6 +1125,9 @@
     <el-form :model="rowData">
      <el-form-item label="学科竞赛名">
       <el-input v-model="rowData.name"></el-input>
+     </el-form-item>
+     <el-form-item label="录入年份">
+      <el-input v-model="rowData.year"></el-input>
      </el-form-item>
     </el-form>
     <span slot="footer" class="dialog-footer">
@@ -1558,7 +1571,9 @@ export default {
         const paths = {
           project: "projectType",
           publication: "publication/basic/edit",
-          award: "award/basic/awardType"
+          award: "award/basic/awardType",
+          decision:"decisionType",
+          competition:"competitionType"
         };
 
         const url = `/${paths[indicatorType] || indicatorType}`;
@@ -1566,7 +1581,7 @@ export default {
         await axios.put(url, rowData);
 
         await this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
-
+        await this.getYearList()
         this.$message({
           type: "success",
           message: "修改成功!"

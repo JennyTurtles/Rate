@@ -26,5 +26,8 @@ public interface CompetitionTypeMapper {
 
     @Delete("delete from i_competition_type where id = #{id}")
     void deleteById(Integer id);
+
+    @Update("update i_competition_type set name=#{name},year = #{year} where id = #{id}")
+    void editCompetitionType(CompetitionType competitionType);
 }
 

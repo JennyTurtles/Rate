@@ -73,6 +73,7 @@ public class PublicationController {
         try {
             // 参数校验通过，进行相关处理
             publicationService.updatePublication(publication);
+            publicationMapper.updateIndicatorPublicationYear(publication);
             return RespBean.ok("修改期刊成功");
         } catch (Exception e) {
             // 异常处理，返回错误信息

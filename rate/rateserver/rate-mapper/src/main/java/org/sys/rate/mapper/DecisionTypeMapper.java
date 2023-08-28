@@ -21,7 +21,7 @@ public interface DecisionTypeMapper {
     @Insert("insert into i_decision_type (name, indicator_id, year) values(#{name}, #{indicatorId}, #{year}) ")
     void addDecisionType(DecisionType decisionType);
 
-    @Update("update i_decision_type set name=#{name} where id = #{id}")
+    @Update("update i_decision_type set name=#{name},year = #{year} where id = #{id}")
     void editDecisionType(DecisionType decisionType);
 
     @Update("update indicator set rankN = #{rankN} where id = #{indicatorId}")

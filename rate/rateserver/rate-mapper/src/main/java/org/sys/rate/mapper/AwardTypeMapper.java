@@ -22,7 +22,7 @@ public interface AwardTypeMapper {
     @Insert("insert into i_award_type (name, indicator_id, year) values(#{name}, #{indicatorId}, #{year}) ")
     void addAwardType(AwardType awardType);
 
-    @Update("update i_award_type set name=#{name} where id = #{id}")
+    @Update("update i_award_type set name=#{name}, year = #{year} where id = #{id}")
     void editAwardType(AwardType awardType);
 
     @Update("update indicator set rankN = #{rankN} where id = #{indicatorId}")
