@@ -215,7 +215,7 @@
             <el-radio :label="0">无排名限制</el-radio>
           </el-radio-group>
 
-          <div v-if="selectedOption === 1">
+          <div v-if="selectedOption === 1" style="margin-top: 10px">
             限排名前
             <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
             有积分

@@ -34,6 +34,8 @@ public class UnderGraduateService {
     private ReadExcel readExcel;
     @Autowired
     GroupsService groupsService;
+    @Resource
+    private ThesisService thesisService;
 
     //管理员导入本科生，只添加，即使已经存在了该条数据也不更新
     public RespBean addUnderGraduate(List<UnderGraduate> underList, List<Student> stuList) {
@@ -313,43 +315,14 @@ public class UnderGraduateService {
     private RespBean insertOrUpdateThesis(List<Thesis> thesisList, Integer year, Integer month) {
         int rows = 0;
         try {
-            for(var thesis:thesisList){
-                thesis.setYear(year);
-                thesis.setMonth(month);
-
-                if(thesisMapper.ifExist(thesis)){
-                    thesisMapper.edit(thesis);
-                }else {
-                    ++rows;
-                    thesisMapper.insert(thesis);
-                }
-            }
+            rows = thesisService.upsert(thesisList, year, month);
         } catch (Exception e) {
             String errorMessage = "插入或者更新操作毕业论文信息时出错！";
-            RespBean.error(errorMessage);
+            return RespBean.error(errorMessage);
         }
 
         return RespBean.ok("", rows);
     }
-
-    private RespBean duplicateTeacherChecker(Set<Teachers> teachersSet, Integer institutionID) {
-        for (Teachers teachers : teachersSet) {
-            if (teachersMapper.getTutorIdByJobNumAndInstitutionID(teachers.getJobnumber(), institutionID) == null) {
-                // 只有当老师不存在时添加进去！
-                try {
-                    teachers.setDeleteflag(0L);
-                    teachers.setRole("8");
-                    teachers.setInstitutionid(institutionID);
-                    teachersMapper.add(teachers);
-                } catch (Exception e) {
-                    return RespBean.error("插入老师时出现错误！");
-                }
-            }
-        }
-        return RespBean.ok("");
-    }
-
-
 
 
     public List<UnderGraduate> getStudent(Integer institutionID, Integer year, Integer month) {

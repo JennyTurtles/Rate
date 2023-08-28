@@ -10,7 +10,7 @@
         <el-option value="春季">春季</el-option>
         <el-option value="秋季">秋季</el-option>
       </el-select>
-      <el-button @click="startThesis" type="primary" style="margin-left: 10px">开启</el-button>
+      <el-button @click="startThesis" type="primary" style="margin-left: 10px" :disabled=start>开启</el-button>
     </div>
 
 
@@ -160,6 +160,7 @@ export default {
       failureReasons: [],
       dialogImportResult: false,
       havingStart: true,  // 默认没有开启
+      start:true, // 默认没有开启
       canImportStudents: false,
       selectSemester: '',
       startYear: new Date().getFullYear(),
@@ -469,15 +470,11 @@ export default {
           this.totalCount = totalCount;
           this.havingStart = !extend.havingStart;
           if (extend.havingStart == true) {
-            this.$message.success("本学期已经开启毕业设计活动！");
-
-            setTimeout(() => {
-              if (this.totalCount == 0) {
-                this.$message.info("本学期没有导入毕业论文信息！");
-              }
-            }, 1000);
+            // this.$message.success("本学期已经开启毕业设计活动！");
+            this.start = true;
           } else {
-            this.$message.info("本学期没有开启毕业设计活动！");
+            // this.$message.info("本学期没有开启毕业设计活动！");
+            this.start = false;
           }
 
         } else {

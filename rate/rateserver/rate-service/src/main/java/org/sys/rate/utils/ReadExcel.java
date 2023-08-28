@@ -56,47 +56,62 @@ public class ReadExcel {
                     continue; // 跳过第一行
                 }
 
-                Cell nameCell = row.getCell(0);
-                Cell idCell = row.getCell(1);
+                Cell nameCell = row.getCell(1);
+                Cell idCell = row.getCell(0);
 
                 Cell gradeCell = null;
                 Cell yearCell = null;
                 Cell majorCell = null;
                 Cell classCell = null;
                 Cell teacherJobNumberCell;
+                Cell teacherNameCell;
+
 
                 if ("student".equals(type)) {
                     gradeCell = row.getCell(2);
                     yearCell = row.getCell(3);
                     majorCell = row.getCell(4);
                     classCell = row.getCell(5);
-                    teacherJobNumberCell = row.getCell(7);
+                    teacherNameCell = row.getCell(7);
+                    teacherJobNumberCell = row.getCell(6);
                 } else {
-                    teacherJobNumberCell = row.getCell(3);
+                    teacherJobNumberCell = row.getCell(2);
+                    teacherNameCell = row.getCell(3);
                 }
 
                 if (idCell == null) {
-                    record.getFailureReasons().put(rowIndex, "学生学号为空");
+                    record.setFailReasonForRowIndex(rowIndex, "第一列学生学号为空");
                     continue;
                 }
-                String name = nameCell != null ? nameCell.getStringCellValue() : "";
-                String major = majorCell != null ? majorCell.getStringCellValue() : "";
-                String className = classCell != null ? classCell.getStringCellValue() : "";
+                if (nameCell == null) {
+                    record.setFailReasonForRowIndex(rowIndex, "第二列学生姓名为空");
+                    continue;
+                }
+
+
+                String name = nameCell.getCellType() == CellType.STRING ? nameCell.getStringCellValue() : "";
+                if("".equals(name)){
+                    record.setFailReasonForRowIndex(rowIndex, "第二列学生姓名为空");
+                    continue;
+                }
+                String major = majorCell != null ? (majorCell.getCellType() == CellType.STRING ? majorCell.getStringCellValue() : "") : "";
+                String className = classCell != null ? (classCell.getCellType() == CellType.STRING ? classCell.getStringCellValue() : "") : "";
 
                 Integer year = null;
                 if (yearCell != null) {
                     try {
                         year = yearCell.getCellType() == CellType.NUMERIC ? (int) yearCell.getNumericCellValue() : Integer.parseInt(yearCell.getStringCellValue());
                         if (year < 2000 || year > LocalDateTime.now().getYear()) {
-                            record.setFailReasonForRowIndex(rowIndex, "入学年份不合法");
+                            record.setFailReasonForRowIndex(rowIndex, "第四列入学年份不合法");
                             continue;
                         }
                     } catch (NumberFormatException e) {
-                        record.setFailReasonForRowIndex(rowIndex, "入学年份格式错误");
+                        record.setFailReasonForRowIndex(rowIndex, "第四列入学年份格式错误");
                         continue;
                     }
                 }
 
+                // 姓名和学号成对出现，且合理
                 String studentNumber;
                 Integer undergraduateId = null;
                 try {
@@ -117,7 +132,7 @@ public class ReadExcel {
                         undergraduateId = (Integer) existOrInsertResBean.getObj();
                     }
                 } catch (NumberFormatException e) {
-                    record.setFailReasonForRowIndex(rowIndex, "学生学号单元格式错误");
+                    record.setFailReasonForRowIndex(rowIndex, "第一列学生学号单元格式错误");
                     continue;
                 }
 
@@ -127,29 +142,38 @@ public class ReadExcel {
                     try {
                         grade = gradeCell.getCellType() == CellType.NUMERIC ? gradeCell.getNumericCellValue() : Double.parseDouble(gradeCell.getStringCellValue());
                     } catch (NumberFormatException e) {
-                        record.setFailReasonForRowIndex(rowIndex, "绩点格式错误");
+                        record.setFailReasonForRowIndex(rowIndex, "第三列绩点格式错误");
                         continue;
                     }
                 }
 
-
+                // 工号和姓名同时存在且合理
+                if (teacherJobNumberCell == null && "teacher".equals(type)) {
+                    record.setFailReasonForRowIndex(rowIndex, "指导教师工号为空");
+                    continue;
+                }
+                if (teacherJobNumberCell != null && teacherNameCell == null) {
+                    record.setFailReasonForRowIndex(rowIndex, "指导教师姓名为空");
+                    continue;
+                }
                 String teacherJobNumber = "";
+                String teacherName = "";
                 Integer tutorID = null;
-                if (teacherJobNumberCell != null) {
+                if (teacherJobNumberCell != null && teacherNameCell != null) {
                     try {
                         teacherJobNumber = teacherJobNumberCell.getCellType() == CellType.NUMERIC ? String.valueOf((int) teacherJobNumberCell.getNumericCellValue()) : teacherJobNumberCell.getStringCellValue();
-                        tutorID = teachersMapper.getTutorIdByJobNumAndInstitutionID(teacherJobNumber, institutionID);
+                        teacherName = teacherNameCell.getStringCellValue();
+                        tutorID = teachersMapper.checkTeacherExist(teacherJobNumber, teacherName, institutionID);
                         if (tutorID == null) {
-                            record.setFailReasonForRowIndex(rowIndex, "教师工号不存在");
+                            record.setFailReasonForRowIndex(rowIndex, "指导教师工号不存在");
+                            continue;
+                        }
+                        if (tutorID.equals(-1)) {
+                            record.setFailReasonForRowIndex(rowIndex, "指导教师工号和姓名不匹配");
                             continue;
                         }
                     } catch (NumberFormatException e) {
-                        record.setFailReasonForRowIndex(rowIndex, "教师工号格式错误");
-                        continue;
-                    }
-                } else {
-                    if ("teacher".equals(type)) {
-                        record.setFailReasonForRowIndex(rowIndex, "教师工号为空");
+                        record.setFailReasonForRowIndex(rowIndex, "指导教师工号格式错误");
                         continue;
                     }
                 }
@@ -168,19 +192,26 @@ public class ReadExcel {
             return msg.fail();
         }
         Msg successMsg = Msg.success();
-        // 这里获取的都是学生学号、教师工号合法的数据，已经不合法的数据。
+        // 这里获取的都是合法的数据，安心插入或者更新
         successMsg.add("thesis", thesisList).add("record", record).add("total", rowIndex - 1);
         return successMsg;
     }
 
     private RespBean updateExistOrInsertUndergraduate(UnderGraduate underGraduate, String type) {
-        Integer id = underGraduateMapper.checkStudentExist(underGraduate.getStuNumber(), underGraduate.getInstitutionID());
-        if (id != null && "student".equals(type)) {
-            try {
-                underGraduateMapper.updateWithInstitutionID(underGraduate);
-                return RespBean.ok("exist", id);
-            } catch (Exception e) {
-                return RespBean.error("更新本科生表出现错误！");
+        // 检查这个单位这个学号这个姓名是否存在，若不存在则插入，但是若是学号和姓名不匹配应该怎么做？——报错
+        // 若学号存在且姓名匹配成功，则返回本科生的id；若学号不存在，则返回null；若学号存在且姓名匹配不成功，则返回-1
+        Integer id = underGraduateMapper.checkStudentExist(underGraduate.getStuNumber(), underGraduate.getName(), underGraduate.getInstitutionID());
+        if (id != null) {
+            if (id.equals(-1)) {
+                return RespBean.error("学生学号和姓名不匹配");
+            }
+            if("student".equals(type)) {
+                try {
+                    underGraduateMapper.updateWithInstitutionID(underGraduate);
+                    return RespBean.ok("exist", id);
+                } catch (Exception e) {
+                    return RespBean.error("更新本科生表出现错误！");
+                }
             }
         } else if (id == null) {
             // 首先插入到student表，获取主键id，然后插入undergraduate表中

@@ -40,7 +40,7 @@ public class UnderGraduateMController {
 
     @GetMapping("/exportUnderGraduate")
     public ResponseEntity<byte[]> downloadExample_UnderGraduateStudents(@RequestParam("type") String type, HttpServletResponse response) {
-        return POIUtils.writeUnderGraduate(type);
+        return "student".equals(type)? POIUtils.writeUnderGraduate(type):POIUtils.undergraduateExcelTemplate(type);
     }
 
     @PostMapping("/importUnderGraduate")

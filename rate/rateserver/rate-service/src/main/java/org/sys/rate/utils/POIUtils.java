@@ -850,7 +850,7 @@ public class POIUtils {
             c3.setCellValue("导师工号");
             row.createCell(2).setCellValue("张老师");
             row.createCell(3).setCellValue("1044");
-        } else if("thesis".equals(type)){
+        } else if ("thesis".equals(type)) {
             c2.setCellValue("绩点");
             c3.setCellValue("入学年份");
             HSSFCell c4 = r0.createCell(4);
@@ -869,7 +869,7 @@ public class POIUtils {
             row.createCell(6).setCellValue("张老师");
             row.createCell(7).setCellValue("1044");
             info = "请删除提示行。入学年份、专业、班级非必填。";
-        }else{
+        } else {
             c2.setCellValue("入学年份");
             c3.setCellValue("专业");
             HSSFCell c4 = r0.createCell(4);
@@ -882,6 +882,95 @@ public class POIUtils {
             info = "请删除提示行。入学年份、专业、班级非必填。";
         }
 
+
+        sheet.createRow(2).createCell(0).setCellValue(info);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setContentDispositionFormData("attachment", new String("本科生模板.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
+
+
+    public static ResponseEntity<byte[]> undergraduateExcelTemplate(String type) {
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        //2. 创建文档摘要
+        workbook.createInformationProperties();
+        //3. 获取并配置文档信息
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
+        //4. 获取文档摘要信息
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        summInfo.setTitle("undergraduate");
+        summInfo.setAuthor("东华大学");
+        // 文档备注
+        summInfo.setComments("本文档由东华大学计算机学院提供");
+
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        HSSFCellStyle dateCellStyle = workbook.createCellStyle();
+        dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+        HSSFSheet sheet = workbook.createSheet("undergraduate");
+
+//        int[] columnWidths = {15, 20, 20, 20, 20, 20, 15, 10};
+        for (int i = 0; i < 8; i++) {
+            sheet.setColumnWidth(i, 20 * 256);
+        }
+
+        HSSFRow r0 = sheet.createRow(0);
+        HSSFCell c0 = r0.createCell(0);
+        c0.setCellValue("学号");
+        HSSFCell c1 = r0.createCell(1);
+        c1.setCellValue("姓名");
+        HSSFRow row = sheet.createRow(1);
+        row.createCell(0).setCellValue("2222000");
+        row.createCell(1).setCellValue("张三");
+
+        HSSFCell c2 = r0.createCell(2);
+        HSSFCell c3 = r0.createCell(3);
+
+        String info = "";
+
+        if ("teacher".equals(type)) {
+            c2.setCellValue("导师工号");
+            c3.setCellValue("导师姓名");
+            row.createCell(2).setCellValue("10105471");
+            row.createCell(3).setCellValue("黄老师");
+        } else if ("thesis".equals(type)) {
+            c2.setCellValue("绩点");
+            c3.setCellValue("入学年份");
+            HSSFCell c4 = r0.createCell(4);
+            c4.setCellValue("专业");
+            HSSFCell c5 = r0.createCell(5);
+            c5.setCellValue("班级");
+            HSSFCell c6 = r0.createCell(6);
+            c6.setCellValue("导师工号");
+            HSSFCell c7 = r0.createCell(7);
+            c7.setCellValue("导师姓名");
+
+            row.createCell(2).setCellValue("3.8");
+            row.createCell(3).setCellValue("2018");
+            row.createCell(4).setCellValue("软件工程");
+            row.createCell(5).setCellValue("软件工程1801");
+            row.createCell(6).setCellValue("10105471");
+            row.createCell(7).setCellValue("黄老师");
+            info = "请删除提示行。入学年份、专业、班级非必填。";
+        } else {
+            c2.setCellValue("入学年份");
+            c3.setCellValue("专业");
+            HSSFCell c4 = r0.createCell(4);
+            c4.setCellValue("班级");
+            row.createCell(2).setCellValue("2018");
+            row.createCell(3).setCellValue("软件工程");
+            row.createCell(4).setCellValue("软件工程1801");
+
+            info = "请删除提示行。入学年份、专业、班级非必填。";
+        }
 
 
         sheet.createRow(2).createCell(0).setCellValue(info);

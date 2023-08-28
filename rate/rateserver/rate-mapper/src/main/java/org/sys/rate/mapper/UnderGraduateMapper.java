@@ -1,6 +1,9 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
+import org.sys.rate.model.GradeForm;
+import org.sys.rate.model.Teachers;
+import org.sys.rate.model.UnderGraduate;
 import org.sys.rate.model.*;
 
 import java.util.List;
@@ -38,8 +41,12 @@ public interface UnderGraduateMapper {
             "WHERE s.ID = #{studentID} AND u.studentID = s.ID AND u.ID = t.studentID AND t.tutorID = #{tutorID} LIMIT 1")
     GradeForm getGradeFormByStuIdAndTutorId(Integer studentID, Integer tutorID);
 
-    @Select("select id from undergraduate  where stuNumber =#{stuNumber} and institutionID = #{institutionID}")
-    Integer checkStudentExist(String stuNumber, Integer institutionID);
+    @Select("SELECT CASE WHEN s.name = #{stuName} THEN u.id ELSE -1 END AS result " +
+            "FROM undergraduate u " +
+            "JOIN student s ON u.studentID = s.ID " +
+            "WHERE u.stuNumber = #{stuNumber} AND u.institutionID = #{institutionID}")
+    Integer checkStudentExist(String stuNumber, String stuName, Integer institutionID);
+
 
     @Insert("insert into undergraduate (institutionID, studentID, stuNumber, year, specialty, class) " +
             "values (#{institutionID}, #{studentID}, #{stuNumber}, #{year}, #{specialty}, #{className})")

@@ -19,7 +19,7 @@
       <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="groupsForStudent">学生分组
       </el-button>
 
-      <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importTeachers">导入教师
+      <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importTeachers">导入指导教师
       </el-button>
     </div>
 
@@ -706,7 +706,7 @@ export default {
           this.undergraduateStudents = students;
           this.totalCount = totalCount;
           if (this.totalCount == 0) {
-            this.$message.info("本学期没有导入毕业论文信息！")
+            // this.$message.info("本学期没有导入毕业论文信息！")
           }
         } else {
           // 处理请求失败的情况
