@@ -19,7 +19,7 @@ public interface ProjectTypeMapper {
     @Select("SELECT id, name, indicator_id, year FROM i_project_type where indicator_id = #{indicatorID} and year = #{year}")
     List<ProjectType> selectProjectTypeListByYear(Integer indicatorID, Integer year);
 
-    @Insert("insert into i_project_type (name, indicator_id, year) VALUES (#{name}, #{indicatorId}, #{year})")
+    @Insert("insert ignore into i_project_type (name, indicator_id, year) VALUES (#{name}, #{indicatorId}, #{year})")
     Integer addProjectType(ProjectType projectType);
 
     @Update("update i_project_type set name = #{name}, year = #{year} where id = #{id}")

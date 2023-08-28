@@ -1,5 +1,6 @@
 package org.sys.rate.controller.admin;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.DecisionTypeMapper;
 import org.sys.rate.model.DecisionType;
@@ -16,8 +17,8 @@ public class DecisionTypeController {
     @PostMapping("")
     public RespBean addDecisionType(@RequestBody DecisionType decisionType){
         try {
-            decisionTypeMapper.addDecisionType(decisionType);
-            return RespBean.ok("添加decisionType成功！");
+            Integer res = decisionTypeMapper.addDecisionType(decisionType);
+            return res != 0 ? RespBean.ok("添加成功！") : RespBean.ok("重复添加，已忽略");
         } catch (Exception e) {
             return RespBean.error("添加decisionType失败！");
         }
@@ -27,9 +28,9 @@ public class DecisionTypeController {
     public RespBean editDecisionType(@RequestBody DecisionType decisionType){
         try {
             decisionTypeMapper.editDecisionType(decisionType);
-            return RespBean.ok("修改decisionType成功！");
-        } catch (Exception e) {
-            return RespBean.error("修改decisionType失败！");
+            return RespBean.ok("修改成功！");
+        } catch (DuplicateKeyException e) {
+            return RespBean.error("重名！");
         }
     }
 

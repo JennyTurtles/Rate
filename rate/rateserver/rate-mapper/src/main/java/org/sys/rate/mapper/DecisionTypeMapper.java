@@ -18,8 +18,8 @@ public interface DecisionTypeMapper {
     @Select("select a.id, a.name, a.year, i.rankN from i_decision_type a, indicator i where a.indicator_id = #{indicatorId} and year = #{year} and a.indicator_id = i.id")
     List<DecisionType> selectDecisionTypeListByYear(Integer indicatorId, Integer year);
 
-    @Insert("insert into i_decision_type (name, indicator_id, year) values(#{name}, #{indicatorId}, #{year}) ")
-    void addDecisionType(DecisionType decisionType);
+    @Insert("insert ignore into i_decision_type (name, indicator_id, year) values(#{name}, #{indicatorId}, #{year}) ")
+    Integer addDecisionType(DecisionType decisionType);
 
     @Update("update i_decision_type set name=#{name},year = #{year} where id = #{id}")
     void editDecisionType(DecisionType decisionType);

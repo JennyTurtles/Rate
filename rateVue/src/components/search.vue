@@ -102,7 +102,7 @@
     <el-dialog
         :visible.sync="dialogVisibleClone"
         width="90%"
-        @open="getYearList(indicatorID,indicatorType)"
+        @open="getYearList(null,indicatorID,indicatorType)"
     >
       <span slot="title" style="text-align: center; font-size: 20px">克隆</span>
       <div>
@@ -128,7 +128,7 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="closeClone()">关 闭</el-button>
-        <el-button @click="clone()">确 定</el-button>
+        <el-button type="primary" @click="clone()">确 定</el-button>
       </span>
     </el-dialog>
     <!--    点击搜索按钮-->
@@ -1578,20 +1578,17 @@ export default {
 
         const url = `/${paths[indicatorType] || indicatorType}`;
 
-        await axios.put(url, rowData);
-
+        await axios.put(url, rowData).then((resp) => {
+          if (resp.status === 200) {
+            this.$message({
+              type: "success",
+              message: resp.msg,
+            });
+          }
+        });
         await this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
-        await this.getYearList()
-        this.$message({
-          type: "success",
-          message: "修改成功!"
-        });
-      } catch (error) {
-        this.$message({
-          type: "error",
-          message: error.message || "修改失败!"
-        });
-      }
+        await this.getYearList(this.year)
+      } catch (error) {}
     },
 
     appendPublication() {
@@ -1609,11 +1606,10 @@ export default {
         year: this.publicationInf.year,
       };
       var that = this;
-      // console.log(postData);
-      this.postRequest1("/publication/basic/add", postData).then(function (
-          resp
-      ) {
-        that.getTableByYear(that.indicatorID, that.year, that.indicatorType,true);
+      this.postRequest1("/publication/basic/add", postData).then(function (resp) {
+        that.getYearList(postData.year);
+
+        that.getTableByYear(that.indicatorID, postData.year, that.indicatorType,true);
         if (resp.status != 200)
           that.$message({
             type: "error",
@@ -1622,12 +1618,19 @@ export default {
         else {
           that.$message({
             type: "success",
-            message: "添加成功!",
+            message: resp.msg,
           });
           that.totalCount++;
+         this.publicationInf = {
+          name: "",
+          abbr: "",
+          publisher: "",
+          url: "",
+          level: "",
+          year: "",
+         }
         }
       });
-      this.publicationInf = {};
     },
     appendPublicationAsync() {
       var token = localStorage.getItem("user")
@@ -1684,7 +1687,7 @@ export default {
           if (resp.status === 200) {
             this.$message({
               type: "success",
-              message: "添加成功!",
+              message: resp.msg,
             });
 
             this.getYearList(this.awardInf.year)
@@ -1761,16 +1764,16 @@ export default {
       axios
           .post("/projectType", postData)
           .then(function (resp) {
-            if (resp.status !== 200) {
-              throw new Error("Failed to add project type");
-            }
             const queryParams = new URLSearchParams({
               indicatorId: postData.indicatorId,
               year: postData.year,
               pageNum: that.currentPage,
               pageSize: that.PageSize,
             });
-
+           that.$message({
+            type: "success",
+            message: resp.msg,
+           });
             return axios.get("/projectByYear?" + queryParams.toString());
           })
           .then(function (resp) {
@@ -1778,10 +1781,6 @@ export default {
             that.totalCount = resp.data.total;
             that.getYearList(postData.year)
             that.getTableByYear(that.indicatorID, postData.year, that.indicatorType, true);
-            that.$message({
-              type: "success",
-              message: "添加成功!",
-            });
           })
           .catch(function (error) {
             that.$message({
@@ -1802,7 +1801,7 @@ export default {
        if (resp){
         that.$message({
           type: "success",
-          message: "添加成功!",
+          message: resp.msg,
         });
         that.getYearList(postData.year)
         that.getTableByYear(that.indicatorID, postData.year, that.indicatorType, true);
@@ -1821,7 +1820,7 @@ export default {
      if (resp) {
       that.$message({
        type: "success",
-       message: "添加成功!",
+       message: resp.msg,
       });
       that.getYearList(postData.year)
       that.getTableByYear(that.indicatorID, postData.year, that.indicatorType, true);
@@ -1901,7 +1900,7 @@ export default {
     closeClone() {
       this.fromYear = "";
       this.toYear = new Date().getFullYear();
-      this.yearList = [];
+      // this.yearList = [];
       this.dialogVisibleClone = false;
     },
     searchUpdate(indicatorType) {

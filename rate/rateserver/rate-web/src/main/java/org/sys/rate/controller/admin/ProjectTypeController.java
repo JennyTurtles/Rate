@@ -60,10 +60,12 @@ public class ProjectTypeController {
 
     @PostMapping("/projectType")
     public RespBean addProjectType(@RequestBody ProjectType projectType){
-        // 需要查重，这个放在前端进行判断
         try {
             Integer res = projectTypeService.addProjectType(projectType);
-            return RespBean.ok("Project type added successfully", res);
+            if(res == 0){
+                return RespBean.ok("重复添加，已忽略", res);
+            }
+            return RespBean.ok("添加成功", res);
         } catch (Exception e) {
             return RespBean.error("Failed to add project type");
         }
@@ -73,8 +75,8 @@ public class ProjectTypeController {
     public RespBean editProjectType(@RequestBody ProjectType projectType){
         // 当projectType下面对应的project，就不应该随意更新或者删除。这个可以在数据库上加以限制，但是不好
         try {
-            projectTypeService.editProjectType(projectType);
-            return RespBean.ok("Project type edited successfully");
+            Integer res = projectTypeService.editProjectType(projectType);
+            return res != 0 ? RespBean.ok("修改成功！", res) : RespBean.error("科研项目重名！");
         } catch (Exception e) {
             return RespBean.error("Failed to add project type");
         }

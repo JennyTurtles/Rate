@@ -112,8 +112,8 @@ public class AwardService {
         return list;
     }
 
-    public void addAwardType(AwardType awardType) {
-        awardTypeMapper.addAwardType(awardType);
+    public Integer addAwardType(AwardType awardType) {
+        return awardTypeMapper.addAwardType(awardType);
     }
 
     public void editAwardType(AwardType awardType) {

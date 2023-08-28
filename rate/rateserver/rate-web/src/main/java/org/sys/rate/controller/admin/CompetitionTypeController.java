@@ -1,5 +1,6 @@
 package org.sys.rate.controller.admin;
 
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.CompetitionTypeMapper;
 import org.sys.rate.model.CompetitionType;
@@ -16,8 +17,8 @@ public class CompetitionTypeController {
     @PostMapping("")
     public RespBean addCompetitionType(@RequestBody CompetitionType competitionType){
         try {
-            competitionTypeMapper.addCompetitionType(competitionType);
-            return RespBean.ok("添加competitionType成功！");
+            Integer res = competitionTypeMapper.addCompetitionType(competitionType);
+            return res != 0 ? RespBean.ok("添加成功！") : RespBean.ok("重复添加，已忽略");
         } catch (Exception e) {
             return RespBean.error("添加competitionType失败！");
         }
@@ -37,9 +38,9 @@ public class CompetitionTypeController {
     public RespBean editCompetitionType(@RequestBody CompetitionType competitionType){
         try {
             competitionTypeMapper.editCompetitionType(competitionType);
-            return RespBean.ok("修改CompetitionType成功！");
-        } catch (Exception e) {
-            return RespBean.error("修改CompetitionType失败！");
+            return RespBean.ok("修改成功！");
+        } catch (DuplicateKeyException e) {
+            return RespBean.error("重名！");
         }
     }
 }

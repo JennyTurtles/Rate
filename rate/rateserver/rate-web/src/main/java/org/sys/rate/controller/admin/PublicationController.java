@@ -5,6 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.IndicatorMapper;
@@ -61,8 +62,11 @@ public class PublicationController {
      */
     @PostMapping("/publication/basic/add")
     public RespBean addSave(Publication publication) {
-        publicationService.insertPublication(publication);
-        return RespBean.ok("添加期刊成功！");
+        Integer res = publicationService.insertPublication(publication);
+        if (res == null || res != 0)
+            return RespBean.ok("添加期刊成功！");
+        else
+            return RespBean.ok("重复添加，已忽略");
     }
 
     /**
@@ -73,11 +77,15 @@ public class PublicationController {
         try {
             // 参数校验通过，进行相关处理
             publicationService.updatePublication(publication);
+        } catch (DuplicateKeyException e) {
+            // 异常处理，返回错误信息
+            return RespBean.error("期刊重名！");
+        }
+        try {
             publicationMapper.updateIndicatorPublicationYear(publication);
             return RespBean.ok("修改期刊成功");
-        } catch (Exception e) {
-            // 异常处理，返回错误信息
-            return RespBean.error("插入期刊失败：" + e.getMessage());
+        }catch (DuplicateKeyException e){
+            return RespBean.ok("修改期刊成功"); // 不处理
         }
     }
 
