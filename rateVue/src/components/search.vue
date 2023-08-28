@@ -48,12 +48,22 @@
             publicationInf.year = year;
             if (indicatorType === 'publication')
               this.dialogVisibleAppendPublication = true;
-            else if (indicatorType === 'award')
+            else if (indicatorType === 'award'){
+              this.awardInf.year = new Date().getFullYear()
               this.dialogVisibleAppendAward = true;
-            else if (indicatorType === 'project')
-              this.dialogVisibleAppendProgram = true;
-            else if (indicatorType === 'decision')
-              this.dialogVisibleAppendDecision = true;
+            }
+            else if (indicatorType === 'project'){
+             this.programInf.year = new Date().getFullYear()
+             this.dialogVisibleAppendProgram = true;
+            }
+            else if (indicatorType === 'decision'){
+             this.decisionInf.year = new Date().getFullYear()
+             this.dialogVisibleAppendDecision = true;
+            }
+            else if (indicatorType === 'competition'){
+             this.competitionInf.year = new Date().getFullYear()
+             this.dialogVisibleAppendCompetition = true;
+            }
           }
         "
           icon="el-icon-circle-plus"
@@ -780,6 +790,9 @@
         <el-form-item label="网址">
           <el-input v-model="rowData.url"></el-input>
         </el-form-item>
+       <el-form-item label="录入年份">
+        <el-input v-model="rowData.year"></el-input>
+       </el-form-item>
         <!--        <el-form-item label="录入年份">-->
         <!--          <el-input v-model="rowData.year"></el-input>-->
         <!--        </el-form-item>-->
@@ -819,7 +832,7 @@
           >编辑
           </el-button>
           <el-button
-              @click="remove(scope.row.id, this.indicatorType)"
+              @click="remove(scope.row.id, indicatorType)"
               type="danger"
           >删除
           </el-button>
@@ -835,6 +848,9 @@
         <el-form-item label="奖项名">
           <el-input v-model="awardInf.name"></el-input>
         </el-form-item>
+       <el-form-item label="录入年份">
+        <el-input v-model="awardInf.year"></el-input>
+       </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleAppendAward = false">取 消</el-button>
@@ -879,7 +895,7 @@
         border
         style="width: 100%"
     >
-      <el-table-column fixed prop="name" label="类别名"></el-table-column>
+      <el-table-column fixed prop="name" label="项目名"></el-table-column>
       <el-table-column fixed="right" label="操作" width="150">
         <template slot-scope="scope">
           <el-button
@@ -908,6 +924,9 @@
         <el-form-item label="类别名">
           <el-input v-model="programInf.name"></el-input>
         </el-form-item>
+       <el-form-item label="录入年份">
+        <el-input v-model="programInf.year"></el-input>
+       </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleAppendProgram = false">取 消</el-button>
@@ -953,7 +972,7 @@
     <el-table
         v-if="indicatorType === 'decision'"
         :data="
-        tableData.slice((currentPage - 1) * PageSize, currentPage * PageSize)
+        tableData
       "
         border
         style="width: 100%"
@@ -971,7 +990,7 @@
           >编辑
           </el-button>
           <el-button
-              @click="remove(scope.row.id, this.indicatorType)"
+              @click="remove(scope.row.id, 'decision')"
               type="danger"
               size="small"
           >删除
@@ -982,12 +1001,15 @@
     <!--新增-->
     <el-dialog :visible.sync="dialogVisibleAppendDecision" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-      >请输入纵向科研项目的的相关信息</span
+      >请输入决策咨询成果的相关信息</span
       >
       <el-form :model="decisionInf">
         <el-form-item label="决策咨询成果名">
           <el-input v-model="decisionInf.name"></el-input>
         </el-form-item>
+       <el-form-item label="录入年份">
+        <el-input v-model="decisionInf.year"></el-input>
+       </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleAppendDecision = false"
@@ -1028,11 +1050,93 @@
       </span>
     </el-dialog>
 
+   <!--学科竞赛-->
+   <el-table
+       v-if="indicatorType === 'competition'"
+       :data="
+        tableData
+      "
+       border
+       style="width: 100%"
+   >
+    <el-table-column fixed prop="name" label="学科竞赛名">
+    </el-table-column>
+    <el-table-column fixed="right" label="操作" width="150">
+     <template slot-scope="scope">
+      <el-button
+          @click="
+              rowData = JSON.parse(JSON.stringify(scope.row));
+              dialogVisibleUpdateCompetition = true;
+            "
+          size="small"
+      >编辑
+      </el-button>
+      <el-button
+          @click="remove(scope.row.id, 'competition')"
+          type="danger"
+          size="small"
+      >删除
+      </el-button>
+     </template>
+    </el-table-column>
+   </el-table>
+   <!--新增-->
+   <el-dialog :visible.sync="dialogVisibleAppendCompetition" width="30%">
+      <span slot="title" style="float: left; font-size: 20px"
+      >请输入学科竞赛的相关信息</span
+      >
+    <el-form :model="competitionInf">
+     <el-form-item label="学科竞赛成果名">
+      <el-input v-model="competitionInf.name"></el-input>
+     </el-form-item>
+     <el-form-item label="录入年份">
+      <el-input v-model="competitionInf.year"></el-input>
+     </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisibleAppendCompetition = false"
+        >取 消</el-button
+        >
+        <el-button
+            type="primary"
+            @click="
+            appendCompetition();
+            dialogVisibleAppendCompetition = false;
+          "
+        >确 定</el-button
+        >
+      </span>
+   </el-dialog>
+   <!--编辑-->
+   <el-dialog :visible.sync="dialogVisibleUpdateCompetition" width="30%">
+      <span slot="title" style="float: left; font-size: 20px"
+      >请输入学科竞赛的相关信息</span
+      >
+    <el-form :model="rowData">
+     <el-form-item label="学科竞赛名">
+      <el-input v-model="rowData.name"></el-input>
+     </el-form-item>
+    </el-form>
+    <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisibleUpdateCompetition = false"
+        >取 消</el-button
+        >
+        <el-button
+            type="primary"
+            @click="
+            update(indicatorType);
+            dialogVisibleUpdateCompetition = false;
+          "
+        >确 定</el-button
+        >
+      </span>
+   </el-dialog>
+
     <div style="margin-top: 10px; text-align: right" v-show="isRoot">
       <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="currentPage"
+          :current-page.sync="currentPage"
           :page-sizes="pageSizes"
           :page-size="PageSize"
           layout="total, sizes, prev, pager, next, jumper"
@@ -1082,14 +1186,10 @@ export default {
       importSelectType: "",
       selectTypes: [
         {label: "学术论文", value: "publication"},
-        {label: "授权专利", value: "patent"},
         {label: "科研获奖", value: "award"},
         {label: "科研项目", value: "project"},
-        {label: "制定标准", value: "standard"},
         {label: "决策咨询", value: "decision"},
         {label: "学术专著和教材", value: "book"},
-        {label: "制造或设计的产品", value: "application"},
-        {label: "学科竞赛", value: "competition"},
       ],
       importSelectYear: null,
       years: [],
@@ -1117,6 +1217,8 @@ export default {
       dialogVisibleUpdateProgram: false,
       dialogVisibleAppendDecision: false,
       dialogVisibleUpdateDecision: false,
+      dialogVisibleUpdateCompetition: false,
+      dialogVisibleAppendCompetition: false,
       dialogVisibleSearch: false,
       dialogVisibleClone: false,
       pathVisible: false,
@@ -1138,13 +1240,20 @@ export default {
       awardInf: {
         name: "",
         rankN: "",
+        year:""
       },
       programInf: {
         name: "",
+        year: new Date().getFullYear(),
       },
       decisionInf: {
         name: "",
+       year: new Date().getFullYear(),
       },
+     competitionInf: {
+      name: "",
+      year: new Date().getFullYear(),
+     },
       isRoot: false,
       currentPage: 1,
       totalCount: 0,
@@ -1234,15 +1343,14 @@ export default {
         this.rowData.rankN = 0
       }
     },
-    async getYearList() {
+    async getYearList(year) {
       try {
         const url = `/indicator/getAllYear/${this.indicatorID}/${this.indicatorType}`;
-        this.getRequest(url).then((resp) => {
-          // console.log(resp);
+        await this.getRequest(url).then((resp) => {
           this.yearList = resp.obj;
           if (this.yearList.length > 0) {
             this.fromYear = this.yearList[0];
-            this.year = this.yearList[0];
+            this.year = year ? year : this.yearList[0];
           }
         });
       } catch (error) {
@@ -1376,7 +1484,7 @@ export default {
       }, 300);
     },
 
-    async getTableByYear(indicatorId, year, type) {
+    async getTableByYear(indicatorId, year, type, goLastPage) {
       try {
         const resp = await axios.get(
             `/indicator/getProductByYear?indicatorId=${indicatorId}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}&type=${type}`
@@ -1384,6 +1492,9 @@ export default {
         if (resp.extend.res != null) {
           this.tableData = resp.extend.res[0];
           this.totalCount = resp.extend.res[1];
+          if (goLastPage){
+           this.handleCurrentChange(Math.ceil(this.totalCount / this.PageSize), true)
+          }
         } else {
           this.tableData = [];
           this.totalCount = 0;
@@ -1398,13 +1509,16 @@ export default {
     },
     remove(id, indicatorType) {
       let url = "";
-
       if (indicatorType === "publication") {
-        url = `/${indicatorType}?id=${id}&year=${this.year}`;
+        url = `/publication?id=${id}&year=${this.year}`;
       } else if (indicatorType === "project") {
-        url = `/${indicatorType}Type?id=${id}`;
-      } else {
-        url = `/${indicatorType}?id=${id}`;
+        url = `/projectType?id=${id}&year=${this.year}`;
+      } else if (indicatorType === "award") {
+        url = `/awardType?id=${id}&year=${this.year}`;
+      }else if (indicatorType === "decision") {
+        url = `/decisionType?id=${id}&year=${this.year}`;
+      }else if (indicatorType === "competition") {
+        url = `/competitionType?id=${id}`;
       }
 
       this.$confirm("确定要删除该条记录吗？", "提示", {type: "warning"})
@@ -1420,21 +1534,13 @@ export default {
               const index = this.tableData.findIndex((d) => d.id === id);
               this.tableData.splice(index, 1);
               this.totalCount--;
-              if (this.currentPage > (this.totalCount - 1) / this.pageSize + 1) {
-                this.currentPage--;
-              }
+              this.handleCurrentChange(Math.ceil(this.totalCount / this.PageSize))
             } else {
               this.$message({
                 type: "error",
                 message: "删除失败!",
               });
             }
-          })
-          .catch((error) => {
-            this.$message({
-              type: "error",
-              message: error.message || "删除失败!",
-            });
           })
           .finally(() => {
             this.closeSearch();
@@ -1492,7 +1598,7 @@ export default {
       this.postRequest1("/publication/basic/add", postData).then(function (
           resp
       ) {
-        that.getTableByYear(that.indicatorID, that.year, that.indicatorType);
+        that.getTableByYear(that.indicatorID, that.year, that.indicatorType,true);
         if (resp.status != 200)
           that.$message({
             type: "error",
@@ -1553,18 +1659,26 @@ export default {
     },
     async appendAward() {
       try {
-        // 默认 rankN 为 null 时，为不限制排名
         const postData = {
           name: this.awardInf.name,
           indicatorId: this.indicatorID,
-          year: this.year
+          year: this.awardInf.year
         };
 
-        await axios.post("/award/basic/awardType", postData);
+        await axios.post("/award/basic/awardType", postData).then((resp) => {
+          if (resp.status === 200) {
+            this.$message({
+              type: "success",
+              message: "添加成功!",
+            });
 
-        await this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
+            this.getYearList(this.awardInf.year)
+          }
+        });
 
-        this.awardInf = {};
+        await this.getTableByYear(this.indicatorID, postData.year, this.indicatorType, true);
+
+        this.awardInf = {name:'',year: ''};
       } catch (error) {
         this.$message({
           type: "error",
@@ -1626,9 +1740,8 @@ export default {
       var postData = {
         name: this.programInf.name,
         indicatorId: this.indicatorID,
-        year: this.year,
+        year: this.programInf.year,
       };
-      // console.log(postData);
       var that = this;
       axios
           .post("/projectType", postData)
@@ -1636,7 +1749,6 @@ export default {
             if (resp.status !== 200) {
               throw new Error("Failed to add project type");
             }
-
             const queryParams = new URLSearchParams({
               indicatorId: postData.indicatorId,
               year: postData.year,
@@ -1649,7 +1761,8 @@ export default {
           .then(function (resp) {
             that.tableData = resp.data;
             that.totalCount = resp.data.total;
-
+            that.getYearList(postData.year)
+            that.getTableByYear(that.indicatorID, postData.year, that.indicatorType, true);
             that.$message({
               type: "success",
               message: "添加成功!",
@@ -1661,31 +1774,46 @@ export default {
               message: error.message || "请求失败!",
             });
           });
-      this.programInf = {};
+      this.programInf = {name:'',year:''};
     },
     appendDecision() {
       var postData = {
         name: this.decisionInf.name,
-        indicatorID: this.indicatorID,
+        indicatorId: this.indicatorID,
+        year: this.decisionInf.year,
       };
       var that = this;
-      axios.post("/decision", postData).then(function (resp) {
-        axios.get("/decision/" + that.indicatorID).then(function (resp) {
-          that.tableData = resp.obj[1];
+      axios.post("/decisionType", postData).then(function (resp) {
+       if (resp){
+        that.$message({
+          type: "success",
+          message: "添加成功!",
         });
-        if (resp.status != 200)
-          that.$message({
-            type: "error",
-            message: "添加失败!",
-          });
-        else
-          that.$message({
-            type: "success",
-            message: "添加成功!",
-          });
+        that.getYearList(postData.year)
+        that.getTableByYear(that.indicatorID, postData.year, that.indicatorType, true);
+       }
       });
-      this.decisionInf = {};
+      this.decisionInf = {name: '',year:''};
     },
+   appendCompetition() {
+    var postData = {
+     name: this.competitionInf.name,
+     indicatorId: this.indicatorID,
+     year: this.competitionInf.year,
+    };
+    var that = this;
+    axios.post("/competitionType", postData).then(function (resp) {
+     if (resp) {
+      that.$message({
+       type: "success",
+       message: "添加成功!",
+      });
+      that.getYearList(postData.year)
+      that.getTableByYear(that.indicatorID, postData.year, that.indicatorType, true);
+     }
+    });
+    this.competitionInf = {name: '', year: ''};
+   },
     appendDecisionAsync() {
       var that = this;
       var DecisionInfList = [];
@@ -1713,7 +1841,8 @@ export default {
     },
     getData(indicatorName, indicatorID, type) {
       //初始化
-      if (type != "授权专利") {
+      this.currentPage = 1
+      if (type != "授权专利" && type != "制定标准" && type != "学术专著和教材" && type != "制造或设计的产品") {
         this.isRoot = true;
         this.indicatorTypeZH = type;
         var that = this;
@@ -1735,8 +1864,10 @@ export default {
         // this.years = [];
         // this.year = this.nowYear;
         // for (var i = 0; i < 5; i++) this.years.push(this.nowYear - i);
-        this.getYearList();
-        this.getTableByYear(indicatorID, this.year, this.indicatorType);
+        this.getYearList().then(() => {
+          this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
+        });
+        // this.getTableByYear(indicatorID, this.year, this.indicatorType);
       } else {
         this.indicatorType = "";
         this.isRoot = false;

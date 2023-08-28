@@ -21,6 +21,9 @@
       <when test="indicatorType == 'decision'">
         i_decision_type
       </when>
+      <when test="indicatorType == 'competition'">
+        i_competition_type
+      </when>
     </choose>
     WHERE indicator_id = #{indicatorId}
     ORDER BY year desc

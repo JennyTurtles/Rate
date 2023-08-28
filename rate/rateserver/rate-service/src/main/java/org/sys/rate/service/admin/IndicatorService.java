@@ -29,6 +29,8 @@ public class IndicatorService {
     @Resource
     private DecisionTypeMapper decisionTypeMapper;
 
+    @Resource
+    private CompetitionTypeMapper competitionTypeMapper;
 
     public List<Indicator> getAll (){return indicatorMapper.getAll();}
 
@@ -104,6 +106,9 @@ public class IndicatorService {
         }else if ("decision".equals(type)){
             List<DecisionType> decisionTypes = decisionTypeMapper.selectDecisionTypeListByYear(indicatorId,year);
             return castList(decisionTypes);
+        }else if ("competition".equals(type)){
+            List<CompetitionType> competitions = competitionTypeMapper.selectCompetitionTypeListByYear(indicatorId,year);
+            return castList(competitions);
         }
         return new ArrayList<>();
     }

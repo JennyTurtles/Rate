@@ -1,9 +1,6 @@
 package org.sys.rate.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.AwardType;
 import org.sys.rate.model.ProjectType;
 
@@ -32,5 +29,8 @@ public interface AwardTypeMapper {
     void editIndicatorAwardRankN(AwardType awardType);
 
     int deleteByYearIndicatorID(Integer year,Integer indicatorID);
+
+    @Delete("delete from i_award_type where id = #{id}")
+    int deleteById(Integer id);
 }
 

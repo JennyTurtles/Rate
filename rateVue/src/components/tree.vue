@@ -393,6 +393,7 @@ export default {
                 // type="text"
                 icon="el-icon-circle-plus-outline"
                 on-click={() => {
+                 event.stopPropagation()
                   this.data1 = data;
                   if (node.level > 1) this.dialogVisible = true;
                   else this.dialogVisibleType = true;
@@ -402,13 +403,19 @@ export default {
                 title="此操作将删除此标签及其所有子标签"
                 icon-color="red"
                 icon="el-icon-info"
-                on-confirm={() => this.remove(node, data)}
+                on-confirm={() => {
+                 event.stopPropagation()
+                 this.remove(node, data)
+                }}
             >
               <el-button
                   class="plus-button"
                   circle //删除
                   slot="reference"
                   size="mini"
+                  on-click={() => {
+                   event.stopPropagation()
+                  }}
                   // type="text"
                   icon="el-icon-delete"
               ></el-button>
@@ -420,6 +427,7 @@ export default {
                 // type="text"
                 icon="el-icon-edit"
                 on-click={() => {
+                 event.stopPropagation()
                   this.data1 = data;
                   this.labelUpdate = data.label.substring(data.order.length + 1);
                   if (node.level > 2) this.dialogVisibleUpdate = true;
@@ -754,9 +762,11 @@ export default {
         // data.append(node.parent.data.label)
         data["p2"] = node.parent.data.label;
         data["p1"] = node.parent.parent.data.label;
-        if (data.type == "授权专利") {
-          this.$message.warning("专利类别无需设置！")
+        if (data.type == "授权专利" || data.type == "制定标准" || data.type == "学术专著和教材" || data.type == "制造或设计的产品") {
+          this.$message.warning(data.type+"类别无需设置！")
+          return
         }
+
         this.$emit("getLabelInfo", data);
       }
     },

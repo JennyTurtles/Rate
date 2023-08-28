@@ -82,9 +82,10 @@ public class ProjectTypeController {
     }
 
     @DeleteMapping("/projectType")
-    public RespBean deleteProjectTypeById(@RequestParam("id") Integer id){
+    public RespBean deleteProjectTypeById(@RequestParam("id") Integer id,@RequestParam Integer year){
         try {
             projectTypeService.deleteProjectTypeById(id);
+//            projectTypeMapper.deleteByYearIndicatorID(year,id);
             return RespBean.ok("delete project successfully!");
         } catch (Exception e) {
             return RespBean.error("delete project error!");

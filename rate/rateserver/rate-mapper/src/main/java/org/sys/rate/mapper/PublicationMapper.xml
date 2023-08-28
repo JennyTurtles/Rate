@@ -10,6 +10,7 @@
         <result property="abbr" column="abbr"/>
         <result property="publisher" column="publisher"/>
         <result property="url" column="url"/>
+        <result property="year" column="year"/>
         <collection property="indicatorList" ofType="org.sys.rate.model.Indicator">
             <id property="id" column="i_id" jdbcType="INTEGER"/>
             <result property="name" column="i_name"/>
@@ -79,7 +80,7 @@
             ORDER BY i.score DESC, year DESC, i.`order`
     </select>
     <select id="selectPublicationListByYear" resultMap="PublicationResult">
-        SELECT p.id, p.abbr, p.`name`, p.publisher, p.url
+        SELECT p.id, p.abbr, p.`name`, p.publisher, p.url, ip.year
         FROM i_publication p,
         indicator_publication ip
         WHERE ip.publication_id = p.id

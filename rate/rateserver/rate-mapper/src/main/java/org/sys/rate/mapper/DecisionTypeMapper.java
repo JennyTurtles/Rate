@@ -1,9 +1,6 @@
 package org.sys.rate.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.DecisionType;
 
 import java.util.List;
@@ -31,6 +28,9 @@ public interface DecisionTypeMapper {
     void editIndicatorDecisionRankN(DecisionType decisionType);
 
     int deleteByYearIndicatorID(Integer year,Integer indicatorID);
+
+    @Delete("delete from i_decision_type where id = #{id}")
+    int deleteById(Integer id);
 
 }
 
