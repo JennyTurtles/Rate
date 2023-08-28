@@ -45,9 +45,16 @@
           style="float: right; margin-left: 10px"
           @click="
           () => {
-            publicationInf.year = year;
-            if (indicatorType === 'publication')
-              this.dialogVisibleAppendPublication = true;
+            if (indicatorType === 'publication'){
+              this.publicationInf={
+                name:'',
+                abbr:'',
+                publisher:'',
+                url:'',
+                year:new Date().getFullYear()
+                }
+              this.dialogVisibleAppendPublication = true
+            }
             else if (indicatorType === 'award'){
               this.awardInf.year = new Date().getFullYear()
               this.dialogVisibleAppendAward = true;
@@ -735,6 +742,7 @@
         center
     >
       <el-form
+          :rules="rules"
           :model="publicationInf"
           :hide-required-asterisk="true"
           :label-position="labelPosition"
@@ -752,7 +760,7 @@
         <el-form-item label="网址" label-width="90px">
           <el-input v-model="publicationInf.url"></el-input>
         </el-form-item>
-        <el-form-item label="录入年份" label-width="90px">
+        <el-form-item label="录入年份" prop="year" label-width="90px">
           <el-input
               v-model="publicationInf.year"
               :placeholder="nowYear"
@@ -1174,14 +1182,18 @@
 <script>
 import axios from "axios";
 import * as XLSX from "xlsx/xlsx.mjs";
-import FileSaver from "file-saver";
-import th from "element-ui/src/locale/lang/th";
+import {checkNumber} from "@/utils/check";
 
 export default {
   name: "search",
   props: ["category", "type", "order", "score", "p1", "p2"],
   data() {
     return {
+     rules: {
+      year: [
+       { validator: checkNumber, trigger: 'blur' }
+      ]
+     },
       selectedOption: 1,
       titleAddPublication: "请添加期刊的相关信息",
       labelPosition: "left",
@@ -1507,6 +1519,7 @@ export default {
           this.tableData = resp.extend.res[0];
           this.totalCount = resp.extend.res[1];
           if (goLastPage){
+           this.year = year;
            this.handleCurrentChange(Math.ceil(this.totalCount / this.PageSize), true)
           }
         } else {

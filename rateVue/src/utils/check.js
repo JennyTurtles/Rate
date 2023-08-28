@@ -16,6 +16,19 @@ export function checkIdCard(val) {
     return reg.test(val);
 }
 
+// 校验年份：大于等于1900的整数
+export function checkNumber(rule, value, callback) {
+    if (value === '') {
+        callback(new Error('请输入数字'));
+    } else if (!Number.isInteger(Number(value))) {
+        callback(new Error('请输入整数'));
+    } else if (Number(value) <= 1900) {
+        callback(new Error('请输入大于1900的整数'));
+    } else {
+        callback();
+    }
+}
+
 export let validateInputPhone = (rule, value, callback) => {
     console.log(value)
     if (!checkPhone(value)) {
