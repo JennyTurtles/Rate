@@ -102,7 +102,7 @@
     <el-dialog
         :visible.sync="dialogVisibleClone"
         width="90%"
-        @open="getYearList(null,indicatorID,indicatorType)"
+        @open="getYearList(year)"
     >
       <span slot="title" style="text-align: center; font-size: 20px">克隆</span>
       <div>
@@ -1409,6 +1409,7 @@ export default {
               this.year,
               this.indicatorType
           );
+          this.getYearList(this.year);
         } else {
           this.$message.error("克隆失败！");
         }

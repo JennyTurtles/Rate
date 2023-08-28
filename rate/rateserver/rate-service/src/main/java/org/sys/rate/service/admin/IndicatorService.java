@@ -67,6 +67,12 @@ public class IndicatorService {
             indicatorMapper.clonePublication(fromYear, toYear, indicatorId);
         }else if("project".equals(indicatorType)){
             indicatorMapper.cloneProject(fromYear, toYear, indicatorId);
+        }else if("award".equals(indicatorType)) {
+            indicatorMapper.cloneAward(fromYear, toYear, indicatorId);
+        }else if("decision".equals(indicatorType)){
+            indicatorMapper.cloneDecision(fromYear, toYear, indicatorId);
+        }else if("competition".equals(indicatorType)){
+            indicatorMapper.cloneCompetition(fromYear, toYear, indicatorId);
         }
     }
 
