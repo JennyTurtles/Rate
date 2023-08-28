@@ -16,9 +16,7 @@ import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.admin.IndicatorService;
 
 import javax.annotation.Resource;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
