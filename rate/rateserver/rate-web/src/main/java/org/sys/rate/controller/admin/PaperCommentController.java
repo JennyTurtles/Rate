@@ -2,9 +2,12 @@ package org.sys.rate.controller.admin;
 
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.ThesisMapper;
 import org.sys.rate.model.PaperComment;
+import org.sys.rate.model.RespBean;
 import org.sys.rate.model.Student;
 import org.sys.rate.service.admin.PaperCommentService;
+import org.sys.rate.service.admin.ThesisService;
 import org.sys.rate.utils.ExportPDF;
 
 import javax.annotation.Resource;
@@ -16,10 +19,13 @@ import java.util.List;
 @RequestMapping("/paperComment/basic")
 public class PaperCommentController {
     @Resource
-    PaperCommentService paperCommentService;
+    private PaperCommentService paperCommentService;
 
     @Resource
-    ExportPDF exportPDF;
+    private ThesisService thesisService;
+
+    @Resource
+    private ExportPDF exportPDF;
 
 
     // 根据stuID和thesisID和num获取某一次评论
@@ -40,13 +46,12 @@ public class PaperCommentController {
     }
 
     @GetMapping("/getThesis")
-    public JsonResult getThesis(int stuID) {
-        return new JsonResult(paperCommentService.getThesis(stuID));
+    public JsonResult getThesis(int stuID, int year, int month) {
+        return new JsonResult(paperCommentService.getThesis(stuID,year,month));
     }
 
     // 更新导师的评价时间和评价
     @PostMapping("/updateTea")
-    @ResponseBody
     public JsonResult updateTeaComment(PaperComment paperComment) throws MessagingException {
         return new JsonResult(paperCommentService.updateTeaComment(paperComment));
     }
@@ -66,7 +71,6 @@ public class PaperCommentController {
      * 修改保存评论
      */
     @PostMapping("/edit")
-    @ResponseBody
     public JsonResult editSave(PaperComment paperComment) throws MessagingException {
         return new JsonResult(paperCommentService.updateStuComment(paperComment));
     }
@@ -95,18 +99,34 @@ public class PaperCommentController {
      * 通过teaID返回其下所有的stuID和最新的毕设ID  getStuThesis
      */
     @GetMapping("/getStuThesis")
-    public JsonResult<List> getStuThesis(int teaID) throws MessagingException {
-        List<Student> Stu = paperCommentService.getStuThesis(teaID);
-        return new JsonResult<>(Stu);
+    public RespBean getStuThesis(@RequestParam("tutorId") Integer tutorId,
+                                         @RequestParam("year") Integer year,
+                                         @RequestParam("month") Integer month)   {
+        try {
+            List<Student> stuThesis = paperCommentService.getStuThesis(tutorId, year, month);
+            return RespBean.ok("",stuThesis);
+        } catch (Exception e) {
+            return RespBean.error("获取毕业设计信息错误！");
+        }
     }
 
     /**
      * 通过thesisID返回需要打印的pdf文件
      */
-    @ResponseBody
     @GetMapping("/exportPDF")
     public void exportDataPDF(HttpServletResponse response, @RequestParam Integer thesisID) throws Exception {
         exportPDF.generatePDF(response, thesisID);
+    }
+
+    @GetMapping("/editThesisName")
+    public RespBean editThesisName(@RequestParam("thesisId")Integer thesisId,
+                                   @RequestParam("thesisName")String thesisName){
+        try {
+            thesisService.editThesisName(thesisId, thesisName);
+            return RespBean.ok("");
+        } catch (Exception e) {
+            return RespBean.error("修改本科生毕业论文题目失败！");
+        }
     }
 
 

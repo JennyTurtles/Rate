@@ -1872,4 +1872,58 @@ public class POIUtils {
         }
         return Msg.success().add("rateList", rateList).add("nullRow", nullRow);
     }
+
+    public static ResponseEntity<byte[]> thesisNameExcelTemplate() {
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        //2. 创建文档摘要
+        workbook.createInformationProperties();
+        //3. 获取并配置文档信息
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
+        //4. 获取文档摘要信息
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        summInfo.setTitle("undergraduate");
+        summInfo.setAuthor("东华大学");
+        // 文档备注
+        summInfo.setComments("本文档由东华大学计算机学院提供");
+
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        HSSFCellStyle dateCellStyle = workbook.createCellStyle();
+        dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+        HSSFSheet sheet = workbook.createSheet("undergraduate");
+
+        int[] columnWidths = {20, 20, 50};
+        for (int i = 0; i < columnWidths.length; i++) {
+            sheet.setColumnWidth(i, columnWidths[i] * 256);
+        }
+
+        HSSFRow r0 = sheet.createRow(0);
+        HSSFCell c0 = r0.createCell(0);
+        c0.setCellValue("学号");
+        HSSFCell c1 = r0.createCell(1);
+        c1.setCellValue("姓名");
+        HSSFRow row = sheet.createRow(1);
+        row.createCell(0).setCellValue("2222000");
+        row.createCell(1).setCellValue("张三");
+
+        HSSFCell c2 = r0.createCell(2);
+        c2.setCellValue("论文题目");
+        row.createCell(2).setCellValue("关于XX的研究");
+
+        String info = "请删除提示行。入学年份、专业、班级非必填。";
+
+
+        sheet.createRow(2).createCell(0).setCellValue(info);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setContentDispositionFormData("attachment", new String("本科生毕业论文题目模板.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
 }
