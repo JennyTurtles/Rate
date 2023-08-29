@@ -742,6 +742,7 @@
         center
     >
       <el-form
+          ref="appendPublicationForm"
           :rules="rules"
           :model="publicationInf"
           :hide-required-asterisk="true"
@@ -773,10 +774,7 @@
         >
         <el-button
             type="primary"
-            @click="
-            dialogVisibleAppendPublication = false;
-            appendPublication();
-          "
+            @click="appendPublication();"
         >确 定</el-button
         >
       </span>
@@ -786,7 +784,7 @@
       <span slot="title" style="float: left; font-size: 20px"
       >请输入期刊的相关信息</span
       >
-      <el-form :model="rowData">
+      <el-form :rules="rules" :model="rowData" ref="updatePublicationForm">
         <el-form-item label="期刊全称">
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
@@ -1218,7 +1216,7 @@ export default {
       ],
       importSelectYear: null,
       years: [],
-      year: 0,
+      year: '',
       fromYear: "",
       toYear: new Date().getFullYear(),
       yearList: [],
@@ -1376,7 +1374,8 @@ export default {
           if (this.yearList.length > 0) {
             this.fromYear = this.yearList[0];
             this.year = year ? year : this.yearList[0];
-          }
+          }else
+           this.year = ''
         });
       } catch (error) {
         this.$message.error("获取年份错误");
@@ -1511,6 +1510,12 @@ export default {
     },
 
     async getTableByYear(indicatorId, year, type, goLastPage) {
+     if (year == 0)
+     {
+      this.tableData = [];
+      this.totalCount = 0;
+      return
+     }
       try {
         const resp = await axios.get(
             `/indicator/getProductByYear?indicatorId=${indicatorId}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}&type=${type}`
@@ -1611,31 +1616,34 @@ export default {
         this.dialogVisibleAppendPublication = true;
         return;
       }
-      var postData = {
+     this.$refs['appendPublicationForm'].validate((valid)=>{
+      console.log(valid)
+      if (valid){
+       var postData = {
         name: this.publicationInf.name,
         abbr: this.publicationInf.abbr,
         publisher: this.publicationInf.publisher,
         url: this.publicationInf.url,
         indicatorId: this.indicatorID,
         year: this.publicationInf.year,
-      };
-      var that = this;
-      this.postRequest1("/publication/basic/add", postData).then(function (resp) {
+       };
+       var that = this;
+       this.dialogVisibleAppendPublication = false;
+       this.postRequest1("/publication/basic/add", postData).then(function (resp) {
         that.getYearList(postData.year);
-
         that.getTableByYear(that.indicatorID, postData.year, that.indicatorType,true);
         if (resp.status != 200)
-          that.$message({
-            type: "error",
-            message: "添加失败!",
-          });
+         that.$message({
+          type: "error",
+          message: "添加失败!",
+         });
         else {
-          that.$message({
-            type: "success",
-            message: resp.msg,
-          });
-          that.totalCount++;
-         this.publicationInf = {
+         that.$message({
+          type: "success",
+          message: resp.msg,
+         });
+         that.totalCount++;
+         that.publicationInf = {
           name: "",
           abbr: "",
           publisher: "",
@@ -1644,7 +1652,9 @@ export default {
           year: "",
          }
         }
-      });
+       });
+      }
+     })
     },
     appendPublicationAsync() {
       var token = localStorage.getItem("user")

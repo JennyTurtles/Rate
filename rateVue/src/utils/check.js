@@ -19,11 +19,11 @@ export function checkIdCard(val) {
 // 校验年份：大于等于1900的整数
 export function checkNumber(rule, value, callback) {
     if (value === '') {
-        callback(new Error('请输入数字'));
+        callback(new Error('请输入合法的年份'));
     } else if (!Number.isInteger(Number(value))) {
-        callback(new Error('请输入整数'));
+        callback(new Error('请输入合法的年份'));
     } else if (Number(value) <= 1900) {
-        callback(new Error('请输入大于1900的整数'));
+        callback(new Error('请输入合法的年份'));
     } else {
         callback();
     }
