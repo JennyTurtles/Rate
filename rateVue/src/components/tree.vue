@@ -209,7 +209,7 @@
         <el-form-item label="分类名">
           <el-input v-model="labelUpdate"></el-input>
         </el-form-item>
-        <div v-if="type=='科研获奖'">
+        <div v-if="type=='科研获奖' || type=='学科竞赛' || type=='学术专著和教材' ">
           <el-radio-group v-model="selectedOption" @change="handleRadioChange">
             <el-radio :label="1">有排名限制</el-radio>
             <el-radio :label="0">无排名限制</el-radio>
