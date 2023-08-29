@@ -21,6 +21,7 @@ import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import javax.validation.Valid;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -59,7 +60,7 @@ public class ProjectTypeController {
     }
 
     @PostMapping("/projectType")
-    public RespBean addProjectType(@RequestBody ProjectType projectType){
+    public RespBean addProjectType(@Valid @RequestBody ProjectType projectType){
         try {
             Integer res = projectTypeService.addProjectType(projectType);
             if(res == 0){
@@ -71,8 +72,17 @@ public class ProjectTypeController {
         }
     }
 
+    public boolean isInteger(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch(NumberFormatException e) {
+            return false;
+        }
+    }
+
     @PutMapping("/projectType")
-    public RespBean editProjectType(@RequestBody ProjectType projectType){
+    public RespBean editProjectType(@Valid @RequestBody ProjectType projectType){
         // 当projectType下面对应的project，就不应该随意更新或者删除。这个可以在数据库上加以限制，但是不好
         try {
             Integer res = projectTypeService.editProjectType(projectType);
@@ -80,7 +90,6 @@ public class ProjectTypeController {
         } catch (Exception e) {
             return RespBean.error("Failed to add project type");
         }
-
     }
 
     @DeleteMapping("/projectType")

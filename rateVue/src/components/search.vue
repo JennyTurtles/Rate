@@ -1578,15 +1578,25 @@ export default {
             this.closeSearch();
           });
     },
+   canConvertToInt(str) {
+    if (str == '')
+     return false;
+    var num = Number(str);
+    return !isNaN(num) && (num === parseInt(num));
+   },
     async update(indicatorType) {
       try {
         const rowData = this.rowData;
         if (!rowData.name) {
-          throw new Error("名称不能为空");
+         this.$message.warning("名称不能为空");
+         return
         }
-
+        if (!this.canConvertToInt(rowData.year))
+        {
+         this.$message.warning("年份不合法");
+         return
+        }
         rowData.indicatorId = this.indicatorID;
-
         const paths = {
           project: "projectType",
           publication: "publication/basic/edit",
@@ -1721,12 +1731,7 @@ export default {
         await this.getTableByYear(this.indicatorID, postData.year, this.indicatorType, true);
 
         this.awardInf = {name:'',year: ''};
-      } catch (error) {
-        this.$message({
-          type: "error",
-          message: error.message || "追加奖项失败！"
-        });
-      }
+      } catch (error) {}
     },
     appendAwardAsync() {
       var that = this;
@@ -1806,12 +1811,7 @@ export default {
             that.getYearList(postData.year)
             that.getTableByYear(that.indicatorID, postData.year, that.indicatorType, true);
           })
-          .catch(function (error) {
-            that.$message({
-              type: "error",
-              message: error.message || "请求失败!",
-            });
-          });
+          .catch(function (error) {});
       this.programInf = {name:'',year:''};
     },
     appendDecision() {
@@ -2092,12 +2092,7 @@ export default {
                 // that.getTableByYear(that.indicatorID,that.year)
               });
           })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消",
-            });
-          });
+          .catch(() => {});
     },
     async uploadAppend(type) {
       switch (type){

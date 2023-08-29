@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.IndicatorMapper;
@@ -29,6 +30,7 @@ import java.util.List;
  * @date 2022-03-13
  */
 @RestController
+@Validated
 public class PublicationController {
     @Resource
     private PublicationService publicationService;
@@ -61,7 +63,7 @@ public class PublicationController {
      * 新增保存刊物
      */
     @PostMapping("/publication/basic/add")
-    public RespBean addSave(Publication publication) {
+    public RespBean addSave(@Valid Publication publication) {
         Integer res = publicationService.insertPublication(publication);
         if (res == null || res != 0)
             return RespBean.ok("添加期刊成功！");

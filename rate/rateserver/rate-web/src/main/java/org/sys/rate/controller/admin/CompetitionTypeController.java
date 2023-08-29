@@ -8,6 +8,7 @@ import org.sys.rate.model.DecisionType;
 import org.sys.rate.model.RespBean;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/competitionType")
@@ -15,7 +16,7 @@ public class CompetitionTypeController {
     @Resource
     CompetitionTypeMapper competitionTypeMapper;
     @PostMapping("")
-    public RespBean addCompetitionType(@RequestBody CompetitionType competitionType){
+    public RespBean addCompetitionType(@Valid @RequestBody CompetitionType competitionType){
         try {
             Integer res = competitionTypeMapper.addCompetitionType(competitionType);
             return res != 0 ? RespBean.ok("添加成功！") : RespBean.ok("重复添加，已忽略");
@@ -35,7 +36,7 @@ public class CompetitionTypeController {
     }
 
     @PutMapping("")
-    public RespBean editCompetitionType(@RequestBody CompetitionType competitionType){
+    public RespBean editCompetitionType(@Valid @RequestBody CompetitionType competitionType){
         try {
             competitionTypeMapper.editCompetitionType(competitionType);
             return RespBean.ok("修改成功！");

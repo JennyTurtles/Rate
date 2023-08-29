@@ -7,6 +7,7 @@ import org.sys.rate.model.DecisionType;
 import org.sys.rate.model.RespBean;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/decisionType")
@@ -15,7 +16,7 @@ public class DecisionTypeController {
     DecisionTypeMapper decisionTypeMapper;
 
     @PostMapping("")
-    public RespBean addDecisionType(@RequestBody DecisionType decisionType){
+    public RespBean addDecisionType(@Valid @RequestBody DecisionType decisionType){
         try {
             Integer res = decisionTypeMapper.addDecisionType(decisionType);
             return res != 0 ? RespBean.ok("添加成功！") : RespBean.ok("重复添加，已忽略");
@@ -25,7 +26,7 @@ public class DecisionTypeController {
     }
 
     @PutMapping("")
-    public RespBean editDecisionType(@RequestBody DecisionType decisionType){
+    public RespBean editDecisionType(@Valid @RequestBody DecisionType decisionType){
         try {
             decisionTypeMapper.editDecisionType(decisionType);
             return RespBean.ok("修改成功！");

@@ -11,6 +11,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
@@ -25,6 +26,7 @@ import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import javax.validation.Valid;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,6 +40,7 @@ import java.util.Map;
  * @author system
  * @date 2022-03-13
  */
+@Validated
 @RestController
 @RequestMapping("/award/basic")
 public class AwardController {
@@ -168,7 +171,7 @@ public class AwardController {
     }
 
     @PostMapping("/awardType")
-    public RespBean addAwardType(@RequestBody AwardType awardType){
+    public RespBean addAwardType(@Valid @RequestBody AwardType awardType){
         // 1.向awardType插入
         // 2.向indicator中插入，no，这里其实就只需要设置indicator中的rankN就可以了！
         try {
@@ -181,7 +184,7 @@ public class AwardController {
     }
 
     @PutMapping("/awardType")
-    public RespBean editAwardType(@RequestBody AwardType awardType){
+    public RespBean editAwardType(@Valid @RequestBody AwardType awardType){
         try {
             awardService.editAwardType(awardType);
             return RespBean.ok("修改成功！");
