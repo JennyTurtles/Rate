@@ -8,23 +8,22 @@ package org.sys.rate.utils;/**
  * @Version 1.0
  */
 
-import com.github.pagehelper.util.StringUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.mapper.StudentMapper;
 import org.sys.rate.mapper.TeachersMapper;
+import org.sys.rate.mapper.ThesisMapper;
 import org.sys.rate.mapper.UnderGraduateMapper;
 import org.sys.rate.model.*;
+import org.sys.rate.service.admin.ThesisService;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @Description:
@@ -39,6 +38,8 @@ public class ReadExcel {
     private UnderGraduateMapper underGraduateMapper;
     @Resource
     private StudentMapper studentMapper;
+    @Resource
+    private ThesisService thesisService;
 
     public Msg readStartThesisExcelData(String type, Integer institutionID, MultipartFile file) {
         Msg msg = new Msg();
@@ -90,7 +91,7 @@ public class ReadExcel {
 
 
                 String name = nameCell.getCellType() == CellType.STRING ? nameCell.getStringCellValue() : "";
-                if("".equals(name)){
+                if ("".equals(name)) {
                     record.setFailReasonForRowIndex(rowIndex, "第二列学生姓名为空");
                     continue;
                 }
@@ -148,12 +149,19 @@ public class ReadExcel {
                 }
 
                 // 工号和姓名同时存在且合理
-                if (teacherJobNumberCell == null && "teacher".equals(type)) {
-                    record.setFailReasonForRowIndex(rowIndex, "指导教师工号为空");
-                    continue;
+                if ("teacher".equals(type)) {
+                    if (teacherJobNumberCell == null) {
+                        record.setFailReasonForRowIndex(rowIndex, "指导教师工号为空");
+                        continue;
+                    }
+                    if (teacherNameCell == null) {
+                        record.setFailReasonForRowIndex(rowIndex, "指导教师姓名为空");
+                        continue;
+                    }
                 }
-                if (teacherJobNumberCell != null && teacherNameCell == null) {
-                    record.setFailReasonForRowIndex(rowIndex, "指导教师姓名为空");
+
+                if ((teacherJobNumberCell == null && teacherNameCell != null) || (teacherJobNumberCell != null && teacherNameCell == null)) {
+                    record.setFailReasonForRowIndex(rowIndex, "指导教师姓名和工号其中一个为空，不匹配");
                     continue;
                 }
                 String teacherJobNumber = "";
@@ -173,7 +181,7 @@ public class ReadExcel {
                             continue;
                         }
                     } catch (NumberFormatException e) {
-                        record.setFailReasonForRowIndex(rowIndex, "指导教师工号格式错误");
+                        record.setFailReasonForRowIndex(rowIndex, "指导教师工号或者姓名格式错误");
                         continue;
                     }
                 }
@@ -205,7 +213,7 @@ public class ReadExcel {
             if (id.equals(-1)) {
                 return RespBean.error("学生学号和姓名不匹配");
             }
-            if("student".equals(type)) {
+            if ("student".equals(type)) {
                 try {
                     underGraduateMapper.updateWithInstitutionID(underGraduate);
                     return RespBean.ok("exist", id);
@@ -213,27 +221,136 @@ public class ReadExcel {
                     return RespBean.error("更新本科生表出现错误！");
                 }
             }
-        } else if (id == null) {
-            // 首先插入到student表，获取主键id，然后插入undergraduate表中
-            Student student = new Student();
-            student.setName(underGraduate.getName());
-            student.setInstitutionid(underGraduate.getInstitutionID());
-            student.setDeleteflag(0);
-            student.setRole("10");
-            try {
-                studentMapper.insertReturnId(student);
-            } catch (Exception e) {
-                return RespBean.error("插入学生出错！");
-            }
-
-            underGraduate.setStudentID(student.getID());
-            try {
-                underGraduateMapper.addReturnId(underGraduate);
-                return RespBean.ok("", underGraduate.getID());
-            } catch (Exception e) {
-                return RespBean.error("插入本科生出错！");
-            }
         }
-        return RespBean.ok("", id);
+        // 首先插入到student表，获取主键id，然后插入undergraduate表中
+        Student student = new Student();
+        student.setName(underGraduate.getName());
+        student.setInstitutionid(underGraduate.getInstitutionID());
+        student.setDeleteflag(0);
+        student.setRole("10");
+        try {
+            studentMapper.insertReturnId(student);
+        } catch (Exception e) {
+            return RespBean.error("插入学生出错！");
+        }
+
+        underGraduate.setStudentID(student.getID());
+        try {
+            underGraduateMapper.addReturnId(underGraduate);
+            return RespBean.ok("", underGraduate.getID());
+        } catch (Exception e) {
+            return RespBean.error("插入本科生出错！");
+        }
     }
+
+    private RespBean updateExistOrInsertUndergraduate(UnderGraduate underGraduate) {
+        Integer id = underGraduateMapper.checkStudentExist(underGraduate.getStuNumber(), underGraduate.getName(), underGraduate.getInstitutionID());
+        if(id==null){
+            return RespBean.error("学生学号和姓名在本单位中不存在");
+        }else if(id.equals(-1)){
+            return RespBean.error("学生学号和姓名不匹配");
+        }
+        return RespBean.ok("",id);
+
+    }
+
+    public Msg readThesisNameExcelData(Integer tutorId, Integer institutionID, Integer year, Integer month, MultipartFile file) {
+        Msg msg = new Msg();
+        // 还需要记录多少行成功，多少行失败，多少行重复插入，还有第几行是因为什么原因失败
+        DataProcessingResult record = new DataProcessingResult();
+        int rowIndex = 0;
+        int updateRows = 0;
+
+
+        try (Workbook workbook = new HSSFWorkbook(file.getInputStream())) {
+            Sheet sheet = workbook.getSheetAt(0); // 获取第一个工作表
+            for (Row row : sheet) {
+                ++rowIndex;
+                if (rowIndex == 1) {
+                    continue; // 跳过第一行
+                }
+
+                Cell idCell = row.getCell(0);
+                Cell nameCell = row.getCell(1);
+                Cell thesisNameCell = row.getCell(2);
+
+
+                if (idCell == null) {
+                    record.setFailReasonForRowIndex(rowIndex, "第一列学生学号为空");
+                    continue;
+                }
+                if (nameCell == null) {
+                    record.setFailReasonForRowIndex(rowIndex, "第二列学生姓名为空");
+                    continue;
+                }
+
+
+                String name = nameCell.getCellType() == CellType.STRING ? nameCell.getStringCellValue() : "";
+                String thesisName = thesisNameCell.getCellType() == CellType.STRING ? thesisNameCell.getStringCellValue() : "";
+
+
+                // ?姓名和学号是否匹配
+                String studentNumber;
+                Integer undergraduateId = null;
+                try {
+                    studentNumber = idCell.getCellType() == CellType.NUMERIC ? String.valueOf((int) idCell.getNumericCellValue()) : idCell.getStringCellValue();
+                    UnderGraduate underGraduate = new UnderGraduate();
+                    underGraduate.setInstitutionID(institutionID);
+                    underGraduate.setName(name);
+                    underGraduate.setStuNumber(studentNumber);
+                    RespBean existOrInsertResBean = updateExistOrInsertUndergraduate(underGraduate);
+                    if (existOrInsertResBean.getStatus() == 500) {
+                        record.setFailReasonForRowIndex(rowIndex, existOrInsertResBean.getMsg());
+                        continue;
+                    } else {
+                        // 获取到undergraduate.id
+                        undergraduateId = (Integer) existOrInsertResBean.getObj();
+                    }
+                } catch (NumberFormatException e) {
+                    record.setFailReasonForRowIndex(rowIndex, "第一列学生学号单元格式错误");
+                    continue;
+                }
+
+                // ?该学生属于此次毕业设计吗？若属于则进行更新，否则就不需要更新，并且返回错误信息
+                Thesis thesis = new Thesis();
+                thesis.setName(thesisName);
+                thesis.setStudentID(undergraduateId);
+                thesis.setTutorID(tutorId);
+                thesis.setYear(year);
+                thesis.setMonth(month);
+
+                RespBean existOrUpdate = notExistOrUpdate(thesis);
+
+                if (existOrUpdate.getStatus().equals(500)) {
+                    record.setFailReasonForRowIndex(rowIndex, "更新毕业论文题目失败");
+                    continue;
+                }
+                // 若该学生不属于本次毕业论文
+                if(existOrUpdate.getObj().equals(0)){
+                    record.setFailReasonForRowIndex(rowIndex, "该学生不属于本次毕业设计");
+                    continue;
+                }
+                ++updateRows;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            msg.setMsg("读取文件时发生错误！");
+            return msg.fail();
+        }
+        Msg successMsg = Msg.success();
+        // 这里获取的都是合法的数据，安心插入或者更新
+        successMsg.add("record", record).add("total", rowIndex - 1).add("update", updateRows);
+        return successMsg;
+    }
+
+    private RespBean notExistOrUpdate(Thesis thesis) {
+        try {
+            Integer ifExist = thesisService.notExistOrUpdate(thesis);
+            return RespBean.ok("",ifExist);
+        } catch (Exception e) {
+            return RespBean.error("");
+        }
+    }
+
+
 }

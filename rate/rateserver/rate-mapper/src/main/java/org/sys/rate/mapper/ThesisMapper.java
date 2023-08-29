@@ -1,7 +1,6 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
-import org.apache.ibatis.mapping.StatementType;
 import org.sys.rate.model.Thesis;
 import org.sys.rate.model.UnderGraduate;
 
@@ -45,11 +44,21 @@ public interface ThesisMapper {
     void insert(Thesis thesis);
 
     @Insert("INSERT INTO thesis (studentID, year, month, tutorID, grade) " +
-            "VALUES (#{thesis.studentID}, #{year}, #{month}, #{thesis.tutorID}, #{thesis.grade}) " +
+            "VALUES (#{thesis.studentID}, #{year}, #{month}, #{thesis.tutorID, jdbcType=NUMERIC}, #{thesis.grade}) " +
             "ON DUPLICATE KEY UPDATE tutorID = VALUES(tutorID), grade = VALUES(grade)")
     @Options(useGeneratedKeys = true, keyProperty = "thesis.ID")
     void upsert(Thesis thesis, Integer year, Integer month);
 
 
     Integer batchUpsert(Map<String, Object> paramMap);
+
+    @Update("update thesis set name = #{thesisName} where ID = #{thesisId}")
+    void editThesisName(Integer thesisId, String thesisName);
+
+
+    @Update("UPDATE thesis SET name = #{name} WHERE studentID = #{studentID} AND year = #{year} AND `month` = #{month} AND tutorID = #{tutorID}")
+    Integer notExistOrUpdate(Thesis thesis);
+
+    @Select("select studentID from undergraduate where ID=#{studentID}")
+    Integer getStuId(Integer studentID);
 }

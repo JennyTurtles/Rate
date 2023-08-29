@@ -43,8 +43,8 @@ public class PaperCommentService {
 
 
 
-    public Thesis getThesis(int stuID) {
-        return paperCommentMapper.getThesis(stuID);
+    public Thesis getThesis(int stuID, int year, int month) {
+        return paperCommentMapper.getThesis(stuID, year, month);
     }
 
     public int updateTeaComment(PaperComment paperComment) {
@@ -62,5 +62,9 @@ public class PaperCommentService {
 
     public Thesis getThesisByTID(Integer thesisID) {
         return paperCommentMapper.getThesisByTID(thesisID);
+    }
+
+    public List<Student> getStuThesis(Integer tutorId, Integer year, Integer month) {
+        return paperCommentMapper.getStuThesisWithDate(tutorId, year, month);
     }
 }

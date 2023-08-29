@@ -33,6 +33,15 @@
         ON DUPLICATE KEY UPDATE tutorID = VALUES(tutorID), grade = VALUES(grade)
     </update>
 
+<!--    <update id="notExistOrUpdate">-->
+<!--        UPDATE thesis-->
+<!--        SET name = #{name}-->
+<!--        WHERE studentID = #{studentID}-->
+<!--          AND year = #{year}-->
+<!--          AND `month` = #{month}-->
+<!--          AND tutorID = #{tutorID};-->
+<!--    </update>-->
+
 
 
 </mapper>
