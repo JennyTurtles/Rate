@@ -365,7 +365,6 @@ export default {
     }
   },
   methods: {
-    //不进行rankN判断
     handleNodeClick(data, node) {
       if (data.children.length == 0) {
         this.indicatorBtn = data.label;
