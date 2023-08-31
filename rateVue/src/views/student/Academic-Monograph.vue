@@ -379,6 +379,15 @@ export default {
       return JSON.parse(localStorage.getItem('user')); //object信息
     }
   },
+  watch: {
+    //监听是否选择了否个指标树点 和作者列表隐形的互相监听是否发生改变
+    currentSelectedIndicator: {
+      deep: true,
+      handler: function (newV, oldV) {
+        this.judgeMember();
+      }
+    },
+  },
   created() {},
   mounted() {
     this.currentMonographCopy = JSON.parse(JSON.stringify(this.currentMonograph));
@@ -400,13 +409,7 @@ export default {
         this.indicatorBtn = data.label;
         this.currentSelectedIndicator = data;
         this.currentMonographCopy.indicatorId = data.id;
-        if(this.currentMonographCopy.rank != null && this.currentMonographCopy.rank != '') {
-          if(parseInt(this.currentMonographCopy.rank) < data.rankN && this.isAuthorIncludeSelf) {
-            this.monographPoint = data.score;
-          } else {
-            this.monographPoint = 0;
-          }
-        }else this.monographPoint = '';
+        this.monoLimitRankN = data.rankN;
         this.showTreeDialog = false;
       }
     },
@@ -500,6 +503,9 @@ export default {
     },
     judgeMember(){//输入作者框 失去焦点触发事件
       var val = this.currentMonographCopy.author;
+      if(!val) {
+        return;
+      }
       var isalph = false//判断输入中是否有英文字母
       for(var i in val){
         var asc = val.charCodeAt(i)
@@ -515,7 +521,7 @@ export default {
       }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
         num=val.split(';')
       }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//中英都有
-        this.$message.error();('输入不合法请重新输入！')
+        this.$message.warning('输入不合法请重新输入！');
       }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
         if(val != info.name){
           this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
@@ -524,6 +530,7 @@ export default {
           this.isAuthorIncludeSelf = true;
           this.currentMonographCopy.rank = 1
           this.currentMonographCopy.total = 1
+          this.judgeRankScore(1);
         }
         return
       }
@@ -536,13 +543,20 @@ export default {
         this.isAuthorIncludeSelf = false;
       } else {
         //作者列表的rank大于规定的rankN，积分为0
-        if(this.monoLimitRankN != '' && num.indexOf(info.name) + 1 > this.monoLimitRankN) {
-          this.monographPoint = 0;
-        }
+        this.judgeRankScore(num.indexOf(info.name) + 1)
         this.isAuthorIncludeSelf = true;
       }
-      this.currentEmp.total = num.length
+      this.currentMonographCopy.total = num.length
       this.currentMonographCopy.rank = num.indexOf(info.name) + 1
+    },
+    //判断分数
+    judgeRankScore(rank) {
+      if(JSON.parse(JSON.stringify(this.currentSelectedIndicator)) === '{}') this.monographPoint = 0; //输入作者，但未选择指标点
+      else { //指标点已选择，再次修改作者列表
+        const indicatorRankN = this.currentSelectedIndicator.rankN;
+        if(rank > indicatorRankN && indicatorRankN > 0) this.monographPoint = 0;
+        else this.monographPoint = this.currentSelectedIndicator.score;
+      }
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
