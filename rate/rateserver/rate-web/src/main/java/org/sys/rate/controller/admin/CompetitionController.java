@@ -149,7 +149,7 @@ public class CompetitionController {
     }
     @GetMapping("/getIndicatorScore")
     public JsonResult getScore(Integer id) {
-        return new JsonResult(indicatorMapper.getScore(id));
+        return new JsonResult(indicatorMapper.getIndicatorById(id));
     }
     @PostMapping("/searchCompetitionByConditions")
     public Msg searchCompetitionByConditions(@RequestBody Map<String, String> params) {

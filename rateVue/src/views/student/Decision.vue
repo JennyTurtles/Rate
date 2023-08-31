@@ -304,7 +304,6 @@ export default {
     return {
       searchTypeLoading: false,
       isAuthorIncludeSelf: false,
-      decisionLimitRankN: '',
       selectDecisionType: {},
       selectDecisionTypeList: [],
       disabledSelectDecisionType: true,
@@ -398,10 +397,8 @@ export default {
         this.getRequest('/decision/basic/getIndicatorScore?id=' + data.indicatorId).then(response => {
           if(response) {
             this.decisionPoint = response.data.score;
-            this.decisionLimitRankN = response.data.rankN;
           }else {
             this.decisionPoint = 0;
-            this.decisionLimitRankN = '';
           }
         })
         if(this.urlFile) {
@@ -522,10 +519,6 @@ export default {
         this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
         this.isAuthorIncludeSelf = false;
       } else {
-        //作者列表的rank大于规定的rankN，积分为0
-        if(this.decisionLimitRankN != '' && num.indexOf(info.name) + 1 > this.decisionLimitRankN) {
-          this.decisionPoint = 0;
-        }
         this.isAuthorIncludeSelf = true;
       }
       this.currentDecisionCopy.total = num.length
@@ -545,7 +538,6 @@ export default {
       const { id, name } = data.decisionType;
       this.selectDecisionType = name;
       this.dialogVisible = true;
-      this.decisionLimitRankN = data.indicator.rankN;
       this.files = [
         {
           name: this.currentDecisionCopy.url.split('/').reverse()[0],
@@ -675,7 +667,6 @@ export default {
       this.selectDecisionType = {};
       this.title = "添加决策咨询";
       this.dialogVisible = true;
-      this.decisionLimitRankN = '';
       this.decisionPoint = '';
       this.isAuthorIncludeSelf = false;
       this.disabledSelectDecisionType = true;

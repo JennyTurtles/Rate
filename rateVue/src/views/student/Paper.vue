@@ -1243,7 +1243,6 @@ export default {
     },
     initEmps() {
       this.loading = true;
-      console.log(this.user)
       let url = "/paper/basic/studentID?studentID=" + this.user.id
       this.getRequest(url).then((resp) => {
         this.loading = false;

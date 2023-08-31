@@ -153,7 +153,7 @@
           <el-date-picker
               style="width: 80%"
               v-model="currentAwardCopy.date"
-              @change="changeProjectStartDate($event)"
+              @change="changeAwardDate($event)"
               type="month"
               value-format="yyyy-MM"
               placeholder="选择年月">
@@ -322,6 +322,7 @@ export default {
       searchTypeLoading: false,
       isAuthorIncludeSelf: false,
       awardLimitRankN: '',
+      selectedIndicator: {},
       selectAwardType: {},
       selectAwardTypeList: [],
       disabledSelectAwardType: true,
@@ -406,6 +407,14 @@ export default {
     this.currentAwardCopy = JSON.parse(JSON.stringify(this.currentAward));
     this.initAwardsList();
   },
+  watch: {
+    selectedIndicator: {
+      deep: true,
+      handler: function (newV, oldV) {
+        this.judgeMember();
+      }
+    }
+  },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
       if(data == null || data == ''){
@@ -417,7 +426,7 @@ export default {
     }
   },
   methods: {
-    changeProjectStartDate(data) {
+    changeAwardDate(data) {
       if(data) {
         this.disabledSelectAwardType = false;
       }else {
@@ -429,11 +438,11 @@ export default {
       if(data) {
         this.getRequest('/award/basic/getIndicatorScore?id=' + data.indicatorId).then(response => {
           if(response) {
-            this.awardPoint = response.data.score;
             this.awardLimitRankN = response.data.rankN;
+            this.selectedIndicator = response.data;
           }else {
-            this.awardPoint = 0;
             this.awardLimitRankN = '';
+            this.selectedIndicator = {};
           }
         })
         if(this.urlFile) {
@@ -543,6 +552,7 @@ export default {
           this.currentAwardCopy.rank = 1
           this.currentAwardCopy.total = 1
           this.isAuthorIncludeSelf = true;
+          this.judgeRankScore(1);
         }
         return
       }
@@ -555,19 +565,30 @@ export default {
         this.isAuthorIncludeSelf = false;
       } else {
         //作者列表的rank大于规定的rankN，积分为0
-        if(this.awardLimitRankN != '' && num.indexOf(info.name) + 1 > this.awardLimitRankN) {
-          this.awardPoint = 0;
-        }
+        this.judgeRankScore(num.indexOf(info.name) + 1);
         this.isAuthorIncludeSelf = true;
       }
       this.currentAwardCopy.total = num.length
       this.currentAwardCopy.rank = num.indexOf(info.name) + 1
+    },
+    judgeRankScore(rank) {
+      if(JSON.parse(JSON.stringify(this.selectedIndicator)) === '{}') this.awardPoint = 0; //输入作者，但未选择指标点
+      else { //指标点已选择，再次修改作者列表
+        const indicatorRankN = this.selectedIndicator.rankN;
+        if(rank > indicatorRankN && indicatorRankN > 0) {
+          this.awardPoint = 0;
+        }
+        else {
+          this.awardPoint = this.selectedIndicator.score;
+        }
+      }
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
     //编辑按钮
     showEditEmpView(data, idx) {
+      this.selectedIndicator = data.indicator;
       this.title = "编辑奖励信息";
       this.currentAwardCopy = JSON.parse(JSON.stringify(data));
       this.isAuthorIncludeSelf = true;
@@ -702,6 +723,8 @@ export default {
     },
     showAddEmpView() {//点击添加科研获奖按钮
       this.urlFile = ''
+      this.files = [];
+      this.selectedIndicator = {};
       this.currentAwardCopy = {};
       this.addButtonState = false;
       this.selectAwardType = {};
