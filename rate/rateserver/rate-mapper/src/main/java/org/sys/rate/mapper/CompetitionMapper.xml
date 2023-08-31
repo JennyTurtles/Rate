@@ -23,6 +23,7 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
+            <result property="rankN" column="rankN"/>
         </association>
         <association property="competitionType" javaType="org.sys.rate.model.CompetitionType">
             <id property="id" column="competitionTypeId" jdbcType="INTEGER"/>
@@ -80,7 +81,7 @@
 
 <!--    学生科研项目页面初始化-->
     <select id="selectCompetitionListById" resultMap="CompetitionResult">
-        SELECT a.*,i.max_date,j.remark, type.`name` as tname, type.id as projectTypeId, type.year, type.indicator_id
+        SELECT a.*,i.max_date,j.remark, type.`name` as tname, type.id as projectTypeId, type.year, type.indicator_id, ind.name as iname, ind.score, ind.rankN
         FROM i_competition a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -94,6 +95,7 @@
             WHERE prod_type = '学科竞赛'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_competition_type type ON type.id = a.competition_type_id AND a.student_id = #{studentID}
+                 JOIN indicator ind ON ind.id = type.indicator_id
         ORDER BY a.id DESC;
     </select>
 

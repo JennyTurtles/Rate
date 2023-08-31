@@ -312,6 +312,8 @@ export default {
   name: "Academic-Competition",
   data() {
     return {
+      competitionLimitRankN: '',
+      selectedIndicator: {},
       searchTypeLoading: false,
       selectCompetitionType: '',
       selectCompetitionTypeName: '',
@@ -377,7 +379,14 @@ export default {
       return JSON.parse(localStorage.getItem('user')); //object信息
     }
   },
-  watch: {},
+  watch: {
+    selectedIndicator: {
+      deep: true,
+      handler: function (newV, oldV) {
+        this.judgeMember();
+      }
+    }
+  },
   created() {
     this.debounceSearch = debounce(this.debounceSearchType,400);
   },
@@ -401,9 +410,11 @@ export default {
       if(data) {
         this.getRequest('/competition/basic/getIndicatorScore?id=' + data.indicatorId).then(response => {
           if(response) {
-            this.competitionPoint = response.data;
+            this.competitionLimitRankN = response.data.rankN;
+            this.selectedIndicator = response.data;
           }else {
-            this.competitionPoint = 0;
+            this.competitionLimitRankN = '';
+            this.selectedIndicator = {};
           }
         })
         if(this.urlFile) {
@@ -532,6 +543,7 @@ export default {
           this.currentCompetitionCopy.rank = 1;
           this.currentCompetitionCopy.total = 1;
           this.isAuthorIncludeSelf = true;
+          this.judgeRankScore(1);
         }
         return
       }
@@ -543,16 +555,31 @@ export default {
         this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
         this.isAuthorIncludeSelf = false;
       } else { //自己在里面
+        this.judgeRankScore(num.indexOf(info.name) + 1);
         this.isAuthorIncludeSelf = true;
       }
       this.currentCompetitionCopy.total = num.length;
       this.currentCompetitionCopy.rank = num.indexOf(info.name) + 1;
+    },
+    judgeRankScore(rank) {
+      if(JSON.parse(JSON.stringify(this.selectedIndicator)) === '{}') this.competitionPoint = 0; //输入作者，但未选择指标点
+      else { //指标点已选择，再次修改作者列表
+        const indicatorRankN = this.selectedIndicator.rankN;
+        if(rank > indicatorRankN && indicatorRankN > 0) {
+          this.competitionPoint = 0;
+        }
+        else {
+          this.competitionPoint = this.selectedIndicator.score;
+        }
+      }
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
     //编辑按钮
     showEditEmpView(data, idx) {
+      this.competitionLimitRankN = data.indicator.rankN;
+      this.selectedIndicator = data.indicator;
       this.title = "编辑学科竞赛信息";
       this.currentCompetitionCopy = JSON.parse(JSON.stringify(data));
       this.dialogVisible = true;
@@ -692,10 +719,12 @@ export default {
     addCompetitionDialog() {//点击添加科研学科竞赛按钮
       this.urlFile = '';
       this.files = [];
+      this.selectedIndicator = {};
       this.currentCompetitionCopy = {};
       this.addButtonState = false;
       this.competitionPoint = '';
       this.title = "添加竞赛";
+      this.competitionLimitRankN = '';
       this.selectCompetitionType = '';
       this.isAuthorIncludeSelf = false;
       this.disabledSelectCompetitionType = true;
