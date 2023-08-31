@@ -190,7 +190,7 @@
  </div>
  <el-dialog title="请选择您要导出的学生" v-loading="exportGradeFormLoading" :visible.sync="showStudents">
   <el-checkbox-group v-model="checkedStudents" @change="">
-   <el-checkbox v-for="student in students" :label="student.id" :key="student.id">{{student.name}}</el-checkbox>
+   <el-checkbox v-for="student in students" :label="student.id" :key="student.id">{{student.name+"("+student.studentnumber+")"}}</el-checkbox>
   </el-checkbox-group>
    <span slot="footer" class="dialog-footer">
     <el-button @click="showStudents = false;checkedStudents=[]">取 消</el-button>

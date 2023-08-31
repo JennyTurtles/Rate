@@ -105,7 +105,7 @@ public interface ExpertsMapper {
     Experts getCandidateLeader(Integer groupID);
 
 
-    @Select("SELECT s.ID AS ID,s.`name`\n" +
+    @Select("SELECT s.ID AS ID,s.`name`,stuNumber studentnumber\n" +
             "FROM expertactivities ea, participants p,thesis t,student s,undergraduate u\n" +
             "WHERE ea.teacherID = #{tutorID} AND ea.activityID = #{activityID} AND ea.groupID = p.groupID \n" +
             "AND u.studentID = p.studentID AND t.tutorID = #{tutorID} AND t.studentID = u.ID\n" +
