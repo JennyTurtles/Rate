@@ -9,6 +9,11 @@
         <result property="year" column="year"/>
         <result property="indicatorId" column="indicator_id"/>
     </resultMap>
+    <delete id="deleteByYearIndicatorID">
+        delete
+        from  i_decision_type
+        where indicator_id = #{indicatorID} and year=#{year}
+    </delete>
 
     <select id="getIndicatorByYearAndType" resultMap="DecisionTypeResult">
         SELECT p.*

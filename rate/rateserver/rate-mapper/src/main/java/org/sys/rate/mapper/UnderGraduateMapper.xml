@@ -111,6 +111,11 @@
         </set>
         WHERE institutionID = #{institutionID} AND stuNumber = #{stuNumber}
     </update>
+    <update id="updateGroup">
+        update thesis
+        set `group` =#{groupName}
+        where ID =#{ID}
+    </update>
 
 
     <select id="getTeaNamesBySelect" resultType="org.sys.rate.model.Teachers">
@@ -146,8 +151,16 @@
     <select id="checkHaveStudentOfStuNumber" resultType="java.lang.Integer">
         select exists (select * from undergraduate where institutionID = #{institutionID} and stuNumber = #{stuNumber} and studentID != #{studentID} )
     </select>
-
-
+    <select id="getByGrade" resultType="org.sys.rate.model.Thesis">
+        select *
+        from thesis
+        where year=#{year} and month=#{month} and grade =#{grade}
+    </select>
+    <select id="getNoGrade" resultType="org.sys.rate.model.Thesis">
+        select *
+        from thesis
+        where year=#{year} and month=#{month} and grade is null
+    </select>
 
 
 </mapper>

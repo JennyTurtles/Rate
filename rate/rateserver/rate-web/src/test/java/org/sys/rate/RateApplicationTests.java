@@ -3,7 +3,9 @@ package org.sys.rate;
 //import org.junit.Test;
 //import org.junit.runner.RunWith;
 
+import lombok.Data;
 import lombok.var;
+import org.apache.poi.ss.formula.functions.T;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.sys.rate.controller.admin.ActivitiesBasicController;
@@ -38,12 +40,10 @@ public class RateApplicationTests {
 
     @Test
     public void testCloneActivity(){
-        Activities activities = new Activities();
-        activities.setId(40);
-        activities.setAdminID(3);
-        activities.setComment("test");
-        RespBean aLl = activitiesBasicController.cloneActivity(activities);
-        return;
+        Person person = new Person();
+        if(person.getName().equals("s")){
+            System.out.println("sasa");
+        }
     }
 
     public static <T extends Serializable> T deepCopy(T object) throws IOException, ClassNotFoundException {
@@ -83,6 +83,7 @@ class Address implements Serializable {
     }
 }
 
+@Data
 class Person implements Serializable {
     String name;
     Address address;
@@ -90,5 +91,9 @@ class Person implements Serializable {
     public Person(String name, Address address) {
         this.name = name;
         this.address = address;
+    }
+
+    public Person() {
+
     }
 }

@@ -11,6 +11,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.annotation.Resource;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +27,6 @@ import java.util.Set;
  * @date 2022-03-13
  */
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class  Publication {
@@ -33,6 +36,7 @@ public class  Publication {
     /**
      * 刊物全称
      */
+    @NotBlank(message = "刊物全称不为空")
     private String name;
 
     /**
@@ -62,11 +66,9 @@ public class  Publication {
 
     private String indicatorName;
 
+    @NotNull(message = "年份不为空")
+    @Min(value = 1900, message = "年份不合法")
     private Integer year;
 
     private Integer score;
-
-
-
-
 }

@@ -15,7 +15,6 @@ import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.CompetitionService;
-import org.sys.rate.service.admin.CompetitionService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.annotation.Resource;

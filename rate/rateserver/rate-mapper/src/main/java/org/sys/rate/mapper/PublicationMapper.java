@@ -42,6 +42,8 @@ public interface PublicationMapper {
      */
     Integer updatePublication(Publication publication);
 
+    @Update("update indicator_publication set year = #{year} where publication_id=#{id} AND indicator_id = #{indicatorId}")
+    Integer updateIndicatorPublicationYear(Publication publication);
 
     @Delete("delete from indicator_publication where publication_id =#{id} and year=#{year}")
     Integer deletePublicationByIds(Integer id, Integer year);
@@ -91,10 +93,20 @@ public interface PublicationMapper {
     /**
      * 插入期刊时，也需要插入中间表中
      */
-    @Insert("insert into indicator_publication(indicator_id, publication_id, year) values(#{indicatorId},#{publicationId},#{date})")
-    Integer insertIndicatorPublication(Integer indicatorId, Integer publicationId, Integer date);
+    @Insert("insert ignore into indicator_publication(indicator_id, publication_id, year) values(#{indicatorId},#{publicationId},#{date})")
+    int insertIndicatorPublication(Integer indicatorId, Integer publicationId, Integer date);
 
     List<Publication> getlistByName(String name);
 
     List<Publication> selectPublicationListByYear(Integer indicatorID, Integer year);
+
+    int deleteByYearIndicatorNames(Integer year,String name);
+
+    int checkByNames(String name);
+
+    @Select("select id from i_publication where name =#{name}")
+    Integer getIdByName(String name);
+
+    @Select("select id from i_publication where name =#{name}")
+    Integer selectIdByName(String name);
 }

@@ -10,6 +10,7 @@ import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.mapper.PublicationMapper;
 import org.sys.rate.model.Indicator;
 import org.sys.rate.model.Publication;
+import org.springframework.dao.DuplicateKeyException;
 
 import javax.annotation.Resource;
 import java.util.HashSet;
@@ -58,17 +59,22 @@ public class PublicationService {
      * @param publication 刊物
      * @return 结果
      */
-    public void insertPublication(Publication publication) {
+    public Integer insertPublication(Publication publication) {
         if(publication.getId()==null) {
-            publicationMapper.insertPublication(publication);
+            try {
+                publicationMapper.insertPublication(publication);
+            } catch (DuplicateKeyException e) { // 捕获因为name重复导致的插入失败异常,查询期刊ID
+                publication.setId(publicationMapper.selectIdByName(publication.getName()));
+            }
         }
         if(publication.getIndicatorList()==null){
-            publicationMapper.insertIndicatorPublication(publication.getIndicatorId(), publication.getId(), publication.getYear());
-            return;
+            Integer res = publicationMapper.insertIndicatorPublication(publication.getIndicatorId(), publication.getId(), publication.getYear());
+            return res;
         }
         for (int i = 0; i < publication.getIndicatorList().size(); ++i) {
             publicationMapper.insertIndicatorPublication(publication.getIndicatorList().get(i).getId(), publication.getId(), publication.getDateList().get(i));
         }
+        return null;
     }
 
     /**

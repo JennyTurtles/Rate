@@ -272,8 +272,6 @@
         where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
         delete from scores
         where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
-        delete from comment
-        where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
     </delete>
 
     <update id="update" parameterType="org.sys.rate.model.Participates">
@@ -500,7 +498,7 @@
         UPDATE activities set groupCount = 0
         where activities.ID=#{activityID}
     </update>
-    <delete id="deleteGroups" parameterType="Integer">
+    <delete id="deleteGroups" parameterType="java.lang.Integer">
         delete from `groups` where activityID = #{activityID}
     </delete>
     <update id="updateGroupID">

@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.OperationMapper;
 import org.sys.rate.mapper.ProjectMapper;
@@ -42,7 +43,11 @@ public class ProjectTypeService {
     }
 
     public Integer editProjectType(ProjectType projectType) {
-        return projectTypeMapper.editProjectType(projectType);
+        try {
+            return projectTypeMapper.editProjectType(projectType);
+        }catch (DuplicateKeyException e){
+            return 0;
+        }
     }
 
 

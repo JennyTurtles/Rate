@@ -12,11 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.DecisionTypeMapper;
 import org.sys.rate.mapper.IndicatorMapper;
-import org.sys.rate.model.Decision;
-import org.sys.rate.model.DecisionType;
-import org.sys.rate.model.Msg;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.DecisionService;
 import org.sys.rate.service.admin.DecisionService;
 import org.sys.rate.service.mail.MailToTeacherService;
@@ -39,13 +37,15 @@ import java.util.Map;
 @RestController
 @RequestMapping("/decision/basic")
 public class DecisionController {
-    
+
     @Resource
     private DecisionService decisionService;
     @Resource
     IndicatorMapper indicatorMapper;
     @Resource
     MailToTeacherService mailToTeacherService;
+    @Resource
+    private DecisionTypeMapper decisionTypeMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(DecisionController.class);
     private String uploadFileName;
@@ -183,6 +183,26 @@ public class DecisionController {
             return RespBean.ok("修改decisionType成功！");
         } catch (Exception e) {
             return RespBean.error("修改decisionType失败！");
+        }
+    }
+    @PostMapping("/decisionType/dels")
+    public RespBean deleteByYearId(@RequestParam Integer year, @RequestParam Integer indicatorID){
+        try {
+            decisionTypeMapper.deleteByYearIndicatorID(year,indicatorID);
+            return RespBean.ok("删除成功！");
+        } catch (Exception e){
+            return RespBean.error("删除失败！");
+        }
+    }
+    @PostMapping("/decisionType/import")
+    public RespBean multiImportPublication(@RequestBody List<DecisionType> decisionTypes){
+        try {
+            for (DecisionType decisionType:decisionTypes){
+                decisionTypeMapper.addDecisionType(decisionType);
+            }
+            return RespBean.ok("添加成功！");
+        } catch (Exception e){
+            return RespBean.error("添加失败！");
         }
     }
 

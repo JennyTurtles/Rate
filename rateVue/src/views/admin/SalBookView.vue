@@ -60,7 +60,7 @@ export default {
     getLabelInfo(nodeData) {
       // console.log(nodeData);
       this.nodeData = nodeData;
-      this.$refs.search.getData(nodeData.id, nodeData.type);
+      this.$refs.search.getData(nodeData.label,nodeData.id, nodeData.type);
     },
     visibleChange() {
       this.visible = !this.visible;

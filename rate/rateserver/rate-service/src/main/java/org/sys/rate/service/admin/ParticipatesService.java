@@ -609,8 +609,8 @@ public class ParticipatesService {
     public String deleteGroups(Integer activityID){
         Integer res = groupsMapper.isGroupsExit(activityID);
         if(res > 0){
-            participatesMapper.deleteGroups(activityID);//删除groups表中的数据
             participatesMapper.deleteGroupsOfParticipantsAnaAcitivity(activityID);//删除选手表和活动表中的groupid
+            participatesMapper.deleteGroups(activityID);//删除groups表中的数据
             return "删除成功";
         }else {
             return "无删除数据";

@@ -32,14 +32,16 @@ public interface PaperCommentMapper {
 
 
 
-    @Select("SELECT ID, studentID, name, url, year, month, tutorID FROM thesis WHERE studentID = #{stuID} ORDER BY year DESC, month DESC LIMIT 1;")
-    Thesis getThesis(int stuID);
+    @Select("SELECT t.id, t.studentid, t.NAME, t.url, t.YEAR, t.MONTH, t.tutorid, t.grade, t.start_thesis_id FROM thesis t, student s, undergraduate u WHERE u.studentID = #{stuID} and t.studentID = u.ID and u.studentID = s.ID and t.year = #{year} and t.`month` = #{month};")
+    Thesis getThesis(int stuID, int year, int month);
 
     @Update("update papercomment set dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass} where thesisID = #{thesisID} and num = #{num}")
     int updateTeaComment(PaperComment paperComment);
 
     List<Student> getStuThesis(int teaID);
 
-    @Select("SELECT id, studentid, name, url, year, month, tutorid FROM thesis WHERE ID = #{ID}")
+    @Select("SELECT id, studentid, name, url, year, month, tutorid, grade, start_thesis_id FROM thesis WHERE ID = #{ID}")
     Thesis getThesisByTID(Integer thesisID);
+
+    List<Student> getStuThesisWithDate(Integer tutorId, Integer year, Integer month);
 }

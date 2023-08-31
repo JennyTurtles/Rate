@@ -13,6 +13,7 @@ import org.sys.rate.model.Thesis;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.TeacherService;
 import org.sys.rate.service.admin.PaperCommentService;
+import org.sys.rate.service.admin.ThesisService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -36,13 +37,16 @@ import java.util.UUID;
 @Service
 public class ExportPDF {
     @Resource
-    StudentService studentService;
+    private StudentService studentService;
 
     @Resource
-    TeacherService teacherService;
+    private TeacherService teacherService;
 
     @Resource
-    PaperCommentService paperCommentService;
+    private PaperCommentService paperCommentService;
+
+    @Resource
+    private ThesisService thesisService;
 
     private final static int PRESUMROWS = 17;
     private final static int NEXTPLANROWS = 21;
@@ -92,12 +96,12 @@ public class ExportPDF {
 
     public void generatePDF(HttpServletResponse response, Integer thesisID) throws Exception {
         Thesis thesis = paperCommentService.getThesisByTID(thesisID);
-        Student student = studentService.getById(thesis.getStudentID());
+        Student student = studentService.getById(thesisService.getStuId(thesis.getStudentID()));
         Teacher teacher = teacherService.getById(thesis.getTutorID());
         List<PaperComment> paperComments = paperCommentService.selectCommentListStu(thesisID);
 
         if (!necessaryFilesAndDirectoriesExist) {
-            log.error("生成Pdf时必要的文件和目录不存在！");
+            log.error("生成PDF时必要的文件和目录不存在！");
             return;
         }
 

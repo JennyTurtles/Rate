@@ -43,7 +43,7 @@ public interface IndicatorMapper{
     @Update("update indicator set name = #{name}, score = #{score} where id = #{id}")
     public int updateScoreName(Indicator indicator);
 
-    @Update("update indicator set type = #{type},`order` = #{order}, score = #{score}, father = #{father} where id = #{id}")
+    @Update("update indicator set type = #{type},`order` = #{order}, score = #{score}, father_id = #{father} where id = #{id}")
     public int updateAllField(Indicator indicator);
 
     @Select("select score from indicator where id = #{id}")
@@ -56,6 +56,9 @@ public interface IndicatorMapper{
     @Select("select id from indicator i  where i.order =#{order} limit 1")
     Integer getIndicatorId(String order);
 
+    @Select("select id from indicator where name =#{name}")
+    Integer getIdByName(String name);
+
     @Select("select * from indicator i where id = #{id}")
     Indicator getIndicatorById(Integer id);
 
@@ -67,7 +70,11 @@ public interface IndicatorMapper{
             "WHERE indicator_id = #{indicatorId} AND YEAR = #{fromYear} AND publication_id NOT IN " +
             "(SELECT publication_id FROM indicator_publication WHERE indicator_id = #{indicatorId} AND YEAR = #{toYear})")
     Integer clonePublication(Integer fromYear, Integer toYear, Long indicatorId);
-    @Insert("INSERT INTO i_project_type (indicator_id, `name`, `year`) SELECT indicator_id, `name`, #{toYear} FROM i_project_type WHERE indicator_id = #{indicatorId} AND `year` = #{fromYear} AND `name` NOT IN (SELECT `name` FROM i_project_type WHERE indicator_id = #{indicatorId} AND `year` = #{toYear})")
+    @Insert("INSERT INTO i_project_type (indicator_id, `name`, `year`) " +
+            "SELECT indicator_id, `name`, #{toYear} " +
+            "FROM i_project_type WHERE indicator_id = #{indicatorId} " +
+            "AND `year` = #{fromYear} AND `name` " +
+            "NOT IN (SELECT `name` FROM i_project_type WHERE indicator_id = #{indicatorId} AND `year` = #{toYear})")
     Integer cloneProject(Integer fromYear, Integer toYear, Long indicatorId);
 
 
@@ -75,4 +82,26 @@ public interface IndicatorMapper{
 
     @Select("SELECT pt.id projectTypeId, pt.`name` projectTypeName, pt.year, CONCAT(i.`order`, i.`name`) indicatorName, i.score FROM i_project_type pt, indicator i WHERE pt.`name` = #{fullName} AND i.id = pt.indicator_id")
     List<Project> getProjectByName(String fullName);
+
+
+    @Insert("INSERT INTO i_award_type (indicator_id, `name`, `year`) " +
+            "SELECT indicator_id, `name`, #{toYear} " +
+            "FROM i_award_type WHERE indicator_id = #{indicatorId} " +
+            "AND `year` = #{fromYear} AND `name` " +
+            "NOT IN (SELECT `name` FROM i_award_type WHERE indicator_id = #{indicatorId} AND `year` = #{toYear})")
+    void cloneAward(Integer fromYear, Integer toYear, Long indicatorId);
+
+    @Insert("INSERT INTO i_decision_type (indicator_id, `name`, `year`) " +
+            "SELECT indicator_id, `name`, #{toYear} " +
+            "FROM i_decision_type WHERE indicator_id = #{indicatorId} " +
+            "AND `year` = #{fromYear} AND `name` " +
+            "NOT IN (SELECT `name` FROM i_decision_type WHERE indicator_id = #{indicatorId} AND `year` = #{toYear})")
+    void cloneDecision(Integer fromYear, Integer toYear, Long indicatorId);
+
+    @Insert("INSERT INTO i_competition_type (indicator_id, `name`, `year`) " +
+            "SELECT indicator_id, `name`, #{toYear} " +
+            "FROM i_competition_type WHERE indicator_id = #{indicatorId} " +
+            "AND `year` = #{fromYear} AND `name` " +
+            "NOT IN (SELECT `name` FROM i_competition_type WHERE indicator_id = #{indicatorId} AND `year` = #{toYear})")
+    void cloneCompetition(Integer fromYear, Integer toYear, Long indicatorId);
 }

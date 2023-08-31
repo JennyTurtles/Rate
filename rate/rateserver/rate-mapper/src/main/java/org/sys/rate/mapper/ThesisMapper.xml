@@ -12,6 +12,7 @@
             (#{thesis.studentID}, #{thesis.tutorID}, #{year}, #{month}, #{thesis.grade})
         </foreach>
     </insert>
+
     <update id="updateBatch" parameterType="java.util.List">
         <foreach collection="thesisList" item="thesis" separator=";">
             update thesis
@@ -21,6 +22,25 @@
             and month = #{month}
         </foreach>
     </update>
+
+<!--    这个有问题，弃用-->
+    <update id="batchUpsert">
+        INSERT INTO thesis (studentID, year, month, tutorID, grade)
+        VALUES
+        <foreach collection="thesisList" item="thesis" separator=",">
+            (#{thesis.studentID}, #{year}, #{month}, #{thesis.tutorID}, #{thesis.grade})
+        </foreach>
+        ON DUPLICATE KEY UPDATE tutorID = VALUES(tutorID), grade = VALUES(grade)
+    </update>
+
+<!--    <update id="notExistOrUpdate">-->
+<!--        UPDATE thesis-->
+<!--        SET name = #{name}-->
+<!--        WHERE studentID = #{studentID}-->
+<!--          AND year = #{year}-->
+<!--          AND `month` = #{month}-->
+<!--          AND tutorID = #{tutorID};-->
+<!--    </update>-->
 
 
 

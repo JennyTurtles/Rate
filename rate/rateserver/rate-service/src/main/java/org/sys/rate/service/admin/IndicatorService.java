@@ -4,10 +4,7 @@ import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.sys.rate.mapper.AwardTypeMapper;
-import org.sys.rate.mapper.IndicatorMapper;
-import org.sys.rate.mapper.ProjectTypeMapper;
-import org.sys.rate.mapper.PublicationMapper;
+import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
@@ -29,6 +26,11 @@ public class IndicatorService {
     @Resource
     private AwardTypeMapper awardTypeMapper;
 
+    @Resource
+    private DecisionTypeMapper decisionTypeMapper;
+
+    @Resource
+    private CompetitionTypeMapper competitionTypeMapper;
 
     public List<Indicator> getAll (){return indicatorMapper.getAll();}
 
@@ -65,6 +67,12 @@ public class IndicatorService {
             indicatorMapper.clonePublication(fromYear, toYear, indicatorId);
         }else if("project".equals(indicatorType)){
             indicatorMapper.cloneProject(fromYear, toYear, indicatorId);
+        }else if("award".equals(indicatorType)) {
+            indicatorMapper.cloneAward(fromYear, toYear, indicatorId);
+        }else if("decision".equals(indicatorType)){
+            indicatorMapper.cloneDecision(fromYear, toYear, indicatorId);
+        }else if("competition".equals(indicatorType)){
+            indicatorMapper.cloneCompetition(fromYear, toYear, indicatorId);
         }
     }
 
@@ -101,6 +109,12 @@ public class IndicatorService {
         }else if ("award".equals(type)) {
             List<AwardType> awardTypes = awardTypeMapper.selectAwardTypeListByYear(indicatorId,year);
             return castList(awardTypes);
+        }else if ("decision".equals(type)){
+            List<DecisionType> decisionTypes = decisionTypeMapper.selectDecisionTypeListByYear(indicatorId,year);
+            return castList(decisionTypes);
+        }else if ("competition".equals(type)){
+            List<CompetitionType> competitions = competitionTypeMapper.selectCompetitionTypeListByYear(indicatorId,year);
+            return castList(competitions);
         }
         return new ArrayList<>();
     }

@@ -11,12 +11,10 @@ import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.ReadExcel;
+import org.sys.rate.utils.createGroups;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class UnderGraduateService {
@@ -34,6 +32,10 @@ public class UnderGraduateService {
     private ThesisMapper thesisMapper;
     @Resource
     private ReadExcel readExcel;
+    @Autowired
+    GroupsService groupsService;
+    @Resource
+    private ThesisService thesisService;
 
     //管理员导入本科生，只添加，即使已经存在了该条数据也不更新
     public RespBean addUnderGraduate(List<UnderGraduate> underList, List<Student> stuList) {
@@ -295,7 +297,7 @@ public class UnderGraduateService {
         // 4.插入thesis表(或者当type==teacher时，需要更新thesis表)
         List thesisList = (List<Thesis>) excelData.getExtend().get("thesis");
         RespBean thesisResBean = this.insertOrUpdateThesis(thesisList, year, month);
-        if (thesisResBean.getStatus() == 500) {
+        if (thesisResBean.getStatus().equals(500)) {
             throw thesisResBean;
         }
 
@@ -313,43 +315,14 @@ public class UnderGraduateService {
     private RespBean insertOrUpdateThesis(List<Thesis> thesisList, Integer year, Integer month) {
         int rows = 0;
         try {
-            for(var thesis:thesisList){
-                thesis.setYear(year);
-                thesis.setMonth(month);
-
-                if(thesisMapper.ifExist(thesis)){
-                    thesisMapper.edit(thesis);
-                }else {
-                    ++rows;
-                    thesisMapper.insert(thesis);
-                }
-            }
+            rows = thesisService.upsert(thesisList, year, month);
         } catch (Exception e) {
             String errorMessage = "插入或者更新操作毕业论文信息时出错！";
-            RespBean.error(errorMessage);
+            return RespBean.error(errorMessage);
         }
 
         return RespBean.ok("", rows);
     }
-
-    private RespBean duplicateTeacherChecker(Set<Teachers> teachersSet, Integer institutionID) {
-        for (Teachers teachers : teachersSet) {
-            if (teachersMapper.getTutorIdByJobNumAndInstitutionID(teachers.getJobnumber(), institutionID) == null) {
-                // 只有当老师不存在时添加进去！
-                try {
-                    teachers.setDeleteflag(0L);
-                    teachers.setRole("8");
-                    teachers.setInstitutionid(institutionID);
-                    teachersMapper.add(teachers);
-                } catch (Exception e) {
-                    return RespBean.error("插入老师时出现错误！");
-                }
-            }
-        }
-        return RespBean.ok("");
-    }
-
-
 
 
     public List<UnderGraduate> getStudent(Integer institutionID, Integer year, Integer month) {
@@ -395,5 +368,58 @@ public class UnderGraduateService {
         } catch (Exception e) {
             return RespBean.error("");
         }
+    }
+
+    public String createGroup(Integer year, Integer month, List<Integer> arr, Integer exchangeNums, Integer groupsNums, List<Double> selectGrade) {
+        List<Double> point = new ArrayList<>();
+        List<Thesis> students = new ArrayList<>();
+        List<double[]> point_participant = new ArrayList<>();
+        for (int i = 0; i < selectGrade.size(); i++) {
+            List<Thesis> par = new ArrayList<>();
+            par = underGraduateMapper.getByGrade(year, month, selectGrade.get(i));
+            students.addAll(par);
+        }
+        for (Thesis student : students) {
+            double[] temp = new double[3];
+            point.add(Double.valueOf(student.getGrade()));
+            temp[0] = Double.valueOf(student.getGrade());//分数
+            temp[1] = Double.valueOf(student.getID());//学生id
+            temp[2] = Double.valueOf(-1);//组号标识
+            point_participant.add(temp);
+        }
+        //得到交换后的groups
+        List<List<double[]>> res = groupsService.createGroupsByScore(arr, exchangeNums, groupsNums, point, point_participant);
+        String name = "";
+        //对每组遍历
+        try {
+            for (int residx = 0; residx < res.size(); residx++) {
+                name = "第" + Integer.toString(residx + 1) + "组";
+                for (int item = 0; item < res.get(residx).size(); item++) {
+                    Integer id = (int) res.get(residx).get(item)[1];
+                    underGraduateMapper.updateGroup(id, name);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "分组失败";
+        }
+        return "分组成功";
+    }
+
+    public RespBean importThesisName(Integer tutorId, Integer institutionID, Integer year, Integer month, MultipartFile file) throws RespBean {
+        // 1. 从excel解析出来的数据
+        Msg excelData = readExcel.readThesisNameExcelData(tutorId, institutionID, year, month, file);
+        if (excelData.getCode() == 500) {
+            throw RespBean.error(excelData.getMsg());
+        }
+
+        // 2. 进行总结
+        Integer total = (Integer) excelData.getExtend().get("total");
+        Integer update = (Integer) excelData.getExtend().get("update");
+        DataProcessingResult record = (DataProcessingResult) excelData.getExtend().get("record");
+        record.setTotal(total);
+        record.setFailedRowsCount(total - update);
+        record.setDuplicateInsertRowsCount(update);
+        return RespBean.ok("", record);
     }
 }

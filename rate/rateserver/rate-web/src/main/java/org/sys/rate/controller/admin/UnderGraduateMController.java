@@ -40,7 +40,10 @@ public class UnderGraduateMController {
 
     @GetMapping("/exportUnderGraduate")
     public ResponseEntity<byte[]> downloadExample_UnderGraduateStudents(@RequestParam("type") String type, HttpServletResponse response) {
-        return POIUtils.writeUnderGraduate(type);
+        if ("thesisName".equals(type)) {
+            return POIUtils.thesisNameExcelTemplate();
+        }
+        return "student".equals(type) ? POIUtils.writeUnderGraduate(type) : POIUtils.undergraduateExcelTemplate(type);
     }
 
     @PostMapping("/importUnderGraduate")
@@ -125,7 +128,19 @@ public class UnderGraduateMController {
                                  @RequestParam("semester") String semester, MultipartFile file) throws RespBean {
         try {
             return underGraduateService.importThesis(type, institutionID, year, semester, file);
-        }catch (RespBean res){
+        } catch (RespBean res) {
+            return RespBean.error(res.getMsg());
+        }
+    }
+
+    @PostMapping("/importThesisName")
+    public RespBean importThesis(@RequestParam("tutorId") Integer tutorId,
+                                 @RequestParam("institutionId") Integer institutionId,
+                                 @RequestParam("year") Integer year,
+                                 @RequestParam("semester") Integer semester, MultipartFile file) throws RespBean {
+        try {
+            return underGraduateService.importThesisName(tutorId, institutionId, year, semester, file);
+        } catch (RespBean res) {
             return RespBean.error(res.getMsg());
         }
     }
@@ -138,10 +153,10 @@ public class UnderGraduateMController {
                            @RequestParam("pageSize") Integer pageSize) {
         Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
         Integer month;
-        if(semester.length()>1) {
-             month= "春季".equals(semester) ? 3 : 9;
-        }else {
-            month= Integer.valueOf(semester);
+        if (semester.length() > 1) {
+            month = "春季".equals(semester) ? 3 : 9;
+        } else {
+            month = Integer.valueOf(semester);
             semester = 3 == month ? "春季" : "秋季";
         }
         List<UnderGraduate> student = underGraduateService.getStudent(institutionID, year, month);
@@ -173,7 +188,7 @@ public class UnderGraduateMController {
     public RespBean deleteThesis(@RequestParam("studentID") @NotNull Integer studentID,
                                  @RequestParam("tutorID") String tutorIDStr,
                                  @RequestParam("year") @NotNull Integer year,
-                                 @RequestParam("month") @NotNull Integer month)  {
+                                 @RequestParam("month") @NotNull Integer month) {
         Integer tutorID = tutorIDStr.equals("none") ? null : Integer.parseInt(tutorIDStr);
 
         UnderGraduate underGraduate = new UnderGraduate();
@@ -185,4 +200,26 @@ public class UnderGraduateMController {
         return underGraduateService.deleteThesis(underGraduate);
     }
 
+    @GetMapping("/getUngrouped")
+    public RespBean getUngrouped(@RequestParam("year") Integer year, @RequestParam("month") Integer month) {
+        List<Thesis> res = underGraduateMapper.getUngrouped(year, month);
+        for (Thesis par : res) {
+            if (par.getGrade() == null)
+                par.setGrade(0.00d);
+        }
+        return RespBean.ok("success", res);
+    }
+
+    @PostMapping("/createGroups")
+    public String createGroup(@RequestBody Map<String, Object> data) {
+        Integer year = (Integer) data.get("year");
+        Integer month = (Integer) data.get("month");
+        List<Integer> arr = (List<Integer>) data.get("arr");
+        Integer exchangeNums = (Integer) data.get("exchangeNums");
+        Integer groupsNums = (Integer) data.get("groupsNums");
+        //List<Thesis> students = (List<Thesis>) data.get("students");
+        List<Double> selectGrade = (List<Double>) data.get("selectGrade");
+        return underGraduateService.createGroup(year, month, arr, exchangeNums, groupsNums, selectGrade);
+        //返回分好组的选手信息
+    }
 }

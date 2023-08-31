@@ -206,6 +206,7 @@ public class IndicatorController {
     @PostMapping("/insert")
     public RespBean insert(@RequestBody Indicator indicator) //对象内的order为新位置的order,其他字段也为新数据
     {
+        indicator.setType(indicator.getType().split(" ")[1]);
         String oldOrder = indicatorService.selectOrder(indicator.getId()); //通过id获取老的order
         String newOlder = indicator.getOrder();
         if (oldOrder.equals(newOlder))

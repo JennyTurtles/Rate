@@ -96,4 +96,9 @@ public interface TeachersMapper
     @Insert("insert into teacher (institutionID, name, jobnumber, deleteflag, role) values (#{institutionid}, #{name}, #{jobnumber}, #{deleteflag},#{role})")
     void add(Teachers teacher);
     Teachers getByID(Integer id);
+
+    @Select("SELECT CASE WHEN t.name = #{teacherName} THEN t.id ELSE -1 END AS result " +
+            "FROM teacher t " +
+            "WHERE t.jobnumber = #{teacherJobNumber} AND t.institutionID = #{institutionID}")
+    Integer checkTeacherExist(String teacherJobNumber, String teacherName, Integer institutionID);
 }

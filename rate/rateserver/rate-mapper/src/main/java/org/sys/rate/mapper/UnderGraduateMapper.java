@@ -2,9 +2,9 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.GradeForm;
-import org.sys.rate.model.Student;
 import org.sys.rate.model.Teachers;
 import org.sys.rate.model.UnderGraduate;
+import org.sys.rate.model.*;
 
 import java.util.List;
 
@@ -41,15 +41,19 @@ public interface UnderGraduateMapper {
             "WHERE s.ID = #{studentID} AND u.studentID = s.ID AND u.ID = t.studentID AND t.tutorID = #{tutorID} LIMIT 1")
     GradeForm getGradeFormByStuIdAndTutorId(Integer studentID, Integer tutorID);
 
-    @Select("select id from undergraduate  where stuNumber =#{stuNumber} and institutionID = #{institutionID}")
-    Integer checkStudentExist(String stuNumber, Integer institutionID);
+    @Select("SELECT CASE WHEN s.name = #{stuName} THEN u.id ELSE -1 END AS result " +
+            "FROM undergraduate u " +
+            "JOIN student s ON u.studentID = s.ID " +
+            "WHERE u.stuNumber = #{stuNumber} AND u.institutionID = #{institutionID}")
+    Integer checkStudentExist(String stuNumber, String stuName, Integer institutionID);
+
 
     @Insert("insert into undergraduate (institutionID, studentID, stuNumber, year, specialty, class) " +
             "values (#{institutionID}, #{studentID}, #{stuNumber}, #{year}, #{specialty}, #{className})")
     @Options(useGeneratedKeys = true, keyProperty = "ID")
     Integer addReturnId(UnderGraduate underGraduate);
 
-    @Select("SELECT u.institutionID, u.specialty, u.stuNumber, u.class as className, u.studentID, u.`year`, t.tutorID, s.email as email, s.telephone as telephone, s.NAME, tea.`name` AS tutorName, tea.jobnumber as tutorJobNumber  FROM thesis t " +
+    @Select("SELECT u.institutionID, u.specialty, u.stuNumber, u.class as className, u.studentID, u.`year`, t.tutorID, t.`group`, s.email as email, s.telephone as telephone, s.NAME, tea.`name` AS tutorName, tea.jobnumber as tutorJobNumber  FROM thesis t " +
             "INNER JOIN undergraduate u ON t.studentID = u.ID INNER JOIN student s ON s.ID = u.studentID " +
             "LEFT JOIN teacher tea ON t.tutorID = tea.id " +
             "WHERE t.YEAR = #{year} AND t.`month` = #{month} and u.institutionID=#{institutionID} Order BY stuNumber")
@@ -66,5 +70,11 @@ public interface UnderGraduateMapper {
     @Select("SELECT COUNT(*) > 0 FROM startThesis WHERE year = #{year} AND semester = #{semester} AND institutionID = #{institutionID}")
     boolean havingStartThisThesis(@Param("institutionID") Integer institutionID, @Param("year") Integer year, @Param("semester") String semester);
 
+    @Select("SELECT * FROM thesis WHERE `group` is null AND year =#{year} AND month =#{month}")
+    List<Thesis> getUngrouped(Integer year, Integer month);
+
+    void updateGroup(Integer ID,String groupName);
+    List<Thesis> getByGrade(Integer year,Integer month,Double grade);
+    List<Thesis> getNoGrade(Integer year,Integer month);
 
 }

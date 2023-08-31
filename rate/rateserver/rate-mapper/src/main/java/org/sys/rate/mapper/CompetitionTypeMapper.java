@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.CompetitionType;
+import org.sys.rate.model.DecisionType;
 import org.sys.rate.model.ProjectType;
 
 import java.util.List;
@@ -16,5 +17,17 @@ import java.util.List;
 public interface CompetitionTypeMapper {
     @Select("SELECT p.* FROM i_competition_type p where p.name like concat('%', #{type}, '%') and p.year = #{year}")
     List<CompetitionType> getIndicatorByYearAndType(String year, String type);
+
+    @Select("select a.id, a.name, a.year, i.rankN from i_competition_type a, indicator i where a.indicator_id = #{indicatorId} and year = #{year} and a.indicator_id = i.id")
+    List<CompetitionType> selectCompetitionTypeListByYear(Integer indicatorId, Integer year);
+
+    @Insert("insert ignore into i_competition_type (name, indicator_id, year) values(#{name}, #{indicatorId}, #{year}) ")
+    Integer addCompetitionType(CompetitionType competitionType);
+
+    @Delete("delete from i_competition_type where id = #{id}")
+    void deleteById(Integer id);
+
+    @Update("update i_competition_type set name=#{name},year = #{year} where id = #{id}")
+    void editCompetitionType(CompetitionType competitionType);
 }
 
