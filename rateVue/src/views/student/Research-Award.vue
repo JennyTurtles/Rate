@@ -153,7 +153,7 @@
           <el-date-picker
               style="width: 80%"
               v-model="currentAwardCopy.date"
-              @change="changeProjectStartDate($event)"
+              @change="changeAwardDate($event)"
               type="month"
               value-format="yyyy-MM"
               placeholder="选择年月">
@@ -322,6 +322,7 @@ export default {
       searchTypeLoading: false,
       isAuthorIncludeSelf: false,
       awardLimitRankN: '',
+      selectedIndicator: {},
       selectAwardType: {},
       selectAwardTypeList: [],
       disabledSelectAwardType: true,
@@ -417,7 +418,7 @@ export default {
     }
   },
   methods: {
-    changeProjectStartDate(data) {
+    changeAwardDate(data) {
       if(data) {
         this.disabledSelectAwardType = false;
       }else {
@@ -431,9 +432,11 @@ export default {
           if(response) {
             this.awardPoint = response.data.score;
             this.awardLimitRankN = response.data.rankN;
+            this.selectedIndicator = response.data;
           }else {
             this.awardPoint = 0;
             this.awardLimitRankN = '';
+            this.selectedIndicator = {};
           }
         })
         if(this.urlFile) {
@@ -543,6 +546,9 @@ export default {
           this.currentAwardCopy.rank = 1
           this.currentAwardCopy.total = 1
           this.isAuthorIncludeSelf = true;
+          if(JSON.parse(JSON.stringify(this.selectedIndicator)) !== '{}') this.awardPoint = this.selectedIndicator.score;
+          else this.awardPoint = 0;
+          if(this.awardLimitRankN == '') this.awardPoint = 0;
         }
         return
       }
@@ -557,7 +563,12 @@ export default {
         //作者列表的rank大于规定的rankN，积分为0
         if(this.awardLimitRankN != '' && num.indexOf(info.name) + 1 > this.awardLimitRankN) {
           this.awardPoint = 0;
+        } else if(this.awardLimitRankN != '' && num.indexOf(info.name) + 1 <= this.awardLimitRankN) {
+          if(JSON.parse(JSON.stringify(this.selectedIndicator)) !== '{}') this.awardPoint = this.selectedIndicator.score;
+          else this.awardPoint = 0;
         }
+        if(this.awardLimitRankN == '') this.awardPoint = 0;
+
         this.isAuthorIncludeSelf = true;
       }
       this.currentAwardCopy.total = num.length
@@ -568,6 +579,7 @@ export default {
     },
     //编辑按钮
     showEditEmpView(data, idx) {
+      this.selectedIndicator = data.indicator;
       this.title = "编辑奖励信息";
       this.currentAwardCopy = JSON.parse(JSON.stringify(data));
       this.isAuthorIncludeSelf = true;
@@ -702,6 +714,7 @@ export default {
     },
     showAddEmpView() {//点击添加科研获奖按钮
       this.urlFile = ''
+      this.files = [];
       this.currentAwardCopy = {};
       this.addButtonState = false;
       this.selectAwardType = {};
