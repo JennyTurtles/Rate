@@ -184,6 +184,11 @@ public class UnderGraduateMController {
         return underGraduateService.updateUndergraduate(under);
     }
 
+    @PutMapping("/updateUndergraduateBaseOnTeacher")
+    public RespBean updateUndergraduateBaseOnTeacher(@RequestBody UnderGraduate under) {
+        return underGraduateService.updateUndergraduateBaseOnTeacher(under);
+    }
+
     @PostMapping("/deleteThesis")
     public RespBean deleteThesis(@RequestParam("studentID") @NotNull Integer studentID,
                                  @RequestParam("tutorID") String tutorIDStr,

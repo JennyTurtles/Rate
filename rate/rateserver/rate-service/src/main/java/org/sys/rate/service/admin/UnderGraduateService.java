@@ -361,6 +361,21 @@ public class UnderGraduateService {
 
     }
 
+
+    @Transactional
+    public RespBean updateUndergraduateBaseOnTeacher(UnderGraduate under) {
+        // 修改student表，undergraduate表和thesis表即可！
+        try {
+            studentMapper.edit(under);
+            underGraduateMapper.update(under);
+            thesisMapper.updateWithStuID(under.getThesis());
+            return RespBean.ok("");
+        } catch (Exception e) {
+            return RespBean.error("");
+        }
+
+    }
+
     public RespBean deleteThesis(UnderGraduate under) {
         try {
             thesisMapper.delete(under);

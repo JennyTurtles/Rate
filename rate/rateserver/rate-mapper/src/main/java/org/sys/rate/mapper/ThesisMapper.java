@@ -61,4 +61,9 @@ public interface ThesisMapper {
 
     @Select("select studentID from undergraduate where ID=#{studentID}")
     Integer getStuId(Integer studentID);
+
+    @Update("update thesis t,undergraduate u, student s, teacher tea " +
+            "set t.tutorID = #{tutorID} " +
+            "where s.ID = #{studentID} and t.year=#{year} and t.month=#{month} and s.ID = u.studentID and u.ID = t.studentID")
+    void updateWithStuID(Thesis thesis);
 }

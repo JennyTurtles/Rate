@@ -77,84 +77,22 @@
           <el-button @click="dialogStudentVisible = false">关闭</el-button>
         </div>
       </template>
-
     </el-dialog>
-
-    <div style="margin-top: 10px">
-      <span>
-        请选择条件进行搜索：
-      </span>
-      <div class="select_div_input">
-        <input
-            autocomplete="off"
-            style="width:95%;line-height:28px;
-                              border:1px solid lightgrey;padding:0 10px 1px 15px;
-                              border-radius:4px;color:gray"
-            placeholder="请输入老师姓名"
-            v-model="selectTeacerName"
-            @focus="inputSelectTeacerNameFocus"
-            @blur="isSelectShow = isSelectFlag"/>
-        <div class="select_div"
-             v-show="isSelectShow && selectTeacerName ? true:false"
-             :style="'height:${menuHeight}'"
-             @mouseover="isSelectFlag = true"
-             @mouseleave="isSelectFlag = false"
-        >
-          <div
-              class="select_div_div"
-              v-for="val in select_teachers"
-              :key="val"
-              :value="val"
-              @click="filter_teas(val)"
-          >
-            {{ val }}
-          </div>
-        </div>
-      </div>
-      <div class="select_div_input" style="margin-left: 30px">
-        <input
-            autocomplete="off"
-            style="width:95%;line-height:28px;
-                              border:1px solid lightgrey;padding:0 10px 1px 15px;
-                              border-radius:4px;color:gray"
-            placeholder="请输入入学年份"
-            v-model="selectYear"
-            @focus="inputSelectYearFocus"
-            @blur="isSelectYearShow = isSelectYearFlag"/>
-        <div class="select_div"
-             v-show="isSelectYearShow"
-             style="height:200px;overflow: scroll"
-             @mouseover="isSelectYearFlag = true"
-             @mouseleave="isSelectYearFlag = false"
-        >
-          <div
-              class="select_div_div"
-              v-for="val in selectYearsList"
-              :key="val"
-              :value="val"
-              @click="filter_year(val)"
-          >
-            {{ val }}
-          </div>
-        </div>
-      </div>
-      <el-button @click="filterBtn" style="margin-left: 30px;" type="primary">筛选</el-button>
-    </div>
 
     <div style="margin-top: 10px">
       <el-table
           :data="undergraduateStudents">
-        <el-table-column prop="stuNumber" label="学号" align="center"></el-table-column>
+        <el-table-column prop="stuNumber" label="学号" align="center" width="80px"></el-table-column>
         <el-table-column prop="name" label="姓名" align="center" width="80px"></el-table-column>
         <el-table-column prop="group" label="组别" align="center" width="80px"></el-table-column>
-        <el-table-column prop="specialty" label="专业" align="center"></el-table-column>
-        <el-table-column prop="className" label="班级" align="center"></el-table-column>
-        <el-table-column prop="telephone" label="手机号" align="center"></el-table-column>
-        <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
-        <el-table-column prop="year" label="入学年份" align="center" width="180px"></el-table-column>
-        <el-table-column prop="tutorJobNumber" label="教师工号" align="center" width="180px"></el-table-column>
-        <el-table-column prop="tutorName" label="教师姓名" align="center" width="180px"></el-table-column>
-        <el-table-column label="操作" align="center" width="180px">
+        <el-table-column prop="specialty" label="专业" align="center" width="150px"></el-table-column>
+        <el-table-column prop="className" label="班级" align="center" width="100px"></el-table-column>
+        <el-table-column prop="telephone" label="手机号" align="center" width="150px"></el-table-column>
+        <el-table-column prop="email" label="邮箱" align="center" width="150px"></el-table-column>
+        <el-table-column prop="year" label="入学年份" align="center" width="80px"></el-table-column>
+        <el-table-column prop="tutorJobNumber" label="教师工号" align="center" width="100px"></el-table-column>
+        <el-table-column prop="tutorName" label="教师姓名" align="center" width="80px"></el-table-column>
+        <el-table-column label="操作" align="center">
           <template slot-scope="scope">
             <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary" style="padding: 4px">编辑
             </el-button>
@@ -170,23 +108,27 @@
     <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px" @close="closeDialogEdit">
       <template>
         <el-form :model="currentUnderStudentOfEdit" label-width="100px" label-position="left">
-          <el-form-item label="导师姓名">
-            <el-input style="width: 80%" v-model="currentUnderStudentOfEdit.tutorName"></el-input>
-          </el-form-item>
-          <el-form-item label="导师工号">
-            <el-input style="width: 80%" v-model="currentUnderStudentOfEdit.tutorJobNumber"></el-input>
-          </el-form-item>
           <el-form-item label="导师信息">
-            <input
-                autocomplete="off"
-                style="width:75%;line-height:28px;border:1px solid lightgrey;padding:0 0px 0px 15px;
-                              border-radius:4px;color:gray"
-                placeholder="请输入导师的姓名或者工号进行查询"
-                v-model="currentUnderStudentOfEdit.tutorNameAndJobNumber"
-            />
+            <el-select
+                v-model="selectTeacherNameOrJobnumber"
+                value-key="id"
+                filterable
+                remote
+                clearable
+                reserve-keyword
+                @change="selectOption($event)"
+                placeholder="请输入指导教师的姓名或者工号"
+                loading-text="搜索中..."
+                :remote-method="selectTeacherMethod"
+                :loading="searchTeacherLoading">
+              <el-option
+                  v-for="teacher in select_teachers"
+                  :key="teacher.name + '(' + teacher.jobnumber + ')'"
+                  :label="teacher.name + '(' + teacher.jobnumber + ')'"
+                  :value="teacher.name + '(' + teacher.jobnumber + ')'+teacher.id"
+              />
+            </el-select>
           </el-form-item>
-
-
           <el-form-item label="学生姓名">
             <el-input style="width: 80%" v-model="currentUnderStudentOfEdit.name"></el-input>
           </el-form-item>
@@ -321,10 +263,12 @@
 import {Message} from "element-ui";
 import {debounce} from "@/utils/debounce";
 
+
 export default {
   name: "SalStudentM",
   data() {
     return {
+      searchTeacherLoading: false,
       duplicateInsertRowsCount: 0,
       failedRowsCount: 0,
       successfulRowsCount: 0,
@@ -348,7 +292,7 @@ export default {
       canImportStudents: false,
       selectSemester: '',
       startYear: null,
-      selectTeaNameAndJobnumber: [],//编辑框中导师搜索一栏的下拉框绑定数据
+      selectTeacherNameOrJobnumber: '',//编辑框中导师搜索一栏的下拉框绑定数据
       newPassword: '',//重置密码中的新密码
       conNewPassword: '',//重置密码中的确认新密码
       dialogResetPassword: false,
@@ -364,7 +308,7 @@ export default {
       yearTimer: null,
       timer: null,
       select_teachers: [],
-      selectTeacerName: '',
+      selectTeacherName: '',
       selectYear: '',
       currentUnderStudentOfEdit: {
         ID: null,
@@ -380,6 +324,7 @@ export default {
         tutorJobNumber: '',
         institutionID: null,
         tutorNameAndJobNumber: '',
+        thesis: {}
       },
       dialogEdit: false,
       user: {},
@@ -387,15 +332,10 @@ export default {
     }
   },
   created() {
-    //初始化防抖
-    this.debounceSearch = debounce(this.delayInputTimer, 400)
+    this.debounceSearch = debounce(this.debounceSearchType, 400);
   },
   watch: {
-    'currentUnderStudentOfEdit.tutorNameAndJobNumber': {
-      handler(val) {//函数抖动
-        this.debounceSearch(val);
-      }
-    },
+
     selectedGroupNums: {//监听用户选择了分为几组
       handler(val) {
         this.groupNumsInput = []
@@ -437,9 +377,9 @@ export default {
 
   computed: {
     menuHeight() {
-      return this.selectTeacerName.length * 50 > 150
+      return this.selectTeacherName.length * 50 > 150
           ? 150 + 'px'
-          : `${this.selectTeacerName.length * 50}px`
+          : `${this.selectTeacherName.length * 50}px`
     },
     labelWidth() {
       return `${8 * 17}px`
@@ -450,6 +390,48 @@ export default {
     this.fetchThesisExistDate()
   },
   methods: {
+    //选择下拉框的某个选项
+    selectOption(data) {
+      if (data) {
+        // 从 tutorNameAndJobNumber 中提取导师姓名和工号
+        const tutorNameAndJobNumber = this.selectTeacherNameOrJobnumber;
+        const separatorIndexleft = tutorNameAndJobNumber.lastIndexOf('(');
+        const separatorIndexright = tutorNameAndJobNumber.lastIndexOf(')');
+
+        if (separatorIndexleft !== -1) {
+          const tutorName = tutorNameAndJobNumber.substring(0, separatorIndexleft).trim();  // 提取导师姓名
+          const tutorJobNumber = tutorNameAndJobNumber.substring(separatorIndexleft + 1, separatorIndexright).trim();  // 提取导师工号
+          const tutorID = tutorNameAndJobNumber.substring(separatorIndexright + 1, tutorNameAndJobNumber.length).trim();  // 提取导师工号
+
+
+          // 分别赋值给 currentUnderStudentOfEdit 对象的属性
+          this.currentUnderStudentOfEdit.tutorName = tutorName;
+          this.currentUnderStudentOfEdit.tutorJobNumber = tutorJobNumber;
+          this.currentUnderStudentOfEdit.tutorID = tutorID;
+        } else {
+          // 如果找不到分隔符，您可以在这里处理错误情况
+          console.log("无法提取导师姓名和工号");
+        }
+
+      }
+    },
+    debounceSearchType(data) {
+      if (data != null && data != '') {
+        const url = `/system/teacher/searchByNameOrJobNumber?nameOrJobNumber=${encodeURIComponent(data)}&institutionID=${this.user.institutionID}`;
+        this.getRequest(url).then(response => {
+          if (response) {
+            this.searchTeacherLoading = false;
+            this.select_teachers = response.obj;
+          } else {
+            this.select_teachers = [];
+          }
+        })
+      }
+    },
+    selectTeacherMethod(data) {
+      this.searchTeacherLoading = true;
+      this.debounceSearch(data);
+    },
 
     groupStudents() {
       this.dialogStudentGroup = true;
@@ -491,7 +473,7 @@ export default {
       this.initUnderGraduateStudents(1, 10);
     },
 
-    //编辑框中 搜索老师姓名之后点击下拉框的某个选项
+    // !编辑框中 搜索老师姓名之后点击下拉框的某个选项
     filterEditTeacher(val) {
       this.currentUnderStudentOfEdit.teachers.name = val.split(":")[1]
       this.currentUnderStudentOfEdit.teachers.jobnumber = val.split(":")[0]
@@ -534,7 +516,7 @@ export default {
       if (this.selectYear == '') {
         tempYear = 0
       }
-      let url = '/undergraduateM/basic/getUnderStudentsBySelect?year=' + parseInt(tempYear) + '&teaName=' + this.selectTeacerName +
+      let url = '/undergraduateM/basic/getUnderStudentsBySelect?year=' + parseInt(tempYear) + '&teaName=' + this.selectTeacherName +
           '&pageNum=' + this.currentPage + '&pageSize=' + this.pageSize
       this.getRequest(url).then((resp) => {
         if (resp) {
@@ -546,31 +528,9 @@ export default {
       })
     },
     filter_teas(val) {//点击某个筛选出来的名字
-      this.selectTeacerName = val
+      this.selectTeacherName = val
       this.isSelectShow = false
       this.isSelectFlag = false
-    },
-    delayInputTimer(val) {//防抖
-      console.log("更爱")
-      console.log(val);
-      let url
-      if (this.dialogEdit) {
-        url = '/undergraduateM/basic/getTeaNamesBySelect?teaName=' + this.currentUnderStudentOfEdit.name
-      }
-      this.getRequest(url).then((resp) => {
-        this.select_teachers = []
-        this.selectTeaNameAndJobnumber = []
-        if (resp) {
-          if (resp.status == 200) {
-            for (var i = 0; i < resp.obj.length; i++) {
-              this.select_teachers.push(resp.obj[i].name)
-              this.selectTeaNameAndJobnumber.push(resp.obj[i].jobnumber + ":" + resp.obj[i].name)
-            }
-            this.select_teachers = Array.from(new Set(this.select_teachers));
-            this.selectTeaNameAndJobnumber = Array.from(new Set(this.selectTeaNameAndJobnumber));
-          }
-        }
-      })
     },
     inputSelectTeacerNameFocus() {//input获取焦点判断是否有下拉框，是否可输入
       this.isSelectShow = true//控制下拉框是否显示
@@ -580,8 +540,8 @@ export default {
     },
     editDialogShow(data) {//控制变量
       this.dialogEdit = true
-      this.currentUnderStudentOfEdit = data
-      this.currentUnderStudentOfEdit.tutorNameAndJobNumber = this.currentUnderStudentOfEdit.tutorName==null?'': this.currentUnderStudentOfEdit.tutorName + '(' + this.currentUnderStudentOfEdit.tutorJobNumber + ')'
+      this.currentUnderStudentOfEdit = JSON.parse(JSON.stringify(data));
+      this.selectTeacherNameOrJobnumber = this.currentUnderStudentOfEdit.tutorName == null ? '' : this.currentUnderStudentOfEdit.tutorName + '(' + this.currentUnderStudentOfEdit.tutorJobNumber + ')'
     },
     checkValue(value, message) {
       if (value === '' || value === null) {
@@ -590,26 +550,39 @@ export default {
       }
       return true;
     },
-    editUnder() {//点击编辑中的确定按钮
-      if (!this.checkValue(this.currentUnderStudentOfEdit.tutorName, '请填写老师姓名！')) {
-        return;
-      }
-      if (!this.checkValue(this.currentUnderStudentOfEdit.tutorJobNumber, '请填写老师工号！')) {
-        return;
-      }
-      let data = this.currentUnderStudentOfEdit
-      this.putRequest('/undergraduateM/basic/updateUndergraduate', data).then((resp) => {
-        if (resp) {
-          if (resp.status == 200) {
-            this.dialogEdit = false
-            this.$message.success(resp.msg)
-            this.initUnderGraduateStudents(this.currentPage, this.pageSize)
-          } else {
-            this.$message.error(resp)
-          }
+    async editUnder() {
+      try {
+        const {tutorName, tutorJobNumber} = this.currentUnderStudentOfEdit;
+
+        if (!this.checkValue(tutorName, '请填写老师姓名！') || !this.checkValue(tutorJobNumber, '请填写老师工号！')) {
+          return;
         }
-      })
+
+        const data = {
+          ...this.currentUnderStudentOfEdit,
+          thesis: {
+            studentID: this.currentUnderStudentOfEdit.studentID,
+            year: this.startYear,
+            month: this.selectSemester,
+            tutorID: this.currentUnderStudentOfEdit.tutorID
+          }
+        };
+
+        const resp = await this.putRequest('/undergraduateM/basic/updateUndergraduateBaseOnTeacher', data);
+
+        if (resp && resp.status === 200) {
+          this.dialogEdit = false;
+          this.$message.success("修改成功！");
+          await this.initUnderGraduateStudents(this.currentPage, this.pageSize);
+        } else {
+          this.$message.error("修改失败！");
+        }
+      } catch (error) {
+        console.error("编辑出错：", error);
+        // 进一步处理错误，例如显示错误消息
+      }
     },
+
     deleteUnder(data) {
       this.$confirm('确定删除吗？', '提示', {
         confirmButtonText: '确定',
@@ -690,7 +663,7 @@ export default {
       this.pageSize = val
       // 注意：在改变每页显示的条数时，要将页码显示到第一页
       this.currentPage = 1
-      if ((this.selectYear == '' || this.selectYear == null) && (this.selectTeacerName == '' || this.selectTeacerName == null)) {
+      if ((this.selectYear == '' || this.selectYear == null) && (this.selectTeacherName == '' || this.selectTeacherName == null)) {
         this.initUnderGraduateStudents(this.currentPage, this.pageSize)
       } else {//筛选条件不为空
         this.filterBtn()
@@ -700,7 +673,7 @@ export default {
     handleCurrentChange(val) {
       // 改变默认的页数
       this.currentPage = val;
-      if ((this.selectYear == '' || this.selectYear == null) && (this.selectTeacerName == '' || this.selectTeacerName == null)) {
+      if ((this.selectYear == '' || this.selectYear == null) && (this.selectTeacherName == '' || this.selectTeacherName == null)) {
         this.initUnderGraduateStudents(this.currentPage, this.pageSize)
       } else {//筛选条件不为空
         this.filterBtn()
