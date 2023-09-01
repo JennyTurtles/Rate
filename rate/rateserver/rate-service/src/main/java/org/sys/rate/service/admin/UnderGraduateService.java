@@ -437,4 +437,8 @@ public class UnderGraduateService {
         record.setDuplicateInsertRowsCount(update);
         return RespBean.ok("", record);
     }
+
+    public List<UnderGraduate> getStudentByConditions(StudentCondition studentCondition) {
+        return underGraduateMapper.getStudentByConditions(studentCondition);
+    }
 }

@@ -145,6 +145,18 @@ public class UnderGraduateMController {
         }
     }
 
+    @PostMapping("/getStudentsByConditions")
+    public Msg getStudents(@RequestBody StudentCondition studentCondition) {
+
+        Page page = PageHelper.startPage(studentCondition.getPageNum(), studentCondition.getPageSize());
+
+        List<UnderGraduate> student = underGraduateService.getStudentByConditions(studentCondition);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {student, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
+    }
+
+
     @GetMapping("/getStudents")
     public Msg getStudents(@RequestParam("institutionID") Integer institutionID,
                            @RequestParam("year") Integer year,

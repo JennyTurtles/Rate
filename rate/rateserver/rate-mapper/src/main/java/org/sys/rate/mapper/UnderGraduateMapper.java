@@ -77,4 +77,5 @@ public interface UnderGraduateMapper {
     List<Thesis> getByGrade(Integer year,Integer month,Double grade);
     List<Thesis> getNoGrade(Integer year,Integer month);
 
+    List<UnderGraduate> getStudentByConditions(StudentCondition studentCondition);
 }

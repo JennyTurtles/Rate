@@ -137,6 +137,7 @@ public class AwardController {
         }
         return new JsonResult(flag);
     }
+
     @GetMapping("/downloadByUrl")
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
@@ -152,15 +153,18 @@ public class AwardController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
     @GetMapping("/getIndicatorByYearAndType")
-    public JsonResult getIndicatorByYearAndType(String year,String type) {
-        List<AwardType> list = awardService.getIndicatorByYearAndType(year,type);
+    public JsonResult getIndicatorByYearAndType(String year, String type) {
+        List<AwardType> list = awardService.getIndicatorByYearAndType(year, type);
         return new JsonResult(list);
     }
+
     @GetMapping("/getIndicatorScore")
     public JsonResult getScore(Integer id) {
         return new JsonResult(indicatorMapper.getIndicatorById(id));
     }
+
     @PostMapping("/searchAwardByConditions")
     public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
         Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
@@ -171,7 +175,7 @@ public class AwardController {
     }
 
     @PostMapping("/awardType")
-    public RespBean addAwardType(@Valid @RequestBody AwardType awardType){
+    public RespBean addAwardType(@Valid @RequestBody AwardType awardType) {
         // 1.向awardType插入
         // 2.向indicator中插入，no，这里其实就只需要设置indicator中的rankN就可以了！
         try {
@@ -184,7 +188,7 @@ public class AwardController {
     }
 
     @PutMapping("/awardType")
-    public RespBean editAwardType(@Valid @RequestBody AwardType awardType){
+    public RespBean editAwardType(@Valid @RequestBody AwardType awardType) {
         try {
             awardService.editAwardType(awardType);
             return RespBean.ok("修改成功！");
@@ -192,23 +196,25 @@ public class AwardController {
             return RespBean.error("重名！");
         }
     }
+
     @PostMapping("/awardType/dels")
-    public RespBean deleteByYearId(@RequestParam Integer year, @RequestParam Integer indicatorID){
+    public RespBean deleteByYearId(@RequestParam Integer year, @RequestParam Integer indicatorID) {
         try {
-            awardTypeMapper.deleteByYearIndicatorID(year,indicatorID);
+            awardTypeMapper.deleteByYearIndicatorID(year, indicatorID);
             return RespBean.ok("删除成功！");
-        } catch (Exception e){
+        } catch (Exception e) {
             return RespBean.error("删除失败！");
         }
     }
+
     @PostMapping("/awardType/import")
-    public RespBean multiImportPublication(@RequestBody List<AwardType> awardTypes){
+    public RespBean multiImportPublication(@RequestBody List<AwardType> awardTypes) {
         try {
-            for (AwardType awardType:awardTypes){
+            for (AwardType awardType : awardTypes) {
                 awardTypeMapper.addAwardType(awardType);
             }
             return RespBean.ok("添加成功！");
-        } catch (Exception e){
+        } catch (Exception e) {
             return RespBean.error("添加失败！");
         }
     }

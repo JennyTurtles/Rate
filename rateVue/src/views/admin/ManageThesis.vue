@@ -21,6 +21,11 @@
 
       <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importTeachers">导入指导教师
       </el-button>
+
+      <el-button icon="el-icon-search" type="info" style="margin-right: 10px" @click="search"
+                 :disabled="selectDate === ''">查询
+      </el-button>
+
     </div>
 
     <el-dialog :visible.sync="dialogTeacherVisible" width="30%">
@@ -76,6 +81,40 @@
         <div>
           <el-button @click="dialogStudentVisible = false">关闭</el-button>
         </div>
+      </template>
+    </el-dialog>
+
+    <el-dialog title="查询学生信息" :visible.sync="isSearchShow" center width="30%">
+      <template>
+        <el-form label-width="70px" label-position="left">
+          <el-form-item label="学号">
+            <el-input v-model="query.stuNumber"></el-input>
+          </el-form-item>
+          <el-form-item label="姓名">
+            <el-input v-model="query.name"></el-input>
+          </el-form-item>
+          <el-form-item label="专业">
+            <el-input v-model="query.specialty"></el-input>
+          </el-form-item>
+          <el-form-item label="班级">
+            <el-input v-model="query.className"></el-input>
+          </el-form-item>
+          <el-form-item label="入学年份">
+            <el-input v-model="query.year"></el-input>
+          </el-form-item>
+          <el-form-item label="教师工号">
+            <el-input v-model="query.tutorJobNumber"></el-input>
+          </el-form-item>
+          <el-form-item label="教师姓名">
+            <el-input v-model="query.tutorName"></el-input>
+          </el-form-item>
+        </el-form>
+
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="initUnderGraduateStudents(1, pageSize)">确定</el-button>
+          <el-button @click="closeDialogEdit">关闭</el-button>
+        </span>
+
       </template>
     </el-dialog>
 
@@ -268,6 +307,21 @@ export default {
   name: "SalStudentM",
   data() {
     return {
+      isSearchShow: false,
+      query: {
+        stuNumber: '',
+        name: '',
+        specialty: '',
+        className: '',
+        year: null,
+        tutorJobNumber: '',
+        tutorName: '',
+        institutionID: null,
+        startYear: null,
+        month: null,
+        pageNum: null,
+        pageSize: null,
+      },
       searchTeacherLoading: false,
       duplicateInsertRowsCount: 0,
       failedRowsCount: 0,
@@ -390,6 +444,11 @@ export default {
     this.fetchThesisExistDate()
   },
   methods: {
+
+    // 打开搜索框
+    search() {
+      this.isSearchShow = true;
+    },
     //选择下拉框的某个选项
     selectOption(data) {
       if (data) {
@@ -537,6 +596,7 @@ export default {
     },
     closeDialogEdit() {//关闭对话框
       this.dialogEdit = false
+      this.isSearchShow = false
     },
     editDialogShow(data) {//控制变量
       this.dialogEdit = true
@@ -679,21 +739,33 @@ export default {
         this.filterBtn()
       }
     },
-    async initUnderGraduateStudents(curr, pageSize) {
+    async initUnderGraduateStudents(pageNum, pageSize) {
       try {
-        const url = `/undergraduateM/basic/getStudents?institutionID=${this.user.institutionID}&year=${this.startYear}&semester=${this.selectSemester}&pageNum=${curr}&pageSize=${pageSize}`;
-        const response = await this.getRequest(url);
+        this.query.pageNum = pageNum;
+        this.query.pageSize = pageSize;
+        this.query.institutionID = this.user.institutionID;
+        this.query.startYear = this.startYear;
+        this.query.month = this.selectSemester;
+
+        const url = `/undergraduateM/basic/getStudentsByConditions`
+        const response = await this.postRequest(url, this.query);
         const {code, extend} = response;
         if (code === 200) {
+
           const [students, totalCount] = extend.res;
           this.undergraduateStudents = students;
           this.totalCount = totalCount;
+          this.isSearchShow = false;
           if (this.totalCount == 0) {
             // this.$message.info("本学期没有导入毕业论文信息！")
+            this.undergraduateStudents = []
           }
+          this.isSearchShow = false
         } else {
           // 处理请求失败的情况
+          this.undergraduateStudents = []
           this.$message.error("请求失败!")
+
         }
       } catch (error) {
         this.$message.error("请求出现异常！");

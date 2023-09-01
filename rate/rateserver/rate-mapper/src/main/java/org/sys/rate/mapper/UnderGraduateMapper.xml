@@ -163,4 +163,43 @@
     </select>
 
 
+    <select id="getStudentByConditions" resultType="org.sys.rate.model.UnderGraduate">
+        SELECT
+        u.institutionID,
+        u.specialty,
+        u.stuNumber,
+        u.class AS className,
+        u.studentID,
+        u.YEAR,
+        t.tutorID,
+        t.GROUP,
+        s.email AS email,
+        s.telephone AS telephone,
+        s.NAME,
+        tea.NAME AS tutorName,
+        tea.jobnumber AS tutorJobNumber
+        FROM
+        thesis t
+        INNER JOIN undergraduate u ON t.studentID = u.ID
+        INNER JOIN student s ON s.ID = u.studentID
+        LEFT JOIN teacher tea ON t.tutorID = tea.id
+
+
+        where
+        t.YEAR = #{startYear}
+        AND t.MONTH = #{month}
+        AND u.institutionID = #{institutionID}
+        <if test="stuNumber != null and stuNumber != ''">and u.stuNumber like concat('%', #{stuNumber}, '%')</if>
+        <if test="name != null and name != ''">and s.name like concat('%', #{name}, '%')</if>
+        <if test="specialty != null and specialty != ''">and u.specialty like concat('%', #{specialty}, '%')</if>
+        <if test="className != null and className != ''">and u.class like concat('%', #{className}, '%')</if>
+        <if test="year != null and year != ''">and u.year = #{year}</if>
+        <if test="tutorJobNumber != null and tutorJobNumber != ''">and tea.jobnumber like concat('%', #{tutorJobNumber}, '%')</if>
+        <if test="tutorName != null and tutorName != ''">and tea.name like concat('%', #{tutorName}, '%')</if>
+
+        ORDER BY stuNumber
+
+    </select>
+
+
 </mapper>
