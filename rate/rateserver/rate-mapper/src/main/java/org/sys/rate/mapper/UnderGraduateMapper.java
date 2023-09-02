@@ -78,4 +78,5 @@ public interface UnderGraduateMapper {
     List<Thesis> getNoGrade(Integer year,Integer month);
 
     List<UnderGraduate> getStudentByConditions(StudentCondition studentCondition);
+    List<UnderGraduate> checkAndReturnID(@Param("stuList") List<UnderGraduate> stuList,Integer institutionID);
 }

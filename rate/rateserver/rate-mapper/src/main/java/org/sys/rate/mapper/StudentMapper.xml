@@ -73,14 +73,14 @@
         </foreach>
     </select>
     <insert id="insertFromAdminExcel" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
-        insert into student(ID,name,institutionID,IDNumber,telephone,email,username,password,deleteflag,role) values
+        insert into student(ID,name,institutionID,telephone,email,username,password,deleteflag,role) values
         <foreach collection="list" separator="," item="students">
             (#{students.ID,jdbcType=INTEGER},
             #{students.name,jdbcType=VARCHAR},
-            #{students.institutionID,jdbcType=INTEGER},
-            #{students.IDNumber,jdbcType=VARCHAR},#{students.telephone,jdbcType=VARCHAR},
+            #{students.institutionid,jdbcType=INTEGER},
+            #{students.telephone,jdbcType=VARCHAR},
             #{students.email,jdbcType=VARCHAR},#{students.username,jdbcType=VARCHAR},
-            #{students.password,jdbcType=VARCHAR},0,10)
+            #{students.password,jdbcType=VARCHAR},0,'10')
         </foreach>
     </insert>
     <update id="updateFromAdminExcel" parameterType="org.sys.rate.model.Student">

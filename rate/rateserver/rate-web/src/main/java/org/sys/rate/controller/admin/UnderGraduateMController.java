@@ -54,7 +54,7 @@ public class UnderGraduateMController {
         if (under.size() == 0 || stu.size() == 0 || under.size() != stu.size()) {
             return RespBean.error("未读取到有效导入数据");
         }
-        RespBean res = underGraduateService.addUnderGraduate(under, stu);
+        RespBean res = underGraduateService.addUnderGraduate(under, stu,institutionID);
         return res;
     }
 

@@ -90,10 +90,8 @@
         </foreach>
     </select>
     <select id="getUnderStudent" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.username,t.name as tname,t.jobnumber as tjobnumber
+        select u.*,s.name,s.telephone,s.email,s.username
         from undergraduate u
-        left join teacher t
-        on u.tutorID=t.ID
         left join student s
         on u.studentID=s.ID
 --         where s.ID = u.studentID and u.tutorID = t.ID
@@ -225,6 +223,14 @@
         select t.grade,u.ID,u.studentID,u.specialty,u.class
         from thesis t,undergraduate u
         where u.ID = t.studentID and t.year=#{year} and t.month=#{month} and t.group is null
+    </select>
+    <select id="checkAndReturnID" resultType="org.sys.rate.model.UnderGraduate">
+        select *
+        from undergraduate
+        where institutionID = #{institutionID} and stuNumber in
+        <foreach collection="stuList" close=")" open="(" item="item" separator=",">
+            #{item.stuNumber}
+        </foreach>
     </select>
 
 

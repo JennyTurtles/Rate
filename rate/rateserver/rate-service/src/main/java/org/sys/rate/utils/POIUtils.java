@@ -991,7 +991,7 @@ public class POIUtils {
     public static Map<String, List> readExcel_undergraduate(Integer institutionID, MultipartFile file) {
         List<UnderGraduate> underList = new ArrayList<>();
         UnderGraduate underGraduate = new UnderGraduate();
-        Teachers tea = new Teachers();
+        //Teachers tea = new Teachers();
         List<Student> studentList = new ArrayList<>();
         Student student = new Student();
         try {//1. 创建一个 workbook 对象
@@ -1018,14 +1018,9 @@ public class POIUtils {
                     int physicalNumberOfCells = row.getPhysicalNumberOfCells();
                     underGraduate = new UnderGraduate();
                     student = new Student();
-                    tea = new Teachers();
+                    //tea = new Teachers();
                     String stuNumber = null;//学号
                     String name = null;//姓名
-                    //String phone=null;//手机号
-                    //String idCard=null;//身份证号
-                    //String email=null;//邮箱
-                    //String teaJobNumber=null;
-                    //String teaName=null;
                     String year = null;
                     String specialty = null;
                     String className = null;
@@ -1041,21 +1036,6 @@ public class POIUtils {
                                 case "学号":
                                     stuNumber = cellValue;
                                     break;
-//                                case "手机号":
-//                                    phone=cellValue;
-//                                    break;
-//                                case "身份证号码":
-//                                    idCard=cellValue;
-//                                    break;
-//                                case "邮箱":
-//                                    email=cellValue;
-//                                    break;
-//                                case "导师工号":
-//                                    teaJobNumber=cellValue;
-//                                    break;
-//                                case "导师姓名":
-//                                    teaName=cellValue;
-//                                    break;
                                 case "入学年份":
                                     year = cellValue;
                                     break;
@@ -1081,19 +1061,12 @@ public class POIUtils {
 //                        teaName = null;
 //                    }
                     student.setName(name);
-                    student.setStudentnumber(stuNumber);
-                    //student.setTelephone(phone);
-                    //student.setIDNumber(idCard);
-                    //student.setEmail(email);
-                    //tea.setJobnumber(teaJobNumber);
-                    //tea.setName(teaName);
-                    underGraduate.setTeachers(tea);
+                    student.setInstitutionid(institutionID);
                     underGraduate.setStuNumber(stuNumber);
                     underGraduate.setYear(Integer.parseInt(year));
                     underGraduate.setInstitutionID(institutionID);
                     underGraduate.setClassName(className);
                     underGraduate.setSpecialty(specialty);
-                    //underGraduate.setIDNumber(idCard);
                     studentList.add(student);
                     underList.add(underGraduate);
                 }
