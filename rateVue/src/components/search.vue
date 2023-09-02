@@ -677,6 +677,7 @@
         <el-table-column prop="项目名称" label="项目名称" v-if="indicatorTypeZH=='科研项目'"></el-table-column>
         <el-table-column prop="奖项名称" label="奖项名称" v-if="indicatorTypeZH=='科研获奖'"></el-table-column>
         <el-table-column prop="成果名称" label="成果名称" v-if="indicatorTypeZH=='决策咨询'"></el-table-column>
+        <el-table-column prop="学科竞赛名称" label="学科竞赛名称" v-if="indicatorTypeZH=='学科竞赛'"></el-table-column>
       </el-table>
 
       <span slot="footer" class="dialog-footer">
@@ -1311,6 +1312,12 @@ export default {
           成果名称: "你的决策咨询成果名称（必填项）",
         },
       ],
+      tableCompetitionSample: [
+        //学科竞赛
+        {
+          学科竞赛名称: "",
+        },
+      ],
       errorRow: [],
       searchUnAvailable: false,
     };
@@ -1854,6 +1861,31 @@ export default {
       });
       this.competitionInf = {name: '', year: ''};
     },
+    appendCompetitionAsync() {
+      var that = this;
+      var CompetitionInfList = [];
+      for (let i = 0; i < this.tableUploadData.length; i++) {
+        if (typeof this.tableUploadData[i]["学科竞赛名称"] === "undefined") return;
+        var decisionInfList = {
+          name: this.tableUploadData[i]["学科竞赛名称"],
+          year: this.importSelectYear,
+          indicatorId: this.indicatorID,
+        };
+        CompetitionInfList.push(decisionInfList);
+      }
+      that.postRequest("/competitionType/import", CompetitionInfList).then(
+          (res) => {
+            that.getTableByYear(that.indicatorID, that.year, that.indicatorType);
+            that.getYearList();
+          },
+          () => {
+            that.$message({
+              type: "error",
+              message: "添加失败!",
+            });
+          }
+      );
+    },
     appendDecisionAsync() {
       var that = this;
       var DecisionInfList = [];
@@ -2026,6 +2058,9 @@ export default {
               } else if (this.indicatorTypeZH == "科研获奖" && typeof results[firstSheetName][j]["奖项名称"] == "undefined") {
                 this.uploadResultError = true;
                 this.errorMessage = "奖项名称不可为空";
+              } else if (this.indicatorTypeZH == "学科竞赛" && typeof results[firstSheetName][j]["学科竞赛名称"] == "undefined") {
+                this.uploadResultError = true;
+                this.errorMessage = "学科竞赛名称不可为空";
               }
             }
           }
@@ -2107,6 +2142,10 @@ export default {
         case "决策咨询":
           await this.appendDecisionAsync();
           break;
+        case "学科竞赛":
+          await this.appendCompetitionAsync();
+          break;
+        default:break;
       }
     },
 
@@ -2135,6 +2174,8 @@ export default {
         //   sheetTitlesAndId.push(item);
         // });
         tableSample = this.tableProjectSample;
+      } else if (this.importSelectType == "competition"){
+        tableSample = this.tableCompetitionSample;
       }
       // console.log(sheetTitlesAndId)
       var wb = XLSX.utils.book_new();
@@ -2231,6 +2272,9 @@ export default {
         return "warning-row";
       }
       if (this.indicatorTypeZH == "科研获奖" && typeof row["奖项名称"] === "undefined") {
+        return "warning-row";
+      }
+      if (this.indicatorTypeZH == "学科竞赛" && typeof row["学科竞赛名称"] === "undefined") {
         return "warning-row";
       }
       return "";

@@ -9,6 +9,7 @@ import org.sys.rate.model.RespBean;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/competitionType")
@@ -42,6 +43,17 @@ public class CompetitionTypeController {
             return RespBean.ok("修改成功！");
         } catch (DuplicateKeyException e) {
             return RespBean.error("重名！");
+        }
+    }
+    @PostMapping("/import")
+    public RespBean multiImportPublication(@RequestBody List<CompetitionType> CompetitionTypes){
+        try {
+            for (CompetitionType competitionType:CompetitionTypes){
+                competitionTypeMapper.addCompetitionType(competitionType);
+            }
+            return RespBean.ok("添加成功！");
+        } catch (Exception e){
+            return RespBean.error("添加失败！");
         }
     }
 }
