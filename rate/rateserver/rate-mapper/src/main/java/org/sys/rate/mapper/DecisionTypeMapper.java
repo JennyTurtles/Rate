@@ -1,6 +1,8 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
+import org.sys.rate.model.Award;
+import org.sys.rate.model.Decision;
 import org.sys.rate.model.DecisionType;
 
 import java.util.List;
@@ -32,5 +34,7 @@ public interface DecisionTypeMapper {
     @Delete("delete from i_decision_type where id = #{id}")
     int deleteById(Integer id);
 
+    @Select("SELECT a.id decisionTypeId, a.`name` decisionTypeName, a.year, CONCAT(i.`order`, i.`name`) indicatorName, i.score FROM i_decision_type a, indicator i WHERE a.`name` = #{fullName} AND i.id = a.indicator_id")
+    List<Decision> getDecisionByName(String fullName);
 }
 

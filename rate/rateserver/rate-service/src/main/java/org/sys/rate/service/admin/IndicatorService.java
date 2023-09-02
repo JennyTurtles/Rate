@@ -89,6 +89,15 @@ public class IndicatorService {
             // 这里需要传入indicator的相关信息，所以用project来作为返回类型
             List<Project> projects = indicatorMapper.getProjectByName(fullName);
             return castList(projects);
+        } else if ("award".equals(indicatorType)){
+            List<Award> awards = awardTypeMapper.getAwardByName(fullName);
+            return castList(awards);
+        } else if ("decision".equals(indicatorType)){
+            List<Decision> decisions = decisionTypeMapper.getDecisionByName(fullName);
+            return castList(decisions);
+        } else if ("competition".equals(indicatorType)){
+            List<Competition> competitions = competitionTypeMapper.getCompetitionByName(fullName);
+            return castList(competitions);
         }
         return new ArrayList<>();
     }

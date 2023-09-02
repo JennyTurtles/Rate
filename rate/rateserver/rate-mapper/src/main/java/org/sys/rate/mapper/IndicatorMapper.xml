@@ -40,7 +40,7 @@
         i_patent
       </when>
       <when test="indicatorType == 'award'">
-        i_award
+        i_award_type
       </when>
       <when test="indicatorType == 'project'">
         i_project_type
@@ -58,7 +58,7 @@
         i_application
       </when>
       <when test="indicatorType == 'competition'">
-        i_competition
+        i_competition_type
       </when>
     </choose>
     WHERE name LIKE concat('%', #{name},'%')
