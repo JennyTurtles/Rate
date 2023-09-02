@@ -70,11 +70,11 @@ public interface UnderGraduateMapper {
     @Select("SELECT COUNT(*) > 0 FROM startThesis WHERE year = #{year} AND semester = #{semester} AND institutionID = #{institutionID}")
     boolean havingStartThisThesis(@Param("institutionID") Integer institutionID, @Param("year") Integer year, @Param("semester") String semester);
 
-    @Select("SELECT * FROM thesis WHERE `group` is null AND year =#{year} AND month =#{month}")
-    List<Thesis> getUngrouped(Integer year, Integer month);
+    List<UnderGraduate> getUngrouped(Integer year, Integer month);
 
     void updateGroup(Integer ID,String groupName);
-    List<Thesis> getByGrade(Integer year,Integer month,Double grade);
+    List<Thesis> getUngroupedBySpecialty(Integer year,Integer month,String specialty);
+    List<Thesis> getUngroupedByClass(Integer year,Integer month,String className);
     List<Thesis> getNoGrade(Integer year,Integer month);
 
     List<UnderGraduate> getStudentByConditions(StudentCondition studentCondition);

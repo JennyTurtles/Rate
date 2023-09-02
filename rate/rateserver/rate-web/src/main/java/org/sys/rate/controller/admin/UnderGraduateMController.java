@@ -219,11 +219,7 @@ public class UnderGraduateMController {
 
     @GetMapping("/getUngrouped")
     public RespBean getUngrouped(@RequestParam("year") Integer year, @RequestParam("month") Integer month) {
-        List<Thesis> res = underGraduateMapper.getUngrouped(year, month);
-        for (Thesis par : res) {
-            if (par.getGrade() == null)
-                par.setGrade(0.00d);
-        }
+        List<UnderGraduate> res = underGraduateMapper.getUngrouped(year, month);
         return RespBean.ok("success", res);
     }
 
@@ -235,8 +231,9 @@ public class UnderGraduateMController {
         Integer exchangeNums = (Integer) data.get("exchangeNums");
         Integer groupsNums = (Integer) data.get("groupsNums");
         //List<Thesis> students = (List<Thesis>) data.get("students");
-        List<Double> selectGrade = (List<Double>) data.get("selectGrade");
-        return underGraduateService.createGroup(year, month, arr, exchangeNums, groupsNums, selectGrade);
+        String groupWay = (String) data.get("groupWay");
+        List<String> selectInfo = (List<String>) data.get("selectInfo");
+        return underGraduateService.createGroup(year, month, arr, exchangeNums, groupsNums, groupWay,selectInfo);
         //返回分好组的选手信息
     }
 }

@@ -237,21 +237,42 @@
       </template>
     </el-dialog>
     <el-dialog :visible.sync="dialogStudentGroup" width="81%" title="学生分组-根据学生绩点分组" center
-               @close="closeDialogGroupOfParticipant">
+               @close="closeDialogGroup">
       <div>
         <div>
-          <div style="margin-top: 10px">
+          <div style="margin-top: 15px;width: 100%">
             <template>
-              <span>请选择分组的绩点值：</span>
+              <el-radio v-model="groupWay" label="专业" >待分组学生专业</el-radio>
+              <el-radio v-model="groupWay" label="班级" >待分组学生班级</el-radio>
+            </template>
+          </div>
+          <div style="margin-top: 10px">
+            <template v-if="groupWay=='专业'">
+              <span>请选择专业：</span>
               <el-select
                   style="margin-right: 20px;width: 250px;"
                   v-model="selectedSubGroupInfo"
                   multiple
               >
                 <el-option
-                    v-for="item in groupSubOfSelectedInfos"
+                    v-for="item in groupSubOfSelectedSpecialty"
                     :key="item"
-                    :label="item + '（' + groupInfoNums[item].length +'）人'"
+                    :label="item + '（' + groupSpecialtyNums[item].length +'）人'"
+                    :value="item">
+                </el-option>
+              </el-select>
+            </template>
+            <template v-if="groupWay=='班级'">
+              <span>请选择班级：</span>
+              <el-select
+                  style="margin-right: 20px;width: 250px;"
+                  v-model="selectedSubGroupInfo"
+                  multiple
+              >
+                <el-option
+                    v-for="item in groupSubOfSelectedClass"
+                    :key="item"
+                    :label="item + '（' + groupClassNums[item].length +'）人'"
                     :value="item">
                 </el-option>
               </el-select>
@@ -279,7 +300,7 @@
             <el-button @click="creatGroup" type="primary">
               创建分组
             </el-button>
-            <el-button @click="closeDialogGroupOfParticipant" type="primary">
+            <el-button @click="closeDialogGroup" type="primary">
               &nbsp;关&nbsp;&nbsp;闭&nbsp;
             </el-button>
           </div>
@@ -337,10 +358,13 @@ export default {
       groupNums: null,//分数个数列表
       NoGroupPar: [],//未分组学生
       filterNoGroupPar: [],//筛选得到的未分组学生
-      groupSubOfSelectedInfos: [],//不同绩点
+      groupSubOfSelectedClass: [],//用于选择的不同班级
+      groupSubOfSelectedSpecialty: [],//用于选择的不同专业
       selectedSubGroupInfo: [],//选择的子信息项
-      groupInfoNums: {},
+      groupClassNums: {}, //班级计数
+      groupSpecialtyNums:{}, //专业计数
       radio: '1',
+      groupWay:'专业',
       options: [],
       selectDate: '',
       canImportStudents: false,
@@ -424,7 +448,16 @@ export default {
     },
     selectedSubGroupInfo: {//第一个下拉框的变化
       handler(val) {
-        this.filterNoGroupPar = this.NoGroupPar.filter(item => this.selectedSubGroupInfo.includes(item.grade))
+        if (this.groupWay == '专业')
+           this.filterNoGroupPar = this.NoGroupPar.filter(item => this.selectedSubGroupInfo.includes(item.specialty))
+        if (this.groupWay == '班级')
+          this.filterNoGroupPar = this.NoGroupPar.filter(item => this.selectedSubGroupInfo.includes(item.className))
+        this.calculationGroupInputValue()
+      }
+    },
+    groupWay:{
+      handler(val){
+        this.selectedSubGroupInfo=[]
       }
     }
   },
@@ -490,10 +523,6 @@ export default {
     selectTeacherMethod(data) {
       this.searchTeacherLoading = true;
       this.debounceSearch(data);
-    },
-
-    groupStudents() {
-      this.dialogStudentGroup = true;
     },
     importStudents() {
       this.dialogStudentVisible = true;
@@ -791,12 +820,15 @@ export default {
         }
       }
     },
-    closeDialogGroupOfParticipant() {//选手分组对话框关闭,清空遗留数据
+    closeDialogGroup() {//选手分组对话框关闭,清空遗留数据
       this.dialogStudentGroup = false;
       this.selectedSubGroupInfo = []
       this.selectedGroupNums = 0
       this.filterNoGroupPar = []
-      this.groupSubOfSelectedInfos = []
+      this.groupSubOfSelectedClass = []
+      this.groupSubOfSelectedSpecialty = []
+      this.groupWay='专业'
+      this.groupNumsInput = []
     },
     creatGroup() {//创建分组
       var sum = 0
@@ -809,6 +841,10 @@ export default {
           return
         }
       }
+      if (this.selectedGroupNums==0){
+        this.$message.error('请选择分组数！')
+        return
+      }
       var url = '/undergraduateM/basic/createGroups'
       //每组人数
       var arr = this.groupNumsInput.map(item => {
@@ -820,40 +856,17 @@ export default {
         'arr': arr,
         'exchangeNums': Math.ceil(this.selectedGroupNums / 2),
         'groupsNums': this.selectedGroupNums,
-        'selectGrade': this.selectedSubGroupInfo
+        'selectInfo': this.selectedSubGroupInfo,
+        'groupWay': this.groupWay
       }
-      console.log(this.selectedSubGroupInfo);
-      if (this.selectedSubGroupInfo.includes(0.0)) {
-        this.$confirm(
-            "部分学生无绩点数据，按0计算进行分组",
-            {
-              confirmButtonText: "确定",
-              cancelButtonText: "取消",
-              type: "warning",
-            }
-        )
-            .then(() => {
-              //点击确认
-              this.postRequest(url, data).then((resp) => {
-                if (resp) {
-                  if (resp == "分组成功") {
-                    this.$message.success(resp)
-                    this.initUnderGraduateStudents(this.currentPage, this.pageSize);
-                  } else {
-                    this.$message.error(resp)
-                  }
-                  this.closeDialogGroupOfParticipant()
-                }
-              });
-            })
-            .catch(() => {
-              this.$message({
-                type: "info",
-                message: "已取消",
-              });
-            });
-      } else {
-        this.postRequest(url, data).then((resp) => {
+      console.log(data);
+      for (var i = 0;i < this.filterNoGroupPar.length; i++){
+        if (this.filterNoGroupPar[i].thesis.grade==null){
+          this.$message.warning("选中的部分学生无绩点数据，按0进行分组")
+          break;
+        }
+      }
+      this.postRequest(url, data).then((resp) => {
           if (resp) {
             if (resp == "分组成功") {
               this.$message.success(resp)
@@ -861,18 +874,19 @@ export default {
             } else {
               this.$message.error(resp)
             }
-            this.closeDialogGroupOfParticipant()
+            this.closeDialogGroup()
           }
-        })
-      }
+      })
     },
     groupsForStudent() {
       if (this.undergraduateStudents == null || this.undergraduateStudents.length == 0) {
         this.$message.warning('请先导入学生！')
         return
       }
-      this.groupSubOfSelectedInfos = []
-      this.groupInfoNums = {}
+      this.groupSubOfSelectedSpecialty = []
+      this.groupSubOfSelectedClass = []
+      this.groupClassNums = {}
+      this.groupSpecialtyNums = {}
       var url = '/undergraduateM/basic/getUngrouped/?year=' + this.startYear + "&month=" + this.selectSemester;
       this.getRequest(url).then((resp) => {
         if (resp.status == 200) {
@@ -883,11 +897,16 @@ export default {
           }
           var data = resp.obj;
           for (var i = 0; i < data.length; i++) {
-            if (!(data[i].grade in this.groupInfoNums)) {
-              this.groupInfoNums[data[i].grade] = [];
-              this.groupSubOfSelectedInfos.push(data[i].grade);
+            if (!(data[i].className in this.groupClassNums)) {
+              this.groupClassNums[data[i].className] = [];
+              this.groupSubOfSelectedClass.push(data[i].className);
             }
-            this.groupInfoNums[data[i].grade].push(data[i])
+            if (!(data[i].specialty in this.groupSpecialtyNums)) {
+              this.groupSpecialtyNums[data[i].specialty] = [];
+              this.groupSubOfSelectedSpecialty.push(data[i].specialty);
+            }
+            this.groupClassNums[data[i].className].push(data[i])
+            this.groupSpecialtyNums[data[i].specialty].push(data[i])
           }
           if (!this.groupNums) {
             this.groupNums = Array.from(Array(10).keys(), n => n + 1)

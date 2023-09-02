@@ -24,6 +24,22 @@
             <result property="jobnumber" column="tjobnumber"/>
         </association>
     </resultMap>
+    <resultMap id="ResultMapThesis" type="org.sys.rate.model.UnderGraduate">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <id column="studentID" property="studentID" jdbcType="INTEGER"/>
+        <result column="institutionID" jdbcType="INTEGER" property="institutionID" />
+        <result column="stuNumber" property="stuNumber" jdbcType="VARCHAR"/>
+        <result column="year" property="year" jdbcType="INTEGER"/>
+        <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
+        <result column="specialty" property="specialty" jdbcType="VARCHAR"/>
+        <result column="class" property="className" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <association property="thesis" javaType="org.sys.rate.model.Thesis">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="grade" column="grade"/>
+        </association>
+    </resultMap>
 
     <sql id="Base_Column_List">
         ID, studentID,institutionID,stuNumber, year, tutorID
@@ -151,10 +167,15 @@
     <select id="checkHaveStudentOfStuNumber" resultType="java.lang.Integer">
         select exists (select * from undergraduate where institutionID = #{institutionID} and stuNumber = #{stuNumber} and studentID != #{studentID} )
     </select>
-    <select id="getByGrade" resultType="org.sys.rate.model.Thesis">
+    <select id="getUngroupedBySpecialty" resultType="org.sys.rate.model.Thesis">
         select *
-        from thesis
-        where year=#{year} and month=#{month} and grade =#{grade}
+        from thesis t,undergraduate u
+        where t.year=#{year} and t.month=#{month} and t.studentID = u.ID and u.specialty =#{specialty} and t.`group` is null
+    </select>
+    <select id="getUngroupedByClass" resultType="org.sys.rate.model.Thesis">
+        select *
+        from thesis t,undergraduate u
+        where t.year=#{year} and t.month=#{month} and t.studentID = u.ID and u.class =#{className} and t.`group` is null
     </select>
     <select id="getNoGrade" resultType="org.sys.rate.model.Thesis">
         select *
@@ -199,6 +220,11 @@
 
         ORDER BY stuNumber
 
+    </select>
+    <select id="getUngrouped" resultMap="ResultMapThesis">
+        select t.grade,u.ID,u.studentID,u.specialty,u.class
+        from thesis t,undergraduate u
+        where u.ID = t.studentID and t.year=#{year} and t.month=#{month} and t.group is null
     </select>
 
 

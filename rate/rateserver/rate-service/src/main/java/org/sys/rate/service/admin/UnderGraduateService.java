@@ -385,19 +385,22 @@ public class UnderGraduateService {
         }
     }
 
-    public String createGroup(Integer year, Integer month, List<Integer> arr, Integer exchangeNums, Integer groupsNums, List<Double> selectGrade) {
+    public String createGroup(Integer year, Integer month, List<Integer> arr, Integer exchangeNums, Integer groupsNums, String groupWay,List<String> selectInfo) {
         List<Double> point = new ArrayList<>();
         List<Thesis> students = new ArrayList<>();
         List<double[]> point_participant = new ArrayList<>();
-        for (int i = 0; i < selectGrade.size(); i++) {
+        for (String per:selectInfo){
             List<Thesis> par = new ArrayList<>();
-            par = underGraduateMapper.getByGrade(year, month, selectGrade.get(i));
+            if (groupWay.equals("专业"))
+                par = underGraduateMapper.getUngroupedBySpecialty(year, month, per);
+            else if (groupWay.equals("班级"))
+                par = underGraduateMapper.getUngroupedByClass(year, month, per);
             students.addAll(par);
         }
         for (Thesis student : students) {
             double[] temp = new double[3];
-            point.add(Double.valueOf(student.getGrade()));
-            temp[0] = Double.valueOf(student.getGrade());//分数
+            point.add(Double.valueOf(student.getGrade()==null? 0.0:student.getGrade()));
+            temp[0] = Double.valueOf(student.getGrade()==null? 0.0:student.getGrade());//分数
             temp[1] = Double.valueOf(student.getID());//学生id
             temp[2] = Double.valueOf(-1);//组号标识
             point_participant.add(temp);
