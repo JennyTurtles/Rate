@@ -439,6 +439,10 @@ export default {
                   } else if (node.level === 2) {
                     this.type = data.type;
                     this.rank = data.rankN;
+                    if (!data.rankN || data.rankN == 0){
+                     this.selectedOption = 0
+                    }else
+                     this.selectedOption = 1
                     this.dialogVisibleUpdateType = true;
                   }
                 }}

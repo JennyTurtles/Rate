@@ -656,13 +656,11 @@ public class ExpertService implements UserDetailsService {
         else
             studentIDs = participatesMapper.getStudentIDbyGroupID(exportGradeMapper.getGroupID());
         List<GradeForm> result = new ArrayList<>();
-        System.out.println(studentIDs.get(0));
         for (Integer studentID : studentIDs) {
             GradeForm gradeForm = null;
             // 未使用到thesis表和undergraduate表
             if (exportGradeMapper.getTeacherID() == null) {  // 管理员导出
                 gradeForm = underGraduateMapper.getGradeFormByStuId(studentID);
-                System.out.println("studentID: " + gradeForm);
             } else // 导师导出
                 gradeForm = underGraduateMapper.getGradeFormByStuIdAndTutorId(studentID, exportGradeMapper.getTeacherID());
             if (gradeForm == null) // 本科生表中没有记录，或毕设表中没有记录
