@@ -137,13 +137,13 @@
               placeholder="请输入专利名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="立项年月:" prop="date" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="申请年月:" prop="date" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-date-picker
               v-model="currentPatentCopy.date"
               type="month"
               value-format="yyyy-MM"
-              placeholder="立项年月">
+              placeholder="申请年月">
           </el-date-picker>
         </el-form-item>
         <el-form-item prop="grantedStatus" label="专利状态" label-width="80px" style="margin-left: 20px;">

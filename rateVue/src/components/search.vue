@@ -265,7 +265,7 @@
             label="分值"
         >
         </el-table-column>
-        <el-table-column fixed prop="name" label="奖项名称"></el-table-column>
+        <el-table-column fixed prop="name" label="奖励名称"></el-table-column>
         <el-table-column
             prop="year"
             label="录入年份"
@@ -496,7 +496,7 @@
         <el-table-column prop="收录级别 （不同收录级别请用分号隔开）" label="收录级别 （不同收录级别请用分号隔开）"
                          v-if="indicatorTypeZH=='学术论文'"></el-table-column>
         <el-table-column prop="项目名称" label="项目名称" v-if="indicatorTypeZH=='科研项目'"></el-table-column>
-        <el-table-column prop="奖项名称" label="奖项名称" v-if="indicatorTypeZH=='科研获奖'"></el-table-column>
+        <el-table-column prop="奖项名称" label="奖励名称" v-if="indicatorTypeZH=='科研获奖'"></el-table-column>
         <el-table-column prop="成果名称" label="成果名称" v-if="indicatorTypeZH=='决策咨询'"></el-table-column>
         <el-table-column prop="学科竞赛名称" label="学科竞赛名称" v-if="indicatorTypeZH=='学科竞赛'"></el-table-column>
       </el-table>
@@ -649,7 +649,7 @@
         border
         style="width: 100%"
     >
-      <el-table-column fixed prop="name" label="奖项名"></el-table-column>
+      <el-table-column fixed prop="name" label="奖励名"></el-table-column>
 
 
       <el-table-column fixed="right" label="操作" width="150">
@@ -675,7 +675,7 @@
       >请输入科研获奖的相关信息</span
       >
       <el-form :model="awardInf">
-        <el-form-item label="奖项名">
+        <el-form-item label="奖励名">
           <el-input v-model="awardInf.name"></el-input>
         </el-form-item>
         <el-form-item label="录入年份">
@@ -700,7 +700,7 @@
       >请输入科技奖的相关信息</span
       >
       <el-form :model="rowData">
-        <el-form-item label="奖项名">
+        <el-form-item label="奖励名">
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
         <el-form-item label="录入年份">

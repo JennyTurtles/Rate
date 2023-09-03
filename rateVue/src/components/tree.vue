@@ -156,7 +156,7 @@
     <!--修改一级目录的名字-->
     <el-dialog :visible.sync="dialogVisibleUpdateRoot" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
-      >请输入需要修改的分类名和积分值</span
+      >指标点修改</span
       >
       <el-form :rules="rules" :model="ruleForm" label-width="60px">
         <el-form-item style="margin-top: 15px" prop="name" label="类型">
@@ -186,7 +186,7 @@
     <!--修改二级目录的名字-->
     <el-dialog :visible.sync="dialogVisibleUpdateType" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
-      >请输入需要修改的分类名</span
+      >指标点修改</span
       >
       <el-form label-width="auto" >
         <el-form-item label="类型">
@@ -209,7 +209,7 @@
         <el-form-item label="分类名">
           <el-input v-model="labelUpdate"></el-input>
         </el-form-item>
-        <div v-if="type=='科研获奖' || type=='学科竞赛' || type=='学术专著和教材' ">
+        <div>
           <el-radio-group v-model="selectedOption" @change="handleRadioChange">
             <el-radio :label="1">有排名限制</el-radio>
             <el-radio :label="0">无排名限制</el-radio>
