@@ -33,13 +33,18 @@ public interface UnderGraduateMapper {
     // 由于tID暂时不存在所以先删除了
 //    @Select("SELECT u.studentID,stuNumber,specialty,class as className,s.name,t.name as thesisName FROM undergraduate u,student s WHERE u.studentID = #{studentID} AND s.ID = u.studentID  LIMIT 1")
 //    @Select("SELECT u.studentID,stuNumber,specialty,class as className,s.name FROM undergraduate u,student s WHERE u.studentID = #{studentID} AND s.ID = u.studentID  LIMIT 1")
-    @Select("SELECT name FROM student s WHERE s.ID = #{studentID} LIMIT 1")
-    GradeForm getGradeFormByStuID(Integer studentID);
+//    @Select("SELECT name FROM student s WHERE s.ID = #{studentID} LIMIT 1")
+//    GradeForm getGradeFormByStuID(Integer studentID);
 
     @Select("SELECT s.name, t.name thesisName,u.stuNumber,u.class className,u.specialty\n" +
             "FROM student s, undergraduate u, thesis t\n" +
             "WHERE s.ID = #{studentID} AND u.studentID = s.ID AND u.ID = t.studentID AND t.tutorID = #{tutorID} LIMIT 1")
     GradeForm getGradeFormByStuIdAndTutorId(Integer studentID, Integer tutorID);
+
+    @Select("SELECT s.name, t.name thesisName,u.stuNumber,u.class className,u.specialty\n" +
+            "FROM student s, undergraduate u, thesis t\n" +
+            "WHERE s.ID = #{studentID} AND u.studentID = s.ID AND u.ID = t.studentID LIMIT 1")
+    GradeForm getGradeFormByStuId(Integer studentID);
 
     @Select("SELECT CASE WHEN s.name = #{stuName} THEN u.id ELSE -1 END AS result " +
             "FROM undergraduate u " +

@@ -1372,7 +1372,7 @@ export default {
     var gradeFormConverted = this.saveGradeForm(false)
    if (gradeFormConverted === null)
     return
-   gradeFormConverted.teacherID = this.user.id
+   gradeFormConverted.teacherID = this.user.role === 3 ? this.user.id : null
    this.postRequest("/system/Experts/checkLeader", gradeFormConverted).then((res) => { // 接收文件的时候无法同时接收信息，因此单独请求一次后端
     if (res.msg == 0) {
      this.$message({type: 'warning', message: '未获取到任何有效数据！'});
