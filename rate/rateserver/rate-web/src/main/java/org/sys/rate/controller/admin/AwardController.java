@@ -3,7 +3,6 @@ package org.sys.rate.controller.admin;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.omg.PortableInterceptor.ORBInitInfoPackage.DuplicateName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -19,9 +18,6 @@ import org.sys.rate.mapper.AwardTypeMapper;
 import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.AwardService;
-import org.sys.rate.service.admin.IndicatorService;
-import org.sys.rate.service.admin.AwardService;
-import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.annotation.Resource;
