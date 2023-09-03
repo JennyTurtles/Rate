@@ -28,13 +28,13 @@
             prop="name"
             align="center"
             label="论文名称"
-            width="200px"
+            min-width="20%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="70px"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
@@ -61,7 +61,7 @@
             prop="pubName"
             label="发表刊物"
             align="center"
-            width="250px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
@@ -70,16 +70,17 @@
             :formatter="checkScoreComent"
             align="center"
             style="width:220px"
+            min-width="20%"
         >
         </el-table-column>
         <el-table-column
             prop="point"
             label="积分"
             align="center"
-            width="80px"
+            min-width="8%"
         >
         </el-table-column>
-        <el-table-column align="center" width="280px" label="操作">
+        <el-table-column align="center" width="280px" label="操作" min-width="20%">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"

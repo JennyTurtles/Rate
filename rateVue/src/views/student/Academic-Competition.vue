@@ -28,13 +28,13 @@
             prop="name"
             align="center"
             label="学科竞赛名称"
-            width="200px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="100px"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
@@ -59,12 +59,12 @@
             prop="author"
             align="center"
             label="获奖人"
-            width="160px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="date"
-            width="140px"
+            min-width="10%"
             align="center"
             label="获奖年月"
         >
@@ -73,17 +73,17 @@
             prop="point"
             label="积分"
             align="center"
-            width="75px"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
             prop="operationList[0].remark"
-            width="220px"
+            min-width="20%"
             align="center"
             label="备注"
         >
         </el-table-column>
-        <el-table-column align="center" width="280px" label="操 作">
+        <el-table-column align="center" width="280px" label="操 作" min-width="20%">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row, scope.$index)"

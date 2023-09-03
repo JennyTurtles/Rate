@@ -28,13 +28,13 @@
             prop="name"
             align="center"
             label="决策名称"
-            width="220px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="100px"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
@@ -59,31 +59,31 @@
             prop="decisionType.name"
             label="决策类别"
             align="center"
-            width="220px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="author"
             align="center"
             label="制定人"
-            width="160px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="point"
             label="积分"
             align="center"
-            width="75px"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
             prop="operationList[0].remark"
-            width="140px"
+            min-width="20%"
             align="center"
             label="备注"
         >
         </el-table-column>
-        <el-table-column align="center" width="280px" label="操 作">
+        <el-table-column align="center" width="280px" label="操 作" min-width="20%">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row, scope.$index)"

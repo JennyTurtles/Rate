@@ -28,13 +28,13 @@
             prop="name"
             align="center"
             label="奖励名称"
-            width="200px"
+            min-width="20%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="100px"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
@@ -59,28 +59,28 @@
             prop="awardType.name"
             label="奖励类别"
             align="center"
-            width="100px"
+            min-width="10%"
         >
         </el-table-column>
         <el-table-column
             prop="awardLevel"
             label="奖励级别"
             align="center"
-            width="100px"
+            min-width="10%"
         >
         </el-table-column>
         <el-table-column
             prop="author"
             align="center"
             label="完成人"
-            width="100px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="point"
             label="积分"
             align="center"
-            width="75px"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
@@ -88,9 +88,10 @@
             width="140px"
             align="center"
             label="备注"
+            min-width="20%"
         >
         </el-table-column>
-        <el-table-column align="center" width="280px" label="操 作">
+        <el-table-column align="center" width="280px" label="操 作" min-width="20%">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row, scope.$index)"

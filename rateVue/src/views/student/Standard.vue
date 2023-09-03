@@ -28,13 +28,13 @@
             prop="name"
             align="center"
             label="标准名称"
-            width="200"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="127px"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
@@ -59,21 +59,21 @@
             prop="author"
             align="center"
             label="制定人"
-            width="150px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="indicator.name"
             align="center"
             label="标准类别"
-            width="200px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="point"
             label="积分"
             align="center"
-            width="75px"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
@@ -81,9 +81,10 @@
             style="width:90px"
             align="center"
             label="备注"
+            min-width="20%"
         >
         </el-table-column>
-        <el-table-column align="center" width="275" label="操 作">
+        <el-table-column align="center" width="275" label="操 作" min-width="20%">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"
