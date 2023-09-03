@@ -3,6 +3,8 @@ package org.sys.rate.utils;
 import cn.afterturn.easypoi.word.WordExportUtil;
 import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.Comment;
 import org.sys.rate.model.GradeForm;
@@ -11,6 +13,7 @@ import org.sys.rate.model.ScoreItem;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -20,7 +23,8 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class ExportWord {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);
-    private static final String TEMPLATE_PATH = "rate/rateserver/rate-web/src/main/resources/templete/GradingTable.docx";
+//    private static final String TEMPLATE_PATH = "rate/rateserver/rate-web/src/main/resources/static/template/GradingTable.docx";
+    private static final String TEMPLATE_PATH = "D:/rateTemplate/GradingTable.docx";
     private static final SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
     private static final SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
     private static final SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
@@ -35,11 +39,14 @@ public class ExportWord {
     private int[] commentFontSize = {12, 12, 12};
     private boolean necessaryFilesAndDirectoriesExist;
 
-    public ExportWord() {
+    public ExportWord() throws IOException {
         this.necessaryFilesAndDirectoriesExist = checkIfNecessaryFilesAndDirectoriesExist();
     }
 
-    private boolean checkIfNecessaryFilesAndDirectoriesExist() {
+    private boolean checkIfNecessaryFilesAndDirectoriesExist() throws IOException {
+//        Resource resource = new ClassPathResource("/static/template/GradingTable.docx");
+//        File file = resource.getFile();
+
         File file = new File(TEMPLATE_PATH);
         if (!file.exists()) {
             logger.error("模版文件 " + TEMPLATE_PATH + " 不存在！！！");
