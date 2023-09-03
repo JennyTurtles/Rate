@@ -97,7 +97,7 @@
             prop="student.name"
             align="center"
             label="学生姓名"
-            width="75"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
@@ -105,13 +105,13 @@
             prop="name"
             align="center"
             label="著作名称"
-            width="230"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="110"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
@@ -137,31 +137,32 @@
             prop="point"
             label="积分"
             align="center"
-            width="80"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
             prop="publisher"
             label="出版社"
             align="center"
-            width="80"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="isbn"
             label="ISBN"
             align="center"
-            width="80"
+            min-width="10%"
         >
         </el-table-column>
         <el-table-column
+            min-width="15%"
             prop="operationList[0].remark"
             label="备注"
             align="center"
         >
         </el-table-column>
         <el-table-column
-            width="130"
+            min-width="15%"
             align="center"
             label="详情"
         >

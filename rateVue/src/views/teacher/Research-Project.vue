@@ -97,7 +97,7 @@
             prop="author"
             align="center"
             label="作者列表"
-            width="100"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
@@ -105,13 +105,13 @@
             prop="name"
             align="center"
             label="项目名称"
-            width="200"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="110"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
@@ -137,24 +137,25 @@
             prop="projectType.name"
             label="项目类别"
             align="center"
-            width="80"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="point"
             label="积分"
             align="center"
-            width="80"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
+            min-width="15%"
             prop="operationList[0].remark"
             label="备注"
             align="center"
         >
         </el-table-column>
         <el-table-column
-            width="130"
+            min-width="15%"
             align="center"
             label="详情"
         >

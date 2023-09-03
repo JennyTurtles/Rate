@@ -117,7 +117,7 @@
             prop="author"
             align="center"
             label="获奖人"
-            width="130"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
@@ -125,13 +125,13 @@
             prop="name"
             align="center"
             label="竞赛名称"
-            width="200"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="110"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
@@ -157,19 +157,20 @@
             prop="competitionType.name"
             label="竞赛类别"
             align="center"
-            width="180"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="point"
             label="积分"
             align="center"
-            width="80"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
             prop="operationList[0].remark"
             label="备注"
+            min-width="15%"
             align="center"
         >
         </el-table-column>
@@ -177,6 +178,7 @@
             width="130"
             align="center"
             label="详情"
+            min-width="15%"
         >
           <template slot-scope="scope">
             <el-button
