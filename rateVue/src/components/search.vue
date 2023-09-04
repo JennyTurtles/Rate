@@ -81,7 +81,7 @@
           style="float: right; margin-left: 10px"
           @click="
           uploadVisible = true;
-          importSelectYear = year;
+          importSelectYear = year === '' ? new Date().getFullYear() : year;
           uploadResultError = false;
         "
           icon="el-icon-s-order"
@@ -1709,13 +1709,14 @@ export default {
           name: this.tableUploadData[i]["奖项名称"],
           year: this.importSelectYear,
           indicatorId: this.indicatorID,
+          level: this.level
         };
         AwardInfList.push(awardInfList);
       }
       that.postRequest("/award/basic/awardType/import", AwardInfList).then(
           (res) => {
-            that.getTableByYear(that.indicatorID, that.year, that.indicatorType);
-            that.getYearList();
+            that.getTableByYearForAward(this.level, this.importSelectYear);
+            that.getYearListForAward(this.importSelectYear,this.level)
           },
           () => {
             that.$message({
@@ -1834,8 +1835,8 @@ export default {
       }
       that.postRequest("/competitionType/import", CompetitionInfList).then(
           (res) => {
-            that.getTableByYear(that.indicatorID, that.year, that.indicatorType);
-            that.getYearList();
+            that.getTableByYearForCompetition(that.year);
+            that.getYearListForCompetition(that.year);
           },
           () => {
             that.$message({
