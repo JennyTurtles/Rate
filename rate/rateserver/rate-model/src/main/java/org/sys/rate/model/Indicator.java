@@ -27,6 +27,8 @@ public class Indicator {
 
     private Integer rankN;
 
+    private String level;
+
     /**
      * 一个指标点可以对应多个期刊
      */

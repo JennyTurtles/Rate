@@ -220,9 +220,13 @@
             <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
             有积分
           </div>
-
-          <div v-if="selectedOption === 0">
-          </div>
+         <div style="margin-top: 10px" v-if="type === '科研获奖' ">
+         级别
+         <el-radio-group v-model="level"  @change="">
+          <el-radio :label="0">国家级</el-radio>
+          <el-radio :label="1">省部级</el-radio>
+         </el-radio-group>
+         </div>
         </div>
 
       </el-form>
@@ -259,6 +263,7 @@ export default {
 
   data() {
     return {
+      level: 0,
       selectedOption: 1,
       rank: null,
       label: "",
@@ -354,6 +359,8 @@ export default {
         this.rank = 0
       }
     },
+   handleRadioChangeForLevel() {
+   },
     onScoreInput(value) {
       const pattern = /^[0-9]*$/;
       if (!pattern.test(value)) {
@@ -439,6 +446,8 @@ export default {
                   } else if (node.level === 2) {
                     this.type = data.type;
                     this.rank = data.rankN;
+                   console.log(data)
+                   this.level = data.level === '国家级' ? 0 : 1;
                     if (!data.rankN || data.rankN == 0){
                      this.selectedOption = 0
                     }else
@@ -570,7 +579,8 @@ export default {
         name: this.labelUpdate,
         score: this.scoreUpdate,
         order: data.order,
-        rankN: this.rank
+        rankN: this.rank,
+        level: this.level == 0 ? '国家级' : '省部级',
       };
       var that = this;
       axios.put("/indicator", postData).then(function (resp) {
