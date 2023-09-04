@@ -225,7 +225,8 @@
         </el-form-item>
       </el-form>
       <div style="margin-left: 20px;">
-        <span style="color:gray;font-size:10px">将会获得：{{awardPoint}}积分</span>
+        <span style="color:gray;font-size:10px">将会获得：{{ awardPoint }}积分</span>
+        <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAdd">取 消</el-button>
@@ -336,6 +337,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      zeroPointReason: '',
       indicatorBtn: '选择指标点',
       defaultProps: {
         children: "children",
@@ -458,7 +460,10 @@ export default {
           this.awardPoint = 0;
           this.zeroPointReason = '参与人未包含自己'
         }
-        else this.awardPoint = data.score;
+        else {
+          this.awardPoint = data.score;
+          this.zeroPointReason = ''
+        }
         this.showTreeDialog = false;
       }
     },
@@ -549,62 +554,54 @@ export default {
       )
     },
     judgeMember(){//输入作者框 失去焦点触发事件
-      var val = this.currentAwardCopy.author;
-      if(!val) {
+      var author = this.currentAwardCopy.author;
+      if(!author) {
         return;
       }
       var isalph = false//判断输入中是否有英文字母
-      for(var i in val){
-        var asc = val.charCodeAt(i)
+      for(var i in author){
+        var asc = author.charCodeAt(i)
         if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
           isalph=true
           break
         }
       }
-      var num = null
+      var memberList = null
       var info = this.user;
-      if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
-        num=val.split('；')
-      }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
-        num=val.split(';')
-      }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//中英都有
-        this.$message.error();('输入不合法请重新输入！')
-      }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(val != info.name){
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.isAuthorIncludeSelf = false;
-        }else if (val === info.name) {
-          this.currentAwardCopy.rank = 1
-          this.currentAwardCopy.total = 1
-          this.isAuthorIncludeSelf = true;
-          this.judgeRankScore(1);
-        }
-        return
-      }
+      memberList = author.split(/[;；]/)
+      memberList = memberList.map(item => {
+        return item && item.replace(/\s*/g,"");
+      }).filter(v => {
+        return v
+      })
       //判断自己在不在其中
-      if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
+      if(memberList.indexOf(info.name) == -1){//不在 并且没有英文单词
         this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
         this.isAuthorIncludeSelf = false;
-      }else if(num.indexOf(info.name) == -1 && isalph){//不在 里面有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-        this.isAuthorIncludeSelf = false;
-      } else {
+        this.zeroPointReason = '参与人未包含自己'
+        this.awardPoint = 0;
+      }else {
         //作者列表的rank大于规定的rankN，积分为0
-        this.judgeRankScore(num.indexOf(info.name) + 1);
+        this.judgeRankScore(memberList.indexOf(info.name) + 1);
         this.isAuthorIncludeSelf = true;
       }
-      this.currentAwardCopy.total = num.length
-      this.currentAwardCopy.rank = num.indexOf(info.name) + 1
+      this.currentAwardCopy.total = memberList.length
+      this.currentAwardCopy.rank = memberList.indexOf(info.name) + 1
     },
     judgeRankScore(rank) {
-      if(JSON.parse(JSON.stringify(this.selectedIndicator)) === '{}') this.awardPoint = 0; //输入作者，但未选择指标点
+      if(JSON.parse(JSON.stringify(this.selectedIndicator)) === '{}') {
+        this.awardPoint = 0; //输入作者，但未选择指标点
+        this.zeroPointReason = '请选择指标点'
+      }
       else { //指标点已选择，再次修改作者列表
         const indicatorRankN = this.selectedIndicator.rankN;
         if(rank > indicatorRankN && indicatorRankN > 0) {
           this.awardPoint = 0;
+          this.zeroPointReason = `获奖排名需在前${this.selectedIndicator.rankN}名以内`
         }
         else {
           this.awardPoint = this.selectedIndicator.score;
+          this.zeroPointReason = ''
         }
       }
     },
@@ -620,6 +617,7 @@ export default {
       this.isAuthorIncludeSelf = true;
       this.disabledSelectAwardType = false;
       this.awardPoint = data.point;
+      this.zeroPointReason = '';
       const { id, name } = data.awardType;
       this.selectAwardType = name;
       this.dialogVisible = true;
@@ -758,6 +756,7 @@ export default {
       this.dialogVisible = true;
       this.awardLimitRankN = '';
       this.awardPoint = '';
+      this.zeroPointReason = '';
       this.isAuthorIncludeSelf = false;
       this.disabledSelectAwardType = true;
       this.selectAwardTypeList = [];
