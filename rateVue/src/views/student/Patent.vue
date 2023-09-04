@@ -403,7 +403,10 @@ export default {
           this.patentPoint = 0;
           this.zeroPointReason = '参与人未包含自己'
         }
-        else this.patentPoint = data.score;
+        else {
+          this.patentPoint = data.score;
+          this.zeroPointReason = '';
+        }
         this.showTreeDialog = false;
       }
     },
