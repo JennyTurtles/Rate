@@ -1194,9 +1194,10 @@ export default {
     openClone(){
      if (this.indicatorType === 'award')
       this.getYearListForAward(this.year,this.level)
-      else{
+     else if (this.indicatorType === 'competition')
+      this.getYearListForCompetition(this.year)
+     else
       this.getYearList(this.year)
-     }
     },
     handleRadioChange() {
       if (this.selectedOption === 0) {
@@ -1234,6 +1235,21 @@ export default {
      this.$message.error("获取年份错误");
     }
    },
+   async getYearListForCompetition(year) {
+    try {
+     const url = `/indicator/getAllYearForCompetition`;
+     await this.getRequest(url).then((resp) => {
+      this.yearList = resp.obj;
+      if (this.yearList.length > 0) {
+       this.fromYear = this.yearList[0];
+       this.year = year ? year : this.yearList[0];
+      } else
+       this.year = ''
+     });
+    } catch (error) {
+     this.$message.error("获取年份错误");
+    }
+   },
    async getTableByYearForAward(level, year, goLastPage) {
     if (year == 0) {
      this.tableData = [];
@@ -1243,6 +1259,31 @@ export default {
     try {
      const resp = await axios.get(
          `/indicator/getAwardByYearLevel?level=${level}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}`
+     );
+     if (resp.extend.res != null) {
+      this.tableData = resp.extend.res[0];
+      this.totalCount = resp.extend.res[1];
+      if (goLastPage) {
+       this.year = year;
+       this.handleCurrentChange(Math.ceil(this.totalCount / this.PageSize), true)
+      }
+     } else {
+      this.tableData = [];
+      this.totalCount = 0;
+     }
+    } catch (error) {
+     console.error(error);
+    }
+   },
+   async getTableByYearForCompetition(year, goLastPage) {
+    if (year == 0) {
+     this.tableData = [];
+     this.totalCount = 0;
+     return
+    }
+    try {
+     const resp = await axios.get(
+         `/indicator/getCompetitionByYearLevel?year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}`
      );
      if (resp.extend.res != null) {
       this.tableData = resp.extend.res[0];
@@ -1289,6 +1330,8 @@ export default {
       var url = ''
       if (this.indicatorType === 'award')
        url = '/indicator/cloneForAward/' + fromYear + '/' + toYear + '/' + this.level;
+      else if (this.indicatorType === 'competition')
+       url = '/indicator/cloneForCompetition/' + fromYear + '/' + toYear;
       else
        url = `/indicator/clone/${fromYear}/${toYear}/${indicatorId}/${indicatorType}`;
 
@@ -1299,6 +1342,10 @@ export default {
           if (this.indicatorType === 'award'){
            this.getTableByYearForAward(this.level, this.year, this.indicatorType)
            this.getYearListForAward(this.year,this.level)
+          }
+          else if (this.indicatorType === 'competition'){
+           this.getTableByYearForCompetition(this.year, this.indicatorType)
+           this.getYearListForCompetition(this.year)
           }
           else{
            this.getTableByYear(
@@ -1446,6 +1493,8 @@ export default {
     changeYear() {
       if (this.indicatorType === 'award')
        this.getTableByYearForAward(this.level, this.year);
+      else if (this.indicatorType === 'competition')
+       this.getTableByYearForCompetition(this.year);
       else
        this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
     },
@@ -1527,6 +1576,9 @@ export default {
         if (this.indicatorType === 'award'){
          await this.getTableByYearForAward(this.level, this.year);
          await this.getYearListForAward(this.year,this.level);
+        }else if (this.indicatorType === 'competition'){
+         await this.getTableByYearForCompetition(this.year);
+         await this.getYearListForCompetition(this.year)
         }
         else{
          await this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
@@ -1752,7 +1804,7 @@ export default {
     appendCompetition() {
       var postData = {
         name: this.competitionInf.name,
-        indicatorId: this.indicatorID,
+        // indicatorId: this.indicatorID,
         year: this.competitionInf.year,
       };
       var that = this;
@@ -1762,8 +1814,8 @@ export default {
             type: "success",
             message: resp.msg,
           });
-          that.getYearList(postData.year)
-          that.getTableByYear(that.indicatorID, postData.year, that.indicatorType, true);
+          that.getYearListForCompetition(postData.year)
+          that.getTableByYearForCompetition(postData.year,true);
         }
       });
       this.competitionInf = {name: '', year: ''};
@@ -1844,7 +1896,12 @@ export default {
          this.getYearListForAward(this.year, level).then(() => {
           this.getTableByYearForAward(level, this.year);
          });
-        } else{
+        }else if (type === '学科竞赛') {
+         this.getYearListForCompetition(this.year).then(() => {
+          this.getTableByYearForCompetition(this.year);
+         });
+        }
+        else{
          this.getYearList().then(() => {
           this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
          });
@@ -1905,6 +1962,8 @@ export default {
       this.currentPage = val;
       if (this.indicatorType === 'award')
        this.getTableByYearForAward(this.level, this.year);
+      else if (this.indicatorType === 'competition')
+       this.getTableByYearForCompetition(this.year);
       else
        this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
     },

@@ -581,6 +581,10 @@ export default {
         rankN: this.rank,
         level: this.level == 0 ? '国家级' : '省部级',
       };
+      if (data.level){
+       data.level = data.level === '国家级' ? '省部级' : '国家级'
+      }
+     this.$emit("getLabelInfo", data);
       var that = this;
       axios.put("/indicator", postData).then(function (resp) {
         if (resp.status != 200) alert("修改失败！");
@@ -593,7 +597,6 @@ export default {
             //此处可以让父组件向子组件传递url,提高复用性
             that.id = resp.obj[0];
             that.data = resp.obj[1];
-            that.$emit("getLabelInfo", data);
           });
         }
       });

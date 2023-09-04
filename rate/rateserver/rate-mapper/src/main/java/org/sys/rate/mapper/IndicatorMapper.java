@@ -105,14 +105,22 @@ public interface IndicatorMapper{
             "NOT IN (SELECT `name` FROM i_decision_type WHERE indicator_id = #{indicatorId} AND `year` = #{toYear})")
     void cloneDecision(Integer fromYear, Integer toYear, Long indicatorId);
 
-    @Insert("INSERT INTO i_competition_type (indicator_id, `name`, `year`) " +
-            "SELECT indicator_id, `name`, #{toYear} " +
-            "FROM i_competition_type WHERE indicator_id = #{indicatorId} " +
-            "AND `year` = #{fromYear} AND `name` " +
-            "NOT IN (SELECT `name` FROM i_competition_type WHERE indicator_id = #{indicatorId} AND `year` = #{toYear})")
-    void cloneCompetition(Integer fromYear, Integer toYear, Long indicatorId);
+//    @Insert("INSERT INTO i_competition_type (indicator_id, `name`, `year`) " +
+//            "SELECT indicator_id, `name`, #{toYear} " +
+//            "FROM i_competition_type WHERE indicator_id = #{indicatorId} " +
+//            "AND `year` = #{fromYear} AND `name` " +
+//            "NOT IN (SELECT `name` FROM i_competition_type WHERE indicator_id = #{indicatorId} AND `year` = #{toYear})")
+//    void cloneCompetition(Integer fromYear, Integer toYear, Long indicatorId);
 
+    @Insert("INSERT INTO i_competition_type ( `name`, `year`) " +
+            "SELECT `name`, #{toYear} " +
+            "FROM i_competition_type WHERE `year` = #{fromYear} AND `name` " +
+            "NOT IN (SELECT `name` FROM i_competition_type WHERE `year` = #{toYear})")
+    void cloneCompetition(Integer fromYear, Integer toYear);
 
     @Select("SELECT DISTINCT `year` FROM i_award_type WHERE `level` = #{level} ORDER BY `year` DESC")
     List<Integer> getAllYearForAward(String level);
+
+    @Select("SELECT DISTINCT `year` FROM i_competition_type ORDER BY `year` DESC")
+    List<Integer> getAllYearForCompetition();
 }

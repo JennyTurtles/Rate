@@ -7,6 +7,7 @@ import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.AwardTypeMapper;
+import org.sys.rate.mapper.CompetitionTypeMapper;
 import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.IndicatorService;
@@ -27,6 +28,8 @@ public class IndicatorController {
     private IndicatorMapper indicatorMapper;
     @Resource
     private AwardTypeMapper awardTypeMapper;
+    @Resource
+    private CompetitionTypeMapper competitionTypeMapper;
 
     @GetMapping("/getProductByYear")
     public Msg listByName(@RequestParam("indicatorId") Integer indicatorId,
@@ -52,6 +55,20 @@ public class IndicatorController {
                           @RequestParam("pageSize") Integer pageSize) {
         Page page = PageHelper.startPage(pageNum,pageSize);
         List<Award> list = awardTypeMapper.getByLevelYear(level, year);
+        if (list.isEmpty()) {
+            return Msg.success().add("res", null);
+        }
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
+    }
+
+    @GetMapping("/getCompetitionByYearLevel")
+    public Msg listByName3(@RequestParam("year") Integer year,
+                           @RequestParam("pageNum") Integer pageNum,
+                           @RequestParam("pageSize") Integer pageSize) {
+        Page page = PageHelper.startPage(pageNum,pageSize);
+        List<CompetitionType> list = competitionTypeMapper.getByLevelCompetition(year);
         if (list.isEmpty()) {
             return Msg.success().add("res", null);
         }
@@ -105,6 +122,16 @@ public class IndicatorController {
         }
     }
 
+    @GetMapping("/getAllYearForCompetition")
+    public RespBean getAllYearForCompetition(){
+        try {
+            List<Integer> yearList = indicatorMapper.getAllYearForCompetition();
+            return RespBean.ok("getAllYear", yearList);
+        } catch (Exception e) {
+            return RespBean.error("获取所有有数据的年份失败！");
+        }
+    }
+
     // 从fromYear和indicator_id获取所有的publication_id列表1，从toYear和indicator_id获取所有的publication_id列表2，
     // list1中要首先去除list2的内容，然后再加入list2
     @PostMapping("clone/{fromYear}/{toYear}/{indicatorId}/{indicatorType}")
@@ -121,6 +148,16 @@ public class IndicatorController {
     public RespBean cloneForAward(@PathVariable Integer fromYear, @PathVariable Integer toYear, @PathVariable String level){
         try {
             indicatorMapper.cloneAward(fromYear, toYear, level);
+            return RespBean.ok("clone success!");
+        } catch (Exception e) {
+            return RespBean.error("clone wrong!");
+        }
+    }
+
+    @PostMapping("cloneForCompetition/{fromYear}/{toYear}")
+    public RespBean cloneForCompetition(@PathVariable Integer fromYear, @PathVariable Integer toYear){
+        try {
+            indicatorMapper.cloneCompetition(fromYear, toYear);
             return RespBean.ok("clone success!");
         } catch (Exception e) {
             return RespBean.error("clone wrong!");
