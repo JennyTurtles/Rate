@@ -92,7 +92,7 @@
     <!--添加到二级目录-->
     <el-dialog :visible.sync="dialogVisibleType" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
-      >请选择需要添加的分类</span
+      >添加指标点</span
       >
       <p>
         添加位置：<b>{{ data1.label }}</b>
@@ -103,6 +103,7 @@
               v-model="type"
               placeholder="请从下拉菜单中选择"
               style="width: 100%"
+              @change="handleAddChange"
           >
             <el-option
                 v-for="item in TypeOptions"
@@ -118,7 +119,22 @@
           <el-input v-model="label"></el-input>
         </el-form-item>
       </el-form>
-
+     <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+      <el-radio :label="1">有排名限制</el-radio>
+      <el-radio :label="0">无排名限制</el-radio>
+     </el-radio-group>
+     <div v-if="selectedOption === 1" style="margin-top: 10px">
+      限排名前
+      <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+      有积分
+     </div>
+     <div v-show="type === '科研获奖'" style="margin-top: 10px">
+      级别：
+     <el-radio-group v-model="level"  @change="">
+      <el-radio :label="0">国家级</el-radio>
+      <el-radio :label="1">省部级</el-radio>
+     </el-radio-group>
+     </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleType = false">取 消</el-button>
         <el-button
@@ -358,7 +374,12 @@ export default {
         this.rank = 0
       }
     },
-   handleRadioChangeForLevel() {
+   handleAddChange(val) {
+    if (val !== '科研获奖'){
+     this.level = null
+    }else{
+     this.level = 0
+    }
    },
     onScoreInput(value) {
       const pattern = /^[0-9]*$/;
@@ -401,8 +422,15 @@ export default {
                 on-click={() => {
                  event.stopPropagation()
                   this.data1 = data;
-                  if (node.level > 1) this.dialogVisible = true;
-                  else this.dialogVisibleType = true;
+                  if (node.level > 1){
+                   this.dialogVisible = true;
+                  }
+                  else {
+                   this.dialogVisibleType = true;
+                   this.selectedOption = 0
+                   this.rankN = 0
+                  }
+
                 }}
             ></el-button>
             <el-popconfirm
@@ -445,7 +473,6 @@ export default {
                   } else if (node.level === 2) {
                     this.type = data.type;
                     this.rank = data.rankN;
-                   console.log(data)
                    this.level = data.level === '国家级' ? 0 : 1;
                     if (!data.rankN || data.rankN == 0){
                      this.selectedOption = 0
@@ -500,8 +527,9 @@ export default {
           father: data.id,
           order: newChild.order,
           score: data.score,
+          rankN: this.rank,
+          level: this.level != null ? ( this.level == 0 ? '国家级' : '省部级') : this.level,
         };
-        console.log(postData);
         if (!data.children) {
           this.$set(data, "children", []);
         }
