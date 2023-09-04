@@ -25,7 +25,7 @@ public class AwardService {
 
     public List<Award> selectAwardListById(@Param("studentID") Integer studentID){
         List<Award> list = awardMapper.selectAwardListById(studentID);
-        return setAwardOperation(list);
+        return list;
     }
 
     /**

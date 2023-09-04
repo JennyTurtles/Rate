@@ -146,16 +146,9 @@
               placeholder="选择获奖年月">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="获奖人:" label-width="80px" style="margin-left: 20px;" prop="author">
+        <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
-          <el-input
-              size="mini"
-              style="width: 80%"
-              prefix-icon="el-icon-edit"
-              v-model="currentCompetitionCopy.author"
-              @blur="judgeMember()"
-              placeholder="请输入获奖人,如有多个用分号分隔"
-          ></el-input>
+          <el-button size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
         </el-form-item>
         <el-form-item label="竞赛类别:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
@@ -183,13 +176,23 @@
             <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
           </el-tooltip>
         </el-form-item>
-
-        <el-form-item label="竞赛级别:" label-width="80px" style="margin-left: 20px;" prop="competitionLevel">
+        <el-form-item label="获奖人:" label-width="80px" style="margin-left: 20px;" prop="author">
           <span class="isMust">*</span>
-          <el-select v-model="currentCompetitionCopy.competitionLevel">
-            <el-option v-for="item in competitionLevelList" :key="item" :value="item" :label="item"></el-option>
-          </el-select>
+          <el-input
+              size="mini"
+              style="width: 80%"
+              prefix-icon="el-icon-edit"
+              v-model="currentCompetitionCopy.author"
+              @blur="judgeMember()"
+              placeholder="请输入获奖人,如有多个用分号分隔"
+          ></el-input>
         </el-form-item>
+<!--        <el-form-item label="竞赛级别:" label-width="80px" style="margin-left: 20px;" prop="competitionLevel">-->
+<!--          <span class="isMust">*</span>-->
+<!--          <el-select v-model="currentCompetitionCopy.competitionLevel">-->
+<!--            <el-option v-for="item in competitionLevelList" :key="item" :value="item" :label="item"></el-option>-->
+<!--          </el-select>-->
+<!--        </el-form-item>-->
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-upload
@@ -312,13 +315,20 @@ export default {
   name: "Academic-Competition",
   data() {
     return {
+      indicatorBtn: '选择指标点',
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
+      showTreeDialog: false,
+      indicatorData: [],
       competitionLimitRankN: '',
       selectedIndicator: {},
       searchTypeLoading: false,
       selectCompetitionType: '',
       selectCompetitionTypeName: '',
       isAuthorIncludeSelf: true,
-      //先选择立项时间才可以输入竞赛类别
+      //先选择时间才可以输入竞赛类别
       disabledSelectCompetitionType: true,
       //竞赛类别下拉框可选列表
       selectCompetitionTypeList: [],
@@ -405,6 +415,29 @@ export default {
     }
   },
   methods: {
+    //不进行rankN判断
+    handleNodeClick(data, node) {
+      if (data.children.length == 0) {
+        this.indicatorBtn = data.label;
+        this.selectedIndicator = data;
+        this.currentAwardCopy.indicatorId = data.id;
+        if (!this.isAuthorIncludeSelf) {
+          this.awardPoint = 0;
+          this.zeroPointReason = '参与人未包含自己'
+        }
+        else this.awardPoint = data.score;
+        this.showTreeDialog = false;
+      }
+    },
+    //初始化指标点树
+    initTree() {
+      this.getRequest("/indicator").then( resp => {
+        this.showTreeDialog = true;
+        if (resp) {
+          this.indicatorData = resp.obj[1];
+        }
+      });
+    },
     //选择下拉框的某个选项
     selectOption(data) {
       if(data) {
