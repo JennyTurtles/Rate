@@ -143,12 +143,6 @@
               placeholder="请输入奖励名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="奖励级别:" label-width="80px" style="margin-left: 20px;" prop="awardLevel">
-          <span class="isMust">*</span>
-          <el-select size="mini" v-model="currentAwardCopy.awardLevel" placeholder="请选择奖励级别" style="width: 80%">
-            <el-option v-for="item in awardLevelList" :key="item.value" :value="item.label" :label="item.label"></el-option>
-          </el-select>
-        </el-form-item>
         <el-form-item label="获奖年月:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-date-picker
@@ -160,6 +154,17 @@
               placeholder="选择年月">
           </el-date-picker>
         </el-form-item>
+        <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-button size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
+        </el-form-item>
+        <el-form-item label="奖励级别:" label-width="80px" style="margin-left: 20px;" prop="awardLevel">
+          <span class="isMust">*</span>
+          <el-select size="mini" v-model="currentAwardCopy.awardLevel" placeholder="请选择奖励级别" style="width: 80%">
+            <el-option v-for="item in awardLevelList" :key="item.value" :value="item.label" :label="item.label"></el-option>
+          </el-select>
+        </el-form-item>
+
         <el-form-item label="奖励类别:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-select
@@ -170,10 +175,9 @@
               remote
               clearable
               reserve-keyword
-              @change="selectOption($event)"
-              placeholder="请输入科研获奖类别"
+              placeholder="请选择科研获奖类别"
               loading-text="搜索中..."
-              :remote-method="selectAwardTypeMethod"
+              @focus="selectAwardTypeMethod"
               :loading="searchTypeLoading">
             <el-option
                 v-for="item in selectAwardTypeList"
@@ -226,6 +230,18 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAdd">取 消</el-button>
         <el-button type="primary" @click="addAward">提 交</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="选择指标点分类" center :visible.sync="showTreeDialog" width="60%">
+      <span class="el-tree-node">
+        <el-tree
+            :data="indicatorData"
+            :props="defaultProps"
+            @node-click="handleNodeClick"
+            :expand-on-click-node="false"
+            :highlight-current="true"
+            default-expand-all
+        ></el-tree>
       </span>
     </el-dialog>
 
@@ -320,6 +336,13 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      indicatorBtn: '选择指标点',
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
+      showTreeDialog: false,
+      indicatorData: [],
       searchTypeLoading: false,
       isAuthorIncludeSelf: false,
       awardLimitRankN: '',
@@ -333,7 +356,6 @@ export default {
       },
       files:[],//选择上传的文件列表
       urlFile:'',//文件路径
-      addButtonState:true,//是否允许添加项目
       operList:[],//每个项目的历史操作记录
       labelPosition: "left",
       title: "",
@@ -401,9 +423,7 @@ export default {
           : '${this.awardTypename.length * 50}px'
     },
   },
-  created() {
-    this.debounceSearch = debounce(this.debounceSearchType,400);
-  },
+  created() {},
   mounted() {
     this.currentAwardCopy = JSON.parse(JSON.stringify(this.currentAward));
     this.initAwardsList();
@@ -427,6 +447,30 @@ export default {
     }
   },
   methods: {
+    //不进行rankN判断
+    handleNodeClick(data, node) {
+      if (data.children.length == 0) {
+        this.indicatorBtn = data.label;
+        this.selectedIndicator = data;
+        this.currentAwardCopy.indicatorId = data.id;
+        this.awardLimitRankN = data.rankN;
+        if (!this.isAuthorIncludeSelf) {
+          this.awardPoint = 0;
+          this.zeroPointReason = '参与人未包含自己'
+        }
+        else this.awardPoint = data.score;
+        this.showTreeDialog = false;
+      }
+    },
+    //初始化指标点树
+    initTree() {
+      this.getRequest("/indicator").then( resp => {
+        this.showTreeDialog = true;
+        if (resp) {
+          this.indicatorData = resp.obj[1];
+        }
+      });
+    },
     changeAwardDate(data) {
       if(data) {
         this.disabledSelectAwardType = false;
@@ -434,38 +478,19 @@ export default {
         this.disabledSelectAwardType = true;
       }
     },
-    //选择下拉框的某个选项
-    selectOption(data) {
-      if(data) {
-        this.getRequest('/award/basic/getIndicatorScore?id=' + data.indicatorId).then(response => {
-          if(response) {
-            this.awardLimitRankN = response.data.rankN;
-            this.selectedIndicator = response.data;
-          }else {
-            this.awardLimitRankN = '';
-            this.selectedIndicator = {};
-          }
-        })
-        if(this.urlFile) {
-          this.addButtonState = true;
-        } else {
-          this.addButtonState = false;
+    debounceSearchType() {
+      if(this.currentAwardCopy.date == null || this.currentAwardCopy.date == '') return;
+      if(this.currentAwardCopy.awardLevel == null || this.currentAwardCopy.awardLevel == '') return;
+      this.getRequest('/award/basic/getIndicatorByYearAndType?year=' + this.currentAwardCopy.date.split('-')[0] + '&type=' + this.currentAwardCopy.awardLevel).then(response => {
+        if(response) {
+          this.searchTypeLoading = false;
+          this.selectAwardTypeList = response.data;
         }
-      } else this.addButtonState = false;
+      })
     },
-    debounceSearchType(data) {
-      if (this.currentAwardCopy.date != null && this.currentAwardCopy.date != '' && data != null && data != '') {
-        this.getRequest('/award/basic/getIndicatorByYearAndType?year=' + this.currentAwardCopy.date.split('-')[0] + '&type=' + data).then(response => {
-          if(response) {
-            this.searchTypeLoading = false;
-            this.selectAwardTypeList = response.data;
-          }
-        })
-      }
-    },
-    selectAwardTypeMethod(data) {
+    selectAwardTypeMethod() {
       this.searchTypeLoading = true;
-      this.debounceSearch(data);
+      this.debounceSearchType();
     },
     cancelAdd() {
       this.dialogVisible = false;
@@ -518,7 +543,6 @@ export default {
             this.$message({
               message:'上传成功！'
             })
-            this.addButtonState = true
             //获取文件路径
             this.urlFile = response.data
           },()=>{}
@@ -590,10 +614,10 @@ export default {
     //编辑按钮
     showEditEmpView(data, idx) {
       this.selectedIndicator = data.indicator;
+      this.indicatorBtn = this.selectedIndicator.name;
       this.title = "编辑奖励信息";
       this.currentAwardCopy = JSON.parse(JSON.stringify(data));
       this.isAuthorIncludeSelf = true;
-      this.addButtonState = true;
       this.disabledSelectAwardType = false;
       this.awardPoint = data.point;
       const { id, name } = data.awardType;
@@ -686,6 +710,7 @@ export default {
       params.point = this.awardPoint;
       params.awardLevel = this.currentAwardCopy.awardLevel;
       params.state = "commit";
+      params.indicatorId = this.selectedIndicator.id;
       if (this.currentAwardCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editAward(params);
       } else {
@@ -725,9 +750,9 @@ export default {
     showAddEmpView() {//点击添加科研获奖按钮
       this.urlFile = ''
       this.files = [];
+      this.indicatorBtn = '选择指标点';
       this.selectedIndicator = {};
       this.currentAwardCopy = {};
-      this.addButtonState = false;
       this.selectAwardType = {};
       this.title = "添加科研获奖";
       this.dialogVisible = true;
