@@ -24,7 +24,8 @@ public interface PaperCommentMapper {
     @Delete("delete from papercomment where num = #{num} and thesisID = #{thesisID}")
     Integer deleteCommentById(int num, int thesisID);
 
-    @Select("SELECT ID FROM thesis t, student s, undergraduate u WHERE s.ID = #{stuID}  ORDER BY year DESC, month DESC LIMIT 1;")
+
+    @Select("SELECT t.ID FROM thesis t, student s, undergraduate u WHERE s.ID = #{stuID} and s.ID = u.studentID and u.ID = t.studentID ORDER BY t.year DESC, t.month DESC LIMIT 1;")
     Integer getThesisID(int stuID);
 
     @Update("update papercomment set dateStu = #{dateStu}, preSum = #{preSum}, nextPlan = #{nextPlan},dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass} where thesisID = #{thesisID} and num = #{num}")
@@ -38,7 +39,7 @@ public interface PaperCommentMapper {
 
     List<Student> getStuThesis(int teaID);
 
-    @Select("SELECT id, studentid, name, url, year, month, tutorid, grade, start_thesis_id FROM thesis WHERE ID = #{ID}")
+    @Select("SELECT t.id, t.studentid, t.name, t.url, t.year, t.month, t.tutorid, t.grade, t.start_thesis_id, u.stuNumber studentNumber FROM thesis t,undergraduate u WHERE t.ID = #{ID} and t.studentID = u.ID")
     Thesis getThesisByTID(Integer thesisID);
 
     List<Student> getStuThesisWithDate(Integer tutorId, Integer year, Integer month);

@@ -121,5 +121,9 @@ public class StudentService implements UserDetailsService {
         }
         return true;
     }
+
+    public Student getByUndergraduateId(Integer studentID) {
+        return studentMapper.getByUndergraduateId(studentID);
+    }
 }
 

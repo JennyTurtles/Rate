@@ -104,4 +104,7 @@ public interface StudentMapper {
 
     @Update("update student set name = #{name}, email=#{email}, telephone=#{telephone} where ID=#{studentID}")
     void edit(UnderGraduate under);
+
+    @Select("select s.name, s.ID, s.institutionID from student s, undergraduate u where u.ID=#{studentID} and u.studentID = s.ID")
+    Student getByUndergraduateId(Integer studentID);
 }
