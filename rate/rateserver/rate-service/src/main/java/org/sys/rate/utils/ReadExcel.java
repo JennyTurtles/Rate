@@ -8,6 +8,7 @@ package org.sys.rate.utils;/**
  * @Version 1.0
  */
 
+import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.sys.rate.mapper.TeachersMapper;
 import org.sys.rate.mapper.ThesisMapper;
 import org.sys.rate.mapper.UnderGraduateMapper;
 import org.sys.rate.model.*;
+import org.sys.rate.service.admin.TeachersService;
 import org.sys.rate.service.admin.ThesisService;
 
 import javax.annotation.Resource;
@@ -33,7 +35,7 @@ import java.util.List;
 @Service
 public class ReadExcel {
     @Resource
-    private TeachersMapper teachersMapper;
+    private TeachersService teachersService;
     @Resource
     private UnderGraduateMapper underGraduateMapper;
     @Resource
@@ -56,6 +58,11 @@ public class ReadExcel {
                 if (rowIndex == 1) {
                     continue; // 跳过第一行
                 }
+                if(row.getLastCellNum() < 3){
+                    --rowIndex;
+                    continue;
+                }
+
 
                 Cell nameCell = row.getCell(1);
                 Cell idCell = row.getCell(0);
@@ -148,38 +155,35 @@ public class ReadExcel {
                     }
                 }
 
-                // 工号和姓名同时存在且合理
-                if ("teacher".equals(type)) {
-                    if (teacherJobNumberCell == null) {
-                        record.setFailReasonForRowIndex(rowIndex, "指导教师工号为空");
-                        continue;
-                    }
-                    if (teacherNameCell == null) {
-                        record.setFailReasonForRowIndex(rowIndex, "指导教师姓名为空");
-                        continue;
-                    }
-                }
-
-                if ((teacherJobNumberCell == null && teacherNameCell != null) || (teacherJobNumberCell != null && teacherNameCell == null)) {
-                    record.setFailReasonForRowIndex(rowIndex, "指导教师姓名和工号其中一个为空，不匹配");
+                // ?工号可以不存在，但是若是重名必须提供工号！
+                if ("teacher".equals(type) && teacherNameCell == null) {
+                    record.setFailReasonForRowIndex(rowIndex, "指导教师姓名为空");
                     continue;
                 }
+
+//                if ((teacherJobNumberCell == null && teacherNameCell != null) || (teacherJobNumberCell != null && teacherNameCell == null)) {
+//                    record.setFailReasonForRowIndex(rowIndex, "指导教师姓名和工号其中一个为空，不匹配");
+//                    continue;
+//                }
                 String teacherJobNumber = "";
                 String teacherName = "";
                 Integer tutorID = null;
-                if (teacherJobNumberCell != null && teacherNameCell != null) {
+                if (teacherJobNumberCell != null) {
                     try {
                         teacherJobNumber = teacherJobNumberCell.getCellType() == CellType.NUMERIC ? String.valueOf((int) teacherJobNumberCell.getNumericCellValue()) : teacherJobNumberCell.getStringCellValue();
                         teacherName = teacherNameCell.getStringCellValue();
-                        tutorID = teachersMapper.checkTeacherExist(teacherJobNumber, teacherName, institutionID);
+                        tutorID = teachersService.checkTeacherExist(teacherJobNumber, teacherName, institutionID);
                         if (tutorID == null) {
-                            record.setFailReasonForRowIndex(rowIndex, "指导教师工号不存在");
+                            record.setFailReasonForRowIndex(rowIndex, "指导教师姓名不存在");
+                            continue;
+                        } else if (tutorID.equals(-1)) {
+                            record.setFailReasonForRowIndex(rowIndex, "指导教师姓名存在重名，但是未提供工号");
+                            continue;
+                        } else if (tutorID.equals(-2)) {
+                            record.setFailReasonForRowIndex(rowIndex, "指导教师姓名和工号不匹配");
                             continue;
                         }
-                        if (tutorID.equals(-1)) {
-                            record.setFailReasonForRowIndex(rowIndex, "指导教师工号和姓名不匹配");
-                            continue;
-                        }
+
                     } catch (NumberFormatException e) {
                         record.setFailReasonForRowIndex(rowIndex, "指导教师工号或者姓名格式错误");
                         continue;
@@ -199,6 +203,7 @@ public class ReadExcel {
             msg.setMsg("读取文件时发生错误！");
             return msg.fail();
         }
+
         Msg successMsg = Msg.success();
         // 这里获取的都是合法的数据，安心插入或者更新
         successMsg.add("thesis", thesisList).add("record", record).add("total", rowIndex - 1);
@@ -245,12 +250,12 @@ public class ReadExcel {
 
     private RespBean updateExistOrInsertUndergraduate(UnderGraduate underGraduate) {
         Integer id = underGraduateMapper.checkStudentExist(underGraduate.getStuNumber(), underGraduate.getName(), underGraduate.getInstitutionID());
-        if(id==null){
+        if (id == null) {
             return RespBean.error("学生学号和姓名在本单位中不存在");
-        }else if(id.equals(-1)){
+        } else if (id.equals(-1)) {
             return RespBean.error("学生学号和姓名不匹配");
         }
-        return RespBean.ok("",id);
+        return RespBean.ok("", id);
 
     }
 
@@ -326,7 +331,7 @@ public class ReadExcel {
                     continue;
                 }
                 // 若该学生不属于本次毕业论文
-                if(existOrUpdate.getObj().equals(0)){
+                if (existOrUpdate.getObj().equals(0)) {
                     record.setFailReasonForRowIndex(rowIndex, "该学生不属于本次毕业设计");
                     continue;
                 }
@@ -346,7 +351,7 @@ public class ReadExcel {
     private RespBean notExistOrUpdate(Thesis thesis) {
         try {
             Integer ifExist = thesisService.notExistOrUpdate(thesis);
-            return RespBean.ok("",ifExist);
+            return RespBean.ok("", ifExist);
         } catch (Exception e) {
             return RespBean.error("");
         }

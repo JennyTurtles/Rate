@@ -879,7 +879,7 @@ public class POIUtils {
             row.createCell(3).setCellValue("软件工程");
             row.createCell(4).setCellValue("软件工程1801");
 
-            info = "请删除提示行。入学年份、专业、班级非必填。";
+            info = "入学年份、专业、班级非必填。上传时请删除本行。";
         }
 
 
@@ -941,6 +941,7 @@ public class POIUtils {
             c3.setCellValue("导师姓名");
             row.createCell(2).setCellValue("10105471");
             row.createCell(3).setCellValue("黄老师");
+            info = "导师工号可以为空，如果导师有重名则重名的导师必须提供工号。上传时请删除本行。";
         } else if ("thesis".equals(type)) {
             c2.setCellValue("绩点");
             c3.setCellValue("入学年份");
@@ -959,7 +960,7 @@ public class POIUtils {
             row.createCell(5).setCellValue("软件工程1801");
             row.createCell(6).setCellValue("10105471");
             row.createCell(7).setCellValue("黄老师");
-            info = "请删除提示行。入学年份、专业、班级非必填。";
+            info = "入学年份、专业、班级非必填。导师工号可以为空，如果导师有重名则重名的导师必须提供工号。上传时请删除本行。";
         } else {
             c2.setCellValue("入学年份");
             c3.setCellValue("专业");
@@ -969,11 +970,24 @@ public class POIUtils {
             row.createCell(3).setCellValue("软件工程");
             row.createCell(4).setCellValue("软件工程1801");
 
-            info = "请删除提示行。入学年份、专业、班级非必填。";
+            info = "入学年份、专业、班级非必填。上传时请删除本行。";
         }
 
 
-        sheet.createRow(2).createCell(0).setCellValue(info);
+        Font font = workbook.createFont();
+        font.setColor(IndexedColors.RED.getIndex()); // 红色字体
+
+        // 创建CellStyle并将字体应用于单元格
+        CellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setFont(font);
+
+        // 将CellStyle应用于单元格
+
+
+        HSSFCell cell = sheet.createRow(2).createCell(0);
+        cell.setCellValue(info);
+        cell.setCellStyle(cellStyle);
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -1884,7 +1898,7 @@ public class POIUtils {
         c2.setCellValue("论文题目");
         row.createCell(2).setCellValue("关于XX的研究");
 
-        String info = "请删除提示行。入学年份、专业、班级非必填。";
+        String info = "";
 
 
         sheet.createRow(2).createCell(0).setCellValue(info);
