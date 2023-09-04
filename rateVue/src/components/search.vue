@@ -1033,10 +1033,10 @@ export default {
       importSelectType: "",
       selectTypes: [
         {label: "学术论文", value: "publication"},
-        {label: "科研获奖", value: "award"},
+        // {label: "科研获奖", value: "award"},
         {label: "科研项目", value: "project"},
         {label: "决策咨询", value: "decision"},
-        {label: "学科竞赛", value: "competition"},
+        // {label: "学科竞赛", value: "competition"},
       ],
       importSelectYear: null,
       years: [],
