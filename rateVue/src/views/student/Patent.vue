@@ -137,16 +137,7 @@
               placeholder="请输入专利名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="申请年月:" prop="date" label-width="80px" style="margin-left: 20px;">
-          <span class="isMust">*</span>
-          <el-date-picker
-              v-model="currentPatentCopy.date"
-              type="month"
-              value-format="yyyy-MM"
-              placeholder="申请年月">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item prop="grantedStatus" label="专利状态" label-width="80px" style="margin-left: 20px;">
+        <el-form-item prop="grantedStatus" label="专利状态:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-select
               size="mini"
@@ -157,6 +148,15 @@
           >
             <el-option v-for="item in patentStatusList" :key="item.value" :value="item" :label="item.label"></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item :label="currentPatentCopy.grantedStatus ? currentPatentCopy.grantedStatus + '年月:' : '状态年月:'" prop="date" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-date-picker
+              v-model="currentPatentCopy.date"
+              type="month"
+              value-format="yyyy-MM"
+              placeholder="状态年月">
+          </el-date-picker>
         </el-form-item>
         <el-form-item  prop="author" label="参与人:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
@@ -220,12 +220,12 @@
           <span>{{ currentPatent.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="受理日期:" prop="date">
-          <span>{{ currentPatent.date }}</span
-          ><br />
-        </el-form-item>
         <el-form-item label="专利状态:" prop="grantedStatus">
           <span>{{ currentPatent.grantedStatus }}</span
+          ><br />
+        </el-form-item>
+        <el-form-item :label="currentPatent.grantedStatus + '年月：'" prop="date">
+          <span>{{ currentPatent.date }}</span
           ><br />
         </el-form-item>
         <el-form-item label="参与人:" prop="author">
@@ -489,36 +489,17 @@ export default {
           break
         }
       }
-      var num = null
+      var pateneeList = null
       var info = this.user;
-      if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
-        num = val.split('；')
-      }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
-        num = val.split(';')
-      }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//不允许同时包含中文和英文逗号
-        this.$message.error();('输入不合法请重新输入！')
-      }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(val != info.name && isalph){//有英文字符
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.isAuthorIncludeSelf = false;
-        }else if(val != info.name && !isalph){//没有英文字符并且不是自己
-          this.isAuthorIncludeSelf = false;
-        } else if(val == info.name){
-          this.currentPatentCopy.rank = 1;
-          this.currentPatentCopy.total = 1;
-          this.isAuthorIncludeSelf = true;
-          if(this.currentSelectedIndicator) {
-            this.patentPoint = this.currentSelectedIndicator.score;
-          }else this.patentPoint = '';
-        }
-        return
-      }
-      //不止一个作者 判断自己在不在其中
-      if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
-        this.isAuthorIncludeSelf = false;
-      }else if(num.indexOf(info.name) == -1 && isalph){//不在 里面有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
+      pateneeList = val.split(/[;；]/)
+      pateneeList = pateneeList.map(item => {
+        return item && item.replace(/\s*/g,"");
+      }).filter(v => {
+        return v
+      })
+      // 判断自己在不在其中
+      if(pateneeList.indexOf(info.name) == -1){//不在
+        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
         this.isAuthorIncludeSelf = false;
       } else { //自己在里面
         if(this.currentSelectedIndicator) {
@@ -526,8 +507,8 @@ export default {
         }else this.patentPoint = '';
         this.isAuthorIncludeSelf = true;
       }
-      this.currentPatentCopy.total = num.length;
-      this.currentPatentCopy.rank = num.indexOf(info.name) + 1;
+      this.currentPatentCopy.total = pateneeList.length;
+      this.currentPatentCopy.rank = pateneeList.indexOf(info.name) + 1;
     },
 
     rowClass(){
@@ -599,7 +580,6 @@ export default {
             return
           }
           if(!this.isAuthorIncludeSelf) {
-            this.$message.error('请仔细检查作者列表！');
             return;
           }
           this.postRequest1("/patent/basic/edit", params).then(
@@ -639,7 +619,6 @@ export default {
               return
             }
             if(!this.isAuthorIncludeSelf) {
-              this.$message.error('请仔细检查作者列表！');
               return;
             }
             this.postRequest1("/patent/basic/add", params).then(
