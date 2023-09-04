@@ -84,12 +84,19 @@ public interface IndicatorMapper{
     List<Project> getProjectByName(String fullName);
 
 
-    @Insert("INSERT INTO i_award_type (indicator_id, `name`, `year`) " +
-            "SELECT indicator_id, `name`, #{toYear} " +
-            "FROM i_award_type WHERE indicator_id = #{indicatorId} " +
+//    @Insert("INSERT INTO i_award_type (indicator_id, `name`, `year`) " +
+//            "SELECT indicator_id, `name`, #{toYear} " +
+//            "FROM i_award_type WHERE indicator_id = #{indicatorId} " +
+//            "AND `year` = #{fromYear} AND `name` " +
+//            "NOT IN (SELECT `name` FROM i_award_type WHERE indicator_id = #{indicatorId} AND `year` = #{toYear})")
+//    void cloneAward(Integer fromYear, Integer toYear, Long indicatorId);
+
+    @Insert("INSERT INTO i_award_type (level, `name`, `year`) " +
+            "SELECT level, `name`, #{toYear} " +
+            "FROM i_award_type WHERE level = #{level} " +
             "AND `year` = #{fromYear} AND `name` " +
-            "NOT IN (SELECT `name` FROM i_award_type WHERE indicator_id = #{indicatorId} AND `year` = #{toYear})")
-    void cloneAward(Integer fromYear, Integer toYear, Long indicatorId);
+            "NOT IN (SELECT `name` FROM i_award_type WHERE level = #{level} AND `year` = #{toYear})")
+    void cloneAward(Integer fromYear, Integer toYear, String level);
 
     @Insert("INSERT INTO i_decision_type (indicator_id, `name`, `year`) " +
             "SELECT indicator_id, `name`, #{toYear} " +
@@ -104,4 +111,8 @@ public interface IndicatorMapper{
             "AND `year` = #{fromYear} AND `name` " +
             "NOT IN (SELECT `name` FROM i_competition_type WHERE indicator_id = #{indicatorId} AND `year` = #{toYear})")
     void cloneCompetition(Integer fromYear, Integer toYear, Long indicatorId);
+
+
+    @Select("SELECT DISTINCT `year` FROM i_award_type WHERE `level` = #{level} ORDER BY `year` DESC")
+    List<Integer> getAllYearForAward(String level);
 }

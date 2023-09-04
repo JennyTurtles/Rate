@@ -109,7 +109,7 @@
     <el-dialog
         :visible.sync="dialogVisibleClone"
         width="90%"
-        @open="getYearList(year)"
+        @open="openClone"
     >
       <span slot="title" style="text-align: center; font-size: 20px">克隆</span>
       <div>
@@ -1010,6 +1010,7 @@ export default {
   props: ["category", "type", "order", "score", "p1", "p2"],
   data() {
     return {
+     level:'',
       rules: {
         year: [
           {validator: checkNumber, trigger: 'blur'}
@@ -1190,6 +1191,13 @@ export default {
     });
   },
   methods: {
+    openClone(){
+     if (this.indicatorType === 'award')
+      this.getYearListForAward(this.year,this.level)
+      else{
+      this.getYearList(this.year)
+     }
+    },
     handleRadioChange() {
       if (this.selectedOption === 0) {
         this.rowData.rankN = 0
@@ -1211,6 +1219,46 @@ export default {
         // console.error(error);
       }
     },
+   async getYearListForAward(year,level) {
+    try {
+     const url = `/indicator/getAllYearForAward?level=${level}`;
+     await this.getRequest(url).then((resp) => {
+      this.yearList = resp.obj;
+      if (this.yearList.length > 0) {
+       this.fromYear = this.yearList[0];
+       this.year = year ? year : this.yearList[0];
+      } else
+       this.year = ''
+     });
+    } catch (error) {
+     this.$message.error("获取年份错误");
+    }
+   },
+   async getTableByYearForAward(level, year, goLastPage) {
+    if (year == 0) {
+     this.tableData = [];
+     this.totalCount = 0;
+     return
+    }
+    try {
+     const resp = await axios.get(
+         `/indicator/getAwardByYearLevel?level=${level}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}`
+     );
+     if (resp.extend.res != null) {
+      this.tableData = resp.extend.res[0];
+      this.totalCount = resp.extend.res[1];
+      if (goLastPage) {
+       this.year = year;
+       this.handleCurrentChange(Math.ceil(this.totalCount / this.PageSize), true)
+      }
+     } else {
+      this.tableData = [];
+      this.totalCount = 0;
+     }
+    } catch (error) {
+     console.error(error);
+    }
+   },
     //克隆操作
     clone() {
       const currentYear = new Date().getFullYear();
@@ -1238,18 +1286,28 @@ export default {
       const toYear = this.toYear;
       const indicatorId = this.indicatorID; // 替换为实际的indicatorId
       const indicatorType = this.indicatorType;
-      const url = `/indicator/clone/${fromYear}/${toYear}/${indicatorId}/${indicatorType}`;
+      var url = ''
+      if (this.indicatorType === 'award')
+       url = '/indicator/cloneForAward/' + fromYear + '/' + toYear + '/' + this.level;
+      else
+       url = `/indicator/clone/${fromYear}/${toYear}/${indicatorId}/${indicatorType}`;
 
       this.postRequest(url).then((data) => {
         // 克隆操作成功的处理逻辑
         if (data.status == 200) {
           this.$message.success("克隆成功！");
-          this.getTableByYear(
-              this.indicatorID,
-              this.year,
-              this.indicatorType
-          );
-          this.getYearList(this.year);
+          if (this.indicatorType === 'award'){
+           this.getTableByYearForAward(this.level, this.year, this.indicatorType)
+           this.getYearListForAward(this.year,this.level)
+          }
+          else{
+           this.getTableByYear(
+               this.indicatorID,
+               this.year,
+               this.indicatorType
+           );
+           this.getYearList(this.year);
+          }
         } else {
           this.$message.error("克隆失败！");
         }
@@ -1386,7 +1444,10 @@ export default {
     },
 
     changeYear() {
-      this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
+      if (this.indicatorType === 'award')
+       this.getTableByYearForAward(this.level, this.year);
+      else
+       this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
     },
     remove(id, indicatorType) {
       let url = "";
@@ -1463,8 +1524,14 @@ export default {
             });
           }
         });
-        await this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
-        await this.getYearList(this.year)
+        if (this.indicatorType === 'award'){
+         await this.getTableByYearForAward(this.level, this.year);
+         await this.getYearListForAward(this.year,this.level);
+        }
+        else{
+         await this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
+         await this.getYearList(this.year);
+        }
       } catch (error) {
       }
     },
@@ -1563,7 +1630,8 @@ export default {
         const postData = {
           name: this.awardInf.name,
           indicatorId: this.indicatorID,
-          year: this.awardInf.year
+          year: this.awardInf.year,
+          level: this.level
         };
 
         await axios.post("/award/basic/awardType", postData).then((resp) => {
@@ -1572,13 +1640,10 @@ export default {
               type: "success",
               message: resp.msg,
             });
-
-            this.getYearList(this.awardInf.year)
+            this.getYearListForAward(this.awardInf.year,this.level)
           }
         });
-
-        await this.getTableByYear(this.indicatorID, postData.year, this.indicatorType, true);
-
+        await this.getTableByYearForAward(this.level, this.awardInf.year, true);
         this.awardInf = {name: '', year: ''};
       } catch (error) {
       }
@@ -1753,7 +1818,7 @@ export default {
           }
       );
     },
-    getData(indicatorName, indicatorID, type) {
+    getData(indicatorName, indicatorID, type, level) {
       //初始化
       this.currentPage = 1
       if (type != "授权专利" && type != "制定标准" && type != "学术专著和教材" && type != "制造或设计的产品") {
@@ -1771,17 +1836,20 @@ export default {
           制造或设计的产品: "application",
           学科竞赛: "competition",
         };
-
-        this.indicatorName = indicatorName;
-        this.indicatorType = typeMapping[type];
-        this.indicatorID = indicatorID;
-        // this.years = [];
-        // this.year = this.nowYear;
-        // for (var i = 0; i < 5; i++) this.years.push(this.nowYear - i);
-        this.getYearList().then(() => {
+       this.indicatorName = indicatorName;
+       this.indicatorType = typeMapping[type];
+       this.indicatorID = indicatorID;
+        if (type === '科研获奖') {
+         this.level = level;
+         this.getYearListForAward(this.year, level).then(() => {
+          this.getTableByYearForAward(level, this.year);
+         });
+        } else{
+         this.getYearList().then(() => {
           this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
-        });
-        // this.getTableByYear(indicatorID, this.year, this.indicatorType);
+         });
+        }
+
       } else {
         this.indicatorType = "";
         this.isRoot = false;
@@ -1835,7 +1903,10 @@ export default {
     handleCurrentChange(val) {
       // 改变默认的页数
       this.currentPage = val;
-      this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
+      if (this.indicatorType === 'award')
+       this.getTableByYearForAward(this.level, this.year);
+      else
+       this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
     },
     readFile(file) {
       //文件读取

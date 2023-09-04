@@ -20,7 +20,7 @@ public interface AwardTypeMapper {
     @Select("select a.id, a.name, a.year, i.rankN from i_award_type a, indicator i where a.indicator_id = #{indicatorId} and year = #{year} and a.indicator_id = i.id")
     List<AwardType> selectAwardTypeListByYear(Integer indicatorId, Integer year);
 
-    @Insert("insert ignore into i_award_type (name, indicator_id, year) values(#{name}, #{indicatorId}, #{year}) ")
+    @Insert("insert ignore into i_award_type (name, level, year) values(#{name}, #{level}, #{year}) ")
     Integer addAwardType(AwardType awardType);
 
     @Update("update i_award_type set name=#{name}, year = #{year} where id = #{id}")
@@ -36,5 +36,8 @@ public interface AwardTypeMapper {
 
     @Select("SELECT a.id awardTypeId, a.`name` awardTypeName, a.year, CONCAT(i.`order`, i.`name`) indicatorName, i.score FROM i_award_type a, indicator i WHERE a.`name` = #{fullName} AND i.id = a.indicator_id")
     List<Award> getAwardByName(String fullName);
+
+    @Select("SELECT * from i_award_type WHERE level = #{level} AND year = #{year}")
+    List<Award> getByLevelYear(String level, Integer year);
 }
 

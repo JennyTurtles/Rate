@@ -21,4 +21,5 @@ public class AwardType {
     @Min(value = 1900, message = "年份不合法")
     private String year;
     private Integer rankN;
+    private String level;
 }
