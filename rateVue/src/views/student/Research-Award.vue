@@ -576,7 +576,7 @@ export default {
       })
       //判断自己在不在其中
       if(memberList.indexOf(info.name) == -1){//不在 并且没有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
+        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
         this.isAuthorIncludeSelf = false;
         this.zeroPointReason = '参与人未包含自己'
         this.awardPoint = 0;
@@ -589,7 +589,7 @@ export default {
       this.currentAwardCopy.rank = memberList.indexOf(info.name) + 1
     },
     judgeRankScore(rank) {
-      if(JSON.parse(JSON.stringify(this.selectedIndicator)) === '{}') {
+      if(JSON.stringify(this.selectedIndicator) === '{}') {
         this.awardPoint = 0; //输入作者，但未选择指标点
         this.zeroPointReason = '请选择指标点'
       }

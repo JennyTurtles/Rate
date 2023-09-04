@@ -143,8 +143,8 @@ public class CompetitionController {
     }
 
     @GetMapping("/getIndicatorByYearAndType")
-    public JsonResult getIndicatorByYearAndType(String year,String type) {
-        List<CompetitionType> list = competitionService.getIndicatorByYearAndType(year,type);
+    public JsonResult getIndicatorByYearAndType(String year) {
+        List<CompetitionType> list = competitionService.getIndicatorByYearAndType(year);
         return new JsonResult(list);
     }
     @GetMapping("/getIndicatorScore")

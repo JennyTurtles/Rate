@@ -13,8 +13,8 @@ import java.util.List;
  */
 @Mapper
 public interface CompetitionTypeMapper {
-    @Select("SELECT p.* FROM i_competition_type p where p.name like concat('%', #{type}, '%') and p.year = #{year}")
-    List<CompetitionType> getIndicatorByYearAndType(String year, String type);
+    @Select("SELECT * FROM i_competition_type where year = (select max(year) from i_competition_type where  year <= #{year})")
+    List<CompetitionType> getIndicatorByYearAndType(String year);
 
     @Select("select a.id, a.name, a.year, i.rankN from i_competition_type a, indicator i where a.indicator_id = #{indicatorId} and year = #{year} and a.indicator_id = i.id")
     List<CompetitionType> selectCompetitionTypeListByYear(Integer indicatorId, Integer year);

@@ -15,12 +15,13 @@
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
         <result property="competitionLevel" column="competition_level"/>
+        <result property="indicatorId" column="indicator_id"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>
         </association>
         <association property="indicator" javaType="org.sys.rate.model.Indicator">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="indicatorid" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
             <result property="rankN" column="rankN"/>
@@ -29,7 +30,6 @@
             <id property="id" column="competitionTypeId" jdbcType="INTEGER"/>
             <result property="name" column="tname"/>
             <result property="year" column="year"/>
-            <result property="indicatorId" column="indicator_id"/>
         </association>
         <collection property="operationList" ofType="org.sys.rate.model.Operation">
             <result property="operatorRole" column="operator_role"/>
@@ -65,7 +65,7 @@
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_competition_type type ON p.competition_type_id = type.id
                  JOIN student s ON s.ID = p.student_id
-                JOIN indicator i ON i.id = type.indicator_id
+                JOIN indicator i ON i.id = p.indicator_id
         ORDER BY p.id DESC
     </select>
 
@@ -81,7 +81,7 @@
 
 <!--    学生科研项目页面初始化-->
     <select id="selectCompetitionListById" resultMap="CompetitionResult">
-        SELECT a.*,i.max_date,j.remark, type.`name` as tname, type.id as projectTypeId, type.year, type.indicator_id, ind.name as iname, ind.score, ind.rankN
+        SELECT a.*,i.max_date,j.remark, type.`name` as tname, type.id as projectTypeId, type.year,ind.id as indicatorid, ind.name as iname, ind.score, ind.rankN
         FROM i_competition a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -95,7 +95,7 @@
             WHERE prod_type = '学科竞赛'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_competition_type type ON type.id = a.competition_type_id AND a.student_id = #{studentID}
-                 JOIN indicator ind ON ind.id = type.indicator_id
+                 JOIN indicator ind ON ind.id = a.indicator_id
         ORDER BY a.id DESC;
     </select>
 
@@ -134,7 +134,8 @@
             <if test="point != null">point,</if>
             <if test="state != null">state,</if>
             <if test="url != null">url,</if>
-            <if test="competitionLevel != null">competition_level</if>
+            <if test="competitionLevel != null">competition_level,</if>
+            <if test="indicatorId != null">indicator_id</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
@@ -148,7 +149,8 @@
             <if test="point != null">#{point},</if>
             <if test="state != null">#{state},</if>
             <if test="url != null">#{url},</if>
-            <if test="competitionLevel != null">#{competitionLevel}</if>
+            <if test="competitionLevel != null">#{competitionLevel},</if>
+            <if test="indicatorId != null">#{indicatorId}</if>
         </trim>
     </insert>
 
@@ -163,7 +165,9 @@
             <if test="point != null">point = #{point},</if>
             <if test="state != null">state =#{state},</if>
             <if test="url != null">url = #{url},</if>
-            <if test="competitionLevel != null">competition_level = #{competitionLevel}</if>
+            <if test="competitionLevel != null">competition_level = #{competitionLevel},</if>
+            <if test="indicatorId != null">indicator_id = #{indicatorId},</if>
+            <if test="competitionTypeId != null">competition_type_id = #{competitionTypeId}</if>
         </trim>
         where id = #{id}
     </update>
