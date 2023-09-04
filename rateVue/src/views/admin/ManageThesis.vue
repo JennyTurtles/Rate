@@ -23,10 +23,38 @@
       </el-button>
 
       <el-button icon="el-icon-search" type="info" style="margin-right: 10px" @click="search"
-                 :disabled="selectDate === ''">查询
+                 :disabled="selectDate === ''">高级查询
       </el-button>
 
     </div>
+
+    <div style="margin-top: 10px">
+      <label for="stuNumber">学号 </label>
+      <input type="text" id="stuNumber" v-model="query.stuNumber" autocomplete="off"
+             style="width:15%;line-height:28px;
+                              border:1px solid lightgrey;padding:0 10px 1px 15px;
+                              border-radius:4px;color:gray">
+
+      <label for="name"> 姓名 </label>
+      <input type="text" id="name" v-model="query.name" autocomplete="off"
+             style="width:15%;line-height:28px;
+                              border:1px solid lightgrey;padding:0 10px 1px 15px;
+                              border-radius:4px;color:gray">
+
+      <label for="tutorName"> 教师姓名 </label>
+      <input type="text" id="tutorName" v-model="query.tutorName" autocomplete="off"
+             style="width:15%;line-height:28px;
+                              border:1px solid lightgrey;padding:0 10px 1px 15px;
+                              border-radius:4px;color:gray">
+
+      <el-button icon="el-icon-search" type="info"
+
+                 style="margin-right: 10px;margin-left: 10px"
+                 @click="initUnderGraduateStudents(1, pageSize)"
+                 :disabled="selectDate === ''"> 查询
+      </el-button>
+    </div>
+
 
     <el-dialog :visible.sync="dialogTeacherVisible" width="30%">
       <template v-slot:title>
@@ -242,8 +270,8 @@
         <div>
           <div style="margin-top: 15px;width: 100%">
             <template>
-              <el-radio v-model="groupWay" label="专业" >待分组学生专业</el-radio>
-              <el-radio v-model="groupWay" label="班级" >待分组学生班级</el-radio>
+              <el-radio v-model="groupWay" label="专业">待分组学生专业</el-radio>
+              <el-radio v-model="groupWay" label="班级">待分组学生班级</el-radio>
             </template>
           </div>
           <div style="margin-top: 10px">
@@ -362,9 +390,9 @@ export default {
       groupSubOfSelectedSpecialty: [],//用于选择的不同专业
       selectedSubGroupInfo: [],//选择的子信息项
       groupClassNums: {}, //班级计数
-      groupSpecialtyNums:{}, //专业计数
+      groupSpecialtyNums: {}, //专业计数
       radio: '1',
-      groupWay:'专业',
+      groupWay: '专业',
       options: [],
       selectDate: '',
       canImportStudents: false,
@@ -449,15 +477,15 @@ export default {
     selectedSubGroupInfo: {//第一个下拉框的变化
       handler(val) {
         if (this.groupWay == '专业')
-           this.filterNoGroupPar = this.NoGroupPar.filter(item => this.selectedSubGroupInfo.includes(item.specialty))
+          this.filterNoGroupPar = this.NoGroupPar.filter(item => this.selectedSubGroupInfo.includes(item.specialty))
         if (this.groupWay == '班级')
           this.filterNoGroupPar = this.NoGroupPar.filter(item => this.selectedSubGroupInfo.includes(item.className))
         this.calculationGroupInputValue()
       }
     },
-    groupWay:{
-      handler(val){
-        this.selectedSubGroupInfo=[]
+    groupWay: {
+      handler(val) {
+        this.selectedSubGroupInfo = []
       }
     }
   },
@@ -827,7 +855,7 @@ export default {
       this.filterNoGroupPar = []
       this.groupSubOfSelectedClass = []
       this.groupSubOfSelectedSpecialty = []
-      this.groupWay='专业'
+      this.groupWay = '专业'
       this.groupNumsInput = []
     },
     creatGroup() {//创建分组
@@ -841,7 +869,7 @@ export default {
           return
         }
       }
-      if (this.selectedGroupNums==0){
+      if (this.selectedGroupNums == 0) {
         this.$message.error('请选择分组数！')
         return
       }
@@ -860,22 +888,22 @@ export default {
         'groupWay': this.groupWay
       }
       console.log(data);
-      for (var i = 0;i < this.filterNoGroupPar.length; i++){
-        if (this.filterNoGroupPar[i].thesis.grade==null){
+      for (var i = 0; i < this.filterNoGroupPar.length; i++) {
+        if (this.filterNoGroupPar[i].thesis.grade == null) {
           this.$message.warning("选中的部分学生无绩点数据，按0进行分组")
           break;
         }
       }
       this.postRequest(url, data).then((resp) => {
-          if (resp) {
-            if (resp == "分组成功") {
-              this.$message.success(resp)
-              this.initUnderGraduateStudents(this.currentPage, this.pageSize);
-            } else {
-              this.$message.error(resp)
-            }
-            this.closeDialogGroup()
+        if (resp) {
+          if (resp == "分组成功") {
+            this.$message.success(resp)
+            this.initUnderGraduateStudents(this.currentPage, this.pageSize);
+          } else {
+            this.$message.error(resp)
           }
+          this.closeDialogGroup()
+        }
       })
     },
     groupsForStudent() {
