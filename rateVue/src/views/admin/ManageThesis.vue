@@ -860,6 +860,13 @@ export default {
     },
     creatGroup() {//创建分组
       var sum = 0
+     // 遍历this.groupNumsInput，如果value为0，报错
+      for (var i = 0; i < this.groupNumsInput.length; i++) {
+        if (this.groupNumsInput[i].value == 0) {
+          this.$message.error('第' + (i + 1) + '组人数为0，请重新输入！')
+          return
+        }
+      }
       if (this.radio == '2') {
         this.groupNumsInput.map(item => {
           sum += parseInt(item.value)
