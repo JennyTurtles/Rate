@@ -211,6 +211,7 @@
       </el-form>
       <div style="margin-left: 20px;">
         <span style="color:gray;font-size:10px">将会获得：{{ monographPoint }}积分</span>
+        <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAdd">取 消</el-button>
@@ -313,6 +314,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      zeroPointReason: '',
       currentSelectedIndicator: {},
       monoLimitRankN: '',
       isAuthorIncludeSelf: false,
@@ -323,7 +325,6 @@ export default {
       },
       data: [],
       showTreeDialog: false,
-
       monographPoint:0,
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -424,21 +425,6 @@ export default {
     cancelAdd() {
       this.dialogVisible = false;
     },
-    changeMonographStatus(item){
-      this.currentMonographCopy.grantedStatus = item.label;
-      if(item.value < 0) {
-        this.monographPoint = 0;
-        this.currentMonographCopy.indicatorId = null;
-      }else {
-        this.getRequest('/indicator/getScoreById?indicatorId=' + item.value).then(response => {
-          if(response.obj){
-            this.monographPoint = response.obj;
-          }
-          this.currentMonographCopy.indicatorId = item.value;
-        })
-      }
-      this.currentMonographCopy.point = this.monographPoint;
-    },
     download(data) {//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
       var url = data.url
@@ -502,13 +488,13 @@ export default {
       )
     },
     judgeMember(){//输入作者框 失去焦点触发事件
-      var val = this.currentMonographCopy.author;
-      if(!val) {
+      var author = this.currentMonographCopy.author;
+      if(!author) {
         return;
       }
       var isalph = false//判断输入中是否有英文字母
-      for(var i in val){
-        var asc = val.charCodeAt(i)
+      for(var i in author){
+        var asc = author.charCodeAt(i)
         if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
           isalph=true
           break
@@ -516,31 +502,18 @@ export default {
       }
       var num = null
       var info = this.user;
-      if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
-        num=val.split('；')
-      }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
-        num=val.split(';')
-      }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//中英都有
-        this.$message.warning('输入不合法请重新输入！');
-      }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(val != info.name){
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.isAuthorIncludeSelf = false;
-        }else if (val === info.name){
-          this.isAuthorIncludeSelf = true;
-          this.currentMonographCopy.rank = 1
-          this.currentMonographCopy.total = 1
-          this.judgeRankScore(1);
-        }
-        return
-      }
+      num = author.split(/[;；]/)
+      num = num.map(item => {
+        return item && item.replace(/\s*/g,"");
+      }).filter(v => {
+        return v
+      })
       //判断自己在不在其中
-      if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
+      if(num.indexOf(info.name) == -1){//不在 并且没有英文单词
+        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
         this.isAuthorIncludeSelf = false;
-      }else if(num.indexOf(info.name) == -1 && isalph){//不在 里面有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-        this.isAuthorIncludeSelf = false;
+        this.zeroPointReason = '参与人未包含自己'
+        this.monographPoint = 0;
       } else {
         //作者列表的rank大于规定的rankN，积分为0
         this.judgeRankScore(num.indexOf(info.name) + 1)
@@ -551,11 +524,19 @@ export default {
     },
     //判断分数
     judgeRankScore(rank) {
-      if(JSON.parse(JSON.stringify(this.currentSelectedIndicator)) === '{}') this.monographPoint = 0; //输入作者，但未选择指标点
+      if(JSON.parse(JSON.stringify(this.currentSelectedIndicator)) === '{}') {
+        this.monographPoint = 0; //输入作者，但未选择指标点
+        this.zeroPointReason = '请选择指标点'
+      }
       else { //指标点已选择，再次修改作者列表
         const indicatorRankN = this.currentSelectedIndicator.rankN;
-        if(rank > indicatorRankN && indicatorRankN > 0) this.monographPoint = 0;
-        else this.monographPoint = this.currentSelectedIndicator.score;
+        if(rank > indicatorRankN && indicatorRankN > 0) {
+          this.monographPoint = 0;
+          this.zeroPointReason = `著作人排名需在前${this.currentSelectedIndicator.rankN}名以内`
+        } else {
+          this.monographPoint = this.currentSelectedIndicator.score;
+          this.zeroPointReason = ''
+        }
       }
     },
     rowClass(){
@@ -569,6 +550,7 @@ export default {
       this.options = [];
       this.monoLimitRankN = data.indicator.rankN;
       this.monographPoint = data.point;
+      this.zeroPointReason = '';
       this.isAuthorIncludeSelf = true;
       this.addButtonState = true;
       this.indicatorBtn = data.indicator.name;
@@ -703,6 +685,7 @@ export default {
       this.isAuthorIncludeSelf = false;
       this.indicatorBtn = '选择指标点';
       this.monographPoint = '';
+      this.zeroPointReason = '';
       this.monoLimitRankN = '';
       this.currentSelectedIndicator = {};
     },
