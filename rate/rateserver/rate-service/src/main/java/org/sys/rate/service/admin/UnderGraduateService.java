@@ -297,6 +297,8 @@ public class UnderGraduateService {
         }
         //得到交换后的groups
         List<List<double[]>> res = groupsService.createGroupsByScore(arr, exchangeNums, groupsNums, point, point_participant);
+        // 将res逆序
+        Collections.reverse(res);
         String name = "";
         //对每组遍历
         try {
