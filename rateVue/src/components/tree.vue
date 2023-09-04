@@ -593,7 +593,7 @@ export default {
             //此处可以让父组件向子组件传递url,提高复用性
             that.id = resp.obj[0];
             that.data = resp.obj[1];
-           that.$emit("getLabelInfo", data);
+            that.$emit("getLabelInfo", data);
           });
         }
       });

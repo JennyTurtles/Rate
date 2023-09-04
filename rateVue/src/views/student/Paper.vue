@@ -913,7 +913,7 @@ export default {
         return
       }
       this.publicationName = val
-      var url = "/publication/getInfByNameYear?year=" + this.emp.year + '&name=' + this.publicationName
+      var url = "/publication/getInfByNameYear?year=" + this.currentEmp.year + '&name=' + this.publicationName
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
@@ -939,7 +939,7 @@ export default {
             this.publishToDatabase.check_duplicates.year = years;
             this.inputDisabled = true
           } else {
-            this.$message.warning(this.publicationName + '在' + this.emp.year + '年的积分为0！')
+            this.$message.warning(this.publicationName + '在' + this.currentEmp.year + '年的积分为0！')
             this.publicationName = ''
             this.publication_detail = ''
             this.paperPoint = 0
