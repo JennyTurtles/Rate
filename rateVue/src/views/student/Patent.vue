@@ -196,6 +196,7 @@
       </el-form>
       <div style="margin-left: 20px;">
         <span style="color:gray;font-size:10px">将会获得：{{patentPoint}}积分</span>
+        <span style="color:gray;font-size:10px;margin-left: 8px">{{zeroPointReason}}</span>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAddPatent">取 消</el-button>
@@ -224,7 +225,7 @@
           <span>{{ currentPatent.grantedStatus }}</span
           ><br />
         </el-form-item>
-        <el-form-item :label="currentPatent.grantedStatus + '年月：'" prop="date">
+        <el-form-item :label="currentPatent.grantedStatus + '年月:'" prop="date">
           <span>{{ currentPatent.date }}</span
           ><br />
         </el-form-item>
@@ -306,6 +307,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      zeroPointReason: '',
       isAuthorIncludeSelf: false,
       indicatorBtn: '选择指标点',
       defaultProps: {
@@ -397,7 +399,10 @@ export default {
         this.indicatorBtn = data.label;
         this.currentSelectedIndicator = data;
         this.currentPatentCopy.indicatorId = data.id;
-        if (!this.isAuthorIncludeSelf) this.patentPoint = 0;
+        if (!this.isAuthorIncludeSelf) {
+          this.patentPoint = 0;
+          this.zeroPointReason = '参与人未包含自己'
+        }
         else this.patentPoint = data.score;
         this.showTreeDialog = false;
       }
@@ -477,13 +482,14 @@ export default {
       )
     },
     judgePatentee(){//输入作者框 失去焦点触发事件
-      var val = this.currentPatentCopy.author;
-      if(!val) {
+      var author = this.currentPatentCopy.author;
+      if(!author) {
         return;
       }
+      //或许可以去掉
       var isalph = false//判断输入中是否有英文字母
-      for(var i in val){
-        var asc = val.charCodeAt(i)
+      for(var i in author){
+        var asc = author.charCodeAt(i)
         if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
           isalph = true
           break
@@ -491,7 +497,7 @@ export default {
       }
       var pateneeList = null
       var info = this.user;
-      pateneeList = val.split(/[;；]/)
+      pateneeList = author.split(/[;；]/)
       pateneeList = pateneeList.map(item => {
         return item && item.replace(/\s*/g,"");
       }).filter(v => {
@@ -501,10 +507,16 @@ export default {
       if(pateneeList.indexOf(info.name) == -1){//不在
         this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
         this.isAuthorIncludeSelf = false;
+        this.zeroPointReason = '参与人未包含自己'
+        this.patentPoint = 0;
       } else { //自己在里面
         if(this.currentSelectedIndicator) {
           this.patentPoint = this.currentSelectedIndicator.score;
-        }else this.patentPoint = '';
+          this.zeroPointReason = ''
+        }else {
+          this.patentPoint = '';
+          this.zeroPointReason = '';
+        }
         this.isAuthorIncludeSelf = true;
       }
       this.currentPatentCopy.total = pateneeList.length;
@@ -526,6 +538,7 @@ export default {
       ];
       this.indicatorBtn = data.indicator.name;
       this.patentPoint = data.point;
+      this.zeroPointReason = '';
       this.urlFile = this.currentPatentCopy.url;
       this.isAuthorIncludeSelf = true;
       this.addButtonState = true;
@@ -650,8 +663,10 @@ export default {
       this.urlFile = '';
       this.files = [];
       this.patentPoint = '';
+      this.zeroPointReason = '';
       this.indicatorBtn = '选择指标点';
       this.currentPatentCopy = {};
+      this.currentSelectedIndicator = {};
     },
     initEmps() {
       this.loading = true;
