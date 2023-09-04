@@ -14,7 +14,6 @@ public class CompetitionType {
     private Integer id;
     @NotBlank(message = "竞赛类型不为空")
     private String name;
-    private Integer indicatorId;
     @NotBlank(message = "年份不为空")
     @Min(value = 1900, message = "年份不合法")
     private String year;

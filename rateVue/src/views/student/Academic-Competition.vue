@@ -160,10 +160,9 @@
               remote
               clearable
               reserve-keyword
-              @change="selectOption($event)"
               placeholder="请输入学科竞赛类别"
               loading-text="搜索中..."
-              :remote-method="selectCompetitionTypeMethod"
+              @focus="selectCompetitionTypeMethod"
               :loading="searchTypeLoading">
             <el-option
                 v-for="item in selectCompetitionTypeList"
@@ -215,11 +214,24 @@
         </el-form-item>
       </el-form>
       <div style="margin-left: 20px;">
-        <span style="color:gray;font-size:10px">将会获得：{{competitionPoint}}积分</span>
+        <span style="color:gray;font-size:10px">将会获得：{{ competitionPoint }}积分</span>
+        <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAdd">取 消</el-button>
-        <el-button type="primary" @click="addCompetition" v-show="addButtonState">提 交</el-button>
+        <el-button type="primary" @click="addCompetition">提 交</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="选择指标点分类" center :visible.sync="showTreeDialog" width="60%">
+      <span class="el-tree-node">
+        <el-tree
+            :data="indicatorData"
+            :props="defaultProps"
+            @node-click="handleNodeClick"
+            :expand-on-click-node="false"
+            :highlight-current="true"
+            default-expand-all
+        ></el-tree>
       </span>
     </el-dialog>
 
@@ -244,10 +256,14 @@
           <span>{{ currentCompetition.author }}</span
           >
         </el-form-item>
-        <el-form-item label="获奖级别:">
-          <span>{{ currentCompetition.competitionLevel }}</span
+        <el-form-item label="获奖类别:">
+          <span>{{ currentCompetition.competitionType.name }}</span
           >
         </el-form-item>
+<!--        <el-form-item label="获奖级别:">-->
+<!--          <span>{{ currentCompetition.competitionLevel }}</span-->
+<!--          >-->
+<!--        </el-form-item>-->
         <el-form-item label="获奖年月:">
           <span>{{ currentCompetition.date }}</span
           >
@@ -311,10 +327,12 @@
 import axios from "axios";
 import {postRequest1} from "@/utils/api";
 import {debounce} from "@/utils/debounce";
+import { throttle } from "@/utils/throttle";
 export default {
   name: "Academic-Competition",
   data() {
     return {
+      zeroPointReason: '',
       indicatorBtn: '选择指标点',
       defaultProps: {
         children: "children",
@@ -339,7 +357,6 @@ export default {
       competitionLevelList: ['全国一等奖', '全国二等奖', '全国三等奖', '省部级一等奖', '省部级二等奖'],
       files:[],//选择上传的文件列表
       urlFile:'',//文件路径
-      addButtonState: false,//是否允许添加学科竞赛
       operList:[],//每个学科竞赛的历史操作记录
       labelPosition: "left",
       title: "",
@@ -398,7 +415,7 @@ export default {
     }
   },
   created() {
-    this.debounceSearch = debounce(this.debounceSearchType,400);
+    this.throttleSearch = throttle(this.throttleSearchType,400); //没有用到
   },
   mounted() {
     this.currentCompetitionCopy = JSON.parse(JSON.stringify(this.currentCompetition));
@@ -420,12 +437,12 @@ export default {
       if (data.children.length == 0) {
         this.indicatorBtn = data.label;
         this.selectedIndicator = data;
-        this.currentAwardCopy.indicatorId = data.id;
+        this.currentCompetitionCopy.indicatorId = data.id;
         if (!this.isAuthorIncludeSelf) {
-          this.awardPoint = 0;
+          this.competitionPoint = 0;
           this.zeroPointReason = '参与人未包含自己'
         }
-        else this.awardPoint = data.score;
+        else this.competitionPoint = data.score;
         this.showTreeDialog = false;
       }
     },
@@ -438,25 +455,6 @@ export default {
         }
       });
     },
-    //选择下拉框的某个选项
-    selectOption(data) {
-      if(data) {
-        this.getRequest('/competition/basic/getIndicatorScore?id=' + data.indicatorId).then(response => {
-          if(response) {
-            this.competitionLimitRankN = response.data.rankN;
-            this.selectedIndicator = response.data;
-          }else {
-            this.competitionLimitRankN = '';
-            this.selectedIndicator = {};
-          }
-        })
-        if(this.urlFile) {
-          this.addButtonState = true;
-        } else {
-          this.addButtonState = false;
-        }
-      } else this.addButtonState = false;
-    },
     //改变竞赛的时间
     changeCompetitionStartDate(data) {
       if(data) {
@@ -465,20 +463,19 @@ export default {
         this.disabledSelectCompetitionType = true;
       }
     },
-    debounceSearchType(data) {
-      if (this.currentCompetitionCopy.date != null && this.currentCompetitionCopy.date != '' && data != null && data != '') {
-        this.getRequest('/competition/basic/getIndicatorByYearAndType?year=' + this.currentCompetitionCopy.date.split('-')[0] + '&type=' + data).then(response => {
-          if(response) {
-            this.searchTypeLoading = false;
-            this.selectCompetitionTypeList = response.data;
-          }
-        })
-      }
+    throttleSearchType() {
+      if(this.currentCompetitionCopy.date == null || this.currentCompetitionCopy.date == '') return;
+      this.getRequest('/competition/basic/getIndicatorByYearAndType?year=' + this.currentCompetitionCopy.date.split('-')[0]).then(response => {
+        if(response) {
+          this.searchTypeLoading = false;
+          this.selectCompetitionTypeList = response.data;
+        }
+      })
     },
     //输入竞赛类别 发送请求调用的函数
-    selectCompetitionTypeMethod(data) {
+    selectCompetitionTypeMethod() {
       this.searchTypeLoading = true;
-      this.debounceSearch(data);
+      this.throttleSearchType();
     },
     cancelAdd() {
       this.dialogVisible = false;
@@ -539,22 +536,17 @@ export default {
             })
             //获取文件路径
             this.urlFile = response.data
-            if(JSON.parse(JSON.stringify(this.selectCompetitionType)) != '{}') {
-              this.addButtonState = true;
-            } else {
-              this.addButtonState = false;
-            }
           }
       )
     },
     judgeMember(){//输入作者框 失去焦点触发事件
-      var val = this.currentCompetitionCopy.author;
-      if(!val) {
+      var author = this.currentCompetitionCopy.author;
+      if(!author) {
         return;
       }
       var isalph = false//判断输入中是否有英文字母
-      for(var i in val){
-        var asc = val.charCodeAt(i)
+      for(var i in author){
+        var asc = author.charCodeAt(i)
         if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
           isalph = true
           break
@@ -562,32 +554,19 @@ export default {
       }
       var num = null
       var info = this.user;
-      if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
-        num = val.split('；')
-      }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
-        num = val.split(';')
-      }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//不允许同时包含中文和英文逗号
-        this.$message.error();('输入不合法请重新输入！')
-      }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(val != info.name){//有英文字符
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.isAuthorIncludeSelf = false;
-        }else if (val === info.name) {
-          this.currentCompetitionCopy.rank = 1;
-          this.currentCompetitionCopy.total = 1;
-          this.isAuthorIncludeSelf = true;
-          this.judgeRankScore(1);
-        }
-        return
-      }
+      num = author.split(/[;；]/)
+      num = num.map(item => {
+        return item && item.replace(/\s*/g,"");
+      }).filter(v => {
+        return v
+      })
       //不止一个作者 判断自己在不在其中
-      if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
+      if(num.indexOf(info.name) == -1){//不在 并且没有英文单词
+        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
         this.isAuthorIncludeSelf = false;
-      }else if(num.indexOf(info.name) == -1 && isalph){//不在 里面有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-        this.isAuthorIncludeSelf = false;
-      } else { //自己在里面
+        this.zeroPointReason = '参与人未包含自己'
+        this.competitionPoint = 0;
+      }else { //自己在里面
         this.judgeRankScore(num.indexOf(info.name) + 1);
         this.isAuthorIncludeSelf = true;
       }
@@ -595,14 +574,19 @@ export default {
       this.currentCompetitionCopy.rank = num.indexOf(info.name) + 1;
     },
     judgeRankScore(rank) {
-      if(JSON.parse(JSON.stringify(this.selectedIndicator)) === '{}') this.competitionPoint = 0; //输入作者，但未选择指标点
+      if(JSON.parse(JSON.stringify(this.selectedIndicator)) === '{}') {
+        this.competitionPoint = 0; //输入作者，但未选择指标点
+        this.zeroPointReason = '请选择指标点'
+      }
       else { //指标点已选择，再次修改作者列表
         const indicatorRankN = this.selectedIndicator.rankN;
         if(rank > indicatorRankN && indicatorRankN > 0) {
           this.competitionPoint = 0;
+          this.zeroPointReason = `获奖排名需在前${this.selectedIndicator.rankN}名以内`
         }
         else {
           this.competitionPoint = this.selectedIndicator.score;
+          this.zeroPointReason = ''
         }
       }
     },
@@ -613,6 +597,7 @@ export default {
     showEditEmpView(data, idx) {
       this.competitionLimitRankN = data.indicator.rankN;
       this.selectedIndicator = data.indicator;
+      this.indicatorBtn = this.selectedIndicator.name;
       this.title = "编辑学科竞赛信息";
       this.currentCompetitionCopy = JSON.parse(JSON.stringify(data));
       this.dialogVisible = true;
@@ -626,8 +611,8 @@ export default {
       this.urlFile = this.currentCompetitionCopy.url;
       this.selectCompetitionType = data.competitionType.name;
       this.competitionPoint = data.point;
+      this.zeroPointReason = '';
       this.isAuthorIncludeSelf = true;
-      this.addButtonState = true;
     },
     showInfo(data){
       this.loading = true;
@@ -674,18 +659,6 @@ export default {
       this.$refs["currentCompetitionCopy"].validate((valid) => {
         if (valid) {
           params.id = this.currentCompetitionCopy.id;
-          if(JSON.parse(JSON.stringify(this.selectCompetitionType)) == '{}' || this.selectCompetitionType == '') {
-            this.$message.error('请选择竞赛类别！')
-            return;
-          }
-          if(params .url == '' || params == null){
-            this.$message.error('请上传证明材料！')
-            return
-          }
-          if(!this.isAuthorIncludeSelf) {
-            this.$message.error('请仔细检查作者列表！');
-            return;
-          }
           this.postRequest1("/competition/basic/edit", params).then(
               (resp) => {
                 if (resp) {
@@ -708,26 +681,32 @@ export default {
       params.date = this.currentCompetitionCopy.date;
       params.point = this.competitionPoint;
       params.competitionTypeId = this.selectCompetitionType.id;
-      params.competitionLevel = this.currentCompetitionCopy.competitionLevel;
+      params.competitionLevel = '';
+      params.indicatorId = this.selectedIndicator.id;
       params.state = "commit";
-      if (this.currentCompetitionCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
+      if(JSON.stringify(this.selectedIndicator) === '{}') {
+        this.$message.error('请选择指标点！');
+        return;
+      }
+      if(JSON.stringify(this.selectCompetitionType) == '{}' || this.selectCompetitionType == '') {
+        this.$message.error('请选择竞赛类别！')
+        return;
+      }
+      if(params.url == '' || params.url == null){
+        this.$message.error('请上传证明材料！')
+        return
+      }
+      if(!this.isAuthorIncludeSelf) {
+        this.$message.error('请仔细检查作者列表！');
+        return;
+      }
+
+      if (this.currentCompetitionCopy.id) {
         this.editCompetition(params);
       } else {
         this.$refs["currentCompetitionCopy"].validate((valid) => {
           if (valid) {
-            if(JSON.parse(JSON.stringify(this.selectCompetitionType)) == '{}' || this.selectCompetitionType == '') {
-              this.$message.error('请选择竞赛类别！')
-              return;
-            }
             params.studentId = this.user.id;
-            if(params.url == '' || params.url == null){
-              this.$message.error('请上传证明材料！')
-              return
-            }
-            if(!this.isAuthorIncludeSelf) {
-              this.$message.error('请仔细检查作者列表！');
-              return;
-            }
             this.postRequest1("/competition/basic/add", params).then(
                 (resp) => {
                   if (resp) {
@@ -754,9 +733,10 @@ export default {
       this.files = [];
       this.selectedIndicator = {};
       this.currentCompetitionCopy = {};
-      this.addButtonState = false;
       this.competitionPoint = '';
+      this.zeroPointReason = '';
       this.title = "添加竞赛";
+      this.indicatorBtn = '选择指标点'
       this.competitionLimitRankN = '';
       this.selectCompetitionType = '';
       this.isAuthorIncludeSelf = false;

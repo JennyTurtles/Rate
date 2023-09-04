@@ -110,8 +110,8 @@ public class CompetitionService {
         List<Competition> list = competitionMapper.searchCompetitionByConditions(studentName, state, competitionName, pointFront, pointBack);
         return list;
     }
-    public List<CompetitionType> getIndicatorByYearAndType(String year, String type) {
-        List<CompetitionType> list = competitionTypeMapper.getIndicatorByYearAndType(year,type);
+    public List<CompetitionType> getIndicatorByYearAndType(String year) {
+        List<CompetitionType> list = competitionTypeMapper.getIndicatorByYearAndType(year);
         return list;
     }
 
