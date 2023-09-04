@@ -40,7 +40,7 @@
           <template slot-scope="scope">
             <span
                 style="padding: 4px"
-                :style="scope.row.state=='tea_reject' ? {'color':'red'}:{'color':'gray'}"
+                :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
                 size="mini"
             >
               {{scope.row.state=="commit"
@@ -86,7 +86,7 @@
                 icon="el-icon-edit"
                 type="primary"
                 plain
-                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject'? true:false"
+                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject' || scope.row.state == 'adm_reject'? true : false"
             >编辑</el-button
             >
             <el-button
