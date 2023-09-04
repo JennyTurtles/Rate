@@ -574,7 +574,7 @@ export default {
       this.currentCompetitionCopy.rank = num.indexOf(info.name) + 1;
     },
     judgeRankScore(rank) {
-      if(JSON.parse(JSON.stringify(this.selectedIndicator)) === '{}') {
+      if(JSON.stringify(this.selectedIndicator) === '{}') {
         this.competitionPoint = 0; //输入作者，但未选择指标点
         this.zeroPointReason = '请选择指标点'
       }
