@@ -59,6 +59,13 @@
             prop="author"
             align="center"
             label="完成人"
+            min-width="10%"
+        >
+        </el-table-column>
+        <el-table-column
+            prop="indicator.name"
+            label="产品类别"
+            align="center"
             min-width="15%"
         >
         </el-table-column>
@@ -177,6 +184,7 @@
       </el-form>
       <div style="margin-left: 20px;">
         <span style="color:gray;font-size:10px">将会获得：{{productPoint}}积分</span>
+        <span style="color:gray;font-size:10px;margin-left: 8px">{{zeroPointReason}}</span>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAddProduct">取 消</el-button>
@@ -283,6 +291,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      zeroPointReason: '',
       isAuthorIncludeSelf: false,
       indicatorBtn: '选择指标点',
       defaultProps: {
@@ -371,8 +380,13 @@ export default {
         this.indicatorBtn = data.label;
         this.currentSelectedIndicator = data;
         this.currentProductCopy.indicatorId = data.id;
-        if (!this.isAuthorIncludeSelf) this.productPoint = 0;
-        else this.productPoint = data.score;
+        if (!this.isAuthorIncludeSelf) {
+          this.productPoint = 0;
+          this.zeroPointReason = '参与人未包含自己';
+        } else {
+          this.productPoint = data.score;
+          this.zeroPointReason = '';
+        }
         this.showTreeDialog = false;
       }
     },
@@ -463,51 +477,39 @@ export default {
           break
         }
       }
-      var num = null
+      var memberList = null
       var info = this.user;
-      if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
-        num = val.split('；')
-      }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
-        num = val.split(';')
-      }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//不允许同时包含中文和英文逗号
-        this.$message.error();('输入不合法请重新输入！')
-      }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(val != info.name && isalph){//有英文字符
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.isAuthorIncludeSelf = false;
-        }else if(val != info.name && !isalph){//没有英文字符并且不是自己
-          this.isAuthorIncludeSelf = false;
-        } else if(val == info.name){
-          this.currentProductCopy.rank = 1;
-          this.currentProductCopy.total = 1;
-          this.isAuthorIncludeSelf = true;
-          if(this.currentSelectedIndicator) {
-            this.productPoint = this.currentSelectedIndicator.score;
-          }else this.productPoint = '';
-        }
-        return
-      }
+      memberList = val.split(/[;；]/)
+      memberList = memberList.map(item => {
+        return item && item.replace(/\s*/g,"");
+      }).filter(v => {
+        return v
+      })
       //不止一个作者 判断自己在不在其中
-      if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
+      if(memberList.indexOf(info.name) == -1){//不在 并且没有英文单词
+        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
         this.isAuthorIncludeSelf = false;
-      }else if(num.indexOf(info.name) == -1 && isalph){//不在 里面有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-        this.isAuthorIncludeSelf = false;
+        this.zeroPointReason = '参与人未包含自己'
+        this.productPoint = 0;
       } else { //自己在里面
         if(this.currentSelectedIndicator) {
           this.productPoint = this.currentSelectedIndicator.score;
-        }else this.productPoint = '';
+          this.zeroPointReason = '';
+        }else {
+          this.productPoint = '';
+          this.zeroPointReason = '';
+        }
         this.isAuthorIncludeSelf = true;
       }
-      this.currentProductCopy.total = num.length;
-      this.currentProductCopy.rank = num.indexOf(info.name) + 1;
+      this.currentProductCopy.total = memberList.length;
+      this.currentProductCopy.rank = memberList.indexOf(info.name) + 1;
     },
 
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
     showEditEmpView(data) {
+      this.currentSelectedIndicator = data.indicator;
       this.dialogVisible = true;
       this.title = "编辑产品信息";
       this.currentProductCopy = JSON.parse(JSON.stringify(data));
@@ -519,6 +521,7 @@ export default {
       ];
       this.indicatorBtn = data.indicator.name;
       this.productPoint = data.point;
+      this.zeroPointReason = '';
       this.urlFile = this.currentProductCopy.url;
       this.isAuthorIncludeSelf = true;
       this.addButtonState = true;
@@ -566,10 +569,6 @@ export default {
     editAward(params) {
       this.$refs["currentProductCopy"].validate((valid) => {
         if (valid) {
-          if(!this.isAuthorIncludeSelf) {
-            this.$message.error('请仔细检查作者列表！');
-            return;
-          }
           this.postRequest1("/product/basic/edit", params).then(
               (resp) => {
                 if (resp) {
@@ -596,11 +595,15 @@ export default {
       params.point = this.productPoint;
       params.state = "commit";
       if(params.url == '' || params.url == null){
-        this.$message.warning('请上传证明材料！')
+        this.$message.error('请上传证明材料！')
         return
       }
       if(!params.indicatorId) {
-        this.$message.warning('请选择指标点！')
+        this.$message.error('请选择指标点！')
+        return;
+      }
+      if(!this.isAuthorIncludeSelf) {
+        this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
         return;
       }
       if (this.currentProductCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
@@ -609,10 +612,6 @@ export default {
         this.$refs["currentProductCopy"].validate((valid) => {
           if (valid) {
             params.studentId = this.user.id
-            if(!this.isAuthorIncludeSelf) {
-              this.$message.error('请仔细检查作者列表！');
-              return;
-            }
             this.postRequest1("/product/basic/add", params).then(
                 (resp) => {
                   if (resp) {
@@ -642,6 +641,8 @@ export default {
       this.urlFile = '';
       this.files = [];
       this.productPoint = '';
+      this.currentSelectedIndicator = {};
+      this.zeroPointReason = '';
       this.indicatorBtn = '选择指标点';
       this.currentProductCopy = {};
     },
