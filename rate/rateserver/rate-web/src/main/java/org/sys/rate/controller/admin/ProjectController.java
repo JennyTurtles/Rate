@@ -150,7 +150,7 @@ public class ProjectController {
     }
     @GetMapping("/getIndicatorScore")
     public JsonResult getScore(Integer id) {
-        return new JsonResult(indicatorMapper.getScore(id));
+        return new JsonResult(indicatorMapper.getIndicatorById(id));
     }
     @PostMapping("/searchProjectByConditions")
     public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
