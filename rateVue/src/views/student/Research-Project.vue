@@ -559,6 +559,7 @@ export default {
       this.currentProjectCopy = JSON.parse(JSON.stringify(data));
       this.dialogVisible = true;
       this.disabledSelectProjectType = false;
+      this.currentIndicator = data.indicator;
       this.files = [
         {
           name: this.currentProjectCopy.url.split('/').reverse()[0],

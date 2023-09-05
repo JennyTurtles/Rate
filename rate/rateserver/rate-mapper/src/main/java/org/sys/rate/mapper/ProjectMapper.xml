@@ -21,7 +21,7 @@
             <result property="name" column="sname"/>
         </association>
         <association property="indicator" javaType="org.sys.rate.model.Indicator">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="indicatorid" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
         </association>
@@ -94,7 +94,7 @@
 
 <!--    学生科研项目页面初始化-->
     <select id="selectProjectListById" resultMap="ProjectResult">
-        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id
+        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, i.id as indicatorid, i.score, i.name as iname
         FROM i_project a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -108,6 +108,7 @@
             WHERE prod_type = '科研项目'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_project_type ip ON a.project_type_id = ip.id AND a.student_id = #{studentID}
+                 JOIN indicator i ON i.id = ip.indicator_id
         ORDER BY a.id DESC;
     </select>
 
