@@ -20,7 +20,7 @@
             <result property="name" column="sname"/>
         </association>
         <association property="indicator" javaType="org.sys.rate.model.Indicator">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="indicatorid" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
         </association>
@@ -79,7 +79,7 @@
 
 <!--    学生页面初始化-->
     <select id="selectListByIds" resultMap="StandardResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score
+        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score, ind.id as indicatorid
         FROM i_standard a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date

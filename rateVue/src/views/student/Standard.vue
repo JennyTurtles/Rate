@@ -184,10 +184,11 @@
       </el-form>
       <div style="margin-left: 20px;">
         <span style="color:gray;font-size:10px">将会获得：{{standardPoint}}积分</span>
+        <span style="color:gray;font-size:10px;margin-left: 8px">{{zeroPointReason}}</span>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAddStandard">取 消</el-button>
-        <el-button type="primary" @click="addStandard" v-show="addButtonState">提 交</el-button>
+        <el-button type="primary" @click="addStandard">提 交</el-button>
       </span>
     </el-dialog>
 
@@ -289,6 +290,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      zeroPointReason: '',
       isAuthorIncludeSelf: false,
       indicatorBtn: '选择指标点',
       defaultProps: {
@@ -306,7 +308,6 @@ export default {
       },
       files:[],//选择上传的文件列表
       urlFile:'',//文件路径
-      addButtonState:true,//是否允许添加项目
       operList:[],//每个项目的历史操作记录
       standardee:'',//和输入的作者列表绑定
       labelPosition: "left",
@@ -377,8 +378,13 @@ export default {
         this.indicatorBtn = data.label;
         this.currentSelectedIndicator = data;
         this.currentStandardCopy.indicatorId = data.id;
-        if (!this.isAuthorIncludeSelf) this.standardPoint = 0;
-        else this.standardPoint = data.score;
+        if (!this.isAuthorIncludeSelf) { //作者列表不包含自己
+          this.standardPoint = 0;
+          this.zeroPointReason = '参与人未包含自己';
+        } else {
+          this.standardPoint = data.score;
+          this.zeroPointReason = '';
+        }
         this.showTreeDialog = false;
       }
     },
@@ -450,7 +456,6 @@ export default {
             this.$message({
               message:'上传成功！'
             })
-            this.addButtonState = true
             //获取文件路径
             this.urlFile=response.data
           },()=>{}
@@ -469,51 +474,39 @@ export default {
           break
         }
       }
-      var num = null
+      var memberList = null
       var info = this.user;
-      if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
-        num = val.split('；')
-      }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
-        num = val.split(';')
-      }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//不允许同时包含中文和英文逗号
-        this.$message.error();('输入不合法请重新输入！')
-      }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(val != info.name && isalph){//有英文字符
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.isAuthorIncludeSelf = false;
-        }else if(val != info.name && !isalph){//没有英文字符并且不是自己
-          this.isAuthorIncludeSelf = false;
-        } else if(val == info.name){
-          this.currentStandardCopy.rank = 1;
-          this.currentStandardCopy.total = 1;
-          this.isAuthorIncludeSelf = true;
-          if(this.currentSelectedIndicator) {
-            this.standardPoint = this.currentSelectedIndicator.score;
-          }else this.standardPoint = '';
-        }
-        return
-      }
+      memberList = val.split(/[;；]/)
+      memberList = memberList.map(item => {
+        return item && item.replace(/\s*/g,"");
+      }).filter(v => {
+        return v
+      })
       //不止一个作者 判断自己在不在其中
-      if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
+      if(memberList.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
+        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
         this.isAuthorIncludeSelf = false;
-      }else if(num.indexOf(info.name) == -1 && isalph){//不在 里面有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-        this.isAuthorIncludeSelf = false;
+        this.zeroPointReason = '参与人未包含自己'
+        this.standardPoint = 0;
       } else { //自己在里面
         if(this.currentSelectedIndicator) {
           this.standardPoint = this.currentSelectedIndicator.score;
-        }else this.standardPoint = '';
+          this.zeroPointReason = '';
+        }else {
+          this.standardPoint = '';
+          this.zeroPointReason = '';
+        }
         this.isAuthorIncludeSelf = true;
       }
-      this.currentStandardCopy.total = num.length;
-      this.currentStandardCopy.rank = num.indexOf(info.name) + 1;
+      this.currentStandardCopy.total = memberList.length;
+      this.currentStandardCopy.rank = memberList.indexOf(info.name) + 1;
     },
 
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
     },
     showEditEmpView(data) {
+      console.log(data)
       this.dialogVisible = true;
       this.title = "编辑标准信息";
       this.currentStandardCopy = JSON.parse(JSON.stringify(data));
@@ -524,10 +517,11 @@ export default {
         }
       ];
       this.indicatorBtn = data.indicator.name;
+      this.currentSelectedIndicator = data.indicator;
       this.standardPoint = data.point;
+      this.zeroPointReason = '';
       this.urlFile = this.currentStandardCopy.url;
       this.isAuthorIncludeSelf = true;
-      this.addButtonState = true;
     },
     showInfo(data){
       this.title_show = "显示详情";
@@ -572,16 +566,6 @@ export default {
     editStandard(params) {
       this.$refs["currentStandardCopy"].validate((valid) => {
         if (valid) {
-          if(params.url == '' || params.url == null){
-            this.$message({
-              message:'请上传证明材料！'
-            })
-            return
-          }
-          if(!this.isAuthorIncludeSelf) {
-            this.$message.error('请仔细检查制定人列表！');
-            return;
-          }
           this.postRequest1("/standard/basic/edit", params).then(
               (resp) => {
                 if (resp) {
@@ -607,20 +591,24 @@ export default {
       params.date = this.currentStandardCopy.date;
       params.point = this.standardPoint;
       params.state = "commit";
+      if(JSON.stringify(this.currentSelectedIndicator) == '{}') {
+        this.$message.error('请选择指标点!');
+        return;
+      }
+      if(params.url == '' || params.url == null){
+        this.$message.error('请上传证明材料！')
+        return;
+      }
+      if(!this.isAuthorIncludeSelf) {
+        this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+        return;
+      }
       if (this.currentStandardCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editStandard(params);
       } else {
         this.$refs["currentStandardCopy"].validate((valid) => {
           if (valid) {
             params.studentId = this.user.id
-            if(params.url == '' || params.url == null){
-              this.$message.error('请上传证明材料！')
-              return
-            }
-            if(!this.isAuthorIncludeSelf) {
-              this.$message.error('请仔细检查作者列表！');
-              return;
-            }
             this.postRequest1("/standard/basic/add", params).then(
                 (resp) => {
                   if (resp) {
@@ -643,13 +631,14 @@ export default {
       await this.initEmps();
     },
     showAddEmpView() {//点击添加科研项目按钮
-      this.addButtonState = true;
       this.isAuthorIncludeSelf = false;
       this.title = "添加标准";
       this.dialogVisible = true;
       this.urlFile = '';
       this.files = [];
       this.standardPoint = '';
+      this.zeroPointReason = '';
+      this.currentSelectedIndicator = {};
       this.indicatorBtn = '选择指标点';
       this.currentStandardCopy = {};
     },
