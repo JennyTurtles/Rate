@@ -541,7 +541,8 @@ export default {
     },
     judgeMember(){//输入作者框 失去焦点触发事件
       var author = this.currentCompetitionCopy.author;
-      if(!author) {
+      if(!author || author === '') {
+        this.isAuthorIncludeSelf = false;
         return;
       }
       var isalph = false//判断输入中是否有英文字母

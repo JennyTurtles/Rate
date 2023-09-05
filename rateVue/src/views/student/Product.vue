@@ -466,7 +466,8 @@ export default {
     },
     judgeProductee(){//输入作者框 失去焦点触发事件
       var val = this.currentProductCopy.author;
-      if(!val) {
+      if(!val || val === '') {
+        this.isAuthorIncludeSelf = false;
         return;
       }
       var isalph = false//判断输入中是否有英文字母

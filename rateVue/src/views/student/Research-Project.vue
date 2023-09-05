@@ -420,6 +420,7 @@ export default {
             this.judgeMember(); //若填写过作者列表，需要重新判断
           }else {
             this.projectPoint = 0;
+            this.zeroPointReason = '';
             this.currentIndicator = {};
           }
         })
@@ -512,7 +513,8 @@ export default {
     },
     judgeMember(){//输入作者框 失去焦点触发事件
       var val = this.currentProjectCopy.author;
-      if(!val) {
+      if(!val || val === '') {
+        this.isAuthorIncludeSelf = false;
         return;
       }
       var isalph = false//判断输入中是否有英文字母
@@ -667,7 +669,7 @@ export default {
               return
             }
             if(!this.isAuthorIncludeSelf) {
-              this.$message.error('请仔细检查作者列表！');
+              this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
               return;
             }
             this.postRequest1("/project/basic/add", params).then(
