@@ -28,13 +28,13 @@
             prop="name"
             align="center"
             label="论文名称"
-            width="200px"
+            min-width="20%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="70px"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
@@ -58,28 +58,29 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="publication.name"
+            prop="pubName"
             label="发表刊物"
             align="center"
-            width="250px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
-            prop="remark"
+            prop="paperoperList[0].remark"
             label="备注"
             :formatter="checkScoreComent"
             align="center"
             style="width:220px"
+            min-width="20%"
         >
         </el-table-column>
         <el-table-column
             prop="point"
             label="积分"
             align="center"
-            width="80px"
+            min-width="8%"
         >
         </el-table-column>
-        <el-table-column align="center" width="280px" label="操作">
+        <el-table-column align="center" width="280px" label="操作" min-width="20%">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"
@@ -633,8 +634,8 @@ export default {
     this.debounceSearch = debounce(this.debounceSearchInput,400);
   },
   mounted() {
-    this.initEmps();
     this.initTutor(this.user);
+    this.initEmps();
   },
   filters: {
     fileNameFilter: function (data) {//将证明材料显示出来
@@ -912,7 +913,7 @@ export default {
         return
       }
       this.publicationName = val
-      var url = "/publication/getInfByNameYear?year=" + this.emp.year + '&name=' + this.publicationName
+      var url = "/publication/getInfByNameYear?year=" + this.currentEmp.year + '&name=' + this.publicationName
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
@@ -938,7 +939,7 @@ export default {
             this.publishToDatabase.check_duplicates.year = years;
             this.inputDisabled = true
           } else {
-            this.$message.warning(this.publicationName + '在' + this.emp.year + '年的积分为0！')
+            this.$message.warning(this.publicationName + '在' + this.currentEmp.year + '年的积分为0！')
             this.publicationName = ''
             this.publication_detail = ''
             this.paperPoint = 0
@@ -1109,21 +1110,38 @@ export default {
       this.paperPoint = data.point;
       this.urlFile = this.currentEmp.url;
       this.dialogVisible = true;
-      this.publicationName = this.currentEmp.publication.name
+      this.publicationName = this.currentEmp.pubName
       this.isInitEditDialog = true;
+      this.addButtonState = true;
+      this.isAuthorIncludeSelf = true;
+    },
+    deleteEmpMethod(data) {
+      return  new Promise((resolve, reject) => {
+          this.deleteRequest("/paper/basic/remove/" + data.id).then((resp) => {
+            this.dialogVisible = false;
+            resolve('success');
+          })
+        }
+      )
     },
     deleteEmp(data) {//点击删除按钮
       this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?",).then(() => {
-        this.deleteRequest("/paper/basic/remove/" + data.id).then((resp) => {
-          if (resp) {
-            this.dialogVisible = false;
-            this.$message.success('删除成功!')
-            this.initEmps();
-          }
+        Promise.all([this.deleteEmpMethod(data), this.deleteOperationList(data)]).then(res => {
+          this.$message.success('删除成功!');
+          this.initEmps();
         }).catch(() => {
-          this.$message.error('删除失败!')
+          this.$message.error('删除失败!');
         })
-      }).catch(() => {
+      })
+    },
+    deleteOperationList(data) {
+      const params = {}
+      params.prodId = data.id;
+      params.prodType = '学术论文'
+      return new Promise((resolve, reject) => {
+        this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
+          resolve('success');
+        })
       })
     },
     editPaper() {

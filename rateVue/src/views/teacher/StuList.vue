@@ -1,151 +1,150 @@
 <template>
   <div>
 <!--    <el-row>-->
-      <div style="margin-top: 10px">
-        <span style="fontsize: 15px"> 学生姓名: </span>
-        <div class="select_div_input">
-          <input
+    <div style="margin-top: 10px">
+      <span style="font-size: 15px">学生姓名:</span>
+      <div class="select_div_input">
+        <input
             autocomplete="off"
             style="
-              line-height: 28px;
-              width: 80px;
-              height: 30px;
-              border: 1px solid lightgray;
-              padding: 0 10px 1px 15px;
-              border-radius: 4px;
-              color: gray;
-            "
+        line-height: 28px;
+        width: 80px;
+        height: 30px;
+        border: 1px solid lightgray;
+        padding: 0 10px 1px 15px;
+        border-radius: 4px;
+        color: gray;
+      "
             placeholder="学生姓名"
             v-model="selectGraduatesName"
             @focus="inputSelectGraduatesNameFocus"
             @blur="isSelectShow = isSelectFlag"
-          />
-          <div
+        />
+        <div
             class="select_div"
-            v-show="isSelectShow && selectGraduatesName ? true : false"
-            :style="'height:${menuHeight}'"
+            v-show="isSelectShow && selectGraduatesName"
+            :style="'height:' + menuHeight"
             @mouseover="isSelectFlag = true"
             @mouseleave="isSelectFlag = false"
-          >
-            <div
+        >
+          <div
               class="select_div_div"
               v-for="val in select_graduates"
               :key="val"
               :value="val"
               @click="filter_graduates(val)"
-            >
-              {{ val }}
-            </div>
+          >
+            {{ val }}
           </div>
         </div>
-        <span style="fontsize: 15px; margin-left: 10px"> 入学年份: </span>
-        <div class="select_div_input">
-          <input
+      </div>
+      <span style="font-size: 15px; margin-left: 10px">入学年份:</span>
+      <div class="select_div_input">
+        <input
             autocomplete="off"
             style="
-              line-height: 28px;
-              width: 80px;
-              height: 30px;
-              border: 1px solid lightgray;
-              padding: 0 10px 1px 15px;
-              border-radius: 4px;
-              color: gray;
-            "
+        line-height: 28px;
+        width: 80px;
+        height: 30px;
+        border: 1px solid lightgray;
+        padding: 0 10px 1px 15px;
+        border-radius: 4px;
+        color: gray;
+      "
             placeholder="入学年份"
             v-model="selectYear"
             @focus="inputSelectYearFocus"
             @blur="isSelectYearShow = isSelectYearFlag"
-          />
-          <div
+        />
+        <div
             class="select_div"
             v-show="isSelectYearShow"
             style="height: 100px; overflow: scroll"
             @mouseover="isSelectYearFlag = true"
             @mouseleave="isSelectYearFlag = false"
-          >
-            <div
+        >
+          <div
               class="select_div_div"
               v-for="val in selectYearsList"
               :key="val"
               :value="val"
               @click="filter_year(val)"
-            >
-              {{ val }}
-            </div>
+          >
+            {{ val }}
           </div>
         </div>
-        <span style="fontsize: 15px; margin-left: 10px"> 专业类型: </span>
-        <div class="select_div_input">
-          <input
+      </div>
+      <span style="font-size: 15px; margin-left: 10px">专业类型:</span>
+      <div class="select_div_input">
+        <input
             autocomplete="off"
             style="
-              line-height: 28px;
-              width: 80px;
-              height: 30px;
-              border: 1px solid lightgray;
-              padding: 0 10px 1px 15px;
-              border-radius: 4px;
-              color: gray;
-            "
+        line-height: 28px;
+        width: 80px;
+        height: 30px;
+        border: 1px solid lightgray;
+        padding: 0 10px 1px 15px;
+        border-radius: 4px;
+        color: gray;
+      "
             placeholder="专业类型"
             v-model="selectType"
             @focus="inputSelectTypeFocus"
             @blur="isSelectTypeShow = isSelectTypeFlag"
-          />
-          <div
+        />
+        <div
             class="select_div"
             v-show="isSelectTypeShow"
             style="height: 80px"
             @mouseover="isSelectTypeFlag = true"
             @mouseleave="isSelectTypeFlag = false"
-          >
-            <div
+        >
+          <div
               class="select_div_div"
               v-for="val in selectTypeList"
               :key="val"
               :value="val"
               @click="filter_type(val)"
-            >
-              {{ val }}
-            </div>
+          >
+            {{ val }}
           </div>
         </div>
+      </div>
 
-        <span style="fontsize: 15px; margin-left: 10px"> 积分选择: </span>
-        <div class="select_point_input">
-          <input
+      <span style="font-size: 15px; margin-left: 10px">积分选择:</span>
+      <div class="select_point_input">
+        <input
             type="number"
             autocomplete="off"
             v-model.number="point1"
             :min="0"
             :max="50"
-          />
-        </div>
-        <label>&nbsp;-&nbsp;</label>
-        <div class="select_point_input">
-          <input
+        />
+      </div>
+      <label>&nbsp;-&nbsp;</label>
+      <div class="select_point_input">
+        <input
             type="number"
             autocomplete="off"
             v-model.number="point2"
             :min="0"
             :max="50"
-          />
-        </div>
-        <el-button
+        />
+      </div>
+      <el-button
           icon="el-icon-search"
           @click="filterBtn"
           style="margin-left: 30px"
           type="primary"
-          >搜索</el-button
-        >
-        <el-button
+      >搜索</el-button>
+      <el-button
           icon="el-icon-search"
           @click="reinitGraduateStudents()"
           type="primary"
-          >重置</el-button
-        >
-      </div>
-<!--    </el-row>-->
+      >重置</el-button>
+    </div>
+
+    <!--    </el-row>-->
       <div style="margin-top: 20px">
         <el-table
           class="table-with-shadow"

@@ -8,16 +8,17 @@ package org.sys.rate.controller.admin;/**
  * @Version 1.0
  */
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.PublicationSubmissionMapper;
-import org.sys.rate.model.Indicator;
-import org.sys.rate.model.Publication;
-import org.sys.rate.model.PublicationSubmission;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.PublicationService;
+import org.sys.rate.service.admin.PublicationSubmissionService;
 
 import javax.annotation.Resource;
 import java.beans.Transient;
@@ -41,27 +42,35 @@ public class PublicationSubmissionController {
     @Resource
     private PublicationSubmissionMapper submissionMapper;
 
+    @Resource
+    private PublicationSubmissionService submissionService;
+
 
     @GetMapping("/get")
-    public RespBean getAllSubmission(String state) {
+    public Msg getAllSubmission(@RequestParam("state") String state, @RequestParam("page") Integer pageNum, @RequestParam("size") Integer size) {
+        Page page = PageHelper.startPage(pageNum,size);
         List<PublicationSubmission> submissions = "all".equals(state) ? submissionMapper.getAllSubmission() : submissionMapper.getSubmissionByState(state);
         if (submissions.isEmpty()) {
-            return RespBean.ok("没有找到任何提交记录", null);
+            return Msg.success().add("没有找到任何提交记录", null);
         }
-        return RespBean.ok("200", submissions);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {submissions, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
     }
+
     @GetMapping("/getStuSubmission")
-    public RespBean getAllSubmission(Integer stuID) {
-        List<PublicationSubmission> submissions = submissionMapper.getAllStuSubmission(stuID);
-        if (submissions.isEmpty()) {
-            return RespBean.ok("没有找到任何提交记录", null);
-        }
-        return RespBean.ok("200", submissions);
+    public Msg getAllSubmission(@RequestParam("stuID") Integer stuID, @RequestParam("page") Integer pageNum, @RequestParam("size") Integer size) {
+        Page page = PageHelper.startPage(pageNum,size);
+        List<PublicationSubmission> list = submissionService.getAllStuSubmission(stuID);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
     }
 
     @GetMapping("/check")
     public RespBean checkSubmission(PublicationSubmission submission) {
         try {
+            // 检查是否重复
             boolean isDup = submissionMapper.check(submission.getIndicatorId(), submission.getPublicationId(), submission.getYear()) != null;
             return RespBean.ok("200", isDup);
         } catch (Exception e) {

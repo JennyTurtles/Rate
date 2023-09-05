@@ -64,7 +64,7 @@
                           keyword_name:keywords_name,
                           backID:keywords,
                           mode:mode,}}"
-                   style="margin-left: 300px">
+                   style="float: right">
             <span>
               定制成绩查看界面
             </span>

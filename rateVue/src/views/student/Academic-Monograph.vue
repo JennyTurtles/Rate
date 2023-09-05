@@ -28,19 +28,19 @@
             prop="name"
             align="center"
             label="专著或教材名称"
-            width="200px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="100px"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
             <span
                 style="padding: 4px"
-                :style="scope.row.state=='tea_reject' ? {'color':'red'}:{'color':'gray'}"
+                :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
                 size="mini"
             >
               {{scope.row.state=="commit"
@@ -59,38 +59,38 @@
             prop="publisher"
             label="出版社"
             align="center"
-            width="100px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="isbn"
             label="ISBN"
             align="center"
-            width="100px"
+            min-width="10%"
         >
         </el-table-column>
         <el-table-column
             prop="author"
             align="center"
             label="完成人"
-            width="100px"
+            min-width="20%"
         >
         </el-table-column>
         <el-table-column
             prop="point"
             label="积分"
             align="center"
-            width="75px"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
-            prop="remark"
-            width="140px"
+            prop="operationList[0].remark"
+            min-width="20%"
             align="center"
             label="备注"
         >
         </el-table-column>
-        <el-table-column align="center" width="280px" label="操 作">
+        <el-table-column align="center" width="280px" label="操 作" min-width="20%">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row, scope.$index)"
@@ -99,7 +99,7 @@
                 icon="el-icon-edit"
                 type="primary"
                 plain
-                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject'? true:false"
+                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject' || scope.row.state == 'adm_reject'? true:false"
             >编辑</el-button
             >
             <el-button
@@ -152,14 +152,13 @@
               placeholder="选择日期">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="完成人:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="完成人:" label-width="80px" style="margin-left: 20px;" prop="author">
           <span class="isMust">*</span>
           <el-input
-              id="input_member"
               size="mini"
               style="width: 80%"
               prefix-icon="el-icon-edit"
-              v-model="member"
+              v-model="currentMonographCopy.author"
               @blur="judgeMember()"
               placeholder="请输入完成人,如有多个用分号分隔"
           ></el-input>
@@ -167,7 +166,6 @@
         <el-form-item label="出版社:" label-width="80px" style="margin-left: 20px;" prop="publisher">
           <span class="isMust">*</span>
           <el-input
-              id="input_member"
               size="mini"
               style="width: 80%"
               prefix-icon="el-icon-edit"
@@ -178,7 +176,6 @@
         <el-form-item label="ISBN:" label-width="80px" style="margin-left: 20px;" prop="isbn">
           <span class="isMust">*</span>
           <el-input
-              id="input_member"
               size="mini"
               style="width: 80%"
               prefix-icon="el-icon-edit"
@@ -188,7 +185,7 @@
         </el-form-item>
         <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
-          <el-button ref="selectBtn" size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
+          <el-button ref="selectBtn" size="mini" type="text" @click="initTree()">{{ indicatorBtn }}</el-button>
         </el-form-item>
 
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
@@ -213,7 +210,8 @@
         </el-form-item>
       </el-form>
       <div style="margin-left: 20px;">
-        <span style="color:gray;font-size:10px">将会获得：{{view_point}}积分</span>
+        <span style="color:gray;font-size:10px">将会获得：{{ monographPoint }}积分</span>
+        <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAdd">取 消</el-button>
@@ -233,40 +231,39 @@
           :label-position="labelPosition"
           label-width="120px"
           :model="currentMonograph"
-          ref="empForm"
           style="margin-left: 20px">
-        <el-form-item label="著作名称:" prop="name" fixed>
+        <el-form-item label="著作名称:">
           <span>{{ currentMonograph.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者名称:" prop="author">
+        <el-form-item label="作者名称:">
           <span>{{ currentMonograph.author }}</span
           >
         </el-form-item>
-        <el-form-item label="作者人数:" prop="rank">
+        <el-form-item label="作者人数:">
           <span>{{ currentMonograph.total }}</span
           >
         </el-form-item>
-        <el-form-item label="作者排名:" prop="rank">
+        <el-form-item label="作者排名:">
           <span>{{ currentMonograph.rank }}</span
           >
         </el-form-item>
-        <el-form-item label="完成年份:" prop="date">
+        <el-form-item label="完成年份:">
           <span>{{ currentMonograph.date }}</span
           >
         </el-form-item>
-        <el-form-item label="出版社:" prop="publisher">
+        <el-form-item label="出版社:">
           <span>{{ currentMonograph.publisher }}</span
           >
         </el-form-item>
-        <el-form-item label="ISBN:" prop="isbn">
+        <el-form-item label="ISBN:">
           <span>{{ currentMonograph.isbn }}</span
           >
         </el-form-item>
         <el-form-item label="相关备注:">
           <span>{{ currentMonograph.remark }}</span>
         </el-form-item>
-        <el-form-item label="证明材料:" prop="url">
+        <el-form-item label="证明材料:">
           <span v-if="currentMonograph.url == '' || currentMonograph.url == null ? true:false" >无证明材料</span>
           <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
              @click="download(currentMonograph)"
@@ -317,6 +314,10 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      zeroPointReason: '',
+      currentSelectedIndicator: {},
+      monoLimitRankN: '',
+      isAuthorIncludeSelf: false,
       indicatorBtn: '选择指标点',
       defaultProps: {
         children: "children",
@@ -324,8 +325,7 @@ export default {
       },
       data: [],
       showTreeDialog: false,
-
-      view_point:0,
+      monographPoint:0,
       headers: {
         'Content-Type': 'multipart/form-data'
       },
@@ -333,7 +333,6 @@ export default {
       urlFile:'',//文件路径
       addButtonState: false,//是否允许添加专著或教材
       operList:[],//每个专著或教材的历史操作记录
-      member:'',//和输入的作者列表绑定
       options:[],//存储所有类型对象
       labelPosition: "left",
       title: "",
@@ -353,23 +352,6 @@ export default {
         remark: '',
         prodId: null,
         time: null
-      },
-      publish: {
-        id: '',
-        publicationId: '',
-        indicatorId: '',
-        indicatorName: '',
-        year: '',
-        student_id: '',
-        date: '',
-        state: '',
-        publicationName: '',
-        publicationAbbr: '',
-        publisherName: '',
-        publicationUrl: '',
-        publicationProofUrl: '',
-        indicatorRankN: '',
-        indicatorScore: ''
       },
       currentMonographCopy: {},
       currentMonograph: {
@@ -398,6 +380,15 @@ export default {
       return JSON.parse(localStorage.getItem('user')); //object信息
     }
   },
+  watch: {
+    //监听是否选择了否个指标树点 和作者列表隐形的互相监听是否发生改变
+    currentSelectedIndicator: {
+      deep: true,
+      handler: function (newV, oldV) {
+        this.judgeMember();
+      }
+    },
+  },
   created() {},
   mounted() {
     this.currentMonographCopy = JSON.parse(JSON.stringify(this.currentMonograph));
@@ -417,16 +408,9 @@ export default {
     handleNodeClick(data, node) {
       if (data.children.length == 0) {
         this.indicatorBtn = data.label;
-        if(this.currentMonographCopy.rank != null && this.currentMonographCopy.rank != '') {
-          if(parseInt(this.currentMonographCopy.rank) < data.rankN) {
-            this.view_point = data.score;
-          } else {
-            this.view_point = 0;
-          }
-        }
-        this.publish.indicatorId = data.id;
-        this.publish.indicatorRankN = data.rankN;
-        this.publish.indicatorScore = data.score;
+        this.currentSelectedIndicator = data;
+        this.currentMonographCopy.indicatorId = data.id;
+        this.monoLimitRankN = data.rankN;
         this.showTreeDialog = false;
       }
     },
@@ -440,21 +424,6 @@ export default {
     },
     cancelAdd() {
       this.dialogVisible = false;
-    },
-    changeMonographStatus(item){
-      this.currentMonographCopy.grantedStatus = item.label;
-      if(item.value < 0) {
-        this.view_point = 0;
-        this.currentMonographCopy.indicatorId = null;
-      }else {
-        this.getRequest('/indicator/getScoreById?indicatorId=' + item.value).then(response => {
-          if(response.obj){
-            this.view_point = response.obj;
-          }
-          this.currentMonographCopy.indicatorId = item.value;
-        })
-      }
-      this.currentMonographCopy.point = this.view_point;
     },
     download(data) {//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
@@ -478,8 +447,10 @@ export default {
         filepath:this.urlFile
       }
       this.postRequest1("/monograph/basic/deleteFile",file).then(
-          (response)=>{
-          },()=>{}
+        ()=>{
+          this.files = [];
+          this.urlFile = '';
+        }
       )
     },
     handleExceed(){//超过限制数量
@@ -517,10 +488,14 @@ export default {
       )
     },
     judgeMember(){//输入作者框 失去焦点触发事件
-      var val = this.member;
+      var author = this.currentMonographCopy.author;
+      if(!author || author === '') {
+        this.isAuthorIncludeSelf = false;
+        return;
+      }
       var isalph = false//判断输入中是否有英文字母
-      for(var i in val){
-        var asc = val.charCodeAt(i)
+      for(var i in author){
+        var asc = author.charCodeAt(i)
         if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
           isalph=true
           break
@@ -528,44 +503,40 @@ export default {
       }
       var num = null
       var info = this.user;
-      if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
-        num=val.split('；')
-      }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
-        num=val.split(';')
-      }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//中英都有
-        this.$message.error();('输入不合法请重新输入！')
-      }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(this.member != info.name && isalph){
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.addButtonState = false
-        }else{
-          this.addButtonState = true
-          this.currentMonographCopy.author = this.member
-          this.currentMonographCopy.rank = 1
-          this.currentMonographCopy.total = 1
-          this.judgeScore();
-        }
-        return
-      }
+      num = author.split(/[;；]/)
+      num = num.map(item => {
+        return item && item.replace(/\s*/g,"");
+      }).filter(v => {
+        return v
+      })
       //判断自己在不在其中
-      if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
-        this.addButtonState=false
-      }else if(num.indexOf(info.name) == -1 && isalph){//不在 里面有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-        this.addButtonState=false
+      if(num.indexOf(info.name) == -1){//不在 并且没有英文单词
+        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+        this.isAuthorIncludeSelf = false;
+        this.zeroPointReason = '参与人未包含自己'
+        this.monographPoint = 0;
+      } else {
+        //作者列表的rank大于规定的rankN，积分为0
+        this.judgeRankScore(num.indexOf(info.name) + 1)
+        this.isAuthorIncludeSelf = true;
       }
+      this.currentMonographCopy.total = num.length
       this.currentMonographCopy.rank = num.indexOf(info.name) + 1
-      this.currentMonographCopy.author = this.member
-      this.judgeScore();
     },
-    judgeScore() {
-      //说明选择了某个指标点数据
-      if(this.publish.indicatorId != null && this.publish.indicatorId != '') {
-        if(parseInt(this.publish.indicatorRankN) >= this.currentMonographCopy.rank) {
-          this.view_point = this.publish.indicatorScore;
+    //判断分数
+    judgeRankScore(rank) {
+      if(JSON.parse(JSON.stringify(this.currentSelectedIndicator)) === '{}') {
+        this.monographPoint = 0; //输入作者，但未选择指标点
+        this.zeroPointReason = '请选择指标点'
+      }
+      else { //指标点已选择，再次修改作者列表
+        const indicatorRankN = this.currentSelectedIndicator.rankN;
+        if(rank > indicatorRankN && indicatorRankN > 0) {
+          this.monographPoint = 0;
+          this.zeroPointReason = `著作人排名需在前${this.currentSelectedIndicator.rankN}名以内`
         } else {
-          this.view_point = 0;
+          this.monographPoint = this.currentSelectedIndicator.score;
+          this.zeroPointReason = ''
         }
       }
     },
@@ -577,10 +548,20 @@ export default {
       this.title = "编辑专著或教材信息";
       this.currentMonographCopy = JSON.parse(JSON.stringify(data));
       this.dialogVisible = true;
-      this.member = this.currentMonographCopy.author
-      this.options = []
-      this.view_point = data.point;
+      this.options = [];
+      this.monoLimitRankN = data.indicator.rankN;
+      this.monographPoint = data.point;
+      this.zeroPointReason = '';
+      this.isAuthorIncludeSelf = true;
+      this.addButtonState = true;
       this.indicatorBtn = data.indicator.name;
+      this.files = [
+        {
+          name: this.currentMonographCopy.url.split('/').reverse()[0],
+          url: this.currentMonographCopy.url
+        }
+      ]
+      this.urlFile = this.currentMonographCopy.url;
     },
     showInfo(data){
       this.loading = true;
@@ -594,31 +575,46 @@ export default {
         }
       });
     },
-    deleteEmp(data) {
-      if(confirm(
-          "此操作将永久删除【" + data.name + "】, 是否继续?",)){
-        this.deleteRequest("/monograph/basic/remove/" + data.id).then((resp) => {
-          if (resp) {
-            this.dialogVisible = false;
-            this.initMonographsList();
+    deleteEmpMethod(data) {
+      return new Promise((resolve, reject) => {
+            this.deleteRequest("/monograph/basic/remove/" + data.id).then((resp) => {
+              this.dialogVisible = false;
+              resolve('success');
+            })
           }
-        })
-      }
+      )
     },
-    editMonograph() {
+    deleteEmp(data) {
+      this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?").then(() => {
+        Promise.all([this.deleteEmpMethod(data), this.deleteOperationList(data)]).then(res => {
+          this.$message.success('删除成功!');
+          this.initMonographsList();
+        }).catch(() => {
+          this.$message.error('删除失败!');
+        })
+      })
+    },
+    deleteOperationList(data) {
+      const params = {}
+      params.prodId = data.id;
+      params.prodType = '专著教材'
+      return new Promise((resolve, reject) => {
+        this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
+          resolve('success');
+        })
+      })
+    },
+    editMonograph(params) {
       this.$refs["currentMonographCopy"].validate((valid) => {
         if (valid) {
-          const params = {};
-          this.currentMonographCopy.url = this.urlFile;
-          this.currentMonographCopy.state = "commit";
-          for(let key in this.currentMonographCopy) {
-            if(key !== 'indicator' && key !== 'student' && key !== 'operationList') {
-              params[key] = this.currentMonographCopy[key];
-            }
-          }
-          if(this.currentMonographCopy.url == '' ||this.currentMonographCopy.url == null){
+          params.id = this.currentMonographCopy.id;
+          if(params.url == '' || params == null){
             this.$message.error('请上传证明材料！')
             return
+          }
+          if(!this.isAuthorIncludeSelf) {
+            this.$message.error('请仔细检查作者列表！');
+            return;
           }
           this.postRequest1("/monograph/basic/edit", params).then(
               (resp) => {
@@ -633,21 +629,33 @@ export default {
       });
     },
     addMonograph() {//专著或教材提交确认
+      const params = {};
+      params.name = this.currentMonographCopy.name;
+      params.url = this.urlFile;
+      params.rank = this.currentMonographCopy.rank;
+      params.total = this.currentMonographCopy.total;
+      params.author = this.currentMonographCopy.author;
+      params.indicatorId = this.currentMonographCopy.indicatorId;
+      params.date = this.currentMonographCopy.date;
+      params.publisher = this.currentMonographCopy.publisher;
+      params.isbn = this.currentMonographCopy.isbn;
+      params.point = this.monographPoint;
+      params.state = "commit";
       if (this.currentMonographCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        this.editMonograph();
+        this.editMonograph(params);
       } else {
         this.$refs["currentMonographCopy"].validate((valid) => {
           if (valid) {
-            this.currentMonographCopy.url = this.urlFile;
-            this.currentMonographCopy.state = "commit"
-            this.currentMonographCopy.studentId = this.user.id
-            this.currentMonographCopy.indicatorId = this.publish.indicatorId;
-            this.currentMonographCopy.point = this.publish.indicatorScore;
-            if(this.currentMonographCopy.url == '' ||this.currentMonographCopy.url == null){
+            params.studentId = this.user.id
+            if(params == '' || params == null){
               this.$message.error('请上传证明材料！')
               return
             }
-            this.postRequest1("/monograph/basic/add",this.currentMonographCopy).then(
+            if(!this.isAuthorIncludeSelf) {
+              this.$message.error('请仔细检查作者列表！');
+              return;
+            }
+            this.postRequest1("/monograph/basic/add", params).then(
                 (resp) => {
                   if (resp) {
                     this.$message.success('添加成功！')
@@ -669,16 +677,18 @@ export default {
       await this.initMonographsList();
     },
     showAddEmpView() {//点击添加科研专著或教材按钮
-      this.urlFile = '';
-      this.currentMonographCopy = {};
-      this.addButtonState = false;
-      this.member = '';
-      this.indicatorBtn = '选择指标点';
-      this.publish.indicatorId = '';
-      this.publish.indicatorScore = '';
-      this.view_point = '';
       this.title = "添加著作";
       this.dialogVisible = true;
+      this.urlFile = '';
+      this.files = [];
+      this.currentMonographCopy = {};
+      this.addButtonState = false;
+      this.isAuthorIncludeSelf = false;
+      this.indicatorBtn = '选择指标点';
+      this.monographPoint = '';
+      this.zeroPointReason = '';
+      this.monoLimitRankN = '';
+      this.currentSelectedIndicator = {};
     },
     initMonographsList() {
       this.loading = true;

@@ -70,7 +70,7 @@
         ID,department,code
     </sql>
     <sql id="CPByGroupId">
-       p.ID,p.code,p.studentID,p.activityID,p.score,p.groupID,p.displaySequence,s.ID as SID, s.name,s.IDNumber, s.studentnumber, s.telephone, s.email, s.username, s.password, s.year, s.tutorID
+       p.ID,p.code,p.studentID,p.activityID,p.score,p.groupID,p.displaySequence,s.ID as SID, s.name, s.studentnumber, s.telephone, s.email, s.username, s.password, s.year, s.tutorID
     </sql>
 
 <!--    <select id="getparticipantsByGroupId"  parameterType="java.lang.Integer" resultMap="BaseResultMap">-->
@@ -81,7 +81,7 @@
 <!--        order by p.displaySequence-->
 <!--    </select>-->
 <select id="getPartByGroupId" parameterType="java.lang.Integer" resultMap="ResultMapGroup">
-    select p.ID,p.displaySequence,p.code,s.name,p.studentID,s.IDNumber
+    select p.ID,p.displaySequence,p.code,s.name,p.studentID
             from participants p,student s
             where p.groupID=#{groupId,jdbcType=INTEGER}
               and p.activityID=#{activitiesID,jdbcType=INTEGER}
@@ -131,14 +131,14 @@
     </select>
 
     <select id="getPByGID" resultMap="BaseResultMap">
-        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID,g.name as groupName from participants e, student s, `groups` g where e.studentID =s.ID and e.groupID=#{groupID} and g.ID=e.groupID order by e.score desc,e.displaySequence
+        select e.ID,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID,g.name as groupName from participants e, student s, `groups` g where e.studentID =s.ID and e.groupID=#{groupID} and g.ID=e.groupID order by e.score desc,e.displaySequence
 <if test="page !=null and size!=null">
             limit #{page},#{size}
         </if>
     </select>
 
     <select id="getPByACID" resultMap="BaseResultMap">
-        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID,g.name as groupName from participants e, student s, `groups` g where e.studentID =s.ID and e.activityID=#{activityID} and g.ID=e.groupID order by e.score desc,e.displaySequence
+        select e.ID,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID,g.name as groupName from participants e, student s, `groups` g where e.studentID =s.ID and e.activityID=#{activityID} and g.ID=e.groupID order by e.score desc,e.displaySequence
         <if test="page !=null and size!=null">
             limit #{page},#{size}
         </if>
@@ -151,7 +151,7 @@
         </if>
     </select>
     <select id="getParticipantsPageByACIDNoGroup" resultMap="BaseResultMap">
-        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID
+        select e.ID,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID
         from participants e,student s
         where e.studentID =s.ID and e.activityID=#{activitiesID} and ISNULL(e.groupID)
         order by e.groupID,e.displaySequence
@@ -160,7 +160,7 @@
         </if>
     </select>
     <select id="getParticipantsPageByACIDHaveGroup" resultMap="BaseResultMap">
-        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID
+        select e.ID,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID
         from participants e,student s
         where e.studentID =s.ID and e.activityID=#{activitiesID} and e.groupID is not null
         order by e.groupID,e.displaySequence
@@ -169,7 +169,7 @@
         </if>
     </select>
     <select id="getLongParticipantsByPage" resultMap="BaseResultMap">
-        select s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence from participants e,student s where e.studentID =s.ID and e.groupID=#{groupID} order by e.displaySequence
+        select s.name,e.school,e.code,e.score,e.displaySequence from participants e,student s where e.studentID =s.ID and e.groupID=#{groupID} order by e.displaySequence
         <if test="page !=null and size!=null">
             limit #{page},#{size}
         </if>
@@ -231,11 +231,11 @@
 <!--    为什么这样写？为了防止改出更多的bug，所以重写一个。。-->
     <insert id="insert" parameterType="org.sys.rate.model.Participates">
         insert into student  (ID,
-                              name,IDNumber, username,
+                              name, username,
                               password, telephone, email,deleteflag
         )
         values (#{ID,jdbcType=INTEGER},
-                #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR},
+                #{name,jdbcType=VARCHAR}, #{username,jdbcType=VARCHAR},
                 #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false
                )
     </insert>
@@ -272,8 +272,6 @@
         where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
         delete from scores
         where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
-        delete from comment
-        where participantID = #{ID,jdbcType=INTEGER} and activityID = #{activityID,jdbcType=INTEGER};
     </delete>
 
     <update id="update" parameterType="org.sys.rate.model.Participates">
@@ -283,7 +281,7 @@
         where ID=#{studentID,jdbcType=INTEGER}
     </update>
     <select id="getParticipatesByPage" resultMap="BaseResultMap">
-        select s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence from participants e,student s  where e.studentID=s.ID
+        select s.name,e.school,e.code,e.score,e.displaySequence from participants e,student s  where e.studentID=s.ID
     </select>
     <select id="getTotaloutput" resultType="java.lang.Long">
     select count(*) from participants e
@@ -350,14 +348,13 @@
         ON DUPLICATE KEY UPDATE studentID = values(studentID);
     </insert>
 
-<!--    <insert id="addParent" parameterType="org.sys.rate.model.Participates">-->
-<!--        INSERT INTO participants (`activityID`, `groupID`, `studentID`, `code`,`displaySequence`)-->
-<!--        values-->
-<!--        <foreach close=")" open="(" collection="list" item="item" separator=",">-->
-<!--            #{item.activityID}, #{item.groupID}, #{item.studentID}, #{item.code},#{item.displaySequence}-->
-<!--        </foreach>-->
-<!--        ON DUPLICATE KEY UPDATE studentID = values(studentID);-->
-<!--    </insert>-->
+    <insert id="insertParticipates" parameterType="java.util.List">
+        INSERT INTO participants (activityID, groupID, studentID, code, displaySequence,school,major,sex)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.activityID}, #{item.groupID}, #{item.studentID},#{item.code},#{item.displaySequence}, #{item.school}, #{item.major},#{item.sex})
+        </foreach>
+    </insert>
 
     <update id="update_relationship" parameterType="org.sys.rate.model.Participates">
         UPDATE participants
@@ -490,7 +487,7 @@
 <!--        </if>-->
     </select>
     <select id="getAllByActivityID" resultType="org.sys.rate.model.Participates">
-        select e.ID,s.IDNumber,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID,g.name as groupName from participants e, student s, `groups` g where e.studentID =s.ID and e.activityID=#{activityID} and g.ID=e.groupID order by e.groupID;
+        select e.ID,s.name,e.school,e.code,e.score,e.displaySequence,e.studentID,e.activityID,e.groupID,g.name as groupName from participants e, student s, `groups` g where e.studentID =s.ID and e.activityID=#{activityID} and g.ID=e.groupID order by e.groupID;
 <!--        <if test="page !=null and size!=null">-->
 <!--            limit #{page},#{size}-->
 <!--        </if>-->
@@ -501,7 +498,7 @@
         UPDATE activities set groupCount = 0
         where activities.ID=#{activityID}
     </update>
-    <delete id="deleteGroups" parameterType="Integer">
+    <delete id="deleteGroups" parameterType="java.lang.Integer">
         delete from `groups` where activityID = #{activityID}
     </delete>
     <update id="updateGroupID">

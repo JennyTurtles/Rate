@@ -97,6 +97,19 @@
         </template>
       </el-table-column>
     </el-table>
+    <div style="display: flex; justify-content: flex-end; margin: 10px 0">
+      <el-pagination
+          background
+          :current-page="currentPage"
+          :page-size="pageSize"
+          :page-sizes="pageSizes"
+          @current-change="currentChange"
+          @size-change="sizeChange"
+          layout="sizes, prev, pager, next, jumper, ->, total, slot"
+          :total="totalCount"
+      >
+      </el-pagination>
+    </div>
 
     <el-dialog
         class="showInfo_dialog"
@@ -193,6 +206,10 @@ import axios from "axios";
 export default {
   data() {
     return {
+      totalCount: 0,
+      currentPage: 1,
+      pageSize: 10,
+      pageSizes: [10, 20, 50, 100],
       isShowInfo: false,
       labelPosition: "left",
       dialogVisible_show: false,
@@ -219,8 +236,11 @@ export default {
       },
     };
   },
+  created() {
+    this.init(this.currentPage, this.pageSize);
+  },
   mounted() {
-    this.init();
+    // this.init(1, 3);
   },
   filters: {
     fileNameFilter: function (data) {
@@ -234,6 +254,14 @@ export default {
     },
   },
   methods: {
+    sizeChange(currentSize) {
+      this.pageSize = currentSize;
+      this.init(this.currentPage, this.pageSize);
+    },
+    currentChange(currentPage) {
+      this.currentPage = currentPage;
+      this.init(this.currentPage, this.pageSize);
+    },
     async auditing_commit(status) {
       this.loading = true;
       this.emp.state = status;
@@ -325,18 +353,21 @@ export default {
       }
     },
 
-    init() {
+    init(pageNum, pageSize) {
       this.loading = true;
-      axios.get(`/publicationSubmission/getStuSubmission?stuID=` + JSON.parse(localStorage.getItem('user')).id)
+      axios.get(`/publicationSubmission/getStuSubmission?stuID=${JSON.parse(localStorage.getItem('user')).id}&page=${pageNum}&size=${pageSize}`)
           .then((response) => {
             this.loading = false;
-            this.tableData = response.obj; // 将返回的数据赋值给 submission
-            // console.log(this.tableData);
+            this.tableData = response.extend.res[0]; // 将返回的数据赋值给 submission
+            this.totalCount = response.extend.res[1]
           })
           .catch((error) => {
             this.$message.error(error);
           });
     },
+
+
+
 
     rowClass() {
       return "background:#b3d8ff;color:black;font-size:13px;text-align:center";

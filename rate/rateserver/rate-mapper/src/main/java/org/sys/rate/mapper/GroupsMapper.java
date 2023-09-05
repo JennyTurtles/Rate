@@ -64,7 +64,7 @@ public interface GroupsMapper {
     @Select("select * from `groups` where activityID = #{activityID}")
     List<Groups> getGroupByActID(Integer activityID);
 
-    @Select("SELECT p.ID,name,IDNumber,code,activityID,groupID,studentID,s.institutionID,telephone,username,email,password FROM student s,participants p\n" +
+    @Select("SELECT p.ID,name,code,activityID,groupID,studentID,s.institutionID,telephone,username,email,password FROM student s,participants p\n" +
             "WHERE s.ID = p.studentID AND groupID = #{groupID}")
     List<Participates> getGroupPars(Integer groupID);
 
@@ -111,4 +111,10 @@ public interface GroupsMapper {
 
 
     void insertGroups(List<Groups> newGroups);
+
+    @Select("SELECT * FROM `groups` WHERE activityID = #{activityID} LIMIT 1")
+    Groups getGroupsByActivityID(Integer activityID);
+
+    @Select("SELECT * FROM `groups` WHERE activityID = #{activityID}")
+    List<Groups> getAllGroupsByActivityID(Integer activityID);
 }

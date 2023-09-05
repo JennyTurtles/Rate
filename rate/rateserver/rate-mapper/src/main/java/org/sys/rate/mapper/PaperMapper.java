@@ -91,4 +91,6 @@ public interface PaperMapper
 
     @Select("SELECT * FROM paper WHERE  ID = #{ID}")
     public Paper selectByID(Long ID);
+
+    public List<Paper> searchPaperByConditions (String studentName, String state, String name, String pointFront, String pointBack, String pub);
 }

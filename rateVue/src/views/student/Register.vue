@@ -1,20 +1,18 @@
 <template>
   <div class="box">
       <el-form class="registerContainer" :label-width="labelWidth" :rules="rules">
-        <el-form-item label="请输入身份证号:">
-          <el-input style="width: 60%"  @input="idNumberChange" v-model="user.idnumber"></el-input>
-        </el-form-item>
-        <el-form-item label="请输入学生姓名:">
+<!--        <el-form-item label="请输入身份证号:">-->
+<!--          <el-input style="width: 60%"  @input="idNumberChange" v-model="user.idnumber"></el-input>-->
+<!--        </el-form-item>-->
+        <el-form-item label="姓名:">
           <el-input style="width: 60%" v-model="user.name" :disabled="userInfoIsDisabled"></el-input>
         </el-form-item>
-        <el-form-item label="请输入单位:">
+        <el-form-item label="单位:">
           <el-autocomplete
               class="inline-input"
               v-model="currentInstitution"
               :fetch-suggestions="querySearch"
-              placeholder="请输入"
               :trigger-on-focus="false"
-              :popper-class="noInstitutionData ? 'platform-auto-complete' : ''"
               @select="handleSelect"
               value-key="company"
           >
@@ -23,13 +21,13 @@
 <!--            </template>-->
           </el-autocomplete>
         </el-form-item>
-        <el-form-item label="请输入学生电话:">
+        <el-form-item label="电话:">
           <el-input style="width: 60%" v-model="user.telephone" :disabled="userInfoIsDisabled"></el-input>
         </el-form-item>
-        <el-form-item label="请输入学生邮箱:">
+        <el-form-item label="邮箱:">
           <el-input style="width: 60%" v-model="user.email" :disabled="userInfoIsDisabled"></el-input>
         </el-form-item>
-        <el-form-item label="请选择注册的学生类型:" v-show="user.institutionID!==''">
+        <el-form-item label="注册的学生类型:" v-show="user.institutionID!==''">
 <!--          <span class="selectTitle"></span>-->
           <el-select v-model="selectStuType" clearable>
             <el-option
@@ -42,15 +40,15 @@
         </el-form-item>
 <!--        <div v-show="selectStuType == '本科生' || selectStuType == '研究生'">-->
         <div v-show="selectStuType !== '没有本校学号' && selectStuType !== null && selectStuType !== '' && selectStuType !== '不是大学生'">
-          <el-form-item label="请输入学号:">
+          <el-form-item label="学号:">
             <el-input style="width: 60%" v-model="user.studentnumber" ></el-input>
           </el-form-item>
-          <el-form-item label="请输入入学年份:">
+          <el-form-item label="入学年份:">
             <el-input style="width: 60%" v-model="user.year" :placeholder="defaultYear" ></el-input>
           </el-form-item>
         </div>
         <div v-show="selectStuType === '研究生'">
-          <el-form-item label="请选择研究生类型:">
+          <el-form-item label="研究生类型:">
             <el-select v-model="user.gradType">
               <el-option v-for="val in ['专硕','学硕','博士']"
                          :value="val"
@@ -60,19 +58,19 @@
             </el-select>
           </el-form-item>
         </div>
-        <el-form-item label="请输入用户名:">
+        <el-form-item label="用户名:">
           <el-input style="width: 60%" v-model="user.username" :disabled="usernameAndPwdIsDisabled"></el-input>
         </el-form-item>
-        <el-form-item label="请输入密码:">
+        <el-form-item label="密码:">
           <el-input style="width: 60%" v-model="user.password" type="password" :disabled="usernameAndPwdIsDisabled"></el-input>
         </el-form-item>
-        <el-form-item label="请输入确认密码:" prop="confirmPassword">
+        <el-form-item label="确认密码:" prop="confirmPassword">
           <el-input style="width: 60%" v-model="confirmPassword" type="password" :disabled="usernameAndPwdIsDisabled" ></el-input>
         </el-form-item>
-        <el-form-item label="请输入密保问题:">
+        <el-form-item label="密保问题:">
           <el-input style="width: 60%" v-model="user.registerQuestion" :disabled="userInfoIsDisabled"></el-input>
         </el-form-item>
-        <el-form-item label="请输入密保答案:">
+        <el-form-item label="密保答案:">
           <el-input style="width: 60%" v-model="user.registerAnswer" :disabled="userInfoIsDisabled"></el-input>
         </el-form-item>
         <div class="footer">
@@ -96,8 +94,6 @@ export default {
       selectStuType:'',
       confirmPassword:'',
       checkPwdState:false,
-      institutions:[],
-      noInstitutionData:false,
       currentInstitution:'',
       stuType:['本科生','研究生','不是大学生'],
       user:{
@@ -137,7 +133,6 @@ export default {
   },
   mounted() {
     // this.debounceCheckPwd = debounce(this.checkPwd(),300)
-    this.getInstitutions();
   },
   computed:{
     labelWidth(){
@@ -167,10 +162,10 @@ export default {
     },
 
     register(){
-      if(this.user.idnumber == null || this.user.idnumber == ''){
-        this.$message.warning('请输入身份证号！')
-        return
-      }
+      // if(this.user.idnumber == null || this.user.idnumber == ''){
+      //   this.$message.warning('请输入身份证号！')
+      //   return
+      // }
       if (this.currentInstitution == ''){
         this.$message.warning('请输入单位！')
         return
@@ -255,29 +250,23 @@ export default {
         institutionID:''
       }
     },
-    getInstitutions(){
-      let url = '/institution/basic/getAll';
-      this.getRequest(url).then(resp => {
-        if (resp) {
-          this.institutions = resp.obj;
-        }
-      });
-    },
     querySearch(queryString, callback) {
-      console.log(queryString);
-      var institutions = this.institutions;
-      var results = queryString ? institutions.filter(this.createFilter(queryString)) : institutions;
-      if (results.length === 0){
-        this.item.company = '其他';
-        console.log(this.item);
+      let results = []
+      if (queryString.length == 0){
         results.push(this.item);
-      }// 调用 callback 返回建议列表的数据
-      callback(results);
-    },
-    createFilter(queryString) {
-      return (institutions) => {
-        return (institutions.company.includes(queryString));
-      };
+        callback(results);
+      }
+      this.getRequest('/institution/basic/searchByName?name='+queryString)
+          .then((resp) => {
+            if (resp) {
+              results = resp.obj;
+              if (results.length === 0 ) {
+                this.item.company = '其他';
+                results.push(this.item);
+              }// 调用 callback 返回建议列表的数据
+              callback(results);
+            }
+          })
     },
     handleSelect(item) {
       this.user.institutionID = item.id;

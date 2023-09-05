@@ -48,6 +48,15 @@
             limit #{page},#{size}
         </if>
     </select>
+    <select id="getActivitiesByPageHelper" resultMap="BaseResultMap">
+        select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.comment,e.institutionID,e.status,e.haveSub,aa.adminID,aa.activityID,aa.ID,e.haveComment,e.creatorID,e.enterDate,e.visibleDate,e.gradeFormType
+        from activities e,activitygrant aa
+        where e.deleteFlag = '0'
+        and e.institutionID = #{institutionID}
+        and e.parentID is null
+        and aa.activityID = e.id
+        and aa.adminID = #{ID}
+    </select>
     <select id="getTotal" resultType="java.lang.Long">
         select count(*) from activities e
         where e.deleteFlag = '0'

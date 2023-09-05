@@ -21,6 +21,7 @@ import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import javax.validation.Valid;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -38,9 +39,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("")
 public class ProjectTypeController {
-    
+
     @Resource
     private ProjectTypeService projectTypeService;
+    @Resource
+    private ProjectTypeMapper projectTypeMapper;
 
 
     @GetMapping("/projectByYear")
@@ -57,38 +60,66 @@ public class ProjectTypeController {
     }
 
     @PostMapping("/projectType")
-    public RespBean addProjectType(@RequestBody ProjectType projectType){
-        // 需要查重，这个放在前端进行判断
+    public RespBean addProjectType(@Valid @RequestBody ProjectType projectType){
         try {
             Integer res = projectTypeService.addProjectType(projectType);
-            return RespBean.ok("Project type added successfully", res);
+            if(res == 0){
+                return RespBean.ok("重复添加，已忽略", res);
+            }
+            return RespBean.ok("添加成功", res);
         } catch (Exception e) {
             return RespBean.error("Failed to add project type");
+        }
+    }
+
+    public boolean isInteger(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch(NumberFormatException e) {
+            return false;
         }
     }
 
     @PutMapping("/projectType")
-    public RespBean editProjectType(@RequestBody ProjectType projectType){
+    public RespBean editProjectType(@Valid @RequestBody ProjectType projectType){
         // 当projectType下面对应的project，就不应该随意更新或者删除。这个可以在数据库上加以限制，但是不好
         try {
-            projectTypeService.editProjectType(projectType);
-            return RespBean.ok("Project type edited successfully");
+            Integer res = projectTypeService.editProjectType(projectType);
+            return res != 0 ? RespBean.ok("修改成功！", res) : RespBean.error("科研项目重名！");
         } catch (Exception e) {
             return RespBean.error("Failed to add project type");
         }
-
     }
 
     @DeleteMapping("/projectType")
-    public RespBean deleteProjectTypeById(@RequestParam("id") Integer id){
+    public RespBean deleteProjectTypeById(@RequestParam("id") Integer id,@RequestParam Integer year){
         try {
             projectTypeService.deleteProjectTypeById(id);
+//            projectTypeMapper.deleteByYearIndicatorID(year,id);
             return RespBean.ok("delete project successfully!");
         } catch (Exception e) {
             return RespBean.error("delete project error!");
         }
     }
-
-
-
+    @PostMapping("/projectType/dels")
+    public RespBean deleteByYearId(@RequestParam Integer year, @RequestParam Integer indicatorID){
+        try {
+            projectTypeMapper.deleteByYearIndicatorID(year,indicatorID);
+            return RespBean.ok("删除成功！");
+        } catch (Exception e){
+            return RespBean.error("删除失败！");
+        }
+    }
+    @PostMapping("/projectType/import")
+    public RespBean multiImportPublication(@RequestBody List<ProjectType> projectTypes){
+        try {
+            for (ProjectType projectType:projectTypes){
+                projectTypeMapper.addProjectType(projectType);
+            }
+            return RespBean.ok("添加成功！");
+        } catch (Exception e){
+            return RespBean.error("添加失败！");
+        }
+    }
 }

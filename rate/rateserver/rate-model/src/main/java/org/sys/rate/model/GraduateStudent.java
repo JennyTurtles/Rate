@@ -1,5 +1,8 @@
 package org.sys.rate.model;
 
+import lombok.Data;
+
+@Data
 public class GraduateStudent extends Student{
     private Integer ID;
     private Integer institutionID;
@@ -9,6 +12,8 @@ public class GraduateStudent extends Student{
     private Integer tutorID;
     private String studentType;
     private String point;
+    private String specialty;
+    private String className;
 
     // 建议对继承的方法加上Override
     @Override

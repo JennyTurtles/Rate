@@ -9,6 +9,7 @@ import org.sys.rate.model.*;
 import org.sys.rate.service.admin.GroupsService;
 import org.sys.rate.service.admin.InfosService;
 import org.sys.rate.service.admin.LogService;
+import org.sys.rate.service.admin.ParticipatesService;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
@@ -28,6 +29,8 @@ public class GroupsController {
     InfosService infosService;
     @Resource
     GroupsMapper groupsMapper;
+    @Resource
+    ParticipatesService participatesService;
 
     @GetMapping("/")
     public RespPageBean getGroupsByPage(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, Groups employee) {
@@ -183,9 +186,10 @@ public class GroupsController {
         if (groupID == null) { // 创建子活动分组
             Groups group = new Groups(activityID,groupIDParent,"默认子活动小组");
             groupsMapper.insertGroup(group); // 插入并返回ID
-            return RespBean.ok("success", new ArrayList<>(Arrays.asList(group.getID(),new ArrayList<>())));
+            participatesService.copyParticipates(groupIDParent,activityID,group.getID());
+            return RespBean.ok("success", group.getID());
         }
-        return RespBean.ok("success", new ArrayList<>(Arrays.asList(groupID,groupsMapper.getGroupPars(groupID))));
+        return RespBean.ok("success", groupID);
     }
 
     @Transactional
@@ -198,5 +202,15 @@ public class GroupsController {
             return RespBean.ok("success", new ArrayList<>(Arrays.asList(group.getID(),new ArrayList<>())));
         }
         return RespBean.ok("success", new ArrayList<>(Arrays.asList(groupID,groupsMapper.getGroupExperts(groupID))));
+    }
+
+    @GetMapping("/getByActivityID")
+    public RespBean getGroupsByActivityID(@RequestParam Integer activityID) {
+        return RespBean.ok("success", groupsMapper.getGroupsByActivityID(activityID));
+    }
+
+    @GetMapping("/getAllByActivityID")
+    public RespBean getAllGroupsByActivityID(@RequestParam Integer activityID) {
+        return RespBean.ok("success", groupsMapper.getAllGroupsByActivityID(activityID));
     }
 }

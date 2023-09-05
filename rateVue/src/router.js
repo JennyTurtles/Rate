@@ -251,7 +251,17 @@ export default new Router({
           meta: {
             title: '论文',
           },
-        }, {
+        },
+        {
+          path: '/student/AcademicCompetition',
+          name: '学科竞赛',
+          hidden: true,
+          component: () => import('./views/student/Academic-Competition'),
+          meta: {
+            title: '学科竞赛',
+          },
+        },
+        {
           path: '/student/Standard',
           name: '制定标准',
           hidden: true,
@@ -315,6 +325,42 @@ export default new Router({
           },
         },
         {
+          path: '/student/Product',
+          name: '科研产品',
+          hidden: true,
+          component: () => import('./views/student/Product'),
+          meta: {
+            title: '科研产品',
+          },
+        },
+        {
+          path:'/student/Decision',
+          name:'决策咨询',
+          hidden:true,
+          component:()=>import('./views/student/Decision'),
+          meta: {
+            title: '决策咨询',
+          },
+        },
+        {
+          path: '/teacher/AcademicCompetition',
+          name: '学科竞赛',
+          hidden: true,
+          component: () => import('./views/teacher/Academic-Competition'),
+          meta: {
+            title: '学科竞赛',
+          },
+        },
+        {
+          path: '/teacher/Decision',
+          name: '决策咨询',
+          hidden: true,
+          component: () => import('./views/teacher/Decision'),
+          meta: {
+            title: '决策咨询',
+          },
+        },
+        {
           path: '/teacher/tAcademicMonograph',
           name: '学术专著和教材2',
           hidden: true,
@@ -325,18 +371,27 @@ export default new Router({
         },
         {
           path: '/teacher/tResearchProject',
-          name: '科研项目2',
+          name: '科研项目',
           hidden: true,
           component: () => import('./views/teacher/Research-Project'),
           meta: {
-            title: '科研项目2',
+            title: '科研项目',
           },
         },
         {
-          path: '/teacher/tProduct',
+          path: '/teacher/Standard',
+          name: '制定标准',
+          hidden: true,
+          component: () => import('./views/teacher/Standard'),
+          meta: {
+            title: '制定标准',
+          },
+        },
+        {
+          path: '/teacher/Product',
           name: '科研产品',
           hidden: true,
-          component: () => import('./views/teacher/Project'),
+          component: () => import('./views/teacher/Product'),
           meta: {
             title: '科研产品',
           },
@@ -446,6 +501,15 @@ export default new Router({
           },
         },
         {
+          path: '/teacher/gradeForm',
+          name: '成绩评定表导出',
+          hidden: true,
+          component: () => import('./views/teacher/GradeForm.vue'),
+          meta: {
+            title: '成绩评定表导出',
+          },
+        },
+        {
           path: '/teacher/stuPaperComment',
           name: '教师毕业论文评审记录详情界面',
           hidden: true,
@@ -510,13 +574,32 @@ export default new Router({
         },
         {
           path: '/admin/UnderGraduateM',
-          name: '本科生管理',
+          name: '学生管理',
           hidden: true,
           component: () => import('./views/admin/SalUnderGraduateM'),
           meta: {
-            title: '本科生管理',
+            title: '学生管理',
           },
         },
+        {
+          path: '/admin/StartThesis',
+          name: '开启毕业论文',
+          hidden: true,
+          component: () => import('./views/admin/StartThesis'),
+          meta: {
+            title: '开启毕业论文',
+          },
+        },
+        {
+          path: '/admin/ManageThesis',
+          name: '管理毕业论文',
+          hidden: true,
+          component: () => import('./views/admin/ManageThesis'),
+          meta: {
+            title: '管理毕业论文',
+          },
+        },
+
       ],
     },
       //新打开一个页面

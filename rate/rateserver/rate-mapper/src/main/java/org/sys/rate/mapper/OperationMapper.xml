@@ -58,4 +58,7 @@
         select * from i_oper where prod_type = #{type}
     </select>
 
+    <delete id="deleteOperationList" parameterType="org.sys.rate.model.Operation">
+        delete from i_oper where prod_type = #{prodType} and prod_id = #{prodId};
+    </delete>
 </mapper>

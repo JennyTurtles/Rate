@@ -2,11 +2,15 @@ package org.sys.rate.service.admin;
 
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
+import org.sys.rate.mapper.OperationMapper;
 import org.sys.rate.mapper.PaperMapper;
+import org.sys.rate.model.Monograph;
+import org.sys.rate.model.Operation;
 import org.sys.rate.model.Paper;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -14,6 +18,8 @@ public class PaperService {
 
     @Resource
     private PaperMapper paperMapper;
+    @Resource
+    private OperationMapper operationMapper;
     //@Resource
     //MailToStuService mailToStuService;
 
@@ -111,5 +117,9 @@ public class PaperService {
             paperMapper.updateScore(stuID,score);
         }
         return paperMapper.editState(state,ID);
+    }
+    public List<Paper> searchPaperByConditions(String studentName, String state, String name, String pointFront, String pointBack, String pub) {
+        List<Paper> list = paperMapper.searchPaperByConditions(studentName, state, name, pointFront, pointBack, pub);
+        return list;
     }
 }

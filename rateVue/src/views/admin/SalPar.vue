@@ -18,9 +18,6 @@
       <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
       <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
      </el-tabs>
-      <a>
-      选手添加有三种模式：手动添加、从本单位添加、批量导入。<br/><br/>
-      </a>
       <div style="display: flex;justify-content: space-between;">
         <!-- <div>
           <el-input placeholder="请输入单位名进行搜索，可以直接回车搜索..." prefix-icon="el-icon-search"
@@ -38,7 +35,7 @@
           </el-button>
         </div>
         <div>
-          <el-button type="primary" @click="exportTG" icon="el-icon-download">
+          <el-button v-show="!$route.query.addActive" type="primary" @click="exportTG" icon="el-icon-download">
             导出专家打分
           </el-button>
 <!--          <el-button-->
@@ -176,16 +173,6 @@
               placeholder="请输入选手姓名"
           ></el-input>
         </el-form-item>
-        <el-form-item label="证件号码:" prop="idnumber">
-          <el-input
-              size="mini"
-              style="width: 200px"
-              prefix-icon="el-icon-edit"
-              v-model="emp.idnumber"
-              disabled
-              placeholder="证件号码"
-          ></el-input>
-        </el-form-item>
         <el-form-item
             v-for="(value,idx) in emp.scoremap"
             :key="idx"
@@ -237,16 +224,6 @@
           <el-table-column prop="name" fixed label="专家姓名" min-width="5%">
             <template slot-scope="scope">
               <span>{{ scope.row.name }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-              prop="idnumber"
-              label="证件号码"
-              align="left"
-              min-width="5%"
-          >
-            <template slot-scope="scope">
-              <span>{{ scope.row.idnumber }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -435,20 +412,23 @@
               :data="parentGroup"
               tooltip-effect="dark"
               style="width: 100%"
-              @selection-change="handleSelectionChange">
+              @selection-change="handleSelectionChange"
+              :row-key="getRowKeys">
             <el-table-column
+                :reserve-selection="true"
                 type="selection"
+                :selectable="checkSecletion"
                 width="40px">
             </el-table-column>
+           <el-table-column
+               prop="code"
+               label="学号"
+               show-overflow-tooltip>
+           </el-table-column>
             <el-table-column
                 prop="name"
                 label="姓名"
                 >
-            </el-table-column>
-            <el-table-column
-                prop="idnumber"
-                label="证件号码"
-                show-overflow-tooltip>
             </el-table-column>
           </el-table>
           <el-button type="primary" @click="add" style="float: right;margin-top: 10px">
@@ -564,7 +544,17 @@ export default {
     this.ACNAME=this.$route.query.keywords_name;
     this.activityIDParent=this.$route.query.activityIDParent;
     this.groupIDParent=this.$route.query.groupIDParent;
-    this.initEmps();
+    if (!this.groupID){
+     this.getRequest("/groups/basic/parsForUniqueGroupSubActivity?activityID="+this.activityID+"&groupIDParent="+this.groupIDParent).then(res => {
+      if (res){
+       this.groupID = res.obj
+       this.initEmps();
+      }
+     })
+    }else {
+     this.initEmps();
+    }
+
    if (typeof this.$route.query.back != 'undefined') {
     this.back()
    }
@@ -827,7 +817,7 @@ export default {
     },
     initEmps(oldLen) {
       this.loading = true;
-      let url = '/participants/basic/?page=' + 1 + '&size=' + 1000+ '&groupID=' + this.groupID+ '&activitiesID=' + this.activityID;
+      let url = '/participants/basic/?page=' + 1 + '&size=' + 1000+ '&groupID=' + (this.groupID ? this.groupID : this.$route.query.groupID )+ '&activitiesID=' + this.activityID;
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
@@ -874,6 +864,9 @@ export default {
       this.getRequest(url).then(resp => {
         this.loading = false;
         if (resp) {
+          for (let i = 0; i < resp.data.length; i++){
+            resp.data[i].id = resp.data[i].studentID;
+          }
           this.parentGroup = resp.data;
         }
       });
@@ -909,8 +902,8 @@ export default {
       if (this.mode==='secretarySub' && this.$route.query.smallGroup === 'false')
         keywords = this.activityIDParent
       var groupID = this.groupID
-      if (this.mode==='secretarySub' && this.$route.query.smallGroup === 'true')
-        groupID = this.groupIDParent
+      if (this.mode==='secretarySub')
+        groupID = this.$route.query.groupIDParent
       _this.$router.push({
         path: url,
         query: {
@@ -925,6 +918,7 @@ export default {
           haveSub:this.$route.query.haveSub,
           backID:this.$route.query.backID,
           backActName:this.$route.query.backActName,
+          forSecretary:this.$route.query.forSecretary,
         },
       });
     },
@@ -977,7 +971,7 @@ export default {
         query:{
           activityIDParent:this.$route.query.activityIDParent,
           groupIDParent:this.$route.query.groupIDParent,
-          groupID:this.$route.query.groupID,
+          groupID:this.$route.query.groupID ? this.$route.query.groupID : this.groupID,
           actName:this.$route.query.actName,
           groupName:this.$route.query.groupName,
           smallGroup:this.$route.query.smallGroup,
@@ -991,6 +985,7 @@ export default {
           backActName:this.$route.query.backActName,
           addActive:this.$route.query.addActive,
           requireGroup:this.$route.query.requireGroup,
+          forSecretary:this.$route.query.forSecretary,
         }
       })
     },

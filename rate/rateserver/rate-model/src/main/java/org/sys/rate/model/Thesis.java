@@ -19,11 +19,11 @@ public class Thesis {
     /**
      * 毕业论文或设计的ID
      */
-    private int ID;
+    private Integer ID;
     /**
      * 学生学号
      */
-    private int studentID;
+    private Integer studentID;
     /**
      * 毕业论文或设计的标题
      */
@@ -31,11 +31,11 @@ public class Thesis {
     /**
      * 上传年份
      */
-    private int year;
+    private Integer year;
     /**
-     * 上传月份
+     * 上传月份，是否可以将上传月份和春季和秋季对应起来，规定一下month=3为春季，month=4为秋季，要不然要改好多
      */
-    private int month;
+    private Integer month;
     /**
      * 上传材料的地址
      */
@@ -45,5 +45,12 @@ public class Thesis {
      */
     private Student student;
 
+    private Integer tutorID;
+
+    private String tutorNumber;
+    private String studentNumber;
+
+    private Double grade;
+    private Integer startThesisId;
 
 }

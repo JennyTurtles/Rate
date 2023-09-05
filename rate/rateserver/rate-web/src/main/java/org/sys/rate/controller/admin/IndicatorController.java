@@ -1,12 +1,17 @@
 package org.sys.rate.controller.admin;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.sys.rate.mapper.AwardTypeMapper;
+import org.sys.rate.mapper.CompetitionTypeMapper;
 import org.sys.rate.mapper.IndicatorMapper;
-import org.sys.rate.model.Indicator;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.IndicatorService;
-import org.sys.rate.model.TreeNode;
+import org.sys.rate.service.admin.PublicationService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -21,6 +26,144 @@ public class IndicatorController {
     private IndicatorService indicatorService;
     @Resource
     private IndicatorMapper indicatorMapper;
+    @Resource
+    private AwardTypeMapper awardTypeMapper;
+    @Resource
+    private CompetitionTypeMapper competitionTypeMapper;
+
+    @GetMapping("/getProductByYear")
+    public Msg listByName(@RequestParam("indicatorId") Integer indicatorId,
+                          @RequestParam("year") Integer year,
+                          @RequestParam("pageNum") Integer pageNum,
+                          @RequestParam("pageSize") Integer pageSize,
+                          @RequestParam("type") String type) {
+        Page page = PageHelper.startPage(pageNum,pageSize);
+        List<T> list = indicatorService.selectProductListByYear(indicatorId, year, type);
+        if (list.isEmpty()) {
+            return Msg.success().add("res", null);
+        }
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
+    }
+
+
+    @GetMapping("/getAwardByYearLevel")
+    public Msg listByName2(@RequestParam("level") String level,
+                          @RequestParam("year") Integer year,
+                          @RequestParam("pageNum") Integer pageNum,
+                          @RequestParam("pageSize") Integer pageSize) {
+        Page page = PageHelper.startPage(pageNum,pageSize);
+        List<Award> list = awardTypeMapper.getByLevelYear(level, year);
+        if (list.isEmpty()) {
+            return Msg.success().add("res", null);
+        }
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
+    }
+
+    @GetMapping("/getCompetitionByYearLevel")
+    public Msg listByName3(@RequestParam("year") Integer year,
+                           @RequestParam("pageNum") Integer pageNum,
+                           @RequestParam("pageSize") Integer pageSize) {
+        Page page = PageHelper.startPage(pageNum,pageSize);
+        List<CompetitionType> list = competitionTypeMapper.getByLevelCompetition(year);
+        if (list.isEmpty()) {
+            return Msg.success().add("res", null);
+        }
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
+    }
+
+    // 根据成果类型和具体的名字进行查询，返回包含indicator的全部信息
+    // 算了，写在一起吧，虽然冗余了代码
+    @GetMapping("/getProductByTypeName")
+    public RespBean getProductByTypeName(@RequestParam("indicatorType") String indicatorType, @RequestParam("fullName") String fullName) {
+        try {
+            List<T> product = indicatorService.getProductByTypeName(indicatorType, fullName);
+            return RespBean.ok("200", product);
+        } catch (Exception e) {
+            return RespBean.error("error when getProductByTypeName");
+        }
+    }
+
+
+    // 根据成果类型和部分具体的名字进行查询，对每种类型获取不同的内容
+    @GetMapping("/getProductNamesByTypeName")
+    public RespBean getProductNamesByTypeName(@RequestParam("indicatorType") String indicatorType, @RequestParam("name") String name) {
+        try {
+            List<String> productNamesByTypeName = indicatorService.getProductNamesByTypeName(indicatorType, name);
+            return RespBean.ok("200", productNamesByTypeName);
+        } catch (Exception e) {
+            return RespBean.error("error when getProductNamesByTypeName");
+        }
+    }
+
+    // 根据indicator_id返回中间表中所有的年份并进行去重和排序
+    @GetMapping("/getAllYear/{indicatorId}/{indicatorType}")
+    public RespBean getAllYearById(@PathVariable Integer indicatorId, @PathVariable String indicatorType){
+        try {
+            ArrayList<Integer> yearList = indicatorService.getAllYearById(indicatorId, indicatorType);
+            return RespBean.ok("getAllYear", yearList);
+        } catch (Exception e) {
+            return RespBean.error("获取所有有数据的年份失败！");
+        }
+    }
+
+    @GetMapping("/getAllYearForAward")
+    public RespBean getAllYearForAward(@RequestParam("level") String level){
+        try {
+            List<Integer> yearList = indicatorMapper.getAllYearForAward(level);
+            return RespBean.ok("getAllYear", yearList);
+        } catch (Exception e) {
+            return RespBean.error("获取所有有数据的年份失败！");
+        }
+    }
+
+    @GetMapping("/getAllYearForCompetition")
+    public RespBean getAllYearForCompetition(){
+        try {
+            List<Integer> yearList = indicatorMapper.getAllYearForCompetition();
+            return RespBean.ok("getAllYear", yearList);
+        } catch (Exception e) {
+            return RespBean.error("获取所有有数据的年份失败！");
+        }
+    }
+
+    // 从fromYear和indicator_id获取所有的publication_id列表1，从toYear和indicator_id获取所有的publication_id列表2，
+    // list1中要首先去除list2的内容，然后再加入list2
+    @PostMapping("clone/{fromYear}/{toYear}/{indicatorId}/{indicatorType}")
+    public RespBean clone(@PathVariable Integer fromYear, @PathVariable Integer toYear, @PathVariable Long indicatorId, @PathVariable String indicatorType){
+        try {
+            indicatorService.clone(fromYear, toYear, indicatorId, indicatorType);
+            return RespBean.ok("clone success!");
+        } catch (Exception e) {
+            return RespBean.error("clone wrong!");
+        }
+    }
+
+    @PostMapping("cloneForAward/{fromYear}/{toYear}/{level}")
+    public RespBean cloneForAward(@PathVariable Integer fromYear, @PathVariable Integer toYear, @PathVariable String level){
+        try {
+            indicatorMapper.cloneAward(fromYear, toYear, level);
+            return RespBean.ok("clone success!");
+        } catch (Exception e) {
+            return RespBean.error("clone wrong!");
+        }
+    }
+
+    @PostMapping("cloneForCompetition/{fromYear}/{toYear}")
+    public RespBean cloneForCompetition(@PathVariable Integer fromYear, @PathVariable Integer toYear){
+        try {
+            indicatorMapper.cloneCompetition(fromYear, toYear);
+            return RespBean.ok("clone success!");
+        } catch (Exception e) {
+            return RespBean.error("clone wrong!");
+        }
+    }
+
 
     // 上限为7层，每层最多99个节点，因为order字段最大长度为20。
     // 依赖order字段确定父子关系并保持有序，仅使用id和parent不能保持有序。
@@ -50,7 +193,7 @@ public class IndicatorController {
             List<Integer> key = new ArrayList<>();
             for (String numString : tmp)
                 key.add(Integer.parseInt(numString));
-            TreeNode Node = new TreeNode(indicator.getId(), indicator.getOrder() + " " + indicator.getName(), indicator.getType(), indicator.getOrder(), indicator.getScore(), indicator.getRankN());
+            TreeNode Node = new TreeNode(indicator.getId(), indicator.getOrder() + " " + indicator.getName(), indicator.getType(), indicator.getOrder(), indicator.getScore(), indicator.getRankN(),indicator.getLevel());
             map.put(key, Node);
         }
         List<Integer> empty = new ArrayList<>();
@@ -138,6 +281,7 @@ public class IndicatorController {
     @PostMapping("/insert")
     public RespBean insert(@RequestBody Indicator indicator) //对象内的order为新位置的order,其他字段也为新数据
     {
+        indicator.setType(indicator.getType().split(" ")[1]);
         String oldOrder = indicatorService.selectOrder(indicator.getId()); //通过id获取老的order
         String newOlder = indicator.getOrder();
         if (oldOrder.equals(newOlder))
@@ -265,7 +409,7 @@ public class IndicatorController {
         Map<List<Integer>, TreeNode> map = new HashMap<>();
         for (Indicator indicator : data) {
             List<Integer> key = stringToList(indicator.getOrder());
-            TreeNode Node = new TreeNode(indicator.getId(), indicator.getName(), indicator.getType(), indicator.getOrder(), indicator.getScore(), indicator.getRankN());
+            TreeNode Node = new TreeNode(indicator.getId(), indicator.getName(), indicator.getType(), indicator.getOrder(), indicator.getScore(), indicator.getRankN(),indicator.getLevel());
             map.put(key, Node);
         }
         return map;

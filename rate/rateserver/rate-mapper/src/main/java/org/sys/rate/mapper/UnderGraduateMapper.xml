@@ -24,19 +24,34 @@
             <result property="jobnumber" column="tjobnumber"/>
         </association>
     </resultMap>
+    <resultMap id="ResultMapThesis" type="org.sys.rate.model.UnderGraduate">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <id column="studentID" property="studentID" jdbcType="INTEGER"/>
+        <result column="institutionID" jdbcType="INTEGER" property="institutionID" />
+        <result column="stuNumber" property="stuNumber" jdbcType="VARCHAR"/>
+        <result column="year" property="year" jdbcType="INTEGER"/>
+        <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
+        <result column="specialty" property="specialty" jdbcType="VARCHAR"/>
+        <result column="class" property="className" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <association property="thesis" javaType="org.sys.rate.model.Thesis">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="grade" column="grade"/>
+        </association>
+    </resultMap>
 
     <sql id="Base_Column_List">
         ID, studentID,institutionID,stuNumber, year, tutorID
     </sql>
 
     <insert id="insert" parameterType="org.sys.rate.model.UnderGraduate">
-        insert into undergraduate (ID,studentID,institutionID,stuNumber,year,tutorID)
+        insert into undergraduate (ID,studentID,institutionID,stuNumber,year)
         values  (#{ID,jdbcType=INTEGER},
                  #{studentID,jdbcType=INTEGER},
                  #{institutionID,jdbcType=INTEGER},
                  #{stuNumber,jdbcType=VARCHAR},
-                 #{year,jdbcType=VARCHAR},
-                 #{tutorID,jdbcType=INTEGER})
+                 #{year,jdbcType=VARCHAR})
     </insert>
 
 <!--    <select id="check" resultType="java.lang.Integer">-->
@@ -44,15 +59,16 @@
 <!--    </select>-->
 
     <insert id="insertFROMImport" parameterType="org.sys.rate.model.UnderGraduate">
-        insert into undergraduate(ID,studentID,stuNumber,institutionID,year,specialty,class) values
+        insert into undergraduate(studentID,stuNumber,institutionID,year,specialty,class) values
         <foreach collection="list" separator="," item="under">
-               (#{under.ID,jdbcType=INTEGER},
-                #{under.studentID,jdbcType=INTEGER},
+                (#{under.studentID,jdbcType=INTEGER},
                 #{under.stuNumber,jdbcType=VARCHAR},
                 #{under.institutionID,jdbcType=INTEGER},
                 #{under.year,jdbcType=VARCHAR}, #{under.specialty,jdbcType=VARCHAR},#{under.className,jdbcType=VARCHAR})
         </foreach>
     </insert>
+
+
 
     <update id="updateFROMImport" parameterType="org.sys.rate.model.UnderGraduate">
         <foreach collection="list" item="item" open="" close="" separator=";">
@@ -60,8 +76,7 @@
             <set>
                 institutionID=#{item.institutionID},
                 stuNumber = #{item.stuNumber},
-                year = #{item.year},
-                tutorID = #{item.tutorID}
+                year = #{item.year}
             </set>
             where studentID = #{item.studentID}
         </foreach>
@@ -75,10 +90,8 @@
         </foreach>
     </select>
     <select id="getUnderStudent" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,t.name as tname,t.jobnumber as tjobnumber
+        select u.*,s.name,s.telephone,s.email,s.username
         from undergraduate u
-        left join teacher t
-        on u.tutorID=t.ID
         left join student s
         on u.studentID=s.ID
 --         where s.ID = u.studentID and u.tutorID = t.ID
@@ -95,6 +108,30 @@
         SET tutorID = #{tutorID},specialty = #{specialty,jdbcType=VARCHAR},class = #{className,jdbcType=VARCHAR}
         where ID=#{ID,jdbcType=INTEGER};
     </update>
+    <update id="update">
+        UPDATE undergraduate SET  stuNumber=#{stuNumber,jdbcType=VARCHAR},
+                           year=#{year,jdbcType=INTEGER},
+                           specialty=#{specialty,jdbcType=VARCHAR},
+                           class=#{className,jdbcType=VARCHAR}
+        where studentID=#{studentID,jdbcType=INTEGER};
+    </update>
+
+    <update id="updateWithInstitutionID" parameterType="org.sys.rate.model.UnderGraduate">
+        UPDATE undergraduate
+        <set>
+            <if test="year != null">year = #{year},</if>
+            <if test="specialty != null">specialty = #{specialty},</if>
+            <if test="className != null">class = #{className}</if>
+        </set>
+        WHERE institutionID = #{institutionID} AND stuNumber = #{stuNumber}
+    </update>
+    <update id="updateGroup">
+        update thesis
+        set `group` =#{groupName}
+        where ID =#{ID}
+    </update>
+
+
     <select id="getTeaNamesBySelect" resultType="org.sys.rate.model.Teachers">
         select t.*
         from undergraduate g,teacher t
@@ -121,8 +158,80 @@
         select exists (select * from undergraduate where tutorID = #{tutorID} and ID != #{ID})
     </select>
     <select id="getUnderByStuID" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,s.password,s.registerQuestion,s.registerAnswer
+        select u.*,s.name,s.telephone,s.email,s.username,s.password,s.registerQuestion,s.registerAnswer
         from undergraduate u,student s
         where u.studentID = #{studentID} and s.ID = u.studentID
     </select>
+    <select id="checkHaveStudentOfStuNumber" resultType="java.lang.Integer">
+        select exists (select * from undergraduate where institutionID = #{institutionID} and stuNumber = #{stuNumber} and studentID != #{studentID} )
+    </select>
+    <select id="getUngroupedBySpecialty" resultType="org.sys.rate.model.Thesis">
+        select *
+        from thesis t,undergraduate u
+        where t.year=#{year} and t.month=#{month} and t.studentID = u.ID and u.specialty =#{specialty} and t.`group` is null
+    </select>
+    <select id="getUngroupedByClass" resultType="org.sys.rate.model.Thesis">
+        select *
+        from thesis t,undergraduate u
+        where t.year=#{year} and t.month=#{month} and t.studentID = u.ID and u.class =#{className} and t.`group` is null
+    </select>
+    <select id="getNoGrade" resultType="org.sys.rate.model.Thesis">
+        select *
+        from thesis
+        where year=#{year} and month=#{month} and grade is null
+    </select>
+
+
+    <select id="getStudentByConditions" resultType="org.sys.rate.model.UnderGraduate">
+        SELECT
+        u.institutionID,
+        u.specialty,
+        u.stuNumber,
+        u.class AS className,
+        u.studentID,
+        u.YEAR,
+        t.tutorID,
+        t.GROUP,
+        s.email AS email,
+        s.telephone AS telephone,
+        s.NAME,
+        tea.NAME AS tutorName,
+        tea.jobnumber AS tutorJobNumber
+        FROM
+        thesis t
+        INNER JOIN undergraduate u ON t.studentID = u.ID
+        INNER JOIN student s ON s.ID = u.studentID
+        LEFT JOIN teacher tea ON t.tutorID = tea.id
+
+
+        where
+        t.YEAR = #{startYear}
+        AND t.MONTH = #{month}
+        AND u.institutionID = #{institutionID}
+        <if test="stuNumber != null and stuNumber != ''">and u.stuNumber like concat('%', #{stuNumber}, '%')</if>
+        <if test="name != null and name != ''">and s.name like concat('%', #{name}, '%')</if>
+        <if test="specialty != null and specialty != ''">and u.specialty like concat('%', #{specialty}, '%')</if>
+        <if test="className != null and className != ''">and u.class like concat('%', #{className}, '%')</if>
+        <if test="year != null and year != ''">and u.year = #{year}</if>
+        <if test="tutorJobNumber != null and tutorJobNumber != ''">and tea.jobnumber like concat('%', #{tutorJobNumber}, '%')</if>
+        <if test="tutorName != null and tutorName != ''">and tea.name like concat('%', #{tutorName}, '%')</if>
+
+        ORDER BY stuNumber
+
+    </select>
+    <select id="getUngrouped" resultMap="ResultMapThesis">
+        select t.grade,u.ID,u.studentID,u.specialty,u.class
+        from thesis t,undergraduate u
+        where u.ID = t.studentID and t.year=#{year} and t.month=#{month} and t.group is null
+    </select>
+    <select id="checkAndReturnID" resultType="org.sys.rate.model.UnderGraduate">
+        select *
+        from undergraduate
+        where institutionID = #{institutionID} and stuNumber in
+        <foreach collection="stuList" close=")" open="(" item="item" separator=",">
+            #{item.stuNumber}
+        </foreach>
+    </select>
+
+
 </mapper>

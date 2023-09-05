@@ -1,23 +1,24 @@
 package org.sys.rate.controller.admin;
 
 import com.baomidou.mybatisplus.extension.api.R;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.mapper.PaperMapper;
 import org.sys.rate.mapper.PublicationMapper;
 
-import org.sys.rate.model.Indicator;
-import org.sys.rate.model.Publication;
-import org.sys.rate.model.RespBean;
-import org.sys.rate.model.RespPageBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.admin.IndicatorService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,6 +30,7 @@ import java.util.List;
  * @date 2022-03-13
  */
 @RestController
+@Validated
 public class PublicationController {
     @Resource
     private PublicationService publicationService;
@@ -61,9 +63,12 @@ public class PublicationController {
      * 新增保存刊物
      */
     @PostMapping("/publication/basic/add")
-    public RespBean addSave(Publication publication) {
-        publicationService.insertPublication(publication);
-        return RespBean.ok("添加期刊成功！");
+    public RespBean addSave(@Valid Publication publication) {
+        Integer res = publicationService.insertPublication(publication);
+        if (res == null || res != 0)
+            return RespBean.ok("添加期刊成功！");
+        else
+            return RespBean.ok("重复添加，已忽略");
     }
 
     /**
@@ -74,10 +79,15 @@ public class PublicationController {
         try {
             // 参数校验通过，进行相关处理
             publicationService.updatePublication(publication);
-            return RespBean.ok("修改期刊成功");
-        } catch (Exception e) {
+        } catch (DuplicateKeyException e) {
             // 异常处理，返回错误信息
-            return RespBean.error("插入期刊失败：" + e.getMessage());
+            return RespBean.error("期刊重名！");
+        }
+        try {
+            publicationMapper.updateIndicatorPublicationYear(publication);
+            return RespBean.ok("修改期刊成功");
+        }catch (DuplicateKeyException e){
+            return RespBean.ok("修改期刊成功"); // 不处理
         }
     }
 
@@ -125,13 +135,12 @@ public class PublicationController {
 
     // 文档2.14 功能6 -> 2.21 功能1
     // 待修改
-    //@PostMapping("/publication/dels")
-    //@ResponseBody
-    //public RespBean deleteByYearId(@RequestBody IndicatorPublication indicatorPublication){
-    //
-    //    int res = publicationMapper.deleteByYearIndicatorNames(indicatorPublication.getYear(),indicatorPublication.getIndicatorNames());
-    //    return RespBean.ok("success",res);
-    //}
+    @PostMapping("/publication/dels")
+    public RespBean deleteByYearId(@RequestParam Integer year, @RequestParam String indicatorName){
+        if (publicationMapper.deleteByYearIndicatorNames(year,indicatorName) < 0)
+            return RespBean.error("删除失败！");
+        return RespBean.ok("删除成功！");
+    }
 
     // 文档2.14 功能7 用部分名字搜全称 -> 2.21 功能3
     // 待修改
@@ -158,25 +167,12 @@ public class PublicationController {
         List<Publication> res = publicationMapper.getPublicationInfByName(name);
         return RespBean.ok("success", res);
     }
-
-    /**
-     * @author zyk
-     * @description 获取当前年份的期刊信息
-     * @date 2023/7/21 15:12
-     */
-
-    @GetMapping("/publicationByYear")
-    public RespPageBean listByName(@RequestParam("indicatorId") Integer indicatorId,
-                                   @RequestParam("year") Integer year,
-                                   @RequestParam("pageNum") Integer pageNum,
-                                   @RequestParam("pageSize") Integer pageSize) {
-        List<Publication> list = publicationService.selectPublicationListByYear(indicatorId, year, pageNum, pageSize);
-        int total = list.size();
-        RespPageBean respPageBean = new RespPageBean();
-        respPageBean.setData(list);
-        respPageBean.setTotal((long) total);
-        return respPageBean;
+    @GetMapping("/publication/basic/listByName")
+    public RespBean getlistByName(String publicationName) {
+        List<Publication> res = publicationMapper.getlistByName(publicationName);
+        return RespBean.ok("success", res);
     }
+
 
     @DeleteMapping("publication")
     public RespBean deletePublicationById(@RequestParam("id") Integer id, @RequestParam("year") Integer year){
@@ -188,4 +184,15 @@ public class PublicationController {
         }
     }
 
+    @PostMapping("/publications")
+    public RespBean multiImportPublication(@RequestBody List<Publication> publications){
+        for (Publication publication:publications){
+            if (publicationMapper.checkByNames(publication.getName())!=1){
+                publicationMapper.insertPublication(publication);
+            }
+            String[] names = publication.getIndicatorName().split(" ");
+            publicationMapper.insertIndicatorPublication(indicatorMapper.getIdByName(names[1]), publicationMapper.getIdByName(publication.getName()), publication.getYear());
+        }
+        return RespBean.ok("添加成功！");
+    }
 }

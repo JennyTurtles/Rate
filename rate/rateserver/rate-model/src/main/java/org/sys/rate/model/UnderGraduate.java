@@ -1,17 +1,42 @@
 package org.sys.rate.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class UnderGraduate extends Student{
     private Integer ID;
     private Integer institutionID;
     private String stuNumber;
     private Integer studentID;
     private Integer year;
+    private Integer month;
     private Integer tutorID;
     private String specialty;
     private String className;
+    private String tutorName;
+    private String tutorJobNumber;
+    private String group;
+    private Thesis thesis;
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getTutorName() {
+        return tutorName;
+    }
+
+    public void setTutorName(String tutorName) {
+        this.tutorName = tutorName;
+    }
 
     @Override
     public Integer getID() {

@@ -6,27 +6,29 @@ import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.AwardTypeMapper;
 import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.AwardService;
-import org.sys.rate.service.admin.IndicatorService;
-import org.sys.rate.service.admin.AwardService;
-import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import javax.validation.Valid;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 专利成果Controller
@@ -34,16 +36,19 @@ import java.util.List;
  * @author system
  * @date 2022-03-13
  */
+@Validated
 @RestController
 @RequestMapping("/award/basic")
 public class AwardController {
-    
+
     @Resource
     private AwardService awardService;
     @Resource
     IndicatorMapper indicatorMapper;
     @Resource
     MailToTeacherService mailToTeacherService;
+    @Resource
+    AwardTypeMapper awardTypeMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(AwardController.class);
     private String uploadFileName;
@@ -128,6 +133,7 @@ public class AwardController {
         }
         return new JsonResult(flag);
     }
+
     @GetMapping("/downloadByUrl")
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
@@ -143,13 +149,70 @@ public class AwardController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
     @GetMapping("/getIndicatorByYearAndType")
-    public JsonResult getIndicatorByYearAndType(String year,String type) {
-        List<AwardType> list = awardService.getIndicatorByYearAndType(year,type);
+    public JsonResult getIndicatorByYearAndType(String year, String type) {
+        List<AwardType> list = awardService.getIndicatorByYearAndType(year, type);
         return new JsonResult(list);
     }
+
     @GetMapping("/getIndicatorScore")
     public JsonResult getScore(Integer id) {
         return new JsonResult(indicatorMapper.getIndicatorById(id));
     }
+
+    @PostMapping("/searchAwardByConditions")
+    public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
+        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
+        List<Award> list = awardService.searchAwardByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"));
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
+    }
+
+    @PostMapping("/awardType")
+    public RespBean addAwardType(@Valid @RequestBody AwardType awardType) {
+        // 1.向awardType插入
+        // 2.向indicator中插入，no，这里其实就只需要设置indicator中的rankN就可以了！
+        try {
+            Integer res = awardService.addAwardType(awardType);
+            return res != 0 ? RespBean.ok("插入成功！") : RespBean.ok("重复添加，已忽略");
+        } catch (Exception e) {
+            return RespBean.error("插入awardType失败！");
+        }
+
+    }
+
+    @PutMapping("/awardType")
+    public RespBean editAwardType(@Valid @RequestBody AwardType awardType) {
+        try {
+            awardService.editAwardType(awardType);
+            return RespBean.ok("修改成功！");
+        } catch (DuplicateKeyException e) {
+            return RespBean.error("重名！");
+        }
+    }
+
+    @PostMapping("/awardType/dels")
+    public RespBean deleteByYearId(@RequestParam Integer year, @RequestParam Integer indicatorID) {
+        try {
+            awardTypeMapper.deleteByYearIndicatorID(year, indicatorID);
+            return RespBean.ok("删除成功！");
+        } catch (Exception e) {
+            return RespBean.error("删除失败！");
+        }
+    }
+
+    @PostMapping("/awardType/import")
+    public RespBean multiImportPublication(@RequestBody List<AwardType> awardTypes) {
+        try {
+            for (AwardType awardType : awardTypes) {
+                awardTypeMapper.addAwardType(awardType);
+            }
+            return RespBean.ok("添加成功！");
+        } catch (Exception e) {
+            return RespBean.error("添加失败！");
+        }
+    }
+
 }

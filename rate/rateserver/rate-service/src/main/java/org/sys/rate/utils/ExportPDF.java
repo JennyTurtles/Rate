@@ -13,6 +13,7 @@ import org.sys.rate.model.Thesis;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.TeacherService;
 import org.sys.rate.service.admin.PaperCommentService;
+import org.sys.rate.service.admin.ThesisService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -36,21 +37,29 @@ import java.util.UUID;
 @Service
 public class ExportPDF {
     @Resource
-    StudentService studentService;
+    private StudentService studentService;
 
     @Resource
-    TeacherService teacherService;
+    private TeacherService teacherService;
 
     @Resource
-    PaperCommentService paperCommentService;
+    private PaperCommentService paperCommentService;
+
+    @Resource
+    private ThesisService thesisService;
 
     private final static int PRESUMROWS = 17;
     private final static int NEXTPLANROWS = 21;
     private final static int ONEROWMAXCOUNT = 35;
     private final static String DEST = "src/main/resources/exportFiles/";
-    private final String FONT_PATH_Song = "rate/rateserver/rate-web/src/main/resources/templete/song.ttf";
-    private final String TEMPLATE_PATH10 = "rate/rateserver/rate-web/src/main/resources/templete/templete_10.pdf";
-    private final String TEMPLATE_PATH20 = "rate/rateserver/rate-web/src/main/resources/templete/templete_20.pdf";
+    private final String FONT_PATH_Song = "rate/rateserver/rate-web/src/main/resources/static/template/song.ttf";
+    private final String TEMPLATE_PATH10 = "rate/rateserver/rate-web/src/main/resources/static/template/template_10.pdf";
+    private final String TEMPLATE_PATH20 = "rate/rateserver/rate-web/src/main/resources/static/template/template_20.pdf";
+
+
+//    private final String FONT_PATH_Song = "D:/rateTemplate/song.ttf";
+//    private final String TEMPLATE_PATH10 = "D:/rateTemplate/template_10.pdf";
+//    private final String TEMPLATE_PATH20 = "D:/rateTemplate/template_20.pdf";
     private boolean necessaryFilesAndDirectoriesExist;
 
     public ExportPDF() {
@@ -92,12 +101,12 @@ public class ExportPDF {
 
     public void generatePDF(HttpServletResponse response, Integer thesisID) throws Exception {
         Thesis thesis = paperCommentService.getThesisByTID(thesisID);
-        Student student = studentService.getById(thesis.getStudentID());
-        Teacher teacher = teacherService.getById(student.getTutorID());
+        Student student = studentService.getByUndergraduateId(thesis.getStudentID());
+        Teacher teacher = teacherService.getById(thesis.getTutorID());
         List<PaperComment> paperComments = paperCommentService.selectCommentListStu(thesisID);
 
         if (!necessaryFilesAndDirectoriesExist) {
-            log.error("生成Pdf时必要的文件和目录不存在！");
+            log.error("生成PDF时必要的文件和目录不存在！");
             return;
         }
 
@@ -142,7 +151,7 @@ public class ExportPDF {
         Map<String, Object> data = new HashMap<>();
         data.put("stuNameFirst", student.getName());
         data.put("stuName", student.getName());
-        data.put("stuID", student.getID());
+        data.put("stuID", thesis.getStudentNumber());
         data.put("tutorName", teacher.getName());
 
         for (int i = 0; i < paperComments.size(); i++) {

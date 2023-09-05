@@ -7,14 +7,10 @@
     >
       <el-breadcrumb-item style="margin-left: 5px">
         {{ p1 }}
-      </el-breadcrumb-item
-      >
+      </el-breadcrumb-item>
       <el-breadcrumb-item
-      >{{ category }}（{{ indicatorTypeZH }}）：{{
-          score
-        }}分
-      </el-breadcrumb-item
-      >
+      >{{ category }}（{{ indicatorTypeZH }}）：{{ score }}分
+      </el-breadcrumb-item>
     </el-breadcrumb>
     <!--    选择年份-->
     <el-select
@@ -23,8 +19,12 @@
         v-show="isRoot"
         @change="changeYear"
     >
-      <el-option v-for="item in years" :key="item" :label="item" :value="item">
-      </el-option>
+      <el-option
+          v-for="year in yearList"
+          :key="year"
+          :value="year"
+          :label="year"
+      ></el-option>
     </el-select>
     <div style="float: left; margin-top: 4px; margin-left: 3px" v-show="isRoot">
       年
@@ -45,33 +45,55 @@
           style="float: right; margin-left: 10px"
           @click="
           () => {
-            publicationInf.year = year;
-            if (indicatorType === 'publication')
-              this.dialogVisibleAppendPublication = true;
-            else if (indicatorType === 'award')
+            if (indicatorType === 'publication'){
+              this.publicationInf={
+                name:'',
+                abbr:'',
+                publisher:'',
+                url:'',
+                year:new Date().getFullYear()
+                }
+              this.dialogVisibleAppendPublication = true
+            }
+            else if (indicatorType === 'award'){
+              this.awardInf.year = new Date().getFullYear()
               this.dialogVisibleAppendAward = true;
-            else if (indicatorType === 'project')
-              this.dialogVisibleAppendProgram = true;
-            else if (indicatorType === 'decision')
-              this.dialogVisibleAppendDecision = true;
+            }
+            else if (indicatorType === 'project'){
+             this.programInf.year = new Date().getFullYear()
+             this.dialogVisibleAppendProgram = true;
+            }
+            else if (indicatorType === 'decision'){
+             this.decisionInf.year = new Date().getFullYear()
+             this.dialogVisibleAppendDecision = true;
+            }
+            else if (indicatorType === 'competition'){
+             this.competitionInf.year = new Date().getFullYear()
+             this.dialogVisibleAppendCompetition = true;
+            }
           }
         "
           icon="el-icon-circle-plus"
       >添加
-      </el-button
-      >
+      </el-button>
       <el-button
           type="primary"
           style="float: right; margin-left: 10px"
           @click="
           uploadVisible = true;
-          importSelectYear = year;
+          importSelectYear = year === '' ? new Date().getFullYear() : year;
           uploadResultError = false;
         "
           icon="el-icon-s-order"
       >批量导入
-      </el-button
-      >
+      </el-button>
+      <el-button
+          type="primary"
+          style="float: right; margin-left: 10px"
+          @click="dialogVisibleClone = true"
+          icon="el-icon-s-order"
+      >克隆
+      </el-button>
       <el-button
           @click="
           searchUnAvailable = false;
@@ -81,9 +103,41 @@
           style="float: right"
           icon="el-icon-search"
       >搜索
-      </el-button
-      >
+      </el-button>
     </div>
+    <!--    点击克隆按钮-->
+    <el-dialog
+        :visible.sync="dialogVisibleClone"
+        width="90%"
+        @open="openClone"
+    >
+      <span slot="title" style="text-align: center; font-size: 20px">克隆</span>
+      <div>
+        从
+        <el-select
+            v-model="fromYear"
+            placeholder="选择年份"
+            style="width: 120px"
+        >
+          <!-- 在这里添加下拉框选项 -->
+          <el-option
+              v-for="year in yearList"
+              :key="year"
+              :value="year"
+              :label="year"
+          ></el-option>
+        </el-select>
+        年克隆到
+        <el-input-number v-model="toYear" :min="1999" :max="new Date().getFullYear()"
+                         style="width: 120px"></el-input-number>
+        年
+      </div>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="closeClone()">关 闭</el-button>
+        <el-button type="primary" @click="clone()">确 定</el-button>
+      </span>
+    </el-dialog>
     <!--    点击搜索按钮-->
     <el-dialog
         :visible.sync="dialogVisibleSearch"
@@ -98,12 +152,13 @@
         <el-select
             style="margin-right: 20px; width: 120px"
             v-model="searchSelectType"
+            @change="handleOptionChange"
         >
           <el-option
               v-for="item in selectTypes"
-              :key="item"
-              :label="item"
-              :value="item"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
           >
           </el-option>
         </el-select>
@@ -113,7 +168,7 @@
         <input
             autocomplete="off"
             style="
-            margin-left: 5px;
+            margin-left: 0px;
             width: 30%;
             line-height: 28px;
             border: 1px solid lightgrey;
@@ -121,7 +176,7 @@
             border-radius: 4px;
             color: gray;
           "
-            placeholder="请输入期刊名称"
+            placeholder="请输入名称"
             v-model="publicationName"
             @focus="ispubShow = true"
             @blur="ispubShow = ispubFlag"
@@ -145,12 +200,10 @@
           </div>
         </div>
       </div>
-      <!--      <div style="margin-top: 10px" v-show="pathVisible">分值：{{searchPathInf.score}}分</div>-->
-      <!--      <div style="margin-top: 10px" v-show="pathVisible">类型：{{searchPathInf.type}}</div>-->
-      <!--      <div style="margin-top: 10px" v-show="pathVisible">分类：{{searchPathInf.name}}</div>-->
-      <!--      searchInf2-->
+
+<!--      学术论文搜索-->
       <el-table
-          v-if="searchPathInf.type === '学术论文'"
+          v-if="searchPathInf.type === 'publication'"
           :data="listSearchPublicationsByName"
           border
           style="width: 100%"
@@ -168,6 +221,7 @@
         <el-table-column fixed prop="name" label="刊物全称"></el-table-column>
         <el-table-column prop="abbr" label="刊物简称"></el-table-column>
         <el-table-column prop="publisher" label="出版社"></el-table-column>
+        <el-table-column prop="url" label="刊物网址"></el-table-column>
         <el-table-column
             prop="year"
             label="录入年份"
@@ -175,7 +229,6 @@
             width="70px"
         >
         </el-table-column>
-        <el-table-column prop="level" label="收录级别"></el-table-column>
         <el-table-column fixed="right" label="操作" width="150">
           <template slot-scope="scope">
             <el-button
@@ -185,15 +238,189 @@
               "
                 size="mini"
             >编辑
-            </el-button
-            >
+            </el-button>
             <el-button
                 @click="remove(scope.row.id, indicatorType)"
                 type="danger"
                 size="mini"
             >删除
-            </el-button
-            >
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+<!--      科研获奖搜索-->
+      <el-table
+          v-if="searchPathInf.type === 'award'"
+          :data="listSearchPublicationsByName"
+          border
+          style="width: 100%"
+      >
+        <el-table-column fixed prop="indicatorName" label="指标点名称">
+        </el-table-column>
+        <el-table-column
+            fixed
+            width="50px"
+            prop="score"
+            align="center"
+            label="分值"
+        >
+        </el-table-column>
+        <el-table-column fixed prop="name" label="奖励名称"></el-table-column>
+        <el-table-column
+            prop="year"
+            label="录入年份"
+            align="center"
+            width="70px"
+        >
+        </el-table-column>
+        <el-table-column fixed="right" label="操作" width="150">
+          <template slot-scope="scope">
+            <el-button
+                @click="
+                rowData = JSON.parse(JSON.stringify(scope.row));
+                dialogVisibleUpdateAward = true;
+              "
+                size="mini"
+            >编辑
+            </el-button>
+            <el-button
+                @click="remove(scope.row.id, indicatorType)"
+                type="danger"
+                size="mini"
+            >删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+<!--      科研项目搜索-->
+      <el-table
+          v-if="searchPathInf.type === 'project'"
+          :data="listSearchPublicationsByName"
+          border
+          style="width: 100%"
+      >
+        <el-table-column fixed prop="indicatorName" label="指标点名称">
+        </el-table-column>
+        <el-table-column
+            fixed
+            width="50px"
+            prop="score"
+            align="center"
+            label="分值"
+        >
+        </el-table-column>
+        <el-table-column fixed prop="name" label="项目名"></el-table-column>
+        <el-table-column
+            prop="year"
+            label="录入年份"
+            align="center"
+            width="70px"
+        >
+        </el-table-column>
+        <el-table-column fixed="right" label="操作" width="150">
+          <template slot-scope="scope">
+            <el-button
+                @click="
+                rowData = JSON.parse(JSON.stringify(scope.row));
+                dialogVisibleUpdateProgram = true;
+              "
+                size="mini"
+            >编辑
+            </el-button>
+            <el-button
+                @click="remove(scope.row.id, indicatorType)"
+                type="danger"
+                size="mini"
+            >删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+<!--      决策咨询搜索-->
+      <el-table
+          v-if="searchPathInf.type === 'decision'"
+          :data="listSearchPublicationsByName"
+          border
+          style="width: 100%"
+      >
+        <el-table-column fixed prop="indicatorName" label="指标点名称">
+        </el-table-column>
+        <el-table-column
+            fixed
+            width="50px"
+            prop="score"
+            align="center"
+            label="分值"
+        >
+        </el-table-column>
+        <el-table-column fixed prop="name" label="决策名称"></el-table-column>
+        <el-table-column
+            prop="year"
+            label="录入年份"
+            align="center"
+            width="70px"
+        >
+        </el-table-column>
+        <el-table-column fixed="right" label="操作" width="150">
+          <template slot-scope="scope">
+            <el-button
+                @click="
+                rowData = JSON.parse(JSON.stringify(scope.row));
+                dialogVisibleUpdateDecision = true;
+              "
+                size="mini"
+            >编辑
+            </el-button>
+            <el-button
+                @click="remove(scope.row.id, indicatorType)"
+                type="danger"
+                size="mini"
+            >删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+<!--      学科竞赛搜索-->
+      <el-table
+          v-if="searchPathInf.type === 'competition'"
+          :data="listSearchPublicationsByName"
+          border
+          style="width: 100%"
+      >
+        <el-table-column fixed prop="indicatorName" label="指标点名称">
+        </el-table-column>
+        <el-table-column
+            fixed
+            width="50px"
+            prop="score"
+            align="center"
+            label="分值"
+        >
+        </el-table-column>
+        <el-table-column fixed prop="name" label="竞赛名称"></el-table-column>
+        <el-table-column
+            prop="year"
+            label="录入年份"
+            align="center"
+            width="70px"
+        >
+        </el-table-column>
+        <el-table-column fixed="right" label="操作" width="150">
+          <template slot-scope="scope">
+            <el-button
+                @click="
+                rowData = JSON.parse(JSON.stringify(scope.row));
+                dialogVisibleUpdateCompetition = true;
+              "
+                size="mini"
+            >编辑
+            </el-button>
+            <el-button
+                @click="remove(scope.row.id, indicatorType)"
+                type="danger"
+                size="mini"
+            >删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -218,72 +445,43 @@
     </el-dialog>
 
     <!--批量导入-->
-    <el-dialog :visible.sync="uploadVisible" @close="" width="80%">
+    <el-dialog :visible.sync="uploadVisible" @close="handleClose" width="80%">
       <span slot="title" style="float: left; font-size: 25px"
       >请上传需要导入的文件</span
       >
       <span>请选择导入的年份：</span>
-      <el-select
-          style="margin-right: 20px; width: 120px"
-          v-model="importSelectYear"
-          v-show="isRoot"
-      >
-        <el-option
-            v-for="item in years"
-            :key="item"
-            :label="item"
-            :value="item"
-        >
-        </el-option>
-      </el-select>
-      <span>请选择导入的类别：</span>
-      <el-select
-          style="margin-right: 20px; width: 120px"
-          v-model="importSelectType"
-          v-show="isRoot"
-      >
-        <el-option
-            v-for="item in selectTypes"
-            :key="item"
-            :label="item"
-            :value="item"
-        >
-        </el-option>
-      </el-select>
+      <el-input-number v-model="importSelectYear" :min="1999" :max="new Date().getFullYear()" v-show="isRoot"
+                       style="width: 120px"></el-input-number>
+      年
       <div>
-        <!--        <el-button @click="downloadExcel('PublicationSample')" type="warning">下载Excel模板</el-button>-->
-        <el-button @click="btnClickExport" type="warning"
-        >下载Excel模板
-        </el-button
-        >
+        <div style="margin-left: 10px;margin-top: 10px">第一步：
+          <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="btnClickExport">下载模版
+          </el-button>
+        </div>
       </div>
-      <!--      </template>-->
       <span
           style="float: right; font-size: 16px; color: red"
           v-show="uploadResultError"
-      >请检查期刊全称是否都不为空</span
+      >{{ errorMessage }}</span
       >
       <span
           style="float: right; font-size: 16px; color: green"
           v-show="uploadResultValid"
       >数据校验通过</span
       >
-      <el-upload
-          action
-          :limit="1"
-          :file-list="fileList"
-          :auto-upload="false"
-          accept=".xlsx, .xls"
-          :on-change="handleAdd"
-          :on-remove="handleClose"
-      >
-        <div style="margin-top: 10px">
-          <el-button size="medium" type="primary">点击上传</el-button>
-          <span style="color: gray; margin-left: 10px; font-size: 13px"
-          >请填写模版后上传</span
-          >
-        </div>
-      </el-upload>
+      <div style="margin-left: 10px">
+        <el-upload
+            :file-list="fileList"
+            :auto-upload="false"
+            accept=".xlsx, .xls"
+            :on-change="handleAdd"
+            :on-remove="handleClose"
+        >
+          <div style="margin-top: 10px">第二步：
+            <el-button icon="el-icon-plus" type="success">点击上传</el-button>
+          </div>
+        </el-upload>
+      </div>
 
       <el-table
           v-show="uploadResult"
@@ -291,16 +489,16 @@
           :row-class-name="checkUploadData"
           style="width: 100%"
       >
-        <el-table-column prop="所属类别" label="所属类别"></el-table-column>
-        <el-table-column prop="刊物全称" label="刊物全称"></el-table-column>
-        <el-table-column prop="刊物简称" label="刊物简称"></el-table-column>
-        <el-table-column prop="出版社" label="出版社"></el-table-column>
-        <el-table-column prop="网址" label="网址"></el-table-column>
-        <el-table-column
-            prop="收录级别 （收录级别1;级别2;（请用分号隔开））"
-            label="收录级别 （收录级别1;级别2;（请用分号隔开））"
-        >
-        </el-table-column>
+        <el-table-column prop="刊物全称" label="刊物全称" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
+        <el-table-column prop="刊物简称" label="刊物简称" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
+        <el-table-column prop="出版社" label="出版社" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
+        <el-table-column prop="网址" label="网址" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
+        <el-table-column prop="收录级别 （不同收录级别请用分号隔开）" label="收录级别 （不同收录级别请用分号隔开）"
+                         v-if="indicatorTypeZH=='学术论文'"></el-table-column>
+        <el-table-column prop="项目名称" label="项目名称" v-if="indicatorTypeZH=='科研项目'"></el-table-column>
+        <el-table-column prop="奖项名称" label="奖励名称" v-if="indicatorTypeZH=='科研获奖'"></el-table-column>
+        <el-table-column prop="成果名称" label="成果名称" v-if="indicatorTypeZH=='决策咨询'"></el-table-column>
+        <el-table-column prop="学科竞赛名称" label="学科竞赛名称" v-if="indicatorTypeZH=='学科竞赛'"></el-table-column>
       </el-table>
 
       <span slot="footer" class="dialog-footer">
@@ -320,6 +518,7 @@
       </span>
     </el-dialog>
 
+    <!--期刊-->
     <el-table
         v-if="indicatorType === 'publication'"
         :data="tableData"
@@ -332,9 +531,13 @@
       <el-table-column prop="abbr" width="100px" label="刊物简称">
       </el-table-column>
       <el-table-column prop="publisher" label="出版社"></el-table-column>
-      <el-table-column prop="url" width="200px" label="刊物网址"></el-table-column>
-      <el-table-column prop="year" width="70px" label="录入年份" align="center">
-      </el-table-column>
+      <el-table-column
+          prop="url"
+          width="200px"
+          label="刊物网址"
+      ></el-table-column>
+      <!--      <el-table-column prop="year" width="70px" label="录入年份" align="center">-->
+      <!--      </el-table-column>-->
       <el-table-column fixed="right" label="操作" width="150">
         <template slot-scope="scope">
           <el-button
@@ -344,24 +547,31 @@
             "
               size="mini"
           >编辑
-          </el-button
-          >
+          </el-button>
           <el-button
               @click="remove(scope.row.id, indicatorType)"
               type="danger"
               size="mini"
           >删除
-          </el-button
-          >
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
     <!--新增-->
-    <el-dialog :title="titleAddPublication" :visible.sync="dialogVisibleAppendPublication" width="30%" center>
-
-      <el-form :model="publicationInf" :hide-required-asterisk="true"
-               :label-position="labelPosition"
-               label-width="180px">
+    <el-dialog
+        :title="titleAddPublication"
+        :visible.sync="dialogVisibleAppendPublication"
+        width="30%"
+        center
+    >
+      <el-form
+          ref="appendPublicationForm"
+          :rules="rules"
+          :model="publicationInf"
+          :hide-required-asterisk="true"
+          :label-position="labelPosition"
+          label-width="180px"
+      >
         <el-form-item label="期刊全称" label-width="90px">
           <el-input v-model="publicationInf.name"></el-input>
         </el-form-item>
@@ -374,7 +584,7 @@
         <el-form-item label="网址" label-width="90px">
           <el-input v-model="publicationInf.url"></el-input>
         </el-form-item>
-        <el-form-item label="录入年份" label-width="90px">
+        <el-form-item label="录入年份" prop="year" label-width="90px">
           <el-input
               v-model="publicationInf.year"
               :placeholder="nowYear"
@@ -387,10 +597,7 @@
         >
         <el-button
             type="primary"
-            @click="
-            dialogVisibleAppendPublication = false;
-            appendPublication();
-          "
+            @click="appendPublication();"
         >确 定</el-button
         >
       </span>
@@ -400,7 +607,7 @@
       <span slot="title" style="float: left; font-size: 20px"
       >请输入期刊的相关信息</span
       >
-      <el-form :model="rowData">
+      <el-form :rules="rules" :model="rowData" ref="updatePublicationForm">
         <el-form-item label="期刊全称">
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
@@ -412,6 +619,9 @@
         </el-form-item>
         <el-form-item label="网址">
           <el-input v-model="rowData.url"></el-input>
+        </el-form-item>
+        <el-form-item label="录入年份">
+          <el-input v-model="rowData.year"></el-input>
         </el-form-item>
         <!--        <el-form-item label="录入年份">-->
         <!--          <el-input v-model="rowData.year"></el-input>-->
@@ -432,16 +642,16 @@
       </span>
     </el-dialog>
 
-    <!--科技奖-->
+    <!--科研获奖-->
     <el-table
         v-if="indicatorType === 'award'"
-        :data="
-        tableData.slice((currentPage - 1) * PageSize, currentPage * PageSize)
-      "
+        :data="tableData"
         border
         style="width: 100%"
     >
-      <el-table-column fixed prop="name" label="奖项名"></el-table-column>
+      <el-table-column fixed prop="name" label="奖励名"></el-table-column>
+
+
       <el-table-column fixed="right" label="操作" width="150">
         <template slot-scope="scope">
           <el-button
@@ -450,25 +660,26 @@
               dialogVisibleUpdateAward = true;
             "
           >编辑
-          </el-button
-          >
+          </el-button>
           <el-button
-              @click="remove(scope.row.id, this.indicatorType)"
+              @click="remove(scope.row.id, indicatorType)"
               type="danger"
           >删除
-          </el-button
-          >
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
     <!--新增-->
     <el-dialog :visible.sync="dialogVisibleAppendAward" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-      >请输入科技奖的相关信息</span
+      >请输入科研获奖的相关信息</span
       >
       <el-form :model="awardInf">
-        <el-form-item label="奖项名">
+        <el-form-item label="奖励名">
           <el-input v-model="awardInf.name"></el-input>
+        </el-form-item>
+        <el-form-item label="录入年份">
+          <el-input v-model="awardInf.year"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -489,9 +700,13 @@
       >请输入科技奖的相关信息</span
       >
       <el-form :model="rowData">
-        <el-form-item label="奖项名">
+        <el-form-item label="奖励名">
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
+        <el-form-item label="录入年份">
+          <el-input v-model="rowData.year"></el-input>
+        </el-form-item>
+
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdateAward = false">取 消</el-button>
@@ -523,26 +738,27 @@
             "
               size="small"
           >编辑
-          </el-button
-          >
+          </el-button>
           <el-button
               @click="remove(scope.row.id, indicatorType)"
               type="danger"
               size="small"
           >删除
-          </el-button
-          >
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
     <!--新增-->
-    <el-dialog :visible.sync="dialogVisibleAppendProgram" width="30%">
+    <el-dialog :visible.sync="dialogVisibleAppendProgram" width="40%">
       <span slot="title" style="float: left; font-size: 20px"
-      >请输入科研项目的的相关信息</span
+      >请输入科研项目类别的的相关信息</span
       >
       <el-form :model="programInf">
-        <el-form-item label="项目名">
+        <el-form-item label="类别名">
           <el-input v-model="programInf.name"></el-input>
+        </el-form-item>
+        <el-form-item label="录入年份">
+          <el-input v-model="programInf.year"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -563,8 +779,11 @@
       >请输入科研项目的相关信息</span
       >
       <el-form :model="rowData">
-        <el-form-item label="项目名">
+        <el-form-item label="科研项目名">
           <el-input v-model="rowData.name"></el-input>
+        </el-form-item>
+        <el-form-item label="录入年份">
+          <el-input v-model="rowData.year"></el-input>
         </el-form-item>
       </el-form>
       <!--      <el-form :model="rowData">-->
@@ -589,7 +808,7 @@
     <el-table
         v-if="indicatorType === 'decision'"
         :data="
-        tableData.slice((currentPage - 1) * PageSize, currentPage * PageSize)
+        tableData
       "
         border
         style="width: 100%"
@@ -605,26 +824,27 @@
             "
               size="small"
           >编辑
-          </el-button
-          >
+          </el-button>
           <el-button
-              @click="remove(scope.row.id, this.indicatorType)"
+              @click="remove(scope.row.id, 'decision')"
               type="danger"
               size="small"
           >删除
-          </el-button
-          >
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
     <!--新增-->
     <el-dialog :visible.sync="dialogVisibleAppendDecision" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-      >请输入纵向科研项目的的相关信息</span
+      >请输入决策咨询成果的相关信息</span
       >
       <el-form :model="decisionInf">
         <el-form-item label="决策咨询成果名">
           <el-input v-model="decisionInf.name"></el-input>
+        </el-form-item>
+        <el-form-item label="录入年份">
+          <el-input v-model="decisionInf.year"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -650,6 +870,9 @@
         <el-form-item label="决策咨询成果名">
           <el-input v-model="rowData.name"></el-input>
         </el-form-item>
+        <el-form-item label="录入年份">
+          <el-input v-model="rowData.year"></el-input>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdateDecision = false"
@@ -666,11 +889,96 @@
       </span>
     </el-dialog>
 
+    <!--学科竞赛-->
+    <el-table
+        v-if="indicatorType === 'competition'"
+        :data="
+        tableData
+      "
+        border
+        style="width: 100%"
+    >
+      <el-table-column fixed prop="name" label="学科竞赛名">
+      </el-table-column>
+      <el-table-column fixed="right" label="操作" width="150">
+        <template slot-scope="scope">
+          <el-button
+              @click="
+              rowData = JSON.parse(JSON.stringify(scope.row));
+              dialogVisibleUpdateCompetition = true;
+            "
+              size="small"
+          >编辑
+          </el-button>
+          <el-button
+              @click="remove(scope.row.id, 'competition')"
+              type="danger"
+              size="small"
+          >删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!--新增-->
+    <el-dialog :visible.sync="dialogVisibleAppendCompetition" width="30%">
+      <span slot="title" style="float: left; font-size: 20px"
+      >请输入学科竞赛的相关信息</span
+      >
+      <el-form :model="competitionInf">
+        <el-form-item label="学科竞赛成果名">
+          <el-input v-model="competitionInf.name"></el-input>
+        </el-form-item>
+        <el-form-item label="录入年份">
+          <el-input v-model="competitionInf.year"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisibleAppendCompetition = false"
+        >取 消</el-button
+        >
+        <el-button
+            type="primary"
+            @click="
+            appendCompetition();
+            dialogVisibleAppendCompetition = false;
+          "
+        >确 定</el-button
+        >
+      </span>
+    </el-dialog>
+    <!--编辑-->
+    <el-dialog :visible.sync="dialogVisibleUpdateCompetition" width="30%">
+      <span slot="title" style="float: left; font-size: 20px"
+      >请输入学科竞赛的相关信息</span
+      >
+      <el-form :model="rowData">
+        <el-form-item label="学科竞赛名">
+          <el-input v-model="rowData.name"></el-input>
+        </el-form-item>
+        <el-form-item label="录入年份">
+          <el-input v-model="rowData.year"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisibleUpdateCompetition = false"
+        >取 消</el-button
+        >
+        <el-button
+            type="primary"
+            @click="
+            update(indicatorType);
+            dialogVisibleUpdateCompetition = false;
+          "
+        >确 定</el-button
+        >
+      </span>
+    </el-dialog>
+
     <div style="margin-top: 10px; text-align: right" v-show="isRoot">
       <el-pagination
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
-          :current-page="currentPage"
+          :current-page.sync="currentPage"
           :page-sizes="pageSizes"
           :page-size="PageSize"
           layout="total, sizes, prev, pager, next, jumper"
@@ -695,14 +1003,20 @@
 <script>
 import axios from "axios";
 import * as XLSX from "xlsx/xlsx.mjs";
-import FileSaver from "file-saver";
-import th from "element-ui/src/locale/lang/th";
+import {checkNumber} from "@/utils/check";
 
 export default {
   name: "search",
   props: ["category", "type", "order", "score", "p1", "p2"],
   data() {
     return {
+     level:'',
+      rules: {
+        year: [
+          {validator: checkNumber, trigger: 'blur'}
+        ]
+      },
+      selectedOption: 1,
       titleAddPublication: "请添加期刊的相关信息",
       labelPosition: "left",
       typeOfAllPaper: [],
@@ -716,20 +1030,20 @@ export default {
       timer: null,
       publicationName: "", //搜索中要搜索的期刊
       searchSelectType: "",
-      importSelectType: "论文",
+      importSelectType: "",
       selectTypes: [
-        "论文",
-        "纵向科研项目",
-        "科技奖",
-        "决策咨询成果",
-        "教材",
-        "竞赛获奖",
-        "软著专利",
-        "其他",
+        {label: "学术论文", value: "publication"},
+        // {label: "科研获奖", value: "award"},
+        {label: "科研项目", value: "project"},
+        {label: "决策咨询", value: "decision"},
+        // {label: "学科竞赛", value: "competition"},
       ],
-      importSelectYear: 2023,
+      importSelectYear: null,
       years: [],
-      year: 0,
+      year: '',
+      fromYear: "",
+      toYear: new Date().getFullYear(),
+      yearList: [],
       nowYear: new Date().getFullYear(),
       tableData: [],
       uploadResult: false,
@@ -741,6 +1055,7 @@ export default {
       indicatorID: 0,
       indicatorType: "",
       indicatorTypeZH: "",
+      indicatorName: "",
       dialogVisibleAppendPublication: false,
       dialogVisibleUpdatePublication: false,
       dialogVisibleAppendAward: false,
@@ -749,14 +1064,18 @@ export default {
       dialogVisibleUpdateProgram: false,
       dialogVisibleAppendDecision: false,
       dialogVisibleUpdateDecision: false,
+      dialogVisibleUpdateCompetition: false,
+      dialogVisibleAppendCompetition: false,
       dialogVisibleSearch: false,
+      dialogVisibleClone: false,
       pathVisible: false,
       uploadVisible: false,
+      errorMessage: '',
       rowData: "",
       searchInf: {}, //存放某个期刊（或其他）的indicatorID,名称,表格内id
       searchInf2: {}, //存放某个期刊（或其他）的具体信息
       searchResult: {}, //存放所有的结果
-      searchPathInf: {type: "论文"}, //存放某个期刊（或其他）的目录信息(来自indicator)
+      searchPathInf: {}, //存放某个期刊（或其他）的目录信息(来自indicator)
       publicationInf: {
         name: "",
         abbr: "",
@@ -767,44 +1086,58 @@ export default {
       },
       awardInf: {
         name: "",
+        rankN: "",
+        year: ""
       },
       programInf: {
         name: "",
+        year: new Date().getFullYear(),
       },
       decisionInf: {
         name: "",
+        year: new Date().getFullYear(),
+      },
+      competitionInf: {
+        name: "",
+        year: new Date().getFullYear(),
       },
       isRoot: false,
       currentPage: 1,
       totalCount: 0,
-      pageSizes: [2, 15, 20, 25],
-      PageSize: 15,
+      pageSizes: [10, 20, 50, 100],
+      PageSize: 10,
       tablePaperSample: [
-        //论文
+        //学术论文
         {
           刊物全称: "Artificial Intelligence",
           刊物简称: "AI",
           出版社: "Elsevier",
           网址: "http://dblp.uni-trier.de/db/journals/ai/",
-          "收录级别 （收录级别1;级别2;（请用分号隔开））": "SCI;",
+          "收录级别 （不同收录级别请用分号隔开）": "SCI;",
         },
       ],
       tableTechnicalSample: [
-        //科技奖
+        //科研获奖
         {
           奖项名称: "",
         },
       ],
       tableProjectSample: [
-        //项目
+        //科研项目
         {
           项目名称: "",
         },
       ],
       tableDecisionSample: [
-        //咨询
+        //决策咨询
         {
           成果名称: "你的决策咨询成果名称（必填项）",
+        },
+      ],
+      tableCompetitionSample: [
+        //学科竞赛
+        {
+          学科竞赛名称: "",
         },
       ],
       errorRow: [],
@@ -829,26 +1162,26 @@ export default {
           // console.log(item)
           item.children.forEach((subItem, idx2) => {
             //大类下面的4个小类
-            if (subItem.type == "论文") {
+            if (subItem.type == "学术论文") {
               //添加所有是论文类别的，所有大类
               that.typeOfAllPaper = [
                 ...that.typeOfAllPaper,
-                ...subItem.children,
+                subItem,
               ];
-            } else if (subItem.type == "纵向科研项目") {
+            } else if (subItem.type == "科研项目") {
               that.typeOfAllProject = [
                 ...that.typeOfAllProject,
-                ...subItem.children,
+                subItem,
               ];
-            } else if (subItem.type == "科技奖") {
+            } else if (subItem.type == "科研获奖") {
               that.typeOfAllTechnical = [
                 ...that.typeOfAllTechnical,
-                ...subItem.children,
+                subItem,
               ];
-            } else if (subItem.type == "决策咨询成果") {
+            } else if (subItem.type == "决策咨询") {  // 修改1
               that.typeOfAllDecision = [
                 ...that.typeOfAllDecision,
-                ...subItem.children,
+                subItem,
               ];
             }
           });
@@ -858,8 +1191,183 @@ export default {
     });
   },
   methods: {
+    openClone(){
+     if (this.indicatorType === 'award')
+      this.getYearListForAward(this.year,this.level)
+     else if (this.indicatorType === 'competition')
+      this.getYearListForCompetition(this.year)
+     else
+      this.getYearList(this.year)
+    },
+    handleRadioChange() {
+      if (this.selectedOption === 0) {
+        this.rowData.rankN = 0
+      }
+    },
+    async getYearList(year) {
+      try {
+        const url = `/indicator/getAllYear/${this.indicatorID}/${this.indicatorType}`;
+        await this.getRequest(url).then((resp) => {
+          this.yearList = resp.obj;
+          if (this.yearList.length > 0) {
+            this.fromYear = this.yearList[0];
+            this.year = year ? year : this.yearList[0];
+          } else
+            this.year = ''
+        });
+      } catch (error) {
+        this.$message.error("获取年份错误");
+        // console.error(error);
+      }
+    },
+   async getYearListForAward(year,level) {
+    try {
+     const url = `/indicator/getAllYearForAward?level=${level}`;
+     await this.getRequest(url).then((resp) => {
+      this.yearList = resp.obj;
+      if (this.yearList.length > 0) {
+       this.fromYear = this.yearList[0];
+       this.year = year ? year : this.yearList[0];
+      } else
+       this.year = ''
+     });
+    } catch (error) {
+     this.$message.error("获取年份错误");
+    }
+   },
+   async getYearListForCompetition(year) {
+    try {
+     const url = `/indicator/getAllYearForCompetition`;
+     await this.getRequest(url).then((resp) => {
+      this.yearList = resp.obj;
+      if (this.yearList.length > 0) {
+       this.fromYear = this.yearList[0];
+       this.year = year ? year : this.yearList[0];
+      } else
+       this.year = ''
+     });
+    } catch (error) {
+     this.$message.error("获取年份错误");
+    }
+   },
+   async getTableByYearForAward(level, year, goLastPage) {
+    if (year == 0) {
+     this.tableData = [];
+     this.totalCount = 0;
+     return
+    }
+    try {
+     const resp = await axios.get(
+         `/indicator/getAwardByYearLevel?level=${level}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}`
+     );
+     if (resp.extend.res != null) {
+      this.tableData = resp.extend.res[0];
+      this.totalCount = resp.extend.res[1];
+      if (goLastPage) {
+       this.year = year;
+       this.handleCurrentChange(Math.ceil(this.totalCount / this.PageSize), true)
+      }
+     } else {
+      this.tableData = [];
+      this.totalCount = 0;
+     }
+    } catch (error) {
+     console.error(error);
+    }
+   },
+   async getTableByYearForCompetition(year, goLastPage) {
+    if (year == 0) {
+     this.tableData = [];
+     this.totalCount = 0;
+     return
+    }
+    try {
+     const resp = await axios.get(
+         `/indicator/getCompetitionByYearLevel?year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}`
+     );
+     if (resp.extend.res != null) {
+      this.tableData = resp.extend.res[0];
+      this.totalCount = resp.extend.res[1];
+      if (goLastPage) {
+       this.year = year;
+       this.handleCurrentChange(Math.ceil(this.totalCount / this.PageSize), true)
+      }
+     } else {
+      this.tableData = [];
+      this.totalCount = 0;
+     }
+    } catch (error) {
+     console.error(error);
+    }
+   },
+    //克隆操作
+    clone() {
+      const currentYear = new Date().getFullYear();
+      const minYear = 1999; // 最小年份
+      const maxYear = currentYear; // 最大年份（可以根据实际需求进行调整）
+
+      if (this.fromYear == '') {
+        this.$message.info("被克隆的年份没有选择！");
+        this.closeClone();
+        return
+      }
+
+
+      if (this.toYear < minYear || this.toYear > maxYear) {
+        // toYear 不在允许的范围内
+        this.$message.error("年份不合法！");
+        this.closeClone();
+        return
+      }
+      if (this.fromYear == this.toYear) {
+        this.$message.warning("年份选择相同，请重新选择！");
+        return
+      }
+      const fromYear = this.fromYear;
+      const toYear = this.toYear;
+      const indicatorId = this.indicatorID; // 替换为实际的indicatorId
+      const indicatorType = this.indicatorType;
+      var url = ''
+      if (this.indicatorType === 'award')
+       url = '/indicator/cloneForAward/' + fromYear + '/' + toYear + '/' + this.level;
+      else if (this.indicatorType === 'competition')
+       url = '/indicator/cloneForCompetition/' + fromYear + '/' + toYear;
+      else
+       url = `/indicator/clone/${fromYear}/${toYear}/${indicatorId}/${indicatorType}`;
+
+      this.postRequest(url).then((data) => {
+        // 克隆操作成功的处理逻辑
+        if (data.status == 200) {
+          this.$message.success("克隆成功！");
+          if (this.indicatorType === 'award'){
+           this.getTableByYearForAward(this.level, this.year, this.indicatorType)
+           this.getYearListForAward(this.year,this.level)
+          }
+          else if (this.indicatorType === 'competition'){
+           this.getTableByYearForCompetition(this.year, this.indicatorType)
+           this.getYearListForCompetition(this.year)
+          }
+          else{
+           this.getTableByYear(
+               this.indicatorID,
+               this.year,
+               this.indicatorType
+           );
+           this.getYearList(this.year);
+          }
+        } else {
+          this.$message.error("克隆失败！");
+        }
+        this.closeClone();
+      });
+    },
+    handleOptionChange() {
+      // console.log(this.searchSelectType);
+      this.publicationName = "";
+      this.searchPathInf.type = this.searchSelectType;
+    },
     filter_pub(val) {
-      //选择下拉框的某个期刊 得到选择的期刊的id score等信息
+      this.listSearchPublicationsByName = [];
       this.select_pubName = [];
       this.publicationName = val;
       this.ispubFlag = false;
@@ -867,56 +1375,59 @@ export default {
       if (!val) {
         return;
       }
-      var url = "/publication/getInf/" + val;
+      const url = `/indicator/getProductByTypeName?indicatorType=${encodeURIComponent(
+          this.searchSelectType
+      )}&fullName=${encodeURIComponent(val)}`;
       this.getRequest(url).then((resp) => {
         this.loading = false;
-        if (resp) {
-          this.listSearchPublicationsByName = [];
-          console.log("resp:...");
-          console.log(resp);
-          if (resp.obj) {
-            resp.obj.forEach((item) => {
-              if (this.searchPathInf.type == "论文") {
-                this.listSearchPublicationsByName.push({
-                  //保存返回期刊的id name 积分
-                  abbr: item.abbr,
-                  id: item.id,
-                  indicatorName: item.indicatorName,
-                  level: item.level,
-                  name: item.name,
-                  publisher: item.publisher,
-                  url: item.url,
-                  year: item.year,
-                  score: item.score,
-                });
-              } else if (this.searchPathInf.type == "决策咨询成果") {
-                this.listSearchPublicationsByName.push({
-                  //保存返回期刊的id name 积分
-                  name: item.name,
-                });
-              } else if (this.searchPathInf.type == "科技奖") {
-                this.listSearchPublicationsByName.push({
-                  //保存返回期刊的id name 积分
-                  name: item.name,
-                });
-              } else if (this.searchPathInf.type == "纵向科研项目") {
-                this.listSearchPublicationsByName.push({
-                  //保存返回期刊的id name 积分
-                  name: item.name,
-                });
-              }
-            });
-            console.log(this.searchPathInf);
-          } else {
-            this.$message.error("无该期刊！请重新选择时间！");
-          }
-          clearInterval(this.timer);
+        console.log(resp)
+        if (resp && resp.obj.length !== 0) {
+          console.log(resp.obj)
+          resp.obj.forEach((item) => {
+            const data = {name: item.name};
+            if (this.searchPathInf.type == "publication") {
+              data.abbr = item.abbr;
+              data.id = item.id;
+              data.indicatorName = item.indicatorName;
+              data.publisher = item.publisher;
+              data.url = item.url;
+              data.year = item.year;
+              data.score = item.score;
+            } else if (this.searchPathInf.type == "project") {
+              data.id = item.projectTypeId;
+              data.indicatorName = item.indicatorName;
+              data.name = item.projectTypeName;
+              data.year = item.year;
+              data.score = item.score;
+            } else if (this.searchPathInf.type == "award") {
+              data.id = item.awardTypeId;
+              data.indicatorName = item.indicatorName;
+              data.name = item.awardTypeName;
+              data.year = item.year;
+              data.score = item.score;
+            } else if (this.searchPathInf.type == "decision") {
+              data.id = item.decisionTypeId;
+              data.indicatorName = item.indicatorName;
+              data.name = item.decisionTypeName;
+              data.year = item.year;
+              data.score = item.score;
+            } else if (this.searchPathInf.type == "competition") {
+              data.id = item.competitionTypeId;
+              data.indicatorName = item.indicatorName;
+              data.name = item.competitionTypeName;
+              data.year = item.year;
+              data.score = item.score;
+            }
+            this.listSearchPublicationsByName.push(data);
+          });
+        } else {
+          this.$message.info("该类别未录入指标点中！请重新输入");
         }
+        clearInterval(this.timer);
       });
     },
+
     delaySelectInput(val) {
-      //期刊输入框 每隔300ms发送请求
-      console.log("change");
       if (this.timer) {
         clearInterval(this.timer);
       }
@@ -924,67 +1435,84 @@ export default {
         this.listSearchPublicationsByName = [];
         return;
       }
-      var publication = {};
-      publication.type = this.searchSelectType;
-      publication.name = val;
-      this.timer = setInterval(() => {
-        let url = "/publication/getNames";
-        this.postRequest(url, publication).then((resp) => {
+      const selectedType = this.selectTypes.find(item => item.value === this.searchSelectType);
+      const publication = {
+        type: selectedType ? selectedType.value : "",
+        name: val
+      };
+      if (publication.type == "") {
+        this.$message.error("成果类型选择错误！");
+        return;
+      }
+      this.timer = setInterval(async () => {
+        const url = `/indicator/getProductNamesByTypeName?indicatorType=${encodeURIComponent(publication.type)}&name=${encodeURIComponent(publication.name)}`;
+        try {
+          const resp = await this.getRequest(url);
           this.loading = false;
-          if (resp) {
+          console.log(resp)
+          if (resp && resp.obj != null) {
+            this.select_pubName = resp.obj.map(item => ({value: item}));
+          } else {
             this.select_pubName = [];
-            if (resp.obj != null) {
-              console.log(resp);
-              for (var i = 0; i < resp.obj.length; i++) {
-                this.select_pubName.push({
-                  //保存返回期刊的name
-                  value: resp.obj[i],
-                });
-              }
-            } else {
-              this.select_pubName = [];
-              this.ispubShow = false;
-              this.$message.error(`无期刊结果`);
-            }
+            this.ispubShow = false;
+            this.$message.error(`无结果`);
           }
-          clearInterval(this.timer);
-        });
+        } catch (error) {
+          console.error(error);
+        }
+        clearInterval(this.timer);
       }, 300);
     },
-    getTableByYear(indicatorId, year, type) {
-      var that = this;
-      axios
-          .get(
-              "/" + type + "ByYear?indicatorId=" +
-              indicatorId +
-              "&year=" +
-              year +
-              "&pageNum=" +
-              that.currentPage +
-              "&pageSize=" +
-              that.PageSize
-          )
-          .then(function (resp) {
-            that.tableData = resp.data;
-            that.totalCount = resp.total
-          });
+
+    async getTableByYear(indicatorId, year, type, goLastPage) {
+      if (year == 0) {
+        this.tableData = [];
+        this.totalCount = 0;
+        return
+      }
+      try {
+        const resp = await axios.get(
+            `/indicator/getProductByYear?indicatorId=${indicatorId}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}&type=${type}`
+        );
+        if (resp.extend.res != null) {
+          this.tableData = resp.extend.res[0];
+          this.totalCount = resp.extend.res[1];
+          if (goLastPage) {
+            this.year = year;
+            this.handleCurrentChange(Math.ceil(this.totalCount / this.PageSize), true)
+          }
+        } else {
+          this.tableData = [];
+          this.totalCount = 0;
+        }
+      } catch (error) {
+        console.error(error);
+      }
     },
+
     changeYear() {
-      this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
+      if (this.indicatorType === 'award')
+       this.getTableByYearForAward(this.level, this.year);
+      else if (this.indicatorType === 'competition')
+       this.getTableByYearForCompetition(this.year);
+      else
+       this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
     },
     remove(id, indicatorType) {
       let url = "";
-
-      if (indicatorType === 'publication') {
-        url = `/${indicatorType}?id=${id}&year=${this.year}`;
-      } else if (indicatorType === 'project') {
-        url = `/${indicatorType}Type?id=${id}`;
-      } else {
-        url = `/${indicatorType}?id=${id}`;
+      if (indicatorType === "publication") {
+        url = `/publication?id=${id}&year=${this.year}`;
+      } else if (indicatorType === "project") {
+        url = `/projectType?id=${id}&year=${this.year}`;
+      } else if (indicatorType === "award") {
+        url = `/awardType?id=${id}&year=${this.year}`;
+      } else if (indicatorType === "decision") {
+        url = `/decisionType?id=${id}&year=${this.year}`;
+      } else if (indicatorType === "competition") {
+        url = `/competitionType?id=${id}`;
       }
 
-
-      this.$confirm("确定要删除该条记录吗？", "提示", { type: "warning" })
+      this.$confirm("确定要删除该条记录吗？", "提示", {type: "warning"})
           .then(() => {
             return axios.delete(url);
           })
@@ -997,9 +1525,7 @@ export default {
               const index = this.tableData.findIndex((d) => d.id === id);
               this.tableData.splice(index, 1);
               this.totalCount--;
-              if (this.currentPage > (this.totalCount - 1) / this.pageSize + 1) {
-                this.currentPage--;
-              }
+              this.handleCurrentChange(Math.ceil(this.totalCount / this.PageSize))
             } else {
               this.$message({
                 type: "error",
@@ -1007,54 +1533,58 @@ export default {
               });
             }
           })
-          .catch((error) => {
-            this.$message({
-              type: "error",
-              message: error.message || "删除失败!",
-            });
-          })
           .finally(() => {
             this.closeSearch();
           });
     },
-
-    update(indicatorType) {
+    canConvertToInt(str) {
+      if (str == '')
+        return false;
+      var num = Number(str);
+      return !isNaN(num) && (num === parseInt(num));
+    },
+    async update(indicatorType) {
       try {
         const rowData = this.rowData;
         if (!rowData.name) {
-          throw new Error("名称不能为空");
+          this.$message.warning("名称不能为空");
+          return
         }
-
+        if (!this.canConvertToInt(rowData.year)) {
+          this.$message.warning("年份不合法");
+          return
+        }
         rowData.indicatorId = this.indicatorID;
-
         const paths = {
           project: "projectType",
-          publication: "publication/basic/edit"
+          publication: "publication/basic/edit",
+          award: "award/basic/awardType",
+          decision: "decisionType",
+          competition: "competitionType"
         };
 
         const url = `/${paths[indicatorType] || indicatorType}`;
 
-        axios.put(url, rowData)
-            .then(() => {
-              this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
-            })
-            .catch(error => {
-              this.$message({
-                type: "error",
-                message: error.message || "修改失败!"
-              });
+        await axios.put(url, rowData).then((resp) => {
+          if (resp.status === 200) {
+            this.$message({
+              type: "success",
+              message: resp.msg,
             });
-
-
-        this.$message({
-          type: "success",
-          message: "修改成功!"
+          }
         });
+        if (this.indicatorType === 'award'){
+         await this.getTableByYearForAward(this.level, this.year);
+         await this.getYearListForAward(this.year,this.level);
+        }else if (this.indicatorType === 'competition'){
+         await this.getTableByYearForCompetition(this.year);
+         await this.getYearListForCompetition(this.year)
+        }
+        else{
+         await this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
+         await this.getYearList(this.year);
+        }
       } catch (error) {
-        this.$message({
-          type: "error",
-          message: error.message || "修改失败!"
-        });
       }
     },
 
@@ -1064,64 +1594,62 @@ export default {
         this.dialogVisibleAppendPublication = true;
         return;
       }
-      var postData = {
-        name: this.publicationInf.name,
-        abbr: this.publicationInf.abbr,
-        publisher: this.publicationInf.publisher,
-        url: this.publicationInf.url,
-        indicatorId: this.indicatorID,
-        year: this.publicationInf.year,
-      };
-      var that = this;
-      console.log(postData);
-      this.postRequest1("/publication/basic/add", postData).then(function (resp) {
-        that.getTableByYear(that.indicatorID, that.year, that.indicatorType);
-        if (resp.status != 200)
-          that.$message({
-            type: "error",
-            message: "添加失败!",
+      this.$refs['appendPublicationForm'].validate((valid) => {
+        console.log(valid)
+        if (valid) {
+          var postData = {
+            name: this.publicationInf.name,
+            abbr: this.publicationInf.abbr,
+            publisher: this.publicationInf.publisher,
+            url: this.publicationInf.url,
+            indicatorId: this.indicatorID,
+            year: this.publicationInf.year,
+          };
+          var that = this;
+          this.dialogVisibleAppendPublication = false;
+          this.postRequest1("/publication/basic/add", postData).then(function (resp) {
+            that.getYearList(postData.year);
+            that.getTableByYear(that.indicatorID, postData.year, that.indicatorType, true);
+            if (resp.status != 200)
+              that.$message({
+                type: "error",
+                message: "添加失败!",
+              });
+            else {
+              that.$message({
+                type: "success",
+                message: resp.msg,
+              });
+              that.totalCount++;
+              that.publicationInf = {
+                name: "",
+                abbr: "",
+                publisher: "",
+                url: "",
+                level: "",
+                year: "",
+              }
+            }
           });
-        else {
-          that.$message({
-            type: "success",
-            message: "添加成功!",
-          });
-          that.totalCount++;
         }
-      });
-      this.publicationInf = {};
+      })
     },
     appendPublicationAsync() {
       var token = localStorage.getItem("user")
           ? JSON.parse(localStorage.getItem("user")).token
           : "";
       var that = this;
-      var indicatorNames = [];
-
-      for (var i = 0; i < this.tableUploadData.length; i++) {
-        indicatorNames.push(this.tableUploadData[i]["所属类别"]);
-      }
-      var setIndicatorNames = new Set(indicatorNames); //去重
-      indicatorNames = [];
-      for (var val of setIndicatorNames) {
-        //所有sheet的indicator名
-        indicatorNames.push(val);
-      }
-      var promise = new Promise((resolve, reject) => {
-        axios
-            .post("/publication/dels", {
-              year: this.importSelectYear,
-              indicatorNames: indicatorNames,
-              headers: {
-                token: token,
-              },
-            })
-            .then((resp) => {
-              if (resp) {
-                resolve(resp);
-              }
-            });
-      });
+      // var indicatorNames = [];
+      //
+      // for (var i = 0; i < this.tableUploadData.length; i++) {
+      //   indicatorNames.push(this.tableUploadData[i]["所属类别"]);
+      // }
+      // var setIndicatorNames = new Set(indicatorNames); //去重
+      // indicatorNames = [];
+      // for (var val of setIndicatorNames) {
+      //   //所有sheet的indicator名
+      //   indicatorNames.push(val);
+      // }
       var publicationInfList = [];
       for (let i = 0; i < this.tableUploadData.length; i++) {
         if (typeof this.tableUploadData[i]["刊物全称"] === "undefined") return;
@@ -1132,145 +1660,274 @@ export default {
           url: this.tableUploadData[i]["网址"],
           level: this.tableUploadData[i]["收录级别"],
           year: this.importSelectYear,
-          indicatorName: this.tableUploadData[i]["所属类别"],
+          indicatorName: this.indicatorName,
         };
         publicationInfList.push(publicationInf);
       }
-      promise.then((resp) => {
-        that.postRequest("/publications", publicationInfList).then(
-            (res) => {
-              // that.getTableByYear(that.indicatorID,that.year)
-            },
-            () => {
-              that.$message({
-                type: "error",
-                message: "添加失败!",
-              });
-            }
-        );
-      });
+      that.postRequest("/publications", publicationInfList).then(
+          (res) => {
+            that.getTableByYear(that.indicatorID, that.year, that.indicatorType);
+            that.getYearList();
+          },
+          () => {
+            that.$message({
+              type: "error",
+              message: "添加失败!",
+            });
+          }
+      );
     },
-    appendAward() {
-      var postData = {
-        name: this.awardInf.name,
-        indicatorID: this.indicatorID,
-      };
-      var that = this;
-      axios.post("/award", postData).then(function (resp) {
-        axios.get("/award/" + that.indicatorID).then(function (resp) {
-          that.tableData = resp.obj[1];
+    async appendAward() {
+      try {
+        const postData = {
+          name: this.awardInf.name,
+          indicatorId: this.indicatorID,
+          year: this.awardInf.year,
+          level: this.level
+        };
+
+        await axios.post("/award/basic/awardType", postData).then((resp) => {
+          if (resp.status === 200) {
+            this.$message({
+              type: "success",
+              message: resp.msg,
+            });
+            this.getYearListForAward(this.awardInf.year,this.level)
+          }
         });
-        if (resp.status != 200)
-          that.$message({
-            type: "error",
-            message: "添加失败!",
-          });
-        else
-          that.$message({
-            type: "success",
-            message: "添加成功!",
-          });
-      });
-      this.awardInf = {};
+        await this.getTableByYearForAward(this.level, this.awardInf.year, true);
+        this.awardInf = {name: '', year: ''};
+      } catch (error) {
+      }
+    },
+    appendAwardAsync() {
+      var that = this;
+      var AwardInfList = [];
+      for (let i = 0; i < this.tableUploadData.length; i++) {
+        if (typeof this.tableUploadData[i]["奖项名称"] === "undefined") return;
+        var awardInfList = {
+          name: this.tableUploadData[i]["奖项名称"],
+          year: this.importSelectYear,
+          indicatorId: this.indicatorID,
+          level: this.level
+        };
+        AwardInfList.push(awardInfList);
+      }
+      that.postRequest("/award/basic/awardType/import", AwardInfList).then(
+          (res) => {
+            that.getTableByYearForAward(this.level, this.importSelectYear);
+            that.getYearListForAward(this.importSelectYear,this.level)
+          },
+          () => {
+            that.$message({
+              type: "error",
+              message: "添加失败!",
+            });
+          }
+      );
+    },
+    appendProjectAsync() {
+      var that = this;
+      var ProjectInfList = [];
+      for (let i = 0; i < this.tableUploadData.length; i++) {
+        if (typeof this.tableUploadData[i]["项目名称"] === "undefined") return;
+        var projectInfList = {
+          name: this.tableUploadData[i]["项目名称"],
+          year: this.importSelectYear,
+          indicatorId: this.indicatorID,
+        };
+        ProjectInfList.push(projectInfList);
+      }
+      that.postRequest("/projectType/import", ProjectInfList).then(
+          (res) => {
+            that.getTableByYear(that.indicatorID, that.year, that.indicatorType);
+            that.getYearList();
+          },
+          () => {
+            that.$message({
+              type: "error",
+              message: "添加失败!",
+            });
+          }
+      );
     },
     appendProgram() {
       var postData = {
         name: this.programInf.name,
         indicatorId: this.indicatorID,
-        year: this.year
+        year: this.programInf.year,
       };
-      // console.log(postData);
       var that = this;
-      axios.post("/projectType", postData)
+      axios
+          .post("/projectType", postData)
           .then(function (resp) {
-            if (resp.status !== 200) {
-              throw new Error("Failed to add project type");
-            }
-
             const queryParams = new URLSearchParams({
               indicatorId: postData.indicatorId,
               year: postData.year,
               pageNum: that.currentPage,
-              pageSize: that.PageSize
+              pageSize: that.PageSize,
             });
-
+            that.$message({
+              type: "success",
+              message: resp.msg,
+            });
             return axios.get("/projectByYear?" + queryParams.toString());
           })
           .then(function (resp) {
             that.tableData = resp.data;
             that.totalCount = resp.data.total;
-
-            that.$message({
-              type: "success",
-              message: "添加成功!",
-            });
+            that.getYearList(postData.year)
+            that.getTableByYear(that.indicatorID, postData.year, that.indicatorType, true);
           })
           .catch(function (error) {
-            that.$message({
-              type: "error",
-              message: error.message || "请求失败!",
-            });
           });
-      this.programInf = {};
+      this.programInf = {name: '', year: ''};
     },
     appendDecision() {
       var postData = {
         name: this.decisionInf.name,
-        indicatorID: this.indicatorID,
+        indicatorId: this.indicatorID,
+        year: this.decisionInf.year,
       };
       var that = this;
-      axios.post("/decision", postData).then(function (resp) {
-        axios.get("/decision/" + that.indicatorID).then(function (resp) {
-          that.tableData = resp.obj[1];
-        });
-        if (resp.status != 200)
-          that.$message({
-            type: "error",
-            message: "添加失败!",
-          });
-        else
+      axios.post("/decisionType", postData).then(function (resp) {
+        if (resp) {
           that.$message({
             type: "success",
-            message: "添加成功!",
+            message: resp.msg,
           });
+          that.getYearList(postData.year)
+          that.getTableByYear(that.indicatorID, postData.year, that.indicatorType, true);
+        }
       });
-      this.decisionInf = {};
+      this.decisionInf = {name: '', year: ''};
     },
-
-    getData(indicatorID, type) {
+    appendCompetition() {
+      var postData = {
+        name: this.competitionInf.name,
+        // indicatorId: this.indicatorID,
+        year: this.competitionInf.year,
+      };
+      var that = this;
+      axios.post("/competitionType", postData).then(function (resp) {
+        if (resp) {
+          that.$message({
+            type: "success",
+            message: resp.msg,
+          });
+          that.getYearListForCompetition(postData.year)
+          that.getTableByYearForCompetition(postData.year,true);
+        }
+      });
+      this.competitionInf = {name: '', year: ''};
+    },
+    appendCompetitionAsync() {
+      var that = this;
+      var CompetitionInfList = [];
+      for (let i = 0; i < this.tableUploadData.length; i++) {
+        if (typeof this.tableUploadData[i]["学科竞赛名称"] === "undefined") return;
+        var decisionInfList = {
+          name: this.tableUploadData[i]["学科竞赛名称"],
+          year: this.importSelectYear,
+          indicatorId: this.indicatorID,
+        };
+        CompetitionInfList.push(decisionInfList);
+      }
+      that.postRequest("/competitionType/import", CompetitionInfList).then(
+          (res) => {
+            that.getTableByYearForCompetition(that.year);
+            that.getYearListForCompetition(that.year);
+          },
+          () => {
+            that.$message({
+              type: "error",
+              message: "添加失败!",
+            });
+          }
+      );
+    },
+    appendDecisionAsync() {
+      var that = this;
+      var DecisionInfList = [];
+      for (let i = 0; i < this.tableUploadData.length; i++) {
+        if (typeof this.tableUploadData[i]["成果名称"] === "undefined") return;
+        var decisionInfList = {
+          name: this.tableUploadData[i]["成果名称"],
+          year: this.importSelectYear,
+          indicatorId: this.indicatorID,
+        };
+        DecisionInfList.push(decisionInfList);
+      }
+      that.postRequest("/decision/basic/decisionType/import", DecisionInfList).then(
+          (res) => {
+            that.getTableByYear(that.indicatorID, that.year, that.indicatorType);
+            that.getYearList();
+          },
+          () => {
+            that.$message({
+              type: "error",
+              message: "添加失败!",
+            });
+          }
+      );
+    },
+    getData(indicatorName, indicatorID, type, level) {
       //初始化
-      if (type != "授权专利") {
+      this.currentPage = 1
+      if (type != "授权专利" && type != "制定标准" && type != "学术专著和教材" && type != "制造或设计的产品") {
         this.isRoot = true;
         this.indicatorTypeZH = type;
         var that = this;
         const typeMapping = {
-          "学术论文": "publication",
-          "授权专利": "patent",
-          "科研获奖": "award",
-          "科研项目": "project",
-          "制定标准": "standard",
-          "决策咨询": "decision",
-          "学术专著和教材": "book",
-          "制造或设计的产品": "application",
-          "学科竞赛": "competition"
+          学术论文: "publication",
+          授权专利: "patent",
+          科研获奖: "award",
+          科研项目: "project",
+          制定标准: "standard",
+          决策咨询: "decision",
+          学术专著和教材: "book",
+          制造或设计的产品: "application",
+          学科竞赛: "competition",
         };
+       this.indicatorName = indicatorName;
+       this.indicatorType = typeMapping[type];
+       this.indicatorID = indicatorID;
+        if (type === '科研获奖') {
+         this.level = level;
+         this.getYearListForAward(this.year, level).then(() => {
+          this.getTableByYearForAward(level, this.year);
+         });
+        }else if (type === '学科竞赛') {
+         this.getYearListForCompetition(this.year).then(() => {
+          this.getTableByYearForCompetition(this.year);
+         });
+        }
+        else{
+         this.getYearList().then(() => {
+          this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
+         });
+        }
 
-        this.indicatorType = typeMapping[type];
-        this.indicatorID = indicatorID;
-        this.years = [];
-        this.year = this.nowYear;
-        for (var i = 0; i < 5; i++) this.years.push(this.nowYear - i);
-        that.getTableByYear(indicatorID, that.year, that.indicatorType);
       } else {
-        this.indicatorType = ''
+        this.indicatorType = "";
         this.isRoot = false;
       }
     },
     closeSearch() {
       this.dialogVisibleSearch = false;
       this.pathVisible = false;
+      this.publicationName = "";
+      this.searchSelectType = "";
+      this.searchPathInf.type = "";
+
       this.searchInf = "";
       // this.searchPathInf = ''
+    },
+    closeClone() {
+      this.fromYear = "";
+      this.toYear = new Date().getFullYear();
+      // this.yearList = [];
+      this.dialogVisibleClone = false;
     },
     searchUpdate(indicatorType) {
       this.rowData = this.searchInf2;
@@ -1304,7 +1961,12 @@ export default {
     handleCurrentChange(val) {
       // 改变默认的页数
       this.currentPage = val;
-      this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
+      if (this.indicatorType === 'award')
+       this.getTableByYearForAward(this.level, this.year);
+      else if (this.indicatorType === 'competition')
+       this.getTableByYearForCompetition(this.year);
+      else
+       this.getTableByYear(this.indicatorID, this.year, this.indicatorType);
     },
     readFile(file) {
       //文件读取
@@ -1327,7 +1989,7 @@ export default {
         let workbook = XLSX.read(data, {type: "binary"}); //解析二进制格式数据
         var results = {};
         for (var i = 0; i < workbook.SheetNames.length; i++) {
-          const firstSheetName = workbook.SheetNames[i];
+          const firstSheetName = "sheet1";
           results[firstSheetName] = [];
           const worksheet = workbook.Sheets[firstSheetName];
           if (
@@ -1344,7 +2006,7 @@ export default {
         }
         for (var i = 0; i < workbook.SheetNames.length; i++) {
           //比如有6种论文类别
-          const firstSheetName = workbook.SheetNames[i];
+          const firstSheetName = "sheet1";
           if (results[firstSheetName].length) {
             if (
                 results[firstSheetName][0]["刊物全称"] == "《东华大学计算机学报》"
@@ -1354,8 +2016,25 @@ export default {
           for (var j = 0; j < results[firstSheetName].length; j++) {
             if (results[firstSheetName].length) {
               results[firstSheetName][j]["所属类别"] = firstSheetName;
-              if (typeof results[firstSheetName][j]["刊物全称"] == "undefined")
+              if (this.indicatorTypeZH == "学术论文" && typeof results[firstSheetName][j]["刊物全称"] == "undefined") {
                 this.uploadResultError = true;
+                this.errorMessage = "刊物全称不可为空";
+              } else if (this.indicatorTypeZH == "学术论文" && typeof results[firstSheetName][j]["出版社"] == "undefined") {
+                this.uploadResultError = true;
+                this.errorMessage = "出版社不可为空";
+              } else if (this.indicatorTypeZH == "科研项目" && typeof results[firstSheetName][j]["项目名称"] == "undefined") {
+                this.uploadResultError = true;
+                this.errorMessage = "项目名称不可为空";
+              } else if (this.indicatorTypeZH == "决策咨询" && typeof results[firstSheetName][j]["成果名称"] == "undefined") {
+                this.uploadResultError = true;
+                this.errorMessage = "成果名称不可为空";
+              } else if (this.indicatorTypeZH == "科研获奖" && typeof results[firstSheetName][j]["奖项名称"] == "undefined") {
+                this.uploadResultError = true;
+                this.errorMessage = "奖项名称不可为空";
+              } else if (this.indicatorTypeZH == "学科竞赛" && typeof results[firstSheetName][j]["学科竞赛名称"] == "undefined") {
+                this.uploadResultError = true;
+                this.errorMessage = "学科竞赛名称不可为空";
+              }
             }
           }
           if (results[firstSheetName].length) {
@@ -1395,11 +2074,11 @@ export default {
       //确认上传导入的文件
       var that = this;
       this.$confirm(
-          "是否确定添加" +
+          "是否确定添加向" +
+          this.importSelectYear +
+          "年添加" +
           this.tableUploadData.length +
-          "条记录，批量导入后将覆盖所有" +
-          this.year +
-          "年的数据",
+          "条记录",
           "提示",
           {
             confirmButtonText: "确定",
@@ -1409,7 +2088,7 @@ export default {
       )
           .then(() => {
             //点击确认
-            this.uploadAppendPublication().then(() => {
+            this.uploadAppend(this.indicatorTypeZH).then(() => {
               that.$message({
                 type: "success",
                 message: "添加成功",
@@ -1420,51 +2099,64 @@ export default {
             });
           })
           .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消",
-            });
           });
     },
-    async uploadAppendPublication() {
-      await this.appendPublicationAsync();
+    async uploadAppend(type) {
+      switch (type) {
+        case "学术论文":
+          await this.appendPublicationAsync();
+          break;
+        case "科研项目":
+          await this.appendProjectAsync();
+          break;
+        case "科研获奖":
+          await this.appendAwardAsync();
+          break;
+        case "决策咨询":
+          await this.appendDecisionAsync();
+          break;
+        case "学科竞赛":
+          await this.appendCompetitionAsync();
+          break;
+        default:break;
+      }
     },
 
     //导出excel模版按钮
     btnClickExport() {
-      var sheetTitlesAndId = []; //保存所有sheet信息
+      var sheetTitlesAndId = this.indicatorName; //保存所有sheet信息
       var tableSample = []; //sheet表头信息 标题
-      if (this.importSelectType == "论文") {
-        this.typeOfAllPaper.forEach((item) => {
-          sheetTitlesAndId.push(item);
-        });
+      this.importSelectType = this.indicatorType;
+      if (this.importSelectType == "publication") {
+        // this.typeOfAllPaper.forEach((item) => {
+        //   sheetTitlesAndId.push(item);
+        // });
         tableSample = this.tablePaperSample;
-      } else if (this.importSelectType == "科技奖") {
-        this.typeOfAllTechnical.forEach((item) => {
-          sheetTitlesAndId.push(item);
-        });
+      } else if (this.importSelectType == "award") {
+        // this.typeOfAllTechnical.forEach((item) => {
+        //   sheetTitlesAndId.push(item);
+        // });
         tableSample = this.tableTechnicalSample;
-      } else if (this.importSelectType == "咨询决策成果") {
-        this.typeOfAllDecision.forEach((item) => {
-          sheetTitlesAndId.push(item);
-        });
+      } else if (this.importSelectType == "decision") {
+        // this.typeOfAllDecision.forEach((item) => {
+        //   sheetTitlesAndId.push(item);
+        // });
         tableSample = this.tableDecisionSample;
-      } else if (this.importSelectType == "纵向科研成果") {
-        this.typeOfAllProject.forEach((item) => {
-          sheetTitlesAndId.push(item);
-        });
+      } else if (this.importSelectType == "project") {
+        // this.typeOfAllProject.forEach((item) => {
+        //   sheetTitlesAndId.push(item);
+        // });
         tableSample = this.tableProjectSample;
+      } else if (this.importSelectType == "competition"){
+        tableSample = this.tableCompetitionSample;
       }
       // console.log(sheetTitlesAndId)
       var wb = XLSX.utils.book_new();
-      for (var i = 0; i < sheetTitlesAndId.length; i++) {
-        var sheet = XLSX.utils.json_to_sheet(tableSample); //设置每个sheet的表头标题
-        console.log(sheet);
-        XLSX.utils.book_append_sheet(wb, sheet, sheetTitlesAndId[i].label);
-      }
-      console.log(wb);
+      var sheet = XLSX.utils.json_to_sheet(tableSample); //设置每个sheet的表头标题
+      XLSX.utils.book_append_sheet(wb, sheet, 'sheet1');
+      // console.log(wb);
       const workbookBlob = this.workbook2blob(wb);
-      this.openDownloadDialog(workbookBlob, "模版.xlsx");
+      this.openDownloadDialog(workbookBlob, this.indicatorTypeZH + "模版.xlsx");
     },
     workbook2blob(workbook) {
       // 生成excel的配置项
@@ -1543,7 +2235,19 @@ export default {
       // return table_write;
     },
     checkUploadData({row, rowIndex}) {
-      if (typeof row["刊物全称"] === "undefined") {
+      if (this.indicatorTypeZH == "学术论文" && (typeof row["刊物全称"] === "undefined" || typeof row["出版社"] === "undefined")) {
+        return "warning-row";
+      }
+      if (this.indicatorTypeZH == "科研项目" && typeof row["项目名称"] === "undefined") {
+        return "warning-row";
+      }
+      if (this.indicatorTypeZH == "决策咨询" && typeof row["成果名称"] === "undefined") {
+        return "warning-row";
+      }
+      if (this.indicatorTypeZH == "科研获奖" && typeof row["奖项名称"] === "undefined") {
+        return "warning-row";
+      }
+      if (this.indicatorTypeZH == "学科竞赛" && typeof row["学科竞赛名称"] === "undefined") {
         return "warning-row";
       }
       return "";

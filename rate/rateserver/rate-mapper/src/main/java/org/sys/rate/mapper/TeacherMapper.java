@@ -58,4 +58,7 @@ public interface TeacherMapper {
 
     @Select("select * from teacher where name like CONCAT('%', #{name}, '%')")
     List<Teachers> selectByName(String name);
+
+    @Select("SELECT t.name, t.jobnumber, t.ID FROM teacher t WHERE t.institutionID = 1 and (t.name like CONCAT('%',#{nameOrJobNumber},'%') or t.jobnumber like CONCAT('%',#{nameOrJobNumber},'%'))")
+    List<Teachers> searchByNameOrJobNumber(String nameOrJobNumber, Integer institutionID);
 }

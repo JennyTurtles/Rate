@@ -15,4 +15,10 @@
         FROM i_project_type p
         where p.name like concat('%', #{type}, '%') and p.year = #{year}
     </select>
+
+    <delete id="deleteByYearIndicatorID">
+        delete
+        from  i_project_type
+        where indicator_id = #{indicatorID} and year=#{year}
+    </delete>
 </mapper>

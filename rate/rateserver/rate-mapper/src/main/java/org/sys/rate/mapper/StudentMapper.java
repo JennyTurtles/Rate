@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.Student;
+import org.sys.rate.model.UnderGraduate;
 
 import java.util.List;
 
@@ -10,11 +11,14 @@ public interface StudentMapper {
     List<Student> getTotal();
 
     Student loadUserByUsername(String username);
-//    List<Role> getAdminRolesById(Integer id);
+
+    //    List<Role> getAdminRolesById(Integer id);
     Student getStuByIDNumber(String IDNumber);
+
     Student getById(Integer ID);
 
-    int updatePassword(Integer ID,String pass);
+    int updatePassword(Integer ID, String pass);
+
     int insert(Student record);
 
     int delete(Student record);
@@ -35,14 +39,21 @@ public interface StudentMapper {
     List<Student> checkAndReturnID(List<Student> stuList);
 
     int updatePasswordAndUsername(Student record);
+
     int insertStuFromRegister(Student record);//注册添加
+
     int insertFROMImport(Student record);
+
     int insertStuFromExcel(Student record);
+
     int updateFROMImport(Student record);
+
     public List<Student> selectList();
+
     int deleteStudent(Integer ID);
 
     int insertFromAdminExcel(List<Student> record);
+
     int updateFromAdminExcel(List<Student> record);
 
 
@@ -69,17 +80,31 @@ public interface StudentMapper {
             "WHERE ID = (SELECT ID2 FROM (SELECT ID ID2 FROM undergraduate WHERE studentID = #{oldID}) AS a)")
     void updateUndergraduateStudentID(Integer oldID, Integer newID);
 
-    @Insert("INSERT INTO undergraduate(institutionID,studentID,stuNumber,year,tutorID)\n" +
-            "VALUES (#{institutionid},#{ID},#{studentnumber},#{year},#{tutorID})")
+    @Insert("INSERT INTO undergraduate(institutionID,studentID,stuNumber,year)\n" +
+            "VALUES (#{institutionid},#{ID},#{studentnumber},#{year})")
     void registerUndergraduate(Student student);
 
 
     @Select("select name from student where ID = #{studentID}")
     String getNameByID(Integer studentID);
 
-    @Update("UPDATE graduatestudent SET year = #{year},tutorID = #{tutorID},studentType = #{gradType} WHERE studentID = #{ID}")
+    @Update("UPDATE graduatestudent SET year = #{year}, tutorID = #{tutorID} ,studentType = #{gradType} WHERE studentID = #{ID}")
     void updateGraduate(Student student);
 
-    @Update("UPDATE undergraduate SET year = #{year},tutorID = #{tutorID} WHERE studentID = #{ID}")
+    @Update("UPDATE undergraduate SET year = #{year} WHERE studentID = #{ID}")
     void updateUnderGraduate(Student student);
+
+    @Select("select distinct id from undergraduate where stuNumber = #{stuNumber} and institutionID = #{institutionID}")
+    Integer getStuIdByStuNumAndInstitutionID(String stuNumber, Integer institutionID);
+
+    @Insert("INSERT INTO student (name, institutionid, deleteflag, role) " +
+            "VALUES (#{name}, #{institutionid}, #{deleteflag}, #{role})")
+    @Options(useGeneratedKeys = true, keyProperty = "ID")
+    void insertReturnId(Student student);
+
+    @Update("update student set name = #{name}, email=#{email}, telephone=#{telephone} where ID=#{studentID}")
+    void edit(UnderGraduate under);
+
+    @Select("select s.name, s.ID, s.institutionID from student s, undergraduate u where u.ID=#{studentID} and u.studentID = s.ID")
+    Student getByUndergraduateId(Integer studentID);
 }

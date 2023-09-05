@@ -19,9 +19,6 @@
           <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
           <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
         </el-tabs>
-        <a>
-          选手添加有三种模式：手动添加、从本单位添加、批量导入。<br/><br/>
-        </a>
         <div style="display: flex;justify-content: space-between;">
           <!-- <div>
             <el-input placeholder="请输入单位名进行搜索，可以直接回车搜索..." prefix-icon="el-icon-search"
@@ -95,13 +92,13 @@
           </el-select>
         </div>
         <div>
-          <el-button type="primary" @click="exportData" :loading="loading" icon="el-icon-download">
+          <el-button v-show="!$route.query.addActive" type="primary" @click="exportData" :loading="loading" icon="el-icon-download">
             导出专家打分
           </el-button>
-          <el-button
-              icon="el-icon-refresh"
-              type="primary"
-              @click="refreshact()">刷新</el-button>
+<!--          <el-button-->
+<!--              icon="el-icon-refresh"-->
+<!--              type="primary"-->
+<!--              @click="refreshact()">刷新</el-button>-->
 <!--          <el-button icon="el-icon-back" type="primary" @click="back">-->
 <!--            返回-->
 <!--          </el-button>-->
@@ -1056,6 +1053,7 @@ export default {
                 },
               }).then((res) => {
                 this.$message(res.msg);
+                this.initEmps()
               })
             }
             else{

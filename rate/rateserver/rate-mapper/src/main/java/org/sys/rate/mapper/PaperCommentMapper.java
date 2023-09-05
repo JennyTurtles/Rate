@@ -9,45 +9,38 @@ import java.util.List;
 
 @Mapper
 public interface PaperCommentMapper {
-    @Select("select p.dateStu,p.dateTea,p.preSum,p.nextPlan,p.tutorComment,p.num,p.thesisID,p.isPass \n" +
-            "            from papercomment p \n" +
-            "            where #{thesis.ID} = p.thesisID" +
-            " ORDER BY p.isPass, p.num")
-    List<PaperComment> selectCommentList(int thesisID);
+    @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment  where #{thesisID} = thesisID ORDER BY isPass, num")
+    List<PaperComment> selectCommentList(Integer thesisID);
 
-    @Select("select p.dateStu,p.dateTea,p.preSum,p.nextPlan,p.tutorComment,p.num,p.thesisID,p.isPass \n" +
-            "            from papercomment p \n" +
-            "            where #{thesis.ID} = p.thesisID")
-    List<PaperComment> selectCommentListStu(int thesisID);
 
     @Select("select p.dateStu,p.dateTea,p.preSum,p.nextPlan,p.tutorComment,p.num \n" +
             "            from papercomment p,thesis \n" +
             "            where #{stuID} = thesis.studentID and thesis.ID = p.thesisID and p.num=#{num}")
     PaperComment selectCommentOne(int stuID, int num);
 
-    @Insert("insert into papercomment values(#{ID},#{thesisID},#{dateStu},#{dateTea},#{preSum},#{nextPlan},#{tutorComment},#{num},#{isPass})")
+    @Insert("insert into papercomment (thesisid, datestu, datetea, presum, nextplan, tutorcomment, num, ispass) values(#{thesisID},#{dateStu},#{dateTea},#{preSum},#{nextPlan},#{tutorComment},#{num},#{isPass})")
     Integer insertComment(PaperComment paperComment);
 
     @Delete("delete from papercomment where num = #{num} and thesisID = #{thesisID}")
     Integer deleteCommentById(int num, int thesisID);
 
-    @Select("SELECT ID FROM thesis WHERE studentID = #{stuID} ORDER BY year DESC, month DESC LIMIT 1;")
-    Integer getTIDbySID(int stuID);
+
+    @Select("SELECT t.ID FROM thesis t, student s, undergraduate u WHERE s.ID = #{stuID} and s.ID = u.studentID and u.ID = t.studentID ORDER BY t.year DESC, t.month DESC LIMIT 1;")
+    Integer getThesisID(int stuID);
 
     @Update("update papercomment set dateStu = #{dateStu}, preSum = #{preSum}, nextPlan = #{nextPlan},dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass} where thesisID = #{thesisID} and num = #{num}")
     int updateStuComment(PaperComment paperComment);
 
-    @Select("SELECT ID, name FROM student WHERE tutorID = #{teaID}")
-    public List<Student> getStuIDbyTeaID(int teaID);
-
-    @Select("SELECT ID,name,studentID,year,`month`,url FROM thesis WHERE studentID = #{stuID} ORDER BY year DESC, month DESC LIMIT 1;")
-    Thesis getThesis(int stuID);
+    @Select("SELECT t.id, t.studentid, t.NAME, t.url, t.YEAR, t.MONTH, t.tutorid, t.grade, t.start_thesis_id FROM thesis t, student s, undergraduate u WHERE u.studentID = #{stuID} and t.studentID = u.ID and u.studentID = s.ID and t.year = #{year} and t.`month` = #{month};")
+    Thesis getThesis(int stuID, int year, int month);
 
     @Update("update papercomment set dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass} where thesisID = #{thesisID} and num = #{num}")
     int updateTeaComment(PaperComment paperComment);
 
     List<Student> getStuThesis(int teaID);
 
-    @Select("SELECT ID,name,studentID,year, month, url FROM thesis WHERE ID = #{ID}")
+    @Select("SELECT t.id, t.studentid, t.name, t.url, t.year, t.month, t.tutorid, t.grade, t.start_thesis_id, u.stuNumber studentNumber FROM thesis t,undergraduate u WHERE t.ID = #{ID} and t.studentID = u.ID")
     Thesis getThesisByTID(Integer thesisID);
+
+    List<Student> getStuThesisWithDate(Integer tutorId, Integer year, Integer month);
 }

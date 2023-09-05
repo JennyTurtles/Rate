@@ -73,7 +73,7 @@
         <el-button
             icon="el-icon-search"
             type="primary"
-            @click="searchProject(1, 15)"
+            @click="searchProject(1, 10)"
             style="margin-left:30px"
         >
           搜索
@@ -97,7 +97,7 @@
             prop="author"
             align="center"
             label="作者列表"
-            width="100"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
@@ -105,13 +105,13 @@
             prop="name"
             align="center"
             label="项目名称"
-            width="200"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="110"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
@@ -137,24 +137,25 @@
             prop="projectType.name"
             label="项目类别"
             align="center"
-            width="80"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="point"
             label="积分"
             align="center"
-            width="80"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
-            prop="remark"
+            min-width="15%"
+            prop="operationList[0].remark"
             label="备注"
             align="center"
         >
         </el-table-column>
         <el-table-column
-            width="130"
+            min-width="15%"
             align="center"
             label="详情"
         >
@@ -355,10 +356,10 @@ export default {
       searchProjectName: '',
       searchStatus: '',
       searchStudentName: '',
-      pageSizes:[15,20,30],
+      pageSizes:[10, 20, 50, 100],
       totalCount:0,
       currentPage: 1,
-      pageSize: 15,
+      pageSize: 10,
       operList:[],
       isShowInfo: false,
       select_stuName:["全部"],//筛选框
@@ -409,13 +410,14 @@ export default {
       return this.$store.state.currentHr; //object信息
     },
     role() {
-      return JSON.parse(localStorage.getItem('user')).role.indexOf('8') >= 0 ||
-      JSON.parse(localStorage.getItem('user')).role.indexOf('9') >= 0 ? 'teacher' : 'admin';
+      return JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ||
+      JSON.parse(localStorage.getItem('user')).roleName.indexOf('expert') >= 0 ? 'teacher' : 'admin';
     }
   },
   created() {},
   mounted() {
-    this.searchProject(1,15);
+    // this.test();
+    this.searchProject(1,10);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -540,6 +542,14 @@ export default {
         }
       })
     },
+    test(){
+      this.getRequest('/project/basic/List').then((response) => {
+        if(response) {
+          this.projectList = response.extend.res;
+          // this.totalCount = response.extend.res[1];
+        }
+      })
+    },
     searchProject(pageNum, pageSize) {//根据条件搜索
       const params = {};
       params.studentName = this.searchStudentName;
@@ -571,9 +581,9 @@ export default {
       params.pageSize = pageSize.toString();
       this.postRequest('/project/basic/searchProjectByConditions', params).then((response) => {
         if(response) {
-          this.projectList = response.extend.res;
-          // this.totalCount = response.extend.res[1];
-        }
+          this.projectList = response.extend.res[0];
+          this.totalCount = response.extend.res[1];
+        }else this.projectList = [];
       })
     }
   }

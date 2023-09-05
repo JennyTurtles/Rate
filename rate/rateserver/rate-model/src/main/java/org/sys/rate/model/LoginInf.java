@@ -13,6 +13,7 @@ public class LoginInf {
     private String username;
     private String password;
     private String role;
+    private String roleName;
     private String token;
     private String name;
 }

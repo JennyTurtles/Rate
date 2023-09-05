@@ -15,6 +15,7 @@ public interface GraduateStudentMapper {
     int deleteGraduateStudent(GraduateStudent grad);
     int editGraduateStudent(GraduateStudent grad);
     int insert(GraduateStudent record);
+    int update(GraduateStudent record);
 
     List<Integer> check(List<GraduateStudent> graduate);
     int insertFROMImport(List<GraduateStudent> record);
@@ -22,6 +23,7 @@ public interface GraduateStudentMapper {
     int updateFROMImport(List<GraduateStudent> record);
     int checkHaveStudentOfstudenID(Integer studentID);
     int checkHaveStudentOftutorID(Integer tutorID,Integer ID);
+    int checkHaveStudentOfStuNumber(Integer institutionID,String stuNumber,Integer studentID);
 
     @Select("SELECT COUNT(*) from graduatestudent WHERE studentID = #{stuId}")
     int isGraduateStudent(Integer stuId);

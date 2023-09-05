@@ -23,4 +23,8 @@ public class OperationService {
         return operationMapper.selectList(prodId, operType);
     }
 
+    public Integer deleteOperationList(Operation operation) {
+        return operationMapper.deleteOperationList(operation);
+    }
+
 }

@@ -33,20 +33,18 @@ public class PaperCommentService {
         return paperCommentMapper.deleteCommentById(num, thesisID);
     }
 
-    public Integer getTIDbySID(int stuID) {
-        return paperCommentMapper.getTIDbySID(stuID);
+    public Integer getThesisID(int stuID) {
+        return paperCommentMapper.getThesisID(stuID);
     }
 
     public int updateStuComment(PaperComment paperComment) {
         return paperCommentMapper.updateStuComment(paperComment);
     }
 
-    public List<Student>getStuIDbyTeaID(int teaID) {
-        return paperCommentMapper.getStuIDbyTeaID(teaID);
-    }
 
-    public Thesis getThesis(int stuID) {
-        return paperCommentMapper.getThesis(stuID);
+
+    public Thesis getThesis(int stuID, int year, int month) {
+        return paperCommentMapper.getThesis(stuID, year, month);
     }
 
     public int updateTeaComment(PaperComment paperComment) {
@@ -58,11 +56,15 @@ public class PaperCommentService {
     }
 
     public List<PaperComment> selectCommentListStu(int thesisID) {
-        return paperCommentMapper.selectCommentListStu(thesisID);
+        return paperCommentMapper.selectCommentList(thesisID);
     }
 
 
     public Thesis getThesisByTID(Integer thesisID) {
         return paperCommentMapper.getThesisByTID(thesisID);
+    }
+
+    public List<Student> getStuThesis(Integer tutorId, Integer year, Integer month) {
+        return paperCommentMapper.getStuThesisWithDate(tutorId, year, month);
     }
 }

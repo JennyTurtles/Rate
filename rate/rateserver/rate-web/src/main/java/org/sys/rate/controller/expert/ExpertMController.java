@@ -346,7 +346,7 @@ public class ExpertMController {
             return RespBean.ok(experts.getName());
         }
         else {
-            return RespBean.error("exist leader");
+            return RespBean.ok("");
         }
     }
 }

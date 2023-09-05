@@ -61,13 +61,13 @@ public class ProjectController {
     }
 
     @GetMapping("/List")
-    public Msg getCollect(@RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
+    public Msg getCollect() {
         //包括返回最早的提交时间 和多次驳回的理由列表
-        Page page = PageHelper.startPage(pageNum, pageSize);
+//        Page page = PageHelper.startPage(pageNum, pageSize);
         List<Project> list = projectService.selectAllProjectList();
-        PageInfo info = new PageInfo<>(page.getResult());
-        Object[] res = {list, info.getTotal()};
-        return Msg.success().add("res", res);
+//        PageInfo info = new PageInfo<>(page.getResult());
+//        Object[] res = {list, info.getTotal()};
+        return Msg.success().add("res", list);
     }
     /**
      * 新增保存专著成果
@@ -150,15 +150,14 @@ public class ProjectController {
     }
     @GetMapping("/getIndicatorScore")
     public JsonResult getScore(Integer id) {
-        return new JsonResult(indicatorMapper.getScore(id));
+        return new JsonResult(indicatorMapper.getIndicatorById(id));
     }
     @PostMapping("/searchProjectByConditions")
     public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
-//        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
+        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
         List<Project> list = projectService.searchProjectByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"));
-//        PageInfo info = new PageInfo<>(page.getResult());
-//        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
-//        return Msg.success().add("res", res);
-        return Msg.success().add("res", list);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
     }
 }

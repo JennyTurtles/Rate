@@ -9,7 +9,7 @@
           style="display: inline-flex; margin-left: 1px"
           :action="UploadUrl()"
       >
-        <el-button icon="el-icon-plus" type="primary">导入学生</el-button>
+        <el-button icon="el-icon-plus" type="success">导入学生</el-button>
       </el-upload>
     </div>
     <div style="margin-top: 10px">
@@ -84,8 +84,6 @@
         <el-table-column prop="telephone" label="电话" align="center"></el-table-column>
         <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
         <el-table-column prop="year" label="入学年份" align="center"></el-table-column>
-        <el-table-column prop="idnumber" label="身份证号" align="center"></el-table-column>
-        <el-table-column prop="teachers.name" label="导师姓名" align="center"></el-table-column>
         <el-table-column  label="操作" align="center" width="180px">
           <template slot-scope="scope">
             <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary" style="padding: 4px">编辑</el-button>
@@ -406,7 +404,7 @@ export default {
       return url;
     },
     downloadExcel(){
-      let url = '/undergraduateM/basic/exportUnderGraduate'
+      let url = '/undergraduateM/basic/exportUnderGraduate?type=student'
       this.$message.success('正在下载')
       window.open(url,'_parent')
     },
@@ -442,9 +440,11 @@ export default {
     },
     initUnderGraduateStudents(curr,pagesize){//初始化本科生
       //因为很多不同情况下都要初始化数据，所以不能只依靠data中都两个参数
+      console.log(curr,pagesize)
       this.getRequest('/undergraduateM/basic/getUnderGraduateStudents?pageNum=' + curr + '&pageSize=' + pagesize).then((response)=>{
         if(response.code == 200){
           this.undergraduateStudents = response.extend.res[0]
+          console.log(response);
           this.totalCount = response.extend.res[1]
         }
       })

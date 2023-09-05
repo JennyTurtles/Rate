@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.Patent;
+import org.sys.rate.model.Project;
 
 import java.util.List;
 
@@ -88,4 +89,7 @@ public interface PatentMapper
 
     @Select("SELECT * FROM i_patent WHERE  ID = #{ID}")
     public Patent selectByID(Long ID);
+
+    public List<Patent> searchPatentByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
+
 }

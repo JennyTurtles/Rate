@@ -67,7 +67,6 @@ public class StudentService implements UserDetailsService {
         return studentMapper.selectList();
     }
 
-    //   逆天逻辑
     //   要注册为研究生，就根据用户输入的学号去研究生表里查询
     //   如果没查到，就检查表里是否有该学生的studentID，如果没有，就添加一条记录，如果有，就直接修改该记录（防止恶意添加）
     //   如果查到了，核对姓名，然后更新那条记录的studentID，然后去学生表把老的studentID删掉
@@ -121,6 +120,10 @@ public class StudentService implements UserDetailsService {
             studentMapper.update(student);
         }
         return true;
+    }
+
+    public Student getByUndergraduateId(Integer studentID) {
+        return studentMapper.getByUndergraduateId(studentID);
     }
 }
 

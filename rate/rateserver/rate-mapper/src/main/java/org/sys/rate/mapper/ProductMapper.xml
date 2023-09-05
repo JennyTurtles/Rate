@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.ProductMapper">
+    <resultMap type="org.sys.rate.model.Product" id="ProductResult">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="studentId" column="student_id"/>
+        <result property="name" column="name"/>
+        <result property="date" column="date"/>
+        <result property="author" column="author"/>
+        <result property="url" column="url"/>
+        <result property="state" column="state"/>
+        <result property="point" column="point"/>
+        <result property="rank" column="rank"/>
+        <result property="total" column="total"/>
+        <result property="indicatorId" column="indicator_id"/>
+        <association property="student" javaType="org.sys.rate.model.Student">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="name" column="sname"/>
+        </association>
+        <association property="indicator" javaType="org.sys.rate.model.Indicator">
+            <id property="id" column="id" jdbcType="INTEGER"/>
+            <result property="name" column="iname"/>
+            <result property="score" column="score"/>
+        </association>
+        <collection property="operationList" ofType="org.sys.rate.model.Operation">
+            <result property="operatorRole" column="operator_role"/>
+            <result property="operatorId" column="operator_id"/>
+            <result property="operatorName" column="operator_name"/>
+            <result property="prodType" column="prod_type"/>
+            <result property="prodId" column="prod_id"/>
+            <result property="time" column="operdate"/>
+            <result property="operationName" column="operation_name"/>
+            <result property="state" column="state"/>
+            <result property="remark" column="remark"/>
+        </collection>
+    </resultMap>
+
+    <sql id="selectPaperVo">
+        select id,student_id,name,date,author,url,indicatorId,state
+        from i_application
+    </sql>
+
+    <select id="searchProductByConditions" resultMap="ProductResult">
+        SELECT book.*,i.max_date, j.remark, s.name as sname, i.name as iname, i.score
+        FROM i_application book
+        JOIN (
+        SELECT prod_id,MAX(i_oper.date) max_date
+        FROM i_oper
+        WHERE prod_type = '科研产品'
+        GROUP BY prod_id
+        ) i ON book.id = i.prod_id
+        JOIN (
+        SELECT prod_id,remark,`date`
+        FROM i_oper
+        WHERE prod_type = '科研产品'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+        JOIN indicator i ON book.indicator_id = i.id
+        JOIN student s ON s.ID = book.student_id
+        <where>
+            <if test="productName != null and productName != ''">and book.name like concat('%', #{productName}, '%')</if>
+            <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
+            <if test="state != null and state != ''">and book.state = #{state}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
+        </where>
+        ORDER BY book.id DESC
+    </select>
+
+    <select id="selectListById" resultMap="ProductResult">
+        <include refid="selectPaperVo"></include>
+        <where>
+            <if test="student_id != null  and student_id != ''">and student_id = #{student_id}</if>
+            <if test="page !=null and size!=null">
+                limit #{page},#{size}
+            </if>
+        </where>
+    </select>
+
+<!--    学生产品页面初始化-->
+    <select id="selectListByIds" resultMap="ProductResult" parameterType="Integer">
+        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score
+        FROM i_application a
+                 JOIN (
+            SELECT prod_id,MAX(i_oper.date) max_date
+            FROM i_oper
+            WHERE prod_type = '科研产品'
+            GROUP BY prod_id
+        ) i ON a.id = i.prod_id
+                 JOIN (
+            SELECT prod_id,remark,`date`
+            FROM i_oper
+            WHERE prod_type = '科研产品'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+                 JOIN indicator ind ON ind.id = a.indicator_id AND a.student_id = #{studentID}
+        ORDER BY a.id DESC;
+    </select>
+
+    <select id="selectPaperById" parameterType="Long" resultMap="ProductResult">
+        <include refid="selectPaperVo"/>
+        where ID = #{ID}
+    </select>
+
+    <insert id="insertProduct" parameterType="org.sys.rate.model.Product" useGeneratedKeys="true" keyProperty="id">
+        insert into i_application
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="studentId != null">student_id,</if>
+            <if test="indicatorId != null">indicator_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="date != null">date,</if>
+            <if test="author != null">author,</if>
+            <if test="`rank` != null">`rank`,</if>
+            <if test="total != null">total,</if>
+            <if test="point != null">point,</if>
+            <if test="state != null">state,</if>
+            <if test="url != null">url</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="studentId != null">#{studentId},</if>
+            <if test="indicatorId != null">#{indicatorId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="date != null">#{date},</if>
+            <if test="author != null">#{author},</if>
+            <if test="`rank` != null">#{rank},</if>
+            <if test="total != null">#{total},</if>
+            <if test="point != null">#{point},</if>
+            <if test="state != null">#{state},</if>
+            <if test="url != null">#{url}</if>
+        </trim>
+    </insert>
+
+    <update id="updateProduct" parameterType="org.sys.rate.model.Product">
+        update i_application
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="date != null">date = #{date},</if>
+            <if test="author != null">author = #{author},</if>
+            <if test="`rank` != null">`rank` = #{rank},</if>
+            <if test="total != null">total = #{total},</if>
+            <if test="point != null">point = #{point},</if>
+            <if test="state != null">state =#{state},</if>
+            <if test="url != null">url = #{url},</if>
+            <if test="indicatorId != null">indicator_id = #{indicatorId}</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="editState" parameterType="org.sys.rate.model.Product">
+        update i_application
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null">state = #{state},</if>
+        </trim>
+        where ID = #{ID}
+    </update>
+    <delete id="deleteProductById" parameterType="Long">
+        delete
+        from i_application
+        where id = #{ID}
+    </delete>
+
+    <delete id="deletePaperByIds" parameterType="String">
+        delete from i_application where ID in
+        <foreach item="ID" collection="array" open="(" separator="," close=")">
+            #{ID}
+        </foreach>
+    </delete>
+
+</mapper>

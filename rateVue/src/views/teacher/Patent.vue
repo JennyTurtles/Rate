@@ -11,6 +11,7 @@
                 border-radius:4px;color:grey"
                placeholder="学生姓名"
                autocomplete="off"
+               v-model="searchStudentName"
                id="select_stuname">
         <label style="fontSize:10px;margin-left:16px">专利名称：</label>
         <input type="text"
@@ -18,11 +19,12 @@
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
                placeholder="专利名称"
+               v-model="searchPatentName"
                id="select_paperName">
 
         <label style="fontSize:10px;margin-left:40px;">专利状态：</label>
         <el-select
-            v-model="tmp1"
+            v-model="searchPatentState"
             style="margin-left:3px;width:120px"
             prefix-icon="el-icon-edit"
             clearable
@@ -40,7 +42,7 @@
         </el-select>
         <label style="fontSize:10px;margin-left:16px">积分范围：</label>
         <el-select
-            v-model="tmp2"
+            v-model="pointFront"
             style="margin-left:3px;width:60px"
             prefix-icon="el-icon-edit"
             clearable
@@ -79,7 +81,7 @@
         <el-button
             icon="el-icon-search"
             type="primary"
-            @click="searchEmps"
+            @click="searchPatentListByCondicitions(1, 10)"
             :disabled="showAdvanceSearchView"
             style="margin-left:30px"
         >
@@ -89,7 +91,7 @@
     </div>
     <div style="margin-top: 10px">
       <el-table
-          :data="emps"
+          :data="patents"
           stripe
           border
           v-loading="loading"
@@ -103,21 +105,21 @@
             prop="student.name"
             align="center"
             label="学生姓名"
-            width="75"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="name"
             align="center"
             label="专利名称"
-            width="230"
+            min-width="15%"
         >
         </el-table-column>
         <!-- width="200" -->
         <el-table-column
             prop="state"
             label="状态"
-            width="110"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
@@ -143,24 +145,25 @@
             prop="point"
             label="积分"
             align="center"
-            width="80"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
             prop="grantedStatus"
             label="授权状态"
             align="center"
-            width="80"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
-            prop="remark"
+            min-width="15%"
+            prop="operationList[0].remark"
             label="备注"
             align="center"
         >
         </el-table-column>
         <el-table-column
-            width="130"
+            min-width="15%"
             align="center"
             label="详情"
         >
@@ -181,7 +184,7 @@
             @size-change="sizeChange"
             :current-page="currentPage"
             layout="sizes, prev, pager, next, jumper, ->, total, slot"
-            :total="total"
+            :total="totalCount"
             :page-sizes="pageSizes"
             :page-size="pageSize"
         >
@@ -275,12 +278,11 @@
           <span>{{emp.rank}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="受理日期:" prop="date">
-          <span>{{emp.date | dataFormat}}</span
+        <el-form-item label="受理年月:" prop="date">
+          <span>{{emp.date}}</span
           ><br />
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
-          <!-- <el-button @click="download(emp)" type="primary">下载材料</el-button> -->
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
           <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(emp)"
@@ -350,7 +352,12 @@ export default {
   name: "SalSearch",
   data() {
     return {
-      pageSizes:[10,20,20,20,30],
+      pointBack: '',
+      pointFront: '',
+      searchPatentState: '',
+      searchPatentName: '',
+      searchStudentName: '',
+      pageSizes:[10, 20, 50, 100],
       totalCount:0,
       currentPage:1,
       pageSize:10,
@@ -372,15 +379,12 @@ export default {
       importDataDisabled: false,
       showAdvanceSearchView: false,
       copyemps:[],
-      emps: [],
+      patents: [],
       loading: false,
       dialogVisible: false,
       dialogVisible_pass: false,
       dialogVisible_reject: false,
       dialogVisible_show: false,
-      total: 0,
-      page: 1,
-      size: 10,
       positions: [],
       reason:"",
       oper:{
@@ -423,13 +427,13 @@ export default {
           : '${this.select_pubName.length * 50}px'
     },
     role() {
-      return JSON.parse(localStorage.getItem('user')).role.indexOf('8') >= 0 ||
-      JSON.parse(localStorage.getItem('user')).role.indexOf('9') >= 0 ? 'teacher' : 'admin';
+      return JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ||
+      JSON.parse(localStorage.getItem('user')).roleName.indexOf('expert') >= 0 ? 'teacher' : 'admin';
     }
   },
   created() {},
   mounted() {
-    this.initEmps(1,10);
+    this.searchPatentListByCondicitions(1, 10)
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -486,7 +490,7 @@ export default {
           this.doAddOper(num, this.reason, this.emp.id);
         }
       }).finally(()=>{
-        this.initEmps();
+        this.searchPatentListByCondicitions(this.currentPage, this.pageSize)
       });
     },
     async doAddOper(state,remark,patentID) {
@@ -501,7 +505,7 @@ export default {
         this.oper.operationName = "审核驳回"
       }
       await this.postRequest1("/oper/basic/add", this.oper);
-      await this.initEmps();
+      await this.searchPatentListByCondicitions(this.currentPage, this.pageSize)
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
@@ -538,31 +542,16 @@ export default {
     //应该要分是否有无筛选条件
     sizeChange(currentSize) {
       this.pageSize = currentSize;
-      this.initEmps(this.currentPage,currentSize);
+      this.searchPatentListByCondicitions(this.currentPage, this.pageSize)
     },
     currentChange(currentPage) {
       this.currentPage = currentPage;
-      this.initEmps(currentPage,this.pageSize);
+      this.searchPatentListByCondicitions(this.currentPage, this.pageSize)
     },
-    initEmps(pageNum,pageSize) {
-      this.loading = true;
-      let url = '/patent/basic/List?pageNum=' + pageNum + '&pageSize=' + pageSize;
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.emps = resp.extend.res[0];
-          this.copyemps = this.emps
-          this.totalCount = resp.extend.res[1];
-          this.emps.sort(function(a,b){
-            return a.date > b.date ? -1 : 1
-          })
-        }
-      });
-    },
-    searchEmps() {//根据条件搜索论文
-      var newemps=new Set()
-      var stuname=document.getElementById("select_stuname").value
-      var state=document.getElementById("select_state").value
+    searchPatentListByCondicitions(pageNum, pageSize) {//根据条件搜索论文
+      const params = {};
+      params.studentName = this.searchStudentName;
+      var state = this.searchPatentState;
       if(state == '导师通过'){
         state = 'tea_pass'
       }else if(state == '导师驳回'){
@@ -573,21 +562,28 @@ export default {
         state = 'adm_pass'
       }else if (state == '管理员驳回') {
         state = 'adm_reject'
+      }else state = '';
+      if(this.pointFront == '全部') {
+        params.pointFront = '';
+      }else {
+        params.pointFront = this.pointFront;
       }
-      var paper=document.getElementById("select_paperName").value
-      var point1=document.getElementById("select_point1").value
-      var point2=document.getElementById("select_point2").value
-      for(var i=0;i<this.copyemps.length;i++){
-        if((((this.copyemps[i].student.name.indexOf(stuname) >= 0 ))||(stuname == '全部' || stuname == ''))&&
-            (((this.copyemps[i].state == state))||(state == '全部' || state == ''))&&
-            (((this.copyemps[i].name.indexOf(paper) >= 0) )||(paper == '全部' || paper == ''))&&
-            (((this.copyemps[i].indicator.score <= point2 && this.copyemps[i].indicator.score >= point1))||(point1 == '全部' || point1 == '' || point2 == '全部' || point2 == ''))
-        ){
-          newemps.add(this.copyemps[i])
-        }
+      if(this.pointBack == '全部') {
+        params.pointBack = '';
+      }else {
+        params.pointBack = this.pointBack;
       }
-      this.emps = Array.from(newemps)
-    },
+      params.state = state;
+      params.name = this.searchPatentName;
+      params.pageNum = pageNum.toString();
+      params.pageSize = pageSize.toString();
+      this.postRequest('/patent/basic/searchPatentByConditions', params).then((response) => {
+        if(response) {
+          this.patents = response.extend.res[0];
+          this.totalCount = response.extend.res[1];
+        }else this.projectList = [];
+      })
+    }
 
   },
 };

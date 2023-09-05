@@ -36,6 +36,8 @@ public interface ActivitiesMapper {
 
     List<Activities> getActivitiesByPage(@Param("page") Integer page, @Param("size") Integer size, Integer institutionID,Integer ID);
 
+    List<Activities> getActivitiesByPageHelper(Integer institutionID,Integer ID);
+
     @Select("SELECT * FROM activities WHERE parentID = #{activityID} AND deleteFlag = 0")
     List<Activities> getSubActivities(Integer activityID);
 
@@ -114,6 +116,9 @@ public interface ActivitiesMapper {
     @Select("SELECT * FROM activities WHERE deleteFlag = 0")
     List<Activities> getAll();
 
+    @Select("SELECT * FROM activities WHERE deleteFlag = 0 AND parentID IS NULL")
+    List<Activities> getALlWithoutSub();
+
     @Insert("INSERT INTO scoreitem (activityID, name, score, coef,`comment`,byExpert)\n" +
             "SELECT #{newActID},name, score, coef,`comment`,byExpert\n" +
             "FROM scoreitem\n" +
@@ -141,4 +146,9 @@ public interface ActivitiesMapper {
     @Select("SELECT ID,name FROM activities\n" +
             "WHERE name LIKE CONCAT('%', #{name}, '%') AND deleteFlag = 0")
     List<Activities> searchByName(String name);
+
+    @Select("SELECT a.ID, a.`name`\n" +
+            "FROM expertactivities e, activities a\n" +
+            "WHERE e.activityID = a.ID AND teacherID = #{teacherID} AND deleteFlag = 0 AND finished = 0 AND gradeFormType != 0 ")
+    List<Activities> getWithGradeForm(Integer teacherID);
 }

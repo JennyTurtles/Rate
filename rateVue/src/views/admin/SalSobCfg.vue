@@ -1,6 +1,6 @@
 <template>
   <div>
-   <AddActStep v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
+   <AddActStep v-show="typeof $route.query.addActive !== 'undefined' " :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name"></AddActStep>
    <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2GroupManage" v-show="$route.query.addActive == 5 && $route.query.mode == 'admin' ">
     组内人员管理
    </el-button>
@@ -12,14 +12,11 @@
      </el-button>
     </div>
    </div>
-   <el-tabs v-model="activeName" style="width: 70%" @tab-click="change2Par">
+   <el-tabs v-show="!$route.query.flag" v-model="activeName" style="width: 70%" @tab-click="change2Par">
     <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
     <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
    </el-tabs>
     <div style="display: flex; justify-content: left">
-      <a>
-        专家添加有三种模式：手动添加、从本单位添加、批量导入。
-      </a>
 <!--    {{ keywords_name }} <a v-show="flag===0">专家名单</a> <a v-show="flag==1">专家打分</a>-->
 <!--      <div style="margin-left: auto">-->
 <!--        <el-button icon="el-icon-back" type="primary" @click="back">-->
@@ -63,7 +60,7 @@
 <!--        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。-->
 <!--    </div>-->
     <div>
-      <el-button type="success" @click="showMethod" style="margin-top: 15px" v-if="haveGroup || groupID">
+      <el-button type="success" @click="showMethod" style="margin-top: 0px" v-if="haveGroup || groupID" v-show="!$route.query.flag ">
         添加专家
       </el-button>
      <el-tooltip class="item" effect="dark" content="当前活动无分组，无法添加专家。请先在分组管理中添加分组后再试。" placement="top-start" v-else :disabled='false'>
@@ -554,20 +551,23 @@
                 :data="parentGroup"
                 tooltip-effect="dark"
                 style="width: 100%"
-                @selection-change="handleSelectionChange">
+                @selection-change="handleSelectionChange"
+                :row-key="getRowKeys">
               <el-table-column
+                  :reserve-selection="true"
+                  :selectable="checkSecletion"
                   type="selection"
                   width="40px">
               </el-table-column>
+             <el-table-column
+                 prop="jobNumber"
+                 label="工号"
+                 show-overflow-tooltip>
+             </el-table-column>
               <el-table-column
                   prop="name"
                   label="姓名"
               >
-              </el-table-column>
-              <el-table-column
-                  prop="idnumber"
-                  label="证件号码"
-                  show-overflow-tooltip>
               </el-table-column>
             </el-table>
             <el-button type="primary" @click="add" style="float: right;margin-top: 10px">
@@ -588,6 +588,7 @@ import {validateInputIdCard,checkIdCard} from "@/utils/check";
 import sha1 from "sha1";
 import PinYinMatch from 'pinyin-match';
 import AddActStep from "@/components/AddActStep.vue";
+import {log} from "@/utils/sockjs";
 
 export default {
   name: "SalSobCfg",
@@ -1032,7 +1033,7 @@ export default {
     },
     initParentGroup(){
       this.getRequest(
-          "/systemM/Experts/?keywords=" + this.groupIDParent +
+          "/systemM/Experts/?keywords=" + (this.groupIDParent ? this.groupIDParent : this.groupID) +
           "&page=" + 1 +
           "&size=" + 1000 // 避免分页
       ).then((resp) => {
@@ -1049,7 +1050,7 @@ export default {
           keywords: this.keywords,
           keyword_name: this.ACNAME,
           keywords_name:this.keywords_name,
-          groupID: this.groupID !== null ? this.groupID : data.groupID,
+          groupID: this.groupID ? this.groupID : data.groupID,
           expertID:data.id,
           expertName:data.name,
           institutionID:this.user.institutionID,
@@ -1190,14 +1191,20 @@ export default {
             mode:this.mode,
           },
         });
-      }
+      } // ActivitM/score?keywords=50&keyword_name=人员管理开发专用-子活动1&mode=adminSub&backID=49
+          // ActivitM/sobcfg?keywords=50&keyword_name=人员管理子活动1.1&keywords_name=人员管理开发专用-子活动1&groupID=49&mode=adminSub&flag=1
       else if (this.mode === "adminSub"){
-          _this.$router.push({
-              path: "/ActivitM/SubActManage",
-              query: {
-                  id: this.$route.query.backID,
-              },
-          });
+          // _this.$router.push({
+          //     path: "/ActivitM/score",
+          //     query: {
+          //         keywords:this.$route.query.keywords,
+          //         keyword_name:this.$route.query.keyword_name,
+          //         mode:this.$route.query.mode,
+          //         backID:49,
+          //         id: this.$route.query.backID,
+          //     },
+          // });
+       this.$router.go(-1);
       }else{
        const _this = this
        this.$router.go(-1);
@@ -1347,15 +1354,12 @@ export default {
     },
     onError(err, file, fileList) {
       this.importDataBtnText = "导入专家";
-      this.importDataBtnIcon = "el-icon-upload2";
+      this.importDataBtnIcon = "el-icon-plus";
       this.importDataDisabled = false;
     },
     onSuccess(res) {
       // console.log("res", res);
-      if (typeof res.obj !== 'undefined'){
-        Message.warning(res.obj)
-        return
-      }
+     this.loading = false
 
       if (res.msg === 'file error') {
         Message.error("文件内容或者格式有误，请不要修改表头，信息按格式填写！")
@@ -1368,7 +1372,7 @@ export default {
         Message.error("上传失败！",res.msg)
       }
       this.importDataBtnText = "导入数据";
-      this.importDataBtnIcon = "el-icon-upload2";
+      this.importDataBtnIcon = "el-icon-plus";
       this.importDataDisabled = false;
       this.initHrs(true);
     },
@@ -1433,6 +1437,7 @@ export default {
             smallGroup:this.$route.query.smallGroup,
             addActive:this.$route.query.addActive,
             requireGroup:this.$route.query.requireGroup,
+            forSecretary:this.$route.query.forSecretary,
           }
         })
       }
@@ -1462,7 +1467,7 @@ export default {
         type: "warning",
       })
           .then(() => {
-            this.postRequest("/systemM/Experts/withdraw?activityID=" + this.keywords + "&groupID=" + this.groupID +"&expertID=" + row.id).then(resp => {
+            this.postRequest("/systemM/Experts/withdraw?activityID=" + this.keywords + "&groupID=" + (this.groupID ? this.groupID : row.groupID) +"&expertID=" + row.id).then(resp => {
               if (resp) {
                 this.initHrs();
                 this.$message({
@@ -1472,12 +1477,6 @@ export default {
               }
             });
           })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消退回",
-            });
-          });
     },
     chooseGroup(event){
       this.currentAddGroup=event;
@@ -1493,7 +1492,8 @@ export default {
       this.dialogVisible_method=false;
       const _this = this
       for (let i = 0; i < this.multipleSelection.length; i++) {
-       this.multipleSelection[i].institutionid = this.multipleSelection[i].institutionID;
+        if (this.multipleSelection[i].institutionid === null)
+         this.multipleSelection[i].institutionid = this.multipleSelection[i].institutionID;
       }
       if (typeof this.groupID !== 'undefined'){
         this.currentAddGroup = this.groupID;
@@ -1518,6 +1518,7 @@ export default {
       })
     },
     handleSelectionChange(val){
+     console.log(val)
       for(let i=0;i<val.length;i++){
         for (let j=0;j<this.hrs.length;j++){
           if (val[i].idnumber===this.hrs[j].idnumber){

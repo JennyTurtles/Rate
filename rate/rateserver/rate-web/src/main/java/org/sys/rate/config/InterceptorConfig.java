@@ -9,8 +9,21 @@ import org.sys.rate.config.interceptor.jwtInterceptor;
 
 import javax.annotation.Resource;
 
+//@Configuration
+//public class InterceptorConfig extends WebMvcConfigurationSupport {
+//    @Resource
+//    private jwtInterceptor jwtInterceptor;
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(jwtInterceptor)
+//                .addPathPatterns("/**")//拦截所有请求，判断token是否合法决定是否需要登录
+//                .excludePathPatterns("/doLogin", "/registerUser", "**/export", "**/import","/getPublicKey","/paper/basic/download","**/exportPDF");    // 拦截所有请求， 决定判断token是否合法来决定是否需要登录
+//    }
+//
+//}
+
 @Configuration
-public class InterceptorConfig extends WebMvcConfigurationSupport {
+public class InterceptorConfig implements WebMvcConfigurer {
     @Resource
     private jwtInterceptor jwtInterceptor;
     @Override
@@ -19,5 +32,7 @@ public class InterceptorConfig extends WebMvcConfigurationSupport {
                 .addPathPatterns("/**")//拦截所有请求，判断token是否合法决定是否需要登录
                 .excludePathPatterns("/doLogin", "/registerUser", "**/export", "**/import","/getPublicKey","/paper/basic/download","**/exportPDF");    // 拦截所有请求， 决定判断token是否合法来决定是否需要登录
     }
+
+
 
 }

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.CompetitionMapper">
+    <resultMap type="org.sys.rate.model.Competition" id="CompetitionResult">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="studentId" column="student_id" jdbcType="INTEGER"/>
+        <result property="name" column="name"/>
+        <result property="date" column="date"/>
+        <result property="author" column="author"/>
+        <result property="url" column="url"/>
+        <result property="state" column="state"/>
+        <result property="point" column="point"/>
+        <result property="rank" column="rank"/>
+        <result property="total" column="total"/>
+        <result property="competitionLevel" column="competition_level"/>
+        <result property="indicatorId" column="indicator_id"/>
+        <association property="student" javaType="org.sys.rate.model.Student">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="name" column="sname"/>
+        </association>
+        <association property="indicator" javaType="org.sys.rate.model.Indicator">
+            <id property="id" column="indicatorid" jdbcType="INTEGER"/>
+            <result property="name" column="iname"/>
+            <result property="score" column="score"/>
+            <result property="rankN" column="rankN"/>
+        </association>
+        <association property="competitionType" javaType="org.sys.rate.model.CompetitionType">
+            <id property="id" column="competitionTypeId" jdbcType="INTEGER"/>
+            <result property="name" column="tname"/>
+            <result property="year" column="year"/>
+        </association>
+        <collection property="operationList" ofType="org.sys.rate.model.Operation">
+            <result property="operatorRole" column="operator_role"/>
+            <result property="operatorId" column="operator_id"/>
+            <result property="operatorName" column="operator_name"/>
+            <result property="prodType" column="prod_type"/>
+            <result property="prodId" column="prod_id"/>
+            <result property="time" column="operdate"/>
+            <result property="operationName" column="operation_name"/>
+            <result property="state" column="state"/>
+            <result property="remark" column="remark"/>
+        </collection>
+    </resultMap>
+
+    <sql id="selectCompetitionVo">
+        select id, student_id, name, author, url, competition_type_id, state, start_date, end_date, point, rank, total
+        from i_competition
+    </sql>
+
+    <select id="selectAllCompetitionList" resultMap="CompetitionResult">
+        SELECT p.*,i.max_date,j.remark
+        FROM i_competition p
+                 JOIN (
+            SELECT prod_id,MAX(date) max_date
+            FROM i_oper
+            WHERE prod_type = '科研项目'
+            GROUP BY prod_id
+        ) i ON p.id = i.prod_id
+                 JOIN (
+            SELECT prod_id,remark,`date`
+            FROM i_oper
+            WHERE prod_type = '学科竞赛'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+                 JOIN i_competition_type type ON p.competition_type_id = type.id
+                 JOIN student s ON s.ID = p.student_id
+                JOIN indicator i ON i.id = p.indicator_id
+        ORDER BY p.id DESC
+    </select>
+
+    <select id="selectListById" resultMap="CompetitionResult">
+        <include refid="selectCompetitionVo"></include>
+        <where>
+            <if test="student_id != null  and student_id != ''">and student_id = #{student_id}</if>
+            <if test="page !=null and size!=null">
+                limit #{page},#{size}
+            </if>
+        </where>
+    </select>
+
+<!--    学生科研项目页面初始化-->
+    <select id="selectCompetitionListById" resultMap="CompetitionResult">
+        SELECT a.*,i.max_date,j.remark, type.`name` as tname, type.id as projectTypeId, type.year,ind.id as indicatorid, ind.name as iname, ind.score, ind.rankN
+        FROM i_competition a
+                 JOIN (
+            SELECT prod_id,MAX(i_oper.date) max_date
+            FROM i_oper
+            WHERE prod_type = '学科竞赛'
+            GROUP BY prod_id
+        ) i ON a.id = i.prod_id
+                 JOIN (
+            SELECT prod_id,remark,`date`
+            FROM i_oper
+            WHERE prod_type = '学科竞赛'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+                 JOIN i_competition_type type ON type.id = a.competition_type_id AND a.student_id = #{studentID}
+                 JOIN indicator ind ON ind.id = a.indicator_id
+        ORDER BY a.id DESC;
+    </select>
+
+    <select id="selectCompetitionList" parameterType="org.sys.rate.model.Competition" resultMap="CompetitionResult">
+        <include refid="selectCompetitionVo"/>
+        <where>
+            <if test="id !=null and id !=''">and id =#{id}</if>
+            <if test="student_id != null ">and student_id = #{student_id}</if>
+            <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
+            <if test="year != null  and year != ''">and year = #{year}</if>
+            <if test="month != null ">and month = #{month}</if>
+            <if test="`rank` != null ">and `rank` = #{rank}</if>
+            <if test="total != null ">and total = #{total}</if>
+            <if test="point != null ">and point = #{point}</if>
+            <if test=" != null ">and  = #{}</if>
+            <if test="url != null ">and url = #{url}</if>
+        </where>
+    </select>
+
+    <select id="selectCompetitionById" parameterType="Long" resultMap="CompetitionResult">
+        <include refid="selectCompetitionVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCompetition" parameterType="org.sys.rate.model.Competition" useGeneratedKeys="true" keyProperty="id">
+        insert into i_competition
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="studentId != null">student_id,</if>
+            <if test="competitionTypeId != null">competition_type_id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="date != null">date,</if>
+            <if test="author != null">author,</if>
+            <if test="`rank` != null">`rank`,</if>
+            <if test="total != null">total,</if>
+            <if test="point != null">point,</if>
+            <if test="state != null">state,</if>
+            <if test="url != null">url,</if>
+            <if test="competitionLevel != null">competition_level,</if>
+            <if test="indicatorId != null">indicator_id</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="studentId != null">#{studentId},</if>
+            <if test="competitionTypeId != null">#{competitionTypeId},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="date != null">#{date},</if>
+            <if test="author != null">#{author},</if>
+            <if test="`rank` != null">#{rank},</if>
+            <if test="total != null">#{total},</if>
+            <if test="point != null">#{point},</if>
+            <if test="state != null">#{state},</if>
+            <if test="url != null">#{url},</if>
+            <if test="competitionLevel != null">#{competitionLevel},</if>
+            <if test="indicatorId != null">#{indicatorId}</if>
+        </trim>
+    </insert>
+
+    <update id="updateCompetition" parameterType="org.sys.rate.model.Competition">
+        update i_competition
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="date != null">date = #{date},</if>
+            <if test="author != null">author = #{author},</if>
+            <if test="`rank` != null">`rank` = #{rank},</if>
+            <if test="total != null">total = #{total},</if>
+            <if test="point != null">point = #{point},</if>
+            <if test="state != null">state =#{state},</if>
+            <if test="url != null">url = #{url},</if>
+            <if test="competitionLevel != null">competition_level = #{competitionLevel},</if>
+            <if test="indicatorId != null">indicator_id = #{indicatorId},</if>
+            <if test="competitionTypeId != null">competition_type_id = #{competitionTypeId}</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="editState" parameterType="org.sys.rate.model.Competition">
+        update i_competition
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null">state = #{state},</if>
+        </trim>
+        where id = #{ID}
+    </update>
+    <delete id="deleteCompetitionById" parameterType="Long">
+        delete
+        from i_competition
+        where id = #{ID}
+    </delete>
+
+    <delete id="deleteCompetitionByIds" parameterType="String">
+        delete from i_competition where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{ID}
+        </foreach>
+    </delete>
+    <select id="searchCompetitionByConditions" resultMap="CompetitionResult">
+        SELECT book.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, s.name as sname
+        FROM i_competition book
+        JOIN (
+        SELECT prod_id,MAX(i_oper.date) max_date
+        FROM i_oper
+        WHERE prod_type = '学科竞赛'
+        GROUP BY prod_id
+        ) i ON book.id = i.prod_id
+        JOIN (
+        SELECT prod_id,remark,`date`
+        FROM i_oper
+        WHERE prod_type = '学科竞赛'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+        JOIN i_competition_type ip ON book.competition_type_id = ip.id
+        JOIN student s ON s.ID = book.student_id
+        <where>
+            <if test="competitionName != null and competitionName != ''">and book.name like concat('%', #{competitionName}, '%')</if>
+            <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
+            <if test="state != null and state != ''">and book.state = #{state}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
+        </where>
+        ORDER BY book.id DESC
+    </select>
+
+    <select id="selectCompetitionListByYear" resultType="org.sys.rate.model.Competition"></select>
+</mapper>

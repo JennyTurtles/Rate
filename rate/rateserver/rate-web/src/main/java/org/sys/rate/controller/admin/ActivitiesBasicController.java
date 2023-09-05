@@ -1,5 +1,9 @@
 package org.sys.rate.controller.admin;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.ActivitiesMapper;
@@ -44,9 +48,14 @@ public class ActivitiesBasicController {
     public RespPageBean getActivitiesByPage(@RequestParam(defaultValue = "1") Integer page,
                                             @RequestParam(defaultValue = "10") Integer size,
                                             @RequestParam(defaultValue = "1") Integer institutionID,
-                                            @RequestParam Integer adminID,
-                                            Activities employee) {
-        return activitiesService.getActivitiesPage(page, size, employee, institutionID,adminID);
+                                            @RequestParam Integer adminID) {
+        Page p = PageHelper.startPage(page,size);
+        List<Activities> res = activitiesService.getActivitiesPage(institutionID,adminID);
+        PageInfo info = new PageInfo<>(p.getResult());
+        RespPageBean bean = new RespPageBean();
+        bean.setData(res);
+        bean.setTotal(info.getTotal());
+        return bean;
     }
 
     @GetMapping("/one")
@@ -214,10 +223,17 @@ public class ActivitiesBasicController {
             return RespBean.ok("无子活动",false);
     }
 
-    // 返回所有活动和子活动的的信息
+    // 返回所有活动和子活动的信息
     @GetMapping("/getALl")
     public RespBean getALl() {
         List<Activities> activities = activitiesMapper.getAll();
+        return RespBean.ok("成功", activities);
+    }
+
+    // 返回所有主活动的信息
+    @GetMapping("/getALlWithoutSub")
+    public RespBean getALlWithoutSub() {
+        List<Activities> activities = activitiesMapper.getALlWithoutSub();
         return RespBean.ok("成功", activities);
     }
 
@@ -244,6 +260,13 @@ public class ActivitiesBasicController {
     @GetMapping("/searchByName")
     public RespBean searchByName(@RequestParam String name) {
         List<Activities> activities = activitiesMapper.searchByName(name);
+        return RespBean.ok("success", activities);
+    }
+
+    // 获取该教师参与的含有成绩评定表的活动
+    @GetMapping("/getWithGradeForm")
+    public RespBean getWithGradeForm(@RequestParam Integer teacherID) {
+        List<Activities> activities = activitiesMapper.getWithGradeForm(teacherID);
         return RespBean.ok("success", activities);
     }
 }

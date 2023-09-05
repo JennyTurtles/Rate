@@ -1,78 +1,176 @@
 <template>
   <div>
+    <div>
+      <label>选择毕业设计：</label>
+      <el-select v-model="selectDate" placeholder="请选择" @change="handleSelectSemesterChange">
+        <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+        </el-option>
+      </el-select>
+    </div>
+    <div style="margin-top: 10px">
+      <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importStudents">导入毕业设计
+      </el-button>
+
+    </div>
     <div style="margin-top: 20px">
       <el-table
-        class="table-with-shadow"
-        :data="emps"
-        stripe="stripe"
-        border="border"
-        v-loading="loading"
-        :header-cell-style="rowClass"
-        element-loading-text="正在加载..."
-        element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.12)"
-        style="width: 100%"
-        v-loading.fullscreen.lock="loading"
+          class="table-with-shadow"
+          :data="emps"
+          stripe="stripe"
+          border="border"
+          v-loading="loading"
+          :header-cell-style="rowClass"
+          element-loading-text="正在加载..."
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(0, 0, 0, 0.12)"
+          style="width: 100%"
+          v-loading.fullscreen.lock="loading"
       >
         <el-table-column label="" type="index" width="50"></el-table-column>
         <el-table-column
-          prop="sname"
-          align="center"
-          label="姓名"
-          width="100px"
-          :show-overflow-tooltip="true"
+            prop="studentnumber"
+            align="center"
+            label="学号"
+            width="100px"
+            :show-overflow-tooltip="true"
         ></el-table-column>
         <el-table-column
-          prop="thesis.name"
-          align="center"
-          label="论文题目"
-          width="500px"
+            prop="sname"
+            align="center"
+            label="姓名"
+            width="100px"
+            :show-overflow-tooltip="true"
+        ></el-table-column>
+        <el-table-column
+            prop="thesis.name"
+            align="center"
+            label="论文题目"
         ></el-table-column>
 
         <el-table-column
-          prop="thesis.comment_total"
-          align="center"
-          label="已提交"
-          width="100px"
+            prop="thesis.comment_total"
+            align="center"
+            label="已提交"
+            width="80px"
         ></el-table-column>
-        <el-table-column align="center" label="已评价" width="100px">
+        <el-table-column align="center" label="已评价" width="80px">
           <template slot-scope="scope">
             {{
               scope.row.thesis.comment_deny != 0
-                ? scope.row.thesis.comment_pass +
+                  ? scope.row.thesis.comment_pass +
                   scope.row.thesis.comment_deny +
                   "(" +
                   scope.row.thesis.comment_deny +
                   ")"
-                : scope.row.thesis.comment_pass
+                  : scope.row.thesis.comment_pass
             }}
           </template>
         </el-table-column>
 
-        <el-table-column align="center" label="操作">
+        <el-table-column align="center" label="操作" width="200px">
           <template slot-scope="scope">
             <el-button
-              @click="showInfoItem(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              icon="el-icon-tickets"
-              type="primary"
-              plain="plain"
-              >进入
+                @click="showInfoItem(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-tickets"
+                type="primary"
+                plain="plain"
+            >进入
             </el-button>
+
             <el-button
-              @click="exportPDF(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              icon="el-icon-tickets"
-              type="primary"
-              plain="plain"
-              >导出PDF
+                @click="openEditDialog(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-tickets"
+                type="primary"
+                plain="plain"
+            >编辑
+            </el-button>
+
+            <el-button
+                @click="exportPDF(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                icon="el-icon-tickets"
+                type="primary"
+                plain="plain"
+            >导出PDF
             </el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
+
+    <el-dialog
+        title="编辑论文题目"
+        :visible.sync="editDialogVisible"
+        width="50%" center
+    >
+      <div style="margin-bottom: 20px;">
+        <el-form>
+          <el-form-item label="论文题目:" label-width="80px" style="margin-left: 20px;">
+            <el-input v-model="editedThesisName"/>
+          </el-form-item>
+        </el-form>
+      </div>
+      <span slot="footer" class="dialog-footer">
+      <el-button @click="saveEditedThesisName" type="primary">保存</el-button>
+      <el-button @click="editDialogVisible = false">取 消</el-button>
+      </span>
+    </el-dialog>
+
+    <el-dialog :visible.sync="dialogStudentVisible" width="30%">
+      <template v-slot:title>
+        <div style="text-align: center; font-size: 20px;">导入毕业设计信息</div>
+      </template>
+      <div style="margin-left: 10px">第一步：
+        <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="downloadExcel('thesisName')">
+          下载模版
+        </el-button>
+      </div>
+
+      <div style="margin-top: 10px;margin-left: 10px">第二步：
+        <el-upload
+            :show-file-list="false"
+            :before-upload="beforeUpload"
+            :on-success="onSuccess"
+            style="display: inline-flex; margin-left: 1px"
+            :action="`/undergraduateM/basic/importThesisName?tutorId=${user.id}&institutionId=${user.institutionID}&year=${startYear}&semester=${selectSemester}`"
+        >
+          <el-button icon="el-icon-plus" type="success" :disabled="selectDate==''">导入毕业设计</el-button>
+        </el-upload>
+      </div>
+      <template #footer>
+        <div>
+          <el-button @click="dialogStudentVisible = false">关闭</el-button>
+        </div>
+      </template>
+
+    </el-dialog>
+    <el-dialog :visible.sync="dialogImportResult" width="40%" title="导入毕业设计结果统计" :center="true">
+      <p>
+        共计<span :style="{ color: 'blue', fontWeight: 'bold' }">{{ totalRows }}</span>条记录，
+        成功更新<span :style="{ color: 'orange', fontWeight: 'bold' }">{{ duplicateInsertRowsCount }}</span>条记录，
+        有<span :style="{ color: 'red', fontWeight: 'bold' }">{{ failedRowsCount }}</span>条记录更新失败。
+      </p>
+
+      <p v-show="failedRowsCount>0">以下是失败原因的统计：</p>
+      <ul>
+        <li v-for="(reason, code) in failureReasons" :key="code">第{{ code }}行: {{ reason }}</li>
+      </ul>
+
+      <template #footer>
+        <div>
+          <el-button @click="dialogImportResult = false">关闭</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -81,6 +179,21 @@ export default {
   name: "teaPaperComment",
   data() {
     return {
+      user: {},
+      options: [],
+      selectDate: '',
+      selectSemester: '',
+      startYear: null,
+      duplicateInsertRowsCount: 0,
+      failedRowsCount: 0,
+      successfulRowsCount: 0,
+      totalRows: 0,
+      failureReasons: [],
+      dialogImportResult: false,
+      dialogStudentVisible: false,
+      editDialogVisible: false, // 控制编辑对话框的显示状态
+      editedThesisName: '', // 存储编辑后的论文题目
+      editedThesisId: null,
       disabledInput: true,
       timer: null,
       select_pubName: [],
@@ -170,27 +283,110 @@ export default {
     },
   },
   computed: {
-    user() {
-      return this.$store.state.currentHr; //object信息
-    },
     menuHeight() {
       return this.publicationName.length * 50 > 150
-        ? 150 + "px"
-        : "${this.publicationName.length * 50}px";
+          ? 150 + "px"
+          : "${this.publicationName.length * 50}px";
     },
   },
-  created() {},
+  created() {
+  },
   mounted() {
+    this.user = JSON.parse(localStorage.getItem('user'))
     this.initEmps();
-    // 获取已通过、已驳回、未评价三个数据
-    setTimeout(() => {
-      // 这里就写你要执行的语句即可，先让数据库的数据加载进去数组中你在从数组中取值就好了
-      console.log(this.emps);
-      var i = 0;
-    }, 800);
+    this.fetchThesisExistDate()
   },
   filters: {},
   methods: {
+    async fetchThesisExistDate() {
+      try {
+        const url = `/undergraduateM/basic/getThesisExistDate?institutionID=${this.user.institutionID}`;
+        const response = await this.getRequest(url);
+        if (response.status === 200) {
+          this.options = this.transformOptions(response.obj);
+        } else {
+          throw new Error("请求失败!");
+        }
+      } catch (error) {
+        throw new Error("请求出现异常!");
+      }
+    },
+    transformOptions(options) {
+      return options.map(option => {
+        let year = option.substring(0, 4);
+        let season = option.slice(-2) === '春季' ? 3 : 9;
+        let optionValue = year + season
+
+        return {value: optionValue, label: option};
+      });
+    },
+    handleSelectSemesterChange() {
+      this.startYear = parseInt(this.selectDate.substring(0, 4));
+      this.selectSemester = parseInt(this.selectDate.charAt(4));
+      this.initEmps();
+    },
+    onSuccess(res) {
+      const {status, msg, obj} = res;
+
+      if (status === 200) {
+        this.handleSuccessfulImport(obj);
+      } else {
+        this.$message.error(msg)
+      }
+    },
+    handleSuccessfulImport(obj) {
+      const {
+        duplicateInsertRowsCount,
+        failedRowsCount,
+        failureReasons,
+        successfulRowsCount,
+        total,
+      } = obj;
+
+      this.$message.success("导入成功");
+      this.dialogStudentVisible = false
+      this.initEmps();
+      this.duplicateInsertRowsCount = duplicateInsertRowsCount;
+      this.failedRowsCount = failedRowsCount;
+      this.failureReasons = failureReasons;
+      this.successfulRowsCount = successfulRowsCount;
+      this.totalRows = total;
+      this.dialogImportResult = true;
+    },
+    beforeUpload() {//上传前
+      this.$message.success("正在导入")
+    },
+    downloadExcel(val) {
+      let url = `/undergraduateM/basic/exportUnderGraduate?type=` + val
+      this.$message.success('正在下载')
+      window.open(url, '_parent')
+    },
+    importStudents() {
+      this.dialogStudentVisible = true;
+    },
+    openEditDialog(row) {
+      // 当点击编辑按钮时，设置要编辑的论文题目并显示对话框
+      this.editedThesisName = row.thesis.name;
+      this.editedThesisId = row.thesis.id;
+      this.editDialogVisible = true;
+    },
+    async saveEditedThesisName() {
+      try {
+        let url = `/paperComment/basic/editThesisName?thesisId=${this.editedThesisId}&thesisName=${encodeURIComponent(this.editedThesisName)}`;
+        const resp = await this.getRequest(url);
+
+        if (resp.status === 200) {
+          this.$message.success("修改论文题目成功！");
+          await this.initEmps();
+        } else {
+          this.$message.error(resp.msg);
+        }
+      } catch (error) {
+        console.error("编辑论文题目时出现错误:", error);
+      } finally {
+        this.editDialogVisible = false;
+      }
+    },
     rowClass() {
       return "background:#b3d8ff;color:black;font-size:13px;text-align:center";
     },
@@ -208,47 +404,50 @@ export default {
     },
 
     initEmps() {
-      this.loading = true;
-      this.teaID = JSON.parse(localStorage.getItem("user")).id;
-      const _this = this;
-      let url = "/paperComment/basic/getStuThesis?teaID=" + this.teaID;
+      if (this.startYear == null) {
+        return;
+      }
 
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        console.log(resp);
-        if (resp) {
-          _this.emps = resp.data;
-          // console.log(this.emps);
-        }
-      });
-      // console.log(this.emps);
+      this.loading = true;
+      const url = `/paperComment/basic/getStuThesis?tutorId=${this.user.id}&year=${this.startYear}&month=${this.selectSemester}`;
+
+      this.getRequest(url)
+          .then((resp) => {
+            this.loading = false;
+            if (resp.status == 200) {
+              this.emps = resp.obj;
+            } else {
+              this.$message.error(resp.msg);
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            this.loading = false;
+          });
     },
+
 
     // 导出pdf
     exportPDF(data) {
-      console.log("导出PDF");
-      console.log(data);
       this.loading = true;
-      // Message.success("正在导出");
       let url = "/paperComment/basic/exportPDF?thesisID=" + data.thesis.id;
       this.getRequest(url).then((resp) => {
         this.loading = false;
-        // window.open(url);
         window.location.href = url;
       });
     },
 
     //查看详情
     showInfoItem(data) {
-      const _this = this;
-      _this.$router.push({
-        path: "/teacher/stuPaperComment",
-        query: {
-          keyword: data.id,
-          keyname: data.sname,
-        },
+      const {id, sname, studentnumber} = data;
+      const {startYear, selectSemester} = this;
+
+      this.$router.push({
+        path: `/teacher/stuPaperComment`,
+        query: {keyword: id, keyname: sname, studentNumber: studentnumber, year: startYear, month: selectSemester},
       });
     },
+
   },
 };
 </script>
@@ -262,6 +461,7 @@ export default {
 .el-loading-spinner .el-loading-text {
   font-size: 18px;
 }
+
 .el-tooltip__popper {
   max-width: 750px;
 }
@@ -273,6 +473,7 @@ export default {
 .el-date-table td.is-disabled {
   visibility: hidden;
 }
+
 .red-cell {
   color: red;
 }
@@ -290,6 +491,7 @@ export default {
   position: relative;
   display: inline-block;
 }
+
 .select_div {
   border: 0.5px solid lightgray;
   border-radius: 3px;
@@ -302,15 +504,18 @@ export default {
   width: 90%;
   cursor: pointer;
 }
+
 .select_div_div:hover {
   background-color: lightgray;
 }
+
 .select_div_div {
   padding-bottom: 2px;
   /*padding-top: 7px;*/
   padding-left: 12px;
   width: 100%;
 }
+
 /*input[type=text]::placeholder {*/
 /*  color:lightgrey;*/
 /*}*/
@@ -320,6 +525,7 @@ export default {
 .showInfo_dialog .el-form-item {
   margin-bottom: 5px;
 }
+
 .isMust {
   position: absolute;
   color: #f56c6c;
@@ -341,12 +547,14 @@ export default {
   /* border: 1px solid #eee; */
   /* visibility: hidden; */
 }
+
 #selectItem ul li {
   height: 28px;
   line-height: 28px;
   padding-left: 10px;
   cursor: pointer;
 }
+
 .slide-fade-enter-active {
   transition: all 0.8s ease;
 }
@@ -354,16 +562,19 @@ export default {
 .slide-fade-leave-active {
   transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
 }
+
 /* .slide-fade-leave-active for below version 2.1.8 */
 .slide-fade-enter,
 .slide-fade-leave-to {
   transform: translateX(10px);
   opacity: 0;
 }
+
 div::-webkit-scrollbar {
   /* 隐藏默认的滚动条 */
   -webkit-appearance: none;
 }
+
 div::-webkit-scrollbar:vertical {
   /* 设置垂直滚动条宽度 */
   width: 6px;

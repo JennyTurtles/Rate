@@ -28,19 +28,19 @@
             prop="name"
             align="center"
             label="科研项目名称"
-            width="200px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="100px"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
             <span
                 style="padding: 4px"
-                :style="scope.row.state=='tea_reject' ? {'color':'red'}:{'color':'gray'}"
+                :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
                 size="mini"
             >
               {{scope.row.state=="commit"
@@ -59,26 +59,26 @@
             prop="projectType.name"
             label="项目类别"
             align="center"
-            width="100px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="author"
             align="center"
             label="完成人"
-            width="100px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="startDate"
             label="立项时间"
             align="center"
-            width="75px"
+            min-width="10%"
         >
         </el-table-column>
         <el-table-column
             prop="endDate"
-            width="140px"
+            min-width="10%"
             align="center"
             label="结项时间"
         >
@@ -87,17 +87,17 @@
             prop="point"
             label="积分"
             align="center"
-            width="75px"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
-            prop="remark"
-            width="140px"
+            prop="operationList[0].remark"
+            min-width="20%"
             align="center"
             label="备注"
         >
         </el-table-column>
-        <el-table-column align="center" width="280px" label="操 作">
+        <el-table-column align="center" width="280px" label="操 作" min-width="20%">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row, scope.$index)"
@@ -106,7 +106,7 @@
                 icon="el-icon-edit"
                 type="primary"
                 plain
-                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject'? true:false"
+                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject' || scope.row.state == 'adm_reject'? true : false"
             >编辑</el-button
             >
             <el-button
@@ -192,8 +192,9 @@
               reserve-keyword
               @change="selectOption($event)"
               placeholder="请输入科研项目类别"
+              loading-text="搜索中..."
               :remote-method="selectProjectTypeMethod"
-              :loading="loading">
+              :loading="searchTypeLoading">
             <el-option
                 v-for="item in selectProjectTypeList"
                 :key="item.id"
@@ -201,6 +202,14 @@
                 :value="item">
             </el-option>
           </el-select>
+          <el-tooltip class="item" effect="dark"
+                      content="如：国家自然科学基金面上项目、
+                                  973计划、
+                                  863计划、
+                                  上海市科委项目、
+                                  人才计划项目(曙光、晨光、扬帆、浦江、启明星A类等）等" placement="top-start">
+            <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
+          </el-tooltip>
         </el-form-item>
 
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
@@ -225,11 +234,12 @@
         </el-form-item>
       </el-form>
       <div style="margin-left: 20px;">
-        <span style="color:gray;font-size:10px">将会获得：{{projectPoint}}积分</span>
+        <span style="color:gray;font-size:10px">将会获得：{{ projectPoint }}积分</span>
+        <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAdd">取 消</el-button>
-        <el-button type="primary" @click="addProject" v-show="addButtonState">提 交</el-button>
+        <el-button type="primary" @click="addProject">提 交</el-button>
       </span>
     </el-dialog>
 
@@ -317,6 +327,9 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      currentIndicator: {},
+      zeroPointReason: '',
+      searchTypeLoading: false,
       selectProjectType: '',
       selectProjectTypeName: '',
       isAuthorIncludeSelf: true,
@@ -330,7 +343,6 @@ export default {
       },
       files:[],//选择上传的文件列表
       urlFile:'',//文件路径
-      addButtonState: false,//是否允许添加科研项目
       operList:[],//每个科研项目的历史操作记录
       labelPosition: "left",
       title: "",
@@ -403,17 +415,16 @@ export default {
       if(data) {
         this.getRequest('/project/basic/getIndicatorScore?id=' + data.indicatorId).then(response => {
           if(response) {
-            this.projectPoint = response.data;
+            this.projectPoint = response.data.score;
+            this.currentIndicator = response.data;
+            this.judgeMember(); //若填写过作者列表，需要重新判断
           }else {
             this.projectPoint = 0;
+            this.zeroPointReason = '';
+            this.currentIndicator = {};
           }
         })
-        if(this.urlFile) {
-          this.addButtonState = true;
-        } else {
-          this.addButtonState = false;
-        }
-      } else this.addButtonState = false;
+      }
     },
     //改变项目的立项时间
     changeProjectStartDate(data) {
@@ -427,6 +438,7 @@ export default {
       if (this.currentProjectCopy.startDate != null && this.currentProjectCopy.startDate != '' && data != null && data != '') {
         this.getRequest('/project/basic/getIndicatorByYearAndType?year=' + this.currentProjectCopy.startDate.split('-')[0] + '&type=' + data).then(response => {
           if(response) {
+            this.searchTypeLoading = false;
             this.selectProjectTypeList = response.data;
           }
         })
@@ -434,6 +446,7 @@ export default {
     },
     //输入项目类别 发送请求调用的函数
     selectProjectTypeMethod(data) {
+      this.searchTypeLoading = true;
       this.debounceSearch(data);
     },
     cancelAdd() {
@@ -463,7 +476,7 @@ export default {
       var file={filepath:this.urlFile}
       this.postRequest1("/project/basic/deleteFile",file).then((response)=>{
         this.urlFile = '';
-        this.addButtonState = false;
+        this.files = [];
       });
     },
     handleExceed(){//超过限制数量
@@ -495,17 +508,13 @@ export default {
           })
           //获取文件路径
           this.urlFile = response.data
-          if(JSON.parse(JSON.stringify(this.selectProjectType)) != '{}') {
-            this.addButtonState = true;
-          } else {
-            this.addButtonState = false;
-          }
         }
       )
     },
     judgeMember(){//输入作者框 失去焦点触发事件
       var val = this.currentProjectCopy.author;
-      if(!val) {
+      if(!val || val === '') {
+        this.isAuthorIncludeSelf = false;
         return;
       }
       var isalph = false//判断输入中是否有英文字母
@@ -518,34 +527,29 @@ export default {
       }
       var num = null
       var info = this.user;
-      if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
-        num = val.split('；')
-      }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
-        num = val.split(';')
-      }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//不允许同时包含中文和英文逗号
-        this.$message.error();('输入不合法请重新输入！')
-      }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(val != info.name && isalph){//有英文字符
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.isAuthorIncludeSelf = false;
-        }else{
-          this.currentProjectCopy.rank = 1;
-          this.currentProjectCopy.total = 1;
-          this.isAuthorIncludeSelf = true;
-        }
-        return
-      }
+      num = val.split(/[;；]/)
+      num = num.map(item => {
+        return item && item.replace(/\s*/g,"");
+      }).filter(v => {
+        return v
+      })
       //不止一个作者 判断自己在不在其中
-      if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
+      if(num.indexOf(info.name) == -1){//不在 并且没有英文单词
+        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
         this.isAuthorIncludeSelf = false;
-      }else if(num.indexOf(info.name) == -1 && isalph){//不在 里面有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-        this.isAuthorIncludeSelf = false;
+        this.zeroPointReason = '参与人未包含自己'
+        this.projectPoint = 0;
       } else { //自己在里面
+        if(JSON.stringify(this.currentIndicator) == '{}') { //项目类别是空白
+          this.projectPoint = 0;
+          this.zeroPointReason = '请输入项目类别';
+        }else { //选择了项目类别
+          this.projectPoint = this.currentIndicator.score;
+          this.zeroPointReason = '';
+        }
         this.isAuthorIncludeSelf = true;
       }
-      this.currentProjectCopy.total = num.length - 1;
+      this.currentProjectCopy.total = num.length;
       this.currentProjectCopy.rank = num.indexOf(info.name) + 1;
     },
     rowClass(){
@@ -556,11 +560,18 @@ export default {
       this.title = "编辑科研项目信息";
       this.currentProjectCopy = JSON.parse(JSON.stringify(data));
       this.dialogVisible = true;
-      if(this.currentProjectCopy.startDate) {
-        this.disabledSelectProjectType = false;
-      }
-      this.selectProjectType = JSON.parse(JSON.stringify(this.currentProjectCopy.projectType));
+      this.disabledSelectProjectType = false;
+      this.currentIndicator = data.indicator;
+      this.files = [
+        {
+          name: this.currentProjectCopy.url.split('/').reverse()[0],
+          url: this.currentProjectCopy.url
+        }
+      ];
+      this.urlFile = this.currentProjectCopy.url;
+      this.selectProjectType = data.projectType.name;
       this.projectPoint = data.point;
+      this.isAuthorIncludeSelf = true;
     },
     showInfo(data){
       this.loading = true;
@@ -574,34 +585,50 @@ export default {
         }
       });
     },
-    deleteProject(data) {
-      if(confirm(
-          "此操作将永久删除【" + data.name + "】, 是否继续?",)){
-        this.deleteRequest("/project/basic/remove/" + data.id).then((resp) => {
-          if (resp) {
-            this.dialogVisible = false;
-            this.$message.success('删除成功！');
-            this.initProjectsList();
+    deleteProjectMethod(data) {
+      return new Promise((resolve, reject) => {
+            this.deleteRequest("/project/basic/remove/" + data.id).then((resp) => {
+              this.dialogVisible = false;
+              resolve('success');
+            })
           }
-        })
-      }
+      )
     },
-    editProject() {
+    deleteProject(data) {
+      this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?").then(() => {
+        Promise.all([this.deleteProjectMethod(data), this.deleteOperationList(data)]).then(res => {
+          this.$message.success('删除成功!');
+          this.initEmps();
+        }).catch(() => {
+          this.$message.error('删除失败!');
+        })
+      })
+    },
+    deleteOperationList(data) {
+      const params = {}
+      params.prodId = data.id;
+      params.prodType = '科研项目'
+      return new Promise((resolve, reject) => {
+        this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
+          resolve('success');
+        })
+      })
+    },
+    editProject(params) {
       this.$refs["currentProjectCopy"].validate((valid) => {
         if (valid) {
-          const params = {};
-          this.currentProjectCopy.url = this.urlFile;
-          this.currentProjectCopy.state = "commit";
-          this.currentProjectCopy.projectTypeId = this.selectProjectType.id;
-          this.currentProjectCopy.point = this.projectPoint;
-          for(let key in this.currentProjectCopy) {
-            if(key !== 'projectType' && key !== 'student' && key !== 'operationList' && key !== 'indicator') {
-              params[key] = this.currentProjectCopy[key];
-            }
+          params.id = this.currentProjectCopy.id;
+          if(JSON.stringify(this.selectProjectType) == '{}' || this.selectProjectType == '') {
+            this.$message.error('请选择项目类别！')
+            return;
           }
-          if(this.currentProjectCopy.url == '' ||this.currentProjectCopy.url == null){
+          if(params .url == '' || params == null){
             this.$message.error('请上传证明材料！')
             return
+          }
+          if(!this.isAuthorIncludeSelf) {
+            this.$message.error('请仔细检查作者列表！');
+            return;
           }
           this.postRequest1("/project/basic/edit", params).then(
               (resp) => {
@@ -616,28 +643,36 @@ export default {
       });
     },
     addProject() {//科研项目提交确认
+      const params = {};
+      params.name = this.currentProjectCopy.name;
+      params.url = this.urlFile;
+      params.rank = this.currentProjectCopy.rank;
+      params.total = this.currentProjectCopy.total;
+      params.author = this.currentProjectCopy.author;
+      params.startDate = this.currentProjectCopy.startDate;
+      params.endDate = this.currentProjectCopy.endDate;
+      params.point = this.projectPoint;
+      params.projectTypeId = this.selectProjectType.id;
+      params.state = "commit";
       if (this.currentProjectCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        this.editProject();
+        this.editProject(params);
       } else {
         this.$refs["currentProjectCopy"].validate((valid) => {
           if (valid) {
-            if(JSON.parse(JSON.stringify(this.selectProjectType)) == '{}') {
+            if(JSON.parse(JSON.stringify(this.selectProjectType)) == '{}' || this.selectProjectType == '') {
+              this.$message.error('请选择项目类别！')
               return;
             }
-            this.currentProjectCopy.url = this.urlFile;
-            this.currentProjectCopy.state = "commit";
-            this.currentProjectCopy.studentId = this.user.id;
-            this.currentProjectCopy.projectTypeId = this.selectProjectType.id;
-            this.currentProjectCopy.point = this.projectPoint;
-            if(this.currentProjectCopy.url == '' || this.currentProjectCopy.url == null){
+            params.studentId = this.user.id;
+            if(params.url == '' || params.url == null){
               this.$message.error('请上传证明材料！')
               return
             }
             if(!this.isAuthorIncludeSelf) {
-              this.$message.error('请仔细检查作者列表！');
+              this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
               return;
             }
-            this.postRequest1("/project/basic/add", this.currentProjectCopy).then(
+            this.postRequest1("/project/basic/add", params).then(
                 (resp) => {
                   if (resp) {
                     this.$message.success('添加成功！')
@@ -659,12 +694,17 @@ export default {
       await this.initProjectsList();
     },
     addProjectDialog() {//点击添加科研科研项目按钮
+      this.currentIndicator = {};
       this.urlFile = '';
+      this.files = [];
       this.currentProjectCopy = {};
-      this.addButtonState = false;
       this.projectPoint = '';
       this.title = "添加项目";
+      this.selectProjectType = '';
+      this.isAuthorIncludeSelf = false;
+      this.disabledSelectProjectType = true;
       this.dialogVisible = true;
+      this.selectProjectTypeList = [];
     },
     initProjectsList() {
       this.loading = true;

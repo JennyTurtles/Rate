@@ -19,8 +19,9 @@ public class TreeNode {
     private String order;
     private Integer score;
     private Integer rankN;
+    private String level;
 
-    public TreeNode(Integer id, String label, String type,String order, Integer score, Integer rankN) {
+    public TreeNode(Integer id, String label, String type,String order, Integer score, Integer rankN,String level) {
         this.id = id;
         this.label = label;
         this.type = type;
@@ -28,6 +29,7 @@ public class TreeNode {
         this.order = order;
         this.score = score;
         this.rankN = rankN;
+        this.level = level;
     }
 
     @Override

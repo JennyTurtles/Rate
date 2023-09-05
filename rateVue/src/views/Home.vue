@@ -20,7 +20,7 @@
             <el-dropdown-menu slot="dropdown">
              <el-dropdown-item command="registerRole"
                                v-show="
-                  (user.role == ''  || user.role.indexOf('9') !== -1 || user.role.indexOf('10') !== -1)"
+                  (user.role == ''  || user.role.indexOf('11') !== -1 || user.role.indexOf('10') !== -1)"
              >注册为本科生/研究生</el-dropdown-item
              >
               <el-dropdown-item command="changePassword"
@@ -175,14 +175,6 @@
     <el-form-item label="邮箱:">
      <el-input v-model="registerRoleForm.email"></el-input>
     </el-form-item>
-     <el-form-item label="指导老师:">
-      <el-autocomplete
-          style="width: 90%"
-          v-model="tutorName"
-          :fetch-suggestions="querySearchAsync"
-          @select="handleSelectTutor">
-      </el-autocomplete>
-     </el-form-item>
     <el-form-item label="学生类型:">
      <el-select v-model="selectStuType" clearable>
       <el-option
@@ -193,6 +185,14 @@
       </el-option>
      </el-select>
     </el-form-item>
+     <el-form-item v-show="selectStuType === '研究生'" label="指导老师:">
+      <el-autocomplete
+          style="width: 90%"
+          v-model="tutorName"
+          :fetch-suggestions="querySearchAsync"
+          @select="handleSelectTutor">
+      </el-autocomplete>
+     </el-form-item>
     <div >
      <el-form-item label="学号:">
       <el-input  v-model="registerRoleForm.studentnumber" ></el-input>

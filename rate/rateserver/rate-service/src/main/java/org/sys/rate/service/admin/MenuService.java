@@ -117,6 +117,12 @@ public class MenuService {
             if(!role.contains("3")){
                 role = role + ";3";
             }
+            if(!role.contains("8")){
+                role = role + ";8";
+            }
+            if(!role.contains("9")){
+                role = role + ";9";
+            }
         }
         if (secretaryMapper.isSecretary(id) != 0){
             // 是秘书

@@ -76,4 +76,12 @@
     from role
     where (nameZh = "研究生管理" or nameZh = "本科生管理" or nameZh = "教师管理" or nameZh = "活动管理")
   </select>
+  <select id="selectNameByRoleID" resultType="String">
+    select name
+    from role
+    where id in
+    <foreach collection="list" open="(" separator="," close=")" item="ids">
+      #{ids}
+    </foreach>
+  </select>
 </mapper>

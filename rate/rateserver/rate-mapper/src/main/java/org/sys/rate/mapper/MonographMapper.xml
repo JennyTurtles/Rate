@@ -25,6 +25,7 @@
             <id property="id" column="id" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
+            <result property="rankN" column="rankN"/>
         </association>
         <collection property="operationList" ofType="org.sys.rate.model.Operation">
             <result property="operatorRole" column="operator_role"/>
@@ -74,7 +75,7 @@
                oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
                oper.state,oper.remark,
                i.name as iname,
-               i.score
+               i.score,i.rankN
         FROM i_book a
                  LEFT JOIN indicator i ON i.id = a.indicator_id
                  LEFT JOIN i_oper oper ON a.id = oper.prod_id and oper.prod_type = '专著教材'

@@ -410,6 +410,11 @@
         from teacher
         where IDNumber = #{IDNumber}
     </select>
+    <select id="getByID" resultType="org.sys.rate.model.Teachers">
+        select *
+        from teacher
+        where ID = #{id}
+    </select>
     <update id="updatePassword">
         update teacher
         <set>

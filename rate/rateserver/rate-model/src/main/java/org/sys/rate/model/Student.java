@@ -1,10 +1,12 @@
 package org.sys.rate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
+@Data
 public class Student extends Account {
     //按照老师的说法，student表中要丢弃很多内容，所以先把这个类当作一个共同属性类（本科生 研究生 选手）
     //数据库中更改但是这里不能改
@@ -27,8 +29,10 @@ public class Student extends Account {
     private String registerQuestion;
     private String registerAnswer;
     private Integer deleteflag;
-    private Integer role;
+    private String role;
     private Thesis thesis;
+
+
 
     public String getStuType() {
         return stuType;
@@ -82,6 +86,7 @@ public class Student extends Account {
 
 //    public Integer getRole(){ return role;}
 //    public void setRole(Integer role){this.role = role;}
+
 
     public Integer getID() {
         return ID;

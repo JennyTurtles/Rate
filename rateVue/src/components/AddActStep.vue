@@ -22,11 +22,6 @@
 </template>
 
 <script>
-import store from '../store'
-import router from '../router.js'
-import sha1 from "sha1";
-import { initMenu } from "../utils/menus.js";
-import this_ from "@/main";
 export default {
   name: "AddActStep",
   props:["active","actID","actName","groupNum"],
@@ -84,9 +79,16 @@ export default {
   back(){
    switch (this.active){
     case 0:
-     this.$router.push({
-      path: "/ActivitM/search",
-     });
+     if (this.$route.query.mode === 'adminSub'){
+      this.$router.push({
+       path: "/ActivitM/SubActManage",
+       query:{id:this.$route.query.parentID}
+      });
+     }else{
+      this.$router.push({
+       path: "/ActivitM/search",
+      });
+     }
      break
     case 1:
      this.goAddAct(this.actID,this.actName,false)
@@ -144,10 +146,10 @@ export default {
   goAct(){
    // 弹出一个对话框，提示是否要添加子活动
    const _this = this;
-   if (this.$route.query.mode == 'adminSub' || this.$route.query.haveSub == 1){
-    _this.$confirm('是否要添加子活动？', '提示', {
-     confirmButtonText: '确定',
-     cancelButtonText: '取消',
+   if (this.$route.query.subActNo || this.$route.query.haveSub == 1){
+    _this.$confirm(this.$route.query.haveSub == 1 ? '是否要添加子活动？' : '是否要继续添加子活动？', '提示', {
+     confirmButtonText: '是',
+     cancelButtonText: '否',
      type: 'warning'
     }).then(() => {
      _this.$router.push({
@@ -159,7 +161,15 @@ export default {
       path: "/ActivitM/search",
      });
     });
-   }else {
+   }else if (this.$route.query.mode === 'adminSub'){ // 在子活动里面添加返回子活动管理界面
+    this.$router.push({
+     path: "/ActivitM/SubActManage",
+     query: {
+      id: this.$route.query.parentID,
+     },
+    })
+   }
+   else {
     _this.$router.push({
      path: "/ActivitM/search",
     });

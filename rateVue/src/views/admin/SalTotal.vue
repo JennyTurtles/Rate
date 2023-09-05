@@ -369,14 +369,9 @@ export default {
         _this.$router.push({
           path: "/ActivitM/search",
         });
-      }else if (this.mode === "adminSub") {
-        _this.$router.push({
-          path: "/ActivitM/SubActManage",
-          query: {
-            id: this.$route.query.backID,
-          }
-        });
-      }
+      }else
+       this.$router.go(-1);
+
     },
     tabClick(row, column, cell, event) {
       if (row.sourceName!=='姓名'&&row.sourceName!=='编号'){

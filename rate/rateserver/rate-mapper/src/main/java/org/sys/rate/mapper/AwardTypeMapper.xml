@@ -7,12 +7,17 @@
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="name" column="name"/>
         <result property="year" column="year"/>
-        <result property="indicatorId" column="indicator_id"/>
+        <result property="level" column="level"/>
     </resultMap>
+    <delete id="deleteByYearIndicatorID">
+        delete
+        from  i_award_type
+        where indicator_id = #{indicatorID} and year=#{year}
+    </delete>
 
     <select id="getIndicatorByYearAndType" resultMap="AwardTypeResult">
-        SELECT p.*
-        FROM i_award_type p
-        where p.name like concat('%', #{type}, '%') and p.year = #{year}
+        SELECT *
+        FROM i_award_type
+        where year = (select max(year) from i_award_type where level = #{type} and <![CDATA[ year <= #{year}  ]]>) and level = #{type}
     </select>
 </mapper>

@@ -28,19 +28,19 @@
             prop="name"
             align="center"
             label="专利名称"
-            width="200"
+            min-width="20%"
         >
         </el-table-column>
         <el-table-column
             prop="state"
             label="状态"
-            width="127px"
+            min-width="10%"
             align="center"
         >
           <template slot-scope="scope">
             <span
                 style="padding: 4px"
-                :style="scope.row.state=='tea_reject' ? {'color':'red'}:{'color':'gray'}"
+                :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
                 size="mini"
             >
               {{scope.row.state=="commit"
@@ -59,31 +59,32 @@
             prop="author"
             align="center"
             label="参与人"
-            width="150px"
+            min-width="15%"
         >
         </el-table-column>
         <el-table-column
             prop="point"
             label="积分"
             align="center"
-            width="75px"
+            min-width="8%"
         >
         </el-table-column>
         <el-table-column
             prop="grantedStatus"
-            label="授权状态"
+            label="专利状态"
             align="center"
-            width="75px"
+            min-width="10%"
         >
         </el-table-column>
         <el-table-column
-            prop="remark"
+            prop="operationList[0].remark"
             style="width:90px"
             align="center"
             label="备注"
+            min-width="20%"
         >
         </el-table-column>
-        <el-table-column align="center" width="275" label="操 作">
+        <el-table-column align="center" width="275" label="操 作" min-width="20%">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"
@@ -92,7 +93,7 @@
                 icon="el-icon-edit"
                 type="primary"
                 plain
-                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject'? true:false"
+                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject' || scope.row.state == 'adm_reject'? true:false"
             >编辑</el-button
             >
             <el-button
@@ -136,16 +137,7 @@
               placeholder="请输入专利名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="立项年月:" prop="date" label-width="80px" style="margin-left: 20px;">
-          <span class="isMust">*</span>
-          <el-date-picker
-              v-model="currentPatentCopy.date"
-              type="month"
-              value-format="yyyy-MM"
-              placeholder="立项年月">
-          </el-date-picker>
-        </el-form-item>
-        <el-form-item prop="grantedStatus" label="专利状态" label-width="80px" style="margin-left: 20px;">
+        <el-form-item prop="grantedStatus" label="专利状态:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-select
               size="mini"
@@ -156,6 +148,15 @@
           >
             <el-option v-for="item in patentStatusList" :key="item.value" :value="item" :label="item.label"></el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item :label="currentPatentCopy.grantedStatus ? currentPatentCopy.grantedStatus + '年月:' : '状态年月:'" prop="date" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-date-picker
+              v-model="currentPatentCopy.date"
+              type="month"
+              value-format="yyyy-MM"
+              placeholder="状态年月">
+          </el-date-picker>
         </el-form-item>
         <el-form-item  prop="author" label="参与人:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
@@ -195,6 +196,7 @@
       </el-form>
       <div style="margin-left: 20px;">
         <span style="color:gray;font-size:10px">将会获得：{{patentPoint}}积分</span>
+        <span style="color:gray;font-size:10px;margin-left: 8px">{{zeroPointReason}}</span>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAddPatent">取 消</el-button>
@@ -219,12 +221,12 @@
           <span>{{ currentPatent.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="受理日期:" prop="date">
-          <span>{{ currentPatent.date }}</span
-          ><br />
-        </el-form-item>
         <el-form-item label="专利状态:" prop="grantedStatus">
           <span>{{ currentPatent.grantedStatus }}</span
+          ><br />
+        </el-form-item>
+        <el-form-item :label="currentPatent.grantedStatus + '年月:'" prop="date">
+          <span>{{ currentPatent.date }}</span
           ><br />
         </el-form-item>
         <el-form-item label="参与人:" prop="author">
@@ -305,6 +307,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      zeroPointReason: '',
       isAuthorIncludeSelf: false,
       indicatorBtn: '选择指标点',
       defaultProps: {
@@ -377,7 +380,7 @@ export default {
   mounted() {
     this.currentPatentCopy = JSON.parse(JSON.stringify(this.currentPatent));
     this.initEmps();
-    this.initTutor(this.user);
+    // this.initTutor(this.user);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -396,8 +399,14 @@ export default {
         this.indicatorBtn = data.label;
         this.currentSelectedIndicator = data;
         this.currentPatentCopy.indicatorId = data.id;
-        if (!this.isAuthorIncludeSelf) this.patentPoint = 0;
-        else this.patentPoint = data.score;
+        if (!this.isAuthorIncludeSelf) {
+          this.patentPoint = 0;
+          this.zeroPointReason = '参与人未包含自己'
+        }
+        else {
+          this.patentPoint = data.score;
+          this.zeroPointReason = '';
+        }
         this.showTreeDialog = false;
       }
     },
@@ -411,16 +420,7 @@ export default {
     },
     //添加 编辑框点击取消出发事件
     cancelAddPatent() {
-      this.setCurrentPatent();
       this.dialogVisible = false;
-    },
-    setCurrentPatent() {
-      this.currentPatent.grantedStatus = this.patentGrantedStatus;
-      this.currentPatent.name = this.patentName;
-      this.currentPatent.author = this.patentee;
-      this.currentPatent.date = this.patentDate;
-      this.currentPatent.point = this.patentPoint;
-      this.currentPatent.date = this.patentDate;
     },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
@@ -445,6 +445,8 @@ export default {
       }
       this.postRequest1("/patent/basic/deleteFile",file).then(
           (response)=>{
+            this.urlFile = '';
+            this.files = [];
           },()=>{}
       )
     },
@@ -483,57 +485,46 @@ export default {
       )
     },
     judgePatentee(){//输入作者框 失去焦点触发事件
-      var val = this.currentPatentCopy.author;
-      if(!val) {
+      var author = this.currentPatentCopy.author;
+      if(!author || author === '') {
+        this.isAuthorIncludeSelf = false;
         return;
       }
+      //或许可以去掉
       var isalph = false//判断输入中是否有英文字母
-      for(var i in val){
-        var asc = val.charCodeAt(i)
+      for(var i in author){
+        var asc = author.charCodeAt(i)
         if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
           isalph = true
           break
         }
       }
-      var num = null
+      var pateneeList = null
       var info = this.user;
-      if(val.indexOf("；")>-1 && val.indexOf(";") == -1){//中文
-        num = val.split('；')
-      }else if(val.indexOf(";")>-1 && val.indexOf("；") == -1){//英文
-        num = val.split(';')
-      }else if(val.indexOf("；")>-1 && val.indexOf(";")>-1){//不允许同时包含中文和英文逗号
-        this.$message.error();('输入不合法请重新输入！')
-      }else if(val.indexOf("；") == -1 && val.indexOf(";") == -1){//只有一个人
-        if(val != info.name && isalph){//有英文字符
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-          this.isAuthorIncludeSelf = false;
-        }else if(val != info.name && !isalph){//没有英文字符并且不是自己
-          this.isAuthorIncludeSelf = false;
-        } else if(val == info.name){
-          this.currentPatentCopy.rank = 1;
-          this.currentPatentCopy.total = 1;
-          this.isAuthorIncludeSelf = true;
-          if(this.currentSelectedIndicator) {
-            this.patentPoint = this.currentSelectedIndicator.score;
-          }else this.patentPoint = '';
-        }
-        return
-      }
-      //不止一个作者 判断自己在不在其中
-      if(num.indexOf(info.name) == -1 && !isalph){//不在 并且没有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】");
+      pateneeList = author.split(/[;；]/)
+      pateneeList = pateneeList.map(item => {
+        return item && item.replace(/\s*/g,"");
+      }).filter(v => {
+        return v
+      })
+      // 判断自己在不在其中
+      if(pateneeList.indexOf(info.name) == -1){//不在
+        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
         this.isAuthorIncludeSelf = false;
-      }else if(num.indexOf(info.name) == -1 && isalph){//不在 里面有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。");
-        this.isAuthorIncludeSelf = false;
+        this.zeroPointReason = '参与人未包含自己'
+        this.patentPoint = 0;
       } else { //自己在里面
         if(this.currentSelectedIndicator) {
           this.patentPoint = this.currentSelectedIndicator.score;
-        }else this.patentPoint = '';
+          this.zeroPointReason = ''
+        }else {
+          this.patentPoint = '';
+          this.zeroPointReason = '';
+        }
         this.isAuthorIncludeSelf = true;
       }
-      this.currentPatentCopy.total = num.length - 1;
-      this.currentPatentCopy.rank = num.indexOf(info.name) + 1;
+      this.currentPatentCopy.total = pateneeList.length;
+      this.currentPatentCopy.rank = pateneeList.indexOf(info.name) + 1;
     },
 
     rowClass(){
@@ -541,16 +532,20 @@ export default {
     },
     showEditEmpView(data) {
       this.dialogVisible = true;
-      this.title = "编辑项目信息";
-      this.patentName = data.name;
-      this.patentDate = data.date;
-      this.patentGrantedStatus = data.grantedStatus;
-      this.patentee = data.author;
+      this.title = "编辑专利信息";
+      this.currentPatentCopy = JSON.parse(JSON.stringify(data));
+      this.files = [
+        {
+          name: this.currentPatentCopy.url.split('/').reverse()[0],
+          url: this.currentPatentCopy.url
+        }
+      ];
+      this.indicatorBtn = data.indicator.name;
       this.patentPoint = data.point;
-      this.currentPatent.indicatorId = data.indicatorId;
-      this.currentPatent.id = data.id;
-      this.currentPatent.rank = data.rank;
-      this.currentPatent.total = data.total;
+      this.zeroPointReason = '';
+      this.urlFile = this.currentPatentCopy.url;
+      this.isAuthorIncludeSelf = true;
+      this.addButtonState = true;
     },
     showInfo(data){
       this.title_show = "显示详情";
@@ -563,35 +558,39 @@ export default {
         }
       });
     },
-    deleteEmp(data) {
-      if(confirm(
-          "此操作将永久删除【" + data.name + "】, 是否继续?",)){
-        this.deleteRequest("/patent/basic/remove/" + data.id).then((resp) => {
-          if (resp) {
-            this.dialogVisible = false;
-            this.$message.success('删除成功！');
-            this.initEmps();
+    deleteEmpMethod(data) {
+      return new Promise((resolve, reject) => {
+            this.deleteRequest("/patent/basic/remove/" + data.id).then((resp) => {
+              this.dialogVisible = false;
+              resolve('success');
+            })
           }
-        })
-      }
+      )
     },
-    editAward() {
+    deleteEmp(data) {
+      this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?").then(() => {
+        Promise.all([this.deleteEmpMethod(data), this.deleteOperationList(data)]).then(res => {
+          this.$message.success('删除成功!');
+          this.initEmps();
+        }).catch(() => {
+          this.$message.error('删除失败!');
+        })
+      })
+    },
+    deleteOperationList(data) {
+      const params = {}
+      params.prodId = data.id;
+      params.prodType = '授权专利'
+      return new Promise((resolve, reject) => {
+        this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
+          resolve('success');
+        })
+      })
+    },
+    editAward(params) {
       this.$refs["currentPatentCopy"].validate((valid) => {
         if (valid) {
-          this.currentPatentCopy.point = this.patentPoint;
-          this.currentPatentCopy.url = this.urlFile;
-          this.currentPatentCopy.state = "commit";
-          if(this.currentPatent.url == '' ||this.currentPatent.url == null){
-            this.$message({
-              message:'请上传证明材料！'
-            })
-            return
-          }
-          if(!this.isAuthorIncludeSelf) {
-            this.$message.error('请仔细检查作者列表！');
-            return;
-          }
-          this.postRequest1("/patent/basic/edit", this.currentPatent).then(
+          this.postRequest1("/patent/basic/edit", params).then(
               (resp) => {
                 if (resp) {
                   this.dialogVisible = false;
@@ -604,24 +603,34 @@ export default {
       });
     },
     addAward() {//项目提交确认
+      const params = {};
+      params.id = this.currentPatentCopy.id;
+      params.name = this.currentPatentCopy.name;
+      params.url = this.urlFile;
+      params.rank = this.currentPatentCopy.rank;
+      params.total = this.currentPatentCopy.total;
+      params.author = this.currentPatentCopy.author;
+      params.grantedStatus = this.currentPatentCopy.grantedStatus;
+      params.indicatorId = this.currentPatentCopy.indicatorId;
+      params.author = this.currentPatentCopy.author;
+      params.date = this.currentPatentCopy.date;
+      params.point = this.patentPoint;
+      params.state = "commit";
+      if(params.url == '' || params.url == null){
+        this.$message.error('请上传证明材料！')
+        return
+      }
+      if(!this.isAuthorIncludeSelf) {
+        this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+        return;
+      }
       if (this.currentPatentCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        this.editAward();
+        this.editAward(params);
       } else {
         this.$refs["currentPatentCopy"].validate((valid) => {
           if (valid) {
-            this.currentPatentCopy.point = this.patentPoint
-            this.currentPatentCopy.url = this.urlFile;
-            this.currentPatentCopy.state = "commit"
-            this.currentPatentCopy.studentId = this.user.id
-            if(this.currentPatentCopy.url == '' ||this.currentPatentCopy.url == null){
-              this.$message.error('请上传证明材料！')
-              return
-            }
-            if(!this.isAuthorIncludeSelf) {
-              this.$message.error('请仔细检查作者列表！');
-              return;
-            }
-            this.postRequest1("/patent/basic/add",this.currentPatentCopy).then(
+            params.studentId = this.user.id
+            this.postRequest1("/patent/basic/add", params).then(
                 (resp) => {
                   if (resp) {
                     this.$message.success('添加成功！')
@@ -643,9 +652,17 @@ export default {
       await this.initEmps();
     },
     showAddEmpView() {//点击添加科研项目按钮
-      this.addButtonState = true
+      this.addButtonState = true;
+      this.isAuthorIncludeSelf = false;
       this.title = "添加专利";
       this.dialogVisible = true;
+      this.urlFile = '';
+      this.files = [];
+      this.patentPoint = '';
+      this.zeroPointReason = '';
+      this.indicatorBtn = '选择指标点';
+      this.currentPatentCopy = {};
+      this.currentSelectedIndicator = {};
     },
     initEmps() {
       this.loading = true;
@@ -653,7 +670,7 @@ export default {
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.emps = resp.data;
+          this.emps = resp.obj;
         }
       });
     },

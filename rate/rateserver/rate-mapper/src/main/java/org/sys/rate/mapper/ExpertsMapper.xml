@@ -383,7 +383,7 @@
   </update>
   <select id="getExpertsByPage" resultMap="BaseResultMap">
     /*select * from teacher g*/
-    select t.ID, e.finished, g.name as groupName, e.role ,e.groupID groupID, t.username, t.institutionID, t.name, t.department, t.IDNumber, t.password,t.phone, t.email from teacher t,expertactivities e,`groups` g where e.`teacherID`=t.`id` and e.`groupID`=#{keywords} and e.`groupID` = g.ID
+    select t.ID, e.finished, g.name as groupName, e.role ,e.groupID groupID, t.username, t.institutionID, t.name, t.department, t.IDNumber,t.jobnumber, t.password,t.phone, t.email from teacher t,expertactivities e,`groups` g where e.`teacherID`=t.`id` and e.`groupID`=#{keywords} and e.`groupID` = g.ID
     <if test="page !=null and size!=null">
       limit #{page},#{size}
     </if>
@@ -400,6 +400,14 @@
   <select id="getID" resultType="java.lang.Integer">
     select ID from teacher where IDNumber=#{idNumber}
   </select>
+
+  <insert id="saveAllGradeForm" parameterType="java.util.List">
+    INSERT INTO grade_form (activityID, typeID, targetID,coef)
+    VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.activityID}, #{item.typeID}, #{item.targetID},#{item.coef})
+    </foreach>
+  </insert>
 
   <!--
   <update id="updateByIdNumber" parameterType="org.sys.rate.model.Experts">

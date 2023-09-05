@@ -1,7 +1,9 @@
 package org.sys.rate.service.admin;
 
+import cn.hutool.core.util.StrUtil;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.sys.rate.mapper.AwardMapper;
 import org.sys.rate.mapper.AwardMapper;
 import org.sys.rate.mapper.AwardTypeMapper;
@@ -23,7 +25,7 @@ public class AwardService {
 
     public List<Award> selectAwardListById(@Param("studentID") Integer studentID){
         List<Award> list = awardMapper.selectAwardListById(studentID);
-        return setAwardOperation(list);
+        return list;
     }
 
     /**
@@ -104,5 +106,17 @@ public class AwardService {
     public List<AwardType> getIndicatorByYearAndType(String year, String type) {
         List<AwardType> list = awardTypeMapper.getIndicatorByYearAndType(year,type);
         return list;
+    }
+    public List<Award> searchAwardByConditions(String studentName, String state, String awardName, String pointFront, String pointBack) {
+        List<Award> list = awardMapper.searchAwardByConditions(studentName, state, awardName, pointFront, pointBack);
+        return list;
+    }
+
+    public Integer addAwardType(AwardType awardType) {
+        return awardTypeMapper.addAwardType(awardType);
+    }
+
+    public void editAwardType(AwardType awardType) {
+        awardTypeMapper.editAwardType(awardType);
     }
 }

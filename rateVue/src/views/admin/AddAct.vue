@@ -1,4 +1,4 @@
-<template>
+ <template>
  <div>
  <AddActStep :active="0" :actID="$route.query.keywords"></AddActStep>
   <el-form
@@ -84,7 +84,7 @@
     <el-checkbox v-model="emp_edit.haveComment"></el-checkbox>
     <span class="tip-title" style="margin-left: 10px">专家在评分时是否需要写评语</span>
    </el-form-item>
-   <el-form-item label="成绩评定表类型: ">
+   <el-form-item label="成绩评定表类型: " v-show="mode !== 'adminSub'">
     <el-select
         style="width: 100%"
         v-model="emp_edit.gradeFormType"

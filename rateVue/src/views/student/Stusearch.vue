@@ -16,6 +16,7 @@
            v-model="addActForm.activityName"
            :fetch-suggestions="querySearchAsync"
            placeholder="请输入活动名称"
+           @change="allowSubmit=false"
            @select="handleSelect">
        </el-autocomplete>
       </el-form-item>
@@ -25,26 +26,13 @@
      </el-form>
      <span slot="footer" class="dialog-footer">
       <el-button @click="addVisible = false">取 消</el-button>
-      <el-button type="primary" @click="addActSelf">确 定</el-button>
+     <el-tooltip style="margin-left: 10px" class="item" effect="dark" content="请先从下拉框选择一个活动后再提交" placement="top-start" :disabled='allowSubmit'>
+      <span>
+       <el-button type="primary" @click="addActSelf" :disabled="!allowSubmit">确 定</el-button>
+      </span>
+      </el-tooltip>
     </span>
     </el-dialog>
-<!--    <el-dialog title="添加活动" :visible.sync="addVisible" width="50%" center>-->
-<!--      <el-form :rules="rules" ref="form" label-width="80px">-->
-<!--        <el-form-item label="活动名称" prop="name">-->
-<!--          <el-input v-model="actName">-->
-<!--           <template #append>-->
-<!--            <el-button icon="el-icon-search">搜索</el-button>-->
-<!--           </template>-->
-<!--          </el-input>-->
-
-<!--        </el-form-item>-->
-
-<!--      </el-form>-->
-<!--      <span slot="footer" class="dialog-footer">-->
-<!--        <el-button type="primary" @click="addVisible = false">确 定</el-button>-->
-<!--        <el-button type="primary" @click="addVisible = false">取 消</el-button>-->
-<!--      </span>-->
-<!--    </el-dialog>-->
    </div>
     <div style="margin-top: 10px">
       <el-table
@@ -66,7 +54,6 @@
             width="50"
         >
         </el-table-column>
-        <!-- width="70" -->
         <el-table-column
             prop="name"
             fixed
@@ -74,8 +61,6 @@
             label="活动名称"
         >
         </el-table-column>
-        <!-- width="200" -->
-        <!-- width="200" -->
         <el-table-column
             prop="startDate"
             label="开始时间"
@@ -83,7 +68,6 @@
             width="130"
         >
         </el-table-column>
-        <!-- width="100" -->
         <el-table-column
             prop="scoreItemCount"
             label="评分项数"
@@ -91,7 +75,6 @@
             width="80"
         >
         </el-table-column>
-        <!-- width="70" -->
         <el-table-column
             prop="score"
             label="总分"
@@ -118,39 +101,6 @@
             >信息项设置
             </el-button
             >
-            <!-- <el-button
-                @click="exportEx(scope.row)"
-                :loading="loading"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-plus"
-                type="primary"
-                plain
-            >{{text}}导出专家打分
-            </el-button
-            > -->
-            <!-- <el-button
-                @click="exportAc(scope.row)"
-                :loading="loading"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-plus"
-                type="primary"
-                plain
-            >导出选手分数
-            </el-button
-            > -->
-            <!-- <el-button
-                @click="endEmp(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                type="danger"
-                icon="el-icon-circle-close"
-                plain
-                :disabled="scope.row.status=='close'"
-            >{{ scope.row.status == 'open' ? '结束活动' : '已结束' }}
-            </el-button
-            > -->
           </template>
         </el-table-column>
       </el-table>
@@ -214,6 +164,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+     allowSubmit: false,
      addActForm: {
       activityName: '',
       activityID: '',
@@ -292,24 +243,14 @@ export default {
            type: 'success'
           });
           this.addVisible = false;
+          this.allowSubmit = false;
+          this.addActForm = {}
           this.initEmps();
          }
         });
-    // axios.post('your/api/path', {
-    //  activityName: this.form.activityName,
-    //  code: this.form.code
-    // })
-    //     .then(response => {
-    //      // 处理响应
-    //      console.log(response);
-    //     })
-    //     .catch(error => {
-    //      // 处理错误
-    //      console.error(error);
-    //     });
    },
    querySearchAsync(queryString, cb) {
-    if (queryString.length < 2) {
+    if (queryString.length < 1) {
      return cb([]);
     }
     this.getRequest('/activities/basic/searchByName?name='+queryString)
@@ -328,6 +269,7 @@ export default {
    },
    handleSelect(item) {
     // 当用户选择一个活动时触发
+    this.allowSubmit = true
     this.addActForm.activityName = item.name;
     this.addActForm.activityID = item.id;
    },

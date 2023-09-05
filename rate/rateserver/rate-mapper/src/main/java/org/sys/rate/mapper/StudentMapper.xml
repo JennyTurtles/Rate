@@ -51,6 +51,7 @@
 
     <update id="update" parameterType="org.sys.rate.model.Student">
         UPDATE student SET name=#{name,jdbcType=VARCHAR},
+                           username=#{username,jdbcType=VARCHAR},
                                 telephone=#{telephone,jdbcType=VARCHAR},
                                 email=#{email,jdbcType=VARCHAR}
         where ID=#{ID,jdbcType=INTEGER};
@@ -72,14 +73,14 @@
         </foreach>
     </select>
     <insert id="insertFromAdminExcel" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
-        insert into student(ID,name,institutionID,IDNumber,telephone,email,username,password,deleteflag,role) values
+        insert into student(ID,name,institutionID,telephone,email,username,password,deleteflag,role) values
         <foreach collection="list" separator="," item="students">
             (#{students.ID,jdbcType=INTEGER},
             #{students.name,jdbcType=VARCHAR},
-            #{students.institutionID,jdbcType=INTEGER},
-            #{students.IDNumber,jdbcType=VARCHAR},#{students.telephone,jdbcType=VARCHAR},
+            #{students.institutionid,jdbcType=INTEGER},
+            #{students.telephone,jdbcType=VARCHAR},
             #{students.email,jdbcType=VARCHAR},#{students.username,jdbcType=VARCHAR},
-            #{students.password,jdbcType=VARCHAR},0,10)
+            #{students.password,jdbcType=VARCHAR},0,'10')
         </foreach>
     </insert>
     <update id="updateFromAdminExcel" parameterType="org.sys.rate.model.Student">
@@ -120,33 +121,33 @@
         where IDNumber = #{IDNumber}
     </select>
 
-    <insert id="insertFROMImport" parameterType="org.sys.rate.model.Student">
-        insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,role
+    <insert id="insertFROMImport" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
+        insert into student  (ID,name,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,role
         )
         values (#{ID,jdbcType=INTEGER},
-                #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
+                #{name,jdbcType=VARCHAR},
         <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
                 #{username,jdbcType=VARCHAR},
                 #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,'7'
                )
     </insert>
     <insert id="insertStuFromExcel" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
-        insert into student  (ID,name,IDNumber,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,tutorID,role
+        insert into student  (ID,name,<if test="institutionid!=-1">institutionID,</if>username,password,telephone,email,deleteflag,tutorID,role
         )
         values (#{ID,jdbcType=INTEGER},
-        #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
+        #{name,jdbcType=VARCHAR},
         <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
         #{username,jdbcType=VARCHAR},
         #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,0,''
         )
     </insert>
     <insert id="insertStuFromRegister" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
-        insert into student  (ID,name,IDNumber,institutionID,username,password,telephone,email,deleteflag,tutorID,role,registerQuestion,registerAnswer)
+        insert into student  (ID,name,institutionID,username,password,telephone,email,deleteflag,role,registerQuestion,registerAnswer)
         values (#{ID,jdbcType=INTEGER},
-        #{name,jdbcType=VARCHAR},#{IDNumber,jdbcType=VARCHAR},
+        #{name,jdbcType=VARCHAR},
         #{institutionID,jdbcType=INTEGER},
         #{username,jdbcType=VARCHAR},
-        #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,null,'',
+        #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,#{role,jdbcType=VARCHAR},
                 #{registerQuestion,jdbcType=VARCHAR}, #{registerQuestion,jdbcType=VARCHAR}
         )
     </insert>

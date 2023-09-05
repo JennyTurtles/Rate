@@ -26,9 +26,9 @@ public class ProjectService {
     @Resource
     private OperationMapper operationMapper;
 
-    public List<Project> selectProjectListById(@Param("studentID") Integer studentID){
+    public List<Project> selectProjectListById(Integer studentID){
         List<Project> list = projectMapper.selectProjectListById(studentID);
-        return setProjectOperation(list);
+        return list;
     }
 
     /**
@@ -56,7 +56,7 @@ public class ProjectService {
 
     public List<Project> selectAllProjectList(){
         List<Project> list = projectMapper.selectAllProjectList();
-        return setProjectOperation(list);
+        return list;
     }
     public List<Project> setProjectOperation(List<Project> list) {
         for (int i = 0; i < list.size(); i++) {
@@ -117,21 +117,6 @@ public class ProjectService {
 
     public List<Project> searchProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack) {
         List<Project> list = projectMapper.searchProjectByConditions(studentName, state, projectName, pointFront, pointBack);
-        List<Operation> operationList = operationMapper.selectTypeAllOperationList("科研项目");
-        List<Operation> projectList = new ArrayList<>();
-        //可优化
-        for (int i = 0;i < list.size(); i++) {
-            projectList = new ArrayList<>();
-            for (int j = 0;j < operationList.size(); j++) {
-                if(operationList.get(j).getProdId() == list.get(i).getId()) {
-                    projectList.add(operationList.get(j));
-                }
-            }
-            list.get(i).setOperationList(projectList);
-        }
-        return setProjectOperation(list);
-//        return list;
+        return list;
     }
-
-
 }

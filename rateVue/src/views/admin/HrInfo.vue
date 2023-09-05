@@ -5,6 +5,9 @@
         <el-form-item label="姓名">
           <el-input v-model="hr.name" @input="infoChange"></el-input>
         </el-form-item>
+        <el-form-item label="用户名">
+          <el-input v-model="hr.username" @input="infoChange"></el-input>
+        </el-form-item>
         <el-form-item label="电话">
           <el-input v-model="hr.phone" @input="infoChange"></el-input>
         </el-form-item>
@@ -53,9 +56,11 @@
           })
         },
         initHr() {
-          this.getRequest('/info/admin?id=' + this.user.id).then(resp => {
+          this.getRequest('/system/admin/getAdminInfo?id=' + this.user.id).then(resp => {
             if (resp) {
-              if(resp.status == 200) this.hr = resp.obj;
+              if(resp.status == 200)
+                this.hr = resp.obj;
+              console.log(this.hr);
             }
           })
         }

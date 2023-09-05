@@ -92,7 +92,7 @@
     <!--添加到二级目录-->
     <el-dialog :visible.sync="dialogVisibleType" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
-      >请选择需要添加的分类</span
+      >添加指标点</span
       >
       <p>
         添加位置：<b>{{ data1.label }}</b>
@@ -103,6 +103,7 @@
               v-model="type"
               placeholder="请从下拉菜单中选择"
               style="width: 100%"
+              @change="handleAddChange"
           >
             <el-option
                 v-for="item in TypeOptions"
@@ -118,7 +119,22 @@
           <el-input v-model="label"></el-input>
         </el-form-item>
       </el-form>
-
+     <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+      <el-radio :label="1">有排名限制</el-radio>
+      <el-radio :label="0">无排名限制</el-radio>
+     </el-radio-group>
+     <div v-if="selectedOption === 1" style="margin-top: 10px">
+      限排名前
+      <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+      有积分
+     </div>
+     <div v-show="type === '科研获奖'" style="margin-top: 10px">
+      级别：
+     <el-radio-group v-model="level"  @change="">
+      <el-radio :label="0">国家级</el-radio>
+      <el-radio :label="1">省部级</el-radio>
+     </el-radio-group>
+     </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleType = false">取 消</el-button>
         <el-button
@@ -156,7 +172,7 @@
     <!--修改一级目录的名字-->
     <el-dialog :visible.sync="dialogVisibleUpdateRoot" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
-      >请输入需要修改的分类名和积分值</span
+      >指标点修改</span
       >
       <el-form :rules="rules" :model="ruleForm" label-width="60px">
         <el-form-item style="margin-top: 15px" prop="name" label="类型">
@@ -186,9 +202,9 @@
     <!--修改二级目录的名字-->
     <el-dialog :visible.sync="dialogVisibleUpdateType" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
-      >请输入需要修改的分类名</span
+      >指标点修改</span
       >
-      <el-form label-width="auto">
+      <el-form label-width="auto" >
         <el-form-item label="类型">
           <el-select
               v-model="type"
@@ -209,6 +225,26 @@
         <el-form-item label="分类名">
           <el-input v-model="labelUpdate"></el-input>
         </el-form-item>
+        <div>
+          <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+            <el-radio :label="1">有排名限制</el-radio>
+            <el-radio :label="0">无排名限制</el-radio>
+          </el-radio-group>
+
+          <div v-if="selectedOption === 1" style="margin-top: 10px">
+            限排名前
+            <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+            有积分
+          </div>
+         <div style="margin-top: 10px" v-if="type === '科研获奖' ">
+         级别
+         <el-radio-group v-model="level"  @change="">
+          <el-radio :label="0">国家级</el-radio>
+          <el-radio :label="1">省部级</el-radio>
+         </el-radio-group>
+         </div>
+        </div>
+
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -242,6 +278,9 @@ export default {
 
   data() {
     return {
+      level: 0,
+      selectedOption: 1,
+      rank: null,
       label: "",
       scoreValid: true, // 是否输入合法
       scoreError: "", // 错误提示信息
@@ -330,6 +369,18 @@ export default {
   },
 
   methods: {
+    handleRadioChange() {
+      if (this.selectedOption === 0) {
+        this.rank = 0
+      }
+    },
+   handleAddChange(val) {
+    if (val !== '科研获奖'){
+     this.level = null
+    }else{
+     this.level = 0
+    }
+   },
     onScoreInput(value) {
       const pattern = /^[0-9]*$/;
       if (!pattern.test(value)) {
@@ -369,22 +420,36 @@ export default {
                 // type="text"
                 icon="el-icon-circle-plus-outline"
                 on-click={() => {
+                 event.stopPropagation()
                   this.data1 = data;
-                  if (node.level > 1) this.dialogVisible = true;
-                  else this.dialogVisibleType = true;
+                  if (node.level > 1){
+                   this.dialogVisible = true;
+                  }
+                  else {
+                   this.dialogVisibleType = true;
+                   this.selectedOption = 0
+                   this.rankN = 0
+                  }
+
                 }}
             ></el-button>
             <el-popconfirm
                 title="此操作将删除此标签及其所有子标签"
                 icon-color="red"
                 icon="el-icon-info"
-                on-confirm={() => this.remove(node, data)}
+                on-confirm={() => {
+                 event.stopPropagation()
+                 this.remove(node, data)
+                }}
             >
               <el-button
                   class="plus-button"
                   circle //删除
                   slot="reference"
                   size="mini"
+                  on-click={() => {
+                   event.stopPropagation()
+                  }}
                   // type="text"
                   icon="el-icon-delete"
               ></el-button>
@@ -396,6 +461,7 @@ export default {
                 // type="text"
                 icon="el-icon-edit"
                 on-click={() => {
+                 event.stopPropagation()
                   this.data1 = data;
                   this.labelUpdate = data.label.substring(data.order.length + 1);
                   if (node.level > 2) this.dialogVisibleUpdate = true;
@@ -406,6 +472,12 @@ export default {
                     this.ruleForm.score = this.scoreUpdate;
                   } else if (node.level === 2) {
                     this.type = data.type;
+                    this.rank = data.rankN;
+                   this.level = data.level === '国家级' ? 0 : 1;
+                    if (!data.rankN || data.rankN == 0){
+                     this.selectedOption = 0
+                    }else
+                     this.selectedOption = 1
                     this.dialogVisibleUpdateType = true;
                   }
                 }}
@@ -455,8 +527,9 @@ export default {
           father: data.id,
           order: newChild.order,
           score: data.score,
+          rankN: this.rank,
+          level: this.level != null ? ( this.level == 0 ? '国家级' : '省部级') : this.level,
         };
-        console.log(postData);
         if (!data.children) {
           this.$set(data, "children", []);
         }
@@ -533,7 +606,13 @@ export default {
         name: this.labelUpdate,
         score: this.scoreUpdate,
         order: data.order,
+        rankN: this.rank,
+        level: this.level == 0 ? '国家级' : '省部级',
       };
+      if (data.level){
+       data.level = data.level === '国家级' ? '省部级' : '国家级'
+      }
+     this.$emit("getLabelInfo", data);
       var that = this;
       axios.put("/indicator", postData).then(function (resp) {
         if (resp.status != 200) alert("修改失败！");
@@ -728,9 +807,11 @@ export default {
         // data.append(node.parent.data.label)
         data["p2"] = node.parent.data.label;
         data["p1"] = node.parent.parent.data.label;
-        if (data.type == "授权专利") {
-          this.$message.warning("授权专利没有侧边栏！")
+        if (data.type == "授权专利" || data.type == "制定标准" || data.type == "学术专著和教材" || data.type == "制造或设计的产品") {
+          this.$message.warning(data.type+"类别无需设置！")
+          return
         }
+
         this.$emit("getLabelInfo", data);
       }
     },

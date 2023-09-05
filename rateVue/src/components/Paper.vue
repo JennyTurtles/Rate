@@ -19,32 +19,24 @@
                 placeholder="论文名称"
                 id="select_paperName">
               <label style="fontSize:10px;margin-left:16px">期刊：</label>
-              <div class="select_div_input">                  
-                  <input
-                    style="margin-left:5px;width:120px;line-height:28px;
-                            border:1px solid lightgrey;padding:0 10px 1px 15px;
-                            border-radius:4px;color:gray"
-                    placeholder="期刊"
-                    v-model="select_pub_option"
-                    @focus="ispubShow=true"
-                    @blur="ispubShow=ispubFlag"
-                    id="select_pub"/>
-                  <div class="select_div"
-                      v-show="ispubShow && select_pub_option != '' ? true:false"
-                      style=""
-                      :style="'height:${menuHeight}'"
-                      @mouseover="ispubFlag = true"
-                      @mouseleave="ispubFlag = false">
-                    <div
-                      style="margin:12px 0px 3px 12px;width:90%"
-                      v-for="val in select_pubName"
-                      :key="val.index"
-                      :value="val.value"
-                      @click="filter_pub(val.value)"
-                    >
-                       {{ val.value }}
-                    </div>
-                  </div>
+              <div class="select_div_input">
+                <el-select
+                    v-model="searchPaperPublicationName"
+                    filterable
+                    remote
+                    clearable
+                    reserve-keyword
+                    @change="selectOption($event)"
+                    :remote-method="searchPublicationMethod"
+                    placeholder="期刊名称"
+                    :loading="loading">
+                  <el-option
+                      v-for="item in select_pubName"
+                      :key="item.index"
+                      :label="item.value"
+                      :value="item.value">
+                  </el-option>
+                </el-select>
                 </div>
               <label style="fontSize:10px;margin-left:40px;">论文状态：</label>
               <el-select
@@ -105,7 +97,7 @@
               <el-button
                   icon="el-icon-search"
                   type="primary"
-                  @click="searchEmps"
+                  @click="searchEmps(1, 10)"
                   :disabled="showAdvanceSearchView"
                   style="margin-left:30px"
                   >
@@ -129,21 +121,21 @@
           prop="student.sname"
           align="center"
           label="学生姓名"
-          width="75"
+          min-width="10%"
         >
         </el-table-column>
         <el-table-column
           prop="name"
           align="center"
           label="论文名称"
-          width="230"
+          min-width="15%"
         >
         </el-table-column>
         <!-- width="200" -->
         <el-table-column
           prop="state"
           label="状态"
-          width="110"
+          min-width="10%"
           align="center"
         >
         <template slot-scope="scope">
@@ -166,21 +158,21 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="publication.name"
+          prop="pubName"
           label="发表刊物"
           align="center"
-          width="240"
+          min-width="15%"
         >
         </el-table-column>
         <el-table-column
           prop="point"
           label="积分"
           align="center"
-          width="80"
+          min-width="8%"
         >
         </el-table-column>
-        <el-table-column
-          prop="remark"
+        <el-table-column min-width="15%"
+          prop="paperoperList[0].remark"
           label="备注"
           align="center"
           :formatter="checkScoreComent"
@@ -188,6 +180,7 @@
         </el-table-column>
         <el-table-column
           width="130"
+          min-width="15%"
           align="center"
           label="详情"
         >
@@ -204,10 +197,13 @@
       <div style="display: flex; justify-content: flex-end; margin: 10px 0">
         <el-pagination
           background
+          :current-page="currentPage"
+          :page-size="pageSize"
+          :page-sizes="pageSizes"
           @current-change="currentChange"
           @size-change="sizeChange"
           layout="sizes, prev, pager, next, jumper, ->, total, slot"
-          :total="total"
+          :total="totalCount"
         >
         </el-pagination>
       </div>
@@ -276,49 +272,55 @@
         :label-position="labelPosition"
         label-width="80px"
         :model="emp"
-        :rules="rules"
         ref="empForm"
         style="margin-left: 20px"
       >
-        <el-form-item label="论文名:" prop="name">
+        <el-form-item label="论文名:">
           <span>{{ emp.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="学生姓名:" prop="student">
+        <el-form-item label="学生姓名:">
           <span>{{ emp.student.sname }}</span
           ><br />
         </el-form-item>
 
-        <el-form-item label="期刊页码:" prop="pubPage">
+        <el-form-item label="期刊页码:">
           <span>{{ emp.pubPage}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="论文状态:" prop="state">
-          <span>{{emp.state}}</span
+        <el-form-item label="论文状态:">
+          <span>{{emp.state=="commit"
+              ? "学生提交"
+              :emp.state=="tea_pass"
+                  ? "导师通过"
+                  :emp.state=="tea_reject"
+                      ? "导师驳回"
+                      :emp.state=="adm_pass"
+                          ? "管理员通过"
+                          :"管理员驳回"}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者人数:" prop="total">
+        <el-form-item label="作者人数:">
           <span>{{emp.total}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者列表:" prop="author">
+        <el-form-item label="作者列表:">
           <span>{{emp.author}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="排名:" prop="rank">
+        <el-form-item label="排名:">
           <span>{{emp.rank}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="发表年份:" prop="year">
+        <el-form-item label="发表年份:">
           <span>{{emp.year}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="发表月份:" prop="month">
+        <el-form-item label="发表月份:">
           <span>{{emp.month}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="证明材料:" prop="url">
-          <!-- <el-button @click="download(emp)" type="primary">下载材料</el-button> -->
+        <el-form-item label="证明材料:">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
           <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(emp)"
@@ -391,10 +393,16 @@
 <script>
 import { set } from 'vue';
 import axios from "axios";
+import {debounce} from "@/utils/debounce";
 export default {
   name: "SalSearch",
   data() {
     return {
+      totalCount:0,
+      currentPage:1,
+      pageSize: 10,
+      pageSizes:[10, 20, 50, 100],
+      searchPaperPublicationName: '',
       tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
       ispubFlag:false,
       ispubShow:false,
@@ -481,13 +489,15 @@ export default {
         : '${this.select_pubName.length * 50}px'
     },
     role() {
-      return JSON.parse(localStorage.getItem('user')).role.indexOf('8') >= 0 ||
-          JSON.parse(localStorage.getItem('user')).role.indexOf('9') >= 0 ? 'teacher' : 'admin';
+      return JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ||
+      JSON.parse(localStorage.getItem('user')).roleName.indexOf('expert') >= 0 ? 'teacher' : 'admin';
     }
   },
-  created() {},
+  created() {
+    this.debounceSearch = debounce(this.searchPublicationMethod,400);
+  },
   mounted() {
-    this.initEmps();
+    this.searchEmps(1, 10);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -500,35 +510,30 @@ export default {
     }
   },
   watch:{
-    //期刊输入框变化
-    select_pub_option:{
-      handler(val){
-        let url = "/publication/basic/listByName?publicationName=" + val
-        console.log(url);
-        this.getRequest(url).then((resp) => {
-          this.loading = false;
-          if (resp) {
-            this.select_pubName=[]
-            if(resp.data != null){
-              for(var i=0;i<resp.data.length;i++){
-                this.select_pubName.push(
-                    {
-                      index:resp.data[i].id,
-                      value:resp.data[i].name,
-                      point:resp.data[i].indicator.score
-                      }
-                  )
-                }
-            }else{
-                this.$message.error(`请检查期刊名称的拼写`);
-            }
-          }
-        });
-      }
-
-    }
   },
   methods: {
+    searchPublicationMethod(val) {
+      let url = "/publication/basic/listByName?publicationName=" + val
+      this.getRequest(url).then((resp) => {
+        this.loading = false;
+        if (resp) {
+          this.select_pubName=[]
+          if(resp.obj != null){
+            for(var i=0;i<resp.obj.length;i++){
+              this.select_pubName.push(
+                  {
+                    index:resp.obj[i].id,
+                    value:resp.obj[i].name,
+                  }
+              )
+            }
+          }
+        }
+      });
+    },
+    selectOption() {
+
+    },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
       var url = data.url
@@ -573,7 +578,7 @@ export default {
           this.doAddOper(status, this.reason, this.emp.id);
         }
       }).finally(()=>{
-        this.initEmps();
+        this.searchEmps(this.currentPage, this.pageSize);
       });
     },
     doAddOper(state, remark, paperID) {
@@ -594,7 +599,7 @@ export default {
       this.postRequest1("/oper/basic/add", this.oper).then(
         (resp) => {
           if (resp) {
-            this.initEmps()
+            this.searchEmps(this.currentPage, this.pageSize);
           }
         }
       );    
@@ -627,47 +632,40 @@ export default {
       });
     },
     sizeChange(currentSize) {
-      this.size = currentSize;
-      this.initEmps();
+      this.pageSize = currentSize;
+      this.searchEmps(this.currentPage, this.pageSize);
     },
     currentChange(currentPage) {
-      this.page = currentPage;
-      this.initEmps("advanced");
+      this.currentPage = currentPage;
+      this.searchEmps(this.currentPage, this.pageSize);
     },
-    initEmps() {
-      this.loading = true;
-      let url = "/paper/basic/List" ;
-      this.getRequest(url).then((resp) => {
-        this.loading = false;
-        if (resp) {
-          this.emps = resp.data;
-          this.copyemps = this.emps
-          this.total = resp.total;
-          //什么意思？
-          for(var i = 0; i < this.emps.length; i ++){
-            var papername = this.emps[i].name
-            if(this.select_paperName.indexOf(papername)==-1){
-              this.select_paperName.push(papername)
-            }
-            var judge=this.emps[i].student.sname
-            if(this.select_stuName.indexOf(judge)==-1){
-              this.select_stuName.push(judge)
-            }
-            var pub=this.emps[i].publication.name
-            if(this.select_pubName.indexOf(pub)==-1){
-              this.select_pubName.push(pub)
-            }
-          }
-          this.emps.sort(function(a,b){
-            return a.time > b.time ? -1 : 1
-          })
-        }
-      });
-    },
-    searchEmps() {//根据条件搜索论文
-      var newemps=new Set()
-      var stuname=document.getElementById("select_stuname").value
-      var state=document.getElementById("select_state").value
+    // initEmps() {
+    //   this.loading = true;
+    //   let url = "/paper/basic/List" ;
+    //   this.getRequest(url).then((resp) => {
+    //     this.loading = false;
+    //     if (resp) {
+    //       this.emps = resp.data;
+    //       this.copyemps = this.emps
+    //       this.total = resp.total;
+    //       //什么意思？
+    //       for(var i = 0; i < this.emps.length; i ++){
+    //         var papername = this.emps[i].name
+    //         if(this.select_paperName.indexOf(papername)==-1){
+    //           this.select_paperName.push(papername)
+    //         }
+    //         var judge=this.emps[i].student.sname
+    //         if(this.select_stuName.indexOf(judge)==-1){
+    //           this.select_stuName.push(judge)
+    //         }
+    //       }
+    //     }
+    //   });
+    // },
+    searchEmps(pageNum, pageSize) {//根据条件搜索论文
+      const params = {};
+      params.studentName = document.getElementById("select_stuname").value
+      var state = document.getElementById("select_state").value
       if(state == '导师通过'){
         state = 'tea_pass'
       }else if(state == '导师驳回'){
@@ -678,22 +676,30 @@ export default {
         state = 'adm_pass'
       }else if (state == '管理员驳回') {
         state = 'adm_reject'
+      }else state = '';
+      params.state = state;
+      var pointFront = document.getElementById("select_point1").value
+      var pointBack = document.getElementById("select_point2").value
+      if(pointFront == '全部') {
+        params.pointFront = '';
+      }else {
+        params.pointFront = pointFront;
       }
-      var paper=document.getElementById("select_paperName").value
-      var pub=document.getElementById("select_pub").value
-      var point1=document.getElementById("select_point1").value
-      var point2=document.getElementById("select_point2").value
-      for(var i=0;i<this.copyemps.length;i++){
-        if((((this.copyemps[i].student.sname.indexOf(stuname) >= 0 ))||(stuname == '全部' || stuname == ''))&&
-        (((this.copyemps[i].state == state))||(state == '全部' || state == ''))&&
-        (((this.copyemps[i].name.indexOf(paper) >= 0) )||(paper == '全部' || paper == ''))&&
-        (((this.copyemps[i].point <= point2 &&this.copyemps[i].point >= point1))||(point1 == '全部' || point1 == '' || point2 == '全部' || point2 == ''))&&
-        (((this.copyemps[i].publication.name == pub) )||(pub == '全部' || pub == ''))
-        ){
-            newemps.add(this.copyemps[i])
+      if(pointBack == '全部') {
+        params.pointBack = '';
+      }else {
+        params.pointBack = pointBack;
+      }
+      params.name = document.getElementById("select_paperName").value
+      params.pub = this.searchPaperPublicationName;
+      params.pageNum = pageNum.toString();
+      params.pageSize = pageSize.toString();
+      this.postRequest('/paper/basic/searchPaperByConditions', params).then((response) => {
+        if(response) {
+          this.emps = response.extend.res[0];
+          this.totalCount = response.extend.res[1];
         }
-      }
-      this.emps = Array.from(newemps)
+      })
     },
     checkScoreComent(row){
       if (row.state === "adm_pass" && row.point === 2 && row.have_score === 0)

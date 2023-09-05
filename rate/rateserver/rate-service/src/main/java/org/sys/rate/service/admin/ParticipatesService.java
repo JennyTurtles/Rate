@@ -206,7 +206,7 @@ public class ParticipatesService {
 //            }else {
 //                student.setInstitutionid(null);
 //            }
-            if (studentMapper.checkID(participants.getStudentID())!=0) { // 以前根据身份号检查student表的记录，现在根据studentID
+            if (participants.getStudentID() != null && studentMapper.checkID(participants.getStudentID())!=0) { // 以前根据身份号检查student表的记录，现在根据studentID
                 if(participants.getUsername()!=null)
                 {//不为空
                     student.setUsername(participants.getUsername());
@@ -234,7 +234,7 @@ public class ParticipatesService {
                 }
                 flag=true;
             } else {
-                if(participants.getUsername()!=null)
+                if(participants.getUsername()!=null && !participants.getUsername().isEmpty())
                 {//不为空
                     student.setUsername(participants.getUsername());
                 }
@@ -250,8 +250,8 @@ public class ParticipatesService {
                     encodePass = ExpertService.sh1(participants.getPassword());
                 }
                 else
-                {//默认密码为手机号
-                    encodePass = ExpertService.sh1(participants.getTelephone());
+                {//默认密码为空
+                    encodePass = "";
                 }
                 student.setPassword(encodePass);
                 //如果没有就插入选手信息
@@ -301,6 +301,8 @@ public class ParticipatesService {
                         if (participants.getCode() == null) {
                             participants.setCode(participants.getStudentNumber());
                         }
+                        if (participants.getStudentID() == null)
+                            participants.setStudentID(student.getID());
                         insert= participatesMapper.insert_relationship(participants);
                         last++;
                     }
@@ -607,8 +609,8 @@ public class ParticipatesService {
     public String deleteGroups(Integer activityID){
         Integer res = groupsMapper.isGroupsExit(activityID);
         if(res > 0){
-            participatesMapper.deleteGroups(activityID);//删除groups表中的数据
             participatesMapper.deleteGroupsOfParticipantsAnaAcitivity(activityID);//删除选手表和活动表中的groupid
+            participatesMapper.deleteGroups(activityID);//删除groups表中的数据
             return "删除成功";
         }else {
             return "无删除数据";
@@ -671,5 +673,18 @@ public class ParticipatesService {
             }
             return true;
         }
+    }
+
+    // 将选手从主活动复制到子活动，适用于无需分组的子活动
+    public void copyParticipates(Integer groupIDParent, Integer activityIDSon, Integer groupIDSon){
+        List<Participates> ParInParent = participatesMapper.getPartByGroupID(groupIDParent);
+        if (ParInParent == null || ParInParent.isEmpty())
+            return;
+        for (Participates participate : ParInParent){
+            participate.setScore(0.0);
+            participate.setActivityID(activityIDSon);
+            participate.setGroupID(groupIDSon);
+        }
+        participatesMapper.insertParticipates(ParInParent);
     }
 }
