@@ -505,6 +505,23 @@ export default {
     this.fetchThesisExistDate()
   },
   methods: {
+    emptyQuery() {
+      this.query = {
+        stuNumber: '',
+        name: '',
+        specialty: '',
+        className: '',
+        year: null,
+        tutorJobNumber: '',
+        tutorName: '',
+        institutionID: null,
+        startYear: null,
+        month: null,
+        pageNum: null,
+        pageSize: null,
+      };
+    },
+
 
     // 打开搜索框
     search() {
@@ -690,6 +707,8 @@ export default {
         if (resp && resp.status === 200) {
           this.dialogEdit = false;
           this.$message.success("修改成功！");
+          // 将搜索框中的内容制空
+          this.emptyQuery()
           await this.initUnderGraduateStudents(this.currentPage, this.pageSize);
         } else {
           this.$message.error("修改失败！");
@@ -721,6 +740,7 @@ export default {
         this.postRequest(url).then(async (resp) => {
           if (resp.status === 200) {
             this.$message.success('删除成功');
+            this.emptyQuery()
             await this.initUnderGraduateStudents(this.currentPage, this.pageSize);
           } else {
             this.$message.warning('删除失败！');
