@@ -32,4 +32,12 @@ public class StudentController {
         return res ? RespBean.ok("注册成功") : RespBean.error("请检查学号是否正确！");
     }
 
+    // 注册为博士生
+    @Transactional
+    @PostMapping("/registerDoctor")
+    public RespBean registerDoctor(Student student){
+        boolean res = studentService.registerDoctor(student);
+        return res ? RespBean.ok("注册成功") : RespBean.error("请检查学号是否正确！");
+    }
+
 }

@@ -20,8 +20,9 @@
             <el-dropdown-menu slot="dropdown">
              <el-dropdown-item command="registerRole"
                                v-show="
-                  (user.role == ''  || user.role.indexOf('11') !== -1 || user.role.indexOf('10') !== -1)"
-             >注册为本科生/研究生</el-dropdown-item
+                  (user.role.indexOf('7') !== -1  || user.role.indexOf('11') !== -1 ||
+                   user.role.indexOf('10') !== -1)"
+             >注册为本科生/硕士研究生/博士研究生</el-dropdown-item
              >
               <el-dropdown-item command="changePassword"
                 >修改密码</el-dropdown-item
@@ -164,7 +165,7 @@
         <el-button type="primary" @click="submitPassword">确 定</el-button>
       </span>
     </el-dialog>
-   <el-dialog @close="registerRoleForm={};selectStuType='';tutorName=''" title="注册为本科生/研究生" :visible.sync="registerRoleVisible" width="30%">
+   <el-dialog @close="registerRoleForm={};selectStuType='';tutorName=''" title="注册为本科生/硕士研究生/博士研究生" :visible.sync="registerRoleVisible" width="30%">
     <el-form label-width="auto">
 <!--    <el-form-item label="姓名:">-->
 <!--     <el-input v-model="registerRoleForm.name"></el-input>-->
@@ -185,7 +186,7 @@
       </el-option>
      </el-select>
     </el-form-item>
-     <el-form-item v-show="selectStuType === '研究生'" label="指导老师:">
+     <el-form-item v-show="selectStuType === '硕士研究生' || selectStuType === '博士研究生'" label="指导老师:">
       <el-autocomplete
           style="width: 90%"
           v-model="tutorName"
@@ -201,10 +202,10 @@
       <el-input  v-model="registerRoleForm.year" ></el-input>
      </el-form-item>
     </div>
-    <div v-show="selectStuType === '研究生'">
+    <div v-show="selectStuType === '硕士研究生'">
      <el-form-item label="研究生类型:">
       <el-select v-model="registerRoleForm.gradType">
-       <el-option v-for="val in ['专硕','学硕','博士']"
+       <el-option v-for="val in ['专硕','学硕']"
                   :value="val"
                   :label="val"
                   :key="val">
@@ -212,6 +213,17 @@
       </el-select>
      </el-form-item>
     </div>
+      <div v-show="selectStuType === '博士研究生'">
+        <el-form-item label="研究生类型:">
+          <el-select v-model="registerRoleForm.gradType">
+            <el-option v-for="val in ['专博','学博']"
+                       :value="val"
+                       :label="val"
+                       :key="val">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </div>
      <div style="text-align: center">
       <el-button  @click="registerRole" type="primary">注册</el-button>
      </div>
@@ -229,7 +241,7 @@ export default {
  data: function () {
   return {
    tutorName:'',
-   stuType:['本科生','研究生'],
+   stuType:['本科生','硕士研究生','博士研究生'],
    selectStuType:'',
    registerRoleForm: {},
    registerRoleVisible: false,
@@ -286,7 +298,9 @@ export default {
    registerRole(){
     this.registerRoleForm.ID = this.user.id
     this.registerRoleForm.name = this.user.name
-    if (this.selectStuType === '研究生'){
+    this.registerRoleForm.institutionID = this.user.institutionID
+     console.log(this.registerRoleForm)
+    if (this.selectStuType === '硕士研究生'){
      this.postRequest1("/system/student/registerGraduate",this.registerRoleForm).then((res) => {
       if (res) {
        this.$message({
@@ -306,7 +320,17 @@ export default {
        this.registerRoleVisible = false
       }
      });
-    }
+    }else if (this.selectStuType === '博士研究生'){
+       this.postRequest1("/system/student/registerDoctor",this.registerRoleForm).then((res) => {
+         if (res) {
+           this.$message({
+             type: "success",
+             message: "注册成功!",
+           });
+           this.registerRoleVisible = false
+         }
+       });
+     }
    },
     handleOpen(subItem) {
       if (
