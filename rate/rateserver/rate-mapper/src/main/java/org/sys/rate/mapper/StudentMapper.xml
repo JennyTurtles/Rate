@@ -53,7 +53,8 @@
         UPDATE student SET name=#{name,jdbcType=VARCHAR},
                            username=#{username,jdbcType=VARCHAR},
                                 telephone=#{telephone,jdbcType=VARCHAR},
-                                email=#{email,jdbcType=VARCHAR}
+                                email=#{email,jdbcType=VARCHAR},
+                                role=#{role,jdbcType=VARCHAR}
         where ID=#{ID,jdbcType=INTEGER};
     </update>
 

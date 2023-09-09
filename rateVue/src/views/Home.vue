@@ -299,7 +299,8 @@ export default {
     this.registerRoleForm.ID = this.user.id
     this.registerRoleForm.name = this.user.name
     this.registerRoleForm.institutionID = this.user.institutionID
-     console.log(this.registerRoleForm)
+    this.registerRoleForm.role = this.user.role
+    this.registerRoleForm.username = this.user.username
     if (this.selectStuType === '硕士研究生'){
       if (this.user.role.indexOf("11") == -1)
         this.registerRoleForm.role = this.user.role + ";11"

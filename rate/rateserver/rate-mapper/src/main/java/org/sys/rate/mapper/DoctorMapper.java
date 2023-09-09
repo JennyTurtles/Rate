@@ -8,7 +8,7 @@ public interface DoctorMapper {
 
     int update(Doctor record);
 
-    @Select("select d.ID,d.institutionID,d.studentID,d.stuNumber,d.year,d.studentType,d.point,d.specialty,d.class as className,d.tutorID,s.name,s.telephone,s.email,s.username,s.password,s.registerQuestion,s.registerAnswer " +
+    @Select("select d.ID,d.institutionID,d.studentID,d.stuNumber,d.year,d.studentType,d.point,d.specialty,d.class as className,d.tutorID,s.name,s.telephone,s.email,s.username,s.password,s.role,s.registerQuestion,s.registerAnswer " +
             "from doctor d,student s where d.studentID=#{studentID} and s.ID = d.studentID")
     Doctor getDocByStuID(Integer studentID);
 
