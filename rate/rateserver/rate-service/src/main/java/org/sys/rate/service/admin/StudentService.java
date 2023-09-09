@@ -98,11 +98,11 @@ public class StudentService implements UserDetailsService {
 
     public boolean registerDoctor(Student student) {
         Student studentInTable = studentMapper.getDoctorByStudentNumber(student.getStudentnumber());
-        if(studentInTable == null){ // 研究生表无该学号
+        if(studentInTable == null){ // 博士生表无该学号
             Integer studentID = studentMapper.checkIDInDoctor(student.getID());
-            if(studentID == null) // 研究生表无该学生ID
+            if(studentID == null) // 博士生表无该学生ID
                 studentMapper.registerDoctor(student);
-            else // 该学生已经是研究生了，重复注册，但是学号改了。修改研究生表的信息。
+            else // 该学生已经是博士生了，重复注册，但是学号改了。修改博士生表的信息。
                 studentMapper.updateDoctor(student);
             studentMapper.update(student);
         }else if (!studentInTable.getID().equals(student.getID())){ // 查到了，但是studentID不是本人

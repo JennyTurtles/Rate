@@ -20,7 +20,7 @@
             <el-dropdown-menu slot="dropdown">
              <el-dropdown-item command="registerRole"
                                v-show="
-                  (user.role.indexOf('7') !== -1  || user.role.indexOf('11') !== -1 ||
+                  (user.role == '' || user.role.indexOf('7') !== -1  || user.role.indexOf('11') !== -1 ||
                    user.role.indexOf('10') !== -1)"
              >注册为本科生/硕士研究生/博士研究生</el-dropdown-item
              >
@@ -301,6 +301,8 @@ export default {
     this.registerRoleForm.institutionID = this.user.institutionID
      console.log(this.registerRoleForm)
     if (this.selectStuType === '硕士研究生'){
+      if (this.user.role.indexOf("11") == -1)
+        this.registerRoleForm.role = this.user.role + ";11"
      this.postRequest1("/system/student/registerGraduate",this.registerRoleForm).then((res) => {
       if (res) {
        this.$message({
@@ -311,6 +313,8 @@ export default {
       }
      });
     }else if (this.selectStuType === '本科生'){
+      if (this.user.role.indexOf("10") == -1)
+        this.registerRoleForm.role = this.user.role + ";10"
      this.postRequest1("/system/student/registerUndergraduate",this.registerRoleForm).then((res) => {
       if (res) {
        this.$message({
@@ -321,6 +325,8 @@ export default {
       }
      });
     }else if (this.selectStuType === '博士研究生'){
+      if (this.user.role.indexOf("17") == -1)
+        this.registerRoleForm.role = this.user.role + ";17"
        this.postRequest1("/system/student/registerDoctor",this.registerRoleForm).then((res) => {
          if (res) {
            this.$message({

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sys.rate.mapper.DoctorMapper">
+    <update id="update">
+        UPDATE doctor SET tutorID=#{tutorID,jdbcType=INTEGER},
+                             stuNumber=#{stuNumber,jdbcType=VARCHAR},
+                             year=#{year,jdbcType=INTEGER},
+                             studentType=#{studentType,jdbcType=VARCHAR},
+                             specialty=#{specialty,jdbcType=VARCHAR},
+                             class=#{className,jdbcType=VARCHAR}
+        where studentID=#{studentID,jdbcType=INTEGER};
+    </update>
+</mapper>
