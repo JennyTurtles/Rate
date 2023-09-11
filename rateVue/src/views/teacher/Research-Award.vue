@@ -348,7 +348,7 @@ export default {
   data() {
     return {
       searchStudentName: '',
-      searchStatus: '',
+      searchStatus: '导师通过',
       searchPointFront: '',
       searchPointBack: '',
       searchCompetitionName: '',

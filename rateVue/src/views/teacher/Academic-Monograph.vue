@@ -353,7 +353,7 @@ export default {
       searchPointFront: '',
       searchPointBack: '',
       searchMonographName: '',
-      searchStatus: '',
+      searchStatus: '导师通过',
       searchStudentName: '',
       pageSizes:[10, 20, 50, 100],
       totalCount:0,

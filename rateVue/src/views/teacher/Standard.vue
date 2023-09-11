@@ -355,7 +355,7 @@ export default {
     return {
       pointBack: '',
       pointFront: '',
-      searchStandardState: '',
+      searchStandardState: '导师通过',
       searchStandardName: '',
       searchStudentName: '',
       pageSizes:[10, 20, 50, 100],
