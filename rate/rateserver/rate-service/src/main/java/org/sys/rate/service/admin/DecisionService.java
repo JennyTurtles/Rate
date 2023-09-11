@@ -7,6 +7,7 @@ import org.sys.rate.mapper.DecisionTypeMapper;
 import org.sys.rate.model.Decision;
 import org.sys.rate.model.DecisionType;
 import org.sys.rate.model.Operation;
+import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -20,6 +21,8 @@ public class DecisionService {
     private DecisionMapper decisionMapper;
     @Resource
     private DecisionTypeMapper decisionTypeMapper;
+    @Resource
+    private MailToStuService mailToStuService;
 
     public List<Decision> selectDecisionListById(@Param("studentID") Integer studentID){
         List<Decision> list = decisionMapper.selectDecisionListById(studentID);
@@ -55,7 +58,8 @@ public class DecisionService {
     }
     //  修改状态
     public int editState(String state, Long ID) throws MessagingException {
-        //mailToStuServicei.sendStuMail(state, paper, "科研奖励");
+        Decision decision = decisionMapper.getById(Math.toIntExact(ID));
+        mailToStuService.sendStuMail(state, decision,null, "决策咨询");
         return decisionMapper.editState(state,ID);
     }
     public List<DecisionType> getIndicatorByYearAndType(String year, String type) {

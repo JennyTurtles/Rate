@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.StandardMapper;
 import org.sys.rate.mapper.StandardMapper;
 import org.sys.rate.model.Standard;
+import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -14,6 +15,8 @@ import java.util.List;
 public class StandardService {
     @Resource
     private StandardMapper standardMapper;
+    @Resource
+    private MailToStuService mailToStuService;
 
     public Standard selectStandardById(Long ID){
         return standardMapper.selectStandardById(ID);
@@ -92,7 +95,8 @@ public class StandardService {
 
     //    修改论文状态
     public int editState(String state, Long ID) throws MessagingException {
-        //mailToStuServicei.sendStuMail(state, paper, "论文");
+        Standard standard = standardMapper.getById(Math.toIntExact(ID));
+        mailToStuService.sendStuMail(state, standard, null, "制定标准");
         return standardMapper.editState(state,ID);
     }
     public List<Standard> searchStandardByConditions(String studentName, String state, String projectName, String pointFront, String pointBack) {

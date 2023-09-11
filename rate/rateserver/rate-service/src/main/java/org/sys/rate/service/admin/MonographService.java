@@ -6,6 +6,7 @@ import org.sys.rate.mapper.MonographMapper;
 import org.sys.rate.mapper.OperationMapper;
 import org.sys.rate.model.Monograph;
 import org.sys.rate.model.Operation;
+import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -20,8 +21,10 @@ public class MonographService {
     private MonographMapper monographMapper;
     @Resource
     private OperationMapper operationMapper;
+    @Resource
+    private MailToStuService mailToStuService;
 
-    public List<Monograph> selectMonographListById(@Param("studentID") Integer studentID){
+    public List<Monograph> selectMonographListById(@Param("studentID") Integer studentID) {
         List<Monograph> list = monographMapper.selectMonographListById(studentID);
         return setMonographOperation(list);
     }
@@ -32,10 +35,11 @@ public class MonographService {
      * @param monograph 科研专著教材成果
      * @return 结果
      */
-    public int insertMonograph(Monograph monograph){
+    public int insertMonograph(Monograph monograph) {
         return monographMapper.insertMonograph(monograph);
     }
-    public int updateMonograph(Monograph monograph){
+
+    public int updateMonograph(Monograph monograph) {
         return monographMapper.updateMonograph(monograph);
     }
 
@@ -45,14 +49,15 @@ public class MonographService {
      * @param ID 科研专著教材成果ID
      * @return 结果
      */
-    public int deleteMonographById(Long ID){
+    public int deleteMonographById(Long ID) {
         return monographMapper.deleteMonographById(ID);
     }
 
-    public List<Monograph> selectAllMonographList(){
+    public List<Monograph> selectAllMonographList() {
         List<Monograph> list = monographMapper.selectAllMonographList();
         return setMonographOperation(list);
     }
+
     public List<Monograph> setMonographOperation(List<Monograph> list) {
         for (int i = 0; i < list.size(); i++) {
             Monograph monograph = list.get(i);
@@ -98,8 +103,9 @@ public class MonographService {
 
     //    修改科研专著教材状态
     public int editState(String state, Long ID) throws MessagingException {
-        //mailToStuServicei.sendStuMail(state, paper, "科研专著教材");
-        return monographMapper.editState(state,ID);
+        Monograph monograph = monographMapper.getById(Math.toIntExact(ID));
+        mailToStuService.sendStuMail(state, monograph, null, "学术专著和教材");
+        return monographMapper.editState(state, ID);
     }
 
     public List<Monograph> searchMonographByConditions(String studentName, String state, String monoName, String pointFront, String pointBack) {
@@ -107,10 +113,10 @@ public class MonographService {
         List<Operation> operationList = operationMapper.selectTypeAllOperationList("专著教材");
         List<Operation> monographList = new ArrayList<>();
         //可优化
-        for (int i = 0;i < list.size(); i++) {
+        for (int i = 0; i < list.size(); i++) {
             monographList = new ArrayList<>();
-            for (int j = 0;j < operationList.size(); j++) {
-                if(operationList.get(j).getProdId() == list.get(i).getId()) {
+            for (int j = 0; j < operationList.size(); j++) {
+                if (operationList.get(j).getProdId() == list.get(i).getId()) {
                     monographList.add(operationList.get(j));
                 }
             }

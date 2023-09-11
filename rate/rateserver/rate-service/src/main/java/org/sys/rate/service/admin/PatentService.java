@@ -6,6 +6,7 @@ import org.sys.rate.mapper.PatentMapper;
 import org.sys.rate.model.Operation;
 import org.sys.rate.model.Patent;
 import org.sys.rate.model.Project;
+import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -17,6 +18,8 @@ import java.util.List;
 public class PatentService {
     @Resource
     private PatentMapper patentMapper;
+    @Resource
+    private MailToStuService mailToStuService;
 
     public Patent selectPatentById(Long ID){
         return patentMapper.selectPatentById(ID);
@@ -95,7 +98,8 @@ public class PatentService {
 
     //    修改论文状态
     public int editState(String state, Long ID) throws MessagingException {
-        //mailToStuServicei.sendStuMail(state, paper, "论文");
+        Patent patent = patentMapper.getById(Math.toIntExact(ID));
+        mailToStuService.sendStuMail(state, patent, null, "授权专利");
         return patentMapper.editState(state,ID);
     }
     public List<Patent> searchPatentByConditions(String studentName, String state, String projectName, String pointFront, String pointBack) {

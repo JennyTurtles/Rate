@@ -89,7 +89,7 @@ public class ProductController {
     @ResponseBody
     public JsonResult addSave(Product product) throws FileNotFoundException {
         Integer res = productService.insertProduct(product);
-        mailToTeacherService.sendTeaCheckMail(product, "制造或设计的产品运用表");
+        mailToTeacherService.sendTeaCheckMail(product, "制造或设计的产品");
         return new JsonResult(product.getId());
     }
 
@@ -100,7 +100,7 @@ public class ProductController {
     @ResponseBody
     public JsonResult editSave(Product product) throws FileNotFoundException {
         int res = productService.updateProduct(product);
-        mailToTeacherService.sendTeaCheckMail(product, "制造或设计的产品运用表");
+        mailToTeacherService.sendTeaCheckMail(product, "制造或设计的产品");
         return new JsonResult(res);
     }
 

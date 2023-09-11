@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.ProductMapper;
 import org.sys.rate.model.Product;
+import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -13,6 +14,8 @@ import java.util.List;
 public class ProductService {
     @Resource
     private ProductMapper productMapper;
+    @Resource
+    private MailToStuService mailToStuService;
 
     public Product selectProductById(Long ID){
         return productMapper.selectProductById(ID);
@@ -91,7 +94,8 @@ public class ProductService {
 
     //    修改论文状态
     public int editState(String state, Long ID) throws MessagingException {
-        //mailToStuServicei.sendStuMail(state, paper, "论文");
+        Product product = productMapper.getById(Math.toIntExact(ID));
+        mailToStuService.sendStuMail(state, product, null, "制造或设计的产品");
         return productMapper.editState(state,ID);
     }
     public List<Product> searchProductByConditions(String studentName, String state, String projectName, String pointFront, String pointBack) {
