@@ -61,4 +61,7 @@ public interface TeacherMapper {
 
     @Select("SELECT t.name, t.jobnumber, t.ID FROM teacher t WHERE t.institutionID = 1 and (t.name like CONCAT('%',#{nameOrJobNumber},'%') or t.jobnumber like CONCAT('%',#{nameOrJobNumber},'%'))")
     List<Teachers> searchByNameOrJobNumber(String nameOrJobNumber, Integer institutionID);
+
+    @Select("select t.id, t.name from teacher t, graduatestudent g where g.studentID = #{studentID} and g.tutorID = t.ID order by g.ID limit 1;")
+    Teacher getByStudentId(Long studentID);
 }

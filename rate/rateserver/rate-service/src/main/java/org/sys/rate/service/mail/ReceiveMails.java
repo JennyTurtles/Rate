@@ -1,5 +1,6 @@
 package org.sys.rate.service.mail;
 
+import com.github.pagehelper.util.StringUtil;
 import com.sun.mail.imap.IMAPStore;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -7,6 +8,7 @@ import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.*;
 
@@ -26,22 +28,25 @@ import java.util.regex.Pattern;
 @Service
 public class ReceiveMails {
     @Resource
-    MailService mailService;
+    private MailService mailService;
 
     @Resource
-    MailToTeacherService mailToTeacherService;
+    private MailToTeacherService mailToTeacherService;
 
     @Resource
-    PaperService paperService;
+    private PaperService paperService;
 
     @Resource
-    StudentService studentService;
+    private StudentService studentService;
 
     @Resource
-    TeacherService teacherService;
+    private TeacherService teacherService;
 
     @Resource
-    OperationService operationService;
+    private OperationService operationService;
+
+    @Resource
+    private ProductionService productionService;
 
 
     private String from = null;
@@ -87,6 +92,10 @@ public class ReceiveMails {
             Message[] unreadMessages = folder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
             unreadMessages = getFirstNMessages(unreadMessages, 200);
 
+            if (unreadMessages.length < 1) {
+                return;
+            }
+
             parseMessage(unreadMessages);
         } catch (MessagingException e) {
             log.error("连接邮件服务器失败！", e);
@@ -124,19 +133,15 @@ public class ReceiveMails {
     }
 
     public static Message[] getFirstNMessages(Message[] messages, int n) {
-        if (messages.length > n) {
-            Message[] newMessageArray = new Message[n];
-            System.arraycopy(messages, 0, newMessageArray, 0, n);
-            return newMessageArray;
-        } else {
+        if (messages.length <= n) {
             return messages;
+        } else {
+            return Arrays.copyOfRange(messages, 0, n);
         }
     }
 
+
     public void parseMessage(Message[] messages) throws MessagingException, IOException {
-        if (messages.length < 1) {
-            return;
-        }
         // 开始解析未读邮件
         for (Message message : messages) {
             String subject = message.getSubject();
@@ -153,7 +158,7 @@ public class ReceiveMails {
             content = clearFormat(content);
             String originalMessage = getOriginalMessage(subject, senderEmail, sendDate, content);
 
-            // 1.计算关键词出现次数以及位置
+            // *1.计算关键词出现次数以及位置
             int numLines = sumLinesNum(content);
             if (numLines != 3 && numLines != 4) {
                 mailToTeacherService.sendTeaFeedbackMail(senderEmail, "errLines", originalMessage);
@@ -168,50 +173,95 @@ public class ReceiveMails {
             } else {
                 continue;
             }
-            // 2.获取"正确顺序"的每行内容，前面保证了四行或者三行内容在每行开头出现，并且只出现了一次
+            // ?2.获取"正确顺序"的每行内容，前面保证了四行或者三行内容在每行开头出现，并且只出现了一次
             Map<String, String> lines = extractLines(content, numLines);
-            // 3.判断每行的内容是否符合要求
+            // ?3.判断每行的内容是否符合要求
             if (!checkLineValue(lines, numLines, senderEmail, originalMessage)) {
                 continue;
             }
             // 4.通过泛型来解决重复修改论文状态等问题
             int ID = Integer.parseInt(lines.get(this.phrases[1]));
             if (lines.get(this.phrases[0]).equals(this.allTypes[0])) {
-                // 0.检查ID是否正确
-                if (paperService.getById(ID) == null) {
-                    mailToTeacherService.sendTeaFeedbackMail(senderEmail, "errID", originalMessage);
-                    continue;
-                }
-                Paper paper = paperService.getById(ID);
-                String state = lines.get(this.phrases[2]).equals("通过") ? "tea_pass" : "tea_reject";
-                // 1.重复修改论文状态
-                if (!checkProductionState(paper)) {
-                    mailToTeacherService.sendTeaFeedbackMail(paper, "学术论文", senderEmail, "dupEditState", originalMessage);
-                    continue;
-                }
-                // 2.教师的邮件和发件人邮件是否匹配
-                if (getTutorEmail(paper) == null || getTutorEmail(paper).length() == 0 || !getTutorEmail(paper).equals(senderEmail)) {
-                    mailToTeacherService.sendTeaFeedbackMail(paper, "学术论文", senderEmail, "IDNotMatchTutorEmail", originalMessage);
-                    continue;
-                }
-                // 3.修改成果的操作历史
-                if (!editOperation(paper, lines.get(this.phrases[3]), state, "学术论文")) {
-                    log.error("修改论文操作历史失败，成果类型：" + lines.get(this.phrases[0]) + "，成果编号：" + lines.get(this.phrases[1]));
-                    continue;
-                }
-                // 4.修改成果的状态
-                if (paperService.editState(state, Long.valueOf(ID)) == 0) {
-                    log.error("修改论文状态失败!");
-                    continue;
-                }
-                // 5.若成功，将修改后的状态发给老师&&学生
-                String editStateSuccess = state.equals("tea_pass") ? "editPassSuccess" : "editRejectSuccess";
-                mailToTeacherService.sendTeaFeedbackMail(paper, "学术论文", senderEmail, editStateSuccess, originalMessage);
-
+                checkPaperAndSendMail(ID, senderEmail, originalMessage, lines);
+            } else {
+                checkProductionAndSendMail(ID, senderEmail, originalMessage, lines);
             }
-            // 在这里添加其他的成果类型
-
         }
+    }
+
+    @Transactional
+    public boolean checkProductionAndSendMail(int productionId, String senderEmail, String originalMessage, Map<String, String> lines) throws MessagingException {
+        // 0.检查ID是否正确
+        String type = lines.get(this.phrases[0]);
+        Production production = productionService.checkProductionById(productionId, type);
+        if (production == null) {
+            mailToTeacherService.sendTeaFeedbackMail(senderEmail, "errID", originalMessage);
+            return false;
+        }
+        String state = lines.get(this.phrases[2]).equals("通过") ? "tea_pass" : "tea_reject";
+        // 1.重复修改论文状态
+        if (!checkProductionState(production)) {
+            mailToTeacherService.sendTeaFeedbackMail(production, type, senderEmail, "dupEditState", originalMessage);
+            return false;
+        }
+        // 2.教师的邮件和发件人邮件是否匹配
+        // !通过production的studentId获取tutor
+        String email = getTutorEmail(production.getStudentId());
+        if (StringUtil.isEmpty(email) || !email.equals(senderEmail)) {
+            mailToTeacherService.sendTeaFeedbackMail(production, type, senderEmail, "IDNotMatchTutorEmail", originalMessage);
+            return false;
+        }
+        // 3.修改成果的操作历史
+        if (!editOperation(production, lines.get(this.phrases[3]), state, type)) {
+            log.error("修改论文操作历史失败，成果类型：" + lines.get(this.phrases[0]) + "，成果编号：" + lines.get(this.phrases[1]));
+            return false;
+        }
+        // 4.修改成果的状态
+        if (productionService.editState(productionId, type, state) == 0) {
+            log.error("修改状态失败!" + type + ": " + productionId);
+            return false;
+        }
+        // 5.若成功，将修改后的状态发给老师&&学生
+        String editStateSuccess = state.equals("tea_pass") ? "editPassSuccess" : "editRejectSuccess";
+        mailToTeacherService.sendTeaFeedbackMail(production, type, senderEmail, editStateSuccess, originalMessage);
+        return true;
+    }
+
+    @Transactional
+    public boolean checkPaperAndSendMail(int productionId, String senderEmail, String originalMessage, Map<String, String> lines) throws MessagingException {
+        // 0.检查ID是否正确
+
+        if (paperService.getById(productionId) == null) {
+            mailToTeacherService.sendTeaFeedbackMail(senderEmail, "errID", originalMessage);
+            return false;
+        }
+        Paper paper = paperService.getById(productionId);
+        String state = lines.get(this.phrases[2]).equals("通过") ? "tea_pass" : "tea_reject";
+        // 1.重复修改论文状态
+        if (!checkProductionState(paper)) {
+            mailToTeacherService.sendTeaFeedbackMail(paper, "学术论文", senderEmail, "dupEditState", originalMessage);
+            return false;
+        }
+        // 2.教师的邮件和发件人邮件是否匹配
+        String email = getTutorEmail(Math.toIntExact(paper.getStudentID()));
+        if (StringUtil.isEmpty(email) || !email.equals(senderEmail)) {
+            mailToTeacherService.sendTeaFeedbackMail(paper, "学术论文", senderEmail, "IDNotMatchTutorEmail", originalMessage);
+            return false;
+        }
+        // 3.修改成果的操作历史
+        if (!editOperation(paper, lines.get(this.phrases[3]), state, "学术论文")) {
+            log.error("修改论文操作历史失败，成果类型：" + lines.get(this.phrases[0]) + "，成果编号：" + lines.get(this.phrases[1]));
+            return false;
+        }
+        // 4.修改成果的状态
+        if (paperService.editState(state, Long.valueOf(productionId)) == 0) {
+            log.error("修改论文状态失败!");
+            return false;
+        }
+        // 5.若成功，将修改后的状态发给老师&&学生
+        String editStateSuccess = state.equals("tea_pass") ? "editPassSuccess" : "editRejectSuccess";
+        mailToTeacherService.sendTeaFeedbackMail(paper, "学术论文", senderEmail, editStateSuccess, originalMessage);
+        return true;
     }
 
     private String getTextFromMessage(Message message) throws MessagingException, IOException {
@@ -244,24 +294,22 @@ public class ReceiveMails {
     }
 
     public <T extends Production> boolean editOperation(T production, String remark, String state, String type) {
-        Student student = studentService.getById(production.getStudentId());
-        Teacher teacher = teacherService.getById(student.getTutorID());
-
+        Teacher teacher = teacherService.getByStudentId(Long.valueOf(production.getStudentId()));
         String operationName = state.equals("tea_pass") ? "经邮件回复，教师审核通过" : "经邮件回复，教师驳回";
-        Date date = new Date();
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
         // 修改论文操作状态
         Operation operation = new Operation();
         operation.setOperatorRole("teacher");
-        operation.setOperatorId(teacher.getId());
+        operation.setOperatorId(teacher.getID());
         operation.setOperatorName(teacher.getName());
         operation.setProdType(type);
         operation.setProdId(production.getId());
-        operation.setTime((Timestamp) date);
+        operation.setTime(timestamp);
         operation.setOperationName(operationName);
         operation.setState(state);
         operation.setRemark(remark);
 
-        return operationService.insertOper(operation) != 0 ? true : false;
+        return operationService.insertOper(operation) != 0;
     }
 
     private <T extends Production> String getTutorEmail(T production) {
@@ -429,9 +477,7 @@ public class ReceiveMails {
         // rateMail特指本系统使用的管理员邮箱，之后会实时更改！！！
         String rateMail = "ratemail@126.com";
         String rateMailName = rateMail.substring(0, rateMail.indexOf("@"));
-        String replyContent = "------------------ 原始邮件 ------------------<br>" +
-                String.format("<p style=\"background-color:#efefef;\">发件人: \"%s\" <%s>;\n发送时间: %s;\n收件人: \"%s\"<%s>;\n主题: %s\n</p>", senderName, senderEmail, sendTime, rateMailName, rateMail, subject) +
-                content;
+        String replyContent = "------------------ 原始邮件 ------------------<br>" + String.format("<p style=\"background-color:#efefef;\">发件人: \"%s\" <%s>;\n发送时间: %s;\n收件人: \"%s\"<%s>;\n主题: %s\n</p>", senderName, senderEmail, sendTime, rateMailName, rateMail, subject) + content;
         return replyContent.replaceAll("\n", "<br>");
     }
 
@@ -446,8 +492,7 @@ public class ReceiveMails {
 
 
     public boolean editOperation(Paper production, String remark, String state, String type) {
-        Student student = studentService.getById(Math.toIntExact(production.getStudentID()));
-        Teacher teacher = teacherService.getById(student.getTutorID());
+        Teacher teacher = teacherService.getByStudentId(production.getStudentID());
 
         String operationName = state.equals("tea_pass") ? "经邮件回复，教师审核通过" : "经邮件回复，教师驳回";
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -455,7 +500,7 @@ public class ReceiveMails {
         // 修改论文操作状态
         Operation operation = new Operation();
         operation.setOperatorRole("teacher");
-        operation.setOperatorId(teacher.getId());
+        operation.setOperatorId(teacher.getID());
         operation.setOperatorName(teacher.getName());
         operation.setProdType(type);
         operation.setProdId(Math.toIntExact(production.getID()));
@@ -467,22 +512,15 @@ public class ReceiveMails {
         return operationService.insertOper(operation) != 0 ? true : false;
     }
 
-    private String getTutorEmail(Paper production) {
-        Student student = studentService.getById(production.getStudentID().intValue());
-        if (student == null) {
-            return null;
-        } else {
-            Teacher teacher = teacherService.getById(student.getTutorID());
-            if (teacher == null) {
-                return null;
-            } else {
-                return teacher.getEmail();
-            }
-        }
-    }
 
     public boolean checkProductionState(Paper production) {
         return production.getState().equals("commit");
+    }
+
+    private String getTutorEmail(Integer productionId) {
+        // 通过paper_id获取teacher_email
+        String email = paperService.getEmailByPaperId(Long.valueOf(productionId));
+        return StringUtil.isEmpty(email) ? "" : email;
     }
 
 }

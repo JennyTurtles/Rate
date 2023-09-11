@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SendMailContent {
     private String studentName;
+    private String studentEmail;
     private String teacherEmail;
     private String teacherName;
     private String publicationMedium;

@@ -2,7 +2,6 @@ package org.sys.rate.utils;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.sys.rate.service.mail.MailService;
@@ -25,10 +24,11 @@ public class InitRunner implements ApplicationRunner {
         mailService.setMail();
     }
 
-    @Scheduled(fixedRateString = "60000")
+//    60000 2
+    @Scheduled(fixedRateString = "20000")
     public void readMails() {
         try {
-            TimeUnit.SECONDS.sleep(2);
+            TimeUnit.SECONDS.sleep(1);
             receiveMails.readMails();
         } catch (Exception e) {
             e.printStackTrace();

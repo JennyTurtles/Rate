@@ -9,6 +9,7 @@ import org.sys.rate.mapper.ProjectMapper;
 import org.sys.rate.mapper.ProjectTypeMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.model.Project;
+import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -25,8 +26,10 @@ public class ProjectService {
     private ProjectTypeMapper projectTypeMapper;
     @Resource
     private OperationMapper operationMapper;
+    @Resource
+    private MailToStuService mailToStuService;
 
-    public List<Project> selectProjectListById(Integer studentID){
+    public List<Project> selectProjectListById(Integer studentID) {
         List<Project> list = projectMapper.selectProjectListById(studentID);
         return list;
     }
@@ -37,10 +40,11 @@ public class ProjectService {
      * @param project 科研专著教材成果
      * @return 结果
      */
-    public int insertProject(Project project){
+    public int insertProject(Project project) {
         return projectMapper.insertProject(project);
     }
-    public int updateProject(Project project){
+
+    public int updateProject(Project project) {
         return projectMapper.updateProject(project);
     }
 
@@ -50,14 +54,15 @@ public class ProjectService {
      * @param ID 科研专著教材成果ID
      * @return 结果
      */
-    public int deleteProjectById(Long ID){
+    public int deleteProjectById(Long ID) {
         return projectMapper.deleteProjectById(ID);
     }
 
-    public List<Project> selectAllProjectList(){
+    public List<Project> selectAllProjectList() {
         List<Project> list = projectMapper.selectAllProjectList();
         return list;
     }
+
     public List<Project> setProjectOperation(List<Project> list) {
         for (int i = 0; i < list.size(); i++) {
             Project project = list.get(i);
@@ -103,15 +108,16 @@ public class ProjectService {
 
     //    修改科研专著教材状态
     public int editState(String state, Long ID) throws MessagingException {
-        //mailToStuServicei.sendStuMail(state, paper, "科研专著教材");
-        return projectMapper.editState(state,ID);
+        Project project = projectMapper.getById(Math.toIntExact(ID));
+        mailToStuService.sendStuMail(state, project, null, "科研项目");
+        return projectMapper.editState(state, ID);
     }
 
-//    public List<Project> searchProjectByConditions(String studentName, String state, String monoName, String pointFront, String pointBack) {
+    //    public List<Project> searchProjectByConditions(String studentName, String state, String monoName, String pointFront, String pointBack) {
 //        return projectMapper.searchProjectByConditions(studentName, state, monoName, pointFront, pointBack);
 //    }
-    public List<ProjectType> getIndicatorByYearAndType(String year,String type) {
-        List<ProjectType> list = projectTypeMapper.getIndicatorByYearAndType(year,type);
+    public List<ProjectType> getIndicatorByYearAndType(String year, String type) {
+        List<ProjectType> list = projectTypeMapper.getIndicatorByYearAndType(year, type);
         return list;
     }
 

@@ -9,6 +9,7 @@ import org.sys.rate.mapper.AwardMapper;
 import org.sys.rate.mapper.AwardTypeMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.model.Award;
+import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -22,8 +23,10 @@ public class AwardService {
     private AwardMapper awardMapper;
     @Resource
     private AwardTypeMapper awardTypeMapper;
+    @Resource
+    private MailToStuService mailToStuService;
 
-    public List<Award> selectAwardListById(@Param("studentID") Integer studentID){
+    public List<Award> selectAwardListById(@Param("studentID") Integer studentID) {
         List<Award> list = awardMapper.selectAwardListById(studentID);
         return list;
     }
@@ -34,10 +37,11 @@ public class AwardService {
      * @param award 科研奖励成果
      * @return 结果
      */
-    public int insertAward(Award award){
+    public int insertAward(Award award) {
         return awardMapper.insertAward(award);
     }
-    public int updateAward(Award award){
+
+    public int updateAward(Award award) {
         return awardMapper.updateAward(award);
     }
 
@@ -47,14 +51,15 @@ public class AwardService {
      * @param ID 科研奖励成果ID
      * @return 结果
      */
-    public int deleteAwardById(Long ID){
+    public int deleteAwardById(Long ID) {
         return awardMapper.deleteAwardById(ID);
     }
 
-    public List<Award> selectAllAwardList(){
+    public List<Award> selectAllAwardList() {
         List<Award> list = awardMapper.selectAllAwardList();
         return setAwardOperation(list);
     }
+
     public List<Award> setAwardOperation(List<Award> list) {
         for (int i = 0; i < list.size(); i++) {
             Award award = list.get(i);
@@ -100,13 +105,16 @@ public class AwardService {
 
     //    修改科研奖励状态
     public int editState(String state, Long ID) throws MessagingException {
-        //mailToStuServicei.sendStuMail(state, paper, "科研奖励");
-        return awardMapper.editState(state,ID);
+        Award award = awardMapper.getById(Math.toIntExact(ID));
+        mailToStuService.sendStuMail(state, award, null, "科研获奖");
+        return awardMapper.editState(state, ID);
     }
+
     public List<AwardType> getIndicatorByYearAndType(String year, String type) {
-        List<AwardType> list = awardTypeMapper.getIndicatorByYearAndType(year,type);
+        List<AwardType> list = awardTypeMapper.getIndicatorByYearAndType(year, type);
         return list;
     }
+
     public List<Award> searchAwardByConditions(String studentName, String state, String awardName, String pointFront, String pointBack) {
         List<Award> list = awardMapper.searchAwardByConditions(studentName, state, awardName, pointFront, pointBack);
         return list;
