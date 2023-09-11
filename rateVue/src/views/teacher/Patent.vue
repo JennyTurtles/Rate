@@ -306,7 +306,7 @@
       <span slot="footer" class="dialog-footer" :model="emp">
             <el-button
                 id="but_pass"
-                v-show="((emp.state=='commit' && role == 'teacher') || (emp.state=='tea_pass' && role == 'admin')) ? true:false"
+                v-show="emp.state=='commit' ? true : false"
                 @click="(()=>{
                   if (role == 'teacher')
                    auditing_commit('tea_pass')
@@ -317,8 +317,8 @@
             >审核通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="((emp.state=='commit' && role == 'teacher') || (emp.state=='tea_pass' && role == 'admin')) ? true:false"
-                @click="isShowInfo = true"
+                v-show="emp.state=='commit' ? true : false"
+                @click="rejectDialog"
                 type="primary"
             >审核不通过</el-button>
             <el-button
@@ -338,7 +338,7 @@
       >
       </el-input>
       <span slot="footer">
-          <el-button @click="rejectDialog()" type="primary">确定</el-button>
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
           <el-button @click="isShowInfo = false">取消</el-button>
         </span>
     </el-dialog>
@@ -446,7 +446,18 @@ export default {
     }
   },
   methods: {
-    rejectDialog(){
+    rejectDialog() {
+      if(this.role == 'admin' && this.emp.state == 'commit') { //管理员驳回 有提示
+        this.$confirm('目前导师尚未审核，是否确认审核驳回？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.isShowInfo = true;
+        }).catch(() => {});
+      }else this.isShowInfo = false;
+    },
+    rejectDialogConfirm(){
       if (this.role == 'teacher')
         this.auditing_commit('tea_reject')
       else if (this.role == 'admin')
@@ -474,24 +485,35 @@ export default {
       document.getElementById(options).value=val
     },
     //点击对话框中的确定按钮 触发事件
-    auditing_commit(num){
+    auditing_commit(state){
       this.loading = true;
-      let url = "/patent/basic/edit_state?state=" + num + "&ID="+this.emp.id;
+      if(this.role == 'admin' && state.indexOf('pass') >= 0) { //管理员通过 有提示
+        this.$confirm('目前导师尚未审核，是否确认审核通过？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.rolePass(state);
+        }).catch(() => {});
+      }else this.rolePass(state);
+    },
+    rolePass(state) {
+      let url = "/patent/basic/edit_state?state=" + state + "&ID="+this.emp.id;
       this.dialogVisible_show=false
+      if(state.indexOf('reject') >= 0){
+        this.emp.operationList[0].remark = this.reason;
+      }
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.emp.state = num
-          this.total = resp.total;
+          this.emp.state = state
           this.$message({
             type: 'success',
             message: '操作成功'
           })
-          this.doAddOper(num, this.reason, this.emp.id);
+          this.doAddOper(state, this.reason, this.emp.id);
         }
-      }).finally(()=>{
-        this.searchPatentListByCondicitions(this.currentPage, this.pageSize)
-      });
+      })
     },
     async doAddOper(state,remark,patentID) {
       this.oper.state = state;
@@ -505,7 +527,7 @@ export default {
         this.oper.operationName = "审核驳回"
       }
       await this.postRequest1("/oper/basic/add", this.oper);
-      await this.searchPatentListByCondicitions(this.currentPage, this.pageSize)
+      // await this.searchPatentListByCondicitions(this.currentPage, this.pageSize)
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
