@@ -188,7 +188,7 @@
     </delete>
 
     <select id="searchAwardByConditions" resultMap="AwardResult">
-        SELECT book.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, s.name as sname
+        SELECT book.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, s.name as sname
         FROM i_award book
         JOIN (
         SELECT prod_id,MAX(i_oper.date) max_date
@@ -210,5 +210,10 @@
             <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
         </where>
         ORDER BY book.id DESC
+    </select>
+    <select id="selectAwardNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_award
+        where state = 'tea_pass'
     </select>
 </mapper>

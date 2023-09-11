@@ -166,5 +166,9 @@
             #{ID}
         </foreach>
     </delete>
-
+    <select id="selectStandardNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_standard
+        where state = 'tea_pass'
+    </select>
 </mapper>

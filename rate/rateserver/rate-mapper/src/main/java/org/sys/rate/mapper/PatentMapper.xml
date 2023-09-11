@@ -101,6 +101,11 @@
         <include refid="selectPaperVo"/>
         where ID = #{ID}
     </select>
+    <select id="selectPatentNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_patent
+        where state = 'tea_pass'
+    </select>
 
     <insert id="insertPatent" parameterType="org.sys.rate.model.Patent" useGeneratedKeys="true" keyProperty="id">
         insert into i_patent

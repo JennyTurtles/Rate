@@ -198,4 +198,9 @@
         </where>
         ORDER BY book.id DESC
     </select>
+    <select id="selectDecisionNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_decision
+        where state = 'tea_pass'
+    </select>
 </mapper>

@@ -217,4 +217,9 @@
     </select>
 
     <select id="selectCompetitionListByYear" resultType="org.sys.rate.model.Competition"></select>
+    <select id="selectCompetitionNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_competition
+        where state = 'tea_pass'
+    </select>
 </mapper>

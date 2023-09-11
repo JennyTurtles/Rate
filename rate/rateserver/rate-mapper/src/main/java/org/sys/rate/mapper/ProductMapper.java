@@ -90,5 +90,6 @@ public interface ProductMapper
     public Product selectByID(Long ID);
 
     public List<Product> searchProductByConditions(String studentName, String state, String productName, String pointFront, String pointBack);
+    public Integer selectProductNumberOfPendingMessing();
 
 }

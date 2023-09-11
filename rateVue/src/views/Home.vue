@@ -37,6 +37,15 @@
       </el-header>
       <el-container class="homeContainer">
         <el-aside width="15%" class="aside">
+          <div v-show="roleName.indexOf('doctor') < 0 &&
+          roleName.indexOf('undergraduate') < 0 &&
+          roleName.indexOf('graduate') < 0 &&
+          roleName.indexOf('participants') < 0"
+               style="padding-left: 25px; font-size: 14px; line-height: 56px; font-weight: 500">
+            <a @click="pendingMessageRoute">
+              {{$store.state.pendingMessageTotal}}条代办消息
+            </a>
+          </div>
           <el-menu router unique-opened class="menu" @open="handleOpen">
             <!-- <template> -->
             <template
@@ -240,21 +249,22 @@ export default {
   name: "Home",
  data: function () {
   return {
-   tutorName:'',
-   stuType:['本科生','硕士研究生','博士研究生'],
-   selectStuType:'',
-   registerRoleForm: {},
-   registerRoleVisible: false,
-   routes: [],
-   role: "",
-   name: "",
-   //获取页面高度
-   clientHeight: "",
-   showPassword: false,
-   password: "",
-   password_confirm: "",
-  };
- },
+     tutorName:'',
+     stuType:['本科生','硕士研究生','博士研究生'],
+     selectStuType:'',
+     registerRoleForm: {},
+     registerRoleVisible: false,
+     routes: [],
+     role: "",
+      roleName: '',
+     name: "",
+     //获取页面高度
+     clientHeight: "",
+     showPassword: false,
+     password: "",
+     password_confirm: "",
+    };
+   },
   computed: {
     user() {
       return JSON.parse(localStorage.getItem("user"));
@@ -265,10 +275,12 @@ export default {
     // 获取浏览器可视区域高度
     this.clientHeight = `${document.documentElement.clientHeight}`;
     this.role = JSON.parse(localStorage.getItem("user")).role;
+    this.roleName = JSON.parse(localStorage.getItem("user")).roleName; //后来优化返回的一个字符串角色，不用固定数字代替了
     this.name = JSON.parse(localStorage.getItem("user")).name;
     window.onresize = function temp() {
       this.clientHeight = `${document.documentElement.clientHeight}`;
     };
+    this.$store.dispatch('changePendingMessageange');
   },
   watch: {
     // 如果 `clientHeight` 发生改变，这个函数就会运行
@@ -277,6 +289,9 @@ export default {
     },
   },
   methods: {
+    pendingMessageRoute(){ //点击待办消息导航
+      this.$router.push('/pending/message');
+    },
    querySearchAsync(queryString, cb) {
     if (queryString.length < 1) {
      return cb([]);

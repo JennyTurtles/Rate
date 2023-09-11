@@ -32,6 +32,8 @@ import {
     Tabs,
     TabPane,
     Breadcrumb,
+    Skeleton,
+    SkeletonItem,
     BreadcrumbItem,
     Dropdown,
     Steps,
@@ -75,6 +77,8 @@ Vue.use(Switch);
 Vue.component(Message);
 Vue.use(CollapseItem);
 Vue.use(Radio);
+Vue.use(Skeleton);
+Vue.use(SkeletonItem);
 Vue.use(RadioGroup);
 Vue.use(CheckboxGroup);
 Vue.use(DatePicker);
@@ -207,6 +211,10 @@ router.beforeEach((to, from, next) => {
                 return
             }
             if (JSON.parse(localStorage.getItem('user')).role.indexOf("3") >= 0) {
+                next()
+                return
+            }
+            if (to.path == '/pending/message') { //待办消息菜单
                 next()
                 return
             }

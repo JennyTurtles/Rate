@@ -81,4 +81,6 @@ public interface MonographMapper
     public Monograph selectByID(Long ID);
 
     public List<Monograph> searchMonographByConditions(String studentName, String state, String monoName, String pointFront, String pointBack);
+    public Integer selectMonographNumberOfPendingMessing();
+
 }

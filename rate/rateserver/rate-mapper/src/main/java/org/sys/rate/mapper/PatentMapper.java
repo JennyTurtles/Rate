@@ -92,4 +92,5 @@ public interface PatentMapper
 
     public List<Patent> searchPatentByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
 
+    public Integer selectPatentNumberOfPendingMessing();
 }

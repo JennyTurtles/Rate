@@ -81,6 +81,7 @@ public interface CompetitionMapper
     public Competition selectByID(Long ID);
 
     public List<Competition> searchCompetitionByConditions(String studentName, String state, String competitionName, String pointFront, String pointBack);
+    public Integer selectCompetitionNumberOfPendingMessing();
 
 
 }

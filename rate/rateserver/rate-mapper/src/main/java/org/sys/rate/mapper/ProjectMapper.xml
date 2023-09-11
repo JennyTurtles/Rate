@@ -227,4 +227,9 @@
     </select>
 
     <select id="selectProjectListByYear" resultType="org.sys.rate.model.Project"></select>
+    <select id="selectProjectNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_project
+        where state = 'tea_pass'
+    </select>
 </mapper>

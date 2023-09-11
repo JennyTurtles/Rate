@@ -30,6 +30,8 @@ const store = new Vuex.Store({
         peract: [],
         score: [],
         changeList: false,
+        pendingMessageTotal: 0,
+        pendingMessageTypeObject: {}
     },
     mutations: { //唯一可以修改state值的方法（同步执行）
         INIT_CURRENTHR(state, hr) {
@@ -37,6 +39,11 @@ const store = new Vuex.Store({
         },
         initRoutes(state, data) {
             state.routes = data;
+        },
+        changePendingMessage(state, data) {
+            state.pendingMessageTotal = data.count;
+            delete data.count;
+            state.pendingMessageTypeObject  = data;
         },
         initRoutesAllSameForm(state, data) {
             state.routesAllSameForm = data;
@@ -330,6 +337,13 @@ const store = new Vuex.Store({
         },
         initchangeList(context) {
             context.commit('INIT_initchangeList')
+        },
+        changePendingMessageange(context) {
+            getRequest('/oper/basic/getAllTypePendingMessageNumber').then((response) => {
+                if (response) {
+                    context.commit('changePendingMessage', response.extend);
+                }
+            })
         }
 
     },

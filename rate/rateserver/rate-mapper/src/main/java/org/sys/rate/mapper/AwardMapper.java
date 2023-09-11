@@ -83,5 +83,6 @@ public interface AwardMapper
     public Award selectByID(Long ID);
 
     public List<Award> searchAwardByConditions(String studentName, String state, String awardName, String pointFront, String pointBack);
+    public Integer selectAwardNumberOfPendingMessing();
 
 }

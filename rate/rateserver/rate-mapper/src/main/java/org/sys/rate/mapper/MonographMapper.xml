@@ -185,4 +185,9 @@
             and s.ID = book.student_id
         </where>
     </select>
+    <select id="selectMonographNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_book
+        where state = 'tea_pass'
+    </select>
 </mapper>

@@ -23,6 +23,11 @@ export default new Router({
       },
       children: [
         {
+          path: '/pending/message',
+          name: '待办消息',
+          component: () => import('./views/teacher/PendingMessage.vue')
+        },
+        {
           path: '/Expert/EassignPE', //路由跳转路径
           name: '分配人员', //路由名称
           hidden: true,
@@ -426,15 +431,6 @@ export default new Router({
           component: () => import('./views/secretary/ActManage.vue'),
           meta: {
             title: '秘书管理',
-          },
-        },
-        {
-          path: '/teacher/tResearchProject11111',
-          name: '科研项目2',
-          hidden: true,
-          component: () => import('./views/teacher/Research-Project'),
-          meta: {
-            title: '科研项目2',
           },
         },
         {
