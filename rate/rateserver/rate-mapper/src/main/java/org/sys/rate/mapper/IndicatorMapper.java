@@ -21,6 +21,9 @@ public interface IndicatorMapper{
     @Select("select * from indicator")
     public List<Indicator> getAll();
 
+    @Select("select * from indicator where type=#{type} or type is null")
+    public List<Indicator> getAllByType(String type);
+
     @Select("select `order` from indicator where id = #{id}")
     public String selectOrder(Integer id);
 

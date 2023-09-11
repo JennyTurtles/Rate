@@ -411,7 +411,7 @@ export default {
       }
     },
     initTree() {
-      this.getRequest("/indicator").then( resp => {
+      this.getRequest("/indicator/getAllByType?type=授权专利").then( resp => {
         this.showTreeDialog = true;
         if (resp) {
           this.indicatorData = resp.obj[1];

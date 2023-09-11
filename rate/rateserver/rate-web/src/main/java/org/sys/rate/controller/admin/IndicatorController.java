@@ -203,6 +203,29 @@ public class IndicatorController {
         idAndRes.add(res);
         return RespBean.ok("getAll success!", idAndRes); //异常处理待添加
     }
+    @GetMapping("/getAllByType")
+    public RespBean getAllByType(String type) {
+        List<Indicator> data = indicatorService.getAllByType(type);
+        int maxId = 0;
+        Map<List<Integer>, TreeNode> map = new HashMap<>();
+        for (Indicator indicator : data) {
+            if (indicator.getId() > maxId)
+                maxId = indicator.getId();
+            //将order转换为int型的list，并加入map
+            String tmp[] = indicator.getOrder().split("\\.");
+            List<Integer> key = new ArrayList<>();
+            for (String numString : tmp)
+                key.add(Integer.parseInt(numString));
+            TreeNode Node = new TreeNode(indicator.getId(), indicator.getOrder() + " " + indicator.getName(), indicator.getType(), indicator.getOrder(), indicator.getScore(), indicator.getRankN(),indicator.getLevel());
+            map.put(key, Node);
+        }
+        List<Integer> empty = new ArrayList<>();
+        List<TreeNode> res = getChildrenStructure(map, empty);
+        List<Object> idAndRes = new ArrayList<>();
+        idAndRes.add(maxId + 1);//返回最大的id
+        idAndRes.add(res);
+        return RespBean.ok("getAll success!", idAndRes); //异常处理待添加
+    }
 
     @PostMapping
     public RespBean save(@RequestBody Indicator indicator) {

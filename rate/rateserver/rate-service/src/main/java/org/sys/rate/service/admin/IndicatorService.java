@@ -33,6 +33,7 @@ public class IndicatorService {
     private CompetitionTypeMapper competitionTypeMapper;
 
     public List<Indicator> getAll (){return indicatorMapper.getAll();}
+    public List<Indicator> getAllByType (String type){return indicatorMapper.getAllByType(type);}
 
     public String selectOrder(Integer id){return indicatorMapper.selectOrder(id);}
 
