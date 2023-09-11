@@ -35,6 +35,27 @@ public class IndicatorService {
     public List<Indicator> getAll (){return indicatorMapper.getAll();}
     public List<Indicator> getAllByType (String type){return indicatorMapper.getAllByType(type);}
 
+    public List<TreeNode> removeType(List<TreeNode> list, String type){
+        List<TreeNode> res = new ArrayList<>();
+        for(TreeNode node : list){
+            List<TreeNode> children = node.getChildren();
+            node.setChildren(null);
+            List<TreeNode> newChildren = new ArrayList<>();
+            if(children != null){
+               for (TreeNode child : children){
+                   if (type.equals(child.getType())){
+                       newChildren.add(child);
+                   }
+               }
+            }
+            if (!newChildren.isEmpty()){
+                node.setChildren(newChildren);
+                res.add(node);
+            }
+        }
+        return res;
+    }
+
     public String selectOrder(Integer id){return indicatorMapper.selectOrder(id);}
 
     public boolean save(Indicator indicator){return indicatorMapper.save(indicator) > 0;}

@@ -221,6 +221,7 @@ public class IndicatorController {
         }
         List<Integer> empty = new ArrayList<>();
         List<TreeNode> res = getChildrenStructure(map, empty);
+        res = indicatorService.removeType(res, type);
         List<Object> idAndRes = new ArrayList<>();
         idAndRes.add(maxId + 1);//返回最大的id
         idAndRes.add(res);

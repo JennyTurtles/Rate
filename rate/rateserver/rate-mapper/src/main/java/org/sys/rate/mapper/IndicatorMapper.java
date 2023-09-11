@@ -21,7 +21,7 @@ public interface IndicatorMapper{
     @Select("select * from indicator")
     public List<Indicator> getAll();
 
-    @Select("select * from indicator where type=#{type} or type is null")
+    @Select("select id,name,type,`order`,score,father_id father,rankN,level  from indicator")
     public List<Indicator> getAllByType(String type);
 
     @Select("select `order` from indicator where id = #{id}")
