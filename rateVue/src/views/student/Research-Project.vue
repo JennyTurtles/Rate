@@ -618,6 +618,7 @@ export default {
       this.$refs["currentProjectCopy"].validate((valid) => {
         if (valid) {
           params.id = this.currentProjectCopy.id;
+          params.studentId = this.user.id
           if(JSON.stringify(this.selectProjectType) == '{}' || this.selectProjectType == '') {
             this.$message.error('请选择项目类别！')
             return;

@@ -87,9 +87,9 @@ public class ProductController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Product product) {
+    public JsonResult addSave(Product product) throws FileNotFoundException {
         Integer res = productService.insertProduct(product);
-//        mailToTeacherService.sendTeaCheckMail(product, "授权专利", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(product, "制造或设计的产品运用表");
         return new JsonResult(product.getId());
     }
 
@@ -99,8 +99,9 @@ public class ProductController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Product product) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(product, "授权专利", uploadFileName);
-        return new JsonResult(productService.updateProduct(product));
+        int res = productService.updateProduct(product);
+        mailToTeacherService.sendTeaCheckMail(product, "制造或设计的产品运用表");
+        return new JsonResult(res);
     }
 
     /**

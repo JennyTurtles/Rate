@@ -77,9 +77,9 @@ public class DecisionController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Decision decision) {
+    public JsonResult addSave(Decision decision) throws FileNotFoundException {
         Integer res = decisionService.insertDecision(decision);
-//        mailToTeacherService.sendTeaCheckMail(decision, "科研奖励", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(decision, "决策咨询");
         return new JsonResult(decision.getId());
     }
 
@@ -89,8 +89,11 @@ public class DecisionController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Decision decision) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(decision, "科研奖励", uploadFileName);
-        return new JsonResult(decisionService.updateDecision(decision));
+        int res = decisionService.updateDecision(decision);
+        if (res > 0) {
+            mailToTeacherService.sendTeaCheckMail(decision, "决策咨询");
+        }
+        return new JsonResult(res);
     }
 
     /**
@@ -130,6 +133,7 @@ public class DecisionController {
         }
         return new JsonResult(flag);
     }
+
     @GetMapping("/downloadByUrl")
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
@@ -145,15 +149,18 @@ public class DecisionController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
     @GetMapping("/getIndicatorByYearAndType")
-    public JsonResult getIndicatorByYearAndType(String year,String type) {
-        List<DecisionType> list = decisionService.getIndicatorByYearAndType(year,type);
+    public JsonResult getIndicatorByYearAndType(String year, String type) {
+        List<DecisionType> list = decisionService.getIndicatorByYearAndType(year, type);
         return new JsonResult(list);
     }
+
     @GetMapping("/getIndicatorScore")
     public JsonResult getScore(Integer id) {
         return new JsonResult(indicatorMapper.getIndicatorById(id));
     }
+
     @PostMapping("/searchDecisionByConditions")
     public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
         Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
@@ -164,7 +171,7 @@ public class DecisionController {
     }
 
     @PostMapping("/decisionType")
-    public RespBean addDecisionType(@RequestBody DecisionType decisionType){
+    public RespBean addDecisionType(@RequestBody DecisionType decisionType) {
         // 1.向decisionType插入
         // 2.向indicator中插入，no，这里其实就只需要设置indicator中的rankN就可以了！
         try {
@@ -177,7 +184,7 @@ public class DecisionController {
     }
 
     @PutMapping("/decisionType")
-    public RespBean editDecisionType(@RequestBody DecisionType decisionType){
+    public RespBean editDecisionType(@RequestBody DecisionType decisionType) {
         try {
             decisionService.editDecisionType(decisionType);
             return RespBean.ok("修改decisionType成功！");
@@ -185,23 +192,25 @@ public class DecisionController {
             return RespBean.error("修改decisionType失败！");
         }
     }
+
     @PostMapping("/decisionType/dels")
-    public RespBean deleteByYearId(@RequestParam Integer year, @RequestParam Integer indicatorID){
+    public RespBean deleteByYearId(@RequestParam Integer year, @RequestParam Integer indicatorID) {
         try {
-            decisionTypeMapper.deleteByYearIndicatorID(year,indicatorID);
+            decisionTypeMapper.deleteByYearIndicatorID(year, indicatorID);
             return RespBean.ok("删除成功！");
-        } catch (Exception e){
+        } catch (Exception e) {
             return RespBean.error("删除失败！");
         }
     }
+
     @PostMapping("/decisionType/import")
-    public RespBean multiImportPublication(@RequestBody List<DecisionType> decisionTypes){
+    public RespBean multiImportPublication(@RequestBody List<DecisionType> decisionTypes) {
         try {
-            for (DecisionType decisionType:decisionTypes){
+            for (DecisionType decisionType : decisionTypes) {
                 decisionTypeMapper.addDecisionType(decisionType);
             }
             return RespBean.ok("添加成功！");
-        } catch (Exception e){
+        } catch (Exception e) {
             return RespBean.error("添加失败！");
         }
     }

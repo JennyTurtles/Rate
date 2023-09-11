@@ -588,6 +588,7 @@ export default {
       })
     },
     editAward(params) {
+      params.studentId = this.user.id
       this.$refs["currentPatentCopy"].validate((valid) => {
         if (valid) {
           this.postRequest1("/patent/basic/edit", params).then(
@@ -616,6 +617,7 @@ export default {
       params.date = this.currentPatentCopy.date;
       params.point = this.patentPoint;
       params.state = "commit";
+      params.studentId = this.user.id
       if(params.url == '' || params.url == null){
         this.$message.error('请上传证明材料！')
         return

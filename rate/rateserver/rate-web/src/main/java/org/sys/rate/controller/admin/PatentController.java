@@ -39,7 +39,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/patent/basic")
 public class PatentController {
-    
+
     @Resource
     private PatentService patentService;
     @Resource
@@ -96,9 +96,9 @@ public class PatentController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Patent patent) {
+    public JsonResult addSave(Patent patent) throws FileNotFoundException {
         Integer res = patentService.insertPatent(patent);
-//        mailToTeacherService.sendTeaCheckMail(patent, "授权专利", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(patent, "授权专利");
         return new JsonResult(patent.getId());
     }
 
@@ -108,8 +108,11 @@ public class PatentController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Patent patent) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(patent, "授权专利", uploadFileName);
-        return new JsonResult(patentService.updatePatent(patent));
+        int res = patentService.updatePatent(patent);
+        if (res > 0) {
+            mailToTeacherService.sendTeaCheckMail(patent, "授权专利");
+        }
+        return new JsonResult(res);
     }
 
     /**
@@ -149,6 +152,7 @@ public class PatentController {
         }
         return new JsonResult(flag);
     }
+
     @GetMapping("/downloadByUrl")
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
@@ -164,6 +168,7 @@ public class PatentController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
     @PostMapping("/searchPatentByConditions")
     public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
         Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));

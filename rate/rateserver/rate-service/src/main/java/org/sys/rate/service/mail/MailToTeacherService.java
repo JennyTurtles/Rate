@@ -50,7 +50,7 @@ public class MailToTeacherService {
     private String password = null;
     private String sendHost = null;
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月");
 
     private final String greetingToUser = "亲爱的用户：<br>";
     private final String greetingToTeacher = "尊敬的老师：<br>";
@@ -80,33 +80,86 @@ public class MailToTeacherService {
     }
 
 
-    public <T extends Production> void sendTeaCheckMail(T production, String type, String uploadFileName) throws FileNotFoundException {
+//    public <T extends Production> void sendTeaCheckMail0(T production, String type, String uploadFileName) throws FileNotFoundException {
+//        try {
+//            File file = new File("upload/" + uploadFileName);
+//            if (!file.exists()) {
+//                throw new FileNotFoundException("File not found: " + uploadFileName);
+//            }
+//
+//            Student student = studentService.getById((int) (long) production.getStudentId());
+//            Teacher teacher = teacherService.getById(student.getTutorID());
+//            String to = teacher.getEmail();
+//            String subject = "请在教学系统中审核" + student.getName() + "的论文成果，成果编号：" + production.getId();
+//            String upLoadTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+//            String pubName = "";
+//            if ("学术论文".equals(type)) {
+//                Paper paper = paperService.getById(production.getId());
+//                pubName = publicationService.selectPublicationById(Math.toIntExact(paper.getPublicationID())).getName();
+//            }
+//
+//            StringBuilder contentBuilder = new StringBuilder();
+//            contentBuilder.append("尊敬的").append(teacher.getName()).append("老师：<br>");
+//            contentBuilder.append("您好！<br>");
+//            contentBuilder.append("<b>您的学生").append(student.getName()).append("已经在系统中提交成果申报。</b><br>");
+//            contentBuilder.append("论文标题：").append(production.getName()).append("。<br>");
+//            contentBuilder.append("发表期刊：").append(pubName).append("<br>");
+//            contentBuilder.append("出版年月：").append(sdf.format(production.getDate())).append("<br>");
+//            contentBuilder.append("作者列表：").append(production.getAuthor()).append("<br>");
+//            contentBuilder.append("提交时间：").append(upLoadTime).append("<br>");
+//            contentBuilder.append("证明材料：请查看邮件附件<br><br>");
+//            contentBuilder.append("<b>您可以登录<a href=\"http://106.15.36.190:8081/#/Teacher/Login\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
+//            contentBuilder.append("如果回复本邮件，方式如下：<br>");
+//            contentBuilder.append("(1) 若审核<b>通过</b>该成果，请在邮件中<span style=\"color:red;\">仅保留</span>以下三行并回复。<br>");
+//            contentBuilder.append("成果类型：").append(type).append("<br>");
+//            contentBuilder.append("成果编号：").append(production.getId()).append("<br>");
+//            contentBuilder.append("审核结果：").append("通过").append("<br>");
+//            contentBuilder.append("(2) 若<b>驳回</b>该论文，请在邮件中<span style=\"color:red;\">仅保留</span>以下四行并回复。<br>");
+//            contentBuilder.append("成果类型：").append(type).append("<br>");
+//            contentBuilder.append("成果编号：").append(production.getId()).append("<br>");
+//            contentBuilder.append("审核结果：").append("驳回").append("<br>");
+//            contentBuilder.append("审核理由：<span style=\"color:red;\">(请填写理由)</span><br><br>");
+//            contentBuilder.append(this.systemMessage);
+//
+//            String content = contentBuilder.toString();
+//
+//            sendMails.sendMailAsync(to, subject, content, uploadFileName, file);
+//        } catch (Exception e) {
+//            // 处理发送异常的情况
+//            log.error("Exception occurred during sending email: " + e.getMessage(), e);
+//        }
+//
+//    }
+
+    public <T extends Production> void sendTeaCheckMail(T production, String type) throws FileNotFoundException {
         try {
-            File file = new File("upload/" + uploadFileName);
+            File file = new File(production.getUrl());
             if (!file.exists()) {
-                throw new FileNotFoundException("File not found: " + uploadFileName);
+                throw new FileNotFoundException("File not found: " + production.getUrl());
+            }
+            SendMailContent sendMailContent = sendMailContentService.getSendMailContent(production.getStudentId());
+
+            if (StrUtil.isEmpty(sendMailContent.getTeacherName()) || StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
+                log.error(type + ": " + production.getId() + "对应的导师没有姓名或者邮箱地址");
+                return;
             }
 
-            Student student = studentService.getById((int) (long) production.getStudentId());
-            Teacher teacher = teacherService.getById(student.getTutorID());
-            String to = teacher.getEmail();
-            String subject = "请在教学系统中审核" + student.getName() + "的论文成果，成果编号：" + production.getId();
-            String upLoadTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            String pubName = "";
-            if ("学术论文".equals(type)) {
-                Paper paper = paperService.getById(production.getId());
-                pubName = publicationService.selectPublicationById(Math.toIntExact(paper.getPublicationID())).getName();
-            }
+            String subject = "请在教学系统中审核" + sendMailContent.getStudentName() + "的" + type + "成果，成果编号：" + production.getId();
 
             StringBuilder contentBuilder = new StringBuilder();
-            contentBuilder.append("尊敬的").append(teacher.getName()).append("老师：<br>");
+            contentBuilder.append("尊敬的").append(sendMailContent.getTeacherName()).append("老师：<br>");
             contentBuilder.append("您好！<br>");
-            contentBuilder.append("<b>您的学生").append(student.getName()).append("已经在系统中提交成果申报。</b><br>");
-            contentBuilder.append("论文标题：").append(production.getName()).append("。<br>");
-            contentBuilder.append("发表期刊：").append(pubName).append("<br>");
-            contentBuilder.append("出版年月：").append(sdf.format(production.getDate())).append("<br>");
+            contentBuilder.append("<b>您的学生").append(sendMailContent.getStudentName()).append("已经在系统中提交成果申报。</b><br>");
+            contentBuilder.append(type + "标题：").append(production.getName()).append("<br>");
+//            contentBuilder.append("发表期刊：").append(pubName).append("<br>");
+            if("科研项目".equals(type)){
+                contentBuilder.append("立项时间：").append(sdf.format(production.getStartDate())).append("<br>");
+                contentBuilder.append("结项时间：").append(sdf.format(production.getEndDate())).append("<br>");
+            }else {
+                contentBuilder.append("发表年月：").append(sdf.format(production.getDate())).append("<br>");
+            }
             contentBuilder.append("作者列表：").append(production.getAuthor()).append("<br>");
-            contentBuilder.append("提交时间：").append(upLoadTime).append("<br>");
+            contentBuilder.append("提交时间：").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("<br>");
             contentBuilder.append("证明材料：请查看邮件附件<br><br>");
             contentBuilder.append("<b>您可以登录<a href=\"http://106.15.36.190:8081/#/Teacher/Login\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
             contentBuilder.append("如果回复本邮件，方式如下：<br>");
@@ -121,9 +174,8 @@ public class MailToTeacherService {
             contentBuilder.append("审核理由：<span style=\"color:red;\">(请填写理由)</span><br><br>");
             contentBuilder.append(this.systemMessage);
 
-            String content = contentBuilder.toString();
 
-            sendMails.sendMailAsync(to, subject, content, uploadFileName, file);
+            sendMails.sendMailAsync(sendMailContent.getTeacherEmail(), subject, contentBuilder.toString(), file);
         } catch (Exception e) {
             // 处理发送异常的情况
             log.error("Exception occurred during sending email: " + e.getMessage(), e);
@@ -333,18 +385,18 @@ public class MailToTeacherService {
     }
 
 
-    public void sendTeaCheckMail(Paper production, String type, String uploadFileName) throws FileNotFoundException {
+    public void sendTeaCheckMail(Paper production, String type) throws FileNotFoundException {
         try {
-            File file = new File("upload/" + uploadFileName);
+            File file = new File( production.getUrl());
             if (!file.exists()) {
-                throw new FileNotFoundException("File not found: " + uploadFileName);
+                throw new FileNotFoundException("File not found: " + production.getUrl());
             }
 
 
-            SendMailContent sendMailContent = sendMailContentService.getSendMailContentPaper(Math.toIntExact(production.getID()));
+            SendMailContent sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(production.getStudentID()));
 
             if (StrUtil.isEmpty(sendMailContent.getTeacherName()) || StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
-                log.error(type + ": " + production.getID() + "对应的导师没有姓名或者邮件");
+                log.error(type + ": " + production.getID() + "对应的导师没有姓名或者邮箱地址");
                 return;
             }
 
@@ -356,7 +408,7 @@ public class MailToTeacherService {
             contentBuilder.append("<b>您的学生").append(sendMailContent.getStudentName()).append("已经在系统中提交成果申报。</b><br>");
             contentBuilder.append("论文标题：").append(production.getName()).append("<br>");
 //            contentBuilder.append("发表期刊：").append(pubName).append("<br>");
-            contentBuilder.append("出版年月：").append(production.getYear()).append("-").append(production.getMonth()).append("<br>");
+            contentBuilder.append("发表年月：").append(production.getYear()).append("年").append(production.getMonth()).append("月<br>");
             contentBuilder.append("作者列表：").append(production.getAuthor()).append("<br>");
             contentBuilder.append("提交时间：").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("<br>");
             contentBuilder.append("证明材料：请查看邮件附件<br><br>");
@@ -373,9 +425,8 @@ public class MailToTeacherService {
             contentBuilder.append("审核理由：<span style=\"color:red;\">(请填写理由)</span><br><br>");
             contentBuilder.append(this.systemMessage);
 
-            String content = contentBuilder.toString();
 
-            sendMails.sendMailAsync(sendMailContent.getTeacherEmail(), subject, content, uploadFileName, file);
+            sendMails.sendMailAsync(sendMailContent.getTeacherEmail(), subject, contentBuilder.toString(), file);
         } catch (Exception e) {
             // 处理发送异常的情况
             log.error("Exception occurred during sending email: " + e.getMessage(), e);

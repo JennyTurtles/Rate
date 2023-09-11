@@ -77,9 +77,9 @@ public class MonographController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Monograph monograph) {
+    public JsonResult addSave(Monograph monograph) throws FileNotFoundException {
         Integer res = monographService.insertMonograph(monograph);
-//        mailToTeacherService.sendTeaCheckMail(monograph, "科研奖励", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(monograph, "学术专著和教材");
         return new JsonResult(monograph.getId());
     }
 
@@ -89,8 +89,9 @@ public class MonographController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Monograph monograph) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(monograph, "科研奖励", uploadFileName);
-        return new JsonResult(monographService.updateMonograph(monograph));
+        int res = monographService.updateMonograph(monograph);
+        mailToTeacherService.sendTeaCheckMail(monograph, "学术专著和教材");
+        return new JsonResult(res);
     }
 
     /**

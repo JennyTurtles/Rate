@@ -80,9 +80,9 @@ public class AwardController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Award award) {
+    public JsonResult addSave(Award award) throws FileNotFoundException {
         Integer res = awardService.insertAward(award);
-//        mailToTeacherService.sendTeaCheckMail(award, "科研奖励", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(award, "科研获奖");
         return new JsonResult(award.getId());
     }
 
@@ -92,8 +92,11 @@ public class AwardController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Award award) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(award, "科研奖励", uploadFileName);
-        return new JsonResult(awardService.updateAward(award));
+        int res = awardService.updateAward(award);
+        if (res > 0) {
+            mailToTeacherService.sendTeaCheckMail(award, "科研获奖");
+        }
+        return new JsonResult(res);
     }
 
     /**

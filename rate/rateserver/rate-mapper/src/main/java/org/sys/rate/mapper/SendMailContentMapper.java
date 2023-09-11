@@ -15,9 +15,7 @@ import org.sys.rate.model.SendMailContent;
  */
 @Mapper
 public interface SendMailContentMapper {
-    @Select("SELECT s.`name` AS studentName, t.`name` AS teacherName, t.email AS teacherEmail FROM teacher t, graduatestudent g, student s WHERE g.studentID = #{studentId} AND g.studentID = s.ID AND g.tutorID = t.ID ORDER BY g.ID LIMIT 1")
+    @Select("SELECT s.`name` AS studentName, t.`name` AS teacherName, t.email AS teacherEmail FROM teacher t, graduatestudent g, student s WHERE g.studentID = #{studentId} AND g.studentID = s.ID AND g.tutorID = t.ID ORDER BY g.ID desc LIMIT 1")
     SendMailContent getSendMailContent(Integer studentId);
 
-    @Select("SELECT s.`name` AS studentName, t.`name` AS teacherName, t.email AS teacherEmail FROM teacher t, graduatestudent g, student s, paper p WHERE p.ID = #{paperId} and p.studentID = g.studentID AND g.studentID = s.ID AND g.tutorID = t.ID ORDER BY g.ID LIMIT 1")
-    SendMailContent getSendMailContenPaper(int paperId);
 }

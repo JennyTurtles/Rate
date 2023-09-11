@@ -34,12 +34,5 @@ public class SendMailContentService {
         }
     }
 
-    public SendMailContent getSendMailContentPaper(int paperId) {
-        try {
-            SendMailContent sendMailContent = sendMailContentMapper.getSendMailContenPaper(paperId);
-            return sendMailContent;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 }

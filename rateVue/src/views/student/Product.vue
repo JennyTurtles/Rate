@@ -568,6 +568,7 @@ export default {
       })
     },
     editAward(params) {
+      params.studentId = this.user.id;
       this.$refs["currentProductCopy"].validate((valid) => {
         if (valid) {
           this.postRequest1("/product/basic/edit", params).then(
@@ -595,6 +596,7 @@ export default {
       params.date = this.currentProductCopy.date;
       params.point = this.productPoint;
       params.state = "commit";
+      params.studentId = this.user.id;
       if(params.url == '' || params.url == null){
         this.$message.error('请上传证明材料！')
         return

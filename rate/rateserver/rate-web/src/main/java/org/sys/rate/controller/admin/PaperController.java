@@ -89,7 +89,7 @@ public class PaperController {
     @ResponseBody
     public JsonResult addSave(Paper paper) throws FileNotFoundException {
         paperService.insertPaper(paper);
-        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(paper, "学术论文");
         return new JsonResult(paper.getID());
     }
 
@@ -101,7 +101,7 @@ public class PaperController {
     public JsonResult editSave(Paper paper) throws FileNotFoundException {
         int res = paperService.updatePaper(paper);
         if (res > 0) {
-            mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
+            mailToTeacherService.sendTeaCheckMail(paper, "学术论文");
         }
         return new JsonResult(res);
     }
@@ -122,7 +122,6 @@ public class PaperController {
         File newFile = new File(fPath);
         file.transferTo(newFile);
 
-        uploadFileName = filename;
         //返回文件存储路径
         return new JsonResult(fPath);
     }

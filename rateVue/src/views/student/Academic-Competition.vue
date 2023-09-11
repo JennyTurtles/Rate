@@ -657,6 +657,7 @@ export default {
       })
     },
     editCompetition(params) {
+      params.studentId = this.user.id;
       this.$refs["currentCompetitionCopy"].validate((valid) => {
         if (valid) {
           params.id = this.currentCompetitionCopy.id;
@@ -685,6 +686,7 @@ export default {
       params.competitionLevel = '';
       params.indicatorId = this.selectedIndicator.id;
       params.state = "commit";
+      params.studentId = this.user.id;
       if(JSON.stringify(this.selectedIndicator) === '{}') {
         this.$message.error('请选择指标点！');
         return;

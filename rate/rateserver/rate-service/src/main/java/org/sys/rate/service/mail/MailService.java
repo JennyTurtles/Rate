@@ -81,7 +81,6 @@ public class MailService {
         setIMAPVerifyCode((String) cachedMail.get("IMAPVerifyCode"));
         setIMAPHost((String) cachedMail.get("IMAPHost"));
         setSMTPHost((String) cachedMail.get("SMTPHost"));
-        //log.info("更新了超级管理员的邮箱信息！" + getEmailAddress());
     }
 
     public boolean updateMail(Mail mail) throws MessagingException {

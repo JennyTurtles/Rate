@@ -591,6 +591,7 @@ export default {
         if (valid) {
           params.id = this.currentDecisionCopy.id;
           params.decisionTypeId = this.currentDecisionCopy.decisionType.id;
+          params.studentId = this.user.id;
           this.postRequest1("/decision/basic/edit", params).then(
               (resp) => {
                 if (resp) {

@@ -565,6 +565,7 @@ export default {
       })
     },
     editStandard(params) {
+      params.studentId = this.user.id;
       this.$refs["currentStandardCopy"].validate((valid) => {
         if (valid) {
           this.postRequest1("/standard/basic/edit", params).then(
@@ -592,6 +593,7 @@ export default {
       params.date = this.currentStandardCopy.date;
       params.point = this.standardPoint;
       params.state = "commit";
+      params.studentId = this.user.id;
       if(JSON.stringify(this.currentSelectedIndicator) == '{}') {
         this.$message.error('请选择指标点!');
         return;

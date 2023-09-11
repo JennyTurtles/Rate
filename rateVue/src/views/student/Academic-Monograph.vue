@@ -605,6 +605,7 @@ export default {
       })
     },
     editMonograph(params) {
+      params.studentId = this.user.id;
       this.$refs["currentMonographCopy"].validate((valid) => {
         if (valid) {
           params.id = this.currentMonographCopy.id;
@@ -641,6 +642,7 @@ export default {
       params.isbn = this.currentMonographCopy.isbn;
       params.point = this.monographPoint;
       params.state = "commit";
+      params.studentId = this.user.id;
       if (this.currentMonographCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editMonograph(params);
       } else {

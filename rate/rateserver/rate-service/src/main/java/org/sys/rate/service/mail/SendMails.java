@@ -46,8 +46,8 @@ public class SendMails {
         }
     }
 
-    public void sendMailAsync(final String to, final String subject, final String content, final String fileName, final File attachment) {
-        if (StringUtils.isEmpty(to) || StringUtils.isEmpty(subject) || StringUtils.isEmpty(content) || StringUtils.isEmpty(fileName) || attachment == null) {
+    public void sendMailAsync(final String to, final String subject, final String content, final File attachment) {
+        if (StringUtils.isEmpty(to) || StringUtils.isEmpty(subject) || StringUtils.isEmpty(content) || attachment == null) {
             throw new IllegalArgumentException("One or more parameters required for sending email is empty or null.");
         }
 

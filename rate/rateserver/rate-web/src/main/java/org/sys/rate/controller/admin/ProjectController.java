@@ -36,7 +36,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/project/basic")
 public class ProjectController {
-    
+
     @Resource
     private ProjectService projectService;
     @Resource
@@ -69,14 +69,15 @@ public class ProjectController {
 //        Object[] res = {list, info.getTotal()};
         return Msg.success().add("res", list);
     }
+
     /**
      * 新增保存专著成果
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Project project) {
+    public JsonResult addSave(Project project) throws FileNotFoundException {
         Integer res = projectService.insertProject(project);
-//        mailToTeacherService.sendTeaCheckMail(project, "科研奖励", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(project, "科研项目");
         return new JsonResult(project.getId());
     }
 
@@ -86,8 +87,11 @@ public class ProjectController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Project project) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(project, "科研奖励", uploadFileName);
-        return new JsonResult(projectService.updateProject(project));
+        int res = projectService.updateProject(project);
+        if (res > 0) {
+            mailToTeacherService.sendTeaCheckMail(project, "科研项目");
+        }
+        return new JsonResult(res);
     }
 
     /**
@@ -127,6 +131,7 @@ public class ProjectController {
         }
         return new JsonResult(flag);
     }
+
     @GetMapping("/downloadByUrl")
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
@@ -144,14 +149,16 @@ public class ProjectController {
     }
 
     @GetMapping("/getIndicatorByYearAndType")
-    public JsonResult getIndicatorByYearAndType(String year,String type) {
-        List<ProjectType> list = projectService.getIndicatorByYearAndType(year,type);
+    public JsonResult getIndicatorByYearAndType(String year, String type) {
+        List<ProjectType> list = projectService.getIndicatorByYearAndType(year, type);
         return new JsonResult(list);
     }
+
     @GetMapping("/getIndicatorScore")
     public JsonResult getScore(Integer id) {
         return new JsonResult(indicatorMapper.getIndicatorById(id));
     }
+
     @PostMapping("/searchProjectByConditions")
     public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
         Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));

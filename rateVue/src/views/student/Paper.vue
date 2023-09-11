@@ -1160,6 +1160,7 @@ export default {
           params.publicationID = this.currentEmp.publicationID;
           params.point = this.currentEmp.point;
           params.state = "commit";
+          params.studentID = this.user.id
           if (params.url == '' || params.url == null) {
             this.$message({
               message: '请上传证明材料！'

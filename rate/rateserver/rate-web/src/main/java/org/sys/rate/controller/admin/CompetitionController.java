@@ -73,9 +73,9 @@ public class CompetitionController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Competition project) {
+    public JsonResult addSave(Competition project) throws FileNotFoundException {
         Integer res = competitionService.insertCompetition(project);
-//        mailToTeacherService.sendTeaCheckMail(project, "科研奖励", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(project, "学科竞赛");
         return new JsonResult(project.getId());
     }
 
@@ -85,8 +85,9 @@ public class CompetitionController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Competition project) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(project, "科研奖励", uploadFileName);
-        return new JsonResult(competitionService.updateCompetition(project));
+        int res = competitionService.updateCompetition(project);
+        mailToTeacherService.sendTeaCheckMail(project, "学科竞赛");
+        return new JsonResult(res);
     }
 
     /**

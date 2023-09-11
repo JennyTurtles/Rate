@@ -676,6 +676,7 @@ export default {
       this.$refs["currentAwardCopy"].validate((valid) => {
         if (valid) {
           params.id = this.currentAwardCopy.id;
+          params.studentId = this.user.id
           params.awardTypeId = this.currentAwardCopy.awardType.id;
           if(params.url == '' || params.url == null){
             this.$message.error('请上传证明材料！')

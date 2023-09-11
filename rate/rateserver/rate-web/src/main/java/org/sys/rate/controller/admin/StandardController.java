@@ -39,7 +39,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/standard/basic")
 public class StandardController {
-    
+
     @Resource
     private StandardService standardService;
     @Resource
@@ -88,9 +88,9 @@ public class StandardController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Standard standard) {
+    public JsonResult addSave(Standard standard) throws FileNotFoundException {
         Integer res = standardService.insertStandard(standard);
-//        mailToTeacherService.sendTeaCheckMail(standard, "授权专利", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(standard, "制定标准");
         return new JsonResult(standard.getId());
     }
 
@@ -100,8 +100,11 @@ public class StandardController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Standard standard) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(standard, "授权专利", uploadFileName);
-        return new JsonResult(standardService.updateStandard(standard));
+        int res = standardService.updateStandard(standard);
+        if (res > 0) {
+            mailToTeacherService.sendTeaCheckMail(standard, "制定标准");
+        }
+        return new JsonResult(res);
     }
 
     /**
@@ -141,6 +144,7 @@ public class StandardController {
         }
         return new JsonResult(flag);
     }
+
     @GetMapping("/downloadByUrl")
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
@@ -156,6 +160,7 @@ public class StandardController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
     @PostMapping("/searchStandardByConditions")
     public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
         Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
