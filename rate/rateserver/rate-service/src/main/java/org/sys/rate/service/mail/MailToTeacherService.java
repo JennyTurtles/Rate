@@ -1,13 +1,11 @@
 package org.sys.rate.service.mail;
 
 
+import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
-import org.sys.rate.model.Paper;
-import org.sys.rate.model.Production;
-import org.sys.rate.model.Student;
-import org.sys.rate.model.Teacher;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.PaperService;
 import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.admin.StudentService;
@@ -28,22 +26,25 @@ import java.util.regex.Pattern;
 public class MailToTeacherService {
 
     @Resource
-    MailService propertiesService;
+    private MailService propertiesService;
 
     @Resource
-    StudentService studentService;
+    private StudentService studentService;
 
     @Resource
-    TeacherService teacherService;
+    private TeacherService teacherService;
 
     @Resource
-    PublicationService publicationService;
+    private PublicationService publicationService;
 
     @Resource
-    SendMails sendMails;
+    private SendMails sendMails;
 
     @Resource
-    PaperService paperService;
+    private PaperService paperService;
+
+    @Resource
+    private SendMailContentService sendMailContentService;
 
     private String from = null;
     private String password = null;
@@ -107,7 +108,7 @@ public class MailToTeacherService {
             contentBuilder.append("作者列表：").append(production.getAuthor()).append("<br>");
             contentBuilder.append("提交时间：").append(upLoadTime).append("<br>");
             contentBuilder.append("证明材料：请查看邮件附件<br><br>");
-            contentBuilder.append("<b>您可以登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
+            contentBuilder.append("<b>您可以登录<a href=\"http://106.15.36.190:8081/#/Teacher/Login\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
             contentBuilder.append("如果回复本邮件，方式如下：<br>");
             contentBuilder.append("(1) 若审核<b>通过</b>该成果，请在邮件中<span style=\"color:red;\">仅保留</span>以下三行并回复。<br>");
             contentBuilder.append("成果类型：").append(type).append("<br>");
@@ -339,26 +340,27 @@ public class MailToTeacherService {
                 throw new FileNotFoundException("File not found: " + uploadFileName);
             }
 
-            Student student = studentService.getById((int) (long) production.getStudentID());
-            Teacher teacher = teacherService.getById(student.getTutorID());
-            String to = teacher.getEmail();
-            String subject = "请在教学系统中审核" + student.getName() + "的论文成果，成果编号：" + production.getID();
-            String upLoadTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-            String pubName = "";
-            Paper paper = paperService.getById(Math.toIntExact(production.getID()));
-            pubName = publicationService.selectPublicationById(Math.toIntExact(paper.getPublicationID())).getName();
+
+            SendMailContent sendMailContent = sendMailContentService.getSendMailContentPaper(Math.toIntExact(production.getID()));
+
+            if (StrUtil.isEmpty(sendMailContent.getTeacherName()) || StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
+                log.error(type + ": " + production.getID() + "对应的导师没有姓名或者邮件");
+                return;
+            }
+
+            String subject = "请在教学系统中审核" + sendMailContent.getStudentName() + "的论文成果，成果编号：" + production.getID();
 
             StringBuilder contentBuilder = new StringBuilder();
-            contentBuilder.append("尊敬的").append(teacher.getName()).append("老师：<br>");
+            contentBuilder.append("尊敬的").append(sendMailContent.getTeacherName()).append("老师：<br>");
             contentBuilder.append("您好！<br>");
-            contentBuilder.append("<b>您的学生").append(student.getName()).append("已经在系统中提交成果申报。</b><br>");
-            contentBuilder.append("论文标题：").append(production.getName()).append("。<br>");
-            contentBuilder.append("发表期刊：").append(pubName).append("<br>");
+            contentBuilder.append("<b>您的学生").append(sendMailContent.getStudentName()).append("已经在系统中提交成果申报。</b><br>");
+            contentBuilder.append("论文标题：").append(production.getName()).append("<br>");
+//            contentBuilder.append("发表期刊：").append(pubName).append("<br>");
             contentBuilder.append("出版年月：").append(production.getYear()).append("-").append(production.getMonth()).append("<br>");
             contentBuilder.append("作者列表：").append(production.getAuthor()).append("<br>");
-            contentBuilder.append("提交时间：").append(upLoadTime).append("<br>");
+            contentBuilder.append("提交时间：").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("<br>");
             contentBuilder.append("证明材料：请查看邮件附件<br><br>");
-            contentBuilder.append("<b>您可以登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
+            contentBuilder.append("<b>您可以登录<a href=\"http://106.15.36.190:8081/#/Teacher/Login\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
             contentBuilder.append("如果回复本邮件，方式如下：<br>");
             contentBuilder.append("(1) 若审核<b>通过</b>该成果，请在邮件中<span style=\"color:red;\">仅保留</span>以下三行并回复。<br>");
             contentBuilder.append("成果类型：").append(type).append("<br>");
@@ -373,7 +375,7 @@ public class MailToTeacherService {
 
             String content = contentBuilder.toString();
 
-            sendMails.sendMailAsync(to, subject, content, uploadFileName, file);
+            sendMails.sendMailAsync(sendMailContent.getTeacherEmail(), subject, content, uploadFileName, file);
         } catch (Exception e) {
             // 处理发送异常的情况
             log.error("Exception occurred during sending email: " + e.getMessage(), e);

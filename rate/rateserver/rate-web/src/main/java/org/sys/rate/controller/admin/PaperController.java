@@ -88,8 +88,8 @@ public class PaperController {
     @PostMapping("/add")
     @ResponseBody
     public JsonResult addSave(Paper paper) throws FileNotFoundException {
-        Integer res = paperService.insertPaper(paper);
-//        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
+        paperService.insertPaper(paper);
+        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
         return new JsonResult(paper.getID());
     }
 
@@ -99,8 +99,11 @@ public class PaperController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Paper paper) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
-        return new JsonResult(paperService.updatePaper(paper));
+        int res = paperService.updatePaper(paper);
+        if (res > 0) {
+            mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
+        }
+        return new JsonResult(res);
     }
 
     /**
@@ -108,7 +111,7 @@ public class PaperController {
      */
     @DeleteMapping("/remove/{ID}")
     public JsonResult remove(@PathVariable Long ID) {
-        Integer res=paperService.deletePaperById(ID);
+        Integer res = paperService.deletePaperById(ID);
         return new JsonResult(res);
     }
 
