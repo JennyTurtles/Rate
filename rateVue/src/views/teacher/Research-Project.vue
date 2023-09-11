@@ -430,6 +430,17 @@ export default {
     }
   },
   methods: {
+    rejectDialog() {
+      if(this.role == 'admin' && this.currentProject.state == 'commit') { //管理员驳回 有提示
+        this.$confirm('目前导师尚未审核，是否确认审核驳回？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.isShowInfo = true;
+        }).catch(() => {});
+      }else this.isShowInfo = false;
+    },
     rejectDialogConfirm(){
       if (this.role == 'teacher')
         this.auditing_commit('tea_reject')
