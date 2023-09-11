@@ -488,6 +488,9 @@ export default {
     rolePass(state) {
       let url = "/product/basic/edit_state?state=" + state + "&ID="+this.emp.id;
       this.dialogVisible_show = false
+      if(state.indexOf('reject') >= 0){
+        this.emp.operationList[0].remark = this.reason;
+      }
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
