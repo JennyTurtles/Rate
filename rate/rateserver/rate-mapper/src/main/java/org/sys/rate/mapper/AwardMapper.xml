@@ -22,7 +22,7 @@
             <result property="name" column="sname"/>
         </association>
         <association property="indicator" javaType="org.sys.rate.model.Indicator">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="indicatorid" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
             <result property="rankN" column="rankN"/>
@@ -77,7 +77,7 @@
 
 <!--    学生奖励页面初始化-->
     <select id="selectAwardListById" resultMap="AwardResult" parameterType="Integer">
-        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, i.name as iname, i.score,i.rankN
+        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, i.name as iname, i.score,i.rankN, i.id as indicatorid
         FROM i_award a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
