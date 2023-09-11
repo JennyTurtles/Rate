@@ -304,7 +304,7 @@
       <span slot="footer" class="dialog-footer" :model="currentMonograph">
             <el-button
                 id="but_pass"
-                v-show="((currentMonograph.state=='commit' && role == 'teacher') || (currentMonograph.state=='tea_pass' && role == 'admin')) ? true:false"
+                v-show="currentMonograph.state=='commit' ? true : false"
                 @click="(()=>{
                   if (role == 'teacher')
                    auditing_commit('tea_pass')
@@ -315,8 +315,8 @@
             >审核通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="((currentMonograph.state=='commit' && role == 'teacher') || (currentMonograph.state=='tea_pass' && role == 'admin')) ? true:false"
-                @click="isShowInfo = true"
+                v-show="currentMonograph.state=='commit' ? true : false"
+                @click="rejectDialog"
                 type="primary"
             >审核不通过</el-button>
             <el-button
@@ -336,7 +336,7 @@
       >
       </el-input>
       <span slot="footer">
-          <el-button @click="rejectDialog()" type="primary">确定</el-button>
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
           <el-button @click="isShowInfo = false">取消</el-button>
         </span>
     </el-dialog>
@@ -425,7 +425,18 @@ export default {
     }
   },
   methods: {
-    rejectDialog(){
+    rejectDialog() {
+      if(this.role == 'admin' && this.currentMonograph.state == 'commit') { //管理员驳回 有提示
+        this.$confirm('目前导师尚未审核，是否确认审核驳回？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.isShowInfo = true;
+        }).catch(() => {});
+      }else this.isShowInfo = false;
+    },
+    rejectDialogConfirm(){
       if (this.role == 'teacher')
         this.auditing_commit('tea_reject')
       else if (this.role == 'admin')
@@ -450,22 +461,33 @@ export default {
       });
     },
     //点击对话框中的确定按钮 触发事件
-    auditing_commit(num){
+    auditing_commit(state){
       this.loading = true;
-      let url = "/monograph/basic/edit_state?state=" + num + "&ID=" + this.currentMonograph.id;
+      if(this.role == 'admin' && state.indexOf('pass') >= 0) { //管理员通过 有提示
+        this.$confirm('目前导师尚未审核，是否确认审核通过？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.rolePass(state);
+        }).catch(() => {});
+      }else this.rolePass(state);
+    },
+    rolePass(state) {
+      let url = "/monograph/basic/edit_state?state=" + state + "&ID=" + this.currentMonograph.id;
       this.dialogVisible_show=false
-      if(num.indexOf('reject') >= 0){
-        this.currentMonograph.remark = this.reason;
+      if(state.indexOf('reject') >= 0){
+        this.currentMonograph.operationList[0].remark = this.reason;
       }
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.currentMonograph.state = num
+          this.currentMonograph.state = state
           this.$message({
             type: 'success',
             message: '操作成功'
           })
-          this.doAddOper(num, this.reason, this.currentMonograph.id);
+          this.doAddOper(state, this.reason, this.currentMonograph.id);
         }
       })
     },
