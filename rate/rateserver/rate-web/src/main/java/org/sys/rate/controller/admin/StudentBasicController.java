@@ -30,6 +30,8 @@ public class StudentBasicController {
     UnderGraduateMapper underGraduateMapper;
     @Autowired
     TeachersMapper teachersMapper;
+    @Autowired
+    DoctorMapper doctorMapper;
 
     @GetMapping("/getall")
     public List<Student> getAllStudent() {
@@ -100,10 +102,15 @@ public class StudentBasicController {
             underGraduate.setStuType("本科生");
             return RespBean.ok("success",underGraduate);
         }
-        else if (stuType.equals("研究生")){
+        else if (stuType.equals("硕士生")){
             GraduateStudent graduateStudent = graduateStudentMapper.getGradByStuID(id);
-            graduateStudent.setStuType("研究生");
+            graduateStudent.setStuType("硕士生");
             return RespBean.ok("success",graduateStudent);
+        }
+        else if (stuType.equals("博士生")){
+            Doctor doctor = doctorMapper.getDocByStuID(id);
+            doctor.setStuType("博士生");
+            return RespBean.ok("success",doctor);
         }
         else
         {

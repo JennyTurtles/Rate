@@ -14,6 +14,7 @@
         <result column="point" property="point" jdbcType="VARCHAR"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
         <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="role" column="role" jdbcType="VARCHAR"/>
         <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
         <result property="IDNumber" column="IDNumber" jdbcType="VARCHAR"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
@@ -136,7 +137,7 @@
         select exists (select * from graduatestudent where tutorID = #{tutorID} and ID != #{ID})
     </select>
     <select id="getGradByStuID" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.username,s.password,s.registerQuestion,s.registerAnswer
+        select u.*,s.name,s.telephone,s.email,s.username,s.role,s.password,s.registerQuestion,s.registerAnswer
         from graduatestudent u,student s
         where u.studentID=#{studentID} and s.ID = u.studentID
     </select>
