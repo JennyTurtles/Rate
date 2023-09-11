@@ -311,7 +311,7 @@
             <el-button
                 id="but_reject"
                 v-show="emp.state=='commit' ? true : false"
-                @click="isShowInfo = true"
+                @click="rejectDialog"
                 type="primary"
             >审核不通过</el-button>
             <el-button
