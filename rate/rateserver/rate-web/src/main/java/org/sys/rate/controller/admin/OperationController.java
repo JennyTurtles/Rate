@@ -80,6 +80,7 @@ public class OperationController {
     public Msg getAllTypePendingMessage(String role) {
         Integer res = 0;
         String state = "";
+        //分角色请求合并为一个
         if(role.equals("admin")) {
             state = "tea_pass";
         } else if(role.equals("teacher")) {

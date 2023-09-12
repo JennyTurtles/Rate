@@ -286,6 +286,7 @@ export default {
     window.onresize = function temp() {
       this.clientHeight = `${document.documentElement.clientHeight}`;
     };
+    //如果是学生不显示待办消息，如果是专家并且角色只有专家（没有研究生导师等等的身份）就不显示待办消息
     if(this.roleName.indexOf('doctor') < 0 &&
         this.roleName.indexOf('undergraduate') < 0 &&
         this.roleName.indexOf('graduate') < 0 &&

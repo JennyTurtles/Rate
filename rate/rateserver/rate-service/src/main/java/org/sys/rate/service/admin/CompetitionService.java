@@ -108,7 +108,7 @@ public class CompetitionService {
     //    修改科研专著教材状态
     public int editState(String state, Long ID) throws MessagingException {
         Competition competition = competitionMapper.getById(Math.toIntExact(ID));
-        mailToStuService.sendStuMail(state, competition, null, "学科竞赛");
+//        mailToStuService.sendStuMail(state, competition, null, "学科竞赛");
         return competitionMapper.editState(state, ID);
     }
 
