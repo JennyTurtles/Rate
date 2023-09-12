@@ -61,6 +61,8 @@ public class SendMails {
         props.setProperty("mail.host", mail.getSMTPHost());
         props.setProperty("mail.transport.protocol", "SMTP");
         props.setProperty("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
         Authenticator authenticator = new Authenticator() {
             @Override
             public PasswordAuthentication getPasswordAuthentication() {
