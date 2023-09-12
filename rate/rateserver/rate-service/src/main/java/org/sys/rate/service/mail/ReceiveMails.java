@@ -49,9 +49,7 @@ public class ReceiveMails {
     private ProductionService productionService;
 
 
-    private String from = null;
-    private String password = null;
-    private String host = null;
+
     private final String[] patterns = {"成果类型", "成果编号", "审核结果", "审核理由"};
     private final String[] phrases = {"成果类型：", "成果编号：", "审核结果：", "审核理由："};
     private final String[] allTypes = {"学术论文", "授权专利", "科研获奖", "科研项目", "制定标准", "决策咨询", "学术专著和教材", "制造或设计的产品", "学科竞赛"};
@@ -60,16 +58,16 @@ public class ReceiveMails {
 
 
     public void readMails() throws Exception {
-        handleNullPointerException();
-        if (StringUtils.isBlank(this.from) || StringUtils.isBlank(this.password)) {
-            log.error("账号或密码不能为空！");
+        Mail mail = handleNullPointerException();
+        if (StringUtils.isBlank(mail.getEmailAddress()) || StringUtils.isBlank(mail.getIMAPVerifyCode())) {
+            log.error("账号或验证码不能为空！");
             return;
         }
 
         // 准备连接服务器的会话信息
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imap");
-        props.setProperty("mail.imap.host", this.host);
+        props.setProperty("mail.imap.host", mail.getIMAPHost());
         props.setProperty("mail.imap.port", "143");
         props.setProperty("mail.imap.auth.login.disable", "true");
 
@@ -83,7 +81,7 @@ public class ReceiveMails {
         IMAPStore store = null;
         try {
             store = (IMAPStore) session.getStore("imap");
-            store.connect(this.from, this.password);
+            store.connect(mail.getEmailAddress(), mail.getIMAPVerifyCode());
             store.id(IAM);
 
             Folder folder = store.getFolder("INBOX");
@@ -114,22 +112,21 @@ public class ReceiveMails {
 
     }
 
-    private void handleNullPointerException() {
-        this.from = mailService.getEmailAddress();
-        this.password = mailService.getIMAPVerifyCode();
-        this.host = mailService.getIMAPHost();
+    private Mail handleNullPointerException() {
+        Mail mail = mailService.getMail();
 
-        if (this.from == null) {
-            throw new NullPointerException("from is null");
+        if (mail.getEmailAddress() == null) {
+            throw new NullPointerException("EmailAddress is null");
         }
 
-        if (this.password == null) {
-            throw new NullPointerException("password is null");
+        if (mail.getIMAPVerifyCode() == null) {
+            throw new NullPointerException("IMAPVerifyCode is null");
         }
 
-        if (this.host == null) {
-            throw new NullPointerException("host is null");
+        if (mail.getSMTPHost() == null) {
+            throw new NullPointerException("SMTPHost is null");
         }
+        return mail;
     }
 
     public static Message[] getFirstNMessages(Message[] messages, int n) {

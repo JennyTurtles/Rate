@@ -2,9 +2,8 @@ package org.sys.rate.service.mail;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.sys.rate.model.Mail;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
@@ -24,106 +23,81 @@ public class SendMails {
     @Resource
     MailService mailService;
 
-    private String from = null;
-    private String password = null;
-    private String sendHost = null;
 
-    private void handleNullPointerException() {
-        this.from = mailService.getEmailAddress();
-        this.password = mailService.getIMAPVerifyCode();
-        this.sendHost = mailService.getSMTPHost();
+    private Mail handleNullPointerException() {
+        Mail mail = mailService.getMail();
 
-        if (this.from == null) {
-            throw new NullPointerException("from is null");
+        if (mail.getEmailAddress() == null) {
+            throw new NullPointerException("EmailAddress is null");
         }
 
-        if (this.password == null) {
-            throw new NullPointerException("password is null");
+        if (mail.getIMAPVerifyCode() == null) {
+            throw new NullPointerException("IMAPVerifyCode is null");
         }
 
-        if (this.sendHost == null) {
-            throw new NullPointerException("sendHost is null");
+        if (mail.getSMTPHost() == null) {
+            throw new NullPointerException("SMTPHost is null");
         }
+        return mail;
     }
 
     public void sendMailAsync(final String to, final String subject, final String content, final File attachment) {
-        if (StringUtils.isEmpty(to) || StringUtils.isEmpty(subject) || StringUtils.isEmpty(content) || attachment == null) {
-            throw new IllegalArgumentException("One or more parameters required for sending email is empty or null.");
-        }
-
-        handleNullPointerException();
+        validateParameters(to, subject, content);
+        Mail mail = handleNullPointerException();
 
         CompletableFuture.runAsync(() -> {
-            Properties props = new Properties();
-            props.setProperty("mail.host", this.sendHost);
-            props.setProperty("mail.transport.protocol", "SMTP");
-            props.setProperty("mail.smtp.auth", "true");
-            Authenticator authenticator = new Authenticator() {
-                @Override
-                public PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(from, password);
-                }
-            };
-
-            Session session = Session.getInstance(props, authenticator);
-            MimeMessage message = new MimeMessage(session);
             try {
-                message.setFrom(new InternetAddress(from));
-                message.setRecipients(Message.RecipientType.TO, to);
-                message.setSubject(subject);
-                Multipart multipart = new MimeMultipart();
-                MimeBodyPart messageBodyPart = new MimeBodyPart();
-                messageBodyPart.setContent(content,"text/html;charset=utf-8");
-                multipart.addBodyPart(messageBodyPart);
-
-                MimeBodyPart filePart = new MimeBodyPart();
-                FileDataSource fileDataSource = new FileDataSource(attachment);
-                filePart.setDataHandler(new DataHandler(fileDataSource));
-                filePart.setFileName(attachment.getName());
-                multipart.addBodyPart(filePart);
-
-                message.setContent(multipart);
-
-                Transport.send(message);
-                log.info("Email sent to {}", to);
+                sendMailInternal(to, subject, content, mail, attachment);
             } catch (MessagingException e) {
-                e.printStackTrace();
                 log.error("Failed to send email: {}", e.getMessage(), e);
+                throw new RuntimeException("Failed to send email", e);
             }
         });
     }
 
-    public void sendMailAsync(final String to, final String subject, final String content) {
+
+    private void sendMailInternal(String to, String subject, String content, Mail mail, File attachment) throws MessagingException {
+        Properties props = new Properties();
+        props.setProperty("mail.host", mail.getSMTPHost());
+        props.setProperty("mail.transport.protocol", "SMTP");
+        props.setProperty("mail.smtp.auth", "true");
+        Authenticator authenticator = new Authenticator() {
+            @Override
+            public PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(mail.getEmailAddress(), mail.getIMAPVerifyCode());
+            }
+        };
+
+        Session session = Session.getInstance(props, authenticator);
+        MimeMessage message = new MimeMessage(session);
+
+        message.setFrom(new InternetAddress(mail.getEmailAddress()));
+        message.setRecipients(Message.RecipientType.TO, to);
+        message.setSubject(subject);
+
+        Multipart multipart = new MimeMultipart();
+        MimeBodyPart messageBodyPart = new MimeBodyPart();
+        messageBodyPart.setContent(content, "text/html;charset=utf-8");
+        multipart.addBodyPart(messageBodyPart);
+
+        if (attachment != null) {
+            MimeBodyPart filePart = new MimeBodyPart();
+            FileDataSource fileDataSource = new FileDataSource(attachment);
+            filePart.setDataHandler(new DataHandler(fileDataSource));
+            filePart.setFileName(attachment.getName());
+            multipart.addBodyPart(filePart);
+        }
+
+        message.setContent(multipart);
+
+        Transport.send(message);
+        log.info("Email sent to {}", to);
+    }
+
+    private void validateParameters(String to, String subject, String content) {
         if (StringUtils.isEmpty(to) || StringUtils.isEmpty(subject) || StringUtils.isEmpty(content)) {
             throw new IllegalArgumentException("One or more parameters required for sending email is empty or null.");
         }
-        handleNullPointerException();
-
-        CompletableFuture.runAsync(() -> {
-            Properties props = new Properties();
-            props.setProperty("mail.host", this.sendHost);
-            props.setProperty("mail.transport.protocol", "SMTP");
-            props.setProperty("mail.smtp.auth", "true");
-            Authenticator authenticator = new Authenticator() {
-                @Override
-                public PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(from, password);
-                }
-            };
-
-            Session session = Session.getInstance(props, authenticator);
-            MimeMessage message = new MimeMessage(session);
-            try {
-                message.setFrom(new InternetAddress(from));
-                message.setRecipients(Message.RecipientType.TO, to);
-                message.setSubject(subject);
-                message.setContent(content, "text/html;charset=utf-8");
-                Transport.send(message);
-                log.info("Email sent to {}", to);
-            } catch (MessagingException e) {
-                e.printStackTrace();
-                log.error("Failed to send email: {}", e.getMessage(), e);
-            }
-        });
     }
+
 }

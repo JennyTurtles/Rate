@@ -66,7 +66,7 @@ public class MailToStuService {
 
         // 设置邮件主题
         subject = subject != null ? subject : "东华大学计算机学院教学系统邮件";
-        sendMails.sendMailAsync(sendMailContent.getStudentEmail(), subject, content);
+        sendMails.sendMailAsync(sendMailContent.getStudentEmail(), subject, content, null);
     }
 
 
