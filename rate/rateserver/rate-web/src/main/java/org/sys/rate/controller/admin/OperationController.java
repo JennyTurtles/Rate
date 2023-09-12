@@ -77,17 +77,23 @@ public class OperationController {
     }
 
     @GetMapping("/getAllTypePendingMessageNumber") //获取所有类别的导师通过状态的成果
-    public Msg getAllTypePendingMessage() {
+    public Msg getAllTypePendingMessage(String role) {
         Integer res = 0;
-        Integer patentRes = patentMapper.selectPatentNumberOfPendingMessing();
-        Integer paperRes = paperMapper.selectPaperNumberOfPendingMessing();
-        Integer projectRes = projectMapper.selectProjectNumberOfPendingMessing();
-        Integer productRes = productMapper.selectProductNumberOfPendingMessing();
-        Integer monographRes = monographMapper.selectMonographNumberOfPendingMessing();
-        Integer decisionRes = decisionMapper.selectDecisionNumberOfPendingMessing();
-        Integer standardRes = standardMapper.selectStandardNumberOfPendingMessing();
-        Integer awardRes = awardMapper.selectAwardNumberOfPendingMessing();
-        Integer competitionRes = competitionMapper.selectCompetitionNumberOfPendingMessing();
+        String state = "";
+        if(role.equals("admin")) {
+            state = "tea_pass";
+        } else if(role.equals("teacher")) {
+            state = "commit";
+        }
+        Integer patentRes = patentMapper.selectPatentNumberOfPendingMessing(state);
+        Integer paperRes = paperMapper.selectPaperNumberOfPendingMessing(state);
+        Integer projectRes = projectMapper.selectProjectNumberOfPendingMessing(state);
+        Integer productRes = productMapper.selectProductNumberOfPendingMessing(state);
+        Integer monographRes = monographMapper.selectMonographNumberOfPendingMessing(state);
+        Integer decisionRes = decisionMapper.selectDecisionNumberOfPendingMessing(state);
+        Integer standardRes = standardMapper.selectStandardNumberOfPendingMessing(state);
+        Integer awardRes = awardMapper.selectAwardNumberOfPendingMessing(state);
+        Integer competitionRes = competitionMapper.selectCompetitionNumberOfPendingMessing(state);
         res = paperRes + patentRes + productRes + projectRes + monographRes + decisionRes + standardRes + awardRes + competitionRes;
         return Msg.success().add("count", res).add("patent", patentRes).add("patent", patentRes)
                 .add("paper", paperRes).add("project", projectRes).add("product", productRes)

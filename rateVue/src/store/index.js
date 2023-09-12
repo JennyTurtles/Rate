@@ -338,8 +338,8 @@ const store = new Vuex.Store({
         initchangeList(context) {
             context.commit('INIT_initchangeList')
         },
-        changePendingMessageange(context) {
-            getRequest('/oper/basic/getAllTypePendingMessageNumber').then((response) => {
+        changePendingMessageange(context, role) {
+            getRequest('/oper/basic/getAllTypePendingMessageNumber?role=' + role).then((response) => {
                 if (response) {
                     context.commit('changePendingMessage', response.extend);
                 }

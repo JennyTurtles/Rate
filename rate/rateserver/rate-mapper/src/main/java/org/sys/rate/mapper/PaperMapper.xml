@@ -223,6 +223,6 @@
     <select id="selectPaperNumberOfPendingMessing" resultType="Integer">
         select count(*)
         from paper
-        where state = 'tea_pass'
+        where state = #{state}
     </select>
 </mapper>

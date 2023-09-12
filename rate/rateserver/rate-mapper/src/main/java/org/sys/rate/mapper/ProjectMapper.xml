@@ -230,6 +230,6 @@
     <select id="selectProjectNumberOfPendingMessing" resultType="Integer">
         select count(*)
         from i_project
-        where state = 'tea_pass'
+        where state = #{state}
     </select>
 </mapper>

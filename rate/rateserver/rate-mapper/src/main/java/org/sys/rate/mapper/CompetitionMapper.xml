@@ -220,6 +220,6 @@
     <select id="selectCompetitionNumberOfPendingMessing" resultType="Integer">
         select count(*)
         from i_competition
-        where state = 'tea_pass'
+        where state = #{state}
     </select>
 </mapper>

@@ -40,7 +40,15 @@
           <div v-show="!isStudentRole"
                style="padding-left: 25px; font-size: 14px; line-height: 56px; font-weight: 500">
             <a @click="pendingMessageRoute">
-              {{$store.state.pendingMessageTotal}}条代办消息
+              <span>
+                待办任务（
+              </span>
+              <span :style="$store.state.pendingMessageTotal > 0 ? {'color' : 'red'} : {'color' : 'black'}">
+                 {{$store.state.pendingMessageTotal}}
+              </span>
+              <span>
+                 ）
+              </span>
             </a>
           </div>
           <el-menu router unique-opened class="menu" @open="handleOpen">
@@ -281,11 +289,15 @@ export default {
     if(this.roleName.indexOf('doctor') < 0 &&
         this.roleName.indexOf('undergraduate') < 0 &&
         this.roleName.indexOf('graduate') < 0 &&
-        this.roleName.indexOf('participants') < 0) {
+        this.roleName.indexOf('participants') < 0 &&
+        this.roleName !== 'expert' && this.roleName !== 'expert;') {
       this.isStudentRole = false;
     }else  this.isStudentRole = true;
 
-    if(!this.isStudentRole) this.$store.dispatch('changePendingMessageange'); //不是学生才会发送请求
+    if(!this.isStudentRole) {
+      let roleParam = this.roleName.indexOf('admin') >= 0 ? 'admin' : this.roleName.indexOf('teacher') >= 0 ? 'teacher' : '';
+      this.$store.dispatch('changePendingMessageange', roleParam); //不是学生才会发送请求
+    }
   },
   watch: {
     // 如果 `clientHeight` 发生改变，这个函数就会运行

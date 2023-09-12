@@ -188,6 +188,6 @@
     <select id="selectMonographNumberOfPendingMessing" resultType="Integer">
         select count(*)
         from i_book
-        where state = 'tea_pass'
+        where state = #{state}
     </select>
 </mapper>
