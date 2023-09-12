@@ -37,10 +37,7 @@
       </el-header>
       <el-container class="homeContainer">
         <el-aside width="15%" class="aside">
-          <div v-show="roleName.indexOf('doctor') < 0 &&
-          roleName.indexOf('undergraduate') < 0 &&
-          roleName.indexOf('graduate') < 0 &&
-          roleName.indexOf('participants') < 0"
+          <div v-show="!isStudentRole"
                style="padding-left: 25px; font-size: 14px; line-height: 56px; font-weight: 500">
             <a @click="pendingMessageRoute">
               {{$store.state.pendingMessageTotal}}条代办消息
@@ -249,6 +246,7 @@ export default {
   name: "Home",
  data: function () {
   return {
+     isStudentRole: false, //判断当前角色是否是学生中的四个角色之一，后续判断是否发送待办消息的请求和页面显示
      tutorName:'',
      stuType:['本科生','硕士研究生','博士研究生'],
      selectStuType:'',
@@ -275,12 +273,19 @@ export default {
     // 获取浏览器可视区域高度
     this.clientHeight = `${document.documentElement.clientHeight}`;
     this.role = JSON.parse(localStorage.getItem("user")).role;
-    this.roleName = JSON.parse(localStorage.getItem("user")).roleName; //后来优化返回的一个字符串角色，不用固定数字代替了
+    this.roleName = JSON.parse(localStorage.getItem("user")).roleName; //后来优化返回的一个字符串角色，不用固定数字(role id)代替了
     this.name = JSON.parse(localStorage.getItem("user")).name;
     window.onresize = function temp() {
       this.clientHeight = `${document.documentElement.clientHeight}`;
     };
-    this.$store.dispatch('changePendingMessageange');
+    if(this.roleName.indexOf('doctor') < 0 &&
+        this.roleName.indexOf('undergraduate') < 0 &&
+        this.roleName.indexOf('graduate') < 0 &&
+        this.roleName.indexOf('participants') < 0) {
+      this.isStudentRole = false;
+    }else  this.isStudentRole = true;
+
+    if(!this.isStudentRole) this.$store.dispatch('changePendingMessageange'); //不是学生才会发送请求
   },
   watch: {
     // 如果 `clientHeight` 发生改变，这个函数就会运行
