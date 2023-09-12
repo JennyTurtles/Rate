@@ -151,8 +151,8 @@ public class DecisionController {
     }
 
     @GetMapping("/getIndicatorByYearAndType")
-    public JsonResult getIndicatorByYearAndType(String year, String type) {
-        List<DecisionType> list = decisionService.getIndicatorByYearAndType(year, type);
+    public JsonResult getIndicatorByYearAndType(String year) {
+        List<DecisionType> list = decisionService.getIndicatorByYearAndType(year);
         return new JsonResult(list);
     }
 

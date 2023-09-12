@@ -42,7 +42,7 @@ const store = new Vuex.Store({
         },
         changePendingMessage(state, data) {
             state.pendingMessageTotal = data.count;
-            delete data.count;
+            delete data.count; //为了在显示列表中不出现count键值
             state.pendingMessageTypeObject  = data;
         },
         initRoutesAllSameForm(state, data) {

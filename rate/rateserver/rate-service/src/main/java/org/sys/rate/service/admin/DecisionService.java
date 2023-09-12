@@ -62,8 +62,8 @@ public class DecisionService {
         mailToStuService.sendStuMail(state, decision,null, "决策咨询");
         return decisionMapper.editState(state,ID);
     }
-    public List<DecisionType> getIndicatorByYearAndType(String year, String type) {
-        List<DecisionType> list = decisionTypeMapper.getIndicatorByYearAndType(year,type);
+    public List<DecisionType> getIndicatorByYearAndType(String year) {
+        List<DecisionType> list = decisionTypeMapper.getIndicatorByYearAndType(year);
         return list;
     }
     public List<Decision> searchDecisionByConditions(String studentName, String state, String decisionName, String pointFront, String pointBack) {

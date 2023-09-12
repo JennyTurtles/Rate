@@ -7,7 +7,6 @@
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="name" column="name"/>
         <result property="year" column="year"/>
-        <result property="indicatorId" column="indicator_id"/>
     </resultMap>
     <delete id="deleteByYearIndicatorID">
         delete
@@ -16,8 +15,8 @@
     </delete>
 
     <select id="getIndicatorByYearAndType" resultMap="DecisionTypeResult">
-        SELECT p.*
-        FROM i_decision_type p
-        where p.name like concat('%', #{type}, '%') and p.year = #{year}
+        SELECT *
+        FROM i_decision_type
+        where year = (select max(year) from i_decision_type where <![CDATA[ year <= #{year}  ]]>)
     </select>
 </mapper>
