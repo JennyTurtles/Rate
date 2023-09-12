@@ -56,7 +56,7 @@ public class ExportPDF {
     private final String TEMPLATE_PATH10 = "rate/rateserver/rate-web/src/main/resources/static/template/template_10.pdf";
     private final String TEMPLATE_PATH20 = "rate/rateserver/rate-web/src/main/resources/static/template/template_20.pdf";
 
-
+//    private final static String DEST = "D:/rateTemplate/exportFiles";
 //    private final String FONT_PATH_Song = "D:/rateTemplate/song.ttf";
 //    private final String TEMPLATE_PATH10 = "D:/rateTemplate/template_10.pdf";
 //    private final String TEMPLATE_PATH20 = "D:/rateTemplate/template_20.pdf";
