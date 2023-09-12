@@ -63,9 +63,9 @@
         >
         </el-table-column>
         <el-table-column
-            prop="author"
+            prop="indicator.name"
             align="center"
-            label="制定人"
+            label="指标点"
             min-width="15%"
         >
         </el-table-column>
@@ -240,16 +240,16 @@
           <span>{{ currentDecision.author }}</span
           >
         </el-form-item>
-        <el-form-item label="决策类别:">
-          <span>{{ currentDecision.decisionType.name }}</span
+        <el-form-item label="制定年月:">
+          <span>{{ currentDecision.date }}</span
+          >
+        </el-form-item>
+        <el-form-item label="制定人数:">
+          <span>{{ currentDecision.total }}</span
           >
         </el-form-item>
         <el-form-item label="作者排名:">
           <span>{{ currentDecision.rank }}</span
-          >
-        </el-form-item>
-        <el-form-item label="制定年月:">
-          <span>{{ currentDecision.date }}</span
           >
         </el-form-item>
         <el-form-item label="成果状态:">
@@ -573,8 +573,8 @@ export default {
     //编辑按钮
     showEditEmpView(data, idx) {
       this.title = "编辑决策信息";
-      this.indicatorBtn = this.currentIndicator.name;
       this.currentIndicator = data.indicator;
+      this.indicatorBtn = this.currentIndicator.name;
       this.currentDecisionCopy = JSON.parse(JSON.stringify(data));
       this.isAuthorIncludeSelf = true;
       this.disabledSelectDecisionType = false;

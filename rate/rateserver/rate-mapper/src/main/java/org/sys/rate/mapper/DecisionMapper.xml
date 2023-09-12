@@ -26,7 +26,7 @@
             <result property="rankN" column="rankN"/>
         </association>
         <association property="decisionType" javaType="org.sys.rate.model.DecisionType">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="decisionid" jdbcType="INTEGER"/>
             <result property="name" column="tname"/>
             <result property="year" column="year"/>
         </association>
@@ -61,7 +61,7 @@
 
 <!--    学生奖励页面初始化-->
     <select id="selectDecisionListById" resultMap="DecisionResult" parameterType="Integer">
-        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, i.name as iname, i.score,i.rankN, i.id as indicatorid
+        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as decisionid, ip.year, i.name as iname, i.score,i.rankN, i.id as indicatorid
         FROM i_decision a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -143,8 +143,8 @@
             <if test="point != null">point = #{point},</if>
             <if test="state != null">state =#{state},</if>
             <if test="url != null">url = #{url},</if>
-            <if test="decisionTypeId != null">#{decisionTypeId},</if>
-            <if test="indicatorId != null">#{indicatorId}</if>
+            <if test="decisionTypeId != null">decision_type_id = #{decisionTypeId},</if>
+            <if test="indicatorId != null">indicator_id = #{indicatorId}</if>
         </trim>
         where id = #{id}
     </update>
