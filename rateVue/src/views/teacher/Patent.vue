@@ -61,7 +61,7 @@
         </el-select>
         <label >&nbsp; - &nbsp;</label>
         <el-select
-            v-model="tmp3"
+            v-model="pointBack"
             style="margin-left:3px;width:60px"
             prefix-icon="el-icon-edit"
             clearable
@@ -306,7 +306,7 @@
       <span slot="footer" class="dialog-footer" :model="emp">
             <el-button
                 id="but_pass"
-                v-show="emp.state=='commit' ? true : false"
+                v-show="(emp.state == 'commit' || (emp.state == 'tea_pass' && role == 'admin')) ? true : false"
                 @click="(()=>{
                   if (role == 'teacher')
                    auditing_commit('tea_pass')
@@ -317,7 +317,7 @@
             >审核通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="emp.state=='commit' ? true : false"
+                v-show="(emp.state == 'commit' || (emp.state == 'tea_pass' && role == 'admin')) ? true : false"
                 @click="rejectDialog"
                 type="primary"
             >审核不通过</el-button>
@@ -427,8 +427,11 @@ export default {
           : '${this.select_pubName.length * 50}px'
     },
     role() {
-      return JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ||
-      JSON.parse(localStorage.getItem('user')).roleName.indexOf('expert') >= 0 ? 'teacher' : 'admin';
+      // return JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ||
+      // JSON.parse(localStorage.getItem('user')).roleName.indexOf('expert') >= 0 ? 'teacher' : 'admin';
+      return JSON.parse(localStorage.getItem('user')).roleName == 'expert' || JSON.parse(localStorage.getItem('user')).roleName == 'expert;' ?
+          'expert' : JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ?
+              'teacher' : JSON.parse(localStorage.getItem('user')).roleName.indexOf('admin') >= 0 ? 'admin' : '';
     }
   },
   created() {},
@@ -455,7 +458,7 @@ export default {
         }).then(() => {
           this.isShowInfo = true;
         }).catch(() => {});
-      }else this.isShowInfo = false;
+      }else this.isShowInfo = true;
     },
     rejectDialogConfirm(){
       if (this.role == 'teacher')
@@ -487,14 +490,16 @@ export default {
     //点击对话框中的确定按钮 触发事件
     auditing_commit(state){
       this.loading = true;
-      if(this.role == 'admin' && state.indexOf('pass') >= 0) { //管理员通过 有提示
+      if(this.role == 'admin' && state.indexOf('pass') >= 0 && this.emp.state == 'commit') { //管理员通过 有提示
         this.$confirm('目前导师尚未审核，是否确认审核通过？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.rolePass(state);
-        }).catch(() => {});
+        }).catch(() => {
+          this.loading = false;
+        });
       }else this.rolePass(state);
     },
     rolePass(state) {
@@ -512,6 +517,8 @@ export default {
             message: '操作成功'
           })
           this.doAddOper(state, this.reason, this.emp.id);
+          let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+          this.$store.dispatch('changePendingMessageange', roleParam);
         }
       })
     },
@@ -527,7 +534,7 @@ export default {
         this.oper.operationName = "审核驳回"
       }
       await this.postRequest1("/oper/basic/add", this.oper);
-      // await this.searchPatentListByCondicitions(this.currentPage, this.pageSize)
+      await this.searchPatentListByCondicitions(this.currentPage, this.pageSize)
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'

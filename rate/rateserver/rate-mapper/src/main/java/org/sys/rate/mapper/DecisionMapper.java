@@ -81,6 +81,6 @@ public interface DecisionMapper
     public Decision selectByID(Long ID);
 
     public List<Decision> searchDecisionByConditions(String studentName, String state, String decisionName, String pointFront, String pointBack);
-    public Integer selectDecisionNumberOfPendingMessing();
+    public Integer selectDecisionNumberOfPendingMessing(String state);
 
 }

@@ -45,9 +45,7 @@ public class AdminController {
     @PostMapping("/updateMail")
     public RespBean updateMail(@RequestBody Mail mail) throws MessagingException {
         if (mailService.updateMail(mail)) {
-//            if(mailService.checkMail(mail)) {
             if(true) {
-                mailService.setMail();
                 return RespBean.ok("更新成功!");
             }else{
                 return RespBean.error("邮箱设置错误!请检查各项邮箱配置。");

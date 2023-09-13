@@ -103,7 +103,7 @@ public class MailToTeacherService {
     public void sendTeaFeedbackMail(String to, String mailState, String originalMessage) {
         String subject = getFeedbackMailSubject(originalMessage);
         String content = getFeedbackMailContent(originalMessage, mailState);
-        sendMails.sendMailAsync(to, subject, content);
+        sendMails.sendMailAsync(to, subject, content, null);
     }
 
     private String getFeedbackMailContent(String originalMessage, String mailState) {
@@ -198,7 +198,7 @@ public class MailToTeacherService {
             subject = "教学系统审核" + type + "成果：" + type + "编号" + production.getId() + "审核成功！";
         }
         String content = getFeedbackMailContent(production, correctFormat, type, infoProduction, originalMessage, mailState);
-        sendMails.sendMailAsync(to, subject, content);
+        sendMails.sendMailAsync(to, subject, content, null);
     }
 
     private <T extends Production> String getFeedbackMailContent(T production, String correctFormat, String type, String infoProduction, String originalMessage, String mailState) {
@@ -368,7 +368,7 @@ public class MailToTeacherService {
             subject = "教学系统审核论文成果：论文编号" + production.getID() + "审核成功！";
         }
         String content = getFeedbackMailContent(production, correctFormat, type, infoProduction, originalMessage, mailState);
-        sendMails.sendMailAsync(to, subject, content);
+        sendMails.sendMailAsync(to, subject, content, null);
     }
 
     private String getFeedbackMailContent(Paper production, String correctFormat, String type, String infoProduction, String originalMessage, String mailState) {

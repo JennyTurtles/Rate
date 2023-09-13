@@ -169,6 +169,6 @@
     <select id="selectProductNumberOfPendingMessing" resultType="Integer">
         select count(*)
         from i_application
-        where state = 'tea_pass'
+        where state = #{state}
     </select>
 </mapper>

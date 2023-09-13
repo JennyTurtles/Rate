@@ -678,15 +678,6 @@ export default {
           params.id = this.currentAwardCopy.id;
           params.studentId = this.user.id
           params.awardTypeId = this.currentAwardCopy.awardType.id;
-          if(params.url == '' || params.url == null){
-            this.$message.error('请上传证明材料！')
-            return
-          }
-          if(!this.isAuthorIncludeSelf) {
-            this.$message.error('请仔细检查作者列表！');
-            return;
-          }
-
           this.postRequest1("/award/basic/edit", params).then(
               (resp) => {
                 if (resp) {
@@ -711,6 +702,14 @@ export default {
       params.awardLevel = this.currentAwardCopy.awardLevel;
       params.state = "commit";
       params.indicatorId = this.selectedIndicator.id;
+      if(params.url == '' || params.url == null){
+        this.$message.error('请上传证明材料！')
+        return
+      }
+      if(!this.isAuthorIncludeSelf) {
+        this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+        return;
+      }
       if (this.currentAwardCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editAward(params);
       } else {
@@ -718,14 +717,6 @@ export default {
           if (valid) {
             params.studentId = this.user.id;
             params.awardTypeId = this.selectAwardType.id;
-            if(params.url == '' || params.url == null){
-              this.$message.error('请上传证明材料！')
-              return
-            }
-            if(!this.isAuthorIncludeSelf) {
-              this.$message.error('请仔细检查作者列表！');
-              return;
-            }
             this.postRequest1("/award/basic/add", params).then(
                 (resp) => {
                   if (resp) {

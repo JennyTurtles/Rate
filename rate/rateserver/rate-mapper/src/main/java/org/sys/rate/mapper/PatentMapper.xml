@@ -104,7 +104,7 @@
     <select id="selectPatentNumberOfPendingMessing" resultType="Integer">
         select count(*)
         from i_patent
-        where state = 'tea_pass'
+        where state = #{state}
     </select>
 
     <insert id="insertPatent" parameterType="org.sys.rate.model.Patent" useGeneratedKeys="true" keyProperty="id">

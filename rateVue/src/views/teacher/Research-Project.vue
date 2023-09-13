@@ -305,7 +305,7 @@
       <span slot="footer" class="dialog-footer" :model="currentProject">
             <el-button
                 id="but_pass"
-                v-show="currentProject.state =='commit' ? true : false"
+                v-show="(currentProject.state == 'commit' || (currentProject.state == 'tea_pass' && role == 'admin')) ? true : false"
                 @click="(()=>{
                   if (role == 'teacher')
                    auditing_commit('tea_pass')
@@ -316,7 +316,7 @@
             >审核通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="currentProject.state =='commit' ? true : false"
+                v-show="(currentProject.state == 'commit' || (currentProject.state == 'tea_pass' && role == 'admin')) ? true : false"
                 @click="rejectDialog"
                 type="primary"
             >审核不通过</el-button>
@@ -410,8 +410,11 @@ export default {
       return this.$store.state.currentHr; //object信息
     },
     role() {
-      return JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ||
-      JSON.parse(localStorage.getItem('user')).roleName.indexOf('expert') >= 0 ? 'teacher' : 'admin';
+      // return JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ||
+      // JSON.parse(localStorage.getItem('user')).roleName.indexOf('expert') >= 0 ? 'teacher' : 'admin';
+      return JSON.parse(localStorage.getItem('user')).roleName == 'expert' || JSON.parse(localStorage.getItem('user')).roleName == 'expert;' ?
+          'expert' : JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ?
+              'teacher' : JSON.parse(localStorage.getItem('user')).roleName.indexOf('admin') >= 0 ? 'admin' : '';
     }
   },
   created() {},
@@ -439,7 +442,7 @@ export default {
         }).then(() => {
           this.isShowInfo = true;
         }).catch(() => {});
-      }else this.isShowInfo = false;
+      }else this.isShowInfo = true;
     },
     rejectDialogConfirm(){
       if (this.role == 'teacher')
@@ -468,14 +471,16 @@ export default {
     //点击对话框中的确定按钮 触发事件
     auditing_commit(state){
       this.loading = true;
-      if(this.role == 'admin' && state.indexOf('pass') >= 0) { //管理员通过 有提示
+      if(this.role == 'admin' && state.indexOf('pass') >= 0 && this.currentMonograph.state == 'commit') { //管理员通过 有提示
         this.$confirm('目前导师尚未审核，是否确认审核通过？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           this.rolePass(state);
-        }).catch(() => {});
+        }).catch(() => {
+          this.loading = false;
+        });
       }else this.rolePass(state);
     },
     rolePass(state) {
@@ -493,10 +498,12 @@ export default {
             message: '操作成功'
           })
           this.doAddOper(state, this.reason, this.currentProject.id);
+          let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+          this.$store.dispatch('changePendingMessageange', roleParam);
         }
       })
     },
-    doAddOper(state,remark,projectID) {
+    async doAddOper(state,remark,projectID) {
       this.oper.state = state;
       this.oper.remark = remark;
       this.oper.prodId = projectID;
@@ -507,7 +514,8 @@ export default {
       } else if (this.oper.state =="tea_reject" || this.oper.state == 'adm_reject'){
         this.oper.operationName = "审核驳回"
       }
-      this.postRequest1("/oper/basic/add", this.oper);
+      await this.postRequest1("/oper/basic/add", this.oper);
+      await this.searchProject(this.currentPage, this.pageSize);
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'

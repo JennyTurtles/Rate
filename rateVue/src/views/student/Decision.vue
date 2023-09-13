@@ -63,9 +63,9 @@
         >
         </el-table-column>
         <el-table-column
-            prop="author"
+            prop="indicator.name"
             align="center"
-            label="制定人"
+            label="指标点"
             min-width="15%"
         >
         </el-table-column>
@@ -146,6 +146,10 @@
               placeholder="选择年月">
           </el-date-picker>
         </el-form-item>
+        <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-button size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
+        </el-form-item>
         <el-form-item label="决策类别:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-select
@@ -156,11 +160,10 @@
               remote
               clearable
               reserve-keyword
-              @change="selectOption($event)"
               loading-text="搜索中..."
               :loading="searchTypeLoading"
               placeholder="请输入决策咨询类别"
-              :remote-method="selectDecisionTypeMethod">
+              @focus="selectDecisionTypeMethod">
             <el-option
                 v-for="item in selectDecisionTypeList"
                 :key="item.id"
@@ -237,16 +240,16 @@
           <span>{{ currentDecision.author }}</span
           >
         </el-form-item>
-        <el-form-item label="决策类别:">
-          <span>{{ currentDecision.decisionType.name }}</span
+        <el-form-item label="制定年月:">
+          <span>{{ currentDecision.date }}</span
+          >
+        </el-form-item>
+        <el-form-item label="制定人数:">
+          <span>{{ currentDecision.total }}</span
           >
         </el-form-item>
         <el-form-item label="作者排名:">
           <span>{{ currentDecision.rank }}</span
-          >
-        </el-form-item>
-        <el-form-item label="制定年月:">
-          <span>{{ currentDecision.date }}</span
           >
         </el-form-item>
         <el-form-item label="成果状态:">
@@ -292,6 +295,19 @@
         >
       </span>
     </el-dialog>
+
+    <el-dialog title="选择指标点分类" center :visible.sync="showTreeDialog" width="60%">
+      <span class="el-tree-node">
+        <el-tree
+            :data="indicatorData"
+            :props="defaultProps"
+            @node-click="handleNodeClick"
+            :expand-on-click-node="false"
+            :highlight-current="true"
+            default-expand-all
+        ></el-tree>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -303,6 +319,13 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      showTreeDialog: false,
+      indicatorData: [],
+      indicatorBtn: '选择指标点',
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
       currentIndicator: {},
       zeroPointReason: '',
       searchTypeLoading: false,
@@ -316,7 +339,6 @@ export default {
       },
       files:[],//选择上传的文件列表
       urlFile:'',//文件路径
-      addButtonState:true,//是否允许添加项目
       operList:[],//每个项目的历史操作记录
       labelPosition: "left",
       title: "",
@@ -387,6 +409,30 @@ export default {
     }
   },
   methods: {
+    //不进行rankN判断
+    handleNodeClick(data, node) {
+      if (data.children.length == 0) {
+        this.indicatorBtn = data.label;
+        this.currentIndicator = data;
+        this.currentDecisionCopy.indicatorId = data.id;
+        if (!this.isAuthorIncludeSelf) {
+          this.decisionPoint = 0;
+          this.zeroPointReason = '参与人未包含自己'
+        } else {
+          this.decisionPoint = data.score;
+          this.zeroPointReason = '';
+        }
+        this.showTreeDialog = false;
+      }
+    },
+    initTree() {
+      this.getRequest("/indicator/getAllByType?type=决策咨询").then( resp => {
+        this.showTreeDialog = true;
+        if (resp) {
+          this.indicatorData = resp.obj[1];
+        }
+      });
+    },
     changeProjectStartDate(data) {
       if(data) {
         this.disabledSelectDecisionType = false;
@@ -412,7 +458,7 @@ export default {
     },
     debounceSearchType(data) {
       if (this.currentDecisionCopy.date != null && this.currentDecisionCopy.date != '' && data != null && data != '') {
-        this.getRequest('/decision/basic/getIndicatorByYearAndType?year=' + this.currentDecisionCopy.date.split('-')[0] + '&type=' + data).then(response => {
+        this.getRequest('/decision/basic/getIndicatorByYearAndType?year=' + this.currentDecisionCopy.date.split('-')[0]).then(response => {
           if(response) {
             this.selectDecisionTypeList = response.data;
             this.searchTypeLoading = false;
@@ -422,7 +468,7 @@ export default {
     },
     selectDecisionTypeMethod(data) {
       this.searchTypeLoading = true;
-      this.debounceSearch(data);
+      this.debounceSearchType(data);
     },
     cancelAdd() {
       this.dialogVisible = false;
@@ -475,7 +521,6 @@ export default {
             this.$message({
               message:'上传成功！'
             })
-            this.addButtonState = true
             //获取文件路径
             this.urlFile = response.data
           },()=>{}
@@ -510,10 +555,10 @@ export default {
         this.zeroPointReason = '参与人未包含自己'
         this.decisionPoint = 0;
       } else {
-        if(JSON.stringify(this.currentIndicator) == '{}') { //项目类别是空白
+        if(JSON.stringify(this.currentIndicator) == '{}') { //未选择指标点
           this.decisionPoint = 0;
-          this.zeroPointReason = '请输入项目类别';
-        }else { //选择了项目类别
+          this.zeroPointReason = '请选择指标点';
+        }else {
           this.decisionPoint = this.currentIndicator.score;
           this.zeroPointReason = '';
         }
@@ -529,9 +574,9 @@ export default {
     showEditEmpView(data, idx) {
       this.title = "编辑决策信息";
       this.currentIndicator = data.indicator;
+      this.indicatorBtn = this.currentIndicator.name;
       this.currentDecisionCopy = JSON.parse(JSON.stringify(data));
       this.isAuthorIncludeSelf = true;
-      this.addButtonState = true;
       this.disabledSelectDecisionType = false;
       this.decisionPoint = data.point;
       const { id, name } = data.decisionType;
@@ -615,6 +660,15 @@ export default {
       params.point = this.decisionPoint;
       params.decisionLevel = this.currentDecisionCopy.decisionLevel;
       params.state = "commit";
+      params.indicatorId = this.currentIndicator.id;
+      if(JSON.stringify(this.currentIndicator) === '{}') {
+        this.$message.error('请选择指标点！');
+        return;
+      }
+      if(JSON.stringify(this.selectDecisionType) == '{}' || this.selectDecisionType == '') {
+        this.$message.error('请选择决策类别！')
+        return;
+      }
       if(params.url == '' || params.url == null){
         this.$message.error('请上传证明材料！')
         return
@@ -655,8 +709,8 @@ export default {
       this.currentIndicator = {};
       this.urlFile = ''
       this.currentDecisionCopy = {};
-      this.addButtonState = false;
       this.selectDecisionType = {};
+      this.indicatorBtn = '选择指标点'
       this.title = "添加决策咨询";
       this.dialogVisible = true;
       this.decisionPoint = '';

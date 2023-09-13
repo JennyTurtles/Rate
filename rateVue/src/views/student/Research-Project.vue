@@ -628,7 +628,7 @@ export default {
             return
           }
           if(!this.isAuthorIncludeSelf) {
-            this.$message.error('请仔细检查作者列表！');
+            this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
             return;
           }
           this.postRequest1("/project/basic/edit", params).then(

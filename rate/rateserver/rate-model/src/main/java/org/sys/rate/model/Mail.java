@@ -12,5 +12,4 @@ public class Mail {
     private String SMTPHost;
     private int id;
 
-
 }
