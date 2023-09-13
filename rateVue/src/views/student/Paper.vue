@@ -1095,6 +1095,7 @@ export default {
     },
     //编辑按钮
     showEditEmpView(data) {
+      console.log(data)
       this.title = "编辑论文信息";
       this.currentEmp = JSON.parse(JSON.stringify(data));
       this.files = [
@@ -1113,6 +1114,7 @@ export default {
       this.publicationName = this.currentEmp.pubName
       this.isInitEditDialog = true;
       this.isAuthorIncludeSelf = true;
+      this.publicationId = data.publication.id;
     },
     deleteEmpMethod(data) {
       return  new Promise((resolve, reject) => {
@@ -1143,14 +1145,10 @@ export default {
         })
       })
     },
-    editPaper() {
+    editPaper(params) {
       this.$refs["currentEmp"].validate(async (valid) => {
         if (valid) {
-          const params = {};
           params.ID = this.currentEmp.id;
-          params.pubPage = this.currentEmp.pubPage;
-          params.publicationID = this.currentEmp.publicationID;
-          params.studentID = this.user.id
           this.postRequest1("/paper/basic/edit", params).then((resp) => {
             if (resp) {
               this.dialogVisible = false;
@@ -1172,6 +1170,8 @@ export default {
       params.month = this.currentEmp.month;
       params.point = this.paperPoint;
       params.state = "commit";
+      params.studentID = this.user.id
+      params.pubPage = `${this.currentEmp.startPage}-${this.currentEmp.endPage}`;
       if (params.url == '' || params.url == null) {
         this.$message.error('请上传证明材料！')
         return
@@ -1184,16 +1184,13 @@ export default {
         this.$message.error('请输入期刊名称！')
         return
       }
+      if(params.publicationID < 0) return;
+      params.publicationID = this.publicationId;
       if (this.currentEmp.id) {//emptyEmp中没有将id设置为空 所以可以判断
-        this.editPaper();
+        this.editPaper(params);
       } else {
         this.$refs["currentEmp"].validate(async (valid) => {
           if (valid) {
-            params.pubPage = this.currentEmp.startPage + '-' + this.currentEmp.endPage;
-            // params.publicationID = 4;
-            params.publicationID = this.publicationId;
-            params.studentID = this.user.id
-            if(params.publicationID < 0) return;
             this.postRequest1("/paper/basic/add", params).then(
               (resp) => {
                 if (resp) {

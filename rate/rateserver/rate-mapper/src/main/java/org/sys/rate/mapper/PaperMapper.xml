@@ -26,7 +26,7 @@
             <result property="sname" column="sname"/>
         </association>
         <association property="publication" javaType="org.sys.rate.model.Publication">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="publicationid" jdbcType="INTEGER"/>
             <result property="name" column="pname"/>
         </association>
         <collection property="paperoperList" ofType="org.sys.rate.model.Operation">
@@ -79,7 +79,7 @@
 
     <select id="selectListByIds" resultMap="PaperResult" parameterType="Integer">
 -- 学生初始化
-        SELECT p.*,i.max_date,j.remark,ip.`name` as pubName
+        SELECT p.*,i.max_date,j.remark,ip.`name` as pubName, ip.id as publicationid
         FROM paper p
                  JOIN (
             SELECT prod_id,MAX(date) max_date
