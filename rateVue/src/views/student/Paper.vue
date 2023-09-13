@@ -147,7 +147,7 @@
               @change="timechange"
           ></el-date-picker>
         </el-form-item>
-        <el-form-item label="所属期刊:" prop="publication_name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="所属期刊:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-select
               :disabled="disabledInput"
@@ -280,7 +280,7 @@
 
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" @click="doAddEmp()" v-show="addButtonState">提 交</el-button>
+        <el-button type="primary" @click="doAddEmp()">提 交</el-button>
       </span>
     </el-dialog>
 
@@ -490,6 +490,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      selectedPublicationScore: '',
       searchPublicationLoading: false, //输入期刊的loading状态
       isAuthorIncludeSelf: false,
       //点击编辑框，期刊名字框赋值会多调用一次请求，用于判断是否是第一次打开操作
@@ -559,7 +560,6 @@ export default {
       files: [],//选择上传的文件列表
       filesPublication: [], // 这里上传的是期刊的证明材料
       urlFile: '',//文件路径
-      addButtonState: true,//是否允许添加论文
       operList: [],//每个论文的历史操作记录
       writer: '',//和输入的作者列表绑定
       data_picker: "",//选择时间
@@ -606,8 +606,7 @@ export default {
       rules: {
         name: [{required: true, message: "请输入论文名", trigger: "blur"}],
         author: [{required: true, message: "请输入作者列表", trigger: "blur"}],
-        year: [{required: true, message: "请选择发表年月", trigger: "blur"}],
-        publication_name: [{required: true, message: "请输入期刊名称", trigger: "blur"}]
+        year: [{required: true, message: "请选择发表年月", trigger: "blur"}]
       },
       rulesPublication: {
         publicationName: [
@@ -921,19 +920,7 @@ export default {
         }
       });
     },
-    inputPubFocus() {//input获取焦点判断是否有下拉框，是否可输入
-      if (this.currentEmp.year) {
-        this.ispubShow = true//控制下拉框是否显示
-        this.disabledInput = false
-      } else {
-        this.publicationName = ''
-        this.$message.error('请选择时间！')
-        this.disabledInput = true
-      }
-    },
     filterPublication(val) {//选择下拉框的某个期刊 得到选择的期刊的id score等信息
-      // this.ispubFlag = false
-      // this.ispubShow = false
       if (!val) {
         return
       }
@@ -943,7 +930,8 @@ export default {
         this.loading = false;
         if (resp) {
           if (resp.obj) {
-            this.paperPoint = resp.obj.indicatorList[0].score;
+            this.selectedPublicationScore = resp.obj.indicatorList[0].score;
+            this.judgeWriter();
             let year = resp.obj.indicatorList[0].year;
             this.publication_detail = resp.obj.name + "录入于" + year + "年，按照东华大学毕业要求，属于" + resp.obj.indicatorList[0].order + "类"
             this.publicationId = resp.obj.id;
@@ -1028,7 +1016,6 @@ export default {
             this.$message({
               message: '上传成功！'
             })
-            this.addButtonState = true
             //获取文件路径
             this.urlFile = response.data
           }, () => {
@@ -1080,11 +1067,15 @@ export default {
                   confirmButtonText: "确定",
                   type: "warning",
                 }).then();
-            this.currentEmp.point = 0;
-            this.paperPoint = this.currentEmp.point;
+            // this.currentEmp.point = 0;
+            this.paperPoint = 0;
           } else if(num.indexOf(info.teacherName) == 0 && num.indexOf(info.name) == 1) { //导师是一作，自己是二作
-
+            this.paperPoint = this.selectedPublicationScore;
+          } else {
+            this.paperPoint = 0;
           }
+        } else if(num.indexOf(info.name) == 0){
+          this.paperPoint = this.selectedPublicationScore;
         }
         this.isAuthorIncludeSelf = true;
       }
@@ -1116,11 +1107,11 @@ export default {
       this.currentEmp.startPage = this.currentEmp.pubPage.split('-')[0]
       this.currentEmp.endPage = this.currentEmp.pubPage.split('-')[1]
       this.paperPoint = data.point;
+      this.disabledInput = false;
       this.urlFile = this.currentEmp.url;
       this.dialogVisible = true;
       this.publicationName = this.currentEmp.pubName
       this.isInitEditDialog = true;
-      this.addButtonState = true;
       this.isAuthorIncludeSelf = true;
     },
     deleteEmpMethod(data) {
@@ -1179,7 +1170,7 @@ export default {
       params.author = this.currentEmp.author;
       params.year = this.currentEmp.year;
       params.month = this.currentEmp.month;
-      params.point = this.currentEmp.point;
+      params.point = this.paperPoint;
       params.state = "commit";
       if (params.url == '' || params.url == null) {
         this.$message.error('请上传证明材料！')
@@ -1189,14 +1180,18 @@ export default {
         this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
         return;
       }
+      if(this.publicationName == '' || this.publicationName == null) {
+        this.$message.error('请输入期刊名称！')
+        return
+      }
       if (this.currentEmp.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editPaper();
       } else {
         this.$refs["currentEmp"].validate(async (valid) => {
           if (valid) {
             params.pubPage = this.currentEmp.startPage + '-' + this.currentEmp.endPage;
-            params.publicationID = 4;
-            // params.publicationID = this.publicationId;
+            // params.publicationID = 4;
+            params.publicationID = this.publicationId;
             params.studentID = this.user.id
             if(params.publicationID < 0) return;
             this.postRequest1("/paper/basic/add", params).then(
@@ -1222,7 +1217,6 @@ export default {
     ,
     showAddEmpView() {//点击添加论文按钮
       this.currentEmp = {};
-      this.addButtonState = false;
       this.paperPoint = '';
       this.publication_detail = ""
       this.publicationName = ''
