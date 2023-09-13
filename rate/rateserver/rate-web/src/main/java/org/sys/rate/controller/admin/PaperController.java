@@ -100,9 +100,7 @@ public class PaperController {
     @ResponseBody
     public JsonResult editSave(Paper paper) throws FileNotFoundException {
         int res = paperService.updatePaper(paper);
-        if (res > 0) {
-            mailToTeacherService.sendTeaCheckMail(paper, "学术论文");
-        }
+        mailToTeacherService.sendTeaCheckMail(paper, "学术论文");
         return new JsonResult(res);
     }
 

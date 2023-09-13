@@ -309,19 +309,7 @@ public class ReceiveMails {
         return operationService.insertOper(operation) != 0;
     }
 
-    private <T extends Production> String getTutorEmail(T production) {
-        Student student = studentService.getById(production.getStudentId().intValue());
-        if (student == null) {
-            return null;
-        } else {
-            Teacher teacher = teacherService.getById(student.getTutorID());
-            if (teacher == null) {
-                return null;
-            } else {
-                return teacher.getEmail();
-            }
-        }
-    }
+
 
     public <T extends Production> boolean checkProductionState(T production) {
         return production.getState().equals("commit");
