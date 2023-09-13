@@ -147,39 +147,57 @@
               @change="timechange"
           ></el-date-picker>
         </el-form-item>
-        <el-form-item label="所属期刊:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="所属期刊:" prop="publication_name" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
-          <div class="select_div_input">
-            <input
-                autocomplete="off"
-                style="width:95%;line-height:28px;
-                              border:1px solid lightgrey;padding:0 10px 1px 15px;
-                              border-radius:4px;color:gray"
-                :disabled="disabledInput"
-                placeholder="请输入期刊名称"
-                v-model="publicationName"
-                @focus="inputPubFocus"
-                @blur="ispubShow=ispubFlag"
-                id="input_publicationName"/>
-            <div class="select_div"
-                 v-show="ispubShow && publicationName && currentEmp.year ? true:false"
-                 :style="'height: ${menuHeight}'"
-                 @mouseover="ispubFlag = true"
-                 @mouseleave="ispubFlag = false">
-              <div
-                  class="select_div_div"
-                  v-for="val in select_pubName"
-                  :key="val"
-                  :value="val"
-                  @click="filter_pub(val)"
-              >
-                {{ val }}
-              </div>
-            </div>
-          </div>
+          <el-select
+              :disabled="disabledInput"
+              v-model="publicationName"
+              value-key="id"
+              filterable
+              remote
+              clearable
+              reserve-keyword
+              @change="filterPublication($event)"
+              placeholder="请输入期刊名称"
+              :remote-method="inputRemotePublication">
+            <el-option
+                v-for="item in select_pubName"
+                :key="item"
+                :label="item"
+                :value="item">
+            </el-option>
+          </el-select>
+<!--          <div class="select_div_input">-->
+<!--            <input-->
+<!--                autocomplete="off"-->
+<!--                style="width:95%;line-height:28px;-->
+<!--                              border:1px solid lightgrey;padding:0 10px 1px 15px;-->
+<!--                              border-radius:4px;color:gray"-->
+<!--                :disabled="disabledInput"-->
+<!--                placeholder="请输入期刊名称"-->
+<!--                v-model="publicationName"-->
+<!--                @focus="inputPubFocus"-->
+<!--                @blur="ispubShow=ispubFlag"-->
+<!--                id="input_publicationName"/>-->
+<!--            <div class="select_div"-->
+<!--                 v-show="ispubShow && publicationName && currentEmp.year ? true:false"-->
+<!--                 :style="'height: ${menuHeight}'"-->
+<!--                 @mouseover="ispubFlag = true"-->
+<!--                 @mouseleave="ispubFlag = false">-->
+<!--              <div-->
+<!--                  class="select_div_div"-->
+<!--                  v-for="val in select_pubName"-->
+<!--                  :key="val"-->
+<!--                  :value="val"-->
+<!--                  @click="filterPublication(val)"-->
+<!--              >-->
+<!--                {{ val }}-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </div>-->
         </el-form-item>
 
-        <el-form-item prop="total" label="作者列表:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item prop="author" label="作者列表:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
@@ -472,6 +490,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      searchPublicationLoading: false, //输入期刊的loading状态
       isAuthorIncludeSelf: false,
       //点击编辑框，期刊名字框赋值会多调用一次请求，用于判断是否是第一次打开操作
       isInitEditDialog: false,
@@ -586,6 +605,9 @@ export default {
       },
       rules: {
         name: [{required: true, message: "请输入论文名", trigger: "blur"}],
+        author: [{required: true, message: "请输入作者列表", trigger: "blur"}],
+        year: [{required: true, message: "请选择发表年月", trigger: "blur"}],
+        publication_name: [{required: true, message: "请输入期刊名称", trigger: "blur"}]
       },
       rulesPublication: {
         publicationName: [
@@ -607,11 +629,11 @@ export default {
     };
   },
   watch: {
-    publicationName: {
-      handler(val) {//函数抖动
-        this.debounceSearch(val);
-      }
-    },
+    // publicationName: { //
+    //   handler(val) {//函数抖动
+    //     this.debounceSearch(val);
+    //   }
+    // },
     data_picker: {//清除时间input设置为不可输入
       handler(val) {
         if (!val) {
@@ -648,6 +670,9 @@ export default {
     }
   },
   methods: {
+    inputRemotePublication(val) { //所属期刊的输入框内容改变
+      this.debounceSearch(val);
+    },
     openCheckVue() {
       // 使用路由导航进行页面跳转
       this.$router.push({ path: '/student/CheckProgress' });
@@ -878,12 +903,12 @@ export default {
       }
     },
 
-    debounceSearchInput(val) {
+    debounceSearchInput(val) { //第一步得到期刊全称 第二步 名称+year 获取积分
       if (!val) {
         return
       }
       if(!this.isInitEditDialog && this.currentEmp.id) return;
-      let url = `/publication/basic/listByNameYear/${encodeURIComponent(this.publicationName)}/${encodeURIComponent(this.currentEmp.year)}`;
+      let url = `/publication/basic/listByNameYear/${encodeURIComponent(val)}/${encodeURIComponent(this.currentEmp.year)}`;
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
@@ -906,9 +931,9 @@ export default {
         this.disabledInput = true
       }
     },
-    filter_pub(val) {//选择下拉框的某个期刊 得到选择的期刊的id score等信息
-      this.ispubFlag = false
-      this.ispubShow = false
+    filterPublication(val) {//选择下拉框的某个期刊 得到选择的期刊的id score等信息
+      // this.ispubFlag = false
+      // this.ispubShow = false
       if (!val) {
         return
       }
@@ -940,11 +965,9 @@ export default {
             this.inputDisabled = true
           } else {
             this.$message.warning(this.publicationName + '在' + this.currentEmp.year + '年的积分为0！')
-            this.publicationName = ''
             this.publication_detail = ''
             this.paperPoint = 0
           }
-          clearInterval(this.timer)
         }
       });
     },
@@ -1038,50 +1061,35 @@ export default {
         }
       }
       var num = null
-      var info = this.user
-      if (val.indexOf("；") > -1 && val.indexOf(";") == -1) {//中文
-        num = val.split('；')
-      } else if (val.indexOf(";") > -1 && val.indexOf("；") == -1) {//英文
-        num = val.split(';')
-      } else if (val.indexOf("；") > -1 && val.indexOf(";") > -1) {//中英都有
-        this.$message.error('输入不合法请重新输入！');
-      } else if (val.indexOf("；") == -1 && val.indexOf(";") == -1) {//只有一个人
-        if (this.currentEmp.author != info.name) {
-          this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【" + info.name + " 】，注意拼写要完全正确。");
-          this.isAuthorIncludeSelf = false;
-        } else if (this.currentEmp.author === info.name){//自己在里面且是自己
-          this.currentEmp.rank = 1
-          this.currentEmp.total = 1
-          this.isAuthorIncludeSelf = true;
-        }
-        return;
-      }
+      var info = this.user;
+      num = val.split(/[;；]/)
+      num = num.map(item => {
+        return item && item.replace(/\s*/g,"");
+      }).filter(v => {
+        return v
+      })
       //判断自己在不在其中
-      if (num.indexOf(info.name) == -1 && !isalph) {//不在 并且没有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【" + info.name + " 】");
+      if (num.indexOf(info.name) == -1) {//不在
+        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
         this.isAuthorIncludeSelf = false;
-      } else if (num.indexOf(info.name) == -1 && isalph) {//不在 里面有英文单词
-        this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【" + info.name + " 】，注意拼写要完全正确。");
-        this.isAuthorIncludeSelf = false;
+        this.paperPoint = 0;
       } else {//自己在里面 自己是一作不用做任何判断 导师无所谓
         if (num.indexOf(info.name) > 0) {//自己不是一作
-          if (num.indexOf(info.teacherName) > 0 || num.indexOf(info.teacherName) == -1) {//导师在作者列表中,不是一作,或者老师不在列表中
-            this.$confirm(
-                "第一作者不是导师【 " + info.teacherName + " 】！积分将为【0】分",
-                "提示",
-                {
+          if (num.indexOf(info.teacherName) > 0 || num.indexOf(info.teacherName) == -1) {//导师在作者列表中且老师不是一作, 或者老师不在列表中
+            this.$confirm("第一作者不是导师【 " + info.teacherName + " 】！积分将为【0】分", "提示", {
                   confirmButtonText: "确定",
                   type: "warning",
-                }
-            ).then();
-            this.currentEmp.point = 0
-            this.paperPoint = this.currentEmp.point
+                }).then();
+            this.currentEmp.point = 0;
+            this.paperPoint = this.currentEmp.point;
+          } else if(num.indexOf(info.teacherName) == 0 && num.indexOf(info.name) == 1) { //导师是一作，自己是二作
+
           }
         }
         this.isAuthorIncludeSelf = true;
       }
       this.currentEmp.total = num.length
-      if (num.indexOf(info.teacherName) > -1) {
+      if (num.indexOf(info.teacherName) > -1) { //去掉导师的排名
         num.splice(num.indexOf(info.teacherName), 1)
       }
       this.currentEmp.rank = num.indexOf(info.name) + 1
@@ -1149,28 +1157,9 @@ export default {
         if (valid) {
           const params = {};
           params.ID = this.currentEmp.id;
-          params.name = this.currentEmp.name;
-          params.url = this.urlFile;
-          params.rank = this.currentEmp.rank;
-          params.total = this.currentEmp.total;
-          params.author = this.currentEmp.author;
-          params.year = this.currentEmp.year;
-          params.month = this.currentEmp.month;
           params.pubPage = this.currentEmp.pubPage;
           params.publicationID = this.currentEmp.publicationID;
-          params.point = this.currentEmp.point;
-          params.state = "commit";
           params.studentID = this.user.id
-          if (params.url == '' || params.url == null) {
-            this.$message({
-              message: '请上传证明材料！'
-            })
-            return
-          }
-          if(!this.isAuthorIncludeSelf) {
-            this.$message.error('请仔细检查作者列表！');
-            return;
-          }
           this.postRequest1("/paper/basic/edit", params).then((resp) => {
             if (resp) {
               this.dialogVisible = false;
@@ -1182,33 +1171,33 @@ export default {
       });
     },
     doAddEmp() {//确定添加论文
+      const params = {};
+      params.name = this.currentEmp.name;
+      params.url = this.urlFile;
+      params.rank = this.currentEmp.rank;
+      params.total = this.currentEmp.total;
+      params.author = this.currentEmp.author;
+      params.year = this.currentEmp.year;
+      params.month = this.currentEmp.month;
+      params.point = this.currentEmp.point;
+      params.state = "commit";
+      if (params.url == '' || params.url == null) {
+        this.$message.error('请上传证明材料！')
+        return
+      }
+      if(!this.isAuthorIncludeSelf) {
+        this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+        return;
+      }
       if (this.currentEmp.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editPaper();
       } else {
         this.$refs["currentEmp"].validate(async (valid) => {
           if (valid) {
-            const params = {};
-            params.name = this.currentEmp.name;
-            params.url = this.urlFile;
-            params.rank = this.currentEmp.rank;
-            params.total = this.currentEmp.total;
-            params.author = this.currentEmp.author;
-            params.year = this.currentEmp.year;
-            params.month = this.currentEmp.month;
             params.pubPage = this.currentEmp.startPage + '-' + this.currentEmp.endPage;
             params.publicationID = 4;
             // params.publicationID = this.publicationId;
-            params.point = this.currentEmp.point;
-            params.state = "commit";
             params.studentID = this.user.id
-            if (params.url == '' || params.url == null) {
-              this.$message.error('请上传证明材料！')
-              return
-            }
-            if(!this.isAuthorIncludeSelf) {
-              this.$message.error('请仔细检查作者列表！');
-              return;
-            }
             if(params.publicationID < 0) return;
             this.postRequest1("/paper/basic/add", params).then(
               (resp) => {
@@ -1237,6 +1226,7 @@ export default {
       this.paperPoint = '';
       this.publication_detail = ""
       this.publicationName = ''
+      this.disabledInput = true;
       this.urlFile = ''
       this.files = [];
       this.title = "添加论文";
