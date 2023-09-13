@@ -51,20 +51,6 @@
         from i_award
     </sql>
 
-    <select id="selectAllAwardList" resultMap="AwardResult">
-        -- 老师查询所有学生的获奖
-        SELECT p.*,
-               s.name as sname,
-               i.name as iname,
-               i.score,
-               oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
-               oper.state,oper.remark
-        FROM i_award p
-                 LEFT JOIN student s ON p.student_id = s.ID
-                 LEFT JOIN indicator i ON i.id = p.indicator_id
-                 LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '科研获奖'
-    </select>
-
     <select id="selectListById" resultMap="AwardResult">
         <include refid="selectAwardVo"></include>
         <where>

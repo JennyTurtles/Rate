@@ -22,7 +22,7 @@
             <result property="name" column="sname"/>
         </association>
         <association property="indicator" javaType="org.sys.rate.model.Indicator">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="indicatorid" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
             <result property="rankN" column="rankN"/>
@@ -71,15 +71,22 @@
 
 <!--    学生专著教材页面初始化-->
     <select id="selectMonographListById" resultMap="MonographResult" parameterType="Integer">
-        select a.id, a.name, student_id, a.date, author, a.state, url, indicator_id, `rank`, total, point, publisher, a.ISBN as isbn,
-               oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
-               oper.state,oper.remark,
-               i.name as iname,
-               i.score,i.rankN
+        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.granted_status, a.indicator_id, a.date,
+               j.remark,ind.name as iname,ind.score, ind.id as indicatorid
         FROM i_book a
-                 LEFT JOIN indicator i ON i.id = a.indicator_id
-                 LEFT JOIN i_oper oper ON a.id = oper.prod_id and oper.prod_type = '专著教材'
-        where a.student_id = #{studentID}
+                 JOIN (
+            SELECT prod_id,MAX(i_oper.date) max_date
+            FROM i_oper
+            WHERE prod_type = '专著教材'
+            GROUP BY prod_id
+        ) i ON a.id = i.prod_id
+                 JOIN (
+            SELECT prod_id,remark,`date`
+            FROM i_oper
+            WHERE prod_type = '专著教材'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+                 JOIN indicator ind ON ind.id = a.indicator_id AND a.student_id = #{studentID}
+        ORDER BY a.id DESC;
     </select>
 
     <select id="selectMonographList" parameterType="org.sys.rate.model.Monograph" resultMap="MonographResult">
