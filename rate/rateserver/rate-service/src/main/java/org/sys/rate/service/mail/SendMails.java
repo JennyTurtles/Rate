@@ -21,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class SendMails {
     @Resource
-    MailService mailService;
+    private MailService mailService;
 
 
     private Mail handleNullPointerException() {
@@ -61,7 +61,14 @@ public class SendMails {
         props.setProperty("mail.host", mail.getSMTPHost());
         props.setProperty("mail.transport.protocol", "SMTP");
         props.setProperty("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
+        props.setProperty("mail.smtp.ssl.enable",  "true");
+//        props.setProperty("mail.debug", "true");//启用调试
+        props.setProperty("mail.smtp.timeout", "25000");//设置链接超时
+        props.setProperty("mail.smtp.port", "465");//设置端口
+        props.setProperty("mail.smtp.socketFactory.port", "465");//设置ssl端口
+        props.setProperty("mail.smtp.socketFactory.fallback", "false");
+        props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+//        props.put("mail.smtp.starttls.enable", "true");
 
         Authenticator authenticator = new Authenticator() {
             @Override
@@ -71,6 +78,7 @@ public class SendMails {
         };
 
         Session session = Session.getInstance(props, authenticator);
+//        session.setDebug(true);
         MimeMessage message = new MimeMessage(session);
 
         message.setFrom(new InternetAddress(mail.getEmailAddress()));
