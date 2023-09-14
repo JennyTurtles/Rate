@@ -137,16 +137,21 @@
               placeholder="请输入专利名称"
           ></el-input>
         </el-form-item>
+        <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-button ref="selectBtn" size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
+        </el-form-item>
         <el-form-item prop="grantedStatus" label="专利状态:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-select
               size="mini"
               style="width:80%"
+              :disabled="disabledGrantedStatusSelected"
               prefix-icon="el-icon-edit"
               v-model="currentPatentCopy.grantedStatus"
               placeholder="请选择专利状态"
           >
-            <el-option v-for="item in patentStatusList" :key="item.value" :value="item" :label="item.label"></el-option>
+            <el-option v-for="item in patentStatusList" :key="item.value" :value="item.name" :label="item.name"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item :label="currentPatentCopy.grantedStatus ? currentPatentCopy.grantedStatus + '年月:' : '状态年月:'" prop="date" label-width="80px" style="margin-left: 20px;">
@@ -168,10 +173,6 @@
               @blur="judgePatentee()"
               placeholder="请输入参与人,如有多个用分号按顺位分隔"
           ></el-input>
-        </el-form-item>
-        <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
-          <span class="isMust">*</span>
-          <el-button ref="selectBtn" size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
@@ -307,6 +308,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      disabledGrantedStatusSelected: true,
       zeroPointReason: '',
       isAuthorIncludeSelf: false,
       indicatorBtn: '选择指标点',
@@ -319,7 +321,28 @@ export default {
       indicatorData: [],
       //在编辑状态时，做一个副本，用户点击取消可恢复原始状态
       currentPatentCopy: {},
-      patentStatusList: ['受理', '初审', '公布', '实审', '授权', '转让'],
+      patentStatusList: [],
+      patentStatusListObject: [
+        {
+          name: '受理',
+          value: 0
+        },{
+          name: '初审',
+          value: 1
+        },{
+          name: '公布',
+          value: 2
+        },
+        {
+          name: '实审',
+          value: 3
+        },{
+          name: '授权',
+          value: 4
+        },{
+          name: '转让',
+          value: 5
+        }],
       patentPoint:0,
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -393,12 +416,33 @@ export default {
     }
   },
   methods: {
+    judgeGrantedStatusSelected(data) {
+      if(data.level == null || data.level == '') {
+        this.patentStatusList = this.patentStatusListObject.slice(3);
+      } else {
+        this.patentStatusListObject.map(item => {
+          if(item.name == data.level) {
+            if(item.value < 3) { //如果选中的指标点状态属于前三个
+              this.patentStatusList = this.patentStatusListObject.slice(3);
+              return;
+            }else { //如果选中的指标点状态属于后三个
+              this.patentStatusList = this.patentStatusListObject.slice(item.value);
+              return;
+            }
+          }
+        })
+      }
+    },
     //不进行rankN判断
     handleNodeClick(data, node) {
       if (data.children.length == 0) {
         this.indicatorBtn = data.label;
+        this.patentStatusList = [];
+        this.disabledGrantedStatusSelected = false;
         this.currentSelectedIndicator = data;
         this.currentPatentCopy.indicatorId = data.id;
+        //根据选择指标点的level，决定授权状态的可选列表有哪些
+        this.judgeGrantedStatusSelected(data);
         if (!this.isAuthorIncludeSelf) {
           this.patentPoint = 0;
           this.zeroPointReason = '参与人未包含自己'
@@ -533,6 +577,8 @@ export default {
     showEditEmpView(data) {
       this.dialogVisible = true;
       this.title = "编辑专利信息";
+      this.disabledGrantedStatusSelected = false;
+      this.judgeGrantedStatusSelected(data.indicator);
       this.currentPatentCopy = JSON.parse(JSON.stringify(data));
       this.files = [
         {
@@ -660,6 +706,7 @@ export default {
       this.dialogVisible = true;
       this.urlFile = '';
       this.files = [];
+      this.disabledGrantedStatusSelected = true;
       this.patentPoint = '';
       this.zeroPointReason = '';
       this.indicatorBtn = '选择指标点';

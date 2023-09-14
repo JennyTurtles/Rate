@@ -24,6 +24,7 @@
             <id property="id" column="indicatorid" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
+            <result property="level" column="level"/>
         </association>
         <collection property="operationList" ofType="org.sys.rate.model.Operation">
             <result property="operatorRole" column="operator_role"/>
@@ -80,7 +81,7 @@
 
 <!--    学生专利页面初始化-->
     <select id="selectListByIds" resultMap="PatentResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.granted_status, a.indicator_id, a.date,
+        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.granted_status, a.indicator_id, a.date,ind.level,
                j.remark,ind.name as iname,ind.score, ind.id as indicatorid
         FROM i_patent a
                  JOIN (
