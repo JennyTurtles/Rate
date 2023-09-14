@@ -284,9 +284,9 @@ public class IndicatorController {
             List<Integer> orderList = stringToList(indicatorService.selectOrder(indicator.getId()));
             List<TreeNode> children = new ArrayList<>();
             getChildren(map, orderList, children);
-            //修改所有子节点的score
+            //修改所有子节点的score和rankN
             for (TreeNode child : children) {
-                Indicator updateObj = new Indicator(child.getId(), child.getLabel(), "", "", indicator.getScore(), 0);
+                Indicator updateObj = new Indicator(child.getId(), child.getLabel(), "", "", indicator.getScore(), 0,indicator.getRankN());
                 boolean f = indicatorService.updateScoreName(updateObj);
                 if (!f)
                     flag = false;

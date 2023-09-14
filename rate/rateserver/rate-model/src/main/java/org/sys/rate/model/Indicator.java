@@ -42,4 +42,14 @@ public class Indicator {
         this.score = score;
         this.father = father;
     }
+
+    public Indicator(Integer id, String name, String type, String order, Integer score, Integer father,Integer rankN){
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.order = order;
+        this.score = score;
+        this.father = father;
+        this.rankN = rankN;
+    }
 }
