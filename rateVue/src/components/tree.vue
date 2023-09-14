@@ -157,6 +157,18 @@
           placeholder="标签名"
           size="normal"
       ></el-input>
+      <div style="margin-top: 10px">
+        <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+          <el-radio :label="1">有排名限制</el-radio>
+          <el-radio :label="0">无排名限制</el-radio>
+        </el-radio-group>
+
+        <div v-if="selectedOption === 1" style="margin-top: 10px">
+          限排名前
+          <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+          有积分
+        </div>
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdate = false">取 消</el-button>
         <el-button
@@ -190,6 +202,18 @@
               :max="50"
           />
         </el-form-item>
+        <div>
+          <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+            <el-radio :label="1">有排名限制</el-radio>
+            <el-radio :label="0">无排名限制</el-radio>
+          </el-radio-group>
+
+          <div v-if="selectedOption === 1" style="margin-top: 10px">
+            限排名前
+            <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+            有积分
+          </div>
+        </div>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -224,6 +248,21 @@
         </el-form-item>
         <el-form-item label="分类名">
           <el-input v-model="labelUpdate"></el-input>
+        </el-form-item>
+        <el-form-item label="状态" v-if="type === '授权专利'">
+          <el-select
+              v-model="state"
+              placeholder="请从下拉菜单中选择"
+              style="width: 100%"
+          >
+            <el-option
+                v-for="item in ['受理','初审','公布','实审','授权','转让']"
+                :key="item"
+                :label="item"
+                :value="item"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
         <div>
           <el-radio-group v-model="selectedOption" @change="handleRadioChange">
@@ -279,6 +318,7 @@ export default {
   data() {
     return {
       level: 0,
+      state: "", //专利的状态
       selectedOption: 1,
       rank: null,
       label: "",
@@ -464,6 +504,11 @@ export default {
                  event.stopPropagation()
                   this.data1 = data;
                   this.labelUpdate = data.label.substring(data.order.length + 1);
+                  this.rank = data.rankN;
+                  if (!data.rankN || data.rankN == 0){
+                    this.selectedOption = 0
+                  }else
+                    this.selectedOption = 1
                   if (node.level > 2) this.dialogVisibleUpdate = true;
                   else if (node.level === 1) {
                     this.dialogVisibleUpdateRoot = true;
@@ -472,12 +517,8 @@ export default {
                     this.ruleForm.score = this.scoreUpdate;
                   } else if (node.level === 2) {
                     this.type = data.type;
-                    this.rank = data.rankN;
-                   this.level = data.level === '国家级' ? 0 : 1;
-                    if (!data.rankN || data.rankN == 0){
-                     this.selectedOption = 0
-                    }else
-                     this.selectedOption = 1
+                    this.state = data.level;
+                    this.level = data.level === '国家级' ? 0 : 1;
                     this.dialogVisibleUpdateType = true;
                   }
                 }}
@@ -601,15 +642,18 @@ export default {
     },
     update(data) {
       data.label = this.labelUpdate;
+      var level_trans = this.level === 0 ? '国家级' : '省部级';
+      if (data.type === '授权专利')
+        level_trans = this.state;
       var postData = {
         id: data.id,
         name: this.labelUpdate,
         score: this.scoreUpdate,
         order: data.order,
         rankN: this.rank,
-        level: this.level == 0 ? '国家级' : '省部级',
+        level: level_trans,
       };
-      if (data.level){
+      if (data.level && data.type === '科研获奖'){
        data.level = data.level === '国家级' ? '省部级' : '国家级'
       }
      this.$emit("getLabelInfo", data);

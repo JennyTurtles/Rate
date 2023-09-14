@@ -269,6 +269,7 @@
       <div>
         <div>
           <div style="margin-top: 15px;width: 100%">
+            分组对象：
             <template>
               <el-radio v-model="groupWay" label="专业">待分组学生专业</el-radio>
               <el-radio v-model="groupWay" label="班级">待分组学生班级</el-radio>
@@ -914,7 +915,6 @@ export default {
         'selectInfo': this.selectedSubGroupInfo,
         'groupWay': this.groupWay
       }
-      console.log(data);
       for (var i = 0; i < this.filterNoGroupPar.length; i++) {
         if (this.filterNoGroupPar[i].thesis.grade == null) {
           this.$message.warning("选中的部分学生无绩点数据，按0进行分组")
@@ -967,7 +967,6 @@ export default {
             this.groupNums = Array.from(Array(10).keys(), n => n + 1)
           }
           this.dialogStudentGroup = true
-          console.log(this.NoGroupPar);
         }
       })
     },
