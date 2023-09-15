@@ -294,7 +294,8 @@
             @node-click="handleNodeClick"
             :expand-on-click-node="false"
             :highlight-current="true"
-            default-expand-all
+            node-key="id"
+            :default-expanded-keys="defaultExpandedKeys"
         ></el-tree>
       </span>
     </el-dialog>
@@ -308,6 +309,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      defaultExpandedKeys: [],
       disabledGrantedStatusSelected: true,
       zeroPointReason: '',
       isAuthorIncludeSelf: false,
@@ -457,8 +459,11 @@ export default {
     initTree() {
       this.getRequest("/indicator/getAllByType?type=授权专利").then( resp => {
         this.showTreeDialog = true;
+        this.defaultExpandedKeys = [];
         if (resp) {
           this.indicatorData = resp.obj[1];
+          if(this.indicatorData.length > 0)
+            this.defaultExpandedKeys.push(this.indicatorData[0].id);
         }
       });
     },
