@@ -8,7 +8,13 @@
           <ul>
             <li v-for="(key, value) in list" @click="goLink(key, value)" style="margin-top: 8px">
               <a href="#" style="text-decoration: none; color: #303133">
-                【 {{ typeMap[value].name }} 】有  {{ key }}  条待办消息
+                【 {{ typeMap[value].name }} 】有
+                <span :style="key > 0 ? {'color' : 'red'} : {'color' : '#303133'}">
+                  {{ key }}
+                </span>
+                <span>
+                  条待办消息
+                </span>
               </a>
             </li>
           </ul>
