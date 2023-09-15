@@ -34,7 +34,7 @@ public class ProductionService {
 
     public Production checkProductionById(int productionId, String type) {
         if ("科研项目".equals(type)) {
-            return productionMapper.checkProjectById(typeToTableMap.get(type), productionId);
+            return productionMapper.checkProjectById(productionId);
         } else if (typeToTableMap.containsKey(type)) {
             return productionMapper.checkProductionById(typeToTableMap.get(type), productionId);
         } else {

@@ -26,5 +26,5 @@ public interface productionMapper {
     int editState(@Param("table") String table, @Param("productionId") int productionId, @Param("state") String state);
 
     @Select("select id, name, student_id, start_date, end_date, author, state, url, `rank`, total, point from i_project where id = #{productionId}")
-    Production checkProjectById(String s, int productionId);
+    Production checkProjectById(int productionId);
 }

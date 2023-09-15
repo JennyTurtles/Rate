@@ -3,11 +3,8 @@ package org.sys.rate.service.mail;
 
 import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.*;
-import org.sys.rate.service.admin.PaperService;
-import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.TeacherService;
 

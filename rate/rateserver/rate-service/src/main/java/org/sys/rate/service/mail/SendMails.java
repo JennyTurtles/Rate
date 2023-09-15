@@ -61,7 +61,7 @@ public class SendMails {
         props.setProperty("mail.host", mail.getSMTPHost());
         props.setProperty("mail.transport.protocol", "SMTP");
         props.setProperty("mail.smtp.auth", "true");
-        props.setProperty("mail.smtp.ssl.enable",  "true");
+        props.setProperty("mail.smtp.ssl.enable", "true");
 //        props.setProperty("mail.debug", "true");//启用调试
         props.setProperty("mail.smtp.timeout", "25000");//设置链接超时
         props.setProperty("mail.smtp.port", "465");//设置端口
