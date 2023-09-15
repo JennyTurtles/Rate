@@ -300,7 +300,8 @@
             @node-click="handleNodeClick"
             :expand-on-click-node="false"
             :highlight-current="true"
-            default-expand-all
+            node-key="id"
+            :default-expanded-keys="defaultExpandedKeys"
         ></el-tree>
       </span>
     </el-dialog>
@@ -314,6 +315,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      defaultExpandedKeys: [],
       zeroPointReason: '',
       currentSelectedIndicator: {},
       monoLimitRankN: '',
@@ -417,8 +419,11 @@ export default {
     initTree() {
       this.getRequest("/indicator").then( resp => {
         this.showTreeDialog = true;
+        this.defaultExpandedKeys = [];
         if (resp) {
           this.data = resp.obj[1];
+          if(this.data.length > 0)
+            this.defaultExpandedKeys.push(this.data[0].id);
         }
       });
     },
