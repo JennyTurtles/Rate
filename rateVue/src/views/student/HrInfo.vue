@@ -74,7 +74,6 @@ export default {
       this.infoIsChanged = true
     },
     saveInfo(){
-      console.log(this.hr)
       let url = '';
       if (this.currentType === "本科生")
         url = '/undergraduateM/basic/update'
@@ -103,7 +102,7 @@ export default {
           this.currentType = "博士生";
         }
         else if (this.user.role.includes("11")){
-          this.currentType = "研究生";
+          this.currentType = "硕士生";
         }
         else if (this.user.role.includes("10")){
           this.currentType = "本科生";
