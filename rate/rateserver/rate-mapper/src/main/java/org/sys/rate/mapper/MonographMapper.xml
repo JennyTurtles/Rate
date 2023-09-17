@@ -184,7 +184,7 @@
         JOIN indicator i ON book.indicator_id = i.id
         JOIN student s ON s.ID = book.student_id
         <where>
-            <if test="projectName != null and projectName != ''">and book.name like concat('%', #{projectName}, '%')</if>
+            <if test="monoName != null and monoName != ''">and book.name like concat('%', #{monoName}, '%')</if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
             <if test="state != null and state != ''">and book.state = #{state}</if>
             <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
