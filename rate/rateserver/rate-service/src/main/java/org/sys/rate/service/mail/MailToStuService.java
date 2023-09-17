@@ -63,7 +63,7 @@ public class MailToStuService {
                 throw new IllegalArgumentException("未知状态！");
         }
         contentBuilder.append("登录<a href=\"http://106.15.36.190:8081/#/Student/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！<br><br>")
-                .append("本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！");
+                .append("本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系管理员</a>！");
         content = contentBuilder.toString();
 
         // 设置邮件主题
