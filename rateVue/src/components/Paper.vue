@@ -40,7 +40,7 @@
                 </div>
               <label style="fontSize:10px;margin-left:40px;">论文状态：</label>
               <el-select
-                  v-model="tmp1"
+                  v-model="paperSelectedStatus"
                   style="margin-left:3px;width:120px"
                   prefix-icon="el-icon-edit"
                   clearable
@@ -58,7 +58,7 @@
               </el-select>
               <label style="fontSize:10px;margin-left:16px">积分范围：</label>
               <el-select
-                  v-model="tmp2"
+                  v-model="pointFront"
                   style="margin-left:3px;width:60px"
                   prefix-icon="el-icon-edit"
                   clearable
@@ -77,7 +77,7 @@
               </el-select>
               <label >&nbsp; - &nbsp;</label>
               <el-select
-                  v-model="tmp3"
+                  v-model="pointBack"
                   style="margin-left:3px;width:60px"
                   prefix-icon="el-icon-edit"
                   clearable
@@ -398,12 +398,14 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      pointBack: '',
+      pointFront: '',
+      paperSelectedStatus: '',
       totalCount:0,
       currentPage:1,
       pageSize: 10,
       pageSizes:[10, 20, 50, 100],
       searchPaperPublicationName: '',
-      tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
       ispubFlag:false,
       ispubShow:false,
       select_pub_option:'',
@@ -489,8 +491,9 @@ export default {
         : '${this.select_pubName.length * 50}px'
     },
     role() {
-      return JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ||
-      JSON.parse(localStorage.getItem('user')).roleName.indexOf('expert') >= 0 ? 'teacher' : 'admin';
+      return JSON.parse(localStorage.getItem('user')).roleName == 'expert' || JSON.parse(localStorage.getItem('user')).roleName == 'expert;' ?
+          'expert' : JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ?
+              'teacher' : JSON.parse(localStorage.getItem('user')).roleName.indexOf('admin') >= 0 ? 'admin' : '';
     }
   },
   created() {
@@ -498,6 +501,8 @@ export default {
   },
   mounted() {
     this.searchEmps(1, 10);
+    if(this.role == 'teacher') this.paperSelectedStatus = '学生提交';
+    else if(this.role == 'admin') this.paperSelectedStatus = '导师通过';
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -639,33 +644,10 @@ export default {
       this.currentPage = currentPage;
       this.searchEmps(this.currentPage, this.pageSize);
     },
-    // initEmps() {
-    //   this.loading = true;
-    //   let url = "/paper/basic/List" ;
-    //   this.getRequest(url).then((resp) => {
-    //     this.loading = false;
-    //     if (resp) {
-    //       this.emps = resp.data;
-    //       this.copyemps = this.emps
-    //       this.total = resp.total;
-    //       //什么意思？
-    //       for(var i = 0; i < this.emps.length; i ++){
-    //         var papername = this.emps[i].name
-    //         if(this.select_paperName.indexOf(papername)==-1){
-    //           this.select_paperName.push(papername)
-    //         }
-    //         var judge=this.emps[i].student.sname
-    //         if(this.select_stuName.indexOf(judge)==-1){
-    //           this.select_stuName.push(judge)
-    //         }
-    //       }
-    //     }
-    //   });
-    // },
     searchEmps(pageNum, pageSize) {//根据条件搜索论文
       const params = {};
       params.studentName = document.getElementById("select_stuname").value
-      var state = document.getElementById("select_state").value
+      var state = this.paperSelectedStatus;
       if(state == '导师通过'){
         state = 'tea_pass'
       }else if(state == '导师驳回'){
@@ -678,17 +660,15 @@ export default {
         state = 'adm_reject'
       }else state = '';
       params.state = state;
-      var pointFront = document.getElementById("select_point1").value
-      var pointBack = document.getElementById("select_point2").value
-      if(pointFront == '全部') {
+      if(this.pointFront == '全部') {
         params.pointFront = '';
       }else {
-        params.pointFront = pointFront;
+        params.pointFront = this.pointFront;
       }
-      if(pointBack == '全部') {
+      if(this.pointBack == '全部') {
         params.pointBack = '';
       }else {
-        params.pointBack = pointBack;
+        params.pointBack = this.pointBack;
       }
       params.name = document.getElementById("select_paperName").value
       params.pub = this.searchPaperPublicationName;
