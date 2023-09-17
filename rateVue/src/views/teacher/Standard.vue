@@ -355,7 +355,7 @@ export default {
     return {
       pointBack: '',
       pointFront: '',
-      searchStandardState: '导师通过',
+      searchStandardState: '',
       searchStandardName: '',
       searchStudentName: '',
       pageSizes:[10, 20, 50, 100],
@@ -425,7 +425,9 @@ export default {
   },
   created() {},
   mounted() {
-    this.searchStandardListByCondicitions(1, 10)
+    this.searchStandardListByCondicitions(1, 10);
+    if(this.role == 'teacher') this.searchStandardState = '学生提交';
+    else if(this.role == 'admin') this.searchStandardState = '导师通过';
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来

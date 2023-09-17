@@ -4,13 +4,13 @@ import com.github.pagehelper.util.StringUtil;
 import com.sun.mail.imap.IMAPStore;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.sys.rate.model.*;
-import org.sys.rate.service.admin.*;
+import org.sys.rate.service.admin.OperationService;
+import org.sys.rate.service.admin.PaperService;
+import org.sys.rate.service.admin.StudentService;
+import org.sys.rate.service.admin.TeacherService;
 
 import javax.annotation.Resource;
 import javax.mail.*;
@@ -94,9 +94,9 @@ public class ReceiveMails {
                 return;
             }
 
-            parseMessage(unreadMessages);
+            parseMessage(unreadMessages, mail);
         } catch (MessagingException e) {
-            log.error("连接邮件服务器失败！", e);
+//            log.error("连接邮件服务器失败！", e);
             throw e;
         } finally {
             if (store != null && store.isConnected()) {
@@ -104,7 +104,8 @@ public class ReceiveMails {
                     store.close();
                 } catch (MessagingException e) {
                     // 处理异常
-                    log.error("无法关闭收件箱！");
+//                    log.error("无法关闭收件箱！");
+                    throw e;
                 }
             }
         }
@@ -138,7 +139,7 @@ public class ReceiveMails {
     }
 
 
-    public void parseMessage(Message[] messages) throws MessagingException, IOException {
+    public void parseMessage(Message[] messages, Mail mail) throws MessagingException, IOException {
         // 开始解析未读邮件
         for (Message message : messages) {
             String subject = message.getSubject();
@@ -153,7 +154,7 @@ public class ReceiveMails {
             String content = getTextFromMessage(message);
             message.setFlag(Flags.Flag.DELETED, true);
             content = clearFormat(content);
-            String originalMessage = getOriginalMessage(subject, senderEmail, sendDate, content);
+            String originalMessage = getOriginalMessage(subject, senderEmail, sendDate, content, mail);
 
             // *1.计算关键词出现次数以及位置
             int numLines = sumLinesNum(content);
@@ -201,7 +202,7 @@ public class ReceiveMails {
             mailToTeacherService.sendTeaFeedbackMail(production, type, senderEmail, "dupEditState", originalMessage);
             return false;
         }
-        // 2.教师的邮件和发件人邮件是否匹配
+        // *2.教师的邮件和发件人邮件是否匹配
         // !通过production的studentId获取tutor
         String email = getTutorEmail(production.getStudentId());
         if (StringUtil.isEmpty(email) || !email.equals(senderEmail)) {
@@ -210,12 +211,12 @@ public class ReceiveMails {
         }
         // 3.修改成果的操作历史
         if (!editOperation(production, lines.get(this.phrases[3]), state, type)) {
-            log.error("修改论文操作历史失败，成果类型：" + lines.get(this.phrases[0]) + "，成果编号：" + lines.get(this.phrases[1]));
+//            log.error("修改论文操作历史失败，成果类型：" + lines.get(this.phrases[0]) + "，成果编号：" + lines.get(this.phrases[1]));
             return false;
         }
         // 4.修改成果的状态
         if (productionService.editState(productionId, type, state) == 0) {
-            log.error("修改状态失败!" + type + ": " + productionId);
+//            log.error("修改状态失败!" + type + ": " + productionId);
             return false;
         }
         // 5.若成功，将修改后的状态发给老师&&学生
@@ -247,12 +248,12 @@ public class ReceiveMails {
         }
         // 3.修改成果的操作历史
         if (!editOperation(paper, lines.get(this.phrases[3]), state, "学术论文")) {
-            log.error("修改论文操作历史失败，成果类型：" + lines.get(this.phrases[0]) + "，成果编号：" + lines.get(this.phrases[1]));
+//            log.error("修改论文操作历史失败，成果类型：" + lines.get(this.phrases[0]) + "，成果编号：" + lines.get(this.phrases[1]));
             return false;
         }
         // 4.修改成果的状态
         if (paperService.editState(state, Long.valueOf(productionId)) == 0) {
-            log.error("修改论文状态失败!");
+//            log.error("修改论文状态失败!");
             return false;
         }
         // 5.若成功，将修改后的状态发给老师&&学生
@@ -415,7 +416,7 @@ public class ReceiveMails {
                 mailToTeacherService.sendTeaFeedbackMail(senderEmail, "spam", originalMessage);
                 return false;
             default:
-                log.error("countOccurrences(content, numLines) got wrong num!");
+//                log.error("countOccurrences(content, numLines) got wrong num!");
                 return false;
         }
     }
@@ -455,12 +456,11 @@ public class ReceiveMails {
         }
     }
 
-    private String getOriginalMessage(String subject, String senderEmail, Date sendDate, String content) {
+    private String getOriginalMessage(String subject, String senderEmail, Date sendDate, String content, Mail mail) {
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String sendTime = formatter.format(sendDate);
         String senderName = senderEmail.substring(0, senderEmail.indexOf("@"));
-        // rateMail特指本系统使用的管理员邮箱，之后会实时更改！！！
-        String rateMail = "ratemail@126.com";
+        String rateMail = mail.getEmailAddress();
         String rateMailName = rateMail.substring(0, rateMail.indexOf("@"));
         String replyContent = "------------------ 原始邮件 ------------------<br>" + String.format("<p style=\"background-color:#efefef;\">发件人: \"%s\" <%s>;\n发送时间: %s;\n收件人: \"%s\"<%s>;\n主题: %s\n</p>", senderName, senderEmail, sendTime, rateMailName, rateMail, subject) + content;
         return replyContent.replaceAll("\n", "<br>");

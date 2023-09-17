@@ -110,19 +110,6 @@ public class MonographService {
 
     public List<Monograph> searchMonographByConditions(String studentName, String state, String monoName, String pointFront, String pointBack) {
         List<Monograph> list = monographMapper.searchMonographByConditions(studentName, state, monoName, pointFront, pointBack);
-        List<Operation> operationList = operationMapper.selectTypeAllOperationList("专著教材");
-        List<Operation> monographList = new ArrayList<>();
-        //可优化
-        for (int i = 0; i < list.size(); i++) {
-            monographList = new ArrayList<>();
-            for (int j = 0; j < operationList.size(); j++) {
-                if (operationList.get(j).getProdId() == list.get(i).getId()) {
-                    monographList.add(operationList.get(j));
-                }
-            }
-            list.get(i).setOperationList(monographList);
-        }
-        return setMonographOperation(list);
-//        return list;
+        return list;
     }
 }

@@ -354,7 +354,7 @@ export default {
     return {
       pointBack: '',
       pointFront: '',
-      searchPatentState: '导师通过',
+      searchPatentState: '',
       searchPatentName: '',
       searchStudentName: '',
       pageSizes:[10, 20, 50, 100],
@@ -436,7 +436,9 @@ export default {
   },
   created() {},
   mounted() {
-    this.searchPatentListByCondicitions(1, 10)
+    this.searchPatentListByCondicitions(1, 10);
+    if(this.role == 'teacher') this.searchPatentState = '学生提交';
+    else if(this.role == 'admin') this.searchPatentState = '导师通过';
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来

@@ -159,7 +159,8 @@
               reserve-keyword
               @change="filterPublication($event)"
               placeholder="请输入期刊名称"
-              :remote-method="inputRemotePublication">
+              :remote-method="inputRemotePublication"
+              :loading="loadingPublicationSearch">
             <el-option
                 v-for="item in select_pubName"
                 :key="item"
@@ -167,34 +168,6 @@
                 :value="item">
             </el-option>
           </el-select>
-<!--          <div class="select_div_input">-->
-<!--            <input-->
-<!--                autocomplete="off"-->
-<!--                style="width:95%;line-height:28px;-->
-<!--                              border:1px solid lightgrey;padding:0 10px 1px 15px;-->
-<!--                              border-radius:4px;color:gray"-->
-<!--                :disabled="disabledInput"-->
-<!--                placeholder="请输入期刊名称"-->
-<!--                v-model="publicationName"-->
-<!--                @focus="inputPubFocus"-->
-<!--                @blur="ispubShow=ispubFlag"-->
-<!--                id="input_publicationName"/>-->
-<!--            <div class="select_div"-->
-<!--                 v-show="ispubShow && publicationName && currentEmp.year ? true:false"-->
-<!--                 :style="'height: ${menuHeight}'"-->
-<!--                 @mouseover="ispubFlag = true"-->
-<!--                 @mouseleave="ispubFlag = false">-->
-<!--              <div-->
-<!--                  class="select_div_div"-->
-<!--                  v-for="val in select_pubName"-->
-<!--                  :key="val"-->
-<!--                  :value="val"-->
-<!--                  @click="filterPublication(val)"-->
-<!--              >-->
-<!--                {{ val }}-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </div>-->
         </el-form-item>
 
         <el-form-item prop="author" label="作者列表:" label-width="80px" style="margin-left: 20px;">
@@ -490,9 +463,10 @@ export default {
   name: "SalSearch",
   data() {
     return {
-      selectedPublicationScore: '',
+      loadingPublicationSearch: false, //期刊输入框的加载状态
+      selectedPublicationScore: '', //单独记录一个选择某个期刊的score
       searchPublicationLoading: false, //输入期刊的loading状态
-      isAuthorIncludeSelf: false,
+      isAuthorIncludeSelf: false, //作者是否包含自己
       //点击编辑框，期刊名字框赋值会多调用一次请求，用于判断是否是第一次打开操作
       isInitEditDialog: false,
       // 和开启tree相关的
@@ -628,11 +602,6 @@ export default {
     };
   },
   watch: {
-    // publicationName: { //
-    //   handler(val) {//函数抖动
-    //     this.debounceSearch(val);
-    //   }
-    // },
     data_picker: {//清除时间input设置为不可输入
       handler(val) {
         if (!val) {
@@ -907,9 +876,11 @@ export default {
         return
       }
       if(!this.isInitEditDialog && this.currentEmp.id) return;
+      this.loadingPublicationSearch = true;
       let url = `/publication/basic/listByNameYear/${encodeURIComponent(val)}/${encodeURIComponent(this.currentEmp.year)}`;
       this.getRequest(url).then((resp) => {
         this.loading = false;
+        this.loadingPublicationSearch = false;
         if (resp) {
           this.select_pubName = []
           if (resp.obj) {
@@ -954,7 +925,8 @@ export default {
           } else {
             this.$message.warning(this.publicationName + '在' + this.currentEmp.year + '年的积分为0！')
             this.publication_detail = ''
-            this.paperPoint = 0
+            this.selectedPublicationScore = 0;
+            this.paperPoint = 0;
           }
         }
       });
@@ -1095,7 +1067,6 @@ export default {
     },
     //编辑按钮
     showEditEmpView(data) {
-      console.log(data)
       this.title = "编辑论文信息";
       this.currentEmp = JSON.parse(JSON.stringify(data));
       this.files = [
@@ -1172,6 +1143,10 @@ export default {
       params.state = "commit";
       params.studentID = this.user.id
       params.pubPage = `${this.currentEmp.startPage}-${this.currentEmp.endPage}`;
+      if(this.currentEmp.startPage == '' || this.currentEmp.startPage == null || this.currentEmp.endPage == '' || this.currentEmp.endPage == null) {
+        this.$message.warning('请填写正确页码！')
+        return
+      }
       if (params.url == '' || params.url == null) {
         this.$message.error('请上传证明材料！')
         return
