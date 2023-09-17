@@ -391,7 +391,7 @@ export default {
       }
     },
     initTree() {
-      this.getRequest("/indicator").then( resp => {
+      this.getRequest("/indicator/getAllByType?type=制定标准").then( resp => {
         this.showTreeDialog = true;
         this.defaultExpandedKeys = [];
         if (resp) {

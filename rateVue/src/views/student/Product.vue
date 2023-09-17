@@ -393,7 +393,7 @@ export default {
       }
     },
     initTree() {
-      this.getRequest("/indicator").then( resp => {
+      this.getRequest("/indicator/getAllByType?type=科研产品").then( resp => {
         this.showTreeDialog = true;
         this.defaultExpandedKeys = [];
         if (resp) {

@@ -450,7 +450,7 @@ export default {
     },
     //初始化指标点树
     initTree() {
-      this.getRequest("/indicator").then( resp => {
+      this.getRequest("/indicator/getAllByType?type=学科竞赛").then( resp => {
         this.showTreeDialog = true;
         this.defaultExpandedKeys = [];
         if (resp) {
