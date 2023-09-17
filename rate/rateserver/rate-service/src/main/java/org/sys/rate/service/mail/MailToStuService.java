@@ -1,12 +1,11 @@
 package org.sys.rate.service.mail;
 
+import com.github.pagehelper.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.sys.rate.model.*;
-import org.sys.rate.service.admin.StudentService;
-import org.sys.rate.service.admin.TeacherService;
+import org.sys.rate.model.Paper;
+import org.sys.rate.model.Production;
+import org.sys.rate.model.SendMailContent;
 
 import javax.annotation.Resource;
 
@@ -30,6 +29,9 @@ public class MailToStuService {
             sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(paper.getStudentID()));
         } else {
             sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(production.getStudentId()));
+        }
+        if (StringUtil.isEmpty(sendMailContent.getStudentEmail())) {
+            return;
         }
 
 

@@ -49,7 +49,7 @@ public class SendMails {
             try {
                 sendMailInternal(to, subject, content, mail, attachment);
             } catch (MessagingException e) {
-                log.error("Failed to send email: {}", e.getMessage(), e);
+//                log.error("Failed to send email: {}", e.getMessage(), e);
                 throw new RuntimeException("Failed to send email", e);
             }
         });
@@ -101,7 +101,7 @@ public class SendMails {
         message.setContent(multipart);
 
         Transport.send(message);
-        log.info("Email sent to {}", to);
+//        log.info("Email sent to {}", to);
     }
 
     private void validateParameters(String to, String subject, String content) {
