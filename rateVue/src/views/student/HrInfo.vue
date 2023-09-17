@@ -90,7 +90,7 @@ export default {
           this.infoIsChanged = false
           this.user.name = this.hr.name
           localStorage.setItem("user",JSON.stringify(this.user))
-          this.reload()
+          this.initHr()
         }else {
           this.$message.fail(response.msg)
         }
