@@ -46,8 +46,6 @@
                   clearable
                   filterable
                   placeholder="状态筛选"
-                  @change="((val) => filter(val,'select_state'))"
-                  id="select_state"
                   >
                     <el-option
                       v-for="val in option"
@@ -64,8 +62,6 @@
                   clearable
                   filterable
                   placeholder="1"
-                  @change="((val) => filter(val,'select_point1'))"
-                  id="select_point1"
                   >
                     <el-option
                       style=""
@@ -83,8 +79,6 @@
                   clearable
                   filterable
                   placeholder="12"
-                  @change="((val) => filter(val,'select_point2'))"
-                  id="select_point2"
                   >
                     <el-option
                       style=""
@@ -500,9 +494,9 @@ export default {
     this.debounceSearch = debounce(this.searchPublicationMethod,400);
   },
   mounted() {
-    this.searchEmps(1, 10);
     if(this.role == 'teacher') this.paperSelectedStatus = '学生提交';
     else if(this.role == 'admin') this.paperSelectedStatus = '导师通过';
+    this.searchEmps(1, 10);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
