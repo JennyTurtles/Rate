@@ -379,7 +379,7 @@ export default {
       searchPointFront: '',
       searchPointBack: '',
       searchCompetitionName: '',
-      searchStatus: '导师通过',
+      searchStatus: '',
       searchStudentName: '',
       pageSizes:[10, 20, 50, 100],
       totalCount:0,
@@ -443,6 +443,8 @@ export default {
   created() {},
   mounted() {
     this.searchCompetition(1,10);
+    if(this.role == 'teacher') this.searchStatus = '学生提交';
+    else if(this.role == 'admin') this.searchStatus = '导师通过';
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
