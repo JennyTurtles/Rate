@@ -13,7 +13,7 @@
     <select id="getIndicatorByYearAndType" resultMap="ProjectTypeResult">
         SELECT p.*
         FROM i_project_type p
-        where p.name like concat('%', #{type}, '%') and p.year = #{year}
+        where p.name like concat('%', #{type}, '%') and p.year = (select max(year) from i_project_type where name like concat('%', #{type}, '%') and <![CDATA[ year <= #{year}  ]]>)
     </select>
 
     <delete id="deleteByYearIndicatorID">

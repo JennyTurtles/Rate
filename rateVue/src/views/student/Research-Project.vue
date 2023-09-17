@@ -196,6 +196,7 @@
               :remote-method="selectProjectTypeMethod"
               :loading="searchTypeLoading">
             <el-option
+                style="width: 550px;overflow: scroll"
                 v-for="item in selectProjectTypeList"
                 :key="item.id"
                 :label="item.name"
@@ -446,6 +447,9 @@ export default {
     },
     //输入项目类别 发送请求调用的函数
     selectProjectTypeMethod(data) {
+      if(data == null || data == '') {
+        return;
+      }
       this.searchTypeLoading = true;
       this.debounceSearch(data);
     },
