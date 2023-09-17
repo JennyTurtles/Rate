@@ -1,6 +1,7 @@
 package org.sys.rate.service.mail;
 
 import org.springframework.stereotype.Service;
+import org.sys.rate.mapper.PublicationMapper;
 import org.sys.rate.mapper.productionMapper;
 import org.sys.rate.model.Production;
 
@@ -18,6 +19,9 @@ public class ProductionService {
 
     @Resource
     private productionMapper productionMapper;
+
+    @Resource
+    private PublicationMapper publicationMapper;
 
     private static final Map<String, String> typeToTableMap = new HashMap<>();
 
@@ -48,6 +52,10 @@ public class ProductionService {
         } else {
             throw new IllegalArgumentException("不支持的类型: " + type);
         }
+    }
+
+    public String getPublicationName(Long publicationID) {
+        return publicationMapper.getPublicationNameById(publicationID);
     }
 }
 

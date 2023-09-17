@@ -424,9 +424,9 @@ export default {
   },
   created() {},
   mounted() {
-    this.searchProductListByCondicitions(1, 10);
     if(this.role == 'teacher') this.searchProductState = '学生提交';
     else if(this.role == 'admin') this.searchProductState = '导师通过';
+    this.searchProductListByCondicitions(1, 10);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来

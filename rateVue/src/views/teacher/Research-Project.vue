@@ -419,9 +419,9 @@ export default {
   },
   created() {},
   mounted() {
-    this.searchProject(1,10);
     if(this.role == 'teacher') this.searchStatus = '学生提交';
     else if(this.role == 'admin') this.searchStatus = '导师通过';
+    this.searchProject(1,10);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来

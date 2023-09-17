@@ -60,6 +60,8 @@ public class Production {
     @JsonFormat(pattern = "yyyy-MM", timezone = "GMT+8")
     Date endDate;
 
+    String publisher;
+
 }
 
 
