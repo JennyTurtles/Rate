@@ -160,7 +160,7 @@
         </el-form-item>
         <el-form-item label="奖励级别:" label-width="80px" style="margin-left: 20px;" prop="awardLevel">
           <span class="isMust">*</span>
-          <el-select size="mini" v-model="currentAwardCopy.awardLevel" placeholder="请选择奖励级别" style="width: 80%">
+          <el-select size="mini" v-model="currentAwardCopy.awardLevel" placeholder="请选择奖励级别" style="width: 80%" @change="selectedAwardLevel = false">
             <el-option v-for="item in awardLevelList" :key="item.value" :value="item.label" :label="item.label"></el-option>
           </el-select>
         </el-form-item>
@@ -168,7 +168,7 @@
         <el-form-item label="奖励类别:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-select
-              :disabled="disabledSelectAwardType"
+              :disabled="disabledSelectAwardType || selectedAwardLevel"
               v-model="selectAwardType"
               value-key="id"
               filterable
@@ -177,7 +177,7 @@
               reserve-keyword
               placeholder="请选择科研获奖类别"
               loading-text="搜索中..."
-              @focus="selectAwardTypeMethod"
+              @focus="selectAwardTypeMethod($event)"
               :loading="searchTypeLoading">
             <el-option
                 v-for="item in selectAwardTypeList"
@@ -338,6 +338,7 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      selectedAwardLevel: true,
       defaultExpandedKeys: [],
       zeroPointReason: '',
       indicatorBtn: '选择指标点',
@@ -491,6 +492,7 @@ export default {
     debounceSearchType() {
       if(this.currentAwardCopy.date == null || this.currentAwardCopy.date == '') return;
       if(this.currentAwardCopy.awardLevel == null || this.currentAwardCopy.awardLevel == '') return;
+      this.searchTypeLoading = true;
       this.getRequest('/award/basic/getIndicatorByYearAndType?year=' + this.currentAwardCopy.date.split('-')[0] + '&type=' + this.currentAwardCopy.awardLevel).then(response => {
         if(response) {
           this.searchTypeLoading = false;
@@ -499,7 +501,6 @@ export default {
       })
     },
     selectAwardTypeMethod() {
-      this.searchTypeLoading = true;
       this.debounceSearchType();
     },
     cancelAdd() {
@@ -622,6 +623,7 @@ export default {
       this.currentAwardCopy = JSON.parse(JSON.stringify(data));
       this.isAuthorIncludeSelf = true;
       this.disabledSelectAwardType = false;
+      this.selectedAwardLevel = false;
       this.awardPoint = data.point;
       this.zeroPointReason = '';
       const { id, name } = data.awardType;
@@ -757,6 +759,7 @@ export default {
       this.zeroPointReason = '';
       this.isAuthorIncludeSelf = false;
       this.disabledSelectAwardType = true;
+      this.selectedAwardLevel = true;
       this.selectAwardTypeList = [];
     },
     initAwardsList() {
