@@ -2,6 +2,7 @@ package org.sys.rate.service.mail;
 
 
 import cn.hutool.core.util.StrUtil;
+import com.github.pagehelper.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.*;
@@ -42,7 +43,7 @@ public class MailToTeacherService {
     private final String hello = "您好！<br>";
     private final String reason = "错误原因：";
     private final String solution = "解决方法：";
-    private final String formatMessage = "请使用标题为<b>请在教学系统中审核某某同学的XX成果，成果编号：XX</b>的邮件要求的回信格式。<br><br>";
+    private final String formatMessage = "请参照以上解决方法，重新回复邮件。<br><br>";
     private final String systemMessage = "本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！<br><br>";
 
     // 当提交或者修改成功，会调用下面的代码
@@ -50,12 +51,16 @@ public class MailToTeacherService {
         try {
             File file = new File(production.getUrl());
             if (!file.exists()) {
-                throw new FileNotFoundException("File not found: " + production.getUrl());
+//                throw new FileNotFoundException("File not found: " + production.getUrl());
+
             }
             SendMailContent sendMailContent = sendMailContentService.getSendMailContent(production.getStudentId());
 
+            String isFileEmpty = "";
+
             if (StrUtil.isEmpty(sendMailContent.getTeacherName()) || StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
-                log.error(type + ": " + production.getId() + "对应的导师没有姓名或者邮箱地址");
+//                log.error(type + ": " + production.getId() + "对应的导师没有姓名或者邮箱地址");
+                isFileEmpty = "无，可以驳回后请学生重新上传";
                 return;
             }
 
@@ -65,17 +70,17 @@ public class MailToTeacherService {
             contentBuilder.append("尊敬的").append(sendMailContent.getTeacherName()).append("老师：<br>");
             contentBuilder.append("您好！<br>");
             contentBuilder.append("<b>您的学生").append(sendMailContent.getStudentName()).append("已经在系统中提交成果申报。</b><br>");
-            contentBuilder.append(type + "标题：").append(production.getName()).append("<br>");
+            contentBuilder.append("成果标题：").append(production.getName()).append("<br>");
 //            contentBuilder.append("发表期刊：").append(pubName).append("<br>");
             if ("科研项目".equals(type)) {
                 contentBuilder.append("立项时间：").append(sdf.format(production.getStartDate())).append("<br>");
-                contentBuilder.append("结项时间：").append(sdf.format(production.getEndDate())).append("<br>");
+//                contentBuilder.append("结项时间：").append(sdf.format(production.getEndDate())).append("<br>");
             } else {
                 contentBuilder.append("发表年月：").append(sdf.format(production.getDate())).append("<br>");
             }
             contentBuilder.append("作者列表：").append(production.getAuthor()).append("<br>");
             contentBuilder.append("提交时间：").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("<br>");
-            contentBuilder.append("证明材料：请查看邮件附件<br><br>");
+            contentBuilder.append("证明材料：").append(StringUtil.isEmpty(isFileEmpty)?"请查看邮件附件":isFileEmpty).append("<br><br>");
             contentBuilder.append("<b>您可以登录<a href=\"http://106.15.36.190:8081/#/Teacher/Login\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
             contentBuilder.append("如果回复本邮件，方式如下：<br>");
             contentBuilder.append("(1) 若审核<b>通过</b>该成果，请在邮件中<span style=\"color:red;\">仅保留</span>以下三行并回复。<br>");
@@ -91,7 +96,8 @@ public class MailToTeacherService {
             sendMails.sendMailAsync(sendMailContent.getTeacherEmail(), subject, contentBuilder.toString(), file);
         } catch (Exception e) {
             // 处理发送异常的情况
-            log.error("Exception occurred during sending email: " + e.getMessage(), e);
+//            log.error("Exception occurred during sending email: " + e.getMessage(), e);
+            throw e;
         }
 
     }
@@ -162,7 +168,8 @@ public class MailToTeacherService {
                         .append(this.solution).append("请检查成果编号是否正确。<br>");
                 break;
             default:
-                log.error("检测到未知状态的邮件！可能是使用了错误的重载函数！");
+//                log.error("检测到未知状态的邮件！可能是使用了错误的重载函数！");
+                break;
         }
 
         contentBuilder.append(this.formatMessage)
@@ -229,7 +236,8 @@ public class MailToTeacherService {
                         .append("的状态为：<span style=\\\"color:red;\\\"><b>导师拒绝</b></span>。<br>");
                 break;
             default:
-                log.error("检测到未知状态的邮件！可能是使用了错误的重载函数！");
+//                log.error("检测到未知状态的邮件！可能是使用了错误的重载函数！");
+                break;
         }
 
         if (mailState.equals("editPassSuccess") || mailState.equals("editRejectSuccess") || mailState.equals("dupEditState")) {
@@ -262,7 +270,8 @@ public class MailToTeacherService {
                 temp = "管理员驳回";
                 break;
             default:
-                log.error("该成果目前状态非法！请检查数据库！");
+//                log.error("该成果目前状态非法！请检查数据库！");
+                break;
         }
         return temp;
     }
@@ -278,13 +287,13 @@ public class MailToTeacherService {
 
         if ("科研项目".equals(type)) {
             infoProduction.append("下面是原成果的一些基本信息：<br>")
-                    .append(type + "标题：").append(production.getName()).append("。<br>")
+                    .append("成果标题：").append(production.getName()).append("。<br>")
                     .append("立项年月：").append(sdf.format(production.getStartDate())).append("<br>")
                     .append("结项年月：").append(sdf.format(production.getEndDate())).append("<br>")
                     .append("作者列表：").append(production.getAuthor()).append("<br><br>");
         } else {
             infoProduction.append("下面是原成果的一些基本信息：<br>")
-                    .append(type + "标题：").append(production.getName()).append("。<br>")
+                    .append("成果标题：").append(production.getName()).append("。<br>")
                     .append("发表年月：").append(sdf.format(production.getDate())).append("<br>")
                     .append("作者列表：").append(production.getAuthor()).append("<br><br>");
         }
@@ -319,17 +328,17 @@ public class MailToTeacherService {
             SendMailContent sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(production.getStudentID()));
 
             if (StrUtil.isEmpty(sendMailContent.getTeacherName()) || StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
-                log.error(type + ": " + production.getID() + "对应的导师没有姓名或者邮箱地址");
+//                log.error(type + ": " + production.getID() + "对应的导师没有姓名或者邮箱地址");
                 return;
             }
 
-            String subject = "请在教学系统中审核" + sendMailContent.getStudentName() + "的论文成果，成果编号：" + production.getID();
+            String subject = "请在教学系统中审核" + sendMailContent.getStudentName() + "的学术论文成果，成果编号：" + production.getID();
 
             StringBuilder contentBuilder = new StringBuilder();
             contentBuilder.append("尊敬的").append(sendMailContent.getTeacherName()).append("老师：<br>");
             contentBuilder.append("您好！<br>");
             contentBuilder.append("<b>您的学生").append(sendMailContent.getStudentName()).append("已经在系统中提交成果申报。</b><br>");
-            contentBuilder.append("论文标题：").append(production.getName()).append("<br>");
+            contentBuilder.append("成果标题：").append(production.getName()).append("<br>");
 //            contentBuilder.append("发表期刊：").append(pubName).append("<br>");
             contentBuilder.append("发表年月：").append(production.getYear()).append("年").append(production.getMonth()).append("月<br>");
             contentBuilder.append("作者列表：").append(production.getAuthor()).append("<br>");
@@ -352,7 +361,8 @@ public class MailToTeacherService {
             sendMails.sendMailAsync(sendMailContent.getTeacherEmail(), subject, contentBuilder.toString(), file);
         } catch (Exception e) {
             // 处理发送异常的情况
-            log.error("Exception occurred during sending email: " + e.getMessage(), e);
+//            log.error("Exception occurred during sending email: " + e.getMessage(), e);
+            throw e;
         }
 
     }
@@ -362,7 +372,7 @@ public class MailToTeacherService {
         String infoProduction = getInfoProduction(production, type);
         String subject = getFeedbackMailSubject(originalMessage);
         if (mailState.equals("editPassSuccess") || mailState.equals("editRejectSuccess")) {
-            subject = "教学系统审核论文成果：论文编号" + production.getID() + "审核成功！";
+            subject = "教学系统审核学术论文成果：论文编号" + production.getID() + "审核成功！";
         }
         String content = getFeedbackMailContent(production, correctFormat, type, infoProduction, originalMessage, mailState);
         sendMails.sendMailAsync(to, subject, content, null);
@@ -398,7 +408,8 @@ public class MailToTeacherService {
                         .append("的状态为：<span style=\\\"color:red;\\\"><b>导师拒绝</b></span>。<br>");
                 break;
             default:
-                log.error("检测到未知状态的邮件！可能是使用了错误的重载函数！");
+//                log.error("检测到未知状态的邮件！可能是使用了错误的重载函数！");
+                break;
         }
 
         if (mailState.equals("editPassSuccess") || mailState.equals("editRejectSuccess") || mailState.equals("dupEditState")) {
@@ -417,8 +428,8 @@ public class MailToTeacherService {
 
     private String getInfoProduction(Paper production, String type) {
         StringBuilder infoProduction = new StringBuilder();
-        infoProduction.append("下面是论文的一些基本信息：<br>")
-                .append("论文标题：").append(production.getName()).append("。<br>")
+        infoProduction.append("下面是原成果的一些基本信息：<br>")
+                .append("成果标题：").append(production.getName()).append("。<br>")
                 .append("发表年月：").append(production.getYear()).append("年").append(production.getMonth()).append("月<br>")
                 .append("作者列表：").append(production.getAuthor()).append("<br><br>");
         return infoProduction.toString();

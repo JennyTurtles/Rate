@@ -1,14 +1,12 @@
 package org.sys.rate.service.admin;
 
 import org.springframework.stereotype.Service;
+import org.sys.rate.mapper.CompetitionMapper;
 import org.sys.rate.mapper.CompetitionTypeMapper;
 import org.sys.rate.mapper.OperationMapper;
-import org.sys.rate.mapper.CompetitionMapper;
-import org.sys.rate.mapper.ProjectTypeMapper;
+import org.sys.rate.model.Competition;
 import org.sys.rate.model.CompetitionType;
 import org.sys.rate.model.Operation;
-import org.sys.rate.model.Competition;
-import org.sys.rate.model.ProjectType;
 import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
@@ -108,7 +106,7 @@ public class CompetitionService {
     //    修改科研专著教材状态
     public int editState(String state, Long ID) throws MessagingException {
         Competition competition = competitionMapper.getById(Math.toIntExact(ID));
-//        mailToStuService.sendStuMail(state, competition, null, "学科竞赛");
+        mailToStuService.sendStuMail(state, competition, null, "学科竞赛");
         return competitionMapper.editState(state, ID);
     }
 
