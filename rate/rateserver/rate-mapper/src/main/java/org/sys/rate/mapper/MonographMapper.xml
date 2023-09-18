@@ -57,7 +57,7 @@
 
 <!--    学生专著教材页面初始化-->
     <select id="selectMonographListById" resultMap="MonographResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date,
+        SELECT a.*,
                j.remark,ind.name as iname,ind.score, ind.id as indicatorid, ind.rankN
         FROM i_book a
                  JOIN (
