@@ -75,7 +75,7 @@
             WHERE prod_type = '决策咨询'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_decision_type ip ON a.decision_type_id = ip.id AND a.student_id = #{studentID}
-                 JOIN indicator i ON a.indicator_id = i.id
+                 JOIN indicator i ON ip.indicator_id = i.id
         ORDER BY a.id DESC;
     </select>
 

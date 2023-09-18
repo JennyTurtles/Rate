@@ -33,6 +33,10 @@ public class ProjectService {
         List<Project> list = projectMapper.selectProjectListById(studentID);
         return list;
     }
+    public List<Project> selectHorizontalProjectListById(Integer studentID) {
+        List<Project> list = projectMapper.selectHorizontalProjectListById(studentID);
+        return list;
+    }
 
     /**
      * 新增科研专著教材成果

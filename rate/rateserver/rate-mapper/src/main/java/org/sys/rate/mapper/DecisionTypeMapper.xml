@@ -5,6 +5,7 @@
 <mapper namespace="org.sys.rate.mapper.DecisionTypeMapper">
     <resultMap type="org.sys.rate.model.DecisionType" id="DecisionTypeResult">
         <id property="id" column="id" jdbcType="INTEGER"/>
+        <id property="indicatorId" column="indicator_id"/>
         <result property="name" column="name"/>
         <result property="year" column="year"/>
     </resultMap>
@@ -17,6 +18,6 @@
     <select id="getIndicatorByYearAndType" resultMap="DecisionTypeResult">
         SELECT *
         FROM i_decision_type
-        where year = (select max(year) from i_decision_type where <![CDATA[ year <= #{year}  ]]>)
+        where year = (select max(year) from i_decision_type where <![CDATA[ year <= #{year} and indicator_id = #{indicatorId}]]>) and indicator_id = #{indicatorId}
     </select>
 </mapper>

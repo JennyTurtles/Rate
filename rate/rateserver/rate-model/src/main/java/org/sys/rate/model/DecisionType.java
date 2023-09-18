@@ -12,6 +12,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class DecisionType {
     private Integer id;
+    private Integer indicatorId;
     @NotBlank(message = "决策名称不为空")
     private String name;
     @NotBlank(message = "年份不为空")

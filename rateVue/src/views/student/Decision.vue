@@ -140,7 +140,7 @@
           <el-date-picker
               style="width: 80%"
               v-model="currentDecisionCopy.date"
-              @change="changeProjectStartDate($event)"
+              @change="changeDecisionStartDate($event)"
               type="month"
               value-format="yyyy-MM"
               placeholder="选择年月">
@@ -153,7 +153,7 @@
         <el-form-item label="决策类别:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-select
-              :disabled="disabledSelectDecisionType"
+              :disabled="disabledSelectDecisionType || JSON.stringify(currentIndicator) == '{}'"
               v-model="selectDecisionType"
               value-key="id"
               filterable
@@ -171,7 +171,7 @@
                 :value="item">
             </el-option>
           </el-select>
-          <el-tooltip class="item" effect="dark" content="如：xxx等" placement="top-start">
+          <el-tooltip class="item" effect="dark" content="如：参与撰写完整的项目需求报告、技术设计报告、综述报告等" placement="top-start">
             <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
           </el-tooltip>
         </el-form-item>
@@ -438,7 +438,7 @@ export default {
         }
       });
     },
-    changeProjectStartDate(data) {
+    changeDecisionStartDate(data) { //选择年月和指标点后才可以输入选择类别
       if(data) {
         this.disabledSelectDecisionType = false;
       }else {
@@ -463,7 +463,7 @@ export default {
     },
     debounceSearchType(data) {
       if (this.currentDecisionCopy.date != null && this.currentDecisionCopy.date != '' && data != null && data != '') {
-        this.getRequest('/decision/basic/getIndicatorByYearAndType?year=' + this.currentDecisionCopy.date.split('-')[0]).then(response => {
+        this.getRequest('/decision/basic/getIndicatorByYearAndType?year=' + this.currentDecisionCopy.date.split('-')[0] + '&indicatorId=' + this.currentIndicator.id).then(response => {
           if(response) {
             this.selectDecisionTypeList = response.data;
             this.searchTypeLoading = false;

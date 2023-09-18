@@ -53,6 +53,11 @@ public class ProjectController {
         List<Project> list = projectService.selectProjectListById(studentID);
         return new JsonResult<>(list);
     }
+    @GetMapping("/studentID/horizontal")//无页码要求
+    public JsonResult<List> getHorizontalProjectById(Integer studentID) {
+        List<Project> list = projectService.selectHorizontalProjectListById(studentID);
+        return new JsonResult<>(list);
+    }
 
     //    修改专著状态
     @GetMapping("/edit_state")
