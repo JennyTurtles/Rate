@@ -43,8 +43,12 @@ export default {
           path: '/teacher/tAcademicMonograph'
         },
         'project': {
-          name: '科研项目',
+          name: '纵向科研项目',
           path: '/teacher/tResearchProject'
+        },
+        'horizontalProject': {
+          name: '横向科研项目',
+          path: '/teacher/tHorizontalResearchProject'
         },
         'product': {
           name: '产品应用',
@@ -75,11 +79,9 @@ export default {
     }
   },
   mounted() {
-    this.$nextTick(() => {
-      if(JSON.stringify(this.$store.state.pendingMessageTypeObject) == '{}') {
-        this.$store.dispatch('changePendingMessageange');
-      }
-    })
+    // if(JSON.stringify(this.$store.state.pendingMessageTypeObject) == '{}') {
+    //   this.$store.dispatch('changePendingMessageange');
+    // }
   },
   methods: {
     goLink(key, value) {

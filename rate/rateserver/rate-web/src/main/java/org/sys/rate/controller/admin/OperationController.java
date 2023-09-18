@@ -89,17 +89,18 @@ public class OperationController {
         Integer patentRes = patentMapper.selectPatentNumberOfPendingMessing(state);
         Integer paperRes = paperMapper.selectPaperNumberOfPendingMessing(state);
         Integer projectRes = projectMapper.selectProjectNumberOfPendingMessing(state);
+        Integer horizontalProjectRes = projectMapper.selectHorizontalProjectNumberOfPendingMessing(state);
         Integer productRes = productMapper.selectProductNumberOfPendingMessing(state);
         Integer monographRes = monographMapper.selectMonographNumberOfPendingMessing(state);
         Integer decisionRes = decisionMapper.selectDecisionNumberOfPendingMessing(state);
         Integer standardRes = standardMapper.selectStandardNumberOfPendingMessing(state);
         Integer awardRes = awardMapper.selectAwardNumberOfPendingMessing(state);
         Integer competitionRes = competitionMapper.selectCompetitionNumberOfPendingMessing(state);
-        res = paperRes + patentRes + productRes + projectRes + monographRes + decisionRes + standardRes + awardRes + competitionRes;
+        res = paperRes + patentRes + productRes + projectRes + monographRes + decisionRes + standardRes + awardRes + competitionRes + horizontalProjectRes;
         return Msg.success().add("count", res).add("patent", patentRes).add("patent", patentRes)
                 .add("paper", paperRes).add("project", projectRes).add("product", productRes)
                 .add("monograph", monographRes).add("decision", decisionRes).add("standard", standardRes)
-                .add("award", awardRes).add("competition", competitionRes);
+                .add("award", awardRes).add("competition", competitionRes).add("horizontalProject", horizontalProjectRes);
     }
 
 }

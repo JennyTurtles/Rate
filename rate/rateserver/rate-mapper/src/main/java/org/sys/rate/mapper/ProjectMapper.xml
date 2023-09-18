@@ -245,6 +245,11 @@
     <select id="selectProjectNumberOfPendingMessing" resultType="Integer">
         select count(*)
         from i_project
-        where state = #{state}
+        where state = #{state} and project_type_id != -1
+    </select>
+    <select id="selectHorizontalProjectNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_project
+        where state = #{state} and project_type_id = -1
     </select>
 </mapper>

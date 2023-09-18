@@ -85,4 +85,5 @@ public interface ProjectMapper
     public List<Project> searchHorizontalProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
 
     Integer selectProjectNumberOfPendingMessing(String state);
+    Integer selectHorizontalProjectNumberOfPendingMessing(String state);
 }
