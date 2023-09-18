@@ -129,4 +129,8 @@ public class ProjectService {
         List<Project> list = projectMapper.searchProjectByConditions(studentName, state, projectName, pointFront, pointBack);
         return list;
     }
+    public List<Project> searchHorizontalProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack) {
+        List<Project> list = projectMapper.searchHorizontalProjectByConditions(studentName, state, projectName, pointFront, pointBack);
+        return list;
+    }
 }

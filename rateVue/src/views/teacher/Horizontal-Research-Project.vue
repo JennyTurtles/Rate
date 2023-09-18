@@ -13,18 +13,18 @@
                autocomplete="off"
                v-model="searchStudentName"
                id="select_stuname">
-        <label style="fontSize:10px;margin-left:16px">产品名称：</label>
+        <label style="fontSize:10px;margin-left:16px">项目名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
-               placeholder="产品名称"
-               v-model="searchProductName"
+               placeholder="项目名称"
+               v-model="searchProjectName"
                id="select_paperName">
 
-        <label style="fontSize:10px;margin-left:40px;">产品状态：</label>
+        <label style="fontSize:10px;margin-left:40px;">项目状态：</label>
         <el-select
-            v-model="searchProductState"
+            v-model="searchProjectState"
             style="margin-left:3px;width:120px"
             prefix-icon="el-icon-edit"
             clearable
@@ -81,7 +81,7 @@
         <el-button
             icon="el-icon-search"
             type="primary"
-            @click="searchProductListByCondicitions(1, 10)"
+            @click="searchProjectListByCondicitions(1, 10)"
             :disabled="showAdvanceSearchView"
             style="margin-left:30px"
         >
@@ -91,7 +91,7 @@
     </div>
     <div style="margin-top: 10px">
       <el-table
-          :data="products"
+          :data="projects"
           stripe
           border
           v-loading="loading"
@@ -111,7 +111,7 @@
         <el-table-column
             prop="name"
             align="center"
-            label="产品名称"
+            label="项目名称"
             min-width="15%"
         >
         </el-table-column>
@@ -185,10 +185,10 @@
       </div>
     </div>
 
-    <!-- 对话框 老师审核通过产品 -->
+    <!-- 对话框 老师审核通过项目 -->
     <el-dialog :title="title"
                :visible.sync="dialogVisible_pass" width="30%" center>
-      <!-- 确定审核通过该学生产品？ -->
+      <!-- 确定审核通过该学生项目？ -->
       <el-form
           :label-position="labelPosition"
           label-width="80px"
@@ -196,7 +196,7 @@
           ref="empForm"
           style="margin-left: 60px"
       >
-        <el-form-item label="产品ID:" prop="id">
+        <el-form-item label="项目ID:" prop="id">
           <span>{{ emp.id }}</span>
         </el-form-item>
       </el-form>
@@ -205,7 +205,7 @@
         <el-button type="primary" @click="auditing_commit('tea_pass')">确 定</el-button>
       </span>
     </el-dialog>
-    <!-- 对话框 老师驳回该学生产品 -->
+    <!-- 对话框 老师驳回该学生项目 -->
     <el-dialog :title="title"
                :visible.sync="dialogVisible_reject" width="30%" center>
 
@@ -216,7 +216,7 @@
           ref="empForm"
           style="margin-left: 40px"
       >
-        <el-form-item label="产品ID:" prop="id">
+        <el-form-item label="项目ID:" prop="id">
           <span>{{ emp.id }}</span>
         </el-form-item>
         <el-form-item label="驳回理由:">
@@ -249,7 +249,7 @@
           ref="empForm"
           style="margin-left: 20px"
       >
-        <el-form-item label="产品名称:" prop="name">
+        <el-form-item label="项目名称:" prop="name">
           <span>{{ emp.name }}</span
           ><br />
         </el-form-item>
@@ -259,7 +259,7 @@
         </el-form-item>
 
 
-        <el-form-item label="产品状态:" prop="state">
+        <el-form-item label="项目状态:" prop="state">
           <span>{{emp.state}}</span
           ><br />
         </el-form-item>
@@ -327,7 +327,7 @@
           type="textarea"
           :rows="4"
           v-model="reason"
-          placeholder="请输入产品驳回理由"
+          placeholder="请输入项目驳回理由"
       >
       </el-input>
       <span slot="footer">
@@ -347,8 +347,8 @@ export default {
     return {
       pointBack: '',
       pointFront: '',
-      searchProductState: '',
-      searchProductName: '',
+      searchProjectState: '',
+      searchProjectName: '',
       searchStudentName: '',
       pageSizes:[10, 20, 50, 100],
       totalCount:0,
@@ -372,7 +372,7 @@ export default {
       importDataDisabled: false,
       showAdvanceSearchView: false,
       copyemps:[],
-      products: [],
+      projects: [],
       loading: false,
       dialogVisible: false,
       dialogVisible_pass: false,
@@ -384,7 +384,7 @@ export default {
         operatorRole: "",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '产品应用',
+        prodType: '项目应用',
         operationName:"",
         state:"",
         remark:"",
@@ -424,9 +424,9 @@ export default {
   },
   created() {},
   mounted() {
-    if(this.role == 'teacher') this.searchProductState = '学生提交';
-    else if(this.role == 'admin') this.searchProductState = '导师通过';
-    this.searchProductListByCondicitions(1, 10);
+    if(this.role == 'teacher') this.searchProjectState = '学生提交';
+    else if(this.role == 'admin') this.searchProjectState = '导师通过';
+    this.searchProjectListByCondicitions(1, 10);
   },
   filters:{
     fileNameFilter:function(data){//将证明材料显示出来
@@ -461,7 +461,7 @@ export default {
       var fileName = data.url.split('/').reverse()[0]
       var url = data.url
       axios({
-        url: '/product/basic/downloadByUrl?url='+url,
+        url: '/project/basic/downloadByUrl?url='+url,
         method: 'GET',
         responseType: 'blob'
       }).then(response => {
@@ -493,7 +493,7 @@ export default {
       }else this.rolePass(state);
     },
     rolePass(state) {
-      let url = "/product/basic/edit_state?state=" + state + "&ID="+this.emp.id;
+      let url = "/project/basic/edit_state?state=" + state + "&ID="+this.emp.id;
       this.dialogVisible_show = false
       if(state.indexOf('reject') >= 0){
         this.emp.operationList[0].remark = this.reason;
@@ -512,10 +512,10 @@ export default {
         }
       })
     },
-    async doAddOper(state,remark,productID) {
+    async doAddOper(state,remark,projectID) {
       this.oper.state = state;
       this.oper.remark = remark;
-      this.oper.prodId = productID;
+      this.oper.prodId = projectID;
       this.oper.time = this.dateFormatFunc(new Date());
       this.oper.operatorRole = this.role;
       if(this.oper.state == "tea_pass" || this.oper.state == 'adm_pass'){
@@ -524,7 +524,7 @@ export default {
         this.oper.operationName = "审核驳回"
       }
       await this.postRequest1("/oper/basic/add", this.oper);
-      await this.searchProductListByCondicitions(this.currentPage, this.pageSize)
+      await this.searchProjectListByCondicitions(this.currentPage, this.pageSize)
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
@@ -535,7 +535,7 @@ export default {
         startDate: null,
         name: "",
         scoreItemCount: "0",
-        comment: "备注example：关于xxx的产品",
+        comment: "备注example：关于xxx的项目",
       };
     },
     showEditEmpView(data) {//修改论文
@@ -547,7 +547,7 @@ export default {
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=产品应用').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=项目应用').then((resp) => {
         this.loading = false;
         if (resp) {
           this.isShowInfo = false;
@@ -561,16 +561,16 @@ export default {
     //应该要分是否有无筛选条件
     sizeChange(currentSize) {
       this.pageSize = currentSize;
-      this.searchProductListByCondicitions(this.currentPage, this.pageSize)
+      this.searchProjectListByCondicitions(this.currentPage, this.pageSize)
     },
     currentChange(currentPage) {
       this.currentPage = currentPage;
-      this.searchProductListByCondicitions(this.currentPage, this.pageSize)
+      this.searchProjectListByCondicitions(this.currentPage, this.pageSize)
     },
-    searchProductListByCondicitions(pageNum, pageSize) {//根据条件搜索论文
+    searchProjectListByCondicitions(pageNum, pageSize) {//根据条件搜索论文
       const params = {};
       params.studentName = this.searchStudentName;
-      var state = this.searchProductState;
+      var state = this.searchProjectState;
       if(state == '导师通过'){
         state = 'tea_pass'
       }else if(state == '导师驳回'){
@@ -593,12 +593,12 @@ export default {
         params.pointBack = this.pointBack;
       }
       params.state = state;
-      params.name = this.searchProductName;
+      params.name = this.searchProjectName;
       params.pageNum = pageNum.toString();
       params.pageSize = pageSize.toString();
-      this.postRequest('/product/basic/searchProductByConditions', params).then((response) => {
+      this.postRequest('/project/basic/searchProjectByConditions/horizontal', params).then((response) => {
         if(response) {
-          this.products = response.extend.res[0];
+          this.projects = response.extend.res[0];
           this.totalCount = response.extend.res[1];
         }else this.projectList = [];
       })

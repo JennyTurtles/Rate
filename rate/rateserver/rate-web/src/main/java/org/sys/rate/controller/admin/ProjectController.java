@@ -172,4 +172,12 @@ public class ProjectController {
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
     }
+    @PostMapping("/searchProjectByConditions/horizontal")
+    public Msg searchHorizontalProjectByConditions(@RequestBody Map<String, String> params) {
+        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
+        List<Project> list = projectService.searchHorizontalProjectByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"));
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
+    }
 }
