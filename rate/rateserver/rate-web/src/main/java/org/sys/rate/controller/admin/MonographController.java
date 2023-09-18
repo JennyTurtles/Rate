@@ -14,9 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.model.Monograph;
 import org.sys.rate.model.Msg;
-import org.sys.rate.model.Operation;
 import org.sys.rate.model.RespBean;
-import org.sys.rate.service.admin.MonographService;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.MonographService;
 import org.sys.rate.service.mail.MailToTeacherService;
@@ -27,7 +25,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -79,7 +76,7 @@ public class MonographController {
     @ResponseBody
     public JsonResult addSave(Monograph monograph) throws FileNotFoundException {
         Integer res = monographService.insertMonograph(monograph);
-        mailToTeacherService.sendTeaCheckMail(monograph, "学术专著和教材");
+        mailToTeacherService.sendTeaCheckMail(monograph, "学术专著和教材","添加");
         return new JsonResult(monograph.getId());
     }
 
@@ -90,7 +87,7 @@ public class MonographController {
     @ResponseBody
     public JsonResult editSave(Monograph monograph) throws FileNotFoundException {
         int res = monographService.updateMonograph(monograph);
-        mailToTeacherService.sendTeaCheckMail(monograph, "学术专著和教材");
+        mailToTeacherService.sendTeaCheckMail(monograph, "学术专著和教材","修改");
         return new JsonResult(res);
     }
 

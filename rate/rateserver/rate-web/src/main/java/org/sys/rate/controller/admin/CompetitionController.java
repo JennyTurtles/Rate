@@ -75,7 +75,7 @@ public class CompetitionController {
     @ResponseBody
     public JsonResult addSave(Competition project) throws FileNotFoundException {
         Integer res = competitionService.insertCompetition(project);
-        mailToTeacherService.sendTeaCheckMail(project, "学科竞赛");
+        mailToTeacherService.sendTeaCheckMail(project, "学科竞赛","添加");
         return new JsonResult(project.getId());
     }
 
@@ -86,7 +86,7 @@ public class CompetitionController {
     @ResponseBody
     public JsonResult editSave(Competition project) throws FileNotFoundException {
         int res = competitionService.updateCompetition(project);
-        mailToTeacherService.sendTeaCheckMail(project, "学科竞赛");
+        mailToTeacherService.sendTeaCheckMail(project, "学科竞赛","修改");
         return new JsonResult(res);
     }
 

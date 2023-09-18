@@ -10,9 +10,11 @@ import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.TeacherService;
 
 import javax.annotation.Resource;
-import javax.mail.MessagingException;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,17 +42,24 @@ public class MailToTeacherService {
     @Resource
     private ProductionService productionService;
 
+    @Resource
+    private EmailErrorLogService emailErrorLogService;
+
+    @Resource
+    private MailService mailService;
+
     private static final Map<String, Integer> typeMap = new HashMap<>();
 
     static {
         typeMap.put("学术论文", 1);
         typeMap.put("授权专利", 2);
         typeMap.put("科研获奖", 3);
-        typeMap.put("科研项目", 4);
+        typeMap.put("横向科研项目", 4);
+        typeMap.put("纵向科研项目", 10);
         typeMap.put("制定标准", 5);
         typeMap.put("决策咨询", 6);
         typeMap.put("学术专著和教材", 7);
-        typeMap.put("制造或设计的产品", 8);
+        typeMap.put("产品应用", 8);
         typeMap.put("学科竞赛", 9);
     }
 
@@ -65,59 +74,69 @@ public class MailToTeacherService {
     private final String systemMessage = "本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系管理员</a>！<br><br>";
 
     // 当提交或者修改成功，会调用下面的代码
-    public <T extends Production> void sendTeaCheckMail(T production, String type) throws FileNotFoundException {
+    public <T extends Production> void sendTeaCheckMail(T production, String type, String addOrUpdate) throws FileNotFoundException {
+        File file = new File(production.getUrl());
+        String isFileEmpty = "";
+
+        if (!file.exists()) {
+            isFileEmpty = "无，可以驳回后请学生重新上传";
+        }
+        SendMailContent sendMailContent = sendMailContentService.getSendMailContent(production.getStudentId());
+        if (sendMailContent == null) {
+            return;
+        }
+
+        Mail mail = mailService.handleNullPointerException();
+
+        if (StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("发件错误");
+            emailErrorLog.setErrorDescription("对应的导师没有邮箱地址");
+            emailErrorLog.setSenderEmail(mail.getEmailAddress());
+            emailErrorLog.setRecipientEmail(sendMailContent.getTeacherEmail());
+            emailErrorLog.setSubject("");
+            emailErrorLog.setBody("");
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
+            return;
+        }
+
+        String subject = "请在教学系统中审核" + sendMailContent.getStudentName() + "的" + type + "成果，成果编号：" + production.getId();
+
+        StringBuilder contentBuilder = new StringBuilder();
+        contentBuilder.append("尊敬的").append(sendMailContent.getTeacherName()).append("老师：<br>");
+        contentBuilder.append("您好！<br>");
+        contentBuilder.append("<b>您的学生").append(sendMailContent.getStudentName()).append("已经在系统中" + addOrUpdate + "成果申报。</b><br>");
+        contentBuilder.append("成果标题：").append(production.getName()).append("<br>");
         try {
-            File file = new File(production.getUrl());
-            String isFileEmpty = "";
-
-            if (!file.exists()) {
-                isFileEmpty = "无，可以驳回后请学生重新上传";
-
-            }
-            SendMailContent sendMailContent = sendMailContentService.getSendMailContent(production.getStudentId());
-
-
-            if (StrUtil.isEmpty(sendMailContent.getTeacherName()) || StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
-//                log.error(type + ": " + production.getId() + "对应的导师没有姓名或者邮箱地址");
-                return;
-            }
-
-            String subject = "请在教学系统中审核" + sendMailContent.getStudentName() + "的" + type + "成果，成果编号：" + production.getId();
-
-            StringBuilder contentBuilder = new StringBuilder();
-            contentBuilder.append("尊敬的").append(sendMailContent.getTeacherName()).append("老师：<br>");
-            contentBuilder.append("您好！<br>");
-            contentBuilder.append("<b>您的学生").append(sendMailContent.getStudentName()).append("已经在系统中提交成果申报。</b><br>");
-            contentBuilder.append("成果标题：").append(production.getName()).append("<br>");
-
 
             switch (typeMap.get(type)) {
                 case 2:
-                    contentBuilder.append("状态年月：").append(sdf.format(production.getStartDate())).append("<br>");
+                    contentBuilder.append("状态年月：").append(sdf.format(production.getDate())).append("<br>");
                     contentBuilder.append("参与人：").append(production.getAuthor()).append("<br>");
                     break;
                 case 3:
                 case 9:
-                    contentBuilder.append("获奖年月：").append(sdf.format(production.getStartDate())).append("<br>");
+                    contentBuilder.append("获奖年月：").append(sdf.format(production.getDate())).append("<br>");
                     contentBuilder.append("获奖人：").append(production.getAuthor()).append("<br>");
                     break;
                 case 4:
+                case 10:
                     contentBuilder.append("立项时间：").append(sdf.format(production.getStartDate())).append("<br>");
                     contentBuilder.append("参与人：").append(production.getAuthor()).append("<br>");
                     break;
                 case 5:
                 case 6:
-
-                    contentBuilder.append("制定年月：").append(sdf.format(production.getStartDate())).append("<br>");
+                    contentBuilder.append("制定年月：").append(sdf.format(production.getDate())).append("<br>");
                     contentBuilder.append("制定人：").append(production.getAuthor()).append("<br>");
                     break;
                 case 7:
-                    contentBuilder.append("完成年月：").append(sdf.format(production.getStartDate())).append("<br>");
+                    contentBuilder.append("完成年月：").append(sdf.format(production.getDate())).append("<br>");
                     contentBuilder.append("完成人：").append(production.getAuthor()).append("<br>");
                     contentBuilder.append("出版社：").append(production.getPublisher()).append("<br>");
                     break;
                 case 8:
-                    contentBuilder.append("完成年月：").append(sdf.format(production.getStartDate())).append("<br>");
+                    contentBuilder.append("完成年月：").append(sdf.format(production.getDate())).append("<br>");
                     contentBuilder.append("完成人：").append(production.getAuthor()).append("<br>");
                     break;
 
@@ -133,7 +152,7 @@ public class MailToTeacherService {
             contentBuilder.append("成果类型：").append(type).append("<br>");
             contentBuilder.append("成果编号：").append(production.getId()).append("<br>");
             contentBuilder.append("审核结果：").append("通过").append("<br>");
-            contentBuilder.append("(2) 若<b>驳回</b>该论文，请在邮件中<span style=\"color:red;\">仅保留</span>以下四行并回复。<br>");
+            contentBuilder.append("(2) 若<b>驳回</b>该成果，请在邮件中<span style=\"color:red;\">仅保留</span>以下四行并回复。<br>");
             contentBuilder.append("成果类型：").append(type).append("<br>");
             contentBuilder.append("成果编号：").append(production.getId()).append("<br>");
             contentBuilder.append("审核结果：").append("驳回").append("<br>");
@@ -141,10 +160,22 @@ public class MailToTeacherService {
             contentBuilder.append(this.systemMessage);
             sendMails.sendMailAsync(sendMailContent.getTeacherEmail(), subject, contentBuilder.toString(), file);
         } catch (Exception e) {
-            // 处理发送异常的情况
-//            log.error("Exception occurred during sending email: " + e.getMessage(), e);
-            throw e;
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("发件错误");
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String errorDetails = sw.toString();
+            emailErrorLog.setErrorDescription(errorDetails);
+            emailErrorLog.setSenderEmail("");
+            emailErrorLog.setRecipientEmail("");
+            emailErrorLog.setSubject("");
+            emailErrorLog.setBody(contentBuilder.toString() + "\n" + production.toString() + type + addOrUpdate);
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
         }
+
 
     }
 
@@ -186,8 +217,8 @@ public class MailToTeacherService {
             case "wrongOrLeakType":
                 contentBuilder.append(this.greetingToTeacher)
                         .append(this.hello)
-                        .append(this.reason).append("您所填写的成果类型不为<b>论文、专利、科研获奖、科研项目、学术专著和教材、制造或设计的产品</b>中的任何一项。<br>")
-                        .append(this.solution).append("请在<b>学术论文、授权专利、科研获奖、科研项目、制定标准、决策咨询、学术专著和教材、制造或设计的产品、学科竞赛</b>选择一项，修改原邮件中的成果类型。<br>");
+                        .append(this.reason).append("您所填写的成果类型不为<b>学术论文、授权专利、科研获奖、纵向科研项目、横向科研项目、制定标准、决策咨询、学术专著和教材、产品应用、学科竞赛</b>中的任何一项。<br>")
+                        .append(this.solution).append("请在<b>学术论文、授权专利、科研获奖、纵向科研项目、横向科研项目、制定标准、决策咨询、学术专著和教材、产品应用、学科竞赛</b>选择一项，修改原邮件中的成果类型。<br>");
                 break;
             case "notDigitProductionID":
                 contentBuilder.append(this.greetingToTeacher)
@@ -214,7 +245,6 @@ public class MailToTeacherService {
                         .append(this.solution).append("请检查成果编号是否正确。<br>");
                 break;
             default:
-//                log.error("检测到未知状态的邮件！可能是使用了错误的重载函数！");
                 break;
         }
 
@@ -242,7 +272,8 @@ public class MailToTeacherService {
     // !导师回信审核有关系到id、email等实体类的错误 or 回信审核成功，会经过这个代码
     public <T extends Production> void sendTeaFeedbackMail(T production, String type, String to, String mailState, String originalMessage) {
         String correctFormat = getCorrectFormat(production.getId(), type);
-        String infoProduction = getInfoProduction(production, type);
+//        String infoProduction = getInfoProduction(production, type);
+        String infoProduction = "";
         String subject = getFeedbackMailSubject(originalMessage);
         if (mailState.equals("editPassSuccess") || mailState.equals("editRejectSuccess")) {
             subject = "教学系统审核" + type + "成果：" + type + "编号" + production.getId() + "审核成功！";
@@ -282,7 +313,6 @@ public class MailToTeacherService {
                         .append("的状态为：<span style=\\\"color:red;\\\"><b>导师拒绝</b></span>。<br>");
                 break;
             default:
-//                log.error("检测到未知状态的邮件！可能是使用了错误的重载函数！");
                 break;
         }
 
@@ -316,26 +346,18 @@ public class MailToTeacherService {
                 temp = "管理员驳回";
                 break;
             default:
-//                log.error("该成果目前状态非法！请检查数据库！");
                 break;
         }
         return temp;
     }
 
     private <T extends Production> String getInfoProduction(T production, String type) {
-//        String pubName = "";
-//        if ("学术论文".equals(type)) {
-//            Paper paper = paperService.getById(production.getId());
-//            pubName = publicationService.selectPublicationById(Math.toIntExact(paper.getPublicationID())).getName();
-//
-//        }
         StringBuilder infoProduction = new StringBuilder();
 
         if ("科研项目".equals(type)) {
             infoProduction.append("下面是原成果的一些基本信息：<br>")
                     .append("成果标题：").append(production.getName()).append("。<br>")
                     .append("立项年月：").append(sdf.format(production.getStartDate())).append("<br>")
-                    .append("结项年月：").append(sdf.format(production.getEndDate())).append("<br>")
                     .append("作者列表：").append(production.getAuthor()).append("<br><br>");
         } else {
             infoProduction.append("下面是原成果的一些基本信息：<br>")
@@ -363,7 +385,7 @@ public class MailToTeacherService {
 
     // !下面是paper相关的邮件代码
 
-    public void sendTeaCheckMail(Paper production, String type) throws FileNotFoundException {
+    public void sendTeaCheckMail(Paper production, String type, String addOrUpdate) throws FileNotFoundException {
         try {
             File file = new File(production.getUrl());
             String isFileEmpty = "";
@@ -372,23 +394,34 @@ public class MailToTeacherService {
                 isFileEmpty = "无，可以驳回后请学生重新上传";
             }
 
-
             SendMailContent sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(production.getStudentID()));
+            if (sendMailContent == null) {
+                return;
+            }
 
-            if (StrUtil.isEmpty(sendMailContent.getTeacherName()) || StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
-//                log.error(type + ": " + production.getID() + "对应的导师没有姓名或者邮箱地址");
+            Mail mail = mailService.handleNullPointerException();
+
+            if (StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
+                EmailErrorLog emailErrorLog = new EmailErrorLog();
+                emailErrorLog.setErrorType("发件错误");
+                emailErrorLog.setErrorDescription("对应的导师没有邮箱地址");
+                emailErrorLog.setSenderEmail(mail.getEmailAddress());
+                emailErrorLog.setRecipientEmail(sendMailContent.getTeacherEmail());
+                emailErrorLog.setSubject("");
+                emailErrorLog.setBody("");
+                emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                emailErrorLogService.addEmailErrorLog(emailErrorLog);
                 return;
             }
 
             String pubName = productionService.getPublicationName(production.getPublicationID());
-
 
             String subject = "请在教学系统中审核" + sendMailContent.getStudentName() + "的学术论文成果，成果编号：" + production.getID();
 
             StringBuilder contentBuilder = new StringBuilder();
             contentBuilder.append("尊敬的").append(sendMailContent.getTeacherName()).append("老师：<br>");
             contentBuilder.append("您好！<br>");
-            contentBuilder.append("<b>您的学生").append(sendMailContent.getStudentName()).append("已经在系统中提交成果申报。</b><br>");
+            contentBuilder.append("<b>您的学生").append(sendMailContent.getStudentName()).append("已经在系统中" + addOrUpdate + "成果申报。</b><br>");
             contentBuilder.append("成果标题：").append(production.getName()).append("<br>");
             contentBuilder.append("发表期刊：").append(pubName).append("<br>");
             contentBuilder.append("发表年月：").append(production.getYear()).append("年").append(production.getMonth()).append("月<br>");
@@ -408,21 +441,33 @@ public class MailToTeacherService {
             contentBuilder.append("审核理由：<span style=\"color:red;\">(请填写理由)</span><br><br>");
             contentBuilder.append(this.systemMessage);
 
-
             sendMails.sendMailAsync(sendMailContent.getTeacherEmail(), subject, contentBuilder.toString(), file);
         } catch (Exception e) {
-            // 处理发送异常的情况
-            throw e;
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("发件错误");
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String errorDetails = sw.toString();
+            emailErrorLog.setErrorDescription(errorDetails);
+            emailErrorLog.setSenderEmail("");
+            emailErrorLog.setRecipientEmail("");
+            emailErrorLog.setSubject("");
+            emailErrorLog.setBody("");
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
         }
 
     }
 
-    public void sendTeaFeedbackMail(Paper production, String type, String to, String mailState, String originalMessage) throws MessagingException {
+    public void sendTeaFeedbackMail(Paper production, String type, String to, String mailState, String originalMessage) {
         String correctFormat = getCorrectFormat(Math.toIntExact(production.getID()), type);
-        String infoProduction = getInfoProduction(production, type);
+//        String infoProduction = getInfoProduction(production, type);
+        String infoProduction = "";
         String subject = getFeedbackMailSubject(originalMessage);
         if (mailState.equals("editPassSuccess") || mailState.equals("editRejectSuccess")) {
-            subject = "教学系统审核学术论文成果：论文编号" + production.getID() + "审核成功！";
+            subject = "教学系统审核学术论文成果：学术论文编号" + production.getID() + "审核成功！";
         }
         String content = getFeedbackMailContent(production, correctFormat, type, infoProduction, originalMessage, mailState);
         sendMails.sendMailAsync(to, subject, content, null);
@@ -458,7 +503,6 @@ public class MailToTeacherService {
                         .append("的状态为：<span style=\\\"color:red;\\\"><b>导师拒绝</b></span>。<br>");
                 break;
             default:
-//                log.error("检测到未知状态的邮件！可能是使用了错误的重载函数！");
                 break;
         }
 

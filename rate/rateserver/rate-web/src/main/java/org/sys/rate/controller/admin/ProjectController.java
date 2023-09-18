@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.IndicatorMapper;
-import org.sys.rate.model.*;
-import org.sys.rate.service.admin.IndicatorService;
+import org.sys.rate.model.Msg;
+import org.sys.rate.model.Project;
+import org.sys.rate.model.ProjectType;
+import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.ProjectService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
@@ -53,6 +55,7 @@ public class ProjectController {
         List<Project> list = projectService.selectProjectListById(studentID);
         return new JsonResult<>(list);
     }
+
     @GetMapping("/studentID/horizontal")//无页码要求
     public JsonResult<List> getHorizontalProjectById(Integer studentID) {
         List<Project> list = projectService.selectHorizontalProjectListById(studentID);
@@ -82,7 +85,7 @@ public class ProjectController {
     @ResponseBody
     public JsonResult addSave(Project project) throws FileNotFoundException {
         Integer res = projectService.insertProject(project);
-        mailToTeacherService.sendTeaCheckMail(project, "科研项目");
+        mailToTeacherService.sendTeaCheckMail(project, project.getProjectTypeId() == -1 ? "横向科研项目" : "纵向科研项目","添加");
         return new JsonResult(project.getId());
     }
 
@@ -94,7 +97,7 @@ public class ProjectController {
     public JsonResult editSave(Project project) throws FileNotFoundException {
         int res = projectService.updateProject(project);
         if (res > 0) {
-            mailToTeacherService.sendTeaCheckMail(project, "科研项目");
+            mailToTeacherService.sendTeaCheckMail(project, project.getProjectTypeId() == -1 ? "横向科研项目" : "纵向科研项目","修改");
         }
         return new JsonResult(res);
     }
@@ -172,6 +175,7 @@ public class ProjectController {
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
     }
+
     @PostMapping("/searchProjectByConditions/horizontal")
     public Msg searchHorizontalProjectByConditions(@RequestBody Map<String, String> params) {
         Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
