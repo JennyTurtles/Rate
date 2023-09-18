@@ -223,11 +223,20 @@ export default new Router({
         },
         {
           path: '/student/ResearchProject',
-          name: '科研项目1',
+          name: '纵向科研项目',
           hidden: true,
           component: () => import('./views/student/Research-Project'),
           meta: {
-            title: '科研项目1',
+            title: '纵向科研项目',
+          },
+        },
+        {
+          path: '/student/HorizontalResearchProject',
+          name: '横向科研项目',
+          hidden: true,
+          component: () => import('./views/student/Horizontal-Research-Project'),
+          meta: {
+            title: '横向科研项目',
           },
         },
         {
@@ -376,11 +385,20 @@ export default new Router({
         },
         {
           path: '/teacher/tResearchProject',
-          name: '科研项目',
+          name: '纵向科研项目',
           hidden: true,
           component: () => import('./views/teacher/Research-Project'),
           meta: {
-            title: '科研项目',
+            title: '纵向科研项目',
+          },
+        },
+        {
+          path: '/teacher/tHorizontalResearchProject',
+          name: '横向科研项目',
+          hidden: true,
+          component: () => import('./views/teacher/Horizontal-Research-Project'),
+          meta: {
+            title: '横向科研项目',
           },
         },
         {
