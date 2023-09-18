@@ -22,8 +22,16 @@
                                v-show="
                   (user.role == '' || user.role.indexOf('7') !== -1  || user.role.indexOf('11') !== -1 ||
                    user.role.indexOf('10') !== -1)"
-             >注册为本科生/硕士研究生/博士研究生</el-dropdown-item
              >
+               <el-dropdown @command="registerHandler">
+                 <span>注册为本科生/硕士研究生/博士研究生</span>
+                 <el-dropdown-menu slot="dropdown" >
+                   <el-dropdown-item command="本科生">本科生</el-dropdown-item>
+                   <el-dropdown-item command="硕士研究生">硕士研究生</el-dropdown-item>
+                   <el-dropdown-item command="博士研究生">博士研究生</el-dropdown-item>
+                 </el-dropdown-menu>
+               </el-dropdown>
+             </el-dropdown-item>
               <el-dropdown-item command="changePassword"
                 >修改密码</el-dropdown-item
               >
@@ -269,6 +277,7 @@ export default {
      showPassword: false,
      password: "",
      password_confirm: "",
+     register_select:"",
     };
    },
   computed: {
@@ -501,6 +510,10 @@ export default {
         }
       });
     },
+    registerHandler(command){
+      this.selectStuType = command;
+      this.registerRoleVisible = true;
+    }
   },
 };
 </script>
