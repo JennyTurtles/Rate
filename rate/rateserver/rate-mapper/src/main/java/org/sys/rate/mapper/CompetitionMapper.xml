@@ -55,7 +55,7 @@
                  JOIN (
             SELECT prod_id,MAX(date) max_date
             FROM i_oper
-            WHERE prod_type = '科研项目'
+            WHERE prod_type = '学科竞赛'
             GROUP BY prod_id
         ) i ON p.id = i.prod_id
                  JOIN (

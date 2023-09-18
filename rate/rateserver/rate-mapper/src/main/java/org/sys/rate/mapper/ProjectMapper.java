@@ -66,6 +66,7 @@ public interface ProjectMapper
     public List<Project> selectAllProjectList();
     public List<Project> selectListById(@Param("studentID") Integer studentID, @Param("page") Integer page, @Param("size") Integer size);
     public List<Project> selectProjectListById(Integer studentID);
+    public List<Project> selectHorizontalProjectListById(Integer studentID);
 
 
     @Select("SELECT ID FROM i_project WHERE studentID = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
