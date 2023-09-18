@@ -47,7 +47,7 @@ export default {
           path: '/teacher/tResearchProject'
         },
         'product': {
-          name: '科研产品',
+          name: '产品应用',
           path: '/teacher/Product'
         },
         'competition': {

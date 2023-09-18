@@ -331,11 +331,11 @@ export default new Router({
         },
         {
           path: '/student/Product',
-          name: '科研产品',
+          name: '产品应用',
           hidden: true,
           component: () => import('./views/student/Product'),
           meta: {
-            title: '科研产品',
+            title: '产品应用',
           },
         },
         {
@@ -394,11 +394,11 @@ export default new Router({
         },
         {
           path: '/teacher/Product',
-          name: '科研产品',
+          name: '产品应用',
           hidden: true,
           component: () => import('./views/teacher/Product'),
           meta: {
-            title: '科研产品',
+            title: '产品应用',
           },
         },
         {

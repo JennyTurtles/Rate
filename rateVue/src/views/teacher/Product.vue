@@ -384,7 +384,7 @@ export default {
         operatorRole: "",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '科研产品',
+        prodType: '产品应用',
         operationName:"",
         state:"",
         remark:"",
@@ -547,7 +547,7 @@ export default {
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研产品').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=产品应用').then((resp) => {
         this.loading = false;
         if (resp) {
           this.isShowInfo = false;

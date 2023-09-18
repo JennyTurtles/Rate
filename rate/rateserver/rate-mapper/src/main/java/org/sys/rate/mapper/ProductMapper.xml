@@ -48,13 +48,13 @@
         JOIN (
         SELECT prod_id,MAX(i_oper.date) max_date
         FROM i_oper
-        WHERE prod_type = '科研产品'
+        WHERE prod_type = '产品应用'
         GROUP BY prod_id
         ) i ON book.id = i.prod_id
         JOIN (
         SELECT prod_id,remark,`date`
         FROM i_oper
-        WHERE prod_type = '科研产品'
+        WHERE prod_type = '产品应用'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
         JOIN indicator i ON book.indicator_id = i.id
         JOIN student s ON s.ID = book.student_id
@@ -84,13 +84,13 @@
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
             FROM i_oper
-            WHERE prod_type = '科研产品'
+            WHERE prod_type = '产品应用'
             GROUP BY prod_id
         ) i ON a.id = i.prod_id
                  JOIN (
             SELECT prod_id,remark,`date`
             FROM i_oper
-            WHERE prod_type = '科研产品'
+            WHERE prod_type = '产品应用'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN indicator ind ON ind.id = a.indicator_id AND a.student_id = #{studentID}
         ORDER BY a.id DESC;
