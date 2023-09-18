@@ -17,7 +17,6 @@ import org.sys.rate.model.Product;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.ProductService;
-import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.annotation.Resource;
@@ -38,7 +37,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/product/basic")
 public class ProductController {
-    
+
     @Resource
     private ProductService productService;
     @Resource
@@ -89,7 +88,7 @@ public class ProductController {
     @ResponseBody
     public JsonResult addSave(Product product) throws FileNotFoundException {
         Integer res = productService.insertProduct(product);
-        mailToTeacherService.sendTeaCheckMail(product, "制造或设计的产品");
+        mailToTeacherService.sendTeaCheckMail(product, "产品应用", "添加");
         return new JsonResult(product.getId());
     }
 
@@ -100,7 +99,7 @@ public class ProductController {
     @ResponseBody
     public JsonResult editSave(Product product) throws FileNotFoundException {
         int res = productService.updateProduct(product);
-        mailToTeacherService.sendTeaCheckMail(product, "制造或设计的产品");
+        mailToTeacherService.sendTeaCheckMail(product, "产品应用", "修改");
         return new JsonResult(res);
     }
 
@@ -141,6 +140,7 @@ public class ProductController {
         }
         return new JsonResult(flag);
     }
+
     @GetMapping("/downloadByUrl")
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
@@ -156,6 +156,7 @@ public class ProductController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
     @PostMapping("/searchProductByConditions")
     public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
         Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));

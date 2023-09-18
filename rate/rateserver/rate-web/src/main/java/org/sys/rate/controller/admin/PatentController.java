@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.model.Msg;
 import org.sys.rate.model.Patent;
-import org.sys.rate.model.Project;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.PatentService;
@@ -98,7 +97,7 @@ public class PatentController {
     @ResponseBody
     public JsonResult addSave(Patent patent) throws FileNotFoundException {
         Integer res = patentService.insertPatent(patent);
-        mailToTeacherService.sendTeaCheckMail(patent, "授权专利");
+        mailToTeacherService.sendTeaCheckMail(patent, "授权专利", "添加");
         return new JsonResult(patent.getId());
     }
 
@@ -110,7 +109,7 @@ public class PatentController {
     public JsonResult editSave(Patent patent) throws FileNotFoundException {
         int res = patentService.updatePatent(patent);
         if (res > 0) {
-            mailToTeacherService.sendTeaCheckMail(patent, "授权专利");
+            mailToTeacherService.sendTeaCheckMail(patent, "授权专利", "修改");
         }
         return new JsonResult(res);
     }

@@ -12,8 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
-import org.sys.rate.model.*;
-import org.sys.rate.service.admin.*;
+import org.sys.rate.model.Msg;
+import org.sys.rate.model.Paper;
+import org.sys.rate.model.RespBean;
+import org.sys.rate.service.admin.IndicatorService;
+import org.sys.rate.service.admin.PaperService;
+import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.annotation.Resource;
@@ -22,8 +26,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Date;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -89,7 +91,7 @@ public class PaperController {
     @ResponseBody
     public JsonResult addSave(Paper paper) throws FileNotFoundException {
         paperService.insertPaper(paper);
-        mailToTeacherService.sendTeaCheckMail(paper, "学术论文");
+        mailToTeacherService.sendTeaCheckMail(paper, "学术论文","添加");
         return new JsonResult(paper.getID());
     }
 
@@ -100,7 +102,7 @@ public class PaperController {
     @ResponseBody
     public JsonResult editSave(Paper paper) throws FileNotFoundException {
         int res = paperService.updatePaper(paper);
-        mailToTeacherService.sendTeaCheckMail(paper, "学术论文");
+        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", "修改");
         return new JsonResult(res);
     }
 
