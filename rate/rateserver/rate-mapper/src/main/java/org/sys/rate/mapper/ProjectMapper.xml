@@ -216,13 +216,13 @@
         JOIN (
         SELECT prod_id,MAX(i_oper.date) max_date
         FROM i_oper
-        WHERE prod_type = '科研项目'
+        WHERE prod_type = '纵向科研项目'
         GROUP BY prod_id
         ) i ON book.id = i.prod_id
         JOIN (
         SELECT prod_id,remark,`date`
         FROM i_oper
-        WHERE prod_type = '科研项目'
+        WHERE prod_type = '纵向科研项目'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
         JOIN i_project_type ip ON book.project_type_id = ip.id
         JOIN student s ON s.ID = book.student_id

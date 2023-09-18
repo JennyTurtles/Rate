@@ -113,7 +113,7 @@ public class ProjectService {
     //    修改科研专著教材状态
     public int editState(String state, Long ID) throws MessagingException {
         Project project = projectMapper.getById(Math.toIntExact(ID));
-        mailToStuService.sendStuMail(state, project, null, "科研项目");
+        mailToStuService.sendStuMail(state, project, null, "纵向科研项目");
         return projectMapper.editState(state, ID);
     }
 

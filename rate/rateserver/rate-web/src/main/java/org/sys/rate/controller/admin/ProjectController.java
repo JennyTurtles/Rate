@@ -82,7 +82,7 @@ public class ProjectController {
     @ResponseBody
     public JsonResult addSave(Project project) throws FileNotFoundException {
         Integer res = projectService.insertProject(project);
-        mailToTeacherService.sendTeaCheckMail(project, "科研项目");
+        mailToTeacherService.sendTeaCheckMail(project, "纵向科研项目");
         return new JsonResult(project.getId());
     }
 
@@ -94,7 +94,7 @@ public class ProjectController {
     public JsonResult editSave(Project project) throws FileNotFoundException {
         int res = projectService.updateProject(project);
         if (res > 0) {
-            mailToTeacherService.sendTeaCheckMail(project, "科研项目");
+            mailToTeacherService.sendTeaCheckMail(project, "纵向科研项目");
         }
         return new JsonResult(res);
     }

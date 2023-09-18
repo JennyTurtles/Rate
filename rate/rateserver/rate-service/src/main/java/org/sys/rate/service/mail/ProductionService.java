@@ -28,7 +28,7 @@ public class ProductionService {
     static {
         typeToTableMap.put("授权专利", "i_patent");
         typeToTableMap.put("科研获奖", "i_award");
-        typeToTableMap.put("科研项目", "i_project");
+        typeToTableMap.put("纵向科研项目", "i_project");
         typeToTableMap.put("制定标准", "i_standard");
         typeToTableMap.put("决策咨询", "i_decision");
         typeToTableMap.put("学术专著和教材", "i_book");
@@ -37,7 +37,7 @@ public class ProductionService {
     }
 
     public Production checkProductionById(int productionId, String type) {
-        if ("科研项目".equals(type)) {
+        if ("纵向科研项目".equals(type)) {
             return productionMapper.checkProjectById(productionId);
         } else if (typeToTableMap.containsKey(type)) {
             return productionMapper.checkProductionById(typeToTableMap.get(type), productionId);

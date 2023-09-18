@@ -292,7 +292,7 @@
           </template>
         </el-table-column>
       </el-table>
-<!--      科研项目搜索-->
+<!--      纵向科研项目搜索-->
       <el-table
           v-if="searchPathInf.type === 'project'"
           :data="listSearchPublicationsByName"
@@ -495,7 +495,7 @@
         <el-table-column prop="网址" label="网址" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
         <el-table-column prop="收录级别 （不同收录级别请用分号隔开）" label="收录级别 （不同收录级别请用分号隔开）"
                          v-if="indicatorTypeZH=='学术论文'"></el-table-column>
-        <el-table-column prop="项目名称" label="项目名称" v-if="indicatorTypeZH=='科研项目'"></el-table-column>
+        <el-table-column prop="项目名称" label="项目名称" v-if="indicatorTypeZH=='纵向科研项目'"></el-table-column>
         <el-table-column prop="奖项名称" label="奖励名称" v-if="indicatorTypeZH=='科研获奖'"></el-table-column>
         <el-table-column prop="成果名称" label="成果名称" v-if="indicatorTypeZH=='决策咨询'"></el-table-column>
         <el-table-column prop="学科竞赛名称" label="学科竞赛名称" v-if="indicatorTypeZH=='学科竞赛'"></el-table-column>
@@ -721,7 +721,7 @@
       </span>
     </el-dialog>
 
-    <!--科研项目-->
+    <!--纵向科研项目-->
     <el-table
         v-if="indicatorType === 'project'"
         :data="tableData"
@@ -751,7 +751,7 @@
     <!--新增-->
     <el-dialog :visible.sync="dialogVisibleAppendProgram" width="40%">
       <span slot="title" style="float: left; font-size: 20px"
-      >请输入科研项目类别的的相关信息</span
+      >请输入纵向科研项目类别的的相关信息</span
       >
       <el-form :model="programInf">
         <el-form-item label="类别名">
@@ -776,7 +776,7 @@
     <!--编辑-->
     <el-dialog :visible.sync="dialogVisibleUpdateProgram" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-      >请输入科研项目的相关信息</span
+      >请输入纵向科研项目的相关信息</span
       >
       <el-form :model="rowData">
         <el-form-item label="科研项目名">
@@ -1034,7 +1034,7 @@ export default {
       selectTypes: [
         {label: "学术论文", value: "publication"},
         // {label: "科研获奖", value: "award"},
-        {label: "科研项目", value: "project"},
+        {label: "纵向科研项目", value: "project"},
         {label: "决策咨询", value: "decision"},
         // {label: "学科竞赛", value: "competition"},
       ],
@@ -1123,7 +1123,7 @@ export default {
         },
       ],
       tableProjectSample: [
-        //科研项目
+        //纵向科研项目
         {
           项目名称: "",
         },
@@ -1168,7 +1168,7 @@ export default {
                 ...that.typeOfAllPaper,
                 subItem,
               ];
-            } else if (subItem.type == "科研项目") {
+            } else if (subItem.type == "纵向科研项目") {
               that.typeOfAllProject = [
                 ...that.typeOfAllProject,
                 subItem,
@@ -1205,6 +1205,7 @@ export default {
       }
     },
     async getYearList(year) {
+      console.log(this.indicatorType);
       try {
         const url = `/indicator/getAllYear/${this.indicatorID}/${this.indicatorType}`;
         await this.getRequest(url).then((resp) => {
@@ -1882,7 +1883,7 @@ export default {
           学术论文: "publication",
           授权专利: "patent",
           科研获奖: "award",
-          科研项目: "project",
+          纵向科研项目: "project",
           制定标准: "standard",
           决策咨询: "decision",
           学术专著和教材: "book",
@@ -1933,7 +1934,7 @@ export default {
       this.rowData = this.searchInf2;
       var type = "";
       if (indicatorType === "学术论文") type = "publication";
-      else if (indicatorType === "科研项目") type = "program";
+      else if (indicatorType === "纵向科研项目") type = "program";
       else if (indicatorType === "科研获奖奖") type = "award";
       else if (indicatorType === "决策咨询") type = "decision";
       this.update(type);
@@ -1941,7 +1942,7 @@ export default {
     searchDelete(id, indicatorType) {
       var type = "";
       if (indicatorType === "学术论文") type = "publication";
-      else if (indicatorType === "科研项目") type = "program";
+      else if (indicatorType === "纵向科研项目") type = "program";
       else if (indicatorType === "科研获奖奖") type = "award";
       else if (indicatorType === "决策咨询") type = "decision";
       this.remove(id, type);
@@ -2022,7 +2023,7 @@ export default {
               } else if (this.indicatorTypeZH == "学术论文" && typeof results[firstSheetName][j]["出版社"] == "undefined") {
                 this.uploadResultError = true;
                 this.errorMessage = "出版社不可为空";
-              } else if (this.indicatorTypeZH == "科研项目" && typeof results[firstSheetName][j]["项目名称"] == "undefined") {
+              } else if (this.indicatorTypeZH == "纵向科研项目" && typeof results[firstSheetName][j]["项目名称"] == "undefined") {
                 this.uploadResultError = true;
                 this.errorMessage = "项目名称不可为空";
               } else if (this.indicatorTypeZH == "决策咨询" && typeof results[firstSheetName][j]["成果名称"] == "undefined") {
@@ -2106,7 +2107,7 @@ export default {
         case "学术论文":
           await this.appendPublicationAsync();
           break;
-        case "科研项目":
+        case "纵向科研项目":
           await this.appendProjectAsync();
           break;
         case "科研获奖":
@@ -2238,7 +2239,7 @@ export default {
       if (this.indicatorTypeZH == "学术论文" && (typeof row["刊物全称"] === "undefined" || typeof row["出版社"] === "undefined")) {
         return "warning-row";
       }
-      if (this.indicatorTypeZH == "科研项目" && typeof row["项目名称"] === "undefined") {
+      if (this.indicatorTypeZH == "纵向科研项目" && typeof row["项目名称"] === "undefined") {
         return "warning-row";
       }
       if (this.indicatorTypeZH == "决策咨询" && typeof row["成果名称"] === "undefined") {

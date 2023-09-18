@@ -380,7 +380,7 @@ export default {
         operatorRole: "",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '科研项目',
+        prodType: '纵向科研项目',
         operationName:"",
         state:"",
         remark:"",
@@ -530,7 +530,7 @@ export default {
     },
     //获取改专著的操作列表
     getOperationListOfProject(data) {
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研项目').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=纵向科研项目').then((resp) => {
         this.loading = false;
         if (resp) {
           this.isShowInfo = false;

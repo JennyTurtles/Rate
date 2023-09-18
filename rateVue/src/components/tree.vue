@@ -370,8 +370,8 @@ export default {
           disabled: false,
         },
         {
-          value: "科研项目",
-          label: "科研项目",
+          value: "纵向科研项目",
+          label: "纵向科研项目",
           disabled: false,
         },
         {

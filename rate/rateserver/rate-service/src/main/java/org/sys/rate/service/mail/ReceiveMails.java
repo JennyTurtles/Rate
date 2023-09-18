@@ -52,7 +52,7 @@ public class ReceiveMails {
 
     private static final String[] patterns = {"成果类型", "成果编号", "审核结果", "审核理由"};
     private static final String[] phrases = {"成果类型：", "成果编号：", "审核结果：", "审核理由："};
-    private static final String[] allTypes = {"学术论文", "授权专利", "科研获奖", "科研项目", "制定标准", "决策咨询", "学术专著和教材", "制造或设计的产品", "学科竞赛"};
+    private static final String[] allTypes = {"学术论文", "授权专利", "科研获奖", "纵向科研项目", "制定标准", "决策咨询", "学术专著和教材", "制造或设计的产品", "学科竞赛"};
     private static final String[] allResult = {"通过", "驳回"};
     private static final String REASON_PROMPT_FIXED = "(请填写理由)";
 

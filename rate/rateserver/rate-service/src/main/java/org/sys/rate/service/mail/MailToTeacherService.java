@@ -46,7 +46,7 @@ public class MailToTeacherService {
         typeMap.put("学术论文", 1);
         typeMap.put("授权专利", 2);
         typeMap.put("科研获奖", 3);
-        typeMap.put("科研项目", 4);
+        typeMap.put("纵向科研项目", 4);
         typeMap.put("制定标准", 5);
         typeMap.put("决策咨询", 6);
         typeMap.put("学术专著和教材", 7);
@@ -186,8 +186,8 @@ public class MailToTeacherService {
             case "wrongOrLeakType":
                 contentBuilder.append(this.greetingToTeacher)
                         .append(this.hello)
-                        .append(this.reason).append("您所填写的成果类型不为<b>论文、专利、科研获奖、科研项目、学术专著和教材、制造或设计的产品</b>中的任何一项。<br>")
-                        .append(this.solution).append("请在<b>学术论文、授权专利、科研获奖、科研项目、制定标准、决策咨询、学术专著和教材、制造或设计的产品、学科竞赛</b>选择一项，修改原邮件中的成果类型。<br>");
+                        .append(this.reason).append("您所填写的成果类型不为<b>论文、专利、科研获奖、纵向科研项目、学术专著和教材、制造或设计的产品</b>中的任何一项。<br>")
+                        .append(this.solution).append("请在<b>学术论文、授权专利、科研获奖、纵向科研项目、制定标准、决策咨询、学术专著和教材、制造或设计的产品、学科竞赛</b>选择一项，修改原邮件中的成果类型。<br>");
                 break;
             case "notDigitProductionID":
                 contentBuilder.append(this.greetingToTeacher)
@@ -331,7 +331,7 @@ public class MailToTeacherService {
 //        }
         StringBuilder infoProduction = new StringBuilder();
 
-        if ("科研项目".equals(type)) {
+        if ("纵向科研项目".equals(type)) {
             infoProduction.append("下面是原成果的一些基本信息：<br>")
                     .append("成果标题：").append(production.getName()).append("。<br>")
                     .append("立项年月：").append(sdf.format(production.getStartDate())).append("<br>")
