@@ -13,11 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.model.Msg;
-import org.sys.rate.model.Standard;
 import org.sys.rate.model.RespBean;
+import org.sys.rate.model.Standard;
 import org.sys.rate.service.admin.IndicatorService;
-import org.sys.rate.service.admin.StandardService;
-import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.admin.StandardService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
@@ -90,7 +88,7 @@ public class StandardController {
     @ResponseBody
     public JsonResult addSave(Standard standard) throws FileNotFoundException {
         Integer res = standardService.insertStandard(standard);
-        mailToTeacherService.sendTeaCheckMail(standard, "制定标准");
+        mailToTeacherService.sendTeaCheckMail(standard, "制定标准","添加");
         return new JsonResult(standard.getId());
     }
 
@@ -102,7 +100,7 @@ public class StandardController {
     public JsonResult editSave(Standard standard) throws FileNotFoundException {
         int res = standardService.updateStandard(standard);
         if (res > 0) {
-            mailToTeacherService.sendTeaCheckMail(standard, "制定标准");
+            mailToTeacherService.sendTeaCheckMail(standard, "制定标准","修改");
         }
         return new JsonResult(res);
     }

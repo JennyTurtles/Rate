@@ -142,14 +142,14 @@
               placeholder="请输入专著或教材名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="完成日期:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="完成年月:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-date-picker
               style="width: 80%"
               v-model="currentMonographCopy.date"
               type="month"
               value-format="yyyy-MM"
-              placeholder="选择日期">
+              placeholder="选择年月">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="完成人:" label-width="80px" style="margin-left: 20px;" prop="author">

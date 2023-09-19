@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.OperationService;
 import org.sys.rate.service.admin.PaperService;
-import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.TeacherService;
 
 import javax.annotation.Resource;
@@ -18,6 +17,8 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.search.FlagTerm;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -36,8 +37,6 @@ public class ReceiveMails {
     @Resource
     private PaperService paperService;
 
-    @Resource
-    private StudentService studentService;
 
     @Resource
     private TeacherService teacherService;
@@ -48,37 +47,40 @@ public class ReceiveMails {
     @Resource
     private ProductionService productionService;
 
+    @Resource
+    private EmailErrorLogService emailErrorLogService;
 
 
     private static final String[] patterns = {"成果类型", "成果编号", "审核结果", "审核理由"};
     private static final String[] phrases = {"成果类型：", "成果编号：", "审核结果：", "审核理由："};
-    private static final String[] allTypes = {"学术论文", "授权专利", "科研获奖", "纵向科研项目", "制定标准", "决策咨询", "学术专著和教材", "制造或设计的产品", "学科竞赛"};
+    private static final String[] allTypes = {"学术论文", "授权专利", "科研获奖", "纵向科研项目", "横向科研项目", "制定标准", "决策咨询", "学术专著和教材", "产品应用", "学科竞赛"};
     private static final String[] allResult = {"通过", "驳回"};
     private static final String REASON_PROMPT_FIXED = "(请填写理由)";
 
 
-    public void readMails() throws Exception {
-        Mail mail = handleNullPointerException();
+    public void readMails() {
+        Mail mail = mailService.handleNullPointerException();
+
         if (StringUtils.isBlank(mail.getEmailAddress()) || StringUtils.isBlank(mail.getIMAPVerifyCode())) {
-            log.error("账号或验证码不能为空！");
             return;
         }
 
-        // 准备连接服务器的会话信息
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imap");
         props.setProperty("mail.imap.host", mail.getIMAPHost());
-        props.setProperty("mail.imap.port", "143");
+        props.setProperty("mail.imap.port", "993");
         props.setProperty("mail.imap.auth.login.disable", "true");
 
-        HashMap<String, String> IAM = new HashMap<>(4);
+        HashMap<String, String> IAM = new HashMap<>();
         IAM.put("name", "rate");
         IAM.put("version", "1.0.0");
         IAM.put("vendor", "rate");
         IAM.put("support-email", "testmail@test.com");
 
+
         Session session = Session.getInstance(props);
         IMAPStore store = null;
+
         try {
             store = (IMAPStore) session.getStore("imap");
             store.connect(mail.getEmailAddress(), mail.getIMAPVerifyCode());
@@ -95,39 +97,35 @@ public class ReceiveMails {
             }
 
             parseMessage(unreadMessages, mail);
-        } catch (MessagingException e) {
-//            log.error("连接邮件服务器失败！", e);
-            throw e;
+
+        } catch (MessagingException | IOException e) {
+            handleMailException(e, mail.getEmailAddress(), "连接邮件服务器失败");
         } finally {
             if (store != null && store.isConnected()) {
                 try {
                     store.close();
                 } catch (MessagingException e) {
-                    // 处理异常
-//                    log.error("无法关闭收件箱！");
-                    throw e;
+                    handleMailException(e, mail.getEmailAddress(), "无法关闭邮箱的收件箱");
                 }
             }
         }
-
-
     }
 
-    private Mail handleNullPointerException() {
-        Mail mail = mailService.getMail();
+    private void handleMailException(Exception e, String emailAddress, String errorType) {
+        EmailErrorLog emailErrorLog = new EmailErrorLog();
+        emailErrorLog.setErrorType(errorType);
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String errorDetails = sw.toString();
+        emailErrorLog.setErrorDescription(errorDetails);
+        emailErrorLog.setSenderEmail(emailAddress);
+        emailErrorLog.setRecipientEmail("");
+        emailErrorLog.setSubject("");
+        emailErrorLog.setBody("");
+        emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
-        if (mail.getEmailAddress() == null) {
-            throw new NullPointerException("EmailAddress is null");
-        }
-
-        if (mail.getIMAPVerifyCode() == null) {
-            throw new NullPointerException("IMAPVerifyCode is null");
-        }
-
-        if (mail.getSMTPHost() == null) {
-            throw new NullPointerException("SMTPHost is null");
-        }
-        return mail;
+        emailErrorLogService.addEmailErrorLog(emailErrorLog);
     }
 
     public static Message[] getFirstNMessages(Message[] messages, int n) {
@@ -142,53 +140,69 @@ public class ReceiveMails {
     public void parseMessage(Message[] messages, Mail mail) throws MessagingException, IOException {
         // 开始解析未读邮件
         for (Message message : messages) {
-            String subject = message.getSubject();
-            String senderEmail = InternetAddress.parse(message.getFrom()[0].toString())[0].getAddress();
-            Date sendDate = message.getSentDate();
+            try {
+                String subject = message.getSubject();
+                String senderEmail = InternetAddress.parse(message.getFrom()[0].toString())[0].getAddress();
+                Date sendDate = message.getSentDate();
 
-            // ***特殊情况处理，可能还需要加上163和qq邮箱，因为对系统邮箱只会无意义的回信
-            if (senderEmail.equals("Postmaster@126.com")) {
-                continue;
-            }
-
-            String content = getTextFromMessage(message);
-            message.setFlag(Flags.Flag.DELETED, true);
-            content = clearFormat(content);
-            String originalMessage = getOriginalMessage(subject, senderEmail, sendDate, content, mail);
-
-            // *1.计算关键词出现次数以及位置
-            int numLines = sumLinesNum(content);
-            if (numLines != 3 && numLines != 4) {
-                mailToTeacherService.sendTeaFeedbackMail(senderEmail, "errLines", originalMessage);
-                continue;
-            }
-            if (sendEmailIfKeywordSumWrong(content, numLines, senderEmail, originalMessage)) {
-                // 计算关键词出现的位置
-                if (!startsWithPhrase(content)) {
-                    mailToTeacherService.sendTeaFeedbackMail(senderEmail, "getWrongStart", originalMessage);
+                if (senderEmail.equals("Postmaster@126.com")) {
                     continue;
                 }
-            } else {
-                continue;
+
+                String content = getTextFromMessage(message);
+                message.setFlag(Flags.Flag.DELETED, true);
+                content = clearFormat(content);
+                String originalMessage = getOriginalMessage(subject, senderEmail, sendDate, content, mail);
+
+                // *1.计算关键词出现次数以及位置
+                int numLines = sumLinesNum(content);
+                if (numLines != 3 && numLines != 4) {
+                    mailToTeacherService.sendTeaFeedbackMail(senderEmail, "errLines", originalMessage);
+                    continue;
+                }
+                if (sendEmailIfKeywordSumWrong(content, numLines, senderEmail, originalMessage)) {
+                    if (!startsWithPhrase(content)) {
+                        mailToTeacherService.sendTeaFeedbackMail(senderEmail, "getWrongStart", originalMessage);
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+                // ?2.获取"正确顺序"的每行内容，前面保证了四行或者三行内容在每行开头出现，并且只出现了一次
+                Map<String, String> lines = extractLines(content, numLines);
+                // ?3.判断每行的内容是否符合要求
+                if (!checkLineValue(lines, numLines, senderEmail, originalMessage)) {
+                    continue;
+                }
+                // 4.通过泛型来解决重复修改论文状态等问题
+                int ID = Integer.parseInt(lines.get(this.phrases[1]));
+                if (lines.get(this.phrases[0]).equals(this.allTypes[0])) {
+                    checkPaperAndSendMail(mail.getEmailAddress(), ID, senderEmail, originalMessage, lines);
+                } else {
+                    checkProductionAndSendMail(mail.getEmailAddress(), ID, senderEmail, originalMessage, lines);
+                }
+            } catch (Exception e) {
+                EmailErrorLog emailErrorLog = new EmailErrorLog();
+                emailErrorLog.setErrorType("收件错误");
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                e.printStackTrace(pw);
+                String errorDetails = sw.toString();
+                emailErrorLog.setErrorDescription(errorDetails);
+                emailErrorLog.setSenderEmail(mail.getEmailAddress());
+                emailErrorLog.setRecipientEmail("");
+                emailErrorLog.setSubject("");
+                emailErrorLog.setBody("");
+                emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+
+                emailErrorLogService.addEmailErrorLog(emailErrorLog);
             }
-            // ?2.获取"正确顺序"的每行内容，前面保证了四行或者三行内容在每行开头出现，并且只出现了一次
-            Map<String, String> lines = extractLines(content, numLines);
-            // ?3.判断每行的内容是否符合要求
-            if (!checkLineValue(lines, numLines, senderEmail, originalMessage)) {
-                continue;
-            }
-            // 4.通过泛型来解决重复修改论文状态等问题
-            int ID = Integer.parseInt(lines.get(this.phrases[1]));
-            if (lines.get(this.phrases[0]).equals(this.allTypes[0])) {
-                checkPaperAndSendMail(ID, senderEmail, originalMessage, lines);
-            } else {
-                checkProductionAndSendMail(ID, senderEmail, originalMessage, lines);
-            }
+
         }
     }
 
     @Transactional
-    public boolean checkProductionAndSendMail(int productionId, String senderEmail, String originalMessage, Map<String, String> lines) throws MessagingException {
+    public boolean checkProductionAndSendMail(String recipientEmail, int productionId, String senderEmail, String originalMessage, Map<String, String> lines) {
         // 0.检查ID是否正确
         String type = lines.get(this.phrases[0]);
         Production production = productionService.checkProductionById(productionId, type);
@@ -211,12 +225,14 @@ public class ReceiveMails {
         }
         // 3.修改成果的操作历史
         if (!editOperation(production, lines.get(this.phrases[3]), state, type)) {
-//            log.error("修改论文操作历史失败，成果类型：" + lines.get(this.phrases[0]) + "，成果编号：" + lines.get(this.phrases[1]));
+            EmailErrorLog emailErrorLog = new EmailErrorLog("修改" + type + "成果的操作历史错误", "成果类型：" + type + "，成果编号：" + productionId + "/n邮件内容是：" + originalMessage, senderEmail, recipientEmail, "", "", new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
             return false;
         }
         // 4.修改成果的状态
         if (productionService.editState(productionId, type, state) == 0) {
-//            log.error("修改状态失败!" + type + ": " + productionId);
+            EmailErrorLog emailErrorLog = new EmailErrorLog("修改" + type + "成果的状态错误", "成果类型：" + type + "，成果编号：" + productionId + "/n邮件内容是：" + originalMessage, senderEmail, recipientEmail, "", "", new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
             return false;
         }
         // 5.若成功，将修改后的状态发给老师&&学生
@@ -226,9 +242,8 @@ public class ReceiveMails {
     }
 
     @Transactional
-    public boolean checkPaperAndSendMail(int productionId, String senderEmail, String originalMessage, Map<String, String> lines) throws MessagingException {
+    public boolean checkPaperAndSendMail(String recipientEmail, int productionId, String senderEmail, String originalMessage, Map<String, String> lines) throws MessagingException {
         // 0.检查ID是否正确
-
         if (paperService.getById(productionId) == null) {
             mailToTeacherService.sendTeaFeedbackMail(senderEmail, "errID", originalMessage);
             return false;
@@ -248,14 +263,17 @@ public class ReceiveMails {
         }
         // 3.修改成果的操作历史
         if (!editOperation(paper, lines.get(this.phrases[3]), state, "学术论文")) {
-//            log.error("修改论文操作历史失败，成果类型：" + lines.get(this.phrases[0]) + "，成果编号：" + lines.get(this.phrases[1]));
+            EmailErrorLog emailErrorLog = new EmailErrorLog("修改学术论文成果的操作历史错误", "成果类型：学术论文，成果编号：" + productionId + "/n邮件内容是：" + originalMessage, senderEmail, recipientEmail, "", "", new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
             return false;
         }
         // 4.修改成果的状态
         if (paperService.editState(state, Long.valueOf(productionId)) == 0) {
-//            log.error("修改论文状态失败!");
+            EmailErrorLog emailErrorLog = new EmailErrorLog("修改学术论文成果的状态错误", "成果类型：学术论文，成果编号：" + productionId + "/n邮件内容是：" + originalMessage, senderEmail, recipientEmail, "", "", new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
             return false;
         }
+
         // 5.若成功，将修改后的状态发给老师&&学生
         String editStateSuccess = state.equals("tea_pass") ? "editPassSuccess" : "editRejectSuccess";
         mailToTeacherService.sendTeaFeedbackMail(paper, "学术论文", senderEmail, editStateSuccess, originalMessage);
@@ -295,7 +313,6 @@ public class ReceiveMails {
         Teacher teacher = teacherService.getByStudentId(Long.valueOf(production.getStudentId()));
         String operationName = state.equals("tea_pass") ? "经邮件回复，教师审核通过" : "经邮件回复，教师驳回";
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-        // 修改论文操作状态
         Operation operation = new Operation();
         operation.setOperatorRole("teacher");
         operation.setOperatorId(teacher.getID());
@@ -309,7 +326,6 @@ public class ReceiveMails {
 
         return operationService.insertOper(operation) != 0;
     }
-
 
 
     public <T extends Production> boolean checkProductionState(T production) {
@@ -339,10 +355,6 @@ public class ReceiveMails {
             return false;
         }
 
-        // extra conditions, judge the senderEmail, or this can be judge in the mailToTeacherService, cause use <T> is not so good
-        // and you may see if ID and type is correct, it's hardly to say the email is a spam email
-        // and I found if u check the tutor email later, it can avoid other mistakes that will occur in the other 2 lines
-
         // judge the line3
         if (!Arrays.asList(this.allResult).contains(lines.get(this.phrases[2]))) {
             mailToTeacherService.sendTeaFeedbackMail(senderEmail, "wrongProductionResult", originalMessage);
@@ -352,6 +364,7 @@ public class ReceiveMails {
         // extra judge
         if (lines.get(this.phrases[2]).equals("驳回") && numLines == 3) {
             mailToTeacherService.sendTeaFeedbackMail(senderEmail, "wrongNumKeyWords", originalMessage);
+            return false;
         }
 
         // judge the line4
@@ -371,8 +384,6 @@ public class ReceiveMails {
     public Map<String, String> extractLines(String content, int numLines) {
         assert numLines <= 4;
         content += '\n';
-        // The HashMap implementation of the Map interface allows null keys and values.
-        // the polymorphism feature of Java
         Map<String, String> lines = new HashMap<>(numLines);
 
         for (int i = 0; i < numLines; i++) {
@@ -416,7 +427,6 @@ public class ReceiveMails {
                 mailToTeacherService.sendTeaFeedbackMail(senderEmail, "spam", originalMessage);
                 return false;
             default:
-//                log.error("countOccurrences(content, numLines) got wrong num!");
                 return false;
         }
     }
@@ -503,7 +513,6 @@ public class ReceiveMails {
     }
 
     private String getTutorEmail(Integer productionId) {
-        // 通过paper_id获取teacher_email
         String email = paperService.getEmailByPaperId(Long.valueOf(productionId));
         return StringUtil.isEmpty(email) ? "" : email;
     }

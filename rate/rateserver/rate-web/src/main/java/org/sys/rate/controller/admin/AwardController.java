@@ -82,7 +82,7 @@ public class AwardController {
     @ResponseBody
     public JsonResult addSave(Award award) throws FileNotFoundException {
         Integer res = awardService.insertAward(award);
-        mailToTeacherService.sendTeaCheckMail(award, "科研获奖");
+        mailToTeacherService.sendTeaCheckMail(award, "科研获奖","添加");
         return new JsonResult(award.getId());
     }
 
@@ -94,7 +94,7 @@ public class AwardController {
     public JsonResult editSave(Award award) throws FileNotFoundException {
         int res = awardService.updateAward(award);
         if (res > 0) {
-            mailToTeacherService.sendTeaCheckMail(award, "科研获奖");
+            mailToTeacherService.sendTeaCheckMail(award, "科研获奖","修改");
         }
         return new JsonResult(res);
     }

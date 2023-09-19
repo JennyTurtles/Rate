@@ -3,11 +3,10 @@ package org.sys.rate.service.mail;
 import com.github.pagehelper.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.sys.rate.model.Paper;
-import org.sys.rate.model.Production;
-import org.sys.rate.model.SendMailContent;
+import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
+import java.sql.Timestamp;
 
 @Slf4j
 @Service
@@ -17,6 +16,12 @@ public class MailToStuService {
 
     @Resource
     private SendMailContentService sendMailContentService;
+
+    @Resource
+    private EmailErrorLogService emailErrorLogService;
+
+    @Resource
+    private MailService mailService;
 
 
     public <T extends Production> void sendStuMail(String state, T production, Paper paper, String type) {
@@ -30,7 +35,23 @@ public class MailToStuService {
         } else {
             sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(production.getStudentId()));
         }
+        if(sendMailContent==null){
+            return;
+        }
+
+        Mail mail = mailService.handleNullPointerException();
+
         if (StringUtil.isEmpty(sendMailContent.getStudentEmail())) {
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("发件错误");
+            emailErrorLog.setErrorDescription("学生邮箱地址为空");
+            emailErrorLog.setSenderEmail(mail.getEmailAddress());
+            emailErrorLog.setRecipientEmail(sendMailContent.getStudentEmail());
+            emailErrorLog.setSubject("");
+            emailErrorLog.setBody(sendMailContent.toString());
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
             return;
         }
 
@@ -70,6 +91,9 @@ public class MailToStuService {
         subject = subject != null ? subject : "东华大学计算机学院教学系统邮件";
         sendMails.sendMailAsync(sendMailContent.getStudentEmail(), subject, content, null);
     }
+
+
+
 
 
 }

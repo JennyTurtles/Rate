@@ -69,24 +69,6 @@
                 JOIN indicator i ON i.id = type.indicator_id
         ORDER BY p.id DESC;
     </select>
-    <select id="selectAllHorizontalProjectList" resultMap="ProjectResult">
-        SELECT p.*,i.max_date,j.remark
-        FROM i_project p
-                 JOIN (
-            SELECT prod_id,MAX(date) max_date
-            FROM i_oper
-            WHERE prod_type = '横向科研项目'
-            GROUP BY prod_id
-        ) i ON p.id = i.prod_id
-                 JOIN (
-            SELECT prod_id,remark,`date`
-            FROM i_oper
-            WHERE prod_type = '横向科研项目'
-        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
-                 JOIN student s ON s.ID = p.student_id
-                 JOIN indicator i ON i.id = type.indicator_id
-        ORDER BY p.id DESC;
-    </select>
 
     <select id="selectListById" resultMap="ProjectResult">
         <include refid="selectProjectVo"></include>
@@ -234,11 +216,40 @@
         </where>
         ORDER BY book.id DESC
     </select>
+    <select id="searchHorizontalProjectByConditions" resultMap="ProjectResult">
+        SELECT book.*,i.max_date,j.remark, s.name as sname
+        FROM i_project book
+        JOIN (
+        SELECT prod_id,MAX(i_oper.date) max_date
+        FROM i_oper
+        WHERE prod_type = '横向科研项目'
+        GROUP BY prod_id
+        ) i ON book.id = i.prod_id
+        JOIN (
+        SELECT prod_id,remark,`date`
+        FROM i_oper
+        WHERE prod_type = '横向科研项目'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+        JOIN indicator i ON book.indicator_id = i.id
+        JOIN student s ON s.ID = book.student_id
+        <where>
+            <if test="projectName != null and projectName != ''">and book.name like concat('%', #{projectName}, '%')</if>
+            <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
+            <if test="state != null and state != ''">and book.state = #{state}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
+        </where>
+        ORDER BY book.id DESC
+    </select>
 
     <select id="selectProjectListByYear" resultType="org.sys.rate.model.Project"></select>
     <select id="selectProjectNumberOfPendingMessing" resultType="Integer">
         select count(*)
         from i_project
-        where state = #{state}
+        where state = #{state} and project_type_id != -1
+    </select>
+    <select id="selectHorizontalProjectNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_project
+        where state = #{state} and project_type_id = -1
     </select>
 </mapper>

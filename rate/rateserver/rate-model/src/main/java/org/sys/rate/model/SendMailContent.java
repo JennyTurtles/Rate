@@ -12,6 +12,6 @@ public class SendMailContent {
     private String studentEmail;
     private String teacherEmail;
     private String teacherName;
-    private String publicationMedium;
+//    private String publicationMedium;
 
 }

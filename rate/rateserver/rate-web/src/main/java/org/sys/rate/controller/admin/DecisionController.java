@@ -14,8 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.DecisionTypeMapper;
 import org.sys.rate.mapper.IndicatorMapper;
-import org.sys.rate.model.*;
-import org.sys.rate.service.admin.DecisionService;
+import org.sys.rate.model.Decision;
+import org.sys.rate.model.DecisionType;
+import org.sys.rate.model.Msg;
+import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.DecisionService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
@@ -79,7 +81,7 @@ public class DecisionController {
     @ResponseBody
     public JsonResult addSave(Decision decision) throws FileNotFoundException {
         Integer res = decisionService.insertDecision(decision);
-        mailToTeacherService.sendTeaCheckMail(decision, "决策咨询");
+        mailToTeacherService.sendTeaCheckMail(decision, "决策咨询","添加");
         return new JsonResult(decision.getId());
     }
 
@@ -91,7 +93,7 @@ public class DecisionController {
     public JsonResult editSave(Decision decision) throws FileNotFoundException {
         int res = decisionService.updateDecision(decision);
         if (res > 0) {
-            mailToTeacherService.sendTeaCheckMail(decision, "决策咨询");
+            mailToTeacherService.sendTeaCheckMail(decision, "决策咨询","修改");
         }
         return new JsonResult(res);
     }

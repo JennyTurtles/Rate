@@ -10,9 +10,13 @@ package org.sys.rate.service.mail;/**
 
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.SendMailContentMapper;
+import org.sys.rate.model.EmailErrorLog;
 import org.sys.rate.model.SendMailContent;
 
 import javax.annotation.Resource;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.Timestamp;
 
 /**
  * @Description:
@@ -25,14 +29,33 @@ public class SendMailContentService {
     @Resource
     private SendMailContentMapper sendMailContentMapper;
 
-    public SendMailContent getSendMailContent(Integer studentId){
+    @Resource
+    private EmailErrorLogService emailErrorLogService;
+
+    public SendMailContent getSendMailContent(Integer studentId) {
         try {
             SendMailContent sendMailContent = sendMailContentMapper.getSendMailContent(studentId);
             return sendMailContent;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("发件错误");
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String errorDetails = sw.toString();
+            emailErrorLog.setErrorDescription(errorDetails);
+            emailErrorLog.setSenderEmail("");
+            emailErrorLog.setRecipientEmail("");
+            emailErrorLog.setSubject("");
+            emailErrorLog.setBody("");
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
+
+            return null;
         }
     }
+
 
 
 }
