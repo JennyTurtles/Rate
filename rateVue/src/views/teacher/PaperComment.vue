@@ -428,14 +428,20 @@ export default {
 
 
     // 导出pdf
-    exportPDF(data) {
-      this.loading = true;
-      let url = "/paperComment/basic/exportPDF?thesisID=" + data.thesis.id;
-      this.getRequest(url).then((resp) => {
+    async exportPDF(data) {
+      try {
+        this.loading = true;
+        let url = "/paperComment/basic/exportPDF?thesisID=" + data.thesis.id;
+        await this.getRequest(url);
         this.loading = false;
         window.location.href = url;
-      });
+      } catch (error) {
+        console.error("Error exporting PDF:", error);
+        this.loading = false;
+        this.$message.error("导出PDF时发生错误！");
+      }
     },
+
 
     //查看详情
     showInfoItem(data) {

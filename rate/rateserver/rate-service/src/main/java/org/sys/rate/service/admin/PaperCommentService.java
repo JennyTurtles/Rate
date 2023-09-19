@@ -67,4 +67,8 @@ public class PaperCommentService {
     public List<Student> getStuThesis(Integer tutorId, Integer year, Integer month) {
         return paperCommentMapper.getStuThesisWithDate(tutorId, year, month);
     }
+
+    public List<PaperComment> selectCommentListStuOrderByNum(Integer thesisID) {
+        return paperCommentMapper.selectCommentListStuOrderByNum(thesisID);
+    }
 }

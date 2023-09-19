@@ -2,7 +2,6 @@ package org.sys.rate.controller.admin;
 
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
-import org.sys.rate.mapper.ThesisMapper;
 import org.sys.rate.model.PaperComment;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.model.Student;
@@ -115,7 +114,10 @@ public class PaperCommentController {
      */
     @GetMapping("/exportPDF")
     public void exportDataPDF(HttpServletResponse response, @RequestParam Integer thesisID) throws Exception {
-        exportPDF.generatePDF(response, thesisID);
+        try {
+            exportPDF.generatePDF(response, thesisID);
+        } catch (Exception e) {
+        }
     }
 
     @GetMapping("/editThesisName")

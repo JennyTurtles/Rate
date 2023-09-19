@@ -85,7 +85,7 @@ public class ProjectController {
     @ResponseBody
     public JsonResult addSave(Project project) throws FileNotFoundException {
         Integer res = projectService.insertProject(project);
-        mailToTeacherService.sendTeaCheckMail(project, project.getProjectTypeId() == -1 ? "横向科研项目" : "纵向科研项目","添加");
+        mailToTeacherService.sendTeaCheckMail(project, project.getProjectTypeId() == null ? "横向科研项目" : "纵向科研项目","添加");
         return new JsonResult(project.getId());
     }
 
@@ -97,7 +97,7 @@ public class ProjectController {
     public JsonResult editSave(Project project) throws FileNotFoundException {
         int res = projectService.updateProject(project);
         if (res > 0) {
-            mailToTeacherService.sendTeaCheckMail(project, project.getProjectTypeId() == -1 ? "横向科研项目" : "纵向科研项目","修改");
+            mailToTeacherService.sendTeaCheckMail(project, project.getProjectTypeId() == null ? "横向科研项目" : "纵向科研项目","修改");
         }
         return new JsonResult(res);
     }

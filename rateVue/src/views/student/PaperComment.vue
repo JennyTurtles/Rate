@@ -326,7 +326,7 @@ export default {
       prePlan: "", // 上期安排
       preDate: new Date(), // 上一条记录的时间
       nextDate: new Date(), // 下一条记录的时间
-      thesisID: 0,
+      thesisID: null,
       timeChoose: 0,
       curIndex: 0,
       showTooltip: true,
@@ -337,7 +337,6 @@ export default {
 
       emp: {
         id: null,
-
         num: null,
         thesisID: null,
         preSum: "",
@@ -416,17 +415,25 @@ export default {
   methods: {
     exportPDF() {
       this.loading = true;
-      if (this.thesisID != null) {
+      if (this.thesisID !== null) {
         let url = "/paperComment/basic/exportPDF?thesisID=" + this.thesisID;
-        this.getRequest(url).then((resp) => {
-          this.loading = false;
-          window.location.href = url;
-        });
+        axios.get(url)
+            .then((resp) => {
+              this.loading = false;
+              // 处理响应，这里可能需要根据实际情况来处理
+              window.location.href = url;
+            })
+            .catch((error) => {
+              this.loading = false;
+              console.error("Error exporting PDF:", error);
+              this.$message.error("导出PDF时发生错误！");
+            });
       } else {
         this.loading = false;
-        this.$message.info("抱歉你还未添加毕设设计或论文！")
+        this.$message.info("抱歉你还未添加毕设设计或论文！");
       }
     },
+
     handleCancel(event) {
       event.stopPropagation();
       event.preventDefault();
@@ -616,7 +623,7 @@ export default {
           return;
         }
         const tidResp = await this.getRequest("/paperComment/basic/getThesisID?stuID=" + studentID);
-        if (tidResp.data) {
+        if (tidResp.data!=null) {
           this.thesisID = tidResp.data;
           const url = "/paperComment/basic/getAllCommentStu?thesisID=" + this.thesisID;
           this.isShowAddButton = true;
@@ -625,7 +632,6 @@ export default {
           this.total = resp.data.length;
         } else {
           this.$message.info("请首先添加毕业论文！")
-          throw new Error("获取TID错误");
         }
       } catch (err) {
         console.error(err);
