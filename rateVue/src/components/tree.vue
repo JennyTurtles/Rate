@@ -48,6 +48,17 @@
           placeholder="指标点名称"
           size="normal"
       ></el-input>
+      <div v-show="isLeaf">
+        <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+          <el-radio :label="1">有排名限制</el-radio>
+          <el-radio :label="0">无排名限制</el-radio>
+        </el-radio-group>
+        <div v-if="selectedOption === 1" style="margin-top: 10px">
+          限排名前
+          <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+          有积分
+        </div>
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button
@@ -119,15 +130,17 @@
           <el-input v-model="label"></el-input>
         </el-form-item>
       </el-form>
-     <el-radio-group v-model="selectedOption" @change="handleRadioChange">
-      <el-radio :label="1">有排名限制</el-radio>
-      <el-radio :label="0">无排名限制</el-radio>
-     </el-radio-group>
-     <div v-if="selectedOption === 1" style="margin-top: 10px">
-      限排名前
-      <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
-      有积分
-     </div>
+      <div v-show="isLeaf">
+        <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+          <el-radio :label="1">有排名限制</el-radio>
+          <el-radio :label="0">无排名限制</el-radio>
+        </el-radio-group>
+        <div v-if="selectedOption === 1" style="margin-top: 10px">
+          限排名前
+          <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+          有积分
+        </div>
+      </div>
      <div v-show="type === '科研获奖'" style="margin-top: 10px">
       级别：
      <el-radio-group v-model="level"  @change="">
@@ -147,7 +160,7 @@
         >
       </span>
     </el-dialog>
-    <!--修改非一二级目录的名字-->
+    <!--修改非一二三级目录的名字-->
     <el-dialog :visible.sync="dialogVisibleUpdate" width="35%">
       <span slot="title" style="float: left; font-size: 20px"
       >请输入需要修改的名字</span
@@ -157,7 +170,7 @@
           placeholder="标签名"
           size="normal"
       ></el-input>
-      <div style="margin-top: 10px">
+      <div style="margin-top: 10px" v-show="isLeaf">
         <el-radio-group v-model="selectedOption" @change="handleRadioChange">
           <el-radio :label="1">有排名限制</el-radio>
           <el-radio :label="0">无排名限制</el-radio>
@@ -202,7 +215,7 @@
               :max="50"
           />
         </el-form-item>
-        <div>
+        <div v-show="isLeaf">
           <el-radio-group v-model="selectedOption" @change="handleRadioChange">
             <el-radio :label="1">有排名限制</el-radio>
             <el-radio :label="0">无排名限制</el-radio>
@@ -223,7 +236,7 @@
         >
       </span>
     </el-dialog>
-    <!--修改二级目录的名字-->
+    <!--修改二、三级目录的名字-->
     <el-dialog :visible.sync="dialogVisibleUpdateType" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
       >指标点修改</span
@@ -265,23 +278,25 @@
           </el-select>
         </el-form-item>
         <div>
-          <el-radio-group v-model="selectedOption" @change="handleRadioChange">
-            <el-radio :label="1">有排名限制</el-radio>
-            <el-radio :label="0">无排名限制</el-radio>
-          </el-radio-group>
+          <div v-show="isLeaf">
+            <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+              <el-radio :label="1">有排名限制</el-radio>
+              <el-radio :label="0">无排名限制</el-radio>
+            </el-radio-group>
 
-          <div v-if="selectedOption === 1" style="margin-top: 10px">
-            限排名前
-            <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
-            有积分
+            <div v-if="selectedOption === 1" style="margin-top: 10px">
+              限排名前
+              <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+              有积分
+            </div>
           </div>
-         <div style="margin-top: 10px" v-if="type === '科研获奖' ">
-         级别
-         <el-radio-group v-model="level"  @change="">
-          <el-radio :label="0">国家级</el-radio>
-          <el-radio :label="1">省部级</el-radio>
-         </el-radio-group>
-         </div>
+          <div style="margin-top: 10px" v-if="type === '科研获奖' ">
+           级别
+           <el-radio-group v-model="level"  @change="">
+            <el-radio :label="0">国家级</el-radio>
+            <el-radio :label="1">省部级</el-radio>
+           </el-radio-group>
+          </div>
         </div>
 
       </el-form>
@@ -343,6 +358,7 @@ export default {
       dialogVisibleUpdateRoot: false,
       dialogVisibleUpdateType: false,
       data: [],
+      isLeaf: false,
       ruleForm: {
         name: "",
         score: "",
@@ -351,6 +367,7 @@ export default {
       defaultProps: {
         children: "children",
         label: "label",
+        isLeaf: "isLeaf",
       },
       id: 0,
       TypeOptions: [
@@ -372,6 +389,11 @@ export default {
         {
           value: "纵向科研项目",
           label: "纵向科研项目",
+          disabled: false,
+        },
+        {
+          value: "横向科研项目",
+          label: "横向科研项目",
           disabled: false,
         },
         {
@@ -399,7 +421,11 @@ export default {
           label: "学科竞赛",
           disabled: false,
         },
-
+        {
+          value: "产品应用",
+          label: "产品应用",
+          disabled: false,
+        }
       ],
       rules: {
         name: [{required: true, message: "请输入分类名称", trigger: "blur"}],
@@ -462,6 +488,7 @@ export default {
                 on-click={() => {
                  event.stopPropagation()
                   this.data1 = data;
+                  this.isLeaf = node.isLeaf;
                   if (node.level > 1){
                    this.dialogVisible = true;
                   }
@@ -503,19 +530,20 @@ export default {
                 on-click={() => {
                  event.stopPropagation()
                   this.data1 = data;
+                  this.isLeaf = node.isLeaf;
                   this.labelUpdate = data.label.substring(data.order.length + 1);
                   this.rank = data.rankN;
                   if (!data.rankN || data.rankN == 0){
                     this.selectedOption = 0
                   }else
                     this.selectedOption = 1
-                  if (node.level > 2) this.dialogVisibleUpdate = true;
+                  if (node.level > 3) this.dialogVisibleUpdate = true;
                   else if (node.level === 1) {
                     this.dialogVisibleUpdateRoot = true;
                     this.scoreUpdate = data.score;
                     this.ruleForm.name = this.labelUpdate;
                     this.ruleForm.score = this.scoreUpdate;
-                  } else if (node.level === 2) {
+                  } else if (node.level === 2 || node.level === 3) {
                     this.type = data.type;
                     this.state = data.level;
                     this.level = data.level === '国家级' ? 0 : 1;
@@ -595,6 +623,7 @@ export default {
         };
         this.data.push(newChild);
       }
+      console.log(postData)
       axios.post("/indicator", postData)
           .then(function (resp) {
             // console.log(resp);
