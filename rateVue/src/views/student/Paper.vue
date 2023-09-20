@@ -1147,6 +1147,10 @@ export default {
         this.$message.warning('请填写正确页码！')
         return
       }
+      if(parseInt(this.currentEmp.startPage) > parseInt(this.currentEmp.endPage)) {
+        this.$message.warning('请填写正确页码！')
+        return
+      }
       if (params.url == '' || params.url == null) {
         this.$message.error('请上传证明材料！')
         return
