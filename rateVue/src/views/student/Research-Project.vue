@@ -71,7 +71,7 @@
         </el-table-column>
         <el-table-column
             prop="startDate"
-            label="立项时间"
+            label="立项年月"
             align="center"
             min-width="10%"
         >
@@ -80,7 +80,7 @@
             prop="endDate"
             min-width="10%"
             align="center"
-            label="结项时间"
+            label="结项年月"
         >
         </el-table-column>
         <el-table-column
@@ -149,7 +149,7 @@
               placeholder="请输入科研项目名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="立项时间:" label-width="80px" style="margin-left: 20px;" prop="startDate">
+        <el-form-item label="立项年月:" label-width="80px" style="margin-left: 20px;" prop="startDate">
           <span class="isMust">*</span>
           <el-date-picker
               style="width: 80%"
@@ -157,16 +157,16 @@
               type="month"
               @change="changeProjectStartDate($event)"
               value-format="yyyy-MM"
-              placeholder="选择立项时间">
+              placeholder="选择立项年月">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="结项时间:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="结项年月:" label-width="80px" style="margin-left: 20px;">
           <el-date-picker
               style="width: 80%"
               v-model="currentProjectCopy.endDate"
               type="month"
               value-format="yyyy-MM"
-              placeholder="选择结项时间">
+              placeholder="选择结项年月">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="参与人:" label-width="80px" style="margin-left: 20px;" prop="author">
@@ -265,11 +265,11 @@
           <span>{{ currentProject.author }}</span
           >
         </el-form-item>
-        <el-form-item label="立项日期:">
+        <el-form-item label="立项年月:">
           <span>{{ currentProject.startDate }}</span
           >
         </el-form-item>
-        <el-form-item label="结项日期:">
+        <el-form-item label="结项年月:">
           <span>{{ currentProject.endDate }}</span
           >
         </el-form-item>
@@ -382,7 +382,7 @@ export default {
       },
       rules: {
         name: [{ required: true, message: "请输入科研项目名称", trigger: "blur" }],
-        startDate: [{ required: true, message: "请输入科研项目立项时间", trigger: "blur" }],
+        startDate: [{ required: true, message: "请输入科研项目立项年月", trigger: "blur" }],
         author: [{ required: true, message: "请输入科研项目作者", trigger: "blur" }],
       },
     };
@@ -664,6 +664,7 @@ export default {
       } else {
         this.$refs["currentProjectCopy"].validate((valid) => {
           if (valid) {
+            params.indicatorId = null;
             if(JSON.parse(JSON.stringify(this.selectProjectType)) == '{}' || this.selectProjectType == '') {
               this.$message.error('请选择项目类别！')
               return;

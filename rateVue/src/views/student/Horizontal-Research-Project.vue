@@ -64,7 +64,7 @@
         </el-table-column>
         <el-table-column
             prop="indicator.name"
-            label="项目类别"
+            label="指标点名称"
             align="center"
             min-width="15%"
         >
@@ -137,13 +137,22 @@
               placeholder="请输入项目名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="完成年月:" prop="date" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="立项年月:" prop="startDate" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-date-picker
-              v-model="currentProjectCopy.date"
+              v-model="currentProjectCopy.startDate"
               type="month"
               value-format="yyyy-MM"
-              placeholder="完成年月">
+              placeholder="立项年月">
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="结项年月:" label-width="80px" style="margin-left: 20px;">
+          <el-date-picker
+              style="width: 80%"
+              v-model="currentProjectCopy.endDate"
+              type="month"
+              value-format="yyyy-MM"
+              placeholder="选择结项年月">
           </el-date-picker>
         </el-form-item>
         <el-form-item  prop="author" label="完成人:" label-width="80px" style="margin-left: 20px;">
@@ -210,7 +219,11 @@
           ><br />
         </el-form-item>
         <el-form-item label="立项年月:" prop="date">
-          <span>{{ currentProject.date }}</span
+          <span>{{ currentProject.startDate }}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="结项年月:" prop="date">
+          <span>{{ currentProject.startDate }}</span
           ><br />
         </el-form-item>
         <el-form-item label="完成人:" prop="author">
@@ -351,7 +364,7 @@ export default {
       rules: {
         name: [{ required: true, message: "请输入项目名称", trigger: "blur" }],
         author: [{ required: true, message: "请输入项目作者", trigger: "blur" }],
-        date: [{ required: true, message: "请选择完成时间", trigger: "blur" }]
+        startDate: [{ required: true, message: "请选择立项时间", trigger: "blur" }]
       }
     };
   },
@@ -399,7 +412,9 @@ export default {
         if (resp) {
           this.indicatorData = resp.obj[1];
           if(this.indicatorData.length > 0)
-            this.defaultExpandedKeys.push(this.indicatorData[0].id);
+            if(this.indicatorData[0].children.length > 0) {
+              this.defaultExpandedKeys.push(this.indicatorData[0].children[0].id);
+            } else this.defaultExpandedKeys.push(this.indicatorData[0].id);
         }
       });
     },
@@ -573,9 +588,9 @@ export default {
       })
     },
     editAward(params) {
-      params.studentId = this.user.id;
       this.$refs["currentProjectCopy"].validate((valid) => {
         if (valid) {
+          params.id = this.currentProjectCopy.id;
           this.postRequest1("/project/basic/edit", params).then(
               (resp) => {
                 if (resp) {
@@ -590,7 +605,6 @@ export default {
     },
     addAward() {//项目提交确认
       const params = {};
-      params.id = this.currentProjectCopy.id;
       params.name = this.currentProjectCopy.name;
       params.url = this.urlFile;
       params.rank = this.currentProjectCopy.rank;
@@ -598,7 +612,7 @@ export default {
       params.author = this.currentProjectCopy.author;
       params.indicatorId = this.currentProjectCopy.indicatorId;
       params.author = this.currentProjectCopy.author;
-      params.date = this.currentProjectCopy.date;
+      params.startDate = this.currentProjectCopy.startDate;
       params.point = this.projectPoint;
       params.state = "commit";
       params.studentId = this.user.id;
@@ -619,7 +633,7 @@ export default {
       } else {
         this.$refs["currentProjectCopy"].validate((valid) => {
           if (valid) {
-            params.studentId = this.user.id
+            params.projectTypeId = null;
             this.postRequest1("/project/basic/add", params).then(
                 (resp) => {
                   if (resp) {
@@ -660,7 +674,7 @@ export default {
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.emps = resp.obj;
+          this.emps = resp.data;
         }
       });
     },

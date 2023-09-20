@@ -129,10 +129,11 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
             <if test="studentId != null">student_id,</if>
-            <if test="projectTypeId != null">project_type_id,</if>
+            project_type_id,
             <if test="name != null and name != ''">name,</if>
             <if test="startDate != null">start_date,</if>
             end_date,
+            indicator_id,
             <if test="author != null">author,</if>
             <if test="`rank` != null">`rank`,</if>
             <if test="total != null">total,</if>
@@ -143,10 +144,11 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="studentId != null">#{studentId},</if>
-            <if test="projectTypeId != null">#{projectTypeId},</if>
+            #{projectTypeId},
             <if test="name != null and name != ''">#{name},</if>
             <if test="startDate != null">#{startDate},</if>
             #{endDate},
+            #{indicatorId},
             <if test="author != null">#{author},</if>
             <if test="`rank` != null">#{rank},</if>
             <if test="total != null">#{total},</if>
@@ -168,7 +170,8 @@
             <if test="point != null">point = #{point},</if>
             <if test="state != null">state =#{state},</if>
             <if test="url != null">url = #{url},</if>
-            <if test="projectTypeId != null">project_type_id = #{projectTypeId}</if>
+            <if test="projectTypeId != null">project_type_id = #{projectTypeId},</if>
+            <if test="indicatorId != null">indicator_id = #{indicatorId}</if>
         </trim>
         where id = #{id}
     </update>
