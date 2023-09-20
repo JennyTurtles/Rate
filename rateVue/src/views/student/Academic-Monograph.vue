@@ -427,7 +427,9 @@ export default {
         if (resp) {
           this.data = resp.obj[1];
           if(this.data.length > 0)
-            this.defaultExpandedKeys.push(this.data[0].id);
+            if(this.data[0].children.length > 0) {
+              this.defaultExpandedKeys.push(this.data[0].children[0].id);
+            } else this.defaultExpandedKeys.push(this.data[0].id);
         }
       });
     },

@@ -467,7 +467,9 @@ export default {
         if (resp) {
           this.indicatorData = resp.obj[1];
           if(this.indicatorData.length > 0)
-            this.defaultExpandedKeys.push(this.indicatorData[0].id);
+            if(this.indicatorData[0].children.length > 0) {
+              this.defaultExpandedKeys.push(this.indicatorData[0].children[0].id);
+            } else this.defaultExpandedKeys.push(this.indicatorData[0].id);
         }
       });
     },
