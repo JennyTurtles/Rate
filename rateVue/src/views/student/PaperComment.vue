@@ -415,13 +415,18 @@ export default {
   methods: {
     exportPDF() {
       this.loading = true;
+
       if (this.thesisID !== null) {
-        let url = "/paperComment/basic/exportPDF?thesisID=" + this.thesisID;
+        let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(this.thesisID)}`;
         axios.get(url)
             .then((resp) => {
               this.loading = false;
-              // 处理响应，这里可能需要根据实际情况来处理
-              window.location.href = url;
+              if (resp.status === 200) {
+                window.location.href = url;
+              } else {
+                console.error("Error exporting PDF:", resp.statusText);
+                this.$message.error("导出PDF时发生错误！");
+              }
             })
             .catch((error) => {
               this.loading = false;
@@ -574,7 +579,7 @@ export default {
               let date2 = Date.parse(this.emp.dateStu);
 
               if (date1 + 86400000 > date2) {
-                this.$message.error({ message: "请选择合适的指导时间！" });
+                this.$message.error({message: "请选择合适的指导时间！"});
                 return;
               }
             }
@@ -623,7 +628,7 @@ export default {
           return;
         }
         const tidResp = await this.getRequest("/paperComment/basic/getThesisID?stuID=" + studentID);
-        if (tidResp.data!=null) {
+        if (tidResp.data != null) {
           this.thesisID = tidResp.data;
           const url = "/paperComment/basic/getAllCommentStu?thesisID=" + this.thesisID;
           this.isShowAddButton = true;
