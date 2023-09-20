@@ -89,7 +89,7 @@ public class PaperController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Paper paper) throws FileNotFoundException {
+    public JsonResult addSave(Paper paper) {
         paperService.insertPaper(paper);
         mailToTeacherService.sendTeaCheckMail(paper, "学术论文","添加");
         return new JsonResult(paper.getID());

@@ -385,7 +385,7 @@ public class MailToTeacherService {
 
     // !下面是paper相关的邮件代码
 
-    public void sendTeaCheckMail(Paper production, String type, String addOrUpdate) throws FileNotFoundException {
+    public void sendTeaCheckMail(Paper production, String type, String addOrUpdate) {
         try {
             File file = new File(production.getUrl());
             String isFileEmpty = "";
