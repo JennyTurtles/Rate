@@ -269,7 +269,11 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="选择指标点分类" center :visible.sync="showTreeDialog" width="60%">
+    <el-dialog title="" center :visible.sync="showTreeDialog" width="60%">
+      <div slot="title">
+        <div>选择指标点分类</div>
+        <div style="font-size: 14px;margin-top: 10px">以下仅显示本类型的指标点</div>
+      </div>
       <span class="el-tree-node">
         <el-tree
             :data="indicatorData"
