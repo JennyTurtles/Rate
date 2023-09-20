@@ -5,6 +5,7 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.PaperCommentService;
@@ -38,8 +39,7 @@ public class ExportPDF {
     @Resource
     private PaperCommentService paperCommentService;
 
-
-    @Resource
+    @Autowired
     private EmailErrorLogService emailErrorLogService;
 
     private final static int PRESUMROWS = 17;
@@ -54,10 +54,15 @@ public class ExportPDF {
 //    private final String FONT_PATH_Song = "D:/rateTemplate/song.ttf";
 //    private final String TEMPLATE_PATH10 = "D:/rateTemplate/template_10.pdf";
 //    private final String TEMPLATE_PATH20 = "D:/rateTemplate/template_20.pdf";
-    private boolean necessaryFilesAndDirectoriesExist;
 
-    public ExportPDF() {
-        this.necessaryFilesAndDirectoriesExist = checkIfNecessaryFilesAndDirectoriesExist();
+
+    private boolean checkIfNecessaryFilesAndDirectoriesExist() {
+        boolean directoryResult = checkIfFileExists(DEST, "导出PDF，目录不存在", "目录 " + DEST + " 创建失败！");
+        boolean fontResult = checkIfFileExists(FONT_PATH_Song, "导出PDF，模版文件不存在", "字体文件 " + FONT_PATH_Song + " 不存在");
+        boolean template10Result = checkIfFileExists(TEMPLATE_PATH10, "导出PDF，模版文件不存在", "模版文件 " + TEMPLATE_PATH10 + " 不存在！！！");
+        boolean template20Result = checkIfFileExists(TEMPLATE_PATH20, "导出PDF，模版文件不存在", "模版文件 " + TEMPLATE_PATH20 + " 不存在！！！");
+
+        return directoryResult && fontResult && template10Result && template20Result;
     }
 
     private boolean checkIfFileExists(String filePath, String errorType, String errorDescription) {
@@ -73,28 +78,19 @@ public class ExportPDF {
         return true;
     }
 
-    private boolean checkIfNecessaryFilesAndDirectoriesExist() {
-        boolean directoryResult = checkIfFileExists(DEST, "导出PDF，目录不存在", "目录 " + DEST + " 创建失败！");
-        boolean fontResult = checkIfFileExists(FONT_PATH_Song, "导出PDF，模版文件不存在", "字体文件 " + FONT_PATH_Song + " 不存在");
-        boolean template10Result = checkIfFileExists(TEMPLATE_PATH10, "导出PDF，模版文件不存在", "模版文件 " + TEMPLATE_PATH10 + " 不存在！！！");
-        boolean template20Result = checkIfFileExists(TEMPLATE_PATH20, "导出PDF，模版文件不存在", "模版文件 " + TEMPLATE_PATH20 + " 不存在！！！");
-
-        return directoryResult && fontResult && template10Result && template20Result;
-    }
-
-
-    public void generatePDF(HttpServletResponse response, Integer thesisID) throws Exception {
+    public boolean generatePDF(HttpServletResponse response, Integer thesisID) throws Exception {
         if (thesisID == null || thesisID <= 0) {
             // 参数校验，确保thesisID有效
-            return;
+            return false;
         }
         Thesis thesis = paperCommentService.getThesisByTID(thesisID);
         Student student = studentService.getByUndergraduateId(thesis.getStudentID());
         Teacher teacher = teacherService.getById(thesis.getTutorID());
         List<PaperComment> paperComments = paperCommentService.selectCommentListStuOrderByNum(thesisID);
 
-        if (!necessaryFilesAndDirectoriesExist) {
-            return;
+
+        if (!checkIfNecessaryFilesAndDirectoriesExist()) {
+            return false;
         }
 
         String templatePath = paperComments.size() <= 10 ? TEMPLATE_PATH10 : TEMPLATE_PATH20;
@@ -117,6 +113,7 @@ public class ExportPDF {
             ps.setFormFlattening(false);
         } catch (Exception e) {
             handlePDFExportError(e, fileName);
+            return false;
         } finally {
             ps.close();
             reader.close();
@@ -130,6 +127,7 @@ public class ExportPDF {
             }
             deleteAllFiles();
         }
+        return true;
     }
 
 

@@ -46,7 +46,7 @@ public class PaperCommentController {
 
     @GetMapping("/getThesis")
     public JsonResult getThesis(int stuID, int year, int month) {
-        return new JsonResult(paperCommentService.getThesis(stuID,year,month));
+        return new JsonResult(paperCommentService.getThesis(stuID, year, month));
     }
 
     // 更新导师的评价时间和评价
@@ -99,11 +99,11 @@ public class PaperCommentController {
      */
     @GetMapping("/getStuThesis")
     public RespBean getStuThesis(@RequestParam("tutorId") Integer tutorId,
-                                         @RequestParam("year") Integer year,
-                                         @RequestParam("month") Integer month)   {
+                                 @RequestParam("year") Integer year,
+                                 @RequestParam("month") Integer month) {
         try {
             List<Student> stuThesis = paperCommentService.getStuThesis(tutorId, year, month);
-            return RespBean.ok("",stuThesis);
+            return RespBean.ok("", stuThesis);
         } catch (Exception e) {
             return RespBean.error("获取毕业设计信息错误！");
         }
@@ -115,14 +115,21 @@ public class PaperCommentController {
     @GetMapping("/exportPDF")
     public void exportDataPDF(HttpServletResponse response, @RequestParam Integer thesisID) throws Exception {
         try {
-            exportPDF.generatePDF(response, thesisID);
+            boolean generatePDF = exportPDF.generatePDF(response, thesisID);
+            if(!generatePDF){
+                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                response.getWriter().write("Error occurred during PDF export.");
+            }
         } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Error occurred during PDF export.");
         }
     }
 
+
     @GetMapping("/editThesisName")
-    public RespBean editThesisName(@RequestParam("thesisId")Integer thesisId,
-                                   @RequestParam("thesisName")String thesisName){
+    public RespBean editThesisName(@RequestParam("thesisId") Integer thesisId,
+                                   @RequestParam("thesisName") String thesisName) {
         try {
             thesisService.editThesisName(thesisId, thesisName);
             return RespBean.ok("");

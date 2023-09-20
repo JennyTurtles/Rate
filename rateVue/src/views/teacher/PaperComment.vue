@@ -431,10 +431,16 @@ export default {
     async exportPDF(data) {
       try {
         this.loading = true;
-        let url = "/paperComment/basic/exportPDF?thesisID=" + data.thesis.id;
-        await this.getRequest(url);
+        let url = "/paperComment/basic/exportPDF?thesisID=" + encodeURIComponent(data.thesis.id);
+        const resp = await this.getRequest(url);
         this.loading = false;
-        window.location.href = url;
+
+        if (resp.status === 200) {
+          window.location.href = url;
+        } else {
+          console.error("Error exporting PDF:", resp.statusText);
+          this.$message.error("导出PDF时发生错误！");
+        }
       } catch (error) {
         console.error("Error exporting PDF:", error);
         this.loading = false;
