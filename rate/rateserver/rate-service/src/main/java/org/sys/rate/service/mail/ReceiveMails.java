@@ -68,7 +68,8 @@ public class ReceiveMails {
         Properties props = new Properties();
         props.setProperty("mail.store.protocol", "imap");
         props.setProperty("mail.imap.host", mail.getIMAPHost());
-        props.setProperty("mail.imap.port", "993");
+//        props.setProperty("mail.imap.port", "993");
+        props.setProperty("mail.imap.port", "143");
         props.setProperty("mail.imap.auth.login.disable", "true");
 
         HashMap<String, String> IAM = new HashMap<>();
