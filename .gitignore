@@ -1,5 +1,6 @@
 # ignore these folders
 .idea/
+target/
 .settings/
 .vscode/
 bin/
@@ -55,3 +56,5 @@ mvnw
 
 # Files or folders need to be retained
 # ...
+/rate/rateserver/rate-web/target/classes/db/migration/V1__vhr.sql
+/rate/rateserver/rate-web/target/classes/.gitignore
