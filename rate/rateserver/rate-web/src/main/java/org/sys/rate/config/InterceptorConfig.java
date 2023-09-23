@@ -1,8 +1,10 @@
 package org.sys.rate.config;
 
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.sys.rate.config.interceptor.JwtInterceptor;
 
 import javax.annotation.Resource;
@@ -34,30 +36,3 @@ public class InterceptorConfig extends WebMvcConfigurationSupport {
     }
 }
 
-//@Configuration
-//public class InterceptorConfig implements WebMvcConfigurer {
-//    @Resource
-//    private jwtInterceptor jwtInterceptor;
-//    @Override
-//    public void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(jwtInterceptor)
-//                .addPathPatterns("/**")//拦截所有请求，判断token是否合法决定是否需要登录
-//                .excludePathPatterns("/doLogin", "/registerUser", "**/export", "**/import","/getPublicKey","/paper/basic/download","**/exportPDF");    // 拦截所有请求， 决定判断token是否合法来决定是否需要登录
-//    }
-//
-//
-//
-//}
-
-//@Configuration
-//public class InterceptorConfig implements WebMvcConfigurer {
-//    @Resource
-//    private JwtInterceptor jwtInterceptor;
-//
-//    @Override
-//    public void addInterceptors(InterceptorRegistry registry) {
-//        registry.addInterceptor(jwtInterceptor)
-//                .addPathPatterns("/**")//拦截所有请求，判断token是否合法决定是否需要登录
-//                .excludePathPatterns("/doLogin", "/registerUser", "**/export", "**/import","/getPublicKey","/paper/basic/download","**/exportPDF");    // 拦截所有请求， 决定判断token是否合法来决定是否需要登录
-//    }
-//}
