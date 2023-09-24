@@ -101,7 +101,7 @@ public class SendMails {
         messageBodyPart.setContent(content, "text/html;charset=utf-8");
         multipart.addBodyPart(messageBodyPart);
 
-        if (attachment != null) {
+        if (attachment.exists()) {
             MimeBodyPart filePart = new MimeBodyPart();
             FileDataSource fileDataSource = new FileDataSource(attachment);
             filePart.setDataHandler(new DataHandler(fileDataSource));

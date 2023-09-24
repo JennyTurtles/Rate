@@ -3,17 +3,21 @@ package org.sys.rate.utils;
 import cn.afterturn.easypoi.word.WordExportUtil;
 import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.Comment;
+import org.sys.rate.model.EmailErrorLog;
 import org.sys.rate.model.GradeForm;
 import org.sys.rate.model.ScoreItem;
+import org.sys.rate.service.mail.EmailErrorLogService;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -22,6 +26,10 @@ import java.util.zip.ZipOutputStream;
 
 @Service
 public class ExportWord {
+    @Autowired
+    private EmailErrorLogService emailErrorLogService;
+
+
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);
     private static final String TEMPLATE_PATH = "rate/rateserver/rate-web/src/main/resources/static/template/GradingTable.docx";
 //    private static final String TEMPLATE_PATH = "D:/rateTemplate/GradingTable.docx";
@@ -37,16 +45,17 @@ public class ExportWord {
     private static final String[] commentStart = {"指导教师评语", "评阅教师评语", "答辩评语"};
     private static final String[] commentEnd = {"指导教师（签名）", "评阅教师（签名）", "答辩小组组长（签名）"};
     private int[] commentFontSize = {12, 12, 12};
-    private boolean necessaryFilesAndDirectoriesExist;
 
-    public ExportWord() throws IOException {
-        this.necessaryFilesAndDirectoriesExist = checkIfNecessaryFilesAndDirectoriesExist();
-    }
+
 
     private boolean checkIfNecessaryFilesAndDirectoriesExist() throws IOException {
         File file = new File(TEMPLATE_PATH);
         if (!file.exists()) {
-            logger.error("模版文件 " + TEMPLATE_PATH + " 不存在！！！");
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("导出word时模版文件不存在");
+            emailErrorLog.setErrorDescription("模版文件 " + TEMPLATE_PATH + " 不存在！！！");
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
             return false;
         }
         return true;
@@ -299,7 +308,7 @@ public class ExportWord {
     }
 
     public byte[] generateListWord(List<GradeForm> gradeForms) throws Exception {
-        if (!necessaryFilesAndDirectoriesExist) {
+        if (!checkIfNecessaryFilesAndDirectoriesExist()) {
             return null;
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
