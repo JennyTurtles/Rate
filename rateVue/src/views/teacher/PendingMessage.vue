@@ -30,16 +30,20 @@ export default {
   data() {
     return {
       typeMap: {
-        'patent': {
-          name: '授权专利',
-          path: '/teacher/tPatent'
-        },
         'paper': {
           name: '学术论文',
           path: '/teacher/tPaper'
         },
+        'patent': {
+          name: '授权专利',
+          path: '/teacher/tPatent'
+        },
+        'award': {
+          name: '科研获奖',
+          path: '/teacher/tResearchAward'
+        },
         'monograph': {
-          name: '专著教材',
+          name: '学术专著和教材',
           path: '/teacher/tAcademicMonograph'
         },
         'project': {
@@ -50,31 +54,32 @@ export default {
           name: '横向科研项目',
           path: '/teacher/tHorizontalResearchProject'
         },
-        'product': {
-          name: '产品应用',
-          path: '/teacher/Product'
-        },
         'competition': {
           name: '学科竞赛',
           path: '/teacher/AcademicCompetition'
         },
-        'award': {
-          name: '科研获奖',
-          path: '/teacher/tResearchAward'
+        'decision': {
+          name: '决策咨询',
+          path: '/teacher/Decision'
+        },
+        'product': {
+          name: '产品应用',
+          path: '/teacher/Product'
         },
         'standard': {
           name: '制定标准',
           path: '/teacher/Standard'
-        },
-        'decision': {
-          name: '决策咨询',
-          path: '/teacher/Decision'
         }
       }
     }
   },
   computed: {
     list() {
+      for(let item in this.$store.state.pendingMessageTypeObject) {
+        if(this.$store.state.pendingMessageTypeObject[item] == 0) {
+          delete this.$store.state.pendingMessageTypeObject[item]
+        }
+      }
       return this.$store.state.pendingMessageTypeObject;
     }
   },
