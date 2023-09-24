@@ -1039,10 +1039,10 @@ export default {
         if (num.indexOf(info.name) > 0) {//自己不是一作
           if (num.indexOf(info.teacherName) > 0 || num.indexOf(info.teacherName) == -1) {//导师在作者列表中且老师不是一作, 或者老师不在列表中
             this.$confirm("第一作者不是导师【 " + info.teacherName + " 】！积分将为【0】分", "提示", {
-                  confirmButtonText: "确定",
+                  confirmButtonText: "关闭",
                   type: "warning",
+                  showCancelButton: false
                 }).then();
-            // this.currentEmp.point = 0;
             this.paperPoint = 0;
           } else if(num.indexOf(info.teacherName) == 0 && num.indexOf(info.name) == 1) { //导师是一作，自己是二作
             this.paperPoint = this.selectedPublicationScore;
