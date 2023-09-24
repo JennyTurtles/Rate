@@ -562,7 +562,8 @@ export default {
         prodId: null,
         time: null
       },
-      currentEmp: {},
+      currentEmp: {
+      },
       emp: {
         id: null,
         institutionID: null,
@@ -575,7 +576,9 @@ export default {
         url: '',
         state: '',
         pubPage: '',
-        publicationId: null
+        publicationId: null,
+        startPage: '',
+        endPage: ''
       },
       rules: {
         name: [{required: true, message: "请输入论文名", trigger: "blur"}],
@@ -1076,8 +1079,8 @@ export default {
         }
       ];
       this.currentEmp.date = this.currentEmp.year + "-" + this.currentEmp.month;
-      this.currentEmp.startPage = this.currentEmp.pubPage.split('-')[0]
-      this.currentEmp.endPage = this.currentEmp.pubPage.split('-')[1]
+      this.currentEmp.startPage = this.$set(this.currentEmp, 'startPage', this.currentEmp.pubPage.split('-')[0])
+      this.currentEmp.endPage = this.$set(this.currentEmp, 'endPage', this.currentEmp.pubPage.split('-')[1])
       this.paperPoint = data.point;
       this.disabledInput = false;
       this.urlFile = this.currentEmp.url;
