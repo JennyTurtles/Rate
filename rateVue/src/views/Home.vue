@@ -46,7 +46,7 @@
       <el-container class="homeContainer">
         <el-aside width="15%" class="aside">
           <div v-show="!isStudentRole"
-               style="padding-left: 25px; font-size: 14px; line-height: 56px; font-weight: 500">
+               style="padding-left: 25px; font-size: 14px; line-height: 56px; font-weight: 500;cursor: pointer">
             <a @click="pendingMessageRoute">
               <span>
                 待办任务（
