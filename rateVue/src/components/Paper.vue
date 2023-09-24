@@ -677,7 +677,6 @@ export default {
             item.remark = item.paperoperList[0].remark;
           })
           this.totalCount = response.extend.res[1];
-          console.log(this.emps)
         }
       })
     },
