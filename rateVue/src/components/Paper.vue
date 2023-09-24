@@ -166,7 +166,7 @@
         >
         </el-table-column>
         <el-table-column min-width="15%"
-          prop="paperoperList[0].remark"
+          prop="remark"
           label="备注"
           align="center"
           :formatter="checkScoreComent"
@@ -575,6 +575,8 @@ export default {
             message: '操作成功'
           })
           this.doAddOper(status, this.reason, this.emp.id);
+          let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+          this.$store.dispatch('changePendingMessageange', roleParam);
         }
       }).finally(()=>{
         this.searchEmps(this.currentPage, this.pageSize);
@@ -671,7 +673,11 @@ export default {
       this.postRequest('/paper/basic/searchPaperByConditions', params).then((response) => {
         if(response) {
           this.emps = response.extend.res[0];
+          this.emps.map(item => {
+            item.remark = item.paperoperList[0].remark;
+          })
           this.totalCount = response.extend.res[1];
+          console.log(this.emps)
         }
       })
     },
