@@ -42,4 +42,10 @@ public class EmailErrorLog {
         this.body = body;
         this.timestamp = timestamp;
     }
+
+    public void merge2body() {
+        if (senderEmail == null)
+            return;
+        body = "Sender Email: " + senderEmail + "\n" + "Recipient Email: " + recipientEmail + "\n" + "Subject: " + subject + "\n" + "Body: " + body + "\n";
+    }
 }

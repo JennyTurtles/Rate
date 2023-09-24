@@ -16,21 +16,21 @@ import java.util.List;
  */
 @Mapper
 public interface EmailErrorLogMapper {
-    @Insert("INSERT INTO exception_log (error_type, error_description, sender_email, recipient_email, subject, body, timestamp) " +
-            "VALUES (#{errorType}, #{errorDescription}, #{senderEmail}, #{recipientEmail}, #{subject}, #{body}, #{timestamp})")
+    @Insert("INSERT INTO exception_log (error_type, error_description, body, timestamp) " +
+            "VALUES (#{errorType}, #{errorDescription}, #{body}, #{timestamp})")
     void insert(EmailErrorLog emailErrorLog);
 
-    @Update("UPDATE exception_log SET error_type=#{errorType}, error_description=#{errorDescription}, " +
-            "sender_email=#{senderEmail}, recipient_email=#{recipientEmail}, subject=#{subject}, body=#{body}, timestamp=#{timestamp} " +
-            "WHERE id=#{id}")
-    void update(EmailErrorLog emailErrorLog);
+//    @Update("UPDATE exception_log SET error_type=#{errorType}, error_description=#{errorDescription}, " +
+//            "sender_email=#{senderEmail}, recipient_email=#{recipientEmail}, subject=#{subject}, body=#{body}, timestamp=#{timestamp} " +
+//            "WHERE id=#{id}")
+//    void update(EmailErrorLog emailErrorLog);
 
     @Delete("DELETE FROM exception_log WHERE id=#{id}")
     void delete(Long id);
 
-    @Select("SELECT id, error_type, error_description, sender_email, recipient_email, subject, body, timestamp FROM exception_log WHERE id=#{id}")
+    @Select("SELECT id, error_type, error_description, body, timestamp FROM exception_log WHERE id=#{id}")
     EmailErrorLog getById(Long id);
 
-    @Select("SELECT id, error_type, error_description, sender_email, recipient_email, subject, body, timestamp FROM exception_log")
+    @Select("SELECT id, error_type, error_description, body, timestamp FROM exception_log")
     List<EmailErrorLog> getAll();
 }

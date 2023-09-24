@@ -27,12 +27,13 @@ public class EmailErrorLogService {
     private EmailErrorLogMapper emailErrorLogMapper;
 
     public void addEmailErrorLog(EmailErrorLog emailErrorLog) {
+        emailErrorLog.merge2body();
         emailErrorLogMapper.insert(emailErrorLog);
     }
 
-    public void updateEmailErrorLog(EmailErrorLog emailErrorLog) {
-        emailErrorLogMapper.update(emailErrorLog);
-    }
+//    public void updateEmailErrorLog(EmailErrorLog emailErrorLog) {
+//        emailErrorLogMapper.update(emailErrorLog);
+//    }
 
     public void deleteEmailErrorLog(Long id) {
         emailErrorLogMapper.delete(id);
