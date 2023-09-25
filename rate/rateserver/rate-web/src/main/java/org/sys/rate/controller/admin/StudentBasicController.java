@@ -104,11 +104,15 @@ public class StudentBasicController {
         }
         else if (stuType.equals("硕士生")){
             GraduateStudent graduateStudent = graduateStudentMapper.getGradByStuID(id);
+            Teachers teacher = teachersMapper.selectByPrimaryId(graduateStudent.getTutorID());
+            graduateStudent.setTeachers(teacher);
             graduateStudent.setStuType("硕士生");
             return RespBean.ok("success",graduateStudent);
         }
         else if (stuType.equals("博士生")){
             Doctor doctor = doctorMapper.getDocByStuID(id);
+            Teachers teacher = teachersMapper.selectByPrimaryId(doctor.getTutorID());
+            doctor.setTeachers(teacher);
             doctor.setStuType("博士生");
             return RespBean.ok("success",doctor);
         }
