@@ -17,31 +17,21 @@
         请选择条件进行搜索：
       </span>
       <div class="select_div_input">
-        <input
-            autocomplete="off"
-            style="width:95%;line-height:28px;
-                              border:1px solid lightgrey;padding:0 10px 1px 15px;
-                              border-radius:4px;color:gray"
-            placeholder="请输入老师姓名"
+        <el-select
             v-model="selectTeacerName"
-            @focus="inputSelectTeacerNameFocus"
-            @blur="isSelectShow = isSelectFlag"/>
-        <div class="select_div"
-             v-show="isSelectShow && selectTeacerName ? true:false"
-             :style="'height:${menuHeight}'"
-             @mouseover="isSelectFlag = true"
-             @mouseleave="isSelectFlag = false"
-             >
-          <div
-              class="select_div_div"
-              v-for="val in select_teachers"
-              :key="val"
-              :value="val"
-              @click="filter_teas(val)"
-          >
-            {{ val }}
-          </div>
-        </div>
+            filterable
+            remote
+            clearable
+            reserve-keyword
+            :remote-method="searchTeaNameMethod"
+            placeholder="请输入老师姓名">
+          <el-option
+              v-for="item in select_teachers"
+              :key="item"
+              :label="item"
+              :value="item">
+          </el-option>
+        </el-select>
       </div>
       <div class="select_div_input" style="margin-left: 30px">
         <el-select
@@ -49,7 +39,6 @@
             clearable
             filterable
             placeholder="请输入入学年份"
-            @change="filter_year($event)"
         >
           <el-option
               v-for="val in selectYearsList"
@@ -82,36 +71,27 @@
         </el-table-column>
       </el-table>
     </div>
-    <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="400px" @close="closeDialogEdit">
+    <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="400px">
       <template>
         <el-form :model="currentGraduateStudentOfEdit" :label-width="labelWidth">
           <el-form-item label="导师信息">
             <div class="select_div_input" style="width: 70%">
-              <input
-                  autocomplete="off"
-                  style="width:95%;line-height:28px;
-                              border:1px solid lightgrey;padding:0 10px 1px 15px;
-                              border-radius:4px;color:gray"
-                  placeholder="请输入老师姓名"
+              <el-select
                   v-model="currentGraduateStudentOfEdit.teachers.name"
-                  @focus="inputSelectTeacerNameFocus"
-                  @blur="isSelectShow = isSelectFlag"/>
-              <div class="select_div"
-                   v-show="isSelectShow && currentGraduateStudentOfEdit.teachers.name ? true:false"
-                   :style="'height:${menuHeight}'"
-                   @mouseover="isSelectFlag = true"
-                   @mouseleave="isSelectFlag = false"
-              >
-                <div
-                    class="select_div_div"
-                    v-for="val in selectTeaNameAndJobnumber"
-                    :key="val"
-                    :value="val"
-                    @click="filterEditTeacher(val)"
-                >
-                  {{ val }}
-                </div>
-              </div>
+                  filterable
+                  remote
+                  clearable
+                  reserve-keyword
+                  @change="filterEditTeacher($event)"
+                  :remote-method="searchTeaNameMethod"
+                  placeholder="请输入老师姓名">
+                <el-option
+                    v-for="item in selectTeaNameAndJobnumber"
+                    :key="item"
+                    :label="item"
+                    :value="item">
+                </el-option>
+              </el-select>
             </div>
           </el-form-item>
           <el-form-item label="学生姓名">
@@ -170,9 +150,6 @@ export default {
       currentPage:1,
       pageSize:10,
       selectYearsList:[],
-      isSelectFlag:false,
-      isSelectShow:false,//搜索老师名字的搜索框
-      timer:null,
       select_teachers:[],
       selectTeacerName:'',
       selectYear:'',
@@ -195,29 +172,7 @@ export default {
       },
     }
   },
-  watch:{
-    selectTeacerName:{
-      handler(val){
-        if(val){
-          this.debounceSearch()
-        }
-      }
-    },
-    //监听编辑框中老师姓名是否变化
-    'currentGraduateStudentOfEdit.teachers.name':{
-      handler(val){
-        if(val){
-          this.debounceSearch()
-        }
-      }
-    }
-  },
   computed:{
-    menuHeight() {
-      return this.selectTeacerName.length * 50 > 150
-          ? 150 + 'px'
-          : `${this.selectTeacerName.length * 50}px`
-    },
     labelWidth(){
       return `${8 * 17}px`
     }
@@ -232,11 +187,21 @@ export default {
     this.initGraduateStudents(this.currentPage,this.pageSize)
   },
   methods:{
+    searchTeaNameMethod(val) {
+      if(val) {
+        if(this.dialogEdit){
+          this.currentGraduateStudentOfEdit.teachers.name = val
+        }else {
+          this.selectTeacerName = val
+        }
+        this.debounceSearch(val)
+      }
+    },
     closeDialogReset(){
       this.dialogResetPassword = false
     },
     resetPasswordShow(data){//重制密码
-      this.currentGraduateStudentOfEdit = data
+      this.currentGraduateStudentOfEdit = JSON.parse(JSON.stringify(data));
       this.dialogResetPassword = true
     },
     resetPassword(){//重制密码
@@ -255,9 +220,6 @@ export default {
           }
         }
       })
-    },
-    filter_year(val){//点击年份下拉框的某个选项
-      this.selectYear = val
     },
     filterBtn(){//点击筛选按钮
       let tempYear = this.selectYear
@@ -280,22 +242,14 @@ export default {
     filterEditTeacher(val){
       this.currentGraduateStudentOfEdit.teachers.name = val.split(":")[1]
       this.currentGraduateStudentOfEdit.teachers.jobnumber = val.split(":")[0]
-      this.isSelectShow=false
-      this.isSelectFlag=false
-    },
-    //页面的搜索框
-    filter_teas(val){//点击某个筛选出来的名字
-      this.selectTeacerName = val//绑定数据
-      this.isSelectShow=false
-      this.isSelectFlag=false
     },
     //防抖函数
-    delayInputTimer(){
+    delayInputTimer(data){
       let url
       if(this.dialogEdit){
-        url = '/graduatestudentM/basic/getTeaNamesBySelect?teaName=' + this.currentGraduateStudentOfEdit.teachers.name
+        url = '/graduatestudentM/basic/getTeaNamesBySelect?teaName=' + data
       }else {
-        url = '/graduatestudentM/basic/getTeaNamesBySelect?teaName=' + this.selectTeacerName
+        url = '/graduatestudentM/basic/getTeaNamesBySelect?teaName=' + data
       }
       this.getRequest(url).then((resp)=>{
         this.select_teachers = []
@@ -314,22 +268,19 @@ export default {
         }
       })
     },
-    inputSelectTeacerNameFocus(){//input获取焦点判断是否有下拉框，是否可输入
-      this.isSelectShow = true//控制下拉框是否显示
-    },
     closeDialogEdit(){//关闭对话框
       this.dialogEdit = false
       this.initGraduateStudents(this.currentPage,this.pageSize)
     },
     editDialogShow(data){
       this.dialogEdit = true
-      this.currentGraduateStudentOfEdit = data
+      this.currentGraduateStudentOfEdit = JSON.parse(JSON.stringify(data));
     },
     editGraduate(){//点击编辑中的确定按钮
       // 应该进行表单验证（如手机号），以后再改
       if(this.currentGraduateStudentOfEdit.teachers.name == '' || this.currentGraduateStudentOfEdit.teachers.jobnumber == '' ||
           this.currentGraduateStudentOfEdit.teachers.name == null || this.currentGraduateStudentOfEdit.teachers.jobnumber == null){
-        this.$message.warning('请填写老师姓名和工号！')
+        this.$message.warning('请填写老师姓名！')
         return
       }
       let data = this.currentGraduateStudentOfEdit
@@ -338,9 +289,7 @@ export default {
           if(resp.status == 200){
             this.dialogEdit = false
             this.$message.success(resp.msg)
-            this.initGraduateStudents(this.currentPage,this.pageSize)
-          }else {
-            this.$message.error(resp)
+            this.filterBtn();
           }
         }
       })

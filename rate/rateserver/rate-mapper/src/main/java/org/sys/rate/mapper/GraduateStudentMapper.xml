@@ -112,7 +112,7 @@
     </update>
     <select id="getTeaNamesBySelect" resultType="org.sys.rate.model.Teachers">
         select t.*
-        from graduatestudent g,teacher t
+        from teacher t
         <where>
             <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
         </where>

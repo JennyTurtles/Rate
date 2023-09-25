@@ -211,11 +211,7 @@ public class GraduateStudentService {
     }
     public RespBean getTeaNamesBySelect(String teaName){
         List<Teachers> res;
-        try {
-            res = graduateStudentMapper.getTeaNamesBySelect(teaName);
-        }catch (Exception e){
-            return RespBean.error("error");
-        }
+        res = graduateStudentMapper.getTeaNamesBySelect(teaName);
         return RespBean.ok("ok",res);
     }
     public List<GraduateStudent> getGraduateStudentsBySelect(Integer year, String teaName){
