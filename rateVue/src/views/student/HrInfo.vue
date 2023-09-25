@@ -4,9 +4,9 @@
       <h1>个人中心</h1>
     </div>
     <el-tabs v-model="currentType" @tab-click="typeChange" v-show="countRole()">
-      <el-tab-pane label="本科信息查看" v-show="user.role.includes('10')" name="本科生"></el-tab-pane>
-      <el-tab-pane label="硕士信息查看" v-show="user.role.includes('11')" name="硕士生"></el-tab-pane>
-      <el-tab-pane label="博士信息查看" v-show="user.role.includes('17')" name="博士生"></el-tab-pane>
+      <el-tab-pane label="本科信息查看" v-if="user.role.includes('10')" name="本科生"></el-tab-pane>
+      <el-tab-pane label="硕士信息查看" v-if="user.role.includes('11')" name="硕士生"></el-tab-pane>
+      <el-tab-pane label="博士信息查看" v-if="user.role.includes('17')" name="博士生"></el-tab-pane>
     </el-tabs>
 <!--    <el-row type="flex" class="row-bg" justify="end" style="padding-right: 10px">-->
 <!--      <div class="grid-content bg-purple-light" v-show="countRole()">-->
@@ -27,13 +27,16 @@
       <el-form-item label="研究生类型"  v-show="hr.stuType === '博士生' || hr.stuType === '硕士生'">
         <el-input v-model="hr.studentType" disabled></el-input>
       </el-form-item>
-      <el-form-item label="学号" v-show="hr.stuType !== '不是大学生'">
-        <el-input v-model="hr.stuNumber" @input="infoChange"></el-input>
+      <el-form-item label="指导老师"  v-show="hr.stuType === '博士生' || hr.stuType === '硕士生'">
+        <el-input v-model="hr.teachers.name" disabled></el-input>
       </el-form-item>
       <el-form-item label="姓名">
         <el-input v-model="hr.name" @input="infoChange"></el-input>
       </el-form-item>
       <div v-show="hr.stuType !== '不是大学生'">
+        <el-form-item label="学号">
+          <el-input v-model="hr.stuNumber" @input="infoChange"></el-input>
+        </el-form-item>
         <el-form-item label="入学年份">
           <el-input v-model="hr.year" @input="infoChange"></el-input>
         </el-form-item>
@@ -71,6 +74,7 @@ export default {
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
+    console.log(this.user.role)
     if (this.user.role.includes("17")){
       this.currentType = "博士生";
     }

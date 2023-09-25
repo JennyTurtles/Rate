@@ -5,30 +5,25 @@
         <div class="title">教学辅助系统</div>
         <div>
           <el-dropdown class="userInfo" @command="commandHandler">
-            <span class="el-dropdown-link">
-              您好，{{ user.name
-              }}<a
+            <span class="el-dropdown-link">您好，{{ user.name }}<a
                 v-show="
                   (user.role.indexOf('3') !== -1 && user.role.indexOf('13') == -1) ||
                   (user.role.indexOf('4') !== -1 && user.role.indexOf('14') == -1) ||
                   user.role.indexOf('8') !== -1 ||
                   user.role.indexOf('9') !== -1
                 "
-                >老师</a
-              >
-            </span>
+            >老师</a> <i class="el-icon-arrow-down el-icon--right"></i></span>
             <el-dropdown-menu slot="dropdown">
-             <el-dropdown-item command="registerRole"
-                               v-show="
+             <el-dropdown-item v-show="
                   (user.role == '' || user.role.indexOf('7') !== -1  || user.role.indexOf('11') !== -1 ||
                    user.role.indexOf('10') !== -1)"
              >
-               <el-dropdown @command="registerHandler">
-                 <span>注册为本科生/硕士研究生/博士研究生</span>
+               <el-dropdown @command="registerHandler" v-show="!user.role.includes('17')">
+                 <span>注册为大学生</span>
                  <el-dropdown-menu slot="dropdown" >
-                   <el-dropdown-item command="本科生">本科生</el-dropdown-item>
-                   <el-dropdown-item command="硕士研究生">硕士研究生</el-dropdown-item>
-                   <el-dropdown-item command="博士研究生">博士研究生</el-dropdown-item>
+                   <el-dropdown-item command="本科生" v-show="!user.role.includes('10') && !user.role.includes('11') && !user.role.includes('17')">本科生</el-dropdown-item>
+                   <el-dropdown-item command="硕士研究生" v-show="!role.includes('11') && !user.role.includes('17')">硕士研究生</el-dropdown-item>
+                   <el-dropdown-item command="博士研究生" v-show="!role.includes('17')">博士研究生</el-dropdown-item>
                  </el-dropdown-menu>
                </el-dropdown>
              </el-dropdown-item>
@@ -187,7 +182,7 @@
         <el-button type="primary" @click="submitPassword">确 定</el-button>
       </span>
     </el-dialog>
-   <el-dialog @close="registerRoleForm={};selectStuType='';tutorName=''" title="注册为本科生/硕士研究生/博士研究生" :visible.sync="registerRoleVisible" width="30%">
+   <el-dialog @close="registerRoleForm={};selectStuType='';tutorName=''" :title="registerTitle()" :visible.sync="registerRoleVisible" width="30%">
     <el-form label-width="auto">
 <!--    <el-form-item label="姓名:">-->
 <!--     <el-input v-model="registerRoleForm.name"></el-input>-->
@@ -199,14 +194,15 @@
      <el-input v-model="registerRoleForm.email"></el-input>
     </el-form-item>
     <el-form-item label="学生类型:">
-     <el-select v-model="selectStuType" clearable>
-      <el-option
-          v-for="val in stuType"
-          :value="val"
-          :label="val"
-          :key="val">
-      </el-option>
-     </el-select>
+      <el-input v-model="selectStuType" disabled></el-input>
+<!--     <el-select v-model="selectStuType" clearable>-->
+<!--      <el-option-->
+<!--          v-for="val in stuType"-->
+<!--          :value="val"-->
+<!--          :label="val"-->
+<!--          :key="val">-->
+<!--      </el-option>-->
+<!--     </el-select>-->
     </el-form-item>
      <el-form-item v-show="selectStuType === '硕士研究生' || selectStuType === '博士研究生'" label="指导老师:">
       <el-autocomplete
@@ -381,6 +377,9 @@ export default {
        });
      }
    },
+    registerTitle(){
+      return "注册为"+this.selectStuType;
+    },
     handleOpen(subItem) {
       if (
         this.role != JSON.parse(localStorage.getItem("user")).role ||
