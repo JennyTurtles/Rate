@@ -16,7 +16,6 @@
         <result property="email" column="email" jdbcType="VARCHAR"/>
         <result property="role" column="role" jdbcType="VARCHAR"/>
         <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
-        <result property="IDNumber" column="IDNumber" jdbcType="VARCHAR"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="password" column="password" jdbcType="VARCHAR"/>
         <result column="registerAnswer" property="registerAnswer" jdbcType="VARCHAR"/>
@@ -29,7 +28,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        select  ID, studentID,institutionID,stuNumber, year, tutorID,studentType,point,s.name,s.email,s.telephone,s.IDNumber,t.tname,t.tjobnumber
+        select  ID, studentID,institutionID,stuNumber, year, tutorID,studentType,point,s.name,s.email,s.telephone,t.tname,t.tjobnumber
         from graduatestudent u,student s,teacher t
     </sql>
 
@@ -81,7 +80,7 @@
         </foreach>
     </select>
     <select id="getGraduateStudent" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,t.name as tname,t.jobnumber as tjobnumber
+        select u.*,s.name,s.telephone,s.email,s.username,t.name as tname,t.jobnumber as tjobnumber
         from graduatestudent u
         left join teacher t
         on u.tutorID=t.ID
@@ -119,7 +118,7 @@
         </where>
     </select>
     <select id="getGraduateStudentsBySelect" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,t.name as tname,t.jobnumber as tjobnumber
+        select u.*,s.name,s.telephone,s.email,s.username,t.name as tname,t.jobnumber as tjobnumber
         from graduatestudent u
         left join teacher t
         on u.tutorID=t.ID

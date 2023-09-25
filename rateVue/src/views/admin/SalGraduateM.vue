@@ -44,31 +44,20 @@
         </div>
       </div>
       <div class="select_div_input" style="margin-left: 30px">
-        <input
-            autocomplete="off"
-            style="width:95%;line-height:28px;
-                              border:1px solid lightgrey;padding:0 10px 1px 15px;
-                              border-radius:4px;color:gray"
-            placeholder="请输入入学年份"
+        <el-select
             v-model="selectYear"
-            @focus="inputSelectYearFocus"
-            @blur="isSelectYearShow = isSelectYearFlag"/>
-        <div class="select_div"
-             v-show="isSelectYearShow"
-             style="height:200px;overflow: scroll"
-             @mouseover="isSelectYearFlag = true"
-             @mouseleave="isSelectYearFlag = false"
+            clearable
+            filterable
+            placeholder="请输入入学年份"
+            @change="filter_year($event)"
         >
-          <div
-              class="select_div_div"
+          <el-option
               v-for="val in selectYearsList"
               :key="val"
               :value="val"
-              @click="filter_year(val)"
           >
-            {{ val }}
-          </div>
-        </div>
+          </el-option>
+        </el-select>
       </div>
       <el-button @click="filterBtn" style="margin-left: 30px;" type="primary">筛选</el-button>
     </div>
@@ -83,7 +72,6 @@
         <el-table-column prop="year" label="入学年份" align="center" width="70px"></el-table-column>
         <el-table-column prop="studentType" label="学生类别" align="center"></el-table-column>
         <el-table-column prop="point" label="积分" align="center" width="60px"></el-table-column>
-        <el-table-column prop="idnumber" label="身份证号" align="center"></el-table-column>
         <el-table-column prop="teachers.name" label="导师姓名" align="center" width="80px"></el-table-column>
         <el-table-column  label="操作" align="center" width="180px">
           <template slot-scope="scope">
@@ -177,12 +165,10 @@ export default {
       selectTeaNameAndJobnumber:[],//编辑框中导师搜索一栏的下拉框绑定数据
       newPassword:'',
       dialogResetPassword:false,
-      pageSizes:[10,20,20,20,30],
+      pageSizes:[10,20,30,50,100],
       totalCount:0,
       currentPage:1,
       pageSize:10,
-      isSelectYearFlag:false,
-      isSelectYearShow:false,
       selectYearsList:[],
       isSelectFlag:false,
       isSelectShow:false,//搜索老师名字的搜索框
@@ -270,12 +256,8 @@ export default {
         }
       })
     },
-    inputSelectYearFocus(){//年份输入框获得焦点
-      this.isSelectYearShow = true
-    },
     filter_year(val){//点击年份下拉框的某个选项
       this.selectYear = val
-      this.isSelectYearShow = false
     },
     filterBtn(){//点击筛选按钮
       let tempYear = this.selectYear

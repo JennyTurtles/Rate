@@ -152,10 +152,7 @@ public class GraduateStudentService {
 
     public List<GraduateStudent> getGraduatesStudent(){
         List<GraduateStudent> res = new ArrayList<>();
-        try {
-            res = graduateStudentMapper.getGraduateStudent();
-        }catch (Exception e){
-        }
+        res = graduateStudentMapper.getGraduateStudent();
         return res;
     }
     public Msg deleteGraduateStudent(GraduateStudent grad){
@@ -222,11 +219,8 @@ public class GraduateStudentService {
         return RespBean.ok("ok",res);
     }
     public List<GraduateStudent> getGraduateStudentsBySelect(Integer year, String teaName){
-        List<GraduateStudent> res = null;
-        try {
-            res = graduateStudentMapper.getGraduateStudentsBySelect(teaName,year);
-        }catch (Exception e){
-        }
+        List<GraduateStudent> res = new ArrayList<>();
+        res = graduateStudentMapper.getGraduateStudentsBySelect(teaName,year);
         return res;
     }
     public GraduateStudent getGradByStuID(Integer studentID){
