@@ -238,7 +238,7 @@ export default {
       if(this.tabsActivateName != 'projectHorizontal') {
         url = `${this.tabsActivateName}/basic/studentID?studentID=${this.currentDoctorStudent.studentID}`;
       } else {
-        `${this.tabsActivateName}/basic/studentID/horizontal?studentID=${this.currentDoctorStudent.studentID}`
+        url = `project/basic/studentID/horizontal?studentID=${this.currentDoctorStudent.studentID}`
       }
       this.tabsTableLoading = true;
       this.getRequest(url).then(response => {
