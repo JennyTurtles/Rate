@@ -43,7 +43,7 @@
     </resultMap>
 
     <sql id="selectPaperVo">
-        select ID, studentID, name, year, month, author, `rank`, total, point, have_score, publicationID, pubPage, state, url
+        select *
         from paper
     </sql>
 

@@ -1,15 +1,15 @@
 <template>
   <div>
     <div>
-      <el-button type="primary" @click="downloadExcel">下载模版</el-button>
-      <el-upload
+      导入学生第一步：<el-button icon="el-icon-upload" type="primary" @click="downloadExcel">下载模版</el-button>
+      第二步：<el-upload
           :show-file-list="false"
           :before-upload="beforeUpload"
           :on-success="onSuccess"
           style="display: inline-flex; margin-left: 8px"
           :action="UploadUrl()"
       >
-        <el-button type="primary">上传学生excel</el-button>
+        <el-button icon="el-icon-plus" type="success">导入学生</el-button>
       </el-upload>
     </div>
     <div style="margin-top: 10px">
@@ -67,17 +67,18 @@
             <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary" style="padding: 4px">编辑</el-button>
             <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)" style="padding: 4px">删除</el-button>
             <el-button size="mini" type="primary" plain @click="resetPasswordShow(scope.row)" style="padding: 4px">重置密码</el-button>
+            <el-button size="mini" type="primary" plain @click="showDetailInfo(scope.row)" style="padding: 4px">查看详情</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
     <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="400px">
       <template>
-        <el-form :model="currentGraduateStudentOfEdit" :label-width="labelWidth">
+        <el-form :model="currentGraduateStudent" :label-width="labelWidth">
           <el-form-item label="导师信息">
             <div class="select_div_input" style="width: 70%">
               <el-select
-                  v-model="currentGraduateStudentOfEdit.teachers.name"
+                  v-model="currentGraduateStudent.teachers.name"
                   filterable
                   remote
                   clearable
@@ -95,13 +96,13 @@
             </div>
           </el-form-item>
           <el-form-item label="学生姓名">
-            <el-input style="width: 70%" v-model="currentGraduateStudentOfEdit.name"></el-input>
+            <el-input style="width: 70%" v-model="currentGraduateStudent.name"></el-input>
           </el-form-item>
           <el-form-item label="学生电话">
-            <el-input style="width: 70%" v-model="currentGraduateStudentOfEdit.telephone"></el-input>
+            <el-input style="width: 70%" v-model="currentGraduateStudent.telephone"></el-input>
           </el-form-item>
           <el-form-item label="学生邮箱">
-            <el-input style="width: 70%" v-model="currentGraduateStudentOfEdit.email"></el-input>
+            <el-input style="width: 70%" v-model="currentGraduateStudent.email"></el-input>
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
@@ -120,6 +121,44 @@
           <el-button @click="closeDialogReset" type="primary">取消</el-button>
         </div>
       </el-form>
+    </el-dialog>
+    <el-dialog title="查看详情" :visible.sync="dialogShowDetailInfo" center width="900px">
+      <el-tabs v-model="tabsActivateName" @tab-click="tabChange">
+        <el-tab-pane label="学术论文" name="paper"></el-tab-pane>
+        <el-tab-pane label="授权专利" name="patent"></el-tab-pane>
+        <el-tab-pane label="科研获奖" name="award"></el-tab-pane>
+        <el-tab-pane label="专著教材" name="monograph"></el-tab-pane>
+        <el-tab-pane label="学科竞赛" name="competition"></el-tab-pane>
+        <el-tab-pane label="纵向项目" name="project"></el-tab-pane>
+        <el-tab-pane label="横向项目" name="projectHorizontal"></el-tab-pane>
+        <el-tab-pane label="决策咨询" name="decision"></el-tab-pane>
+        <el-tab-pane label="产品应用" name="product"></el-tab-pane>
+        <el-tab-pane label="制定标准" name="standard"></el-tab-pane>
+      </el-tabs>
+      <el-table :data="tabsTableData" v-loading="tabsTableLoading">
+        <el-table-column prop="name" label="成果名称" align="center"></el-table-column>
+        <el-table-column prop="state" label="成果状态" align="center">
+          <template slot-scope="scope">
+            <span
+                style="padding: 4px"
+                :style="scope.row.state=='tea_reject' || scope.row.state=='adm_reject' ? {'color':'red'}:{'color':'gray'}"
+                size="mini"
+            >
+              {{
+                scope.row.state == "commit"
+                    ? "已提交"
+                    : scope.row.state == "tea_pass"
+                        ? "导师通过"
+                        : scope.row.state == "tea_reject"
+                            ? "导师驳回"
+                            : scope.row.state == "adm_pass"
+                                ? "管理员通过"
+                                : "管理员驳回"
+              }}
+              </span>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-dialog>
     <div style="margin-top: 10px;text-align:right">
       <el-pagination @size-change="handleSizeChange"
@@ -142,13 +181,17 @@ export default {
   name: "SalGraduateM",
   data(){
     return{
+      tabsTableLoading: false,
+      tabsTableData: [],
+      tabsActivateName: 'paper',
+      dialogShowDetailInfo: false,
       selectTeaNameAndJobnumber:[],//编辑框中导师搜索一栏的下拉框绑定数据
       newPassword:'',
       dialogResetPassword:false,
       pageSizes:[10,20,30,50,100],
       totalCount:0,
       currentPage:1,
-      pageSize:10,
+      pageSize:20,
       selectYearsList:[],
       select_teachers:[],
       selectTeacerName:'',
@@ -156,7 +199,7 @@ export default {
       dialogEdit:false,
       user:{},
       graduateStudents:[],
-      currentGraduateStudentOfEdit:{
+      currentGraduateStudent:{
         ID:null,
         name:'',
         teachers:{
@@ -187,10 +230,33 @@ export default {
     this.initGraduateStudents(this.currentPage,this.pageSize)
   },
   methods:{
+    tabChange(tab, event) {
+      this.getTableDataMethod();
+    },
+    getTableDataMethod() {
+      let url = '';
+      if(this.tabsActivateName != 'projectHorizontal') {
+        url = `${this.tabsActivateName}/basic/studentID?studentID=${this.currentGraduateStudent.studentID}`;
+      } else {
+        `${this.tabsActivateName}/basic/studentID/horizontal?studentID=${this.currentGraduateStudent.studentID}`
+      }
+      this.tabsTableLoading = true;
+      this.getRequest(url).then(response => {
+        if(response) {
+          this.tabsTableData = response.data;
+          this.tabsTableLoading = false;
+        }
+      })
+    },
+    showDetailInfo(data) { //点击查看详情按钮
+      this.dialogShowDetailInfo = true;
+      this.currentGraduateStudent = data;
+      this.getTableDataMethod();
+    },
     searchTeaNameMethod(val) {
       if(val) {
         if(this.dialogEdit){
-          this.currentGraduateStudentOfEdit.teachers.name = val
+          this.currentGraduateStudent.teachers.name = val
         }else {
           this.selectTeacerName = val
         }
@@ -201,7 +267,7 @@ export default {
       this.dialogResetPassword = false
     },
     resetPasswordShow(data){//重制密码
-      this.currentGraduateStudentOfEdit = JSON.parse(JSON.stringify(data));
+      this.currentGraduateStudent = JSON.parse(JSON.stringify(data));
       this.dialogResetPassword = true
     },
     resetPassword(){//重制密码
@@ -209,8 +275,8 @@ export default {
         this.$message.warning('请输入密码！')
         return
       }
-      this.currentGraduateStudentOfEdit.password = this.newPassword
-      this.postRequest('/graduatestudentM/basic/resetUnderPassword',this.currentGraduateStudentOfEdit).then((response)=>{
+      this.currentGraduateStudent.password = this.newPassword
+      this.postRequest('/graduatestudentM/basic/resetUnderPassword',this.currentGraduateStudent).then((response)=>{
         if(response){
           if(response.status == 200){
             this.$message.success("重置成功")
@@ -240,8 +306,8 @@ export default {
 
     //编辑框中 搜索老师姓名之后点击下拉框的某个选项
     filterEditTeacher(val){
-      this.currentGraduateStudentOfEdit.teachers.name = val.split(":")[1]
-      this.currentGraduateStudentOfEdit.teachers.jobnumber = val.split(":")[0]
+      this.currentGraduateStudent.teachers.name = val.split(":")[1]
+      this.currentGraduateStudent.teachers.jobnumber = val.split(":")[0]
     },
     //防抖函数
     delayInputTimer(data){
@@ -274,16 +340,16 @@ export default {
     },
     editDialogShow(data){
       this.dialogEdit = true
-      this.currentGraduateStudentOfEdit = JSON.parse(JSON.stringify(data));
+      this.currentGraduateStudent = JSON.parse(JSON.stringify(data));
     },
     editGraduate(){//点击编辑中的确定按钮
       // 应该进行表单验证（如手机号），以后再改
-      if(this.currentGraduateStudentOfEdit.teachers.name == '' || this.currentGraduateStudentOfEdit.teachers.jobnumber == '' ||
-          this.currentGraduateStudentOfEdit.teachers.name == null || this.currentGraduateStudentOfEdit.teachers.jobnumber == null){
+      if(this.currentGraduateStudent.teachers.name == '' || this.currentGraduateStudent.teachers.jobnumber == '' ||
+          this.currentGraduateStudent.teachers.name == null || this.currentGraduateStudent.teachers.jobnumber == null){
         this.$message.warning('请填写老师姓名！')
         return
       }
-      let data = this.currentGraduateStudentOfEdit
+      let data = this.currentGraduateStudent
       this.postRequest('/graduatestudentM/basic/editGraduateStudent',data).then((resp)=>{
         if(resp){
           if(resp.status == 200){

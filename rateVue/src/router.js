@@ -579,11 +579,20 @@ export default new Router({
         },
         {
           path: '/admin/GraduateM',
-          name: '研究生管理',
+          name: '研究生列表',
           hidden: true,
           component: () => import('./views/admin/SalGraduateM'),
           meta: {
-            title: '研究生管理',
+            title: '研究生列表',
+          },
+        },
+        {
+          path: '/admin/DoctorM',
+          name: '研究生列表',
+          hidden: true,
+          component: () => import('./views/admin/SalDoctorM'),
+          meta: {
+            title: '研究生列表',
           },
         },
         {
