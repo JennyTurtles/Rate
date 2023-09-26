@@ -3,6 +3,10 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Doctor;
+
+import javax.print.Doc;
+import java.util.List;
+
 @Mapper
 public interface DoctorMapper {
 
@@ -14,4 +18,6 @@ public interface DoctorMapper {
 
     @Select("select exists (select * from doctor where institutionID = #{institutionID} and stuNumber = #{stuNumber} and studentID != #{studentID} )")
     int checkHaveStudentOfStuNumber(Integer institutionID,String stuNumber,Integer studentID);
+
+    List<Doctor> getDoctorStudents();
 }

@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.sys.rate.mapper.DoctorMapper">
+    <resultMap id="BaseResultMap" type="org.sys.rate.model.Doctor">
+        <id column="ID" property="ID" jdbcType="INTEGER"/>
+        <id column="studentID" property="studentID" jdbcType="INTEGER"/>
+        <result column="institutionID" jdbcType="INTEGER" property="institutionID" />
+        <result column="stuNumber" property="stuNumber" jdbcType="VARCHAR"/>
+        <result column="year" property="year" jdbcType="INTEGER"/>
+        <result column="specialty" property="specialty" jdbcType="VARCHAR"/>
+        <result column="class" property="className" jdbcType="VARCHAR"/>
+        <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
+        <result column="studentType" property="studentType" jdbcType="VARCHAR"/>
+        <result column="point" property="point" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="role" column="role" jdbcType="VARCHAR"/>
+        <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <result property="username" column="username" jdbcType="VARCHAR"/>
+        <result property="password" column="password" jdbcType="VARCHAR"/>
+        <association property="teachers" javaType="org.sys.rate.model.Teachers">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="name" column="tname"/>
+            <result property="jobnumber" column="tjobnumber"/>
+        </association>
+    </resultMap>
     <update id="update">
         UPDATE doctor SET tutorID=#{tutorID,jdbcType=INTEGER},
                              stuNumber=#{stuNumber,jdbcType=VARCHAR},
@@ -10,4 +33,12 @@
                              class=#{className,jdbcType=VARCHAR}
         where studentID=#{studentID,jdbcType=INTEGER};
     </update>
+    <select id="getDoctorStudents" resultMap="BaseResultMap">
+        select u.*,s.name,s.telephone,s.email,s.username,t.name as tname,t.jobnumber as tjobnumber
+        from doctor u
+        left join teacher t
+        on u.tutorID=t.ID
+        left join student s
+        on u.studentID=s.ID
+    </select>
 </mapper>
