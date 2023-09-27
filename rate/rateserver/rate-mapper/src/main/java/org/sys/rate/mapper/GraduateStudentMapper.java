@@ -32,4 +32,12 @@ public interface GraduateStudentMapper {
 
     // 获取研究生列表
     List<GraduateStudent> getGraduateListByTutorID(Integer tutorID);
+
+    @Select("SELECT CASE WHEN s.name = #{stuName} THEN s.id ELSE -1 END AS result " +
+            "FROM graduatestudent u " +
+            "JOIN student s ON u.studentID = s.ID " +
+            "WHERE u.stuNumber = #{stuNumber} AND u.institutionID = #{institutionID}")
+    Integer checkStudentExist(String stuNumber, String stuName, Integer institutionID);
+
+    int updateWithInstitutionID(GraduateStudent graduateStudent);
 }

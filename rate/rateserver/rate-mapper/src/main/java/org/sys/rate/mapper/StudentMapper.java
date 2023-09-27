@@ -125,4 +125,6 @@ public interface StudentMapper {
 
     @Select("select s.name, s.ID, s.institutionID from student s, undergraduate u where u.ID=#{studentID} and u.studentID = s.ID")
     Student getByUndergraduateId(Integer studentID);
+
+    int insertStudentByImportGraduate(Student student);
 }

@@ -4,7 +4,7 @@
     <resultMap id="BaseResultMap" type="org.sys.rate.model.Student">
         <id column="ID" property="ID" jdbcType="INTEGER"/>
         <result column="name" property="name" jdbcType="VARCHAR"/>
-<!--        <result column="institutionID" jdbcType="INTEGER" property="institutionid" />-->
+        <result column="institutionID" jdbcType="INTEGER" property="institutionid" />
         <result column="studentnumber" property="studentnumber" jdbcType="VARCHAR"/>
         <result column="IDNumber" property="IDNumber" jdbcType="VARCHAR"/>
         <result column="telephone" property="telephone" jdbcType="VARCHAR"/>
@@ -88,12 +88,11 @@
         <foreach collection="list" item="students" open="" close="" separator=";">
             update student
             <set>
-                institutionID=#{students.institutionID},
                 name = #{students.name},
                 telephone = #{students.telephone},
                 email = #{students.email}
             </set>
-            where IDNumber = #{students.IDNumber}
+            where ID = #{students.ID}
         </foreach>
     </update>
 <!--    <select id="getAdminRolesById" resultType="org.sys.rate.model.Role">-->
@@ -140,6 +139,15 @@
         <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
         #{username,jdbcType=VARCHAR},
         #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,0,''
+        )
+    </insert>
+    <insert id="insertStudentByImportGraduate" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
+        insert into student  (ID,name,<if test="institutionid!=-1">institutionID,</if>telephone,email,deleteflag,role
+        )
+        values (#{ID,jdbcType=INTEGER},
+        #{name,jdbcType=VARCHAR},
+        <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
+        #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,#{role}
         )
     </insert>
     <insert id="insertStuFromRegister" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">

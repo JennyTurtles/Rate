@@ -1161,7 +1161,7 @@ public class POIUtils {
         row.createCell(8).setCellValue("软件工程");
         row.createCell(9).setCellValue("软件1901");
 
-        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。导师工号和导师姓名如果不填写，则默认没有导师，如果两者都填写，按照导师工号查询。两者可填可不填");
+        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。导师工号和导师姓名如果不填写，则默认没有导师，如果两者都填写，按照导师工号查询。两者可填可不填。手机号和邮箱可为空");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -1210,7 +1210,8 @@ public class POIUtils {
                     String stuNumber = null;//学号
                     String name = null;//姓名
                     String phone = null;//手机号
-                    String idCard = null;//身份证号
+                    String specialty = null;//专业
+                    String class_ = null;// 班级
                     String email = null;//邮箱
                     String teaJobNumber = null;
                     String teaName = null;
@@ -1231,8 +1232,11 @@ public class POIUtils {
                                 case "手机号":
                                     phone = cellValue;
                                     break;
-                                case "身份证号码":
-                                    idCard = cellValue;
+                                case "专业":
+                                    specialty = cellValue;
+                                    break;
+                                case "班级":
+                                    class_ = cellValue;
                                     break;
                                 case "邮箱":
                                     email = cellValue;
@@ -1254,21 +1258,25 @@ public class POIUtils {
                             }
                         }
                     }
-                    if (phone == null || stuNumber == null || email == null || name == null || idCard == null || studentType == null) {
+                    if (stuNumber == null || name == null || specialty == null || studentType == null || class_ == null) { //手机号和邮箱可为空
                         continue;
                     }
-                    student.setName(name);
-                    student.setTelephone(phone);
-                    student.setIDNumber(idCard);
-                    student.setEmail(email);
+//                    student.setName(name);
+//                    student.setTelephone(phone);
+//                    student.setEmail(email);
+//                    student.setInstitutionid(institutionID);
                     tea.setJobnumber(teaJobNumber);
                     tea.setName(teaName);
                     graduateStudent.setTeachers(tea);
                     graduateStudent.setStuNumber(stuNumber);
+                    graduateStudent.setName(name);
                     graduateStudent.setYear(Integer.parseInt(year));
                     graduateStudent.setInstitutionID(institutionID);
-                    graduateStudent.setIDNumber(idCard);
+                    graduateStudent.setSpecialty(specialty);
+                    graduateStudent.setClassName(class_);
                     graduateStudent.setStudentType(studentType);
+                    graduateStudent.setTelephone(phone);
+                    graduateStudent.setEmail(email);
                     studentList.add(student);
                     graduateList.add(graduateStudent);
                 }

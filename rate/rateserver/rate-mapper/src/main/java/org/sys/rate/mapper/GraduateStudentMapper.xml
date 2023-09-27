@@ -6,7 +6,7 @@
         <id column="studentID" property="studentID" jdbcType="INTEGER"/>
         <result column="institutionID" jdbcType="INTEGER" property="institutionID" />
         <result column="stuNumber" property="stuNumber" jdbcType="VARCHAR"/>
-        <result column="year" property="year" jdbcType="INTEGER"/>
+        <result column="year" property="year"/>
         <result column="specialty" property="specialty" jdbcType="VARCHAR"/>
         <result column="class" property="className" jdbcType="VARCHAR"/>
         <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
@@ -46,14 +46,14 @@
                  #{studentType,jdbcType=VARCHAR},#{point,jdbcType=VARCHAR})
     </insert>
     <insert id="insertFROMImport" parameterType="org.sys.rate.model.GraduateStudent">
-        insert into graduatestudent(ID,studentID,institutionID,stuNumber,year,tutorID,studentType,point) values
+        insert into graduatestudent(ID,studentID,institutionID,stuNumber,year,tutorID,studentType,point, specialty, class) values
         <foreach collection="list" separator="," item="graduate">
-               (#{graduate.ID,jdbcType=INTEGER},
-                #{graduate.studentID,jdbcType=INTEGER},
-                #{graduate.institutionID,jdbcType=INTEGER},
-                #{graduate.stuNumber,jdbcType=VARCHAR},
-                #{graduate.year,jdbcType=VARCHAR}, #{graduate.tutorID,jdbcType=INTEGER},
-                #{graduate.studentType,jdbcType=VARCHAR},#{graduate.point,jdbcType=VARCHAR})
+               (#{ID,jdbcType=INTEGER},
+                #{studentID,jdbcType=INTEGER},
+                #{institutionID,jdbcType=INTEGER},
+                #{stuNumber,jdbcType=VARCHAR},
+                #{year,jdbcType=VARCHAR}, #{tutorID,jdbcType=INTEGER},
+                #{studentType,jdbcType=VARCHAR},#{point,jdbcType=VARCHAR},#{specialty},#{class})
         </foreach>
     </insert>
 
@@ -61,14 +61,13 @@
         <foreach collection="list" item="item" open="" close="" separator=";">
             update graduatestudent
             <set>
-                institutionID=#{item.institutionID},
-                stuNumber = #{item.stuNumber},
-                year = #{item.year},
-                tutorID = #{item.tutorID},
-                point = #{item.point},
-                studentType = #{item.studentType}
+                <if test="item.year != null and item.year != ''">year = #{item.year},</if>
+                <if test="item.tutorID != null and item.tutorID != ''">tutorID = #{item.tutorID},</if>
+                <if test="item.specialty != null and item.specialty != ''">specialty = #{item.specialty},</if>
+                <if test="item.className != null and item.className != ''">class = #{item.className},</if>
+                <if test="item.studentType != null and item.studentType != ''">studentType = #{item.studentType},</if>
             </set>
-            where studentID = #{item.studentID}
+            WHERE institutionID = #{item.institutionID} AND stuNumber = #{item.stuNumber}
         </foreach>
     </update>
     <select id="check" resultType="java.lang.Integer">
@@ -178,4 +177,15 @@
     <select id="checkHaveStudentOfStuNumber" resultType="java.lang.Integer">
         select exists (select * from graduatestudent where institutionID = #{institutionID} and stuNumber = #{stuNumber} and studentID != #{studentID} )
     </select>
+    <update id="updateWithInstitutionID" parameterType="org.sys.rate.model.GraduateStudent">
+        UPDATE graduatestudent
+        <set>
+            <if test="year != null and year != ''">year = #{year},</if>
+            <if test="tutorID != null and year != ''">tutorID = #{tutorID},</if>
+            <if test="specialty != null and specialty != ''">specialty = #{specialty},</if>
+            <if test="className != null and className != ''">class = #{className},</if>
+            <if test="studentType != null and studentType != ''">studentType = #{studentType}</if>
+        </set>
+        WHERE institutionID = #{institutionID} AND stuNumber = #{stuNumber}
+    </update>
 </mapper>

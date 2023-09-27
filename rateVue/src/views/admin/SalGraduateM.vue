@@ -4,6 +4,9 @@
       导入学生第一步：<el-button icon="el-icon-upload" type="primary" @click="downloadExcel">下载模版</el-button>
       第二步：<el-upload
           :show-file-list="false"
+          :headers="{
+        'token': user.token
+      }"
           :before-upload="beforeUpload"
           :on-success="onSuccess"
           style="display: inline-flex; margin-left: 8px"
@@ -181,6 +184,9 @@ export default {
   name: "SalGraduateM",
   data(){
     return{
+      headers: {
+        'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
+      },
       tabsTableLoading: false,
       tabsTableData: [],
       tabsActivateName: 'paper',
@@ -381,11 +387,11 @@ export default {
         this.$message.success("导入成功")
         this.initGraduateStudents(1,this.pageSize)
       }else {
-        this.$message.error("导入失败")
+        this.$message.error(res.msg)
       }
     },
     beforeUpload() {
-      this.$message.success("正在导入")
+      this.$message.warning("正在导入")
     },
     UploadUrl(){
       let url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID

@@ -46,10 +46,10 @@ public class GraduateStudentMController {
         Map<String, List> mm = POIUtils.readExcel_graduatestudent(institutionID, file);
         List<GraduateStudent> graduate = mm.get("graduatelist");
         List<Student> stu = mm.get("studentlist");
-        if (graduate.size() == 0 || stu.size() == 0 || graduate.size() != stu.size()) {
+        if (graduate.size() == 0) { //先将excel中读取到的数据行拿出来，student和graduate列表是同样的数量才对
             return RespBean.error("未读取到有效导入数据");
         }
-        RespBean res = graduateStudentService.addGraduate(graduate, stu);
+        RespBean res = graduateStudentService.addGraduate(graduate);
         return res;
     }
 

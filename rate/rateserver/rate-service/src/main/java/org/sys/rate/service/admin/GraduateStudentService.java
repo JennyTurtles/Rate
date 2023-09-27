@@ -24,47 +24,11 @@ public class GraduateStudentService {
     GraduateStudentMapper graduateStudentMapper;
 
     //管理员导入研究生，只添加，即使已经存在了该条数据也不更新
-    public RespBean addGraduate(List<GraduateStudent> graduateList, List<Student> stuList) {
-        //根据身份证号得到已经存在的student
-        List<Student> checkStudents = studentMapper.checkAndReturnID(stuList);
-        List<String> checkIDNumbers = new ArrayList<>();
-        List<Student> updateStus = new ArrayList<>();
-        List<Student> insertStus = new ArrayList<>();
-        if(checkStudents.size() != 0){
-            for(Student i : checkStudents){//拿到已经存在的student的idnumber
-                checkIDNumbers.add(i.getIDNumber());
-            }
-            for(int i = 0;i < stuList.size();i++){
-                //不在更新列表中，说明表里没有这个数据
-                if(checkIDNumbers.indexOf(stuList.get(i).getIDNumber()) == -1){
-                    insertStus.add(stuList.get(i));
-                }
-            }
-        }else {
-            insertStus = stuList;
-        }
-        List<Student> newStuList = new ArrayList<>();
-        try{
-            if(checkStudents.size() != 0) {
-                newStuList.addAll(checkStudents);
-            }
-            if(insertStus.size() > 0){
-                studentMapper.insertFromAdminExcel(insertStus);
-                newStuList.addAll(insertStus);
-            }
-        }catch (Exception e) {
-            return RespBean.error("error");
-        }
-        //对研究生循环 设置stuid
-        List<String> jobTeas = new ArrayList<>();
-        List<String> nameTeas = new ArrayList<>();
+    public RespBean addGraduate(List<GraduateStudent> graduateList) {
+
+        List<String> jobTeas = new ArrayList<>(); //记录导师的工号
+        List<String> nameTeas = new ArrayList<>(); //记录导师的姓名
         for(int i = 0;i < graduateList.size();i++){
-            for(int j = 0;j < newStuList.size();j++){//按照身份证号进行对比，赋值stuid
-                if(graduateList.get(i).getIDNumber().equals(newStuList.get(j).getIDNumber())){
-                    graduateList.get(i).setStudentID(newStuList.get(j).getID());
-                    break;
-                }
-            }
             //工号和姓名都有按照工号来，都没有tutorid为空，只有姓名就按照姓名查找
             if(graduateList.get(i).getTeachers().getJobnumber() == null && graduateList.get(i).getTeachers().getName() == null){
                 graduateList.get(i).setTutorID(null);
@@ -77,10 +41,59 @@ public class GraduateStudentService {
             }
         }
         List<Teachers> jobTeachers = new ArrayList<>();
+        jobTeachers = teachersMapper.selectTeasByJobnumber(jobTeas);
+        if(jobTeachers.size() == 0) {
+            return RespBean.error("未找到老师信息！请仔细检查工号");
+        }
+
+        //改为根据机构id和学号判断在student表中是否已经存在
+        Integer id = null;
+        List<Student> updateStus = new ArrayList<>();
+        List<GraduateStudent> insertGraduates = new ArrayList<>();
+        List<GraduateStudent> updateGraduates = new ArrayList<>();
+        for(int i = 0;i < graduateList.size(); i ++) {
+            GraduateStudent graduateStudent = graduateList.get(i);
+            id = graduateStudentMapper.checkStudentExist(graduateStudent.getStuNumber(), graduateStudent.getName(), graduateStudent.getInstitutionID());
+            if (id != null) {
+                if (id.equals(-1)) {
+                    return RespBean.error("学生学号和姓名不匹配");
+                }
+                graduateStudent.setStudentID(id);
+                try {
+                    // 更新研究生表信息
+                    Student student = new Student();
+                    student.setID(graduateStudent.getStudentID());
+                    student.setInstitutionID(graduateStudent.getInstitutionID());
+                    student.setTelephone(graduateStudent.getTelephone());
+                    student.setEmail(graduateStudent.getEmail());
+                    student.setName(graduateStudent.getName());
+                    updateStus.add(student);
+                } catch (Exception e) {
+                    return RespBean.error("更新研究生信息出现错误！");
+                }
+            } else { //需要插入新学生记录
+                Student student = new Student();
+                student.setInstitutionID(graduateStudent.getInstitutionID());
+                student.setTelephone(graduateStudent.getTelephone());
+                student.setEmail(graduateStudent.getEmail());
+                student.setRole("11");
+                student.setName(graduateStudent.getName());
+                int studentId = 0;
+                try {
+                    studentId = studentMapper.insertStudentByImportGraduate(student);
+                } catch (Exception e) {
+                    return RespBean.error("插入学生出错！");
+                }
+                graduateStudent.setStudentID(student.getID());
+            }
+        }
+        if(updateStus.size() > 0) {
+            studentMapper.updateFromAdminExcel(updateStus); // 更新student表的信息
+        }
+
         List<Teachers> nameTeachers = new ArrayList<>();
         List<Teachers> updateTeachers = new ArrayList<>();
-        if(jobTeas.size() > 0){
-            jobTeachers = teachersMapper.selectTeasByJobnumber(jobTeas);
+        if(jobTeas.size() > 0){ //找到对应的导师信息，更新导师的role
             for(int i = 0;i < graduateList.size();i++) {
                 if(graduateList.get(i).getTeachers().getJobnumber() == null || graduateList.get(i).getTeachers().getJobnumber().equals("")){
                     continue;
@@ -88,8 +101,8 @@ public class GraduateStudentService {
                 for (int j = 0; j < jobTeachers.size(); j++) {
                     if (graduateList.get(i).getTeachers().getJobnumber().equals(jobTeachers.get(j).getJobnumber())) {
                         String tearole = jobTeachers.get(j).getRole();
-                        if(!tearole.contains("11")){
-                            tearole += ";11";
+                        if(!tearole.contains("9")){
+                            tearole += ";9";
                             jobTeachers.get(j).setRole(tearole);
                             updateTeachers.add(jobTeachers.get(j));
                         }
@@ -109,8 +122,8 @@ public class GraduateStudentService {
                 for (int j = 0; j < nameTeachers.size(); j++) {
                     if (graduateList.get(i).getTeachers().getName().equals(nameTeachers.get(j).getName())) {
                         String tearole = nameTeachers.get(j).getRole();
-                        if(!tearole.contains("11")){
-                            tearole += ";11";
+                        if(!tearole.contains("9")){
+                            tearole += ";9";
                             nameTeachers.get(j).setRole(tearole);
                             updateTeachers.add(nameTeachers.get(j));
                         }
@@ -121,25 +134,23 @@ public class GraduateStudentService {
                 }
             }
         }
-        List<Integer> updateInter = graduateStudentMapper.check(graduateList);
-        List<GraduateStudent> updateGraduates = new ArrayList<>();
-        List<GraduateStudent> insertGraduates = new ArrayList<>();
-        //有已经存在的研究生了
-        if(updateInter.size() != 0){
-            for(int i = 0;i < graduateList.size();i++){
-                //不在更新列表中，说明表里没有这个数据
-                if(updateInter.indexOf(graduateList.get(i).getStudentID()) == -1){
-                    insertGraduates.add(graduateList.get(i));
-                }else {
-                    updateGraduates.add(graduateList.get(i));
-                }
+
+        for(int i = 0;i < graduateList.size(); i ++) { //拿到需要插入研究生表的数据
+            GraduateStudent graduateStudent = graduateList.get(i);
+            id = graduateStudentMapper.checkStudentExist(graduateStudent.getStuNumber(), graduateStudent.getName(), graduateStudent.getInstitutionID());
+            if (id == null) {
+                insertGraduates.add(graduateStudent);
+            } else {
+                updateGraduates.add(graduateStudent);
             }
-        }else {
-            insertGraduates = graduateList;
         }
+
         try {
             if(insertGraduates.size() > 0){
                 graduateStudentMapper.insertFROMImport(insertGraduates);
+            }
+            if(updateGraduates.size() > 0){
+                graduateStudentMapper.updateFROMImport(updateGraduates);
             }
             if(updateTeachers.size() > 0){//需要对老师的role字段进行更新
                 teachersMapper.updateRoleOfTeachers(updateTeachers);
