@@ -52,7 +52,7 @@
     </div>
     <div style="margin-top: 10px">
       <el-table
-          :data="graduateStudents">
+          :data="doctorStudents">
         <el-table-column prop="stuNumber" label="学号" align="center"></el-table-column>
         <el-table-column prop="name" label="姓名" align="center" width="80px"></el-table-column>
         <el-table-column prop="username" label="用户名" align="center"></el-table-column>
@@ -67,7 +67,7 @@
             <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary" style="padding: 4px">编辑</el-button>
             <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)" style="padding: 4px">删除</el-button>
             <el-button size="mini" type="primary" plain @click="resetPasswordShow(scope.row)" style="padding: 4px">重置密码</el-button>
-            <el-button size="mini" type="primary" plain @click="showDetailInfo(scope.row)" style="padding: 4px">查看详情</el-button>
+<!--            <el-button size="mini" type="primary" plain @click="showDetailInfo(scope.row)" style="padding: 4px">查看详情</el-button>-->
           </template>
         </el-table-column>
       </el-table>
@@ -198,7 +198,7 @@ export default {
       selectYear:'',
       dialogEdit:false,
       user:{},
-      graduateStudents:[],
+      doctorStudents:[],
       currentDoctorStudent:{
         ID:null,
         name:'',
@@ -227,7 +227,7 @@ export default {
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
     this.initSelectYearsList()
-    this.initGraduateStudents(this.currentPage,this.pageSize)
+    this.initDoctorStudents(this.currentPage,this.pageSize)
   },
   methods:{
     tabChange(tab, event) {
@@ -276,7 +276,7 @@ export default {
         return
       }
       this.currentDoctorStudent.password = this.newPassword
-      this.postRequest('/graduatestudentM/basic/resetUnderPassword',this.currentDoctorStudent).then((response)=>{
+      this.postRequest('/doctorM/basic/resetUnderPassword',this.currentDoctorStudent).then((response)=>{
         if(response){
           if(response.status == 200){
             this.$message.success("重置成功")
@@ -292,12 +292,12 @@ export default {
       if(this.selectYear == ''){
         tempYear = 0
       }
-      let url = '/graduatestudentM/basic/getGraduateStudentsBySelect?year=' + parseInt(tempYear) + '&teaName=' + this.selectTeacerName +
+      let url = '/doctorM/basic/getGraduateStudentsBySelect?year=' + parseInt(tempYear) + '&teaName=' + this.selectTeacerName +
           '&pageNum=' + this.currentPage + '&pageSize=' + this.pageSize
       this.getRequest(url).then((resp)=>{
         if(resp){
           if(resp.status == 200){
-            this.graduateStudents = resp.obj[0]
+            this.doctorStudents = resp.obj[0]
             this.totalCount = resp.obj[1]
           }
         }
@@ -313,9 +313,9 @@ export default {
     delayInputTimer(data){
       let url
       if(this.dialogEdit){
-        url = '/graduatestudentM/basic/getTeaNamesBySelect?teaName=' + data
+        url = '/doctorM/basic/getTeaNamesBySelect?teaName=' + data
       }else {
-        url = '/graduatestudentM/basic/getTeaNamesBySelect?teaName=' + data
+        url = '/doctorM/basic/getTeaNamesBySelect?teaName=' + data
       }
       this.getRequest(url).then((resp)=>{
         this.select_teachers = []
@@ -336,7 +336,7 @@ export default {
     },
     closeDialogEdit(){//关闭对话框
       this.dialogEdit = false
-      this.initGraduateStudents(this.currentPage,this.pageSize)
+      this.initDoctorStudents(this.currentPage,this.pageSize)
     },
     editDialogShow(data){
       this.dialogEdit = true
@@ -350,7 +350,7 @@ export default {
         return
       }
       let data = this.currentDoctorStudent
-      this.postRequest('/graduatestudentM/basic/editGraduateStudent',data).then((resp)=>{
+      this.postRequest('/doctorM/basic/editGraduateStudent',data).then((resp)=>{
         if(resp){
           if(resp.status == 200){
             this.dialogEdit = false
@@ -366,10 +366,10 @@ export default {
         cancelButtonText:'取消',
         type:"warning"
       }).then(()=>{
-        this.postRequest('/graduatestudentM/basic/deleteGraduateStudent',data).then((resp)=>{
+        this.postRequest('/doctorM/basic/deleteGraduateStudent',data).then((resp)=>{
           if(resp.code == 200){
             this.$message.success('删除成功')
-            this.initGraduateStudents(1,this.pageSize)
+            this.initDoctorStudents(1,this.pageSize)
           }else {
             this.$message.warning('删除失败！')
           }
@@ -379,7 +379,7 @@ export default {
     onSuccess(res){
       if(res.status == 200){
         this.$message.success("导入成功")
-        this.initGraduateStudents(1,this.pageSize)
+        this.initDoctorStudents(1,this.pageSize)
       }else {
         this.$message.error("导入失败")
       }
@@ -388,11 +388,11 @@ export default {
       this.$message.success("正在导入")
     },
     UploadUrl(){
-      let url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID
+      let url = '/doctorM/basic/importGraduate?institutionID=' + this.user.institutionID
       return url;
     },
     downloadExcel(){
-      let url = '/graduatestudentM/basic/exportGraduate'
+      let url = '/doctorM/basic/exportGraduate'
       this.$message.success('正在下载')
       window.open(url,'_parent')
     },
@@ -403,7 +403,7 @@ export default {
       this.currentPage=1
       //没有筛选条件
       if((this.selectYear == '' || this.selectYear == null) && (this.selectTeacerName == '' || this.selectTeacerName == null)){
-        this.initGraduateStudents(this.currentPage,this.pageSize)
+        this.initDoctorStudents(this.currentPage,this.pageSize)
       }else {//筛选条件不为空
         this.filterBtn()
       }
@@ -413,7 +413,7 @@ export default {
       // 改变默认的页数
       this.currentPage=val;
       if((this.selectYear == '' || this.selectYear == null) && (this.selectTeacerName == '' || this.selectTeacerName == null)){
-        this.initGraduateStudents(this.currentPage,this.pageSize)
+        this.initDoctorStudents(this.currentPage,this.pageSize)
       }else {//筛选条件不为空
         this.filterBtn()
       }
@@ -427,10 +427,10 @@ export default {
         return b - a;
       })
     },
-    initGraduateStudents(curr,pagesize){
+    initDoctorStudents(curr,pagesize){
       this.getRequest('/doctorM/basic/getDoctorStudents?pageNum=' + curr + '&pageSize=' + pagesize).then((response)=>{
         if(response.code == 200){
-          this.graduateStudents = response.extend.res[0]
+          this.doctorStudents = response.extend.res[0]
           this.totalCount = response.extend.res[1]
         }
       })
