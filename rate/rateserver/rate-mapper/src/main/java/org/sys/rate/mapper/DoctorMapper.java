@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.sys.rate.model.Doctor;
+import org.sys.rate.model.GraduateStudent;
 
 import javax.print.Doc;
 import java.util.List;
@@ -20,4 +21,18 @@ public interface DoctorMapper {
     int checkHaveStudentOfStuNumber(Integer institutionID,String stuNumber,Integer studentID);
 
     List<Doctor> getDoctorStudents();
+
+    @Select("SELECT CASE WHEN s.name = #{stuName} THEN s.id ELSE -1 END AS result " +
+            "FROM doctor u " +
+            "JOIN student s ON u.studentID = s.ID " +
+            "WHERE u.stuNumber = #{stuNumber} AND u.institutionID = #{institutionID}")
+    Integer checkStudentExist(String stuNumber, String stuName, Integer institutionID);
+
+    int insertFROMImport(List<Doctor> record);
+    int updateFROMImport(List<Doctor> record);
+    List<Doctor> getDoctorsBySelect(String teaName,Integer year);
+    int deleteDoctorStudent(Doctor doctor);
+
+    int editDoctorStudent(Doctor doctor);
+
 }

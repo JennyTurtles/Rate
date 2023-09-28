@@ -4,6 +4,9 @@
       导入学生第一步：<el-button icon="el-icon-upload" type="primary" @click="downloadExcel">下载模版</el-button>
       第二步：<el-upload
         :show-file-list="false"
+        :headers="{
+        'token': user.token
+      }"
         :before-upload="beforeUpload"
         :on-success="onSuccess"
         style="display: inline-flex; margin-left: 8px"
@@ -106,7 +109,7 @@
           </el-form-item>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button @click="editGraduate" type="primary">确定</el-button>
+          <el-button @click="editDoctor" type="primary">确定</el-button>
           <el-button @click="closeDialogEdit">关闭</el-button>
         </span>
       </template>
@@ -178,7 +181,7 @@
 import {debounce} from "@/utils/debounce";
 
 export default {
-  name: "SalGraduateM",
+  name: "SalDoctorM",
   data(){
     return{
       tabsTableLoading: false,
@@ -292,7 +295,7 @@ export default {
       if(this.selectYear == ''){
         tempYear = 0
       }
-      let url = '/doctorM/basic/getGraduateStudentsBySelect?year=' + parseInt(tempYear) + '&teaName=' + this.selectTeacerName +
+      let url = '/doctorM/basic/getDoctorsBySelect?year=' + parseInt(tempYear) + '&teaName=' + this.selectTeacerName +
           '&pageNum=' + this.currentPage + '&pageSize=' + this.pageSize
       this.getRequest(url).then((resp)=>{
         if(resp){
@@ -342,7 +345,7 @@ export default {
       this.dialogEdit = true
       this.currentDoctorStudent = JSON.parse(JSON.stringify(data));
     },
-    editGraduate(){//点击编辑中的确定按钮
+    editDoctor(){//点击编辑中的确定按钮
       // 应该进行表单验证（如手机号），以后再改
       if(this.currentDoctorStudent.teachers.name == '' || this.currentDoctorStudent.teachers.jobnumber == '' ||
           this.currentDoctorStudent.teachers.name == null || this.currentDoctorStudent.teachers.jobnumber == null){
@@ -350,7 +353,7 @@ export default {
         return
       }
       let data = this.currentDoctorStudent
-      this.postRequest('/doctorM/basic/editGraduateStudent',data).then((resp)=>{
+      this.postRequest('/doctorM/basic/editDoctorStudent',data).then((resp)=>{
         if(resp){
           if(resp.status == 200){
             this.dialogEdit = false
@@ -366,7 +369,7 @@ export default {
         cancelButtonText:'取消',
         type:"warning"
       }).then(()=>{
-        this.postRequest('/doctorM/basic/deleteGraduateStudent',data).then((resp)=>{
+        this.postRequest('/doctorM/basic/deleteDoctorStudent',data).then((resp)=>{
           if(resp.code == 200){
             this.$message.success('删除成功')
             this.initDoctorStudents(1,this.pageSize)
@@ -388,11 +391,11 @@ export default {
       this.$message.success("正在导入")
     },
     UploadUrl(){
-      let url = '/doctorM/basic/importGraduate?institutionID=' + this.user.institutionID
+      let url = '/doctorM/basic/importDoctors?institutionID=' + this.user.institutionID
       return url;
     },
     downloadExcel(){
-      let url = '/doctorM/basic/exportGraduate'
+      let url = '/doctorM/basic/exportDoctor'
       this.$message.success('正在下载')
       window.open(url,'_parent')
     },

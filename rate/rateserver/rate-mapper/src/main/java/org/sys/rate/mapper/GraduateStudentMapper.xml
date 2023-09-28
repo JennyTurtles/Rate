@@ -48,12 +48,12 @@
     <insert id="insertFROMImport" parameterType="org.sys.rate.model.GraduateStudent">
         insert into graduatestudent(ID,studentID,institutionID,stuNumber,year,tutorID,studentType,point, specialty, class) values
         <foreach collection="list" separator="," item="graduate">
-               (#{ID,jdbcType=INTEGER},
-                #{studentID,jdbcType=INTEGER},
-                #{institutionID,jdbcType=INTEGER},
-                #{stuNumber,jdbcType=VARCHAR},
-                #{year,jdbcType=VARCHAR}, #{tutorID,jdbcType=INTEGER},
-                #{studentType,jdbcType=VARCHAR},#{point,jdbcType=VARCHAR},#{specialty},#{class})
+               (#{graduate.ID,jdbcType=INTEGER},
+                #{graduate.studentID,jdbcType=INTEGER},
+                #{graduate.institutionID,jdbcType=INTEGER},
+                #{graduate.stuNumber,jdbcType=VARCHAR},
+                #{graduate.year,jdbcType=VARCHAR}, #{graduate.tutorID,jdbcType=INTEGER},
+                #{graduate.studentType,jdbcType=VARCHAR},#{graduate.point,jdbcType=VARCHAR},#{graduate.specialty},#{graduate.className})
         </foreach>
     </insert>
 

@@ -41,4 +41,52 @@
         left join student s
         on u.studentID=s.ID
     </select>
+    <insert id="insertFROMImport" parameterType="org.sys.rate.model.Doctor">
+        insert into doctor(ID,studentID,institutionID,stuNumber,year,tutorID,studentType,point, specialty, class) values
+        <foreach collection="list" separator="," item="doctor">
+            (#{doctor.ID,jdbcType=INTEGER},
+            #{doctor.studentID,jdbcType=INTEGER},
+            #{doctor.institutionID,jdbcType=INTEGER},
+            #{doctor.stuNumber,jdbcType=VARCHAR},
+            #{doctor.year,jdbcType=VARCHAR}, #{doctor.tutorID,jdbcType=INTEGER},
+            #{doctor.studentType,jdbcType=VARCHAR},#{doctor.point,jdbcType=VARCHAR},#{doctor.specialty},#{doctor.className})
+        </foreach>
+    </insert>
+    <update id="updateFROMImport" parameterType="org.sys.rate.model.Doctor">
+        <foreach collection="list" item="item" open="" close="" separator=";">
+            update doctor
+            <set>
+                <if test="item.year != null and item.year != ''">year = #{item.year},</if>
+                <if test="item.tutorID != null and item.tutorID != ''">tutorID = #{item.tutorID},</if>
+                <if test="item.specialty != null and item.specialty != ''">specialty = #{item.specialty},</if>
+                <if test="item.className != null and item.className != ''">class = #{item.className},</if>
+                <if test="item.studentType != null and item.studentType != ''">studentType = #{item.studentType},</if>
+            </set>
+            WHERE institutionID = #{item.institutionID} AND stuNumber = #{item.stuNumber}
+        </foreach>
+    </update>
+    <select id="getDoctorsBySelect" resultMap="BaseResultMap">
+        select u.*,s.name,s.telephone,s.email,s.username,t.name as tname,t.jobnumber as tjobnumber
+        from doctor u
+        left join teacher t
+        on u.tutorID=t.ID
+        left join student s
+        on u.studentID=s.ID
+        <where>
+            <if test="year != null and year != 0">and u.year = #{year}</if>
+            <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
+        </where>
+    </select>
+    <delete id="deleteDoctorStudent" parameterType="org.sys.rate.model.Doctor">
+        delete from doctor where ID = #{ID}
+    </delete>
+    <update id="editDoctorStudent" parameterType="org.sys.rate.model.Doctor">
+        UPDATE student SET name=#{name,jdbcType=VARCHAR},
+                           telephone=#{telephone,jdbcType=VARCHAR},
+                           email=#{email,jdbcType=VARCHAR}
+        where ID=#{studentID,jdbcType=INTEGER};
+        UPDATE doctor
+        SET tutorID = #{tutorID}
+        where ID=#{ID,jdbcType=INTEGER};
+    </update>
 </mapper>
