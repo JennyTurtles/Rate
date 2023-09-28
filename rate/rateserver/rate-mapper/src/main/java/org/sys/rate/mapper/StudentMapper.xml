@@ -142,11 +142,11 @@
         )
     </insert>
     <insert id="insertStudentByImportGraduate" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
-        insert into student  (ID,name,<if test="institutionid!=-1">institutionID,</if>telephone,email,deleteflag,role
+        insert into student  (ID,name,<if test="institutionID!=-1">institutionID,</if>telephone,email,deleteflag,role
         )
         values (#{ID,jdbcType=INTEGER},
         #{name,jdbcType=VARCHAR},
-        <if test="institutionid!=-1">#{institutionid,jdbcType=INTEGER},</if>
+        <if test="institutionID!=-1">#{institutionID},</if>
         #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,#{role}
         )
     </insert>
