@@ -4,8 +4,6 @@ import cn.afterturn.easypoi.word.WordExportUtil;
 import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.Comment;
 import org.sys.rate.model.EmailErrorLog;
@@ -31,8 +29,8 @@ public class ExportWord {
 
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);
-    private static final String TEMPLATE_PATH = "rate/rateserver/rate-web/src/main/resources/static/template/GradingTable.docx";
-//    private static final String TEMPLATE_PATH = "D:/rateTemplate/GradingTable.docx";
+    //    private static final String TEMPLATE_PATH = "rate/rateserver/rate-web/src/main/resources/static/template/GradingTable.docx";
+    private static final String TEMPLATE_PATH = "D:/software/rate/upload/template/GradingTable.docx";
     private static final SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
     private static final SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
     private static final SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
@@ -45,7 +43,6 @@ public class ExportWord {
     private static final String[] commentStart = {"指导教师评语", "评阅教师评语", "答辩评语"};
     private static final String[] commentEnd = {"指导教师（签名）", "评阅教师（签名）", "答辩小组组长（签名）"};
     private int[] commentFontSize = {12, 12, 12};
-
 
 
     private boolean checkIfNecessaryFilesAndDirectoriesExist() throws IOException {

@@ -45,15 +45,15 @@ public class ExportPDF {
     private final static int PRESUMROWS = 17;
     private final static int NEXTPLANROWS = 21;
     private final static int ONEROWMAXCOUNT = 35;
-    private final static String DEST = "src/main/resources/exportFiles/";
-    private final String FONT_PATH_Song = "rate/rateserver/rate-web/src/main/resources/static/template/song.ttf";
-    private final String TEMPLATE_PATH10 = "rate/rateserver/rate-web/src/main/resources/static/template/template_10.pdf";
-    private final String TEMPLATE_PATH20 = "rate/rateserver/rate-web/src/main/resources/static/template/template_20.pdf";
+//    private final static String DEST = "src/main/resources/exportFiles/";
+//    private final String FONT_PATH_Song = "rate/rateserver/rate-web/src/main/resources/static/template/song.ttf";
+//    private final String TEMPLATE_PATH10 = "rate/rateserver/rate-web/src/main/resources/static/template/template_10.pdf";
+//    private final String TEMPLATE_PATH20 = "rate/rateserver/rate-web/src/main/resources/static/template/template_20.pdf";
 
-    //    private final static String DEST = "D:/rateTemplate/exportFiles";
-//    private final String FONT_PATH_Song = "D:/rateTemplate/song.ttf";
-//    private final String TEMPLATE_PATH10 = "D:/rateTemplate/template_10.pdf";
-//    private final String TEMPLATE_PATH20 = "D:/rateTemplate/template_20.pdf";
+    private final static String DEST = "D:/software/rate/upload/template/exportFiles";
+    private final String FONT_PATH_Song = "D:/software/rate/upload/template/song.ttf";
+    private final String TEMPLATE_PATH10 = "D:/software/rate/upload/template/template_10.pdf";
+    private final String TEMPLATE_PATH20 = "D:/software/rate/upload/template/template_20.pdf";
 
 
     private boolean checkIfNecessaryFilesAndDirectoriesExist() {

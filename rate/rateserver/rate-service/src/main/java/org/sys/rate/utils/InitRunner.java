@@ -15,7 +15,7 @@ public class InitRunner  {
 
 
 //    60000 2
-    @Scheduled(fixedRateString = "20000")
+    @Scheduled(fixedRateString = "60000")
     public void readMails() {
         try {
             TimeUnit.SECONDS.sleep(2);

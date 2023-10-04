@@ -33,7 +33,7 @@ public class SendMails {
     public void sendMailAsync(final String to, final String subject, final String content, final File attachment) {
         Mail mail = mailService.handleNullPointerException();
 
-        if (StringUtils.isEmpty(to)){
+        if (StringUtils.isEmpty(to)) {
             EmailErrorLog emailErrorLog = new EmailErrorLog();
             emailErrorLog.setErrorDescription("接收人的邮箱地址为空");
             emailErrorLog.setSenderEmail(mail.getEmailAddress());
@@ -101,7 +101,7 @@ public class SendMails {
         messageBodyPart.setContent(content, "text/html;charset=utf-8");
         multipart.addBodyPart(messageBodyPart);
 
-        if (attachment.exists()) {
+        if (attachment != null && attachment.exists()) {
             MimeBodyPart filePart = new MimeBodyPart();
             FileDataSource fileDataSource = new FileDataSource(attachment);
             filePart.setDataHandler(new DataHandler(fileDataSource));
@@ -113,7 +113,6 @@ public class SendMails {
 
         Transport.send(message);
     }
-
 
 
 }

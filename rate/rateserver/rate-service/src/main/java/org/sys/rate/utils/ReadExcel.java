@@ -8,14 +8,11 @@ package org.sys.rate.utils;/**
  * @Version 1.0
  */
 
-import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.mapper.StudentMapper;
-import org.sys.rate.mapper.TeachersMapper;
-import org.sys.rate.mapper.ThesisMapper;
 import org.sys.rate.mapper.UnderGraduateMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.TeachersService;
@@ -183,7 +180,7 @@ public class ReadExcel {
                 try {
                     if (teacherJobNumberCell == null) {
                         teacherJobNumber = null;
-                    }else {
+                    } else {
                         teacherJobNumber = teacherJobNumberCell.getCellType() == CellType.NUMERIC ? String.valueOf((int) teacherJobNumberCell.getNumericCellValue()) : teacherJobNumberCell.getStringCellValue();
                     }
 
