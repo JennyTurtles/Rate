@@ -147,6 +147,12 @@
             </template>
             <!-- </template> -->
           </el-menu>
+          <div v-show="!isStudentRole"
+               style="padding-left: 25px; font-size: 14px; line-height: 56px; font-weight: 500;cursor: pointer">
+            <a @click="showException">
+              <span>异常信息查看</span>
+            </a>
+          </div>
         </el-aside>
         <el-main>
           <div
@@ -314,6 +320,9 @@ export default {
   methods: {
     pendingMessageRoute(){ //点击待办消息导航
       this.$router.push('/pending/message');
+    },
+    showException(){ //点击异常信息查看
+      this.$router.push('/Admin/ExceptionLog');
     },
    querySearchAsync(queryString, cb) {
     if (queryString.length < 1) {

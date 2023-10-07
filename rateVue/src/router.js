@@ -42,6 +42,13 @@ export default new Router({
           meta: { title: '分配人员(主活动)' },
         },
         {
+          path: '/Admin/ExceptionLog',
+          name: '异常信息查看',
+          hidden: true,
+          component: () => import('./views/admin/ExceptionLog.vue'),
+          meta: { title: '异常信息查看' },
+        },
+        {
           path: '/admin/PersonalCenter',
           name: '管理员个人中心',
           hidden: true,

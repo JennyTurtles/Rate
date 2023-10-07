@@ -39,6 +39,10 @@ public class EmailErrorLogService {
         emailErrorLogMapper.delete(id);
     }
 
+    public void deleteMultiEmailErrorLog(List<EmailErrorLog> data) {
+        emailErrorLogMapper.deleteMulti(data);
+    }
+
     public EmailErrorLog getEmailErrorLogById(Long id) {
         return emailErrorLogMapper.getById(id);
     }

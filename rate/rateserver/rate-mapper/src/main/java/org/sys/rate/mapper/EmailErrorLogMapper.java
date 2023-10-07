@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.EmailErrorLog;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -28,9 +29,15 @@ public interface EmailErrorLogMapper {
     @Delete("DELETE FROM exception_log WHERE id=#{id}")
     void delete(Long id);
 
+    void deleteMulti(@Param("data") List<EmailErrorLog> data);
+
+    void deleteAll(Timestamp startTime, Timestamp endTime);
+
     @Select("SELECT id, error_type, error_description, body, timestamp FROM exception_log WHERE id=#{id}")
     EmailErrorLog getById(Long id);
 
     @Select("SELECT id, error_type, error_description, body, timestamp FROM exception_log")
     List<EmailErrorLog> getAll();
+
+    List<EmailErrorLog> filterByDate(Timestamp startTime, Timestamp endTime);
 }
