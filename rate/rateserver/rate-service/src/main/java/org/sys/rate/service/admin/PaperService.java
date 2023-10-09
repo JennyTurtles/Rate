@@ -116,6 +116,7 @@ public class PaperService {
                     return paperMapper.updateScore(stuID, score);
                 }
             }
+            paperMapper.editState2(state, ID, 1); // 不为2分的论文的have_score直接设置为1
             paperMapper.updateScore(stuID, score);
         }
         int res = paperMapper.editState(state, ID);

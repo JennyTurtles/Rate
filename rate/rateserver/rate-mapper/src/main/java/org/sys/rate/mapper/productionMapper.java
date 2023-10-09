@@ -27,4 +27,11 @@ public interface productionMapper {
 
     @Select("select id, name, student_id, start_date, end_date, author, state, url, `rank`, total, point from i_project where id = #{productionId}")
     Production checkProjectById(int productionId);
+
+    @Select("SELECT ID FROM ${table} WHERE student_id = #{studentId} AND point = 2 AND state = 'adm_pass' LIMIT 1")
+    public Integer checkScore(@Param("table") String table, @Param("studentId") int studentId);
+
+    @Update("UPDATE ${table} SET state = #{state},have_score = #{valid} WHERE ID = #{ID}")
+    public Integer editHaveScore(@Param("table") String table, String state, Long ID, Integer valid);
+
 }
