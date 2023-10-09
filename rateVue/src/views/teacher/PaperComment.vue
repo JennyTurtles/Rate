@@ -180,7 +180,6 @@ export default {
   data() {
     return {
       user: {},
-      options: [],
       selectDate: '',
       selectSemester: '',
       startYear: null,

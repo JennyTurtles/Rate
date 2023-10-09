@@ -43,11 +43,10 @@ public class MailToStuService {
 
         if (StringUtil.isEmpty(sendMailContent.getStudentEmail())) {
             EmailErrorLog emailErrorLog = new EmailErrorLog();
-            emailErrorLog.setErrorType("发件错误");
+            emailErrorLog.setErrorType("给学生发件错误");
             emailErrorLog.setErrorDescription("学生邮箱地址为空");
             emailErrorLog.setSenderEmail(mail.getEmailAddress());
             emailErrorLog.setRecipientEmail(sendMailContent.getStudentEmail());
-            emailErrorLog.setSubject("");
             emailErrorLog.setBody(sendMailContent.toString());
             emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
 

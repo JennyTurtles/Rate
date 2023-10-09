@@ -38,18 +38,13 @@ public class SendMailContentService {
             return sendMailContent;
         } catch (Exception e) {
             EmailErrorLog emailErrorLog = new EmailErrorLog();
-            emailErrorLog.setErrorType("发件错误");
+            emailErrorLog.setErrorType("给学生发件错误");
             StringWriter sw = new StringWriter();
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             String errorDetails = sw.toString();
             emailErrorLog.setErrorDescription(errorDetails);
-            emailErrorLog.setSenderEmail("");
-            emailErrorLog.setRecipientEmail("");
-            emailErrorLog.setSubject("");
-            emailErrorLog.setBody("");
             emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
-
             emailErrorLogService.addEmailErrorLog(emailErrorLog);
 
             return null;

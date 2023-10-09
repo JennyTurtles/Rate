@@ -31,10 +31,6 @@ public class EmailErrorLogService {
         emailErrorLogMapper.insert(emailErrorLog);
     }
 
-//    public void updateEmailErrorLog(EmailErrorLog emailErrorLog) {
-//        emailErrorLogMapper.update(emailErrorLog);
-//    }
-
     public void deleteEmailErrorLog(Long id) {
         emailErrorLogMapper.delete(id);
     }

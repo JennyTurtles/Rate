@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
         emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
         emailErrorLogService.addEmailErrorLog(emailErrorLog);
 
-        return RespBean.error("对不起，操作失败，请联系管理员！");
+        return RespBean.error(errorDetails);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

@@ -52,7 +52,7 @@ public class MailService {
 
     private void logAndHandleError(String errorDescription, String senderEmail) {
         EmailErrorLog emailErrorLog = new EmailErrorLog();
-        emailErrorLog.setErrorType("发件错误");
+        emailErrorLog.setErrorType("发件人邮箱信息错误");
         emailErrorLog.setErrorDescription(errorDescription);
         emailErrorLog.setSenderEmail(senderEmail);
         emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
