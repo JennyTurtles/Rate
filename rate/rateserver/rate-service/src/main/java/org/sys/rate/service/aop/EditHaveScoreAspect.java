@@ -47,6 +47,7 @@ public class EditHaveScoreAspect {
         String serviceName = joinPoint.getTarget().getClass().getName();
         String productionName = serviceName.substring(serviceName.lastIndexOf(".") + 1, serviceName.indexOf("Service"));
         String table = "i_" + productionName.toLowerCase();
+        if (table.equals("i_product")) table = "i_application";
         Production production = productionMapper.checkProductionById(table, ID.intValue());
 
         // 2分的成果，且已发表过同类的成果，have_score设置为0
