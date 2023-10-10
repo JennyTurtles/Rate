@@ -83,7 +83,7 @@
 
 <!--    学生纵向科研项目页面初始化-->
     <select id="selectProjectListById" resultMap="ProjectResult">
-        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, i.id as indicatorid, i.score, i.name as iname
+        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, i.id as indicatorid, i.score, i.name as iname, s.name as sname
         FROM i_project a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -98,12 +98,13 @@
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_project_type ip ON a.project_type_id = ip.id AND a.student_id = #{studentID}
                  JOIN indicator i ON i.id = ip.indicator_id
+                 JOIN student s ON s.ID = a.student_id
         ORDER BY a.id DESC;
     </select>
 
     <!--    学生横向科研项目页面初始化-->
     <select id="selectHorizontalProjectListById" resultMap="ProjectResult">
-        SELECT a.*,i.max_date,j.remark, i.id as indicatorid, i.score, i.name as iname
+        SELECT a.*,i.max_date,j.remark, i.id as indicatorid, i.score, i.name as iname, s.name as sname
         FROM i_project a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -117,6 +118,7 @@
             WHERE prod_type = '横向科研项目'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN indicator i ON i.id = a.indicator_id AND a.student_id = #{studentID}
+                 JOIN student s ON s.ID = a.student_id
         ORDER BY a.id DESC;
     </select>
 
