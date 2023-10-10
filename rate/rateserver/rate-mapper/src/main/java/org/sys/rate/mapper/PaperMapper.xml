@@ -79,7 +79,7 @@
 
     <select id="selectListByIds" resultMap="PaperResult" parameterType="Integer">
 -- 学生初始化
-        SELECT p.*,i.max_date,j.remark,ip.`name` as pubName, ip.id as publicationid
+        SELECT p.*,i.max_date,j.remark,ip.`name` as pubName, ip.id as publicationid,s.name as sname
         FROM paper p
                  JOIN (
             SELECT prod_id,MAX(date) max_date

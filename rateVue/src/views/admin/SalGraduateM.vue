@@ -255,9 +255,16 @@ export default {
       })
     },
     showDetailInfo(data) { //点击查看详情按钮
-      this.dialogShowDetailInfo = true;
+      // this.dialogShowDetailInfo = true;
       this.currentGraduateStudent = data;
-      this.getTableDataMethod();
+      let url = this.$router.resolve({
+        path:'/admin/GraduateManageAchievementInfo',
+        query: {
+          studentId: this.currentGraduateStudent.studentID
+        }
+      })
+      window.open(url.href, '_blank')
+      // this.getTableDataMethod();
     },
     searchTeaNameMethod(val) {
       if(val) {

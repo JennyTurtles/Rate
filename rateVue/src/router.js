@@ -23,6 +23,14 @@ export default new Router({
       },
       children: [
         {
+          path: '/admin/GraduateManageAchievementInfo',
+          name: '学生成果详情',
+          component: () => import('./views/admin/GraduateManageAchievementInfo'),
+          meta: {
+            title: '学生成果详情',
+          },
+        },
+        {
           path: '/pending/message',
           name: '待办消息',
           component: () => import('./views/teacher/PendingMessage.vue')
