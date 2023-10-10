@@ -16,6 +16,7 @@
         <result property="total" column="total"/>
         <result property="competitionLevel" column="competition_level"/>
         <result property="indicatorId" column="indicator_id"/>
+        <result property="have_score" column="have_score"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>

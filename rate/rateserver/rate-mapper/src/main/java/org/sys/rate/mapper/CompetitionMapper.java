@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.Competition;
+import org.sys.rate.model.Patent;
 
 import java.util.List;
 
@@ -83,5 +84,7 @@ public interface CompetitionMapper
     public List<Competition> searchCompetitionByConditions(String studentName, String state, String competitionName, String pointFront, String pointBack);
     public Integer selectCompetitionNumberOfPendingMessing(String state);
 
+    @Update("UPDATE i_competition SET have_score = #{have_score} WHERE id = #{id}")
+    public Integer editPoint(Competition competition);
 
 }

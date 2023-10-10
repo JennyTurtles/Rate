@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.CompetitionMapper;
 import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.CompetitionService;
@@ -38,6 +39,8 @@ public class CompetitionController {
 
     @Resource
     private CompetitionService competitionService;
+    @Resource
+    CompetitionMapper competitionMapper;
     @Resource
     private IndicatorMapper indicatorMapper;
     @Resource
@@ -159,5 +162,12 @@ public class CompetitionController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
+    }
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Competition competition) {
+        competition.setId(ID);
+        Integer res = competitionMapper.editPoint(competition);
+        return new JsonResult(res);
     }
 }
