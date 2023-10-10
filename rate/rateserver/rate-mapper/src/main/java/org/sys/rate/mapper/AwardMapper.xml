@@ -17,6 +17,7 @@
         <result property="awardLevel" column="award_level"/>
         <result property="awardTypeId" column="award_type_id"/>
         <result property="indicatorId" column="indicator_id"/>
+        <result property="have_score" column="have_score"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>

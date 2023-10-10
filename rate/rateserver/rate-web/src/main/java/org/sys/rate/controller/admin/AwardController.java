@@ -14,6 +14,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.AwardMapper;
 import org.sys.rate.mapper.AwardTypeMapper;
 import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.model.*;
@@ -43,6 +44,8 @@ public class AwardController {
 
     @Resource
     private AwardService awardService;
+    @Resource
+    AwardMapper awardMapper;
     @Resource
     IndicatorMapper indicatorMapper;
     @Resource
@@ -216,6 +219,13 @@ public class AwardController {
         } catch (Exception e) {
             return RespBean.error("添加失败！");
         }
+    }
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Award award) {
+        award.setId(ID);
+        Integer res = awardMapper.editPoint(award);
+        return new JsonResult(res);
     }
 
 }
