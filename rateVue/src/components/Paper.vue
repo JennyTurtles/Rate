@@ -345,7 +345,7 @@
         <span slot="footer" class="dialog-footer" :model="emp">
             <el-button
                   id="but_pass"
-                  v-show="((emp.state=='commit' && role == 'teacher') || (emp.state=='tea_pass' && role == 'admin')) ? true:false"
+                  v-show="(emp.state == 'commit' || (emp.state == 'tea_pass' && role == 'admin')) ? true : false"
                   @click="(()=>{
                   if (role == 'teacher')
                    auditing_commit('tea_pass')
@@ -356,7 +356,7 @@
                   >审核通过</el-button>
             <el-button
                   id="but_reject"
-                  v-show="((emp.state=='commit' && role == 'teacher') || (emp.state=='tea_pass' && role == 'admin')) ? true:false"
+                  v-show="(emp.state == 'commit' || (emp.state == 'tea_pass' && role == 'admin')) ? true : false"
                   @click="isShowInfo = true"
                   type="primary"
                   >审核不通过</el-button>
