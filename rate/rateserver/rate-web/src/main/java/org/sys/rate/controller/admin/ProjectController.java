@@ -13,10 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.IndicatorMapper;
-import org.sys.rate.model.Msg;
-import org.sys.rate.model.Project;
-import org.sys.rate.model.ProjectType;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.mapper.ProjectMapper;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.ProjectService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
@@ -41,6 +39,8 @@ public class ProjectController {
 
     @Resource
     private ProjectService projectService;
+    @Resource
+    ProjectMapper projectMapper;
     @Resource
     private IndicatorMapper indicatorMapper;
     @Resource
@@ -183,5 +183,12 @@ public class ProjectController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
+    }
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Project project) {
+        project.setId(ID);
+        Integer res = projectMapper.editPoint(project);
+        return new JsonResult(res);
     }
 }

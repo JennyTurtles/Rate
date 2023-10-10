@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.sys.rate.model.Patent;
 import org.sys.rate.model.Project;
 
 import java.util.List;
@@ -86,4 +87,7 @@ public interface ProjectMapper
 
     Integer selectProjectNumberOfPendingMessing(String state);
     Integer selectHorizontalProjectNumberOfPendingMessing(String state);
+
+    @Update("UPDATE i_project SET have_score = #{have_score} WHERE id = #{id}")
+    public Integer editPoint(Project project);
 }
