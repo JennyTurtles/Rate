@@ -12,8 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.MonographMapper;
 import org.sys.rate.model.Monograph;
 import org.sys.rate.model.Msg;
+import org.sys.rate.model.Patent;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.MonographService;
@@ -40,6 +42,8 @@ public class MonographController {
     
     @Resource
     private MonographService monographService;
+    @Resource
+    MonographMapper monographMapper;
     @Resource
     IndicatorService indicatorService;
     @Resource
@@ -150,5 +154,12 @@ public class MonographController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
+    }
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Monograph monograph) {
+        monograph.setId(ID);
+        Integer res = monographMapper.editPoint(monograph);
+        return new JsonResult(res);
     }
 }
