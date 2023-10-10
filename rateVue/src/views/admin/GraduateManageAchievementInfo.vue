@@ -98,7 +98,6 @@ export default {
       this.getRequest(url).then(response => {
         if(response) {
           this.tabsTableData = response.data;
-          console.log(this.tabsTableData)
           this.tabsTableLoading = false;
         }
       })
