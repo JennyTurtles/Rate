@@ -399,7 +399,6 @@ export default {
   name: "SalSearch",
   data() {
     return {
-      changePoint: '',
       pointBack: '',
       pointFront: '',
       paperSelectedStatus: '',

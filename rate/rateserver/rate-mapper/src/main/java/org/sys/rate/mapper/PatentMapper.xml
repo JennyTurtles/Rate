@@ -15,6 +15,7 @@
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
         <result property="grantedStatus" column="granted_status"/>
+        <result property="have_score" column="have_score"/>
         <result property="indicatorId" column="indicator_id"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>

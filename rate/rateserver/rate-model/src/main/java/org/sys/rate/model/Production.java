@@ -43,6 +43,7 @@ public class Production {
     String url;
 
     List<Operation> operationList;
+    Integer have_score;
 
     // 排名
     Integer rank;
