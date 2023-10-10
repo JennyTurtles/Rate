@@ -80,7 +80,7 @@
 
 <!--    学生产品页面初始化-->
     <select id="selectListByIds" resultMap="ProductResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score
+        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score, s.name as sname
         FROM i_application a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -94,6 +94,7 @@
             WHERE prod_type = '产品应用'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN indicator ind ON ind.id = a.indicator_id AND a.student_id = #{studentID}
+                 JOIN student s ON s.ID = a.student_id
         ORDER BY a.id DESC;
     </select>
 
