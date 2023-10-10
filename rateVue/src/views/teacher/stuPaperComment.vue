@@ -489,11 +489,10 @@ export default {
     deleteEmp(data) {
       //点击删除按钮
       if (confirm("此操作将永久删除【第" + data.num + "条记录】, 是否继续?")) {
-        axios
-            .delete("/paperComment/basic/remove/" + data.num + "/" + data.thesisID)
+        this.deleteRequest("/paperComment/basic/remove/" + data.num + "/" + data.thesisID)
             .then((resp) => {
               if (resp) {
-                console.log(resp);
+                // console.log(resp);
                 this.dialogVisible = false;
                 this.initEmps();
               }

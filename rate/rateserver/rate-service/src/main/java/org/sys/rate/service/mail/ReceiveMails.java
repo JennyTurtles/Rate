@@ -121,9 +121,6 @@ public class ReceiveMails {
         String errorDetails = sw.toString();
         emailErrorLog.setErrorDescription(errorDetails);
         emailErrorLog.setSenderEmail(emailAddress);
-        emailErrorLog.setRecipientEmail("");
-        emailErrorLog.setSubject("");
-        emailErrorLog.setBody("");
         emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
         emailErrorLogService.addEmailErrorLog(emailErrorLog);
@@ -141,20 +138,19 @@ public class ReceiveMails {
     public void parseMessage(Message[] messages, Mail mail) throws MessagingException, IOException {
         // 开始解析未读邮件
         for (Message message : messages) {
+            String subject = message.getSubject();
+            String senderEmail = InternetAddress.parse(message.getFrom()[0].toString())[0].getAddress();
+            Date sendDate = message.getSentDate();
+
+            if (senderEmail.equals("Postmaster@126.com")) {
+                continue;
+            }
+
+            String content = getTextFromMessage(message);
+            message.setFlag(Flags.Flag.DELETED, true);
+            content = clearFormat(content);
+            String originalMessage = getOriginalMessage(subject, senderEmail, sendDate, content, mail);
             try {
-                String subject = message.getSubject();
-                String senderEmail = InternetAddress.parse(message.getFrom()[0].toString())[0].getAddress();
-                Date sendDate = message.getSentDate();
-
-                if (senderEmail.equals("Postmaster@126.com")) {
-                    continue;
-                }
-
-                String content = getTextFromMessage(message);
-                message.setFlag(Flags.Flag.DELETED, true);
-                content = clearFormat(content);
-                String originalMessage = getOriginalMessage(subject, senderEmail, sendDate, content, mail);
-
                 // *1.计算关键词出现次数以及位置
                 int numLines = sumLinesNum(content);
                 if (numLines != 3 && numLines != 4) {
@@ -191,9 +187,7 @@ public class ReceiveMails {
                 String errorDetails = sw.toString();
                 emailErrorLog.setErrorDescription(errorDetails);
                 emailErrorLog.setSenderEmail(mail.getEmailAddress());
-                emailErrorLog.setRecipientEmail("");
-                emailErrorLog.setSubject("");
-                emailErrorLog.setBody("");
+                emailErrorLog.setBody("原始邮件信息："+originalMessage);
                 emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
                 emailErrorLogService.addEmailErrorLog(emailErrorLog);
@@ -505,7 +499,7 @@ public class ReceiveMails {
         operation.setState(state);
         operation.setRemark(remark);
 
-        return operationService.insertOper(operation) != 0 ? true : false;
+        return operationService.insertOper(operation) != 0;
     }
 
 

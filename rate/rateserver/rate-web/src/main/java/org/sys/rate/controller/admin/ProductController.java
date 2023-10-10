@@ -12,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.ProductMapper;
 import org.sys.rate.model.Msg;
+import org.sys.rate.model.Patent;
 import org.sys.rate.model.Product;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.IndicatorService;
@@ -40,6 +42,8 @@ public class ProductController {
 
     @Resource
     private ProductService productService;
+    @Resource
+    ProductMapper productMapper;
     @Resource
     IndicatorService indicatorService;
     @Resource
@@ -164,5 +168,12 @@ public class ProductController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
+    }
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Product product) {
+        product.setId(ID);
+        Integer res = productMapper.editPoint(product);
+        return new JsonResult(res);
     }
 }

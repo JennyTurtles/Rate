@@ -657,7 +657,7 @@ export default {
     // 初始化树
     initTree() {
       var that = this;
-      axios.get("/indicator").then(function (resp) {
+      this.getRequest("/indicator").then(function (resp) {
         //此处可以让父组件向子组件传递url,提高复用性
         that.id = resp.obj[0];
         that.data = resp.obj[1];

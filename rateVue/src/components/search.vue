@@ -1152,7 +1152,7 @@ export default {
     },
   },
   mounted() {
-    axios.get("/indicator").then((resp) => {
+    this.getRequest("/indicator").then((resp) => {
       //获得所有指标点
       var data = resp.obj[1];
       var that = this;
@@ -1205,7 +1205,7 @@ export default {
       }
     },
     async getYearList(year) {
-      console.log(this.indicatorType);
+      // console.log(this.indicatorType);
       try {
         const url = `/indicator/getAllYear/${this.indicatorID}/${this.indicatorType}`;
         await this.getRequest(url).then((resp) => {
@@ -1258,7 +1258,7 @@ export default {
      return
     }
     try {
-     const resp = await axios.get(
+     const resp = await this.getRequest(
          `/indicator/getAwardByYearLevel?level=${level}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}`
      );
      if (resp.extend.res != null) {
@@ -1283,7 +1283,7 @@ export default {
      return
     }
     try {
-     const resp = await axios.get(
+     const resp = await this.getRequest(
          `/indicator/getCompetitionByYearLevel?year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}`
      );
      if (resp.extend.res != null) {
@@ -1381,11 +1381,11 @@ export default {
       )}&fullName=${encodeURIComponent(val)}`;
       this.getRequest(url).then((resp) => {
         this.loading = false;
-        console.log(resp)
+        // console.log(resp)
         if (resp && resp.obj.length !== 0) {
-          console.log(resp.obj)
+          // console.log(resp.obj)
           resp.obj.forEach((item) => {
-            const data = {name: item.name};
+            // const data = {name: item.name};
             if (this.searchPathInf.type == "publication") {
               data.abbr = item.abbr;
               data.id = item.id;
@@ -1450,7 +1450,7 @@ export default {
         try {
           const resp = await this.getRequest(url);
           this.loading = false;
-          console.log(resp)
+          // console.log(resp)
           if (resp && resp.obj != null) {
             this.select_pubName = resp.obj.map(item => ({value: item}));
           } else {
@@ -1472,7 +1472,7 @@ export default {
         return
       }
       try {
-        const resp = await axios.get(
+        const resp = await this.getRequest(
             `/indicator/getProductByYear?indicatorId=${indicatorId}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}&type=${type}`
         );
         if (resp.extend.res != null) {
@@ -1515,7 +1515,7 @@ export default {
 
       this.$confirm("确定要删除该条记录吗？", "提示", {type: "warning"})
           .then(() => {
-            return axios.delete(url);
+            return this.deleteRequest(url);
           })
           .then((resp) => {
             if (resp.status === 200) {
@@ -1566,7 +1566,7 @@ export default {
 
         const url = `/${paths[indicatorType] || indicatorType}`;
 
-        await axios.put(url, rowData).then((resp) => {
+        await this.putRequest(url, rowData).then((resp) => {
           if (resp.status === 200) {
             this.$message({
               type: "success",
@@ -1596,7 +1596,7 @@ export default {
         return;
       }
       this.$refs['appendPublicationForm'].validate((valid) => {
-        console.log(valid)
+        // console.log(valid)
         if (valid) {
           var postData = {
             name: this.publicationInf.name,
@@ -1759,8 +1759,7 @@ export default {
         year: this.programInf.year,
       };
       var that = this;
-      axios
-          .post("/projectType", postData)
+      this.postRequest("/projectType", postData)
           .then(function (resp) {
             const queryParams = new URLSearchParams({
               indicatorId: postData.indicatorId,
@@ -1772,7 +1771,7 @@ export default {
               type: "success",
               message: resp.msg,
             });
-            return axios.get("/projectByYear?" + queryParams.toString());
+            return this.getRequest("/projectByYear?" + queryParams.toString());
           })
           .then(function (resp) {
             that.tableData = resp.data;
@@ -1791,7 +1790,7 @@ export default {
         year: this.decisionInf.year,
       };
       var that = this;
-      axios.post("/decisionType", postData).then(function (resp) {
+      this.postRequest("/decisionType", postData).then(function (resp) {
         if (resp) {
           that.$message({
             type: "success",
@@ -1810,7 +1809,7 @@ export default {
         year: this.competitionInf.year,
       };
       var that = this;
-      axios.post("/competitionType", postData).then(function (resp) {
+      this.postRequest("/competitionType", postData).then(function (resp) {
         if (resp) {
           that.$message({
             type: "success",

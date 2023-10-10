@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.PaperMapper;
 import org.sys.rate.model.Msg;
 import org.sys.rate.model.Paper;
 import org.sys.rate.model.RespBean;
@@ -41,6 +42,8 @@ import java.util.Map;
 public class PaperController {
     @Resource
     private PaperService paperService;
+    @Resource
+    private PaperMapper paperMapper;
     @Resource
     PublicationService publicationService;
     @Resource
@@ -81,6 +84,14 @@ public class PaperController {
     public JsonResult list(Paper paper) {
         List<Paper> list = paperService.selectPaperList(paper);
         return new JsonResult(list);
+    }
+
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Long ID, @RequestBody Paper paper) {
+        paper.setID(ID);
+        Integer res = paperMapper.editPoint(paper);
+        return new JsonResult(res);
     }
 
 

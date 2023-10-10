@@ -51,7 +51,7 @@ public class PublicationSubmissionController {
         Page page = PageHelper.startPage(pageNum,size);
         List<PublicationSubmission> submissions = "all".equals(state) ? submissionMapper.getAllSubmission() : submissionMapper.getSubmissionByState(state);
         if (submissions.isEmpty()) {
-            return Msg.success().add("没有找到任何提交记录", null);
+            return Msg.success().add("res", null);
         }
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {submissions, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数

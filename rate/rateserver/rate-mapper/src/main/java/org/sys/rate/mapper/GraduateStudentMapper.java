@@ -44,4 +44,7 @@ public interface GraduateStudentMapper {
 
     @Update("UPDATE graduatestudent SET point = point + #{score} WHERE studentID = #{stuID}")
     public int updateScore(Long stuID,Long score);
+
+    @Update("UPDATE graduatestudent SET point = point - #{score} WHERE studentID = #{stuID}")
+    public int updateScoreSub(Long stuID,Long score);
 }

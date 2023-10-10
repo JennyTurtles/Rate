@@ -21,6 +21,7 @@
       第二步：
       <el-upload
           :show-file-list="false"
+          :headers="{'token':user.token}"
           :before-upload="beforeUpload"
           :on-success="onSuccess"
           style="display: inline-flex; margin-left: 1px"
@@ -347,7 +348,7 @@ export default {
       this.dialogEdit = false
     },
     editDialogShow(data) {//控制变量
-      console.log(data);
+      // console.log(data);
       this.dialogEdit = true
       this.currentUnderStudentOfEdit = data
     },

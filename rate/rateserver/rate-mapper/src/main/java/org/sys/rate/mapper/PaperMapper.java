@@ -97,4 +97,7 @@ public interface PaperMapper
 
     @Select("select t.email from teacher t, graduatestudent g where g.studentID = #{studentId} and g.tutorID = t.ID order by g.ID limit 1")
     String getEmailByPaperId(Long studentId);
+
+    @Update("UPDATE paper SET have_score = #{have_score} WHERE ID = #{ID}")
+    public Integer editPoint(Paper paper);
 }

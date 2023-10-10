@@ -284,9 +284,9 @@ export default {
     // 初始化树
     initTree() {
       var that = this;
-      axios.get("/indicator").then(function (resp) {
+      this.getRequest("/indicator").then(function (resp) {
         //此处可以让父组件向子组件传递url,提高复用性
-        console.log(resp);
+        // console.log(resp);
         that.id = resp.obj[0];
         that.data = resp.obj[1];
       });
@@ -390,7 +390,7 @@ export default {
       var formData = new FormData();
       this.filesPublication.push(file);
       formData.append("file", this.filesPublication[0].raw)
-      axios.post("/publicationSubmission/upload", formData, {
+      this.postRequest("/publicationSubmission/upload", formData, {
         headers: {
           'token': this.user ? this.user.token : ''
         }

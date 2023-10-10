@@ -28,7 +28,6 @@
             clearable
             filterable
             placeholder="状态筛选"
-            @change="((val) => filter(val,'select_state'))"
         >
           <el-option
               v-for="val in option"
@@ -45,7 +44,6 @@
             clearable
             filterable
             placeholder="1"
-            @change="((val) => filter(val,'select_point1'))"
         >
           <el-option
               style=""
@@ -63,7 +61,6 @@
             clearable
             filterable
             placeholder="12"
-            @change="((val) => filter(val,'select_point2'))"
         >
           <el-option
               style=""
@@ -76,7 +73,7 @@
         <el-button
             icon="el-icon-search"
             type="primary"
-            @click="searchEmps"
+            @click="searchEmps(1, 10)"
             style="margin-left:30px"
         >
           搜索
@@ -143,6 +140,11 @@
             align="center"
             min-width="8%"
         >
+          <template slot-scope="scope">
+            <span>{{scope.row.have_score == 1 ? scope.row.point : 0}}</span>
+            <span>/</span>
+            <span>{{scope.row.point}}</span>
+          </template>
         </el-table-column>
         <el-table-column
             prop="grantedStatus"
@@ -170,6 +172,10 @@
                 size="mini"
             >查看详情</el-button
             >
+            <el-button v-show="scope.row.state == 'adm_pass' ? true : false" @click="changePointMethod(scope.row)" style="padding: 4px"
+                       size="mini">
+              {{scope.row.changePointButton}}
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -428,6 +434,44 @@ export default {
     }
   },
   methods: {
+    changePointMethod(data) { //修改积分按钮
+      var have_score = data.have_score
+      var point = data.point
+      var score = have_score == 1 ? 0 : point
+      this.$confirm(`确定将积分修改为${score}分?`,'提示',{
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(() => {
+        this.changePaperPoint(data, score).then(() => {
+          this.changeStudentPoint(data, score).then(() => {
+            this.$message.success('修改成功！')
+            data.have_score = 1 - data.have_score;
+            if(data.have_score == 1) data.changePointButton = '取消积分'
+            else if(data.have_score == 0) data.changePointButton = '计入积分'
+          });
+        })
+      }).catch(() => {
+        data.have_score = have_score;
+      })
+    },
+    changePaperPoint(data, point) {
+      const params = {
+        point: point,
+        have_score: 1 - data.have_score
+      }
+      return this.postRequest(`/award/basic/editPoint/${data.id}`, params).then()
+    },
+    changeStudentPoint(data, point) {
+      const params = {
+        studentID: data.studentId,
+        point: data.point //传递需要进行加法或减法的数值
+      }
+      if(point == 0) { //减法
+        return this.postRequest('/graduatestudentM/basic/updateScoreSub', params).then()
+      } else { //加法
+        return this.postRequest('/graduatestudentM/basic/updateScore', params).then()
+      }
+    },
     rejectDialog() {
       if(this.role == 'admin' && this.emp.state == 'commit') { //管理员驳回 有提示
         this.$confirm('目前导师尚未审核，是否确认审核驳回？', '提示', {
@@ -462,9 +506,6 @@ export default {
         link.click();
         document.body.removeChild(link);
       });
-    },
-    filter(val,options){
-      document.getElementById(options).value=val
     },
     //点击对话框中的确定按钮 触发事件
     auditing_commit(state){
@@ -577,6 +618,13 @@ export default {
         if(response) {
           this.loading = false;
           this.emps = response.extend.res[0];
+          this.emps.map(item => {
+            if(item.have_score == 1) {
+              this.$set(item, 'changePointButton', '取消积分')
+            } else {
+              this.$set(item, 'changePointButton', '计入积分')
+            }
+          })
           this.totalCount = response.extend.res[1];
         }else this.emps = [];
       })

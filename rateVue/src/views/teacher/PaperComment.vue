@@ -138,6 +138,7 @@
       <div style="margin-top: 10px;margin-left: 10px">第二步：
         <el-upload
             :show-file-list="false"
+            :headers="{'token':user.token}"
             :before-upload="beforeUpload"
             :on-success="onSuccess"
             style="display: inline-flex; margin-left: 1px"
@@ -175,12 +176,13 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "teaPaperComment",
   data() {
     return {
       user: {},
-      options: [],
       selectDate: '',
       selectSemester: '',
       startYear: null,
@@ -438,11 +440,9 @@ export default {
         if (resp.status === 200) {
           window.location.href = url;
         } else {
-          console.error("Error exporting PDF:", resp.statusText);
           this.$message.error("导出PDF时发生错误！");
         }
       } catch (error) {
-        console.error("Error exporting PDF:", error);
         this.loading = false;
         this.$message.error("导出PDF时发生错误！");
       }
