@@ -464,7 +464,6 @@ export default {
       var have_score = data.have_score
       var point = data.point
       var score = have_score == 1 ? 0 : point
-      console.log(data)
       this.$confirm(`确定将积分修改为${score}分?`,'提示',{
         confirmButtonText: '确定',
         cancelButtonText: '取消'
