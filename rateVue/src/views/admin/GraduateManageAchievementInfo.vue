@@ -15,7 +15,7 @@
     <el-table :data="tabsTableData" v-loading="tabsTableLoading">
       <el-table-column
           key="1"
-          prop="student.sname"
+          prop="student.name"
           align="center"
           label="学生姓名"
       >
@@ -62,7 +62,9 @@
           <span>{{scope.row.point}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="remark" label="备注" align="center" key="6">
+      <el-table-column prop="paperoperList[0].remark" label="备注" align="center" key="6" v-if="tabsActivateName == 'paper' ? true : false">
+      </el-table-column>
+      <el-table-column prop="operationList[0].remark" label="备注" align="center" key="7" v-if="tabsActivateName == 'paper' ? false : true">
       </el-table-column>
     </el-table>
   </div>
