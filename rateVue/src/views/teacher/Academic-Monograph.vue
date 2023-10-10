@@ -139,6 +139,11 @@
             align="center"
             min-width="8%"
         >
+          <template slot-scope="scope">
+            <span>{{scope.row.have_score == 1 ? scope.row.point : 0}}</span>
+            <span>/</span>
+            <span>{{scope.row.point}}</span>
+          </template>
         </el-table-column>
         <el-table-column
             prop="publisher"
@@ -162,7 +167,7 @@
         >
         </el-table-column>
         <el-table-column
-            min-width="15%"
+            min-width="20%"
             align="center"
             label="详情"
         >
@@ -173,6 +178,10 @@
                 size="mini"
             >查看详情</el-button
             >
+            <el-button v-show="scope.row.state == 'adm_pass' ? true : false" @click="changePointMethod(scope.row)" style="padding: 4px"
+                       size="mini">
+              {{scope.row.changePointButton}}
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -430,6 +439,44 @@ export default {
     }
   },
   methods: {
+    changePointMethod(data) { //修改积分按钮
+      var have_score = data.have_score
+      var point = data.point
+      var score = have_score == 1 ? 0 : point
+      this.$confirm(`确定将积分修改为${score}分?`,'提示',{
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(() => {
+        this.changePaperPoint(data, score).then(() => {
+          this.changeStudentPoint(data, score).then(() => {
+            this.$message.success('修改成功！')
+            data.have_score = 1 - data.have_score;
+            if(data.have_score == 1) data.changePointButton = '取消积分'
+            else if(data.have_score == 0) data.changePointButton = '计入积分'
+          });
+        })
+      }).catch(() => {
+        data.have_score = have_score;
+      })
+    },
+    changePaperPoint(data, point) {
+      const params = {
+        point: point,
+        have_score: 1 - data.have_score
+      }
+      return this.postRequest(`/monograph/basic/editPoint/${data.id}`, params).then()
+    },
+    changeStudentPoint(data, point) {
+      const params = {
+        studentID: data.studentId,
+        point: data.point //传递需要进行加法或减法的数值
+      }
+      if(point == 0) { //减法
+        return this.postRequest('/graduatestudentM/basic/updateScoreSub', params).then()
+      } else { //加法
+        return this.postRequest('/graduatestudentM/basic/updateScore', params).then()
+      }
+    },
     rejectDialog() {
       if(this.role == 'admin' && this.currentMonograph.state == 'commit') { //管理员驳回 有提示
         this.$confirm('目前导师尚未审核，是否确认审核驳回？', '提示', {
@@ -579,6 +626,13 @@ export default {
       this.postRequest('/monograph/basic/searchMonographByConditions', params).then((response) => {
         if(response) {
           this.monographList = response.extend.res[0];
+          this.monographList.map(item => {
+            if(item.have_score == 1) {
+              this.$set(item, 'changePointButton', '取消积分')
+            } else {
+              this.$set(item, 'changePointButton', '计入积分')
+            }
+          })
           this.totalCount = response.extend.res[1];
         }
       })

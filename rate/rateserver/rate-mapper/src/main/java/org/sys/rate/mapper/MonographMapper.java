@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.Monograph;
+import org.sys.rate.model.Patent;
 
 import java.util.List;
 
@@ -82,5 +83,8 @@ public interface MonographMapper
 
     public List<Monograph> searchMonographByConditions(String studentName, String state, String monoName, String pointFront, String pointBack);
     public Integer selectMonographNumberOfPendingMessing(String state);
+
+    @Update("UPDATE i_book SET have_score = #{have_score} WHERE id = #{id}")
+    public Integer editPoint(Monograph monograph);
 
 }
