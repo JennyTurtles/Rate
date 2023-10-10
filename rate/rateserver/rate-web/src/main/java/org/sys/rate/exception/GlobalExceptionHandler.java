@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
         emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
         emailErrorLogService.addEmailErrorLog(emailErrorLog);
 
-        return RespBean.error(errorDetails);
+        return RespBean.error("请邮件联系管理员ratemail@126.com，并截图说明相关操作。" + errorDetails);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

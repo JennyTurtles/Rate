@@ -402,11 +402,16 @@ export default {
 
     fetchData(state, pageNum, pageSize) {
       this.loading = true;
-      axios.get(`/publicationSubmission/get?state=${state}&page=${pageNum}&size=${pageSize}`)
+      this.getRequest(`/publicationSubmission/get?state=${state}&page=${pageNum}&size=${pageSize}`)
           .then((response) => {
             this.loading = false;
-            this.tableData = response.extend.res[0]; // 将返回的数据赋值给 submission
-            this.totalCount = response.extend.res[1]
+            if (response.extend.res != null) {
+              this.tableData = response.extend.res[0]; // 将返回的数据赋值给 submission
+              this.totalCount = response.extend.res[1]
+            } else {
+              this.tableData = null
+              this.totalCount = 0
+            }
           })
           .catch((error) => {
             this.$message.error(error);

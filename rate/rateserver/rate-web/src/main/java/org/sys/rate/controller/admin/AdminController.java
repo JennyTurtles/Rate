@@ -124,4 +124,15 @@ public class AdminController {
         }
         return RespBean.ok("ok",admin);
     }
+
+    @GetMapping("/getSuperAdminInfo")
+    public RespBean getSuperAdminInfo(@RequestParam Integer id){
+        Admin admin = null;
+        try{
+            admin = adminMapper.getSuperAdminInfo(id);
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        return RespBean.ok("ok",admin);
+    }
 }

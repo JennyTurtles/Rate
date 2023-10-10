@@ -69,6 +69,7 @@
       <div style="margin-top: 10px;margin-left: 10px">第二步：
         <el-upload
             :show-file-list="false"
+            :headers="{'token':user.token}"
             :before-upload="beforeUpload"
             :on-success="onSuccess"
             style="display: inline-flex; margin-left: 1px"
@@ -97,6 +98,7 @@
       <div style="margin-top: 10px;margin-left: 10px">第二步：
         <el-upload
             :show-file-list="false"
+            :headers="{'token':user.token}"
             :before-upload="beforeUpload"
             :on-success="onSuccess"
             style="display: inline-flex; margin-left: 1px"

@@ -18,6 +18,15 @@ public class Admin extends Account {
     private String telephone;
     private String email;
     private String comment;
+    private Mail mail;
+
+    public Mail getMail() {
+        return mail;
+    }
+
+    public void setMail(Mail mail) {
+        this.mail = mail;
+    }
 
     public Integer getID() {
         return ID;

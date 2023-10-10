@@ -141,13 +141,13 @@
           有积分
         </div>
       </div>
-     <div v-show="type === '科研获奖'" style="margin-top: 10px">
-      级别：
-     <el-radio-group v-model="level"  @change="">
-      <el-radio :label="0">国家级</el-radio>
-      <el-radio :label="1">省部级</el-radio>
-     </el-radio-group>
-     </div>
+      <div v-show="type === '科研获奖'" style="margin-top: 10px">
+        级别：
+        <el-radio-group v-model="level" @change="">
+          <el-radio :label="0">国家级</el-radio>
+          <el-radio :label="1">省部级</el-radio>
+        </el-radio-group>
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleType = false">取 消</el-button>
         <el-button
@@ -241,7 +241,7 @@
       <span slot="title" style="float: left; font-size: 25px"
       >指标点修改</span
       >
-      <el-form label-width="auto" >
+      <el-form label-width="auto">
         <el-form-item label="类型">
           <el-select
               v-model="type"
@@ -291,11 +291,11 @@
             </div>
           </div>
           <div style="margin-top: 10px" v-if="type === '科研获奖' ">
-           级别
-           <el-radio-group v-model="level"  @change="">
-            <el-radio :label="0">国家级</el-radio>
-            <el-radio :label="1">省部级</el-radio>
-           </el-radio-group>
+            级别
+            <el-radio-group v-model="level" @change="">
+              <el-radio :label="0">国家级</el-radio>
+              <el-radio :label="1">省部级</el-radio>
+            </el-radio-group>
           </div>
         </div>
 
@@ -323,7 +323,7 @@ export default {
   name: "tree",
   created() {
     var that = this;
-    axios.get("/indicator").then(function (resp) {
+    this.getRequest("/indicator").then(function (resp) {
       //此处可以让父组件向子组件传递url,提高复用性
       that.id = resp.obj[0];
       that.data = resp.obj[1];
@@ -440,13 +440,13 @@ export default {
         this.rank = 0
       }
     },
-   handleAddChange(val) {
-    if (val !== '科研获奖'){
-     this.level = null
-    }else{
-     this.level = 0
-    }
-   },
+    handleAddChange(val) {
+      if (val !== '科研获奖') {
+        this.level = null
+      } else {
+        this.level = 0
+      }
+    },
     onScoreInput(value) {
       const pattern = /^[0-9]*$/;
       if (!pattern.test(value)) {
@@ -486,16 +486,15 @@ export default {
                 // type="text"
                 icon="el-icon-circle-plus-outline"
                 on-click={() => {
-                 event.stopPropagation()
+                  event.stopPropagation()
                   this.data1 = data;
                   this.isLeaf = node.isLeaf;
-                  if (node.level > 1){
-                   this.dialogVisible = true;
-                  }
-                  else {
-                   this.dialogVisibleType = true;
-                   this.selectedOption = 0
-                   this.rankN = 0
+                  if (node.level > 1) {
+                    this.dialogVisible = true;
+                  } else {
+                    this.dialogVisibleType = true;
+                    this.selectedOption = 0
+                    this.rankN = 0
                   }
 
                 }}
@@ -505,8 +504,8 @@ export default {
                 icon-color="red"
                 icon="el-icon-info"
                 on-confirm={() => {
-                 event.stopPropagation()
-                 this.remove(node, data)
+                  event.stopPropagation()
+                  this.remove(node, data)
                 }}
             >
               <el-button
@@ -515,7 +514,7 @@ export default {
                   slot="reference"
                   size="mini"
                   on-click={() => {
-                   event.stopPropagation()
+                    event.stopPropagation()
                   }}
                   // type="text"
                   icon="el-icon-delete"
@@ -528,14 +527,14 @@ export default {
                 // type="text"
                 icon="el-icon-edit"
                 on-click={() => {
-                 event.stopPropagation()
+                  event.stopPropagation()
                   this.data1 = data;
                   this.isLeaf = node.isLeaf;
                   this.labelUpdate = data.label.substring(data.order.length + 1);
                   this.rank = data.rankN;
-                  if (!data.rankN || data.rankN == 0){
+                  if (!data.rankN || data.rankN == 0) {
                     this.selectedOption = 0
-                  }else
+                  } else
                     this.selectedOption = 1
                   if (node.level > 3) this.dialogVisibleUpdate = true;
                   else if (node.level === 1) {
@@ -597,7 +596,7 @@ export default {
           order: newChild.order,
           score: data.score,
           rankN: this.rank,
-          level: this.level != null ? ( this.level == 0 ? '国家级' : '省部级') : this.level,
+          level: this.level != null ? (this.level == 0 ? '国家级' : '省部级') : this.level,
         };
         if (!data.children) {
           this.$set(data, "children", []);
@@ -624,7 +623,7 @@ export default {
         this.data.push(newChild);
       }
       console.log(postData)
-      axios.post("/indicator", postData)
+      this.postRequest("/indicator", postData)
           .then(function (resp) {
             // console.log(resp);
             if (resp.status != 200) {
@@ -636,7 +635,7 @@ export default {
               });
 
               // 在 POST 请求成功后再发送 GET 请求
-              axios.get("/indicator")
+              that.getRequest("/indicator")
                   .then(function (resp) {
                     that.id = resp.obj[0];
                     that.data = resp.obj[1];
@@ -644,7 +643,7 @@ export default {
             }
           })
           .catch(function (error) {
-            console.log(error);
+            // console.log(error);
             alert("添加指标失败：" + error.message);
           });
 
@@ -654,14 +653,14 @@ export default {
     },
     remove(node, data) {
       var that = this;
-      axios.delete("/indicator/" + node.data.id).then(function (resp) {
+      this.deleteRequest("/indicator/" + node.data.id).then(function (resp) {
         if (resp.status != 200) alert("删除失败！");
         else {
           that.$message({
             type: "success",
             message: "删除成功",
           });
-          axios.get("/indicator").then(function (resp) {
+          this.getRequest("/indicator").then(function (resp) {
             //此处可以让父组件向子组件传递url,提高复用性
             that.id = resp.obj[0];
             that.data = resp.obj[1];
@@ -682,19 +681,19 @@ export default {
         rankN: this.rank,
         level: level_trans,
       };
-      if (data.level && data.type === '科研获奖'){
-       data.level = data.level === '国家级' ? '省部级' : '国家级'
+      if (data.level && data.type === '科研获奖') {
+        data.level = data.level === '国家级' ? '省部级' : '国家级'
       }
-     this.$emit("getLabelInfo", data);
+      this.$emit("getLabelInfo", data);
       var that = this;
-      axios.put("/indicator", postData).then(function (resp) {
+      this.putRequest("/indicator", postData).then(function (resp) {
         if (resp.status != 200) alert("修改失败！");
         else {
           that.$message({
             type: "success",
             message: "修改成功",
           });
-          axios.get("/indicator").then(function (resp) {
+          this.getRequest("/indicator").then(function (resp) {
             //此处可以让父组件向子组件传递url,提高复用性
             that.id = resp.obj[0];
             that.data = resp.obj[1];
@@ -793,8 +792,8 @@ export default {
             dropNodeData.order + "." + dropNodeData.children.length;
       }
       var that = this;
-      axios.post("/indicator/insert", postData).then(function (resp) {
-        axios.get("/indicator").then(function (resp) {
+      this.postRequest("/indicator/insert", postData).then(function (resp) {
+        this.getRequest("/indicator").then(function (resp) {
           that.id = resp.obj[0];
           that.data = resp.obj[1];
         });
@@ -812,7 +811,7 @@ export default {
     },
     updateAll() {
       var that = this;
-      axios.get("/indicator").then(function (resp) {
+      this.getRequest("/indicator").then(function (resp) {
         //此处可以让父组件向子组件传递url,提高复用性
         that.id = resp.obj[0];
         that.data = resp.obj[1];
@@ -881,7 +880,7 @@ export default {
         data["p2"] = node.parent.data.label;
         data["p1"] = node.parent.parent.data.label;
         if (data.type == "授权专利" || data.type == "制定标准" || data.type == "学术专著和教材" || data.type == "制造或设计的产品") {
-          this.$message.warning(data.type+"类别无需设置！")
+          this.$message.warning(data.type + "类别无需设置！")
           return
         }
 

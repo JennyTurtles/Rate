@@ -295,7 +295,6 @@
 </template>
 
 <script>
-import axios from "axios";
 
 export default {
   name: "stuPaperComment",
@@ -415,10 +414,9 @@ export default {
   methods: {
     exportPDF() {
       this.loading = true;
-
       if (this.thesisID !== null) {
         let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(this.thesisID)}`;
-        axios.get(url)
+        this.getRequest(url)
             .then((resp) => {
               this.loading = false;
               if (resp.status === 200) {
@@ -525,7 +523,7 @@ export default {
     deleteEmp(data) {
       const confirmationMessage = "此操作将永久删除【第" + data.num + "条记录】, 是否继续?";
       if (confirm(confirmationMessage)) {
-        axios.delete("/paperComment/basic/remove/" + data.num + "/" + data.thesisID)
+        this.deleteRequest("/paperComment/basic/remove/" + data.num + "/" + data.thesisID)
             .then((resp) => {
               if (resp) {
                 this.dialogVisible = false;

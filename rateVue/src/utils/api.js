@@ -81,7 +81,9 @@ export const putRequest = (url, params) => {
         method: 'put',
         url: `${base}${url}`,
         data: params,
-		
+        headers: {
+            'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
+        }
     })
 }
 export const getRequest = (url, params) => {
