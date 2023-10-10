@@ -6,6 +6,7 @@ import org.sys.rate.model.Admin;
 import org.sys.rate.model.Role;
 import org.sys.rate.model.Teacher;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface AdminMapper {
@@ -50,6 +51,5 @@ public interface AdminMapper {
     Integer updateUserface(@Param("url") String url, @Param("id") Integer id);
     List<Admin> selectCurrentInstitutionAdmins(Integer institutionID);
 
-    @Select("select a.ID, a.name, a.phone, m.emailAddress,m.IMAPVerifyCode,m.IMAPHost,m.SMTPHost  from admin a, mail m where a.id = #{id} ")
-    Admin getSuperAdminInfo(Integer id);
+
 }

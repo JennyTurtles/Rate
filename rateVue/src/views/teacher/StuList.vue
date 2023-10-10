@@ -170,7 +170,7 @@
             prop="year"
             label="入学年份"
             align="center"
-            width="80px"
+            width="100px"
           ></el-table-column>
           <el-table-column
             prop="studentType"
@@ -193,7 +193,7 @@
             prop="point"
             label="积分"
             align="center"
-            width="80px"
+            width="100px"
           ></el-table-column>
           <el-table-column
             prop="username"

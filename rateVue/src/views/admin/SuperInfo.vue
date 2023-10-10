@@ -61,7 +61,6 @@ export default {
         this.mail.imaphost = 'imap.126.com'
         this.mail.smtphost = 'smtp.126.com'
       } else if (email.endsWith('dhu.edu.cn')) {
-        let university = this.extractEmail(email);
         this.mail.imaphost = 'imap.dhu.edu.cn'
         this.mail.smtphost = 'smtp.dhu.edu.cn'
       }
@@ -110,12 +109,12 @@ export default {
     async init() {
       try {
         const superAdminResp = await this.getRequest(`/system/admin/getSuperAdminInfo?id=${this.user.id}`);
-        this.superAdmin = superAdminResp.obj;
+        this.superAdmin = superAdminResp.extend.admin;
 
-        const mailResp = await this.getRequest("/info/mail");
-        this.mail = mailResp.obj;
+        // const mailResp = await this.getRequest("/info/mail");
+        this.mail = superAdminResp.extend.mail;
       } catch (error) {
-        console.error(error);
+        // console.error(error);
         throw new Error("Error initializing the app");
       }
     }
