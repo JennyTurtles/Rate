@@ -82,7 +82,7 @@
 
 <!--    学生科研项目页面初始化-->
     <select id="selectCompetitionListById" resultMap="CompetitionResult">
-        SELECT a.*,i.max_date,j.remark, type.`name` as tname, type.id as projectTypeId, type.year,ind.id as indicatorid, ind.name as iname, ind.score, ind.rankN
+        SELECT a.*,i.max_date,j.remark, type.`name` as tname, type.id as projectTypeId, type.year,ind.id as indicatorid, ind.name as iname, ind.score, ind.rankN, s.name as sname
         FROM i_competition a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -97,6 +97,7 @@
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_competition_type type ON type.id = a.competition_type_id AND a.student_id = #{studentID}
                  JOIN indicator ind ON ind.id = a.indicator_id
+                 JOIN student s ON s.ID = a.student_id
         ORDER BY a.id DESC;
     </select>
 
