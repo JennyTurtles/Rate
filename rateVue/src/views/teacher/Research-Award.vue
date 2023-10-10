@@ -28,7 +28,6 @@
             clearable
             filterable
             placeholder="状态筛选"
-            @change="((val) => filter(val,'select_state'))"
         >
           <el-option
               v-for="val in option"
@@ -45,7 +44,6 @@
             clearable
             filterable
             placeholder="1"
-            @change="((val) => filter(val,'select_point1'))"
         >
           <el-option
               style=""
@@ -63,7 +61,6 @@
             clearable
             filterable
             placeholder="12"
-            @change="((val) => filter(val,'select_point2'))"
         >
           <el-option
               style=""
@@ -76,7 +73,7 @@
         <el-button
             icon="el-icon-search"
             type="primary"
-            @click="searchEmps"
+            @click="searchEmps(1, 10)"
             style="margin-left:30px"
         >
           搜索
@@ -509,9 +506,6 @@ export default {
         link.click();
         document.body.removeChild(link);
       });
-    },
-    filter(val,options){
-      document.getElementById(options).value=val
     },
     //点击对话框中的确定按钮 触发事件
     auditing_commit(state){
