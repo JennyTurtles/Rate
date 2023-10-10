@@ -110,16 +110,15 @@ public class GraduateStudentMController {
         }
         return RespBean.error("error",null);
     }
-    @PostMapping("/update")
-    public RespBean updateStudent(@RequestBody GraduateStudent record) {
-        if (graduateStudentMapper.checkHaveStudentOfStuNumber(record.getInstitutionID(),record.getStuNumber(),record.getStudentID()) == 1){
-            return RespBean.error("学号已存在，请重新修改或联系管理员！");
-        }
-        if (studentMapper.update(record) == 1){
-            if (graduateStudentMapper.update(record) == 1) {
-                return RespBean.ok("更新成功!");
-            }
-        }
-        return RespBean.error("更新失败!");
+
+    @PostMapping("/updateScore") //加法
+    public RespBean updateScoreAdd(@RequestBody GraduateStudent record) {
+        Integer res = graduateStudentMapper.updateScore(Long.valueOf(record.getStudentID().intValue()),Long.parseLong(record.getPoint()));
+        return RespBean.ok("ok", res);
+    }
+    @PostMapping("/updateScoreSub") //减法
+    public RespBean updateScoreSub(@RequestBody GraduateStudent record) {
+        Integer res = graduateStudentMapper.updateScoreSub(Long.valueOf(record.getStudentID().intValue()),Long.parseLong(record.getPoint()));
+        return RespBean.ok("ok", res);
     }
 }
