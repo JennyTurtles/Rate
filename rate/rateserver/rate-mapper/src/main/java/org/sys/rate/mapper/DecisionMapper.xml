@@ -62,7 +62,7 @@
 
 <!--    学生奖励页面初始化-->
     <select id="selectDecisionListById" resultMap="DecisionResult" parameterType="Integer">
-        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as decisionid, ip.year, i.name as iname, i.score,i.rankN, i.id as indicatorid
+        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as decisionid, ip.year, i.name as iname, i.score,i.rankN, i.id as indicatorid, s.name as sname
         FROM i_decision a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -77,6 +77,7 @@
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_decision_type ip ON a.decision_type_id = ip.id AND a.student_id = #{studentID}
                  JOIN indicator i ON ip.indicator_id = i.id
+                 JOIN student s ON s.ID = a.student_id
         ORDER BY a.id DESC;
     </select>
 
