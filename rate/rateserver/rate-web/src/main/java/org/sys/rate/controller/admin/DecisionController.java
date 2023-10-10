@@ -12,12 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.DecisionMapper;
 import org.sys.rate.mapper.DecisionTypeMapper;
 import org.sys.rate.mapper.IndicatorMapper;
-import org.sys.rate.model.Decision;
-import org.sys.rate.model.DecisionType;
-import org.sys.rate.model.Msg;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.DecisionService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
@@ -46,6 +44,8 @@ public class DecisionController {
     IndicatorMapper indicatorMapper;
     @Resource
     MailToTeacherService mailToTeacherService;
+    @Resource
+    DecisionMapper decisionMapper;
     @Resource
     private DecisionTypeMapper decisionTypeMapper;
 
@@ -216,5 +216,11 @@ public class DecisionController {
             return RespBean.error("添加失败！");
         }
     }
-
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Decision decision) {
+        decision.setId(ID);
+        Integer res = decisionMapper.editPoint(decision);
+        return new JsonResult(res);
+    }
 }
