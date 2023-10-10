@@ -730,7 +730,7 @@ export default {
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.emps = resp.obj;
+          this.emps = resp.data;
         }
       });
     },
