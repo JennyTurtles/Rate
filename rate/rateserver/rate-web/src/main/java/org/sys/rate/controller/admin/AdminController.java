@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.ActivityGrantMapper;
 import org.sys.rate.mapper.AdminMapper;
+import org.sys.rate.mapper.MailMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.AdminService;
 import org.sys.rate.service.admin.RoleService;
@@ -15,6 +16,7 @@ import org.sys.rate.service.mail.MailService;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController("ratesystemAdmin")
@@ -126,13 +128,15 @@ public class AdminController {
     }
 
     @GetMapping("/getSuperAdminInfo")
-    public RespBean getSuperAdminInfo(@RequestParam Integer id){
+    public Msg getSuperAdminInfo(@RequestParam Integer id){
         Admin admin = null;
+        Mail mail = null;
         try{
-            admin = adminMapper.getSuperAdminInfo(id);
+            admin = adminMapper.getById(id);
+            mail = mailService.getMail();
         }catch (Exception e){
-            return RespBean.error("error",null);
+            return Msg.fail();
         }
-        return RespBean.ok("ok",admin);
+        return Msg.success().add("admin", admin).add("mail", mail);
     }
 }

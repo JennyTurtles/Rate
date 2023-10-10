@@ -416,19 +416,15 @@ export default {
       this.loading = true;
       if (this.thesisID !== null) {
         let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(this.thesisID)}`;
-        this.getRequest(url)
-            .then((resp) => {
+        fetch(url)
+            .then((response) => response.blob())
+            .then((blob) => {
               this.loading = false;
-              if (resp.status === 200) {
-                window.location.href = url;
-              } else {
-                console.error("Error exporting PDF:", resp.statusText);
-                this.$message.error("导出PDF时发生错误！");
-              }
+              const fileURL = URL.createObjectURL(blob);
+              window.open(fileURL, '_blank');
             })
             .catch((error) => {
               this.loading = false;
-              console.error("Error exporting PDF:", error);
               this.$message.error("导出PDF时发生错误！");
             });
       } else {
@@ -436,6 +432,8 @@ export default {
         this.$message.info("抱歉你还未添加毕设设计或论文！");
       }
     },
+
+
 
     handleCancel(event) {
       event.stopPropagation();

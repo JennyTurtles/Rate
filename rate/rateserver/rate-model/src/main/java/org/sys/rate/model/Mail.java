@@ -11,5 +11,4 @@ public class Mail {
     private String IMAPHost;
     private String SMTPHost;
     private int id;
-
 }

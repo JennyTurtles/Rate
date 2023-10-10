@@ -50,14 +50,14 @@ public class ExportPDF {
 //    private final String TEMPLATE_PATH10 = "rate/rateserver/rate-web/src/main/resources/static/template/template_10.pdf";
 //    private final String TEMPLATE_PATH20 = "rate/rateserver/rate-web/src/main/resources/static/template/template_20.pdf";
 
-    private final static String DEST = "D:/software/rate/upload/template/exportFiles";
+    private final static String DEST = "D:/software/rate/upload/template/exportFiles/";
     private final String FONT_PATH_Song = "D:/software/rate/upload/template/song.ttf";
     private final String TEMPLATE_PATH10 = "D:/software/rate/upload/template/template_10.pdf";
     private final String TEMPLATE_PATH20 = "D:/software/rate/upload/template/template_20.pdf";
 
 
     private boolean checkIfNecessaryFilesAndDirectoriesExist() {
-        boolean directoryResult = checkIfFileExists(DEST, "导出PDF，目录不存在", "目录 " + DEST + " 创建失败！");
+        boolean directoryResult = checkIfFileExists(DEST, "导出PDF，目录不存在", "目录 " + DEST + " 不存在！");
         boolean fontResult = checkIfFileExists(FONT_PATH_Song, "导出PDF，模版文件不存在", "字体文件 " + FONT_PATH_Song + " 不存在");
         boolean template10Result = checkIfFileExists(TEMPLATE_PATH10, "导出PDF，模版文件不存在", "模版文件 " + TEMPLATE_PATH10 + " 不存在！！！");
         boolean template20Result = checkIfFileExists(TEMPLATE_PATH20, "导出PDF，模版文件不存在", "模版文件 " + TEMPLATE_PATH20 + " 不存在！！！");
@@ -79,7 +79,7 @@ public class ExportPDF {
     }
 
     public boolean generatePDF(HttpServletResponse response, Integer thesisID) throws Exception {
-        if (thesisID == null || thesisID <= 0) {
+        if (thesisID == null) {
             // 参数校验，确保thesisID有效
             return false;
         }

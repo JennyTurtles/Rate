@@ -95,7 +95,7 @@ public class ProductService {
     //    修改论文状态
     public int editState(String state, Long ID) throws MessagingException {
         Product product = productMapper.getById(Math.toIntExact(ID));
-        mailToStuService.sendStuMail(state, product, null, "制造或设计的产品");
+        mailToStuService.sendStuMail(state, product, null, "产品应用");
         return productMapper.editState(state,ID);
     }
     public List<Product> searchProductByConditions(String studentName, String state, String projectName, String pointFront, String pointBack) {

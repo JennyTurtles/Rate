@@ -430,21 +430,24 @@ export default {
 
 
     // 导出pdf
-    async exportPDF(data) {
-      try {
-        this.loading = true;
-        let url = "/paperComment/basic/exportPDF?thesisID=" + encodeURIComponent(data.thesis.id);
-        const resp = await this.getRequest(url);
+    exportPDF(data) {
+      this.loading = true;
+      if (this.thesisID !== null) {
+        let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(data.thesis.id)}`;
+        fetch(url)
+            .then((response) => response.blob())
+            .then((blob) => {
+              this.loading = false;
+              const fileURL = URL.createObjectURL(blob);
+              window.open(fileURL, '_blank');
+            })
+            .catch((error) => {
+              this.loading = false;
+              this.$message.error("导出PDF时发生错误！");
+            });
+      } else {
         this.loading = false;
-
-        if (resp.status === 200) {
-          window.location.href = url;
-        } else {
-          this.$message.error("导出PDF时发生错误！");
-        }
-      } catch (error) {
-        this.loading = false;
-        this.$message.error("导出PDF时发生错误！");
+        this.$message.info("抱歉该学生还未添加毕设设计或论文！");
       }
     },
 
