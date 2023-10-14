@@ -10,17 +10,13 @@ import org.sys.rate.mapper.EmailErrorLogMapper;
 import org.sys.rate.model.EmailErrorLog;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.mail.EmailErrorLogService;
-import org.sys.rate.utils.POIUtils;
 
 import javax.annotation.Resource;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.servlet.http.HttpServletResponse;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/exception")

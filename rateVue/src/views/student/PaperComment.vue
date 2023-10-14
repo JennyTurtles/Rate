@@ -414,6 +414,7 @@ export default {
   methods: {
     exportPDF() {
       this.loading = true;
+
       if (this.thesisID !== null) {
         let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(this.thesisID)}`;
         fetch(url)
@@ -421,12 +422,20 @@ export default {
             .then((blob) => {
               this.loading = false;
               const fileURL = URL.createObjectURL(blob);
-              window.open(fileURL, '_blank');
+
+              const a = document.createElement('a');
+              a.href = fileURL;
+              a.download = JSON.parse(localStorage.getItem('user')).name+'_毕业论文评审记录.pdf'; // 在这里设置你想要的文件名
+              a.style.display = 'none';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
             })
             .catch((error) => {
               this.loading = false;
               this.$message.error("导出PDF时发生错误！");
             });
+
       } else {
         this.loading = false;
         this.$message.info("抱歉你还未添加毕设设计或论文！");
