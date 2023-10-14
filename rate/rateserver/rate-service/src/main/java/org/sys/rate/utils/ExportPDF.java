@@ -6,6 +6,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.PaperCommentService;
@@ -45,29 +46,44 @@ public class ExportPDF {
     private final static int PRESUMROWS = 17;
     private final static int NEXTPLANROWS = 21;
     private final static int ONEROWMAXCOUNT = 35;
-//    private final static String DEST = "src/main/resources/exportFiles/";
-//    private final String FONT_PATH_Song = "rate/rateserver/rate-web/src/main/resources/static/template/song.ttf";
-//    private final String TEMPLATE_PATH10 = "rate/rateserver/rate-web/src/main/resources/static/template/template_10.pdf";
-//    private final String TEMPLATE_PATH20 = "rate/rateserver/rate-web/src/main/resources/static/template/template_20.pdf";
+    private String DEST = "static\\template\\exportFiles\\";
 
-    private final static String DEST = "D:/software/rate/upload/template/exportFiles/";
-    private final String FONT_PATH_Song = "D:/software/rate/upload/template/song.ttf";
-    private final String TEMPLATE_PATH10 = "D:/software/rate/upload/template/template_10.pdf";
-    private final String TEMPLATE_PATH20 = "D:/software/rate/upload/template/template_20.pdf";
+    private String FONT_PATH_Song = "static/template/song.ttf";
+    private String TEMPLATE_PATH10 = "static/template/template_10.pdf";
+    private String TEMPLATE_PATH20 = "static/template/template_20.pdf";
 
 
-    private boolean checkIfNecessaryFilesAndDirectoriesExist() {
-        boolean directoryResult = checkIfFileExists(DEST, "导出PDF，目录不存在", "目录 " + DEST + " 不存在！");
-        boolean fontResult = checkIfFileExists(FONT_PATH_Song, "导出PDF，模版文件不存在", "字体文件 " + FONT_PATH_Song + " 不存在");
-        boolean template10Result = checkIfFileExists(TEMPLATE_PATH10, "导出PDF，模版文件不存在", "模版文件 " + TEMPLATE_PATH10 + " 不存在！！！");
-        boolean template20Result = checkIfFileExists(TEMPLATE_PATH20, "导出PDF，模版文件不存在", "模版文件 " + TEMPLATE_PATH20 + " 不存在！！！");
+    private boolean hasCheckedFilesAndDirectories = false;
 
-        return directoryResult && fontResult && template10Result && template20Result;
+
+    private boolean checkIfNecessaryFilesAndDirectoriesExist() throws IOException {
+        if (!hasCheckedFilesAndDirectories) {
+            try {
+                boolean fontResult = checkIfResourceExists(FONT_PATH_Song, "导出PDF，模版文件不存在", "字体文件 " + FONT_PATH_Song + " 不存在");
+                boolean template10Result = checkIfResourceExists(TEMPLATE_PATH10, "导出PDF，模版文件不存在", "模版文件 " + TEMPLATE_PATH10 + " 不存在！！！");
+                boolean template20Result = checkIfResourceExists(TEMPLATE_PATH20, "导出PDF，模版文件不存在", "模版文件 " + TEMPLATE_PATH20 + " 不存在！！！");
+
+                if (fontResult && template10Result && template20Result) {
+                    FONT_PATH_Song = new ClassPathResource(FONT_PATH_Song).getFile().getPath().replace("/","\\");
+                    DEST = FONT_PATH_Song.substring(0, FONT_PATH_Song.indexOf("static")) + DEST;
+                    TEMPLATE_PATH10 = new ClassPathResource(TEMPLATE_PATH10).getFile().getPath().replace("/","\\");
+                    TEMPLATE_PATH20 = new ClassPathResource(TEMPLATE_PATH20).getFile().getPath().replace("/","\\");
+
+                    return true;
+                } else {
+                    hasCheckedFilesAndDirectories = false;
+                    return false;
+                }
+            } catch (IOException e) {
+                return false;
+            }
+        }
+        return true;
     }
 
-    private boolean checkIfFileExists(String filePath, String errorType, String errorDescription) {
-        File file = new File(filePath);
-        if (!file.exists()) {
+    private boolean checkIfResourceExists(String resourcePath, String errorType, String errorDescription) {
+        org.springframework.core.io.Resource resource = new ClassPathResource(resourcePath);
+        if (!resource.exists()) {
             EmailErrorLog emailErrorLog = new EmailErrorLog();
             emailErrorLog.setErrorType(errorType);
             emailErrorLog.setErrorDescription(errorDescription);

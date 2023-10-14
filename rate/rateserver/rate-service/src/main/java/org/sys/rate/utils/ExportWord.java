@@ -4,6 +4,8 @@ import cn.afterturn.easypoi.word.WordExportUtil;
 import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.Comment;
 import org.sys.rate.model.EmailErrorLog;
@@ -30,7 +32,8 @@ public class ExportWord {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);
     //    private static final String TEMPLATE_PATH = "rate/rateserver/rate-web/src/main/resources/static/template/GradingTable.docx";
-    private static final String TEMPLATE_PATH = "D:/software/rate/upload/template/GradingTable.docx";
+//    private static final String TEMPLATE_PATH = "D:/software/rate/upload/template/GradingTable.docx";
+    private static final String TEMPLATE_PATH = "static/template/GradingTable.docx";
     private static final SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
     private static final SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
     private static final SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
@@ -44,19 +47,26 @@ public class ExportWord {
     private static final String[] commentEnd = {"指导教师（签名）", "评阅教师（签名）", "答辩小组组长（签名）"};
     private int[] commentFontSize = {12, 12, 12};
 
+    private boolean hasCheckedFilesAndDirectories = false;
 
-    private boolean checkIfNecessaryFilesAndDirectoriesExist() throws IOException {
-        File file = new File(TEMPLATE_PATH);
-        if (!file.exists()) {
-            EmailErrorLog emailErrorLog = new EmailErrorLog();
-            emailErrorLog.setErrorType("导出word时模版文件不存在");
-            emailErrorLog.setErrorDescription("模版文件 " + TEMPLATE_PATH + " 不存在！！！");
-            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
-            emailErrorLogService.addEmailErrorLog(emailErrorLog);
-            return false;
+    private boolean checkIfNecessaryFilesAndDirectoriesExist() {
+        if (!hasCheckedFilesAndDirectories) {
+            Resource resource = new ClassPathResource(TEMPLATE_PATH);
+            if (!resource.exists()) {
+                EmailErrorLog emailErrorLog = new EmailErrorLog();
+                emailErrorLog.setErrorType("导出word时模版文件不存在");
+                emailErrorLog.setErrorDescription("模版文件 " + TEMPLATE_PATH + " 不存在！！！");
+                emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                emailErrorLogService.addEmailErrorLog(emailErrorLog);
+
+                hasCheckedFilesAndDirectories = false;
+                return false;
+            }
+            hasCheckedFilesAndDirectories = true;
         }
         return true;
     }
+
 
     public static int calculateChars(String sentence) {
         int count = 0;
@@ -326,7 +336,9 @@ public class ExportWord {
             boolean[] inRange = {false, false, false};
             boolean changeLineSpace = false;
 
-            try (XWPFDocument doc = WordExportUtil.exportWord07(TEMPLATE_PATH, params)) {
+
+            Resource resource = new ClassPathResource(TEMPLATE_PATH);
+            try (XWPFDocument doc = WordExportUtil.exportWord07(resource.getFile().getPath().replace("/","\\"), params)) {
                 // change the size of comment
                 if (isChangeInstCommentFont || isChangeReviewerCommentFont || isChangeLeaderCommentFont) {
                     loop:

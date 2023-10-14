@@ -1,24 +1,26 @@
 package org.sys.rate.controller.admin;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.model.EmailErrorLog;
 import org.sys.rate.model.PaperComment;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.model.Student;
 import org.sys.rate.service.admin.PaperCommentService;
 import org.sys.rate.service.admin.ThesisService;
+import org.sys.rate.service.mail.EmailErrorLogService;
 import org.sys.rate.utils.ExportPDF;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -29,6 +31,9 @@ public class PaperCommentController {
 
     @Resource
     private ThesisService thesisService;
+
+    @Autowired
+    private EmailErrorLogService emailErrorLogService;
 
     @Resource
     private ExportPDF exportPDF;
@@ -128,6 +133,15 @@ public class PaperCommentController {
                 response.getWriter().write("导出PDF发生错误！");
             }
         } catch (Exception e) {
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("导出PDF出现错误");
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String errorDetails = sw.toString();
+            emailErrorLog.setErrorDescription(errorDetails);
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().write("导出PDF发生错误！");
         }
