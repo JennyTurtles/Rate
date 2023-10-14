@@ -281,7 +281,7 @@
           ><br />
         </el-form-item>
         <el-form-item label="学生姓名:">
-          <span>{{ emp.student.sname }}</span
+          <span>{{ emp.student.name }}</span
           ><br />
         </el-form-item>
 
@@ -574,9 +574,6 @@ export default {
           }
         }
       });
-    },
-    selectOption() {
-
     },
     download(data){//下载证明材料
       var fileName = data.url.split('/').reverse()[0]
