@@ -586,8 +586,11 @@ export default {
           'token': this.user.token
         }
       }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response]));
+        let url = window.URL.createObjectURL(new Blob([response]));
         const link = document.createElement('a');
+        if (url.startsWith('http:')) {
+          url = url.replace('http:', 'https:');
+        }
         link.href = url;
         link.setAttribute('download', fileName);
         document.body.appendChild(link);
