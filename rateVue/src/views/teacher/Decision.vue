@@ -490,7 +490,10 @@ export default {
       axios({
         url: '/decision/basic/downloadByUrl?url='+url,
         method: 'GET',
-        responseType: 'blob'
+        responseType: 'blob',
+        headers: {
+          'token': this.user.token
+        }
       }).then(response => {
         const url = window.URL.createObjectURL(new Blob([response]));
         const link = document.createElement('a');
