@@ -486,6 +486,7 @@
       <el-table
           v-show="uploadResult"
           :data="tableUploadData"
+          max-height="200"
           :row-class-name="checkUploadData"
           style="width: 100%"
       >
@@ -493,8 +494,6 @@
         <el-table-column prop="刊物简称" label="刊物简称" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
         <el-table-column prop="出版社" label="出版社" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
         <el-table-column prop="网址" label="网址" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
-        <el-table-column prop="收录级别 （不同收录级别请用分号隔开）" label="收录级别 （不同收录级别请用分号隔开）"
-                         v-if="indicatorTypeZH=='学术论文'"></el-table-column>
         <el-table-column prop="项目名称" label="项目名称" v-if="indicatorTypeZH=='纵向科研项目'"></el-table-column>
         <el-table-column prop="奖项名称" label="奖励名称" v-if="indicatorTypeZH=='科研获奖'"></el-table-column>
         <el-table-column prop="成果名称" label="成果名称" v-if="indicatorTypeZH=='决策咨询'"></el-table-column>
@@ -995,7 +994,6 @@
     <!--      <el-table-column prop="abbr" label="刊物简称"></el-table-column>-->
     <!--      <el-table-column prop="publisher" label="出版社"></el-table-column>-->
     <!--      <el-table-column prop="url" label="网址"></el-table-column>-->
-    <!--      <el-table-column prop="level" label="收录级别"></el-table-column>-->
     <!--    </el-table>-->
   </div>
 </template>
@@ -1113,7 +1111,6 @@ export default {
           刊物简称: "AI",
           出版社: "Elsevier",
           网址: "http://dblp.uni-trier.de/db/journals/ai/",
-          "收录级别 （不同收录级别请用分号隔开）": "SCI;",
         },
       ],
       tableTechnicalSample: [
@@ -1659,9 +1656,8 @@ export default {
           abbr: this.tableUploadData[i]["刊物简称"],
           publisher: this.tableUploadData[i]["出版社"],
           url: this.tableUploadData[i]["网址"],
-          level: this.tableUploadData[i]["收录级别"],
           year: this.importSelectYear,
-          indicatorName: this.indicatorName,
+          indicatorId: this.indicatorID,
         };
         publicationInfList.push(publicationInf);
       }
@@ -2019,10 +2015,12 @@ export default {
               if (this.indicatorTypeZH == "学术论文" && typeof results[firstSheetName][j]["刊物全称"] == "undefined") {
                 this.uploadResultError = true;
                 this.errorMessage = "刊物全称不可为空";
-              } else if (this.indicatorTypeZH == "学术论文" && typeof results[firstSheetName][j]["出版社"] == "undefined") {
-                this.uploadResultError = true;
-                this.errorMessage = "出版社不可为空";
-              } else if (this.indicatorTypeZH == "纵向科研项目" && typeof results[firstSheetName][j]["项目名称"] == "undefined") {
+              }
+              // else if (this.indicatorTypeZH == "学术论文" && typeof results[firstSheetName][j]["出版社"] == "undefined") {
+              //   this.uploadResultError = true;
+              //   this.errorMessage = "出版社不可为空";
+              // }
+              else if (this.indicatorTypeZH == "纵向科研项目" && typeof results[firstSheetName][j]["项目名称"] == "undefined") {
                 this.uploadResultError = true;
                 this.errorMessage = "项目名称不可为空";
               } else if (this.indicatorTypeZH == "决策咨询" && typeof results[firstSheetName][j]["成果名称"] == "undefined") {
