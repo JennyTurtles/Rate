@@ -112,7 +112,7 @@
         style="width: 100%"
       >
         <el-table-column
-          prop="student.sname"
+          prop="student.name"
           align="center"
           label="学生姓名"
           min-width="10%"
