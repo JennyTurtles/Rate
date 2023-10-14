@@ -620,14 +620,6 @@ export default {
       this.$refs["currentMonographCopy"].validate((valid) => {
         if (valid) {
           params.id = this.currentMonographCopy.id;
-          if(params.url == '' || params == null){
-            this.$message.error('请上传证明材料！')
-            return
-          }
-          if(!this.isAuthorIncludeSelf) {
-            this.$message.error('请仔细检查作者列表！');
-            return;
-          }
           this.postRequest1("/monograph/basic/edit", params).then(
               (resp) => {
                 if (resp) {
@@ -654,20 +646,23 @@ export default {
       params.point = this.monographPoint;
       params.state = "commit";
       params.studentId = this.user.id;
+      if(params.url == '' || params.url == null){
+        this.$message.error('请上传证明材料！')
+        return
+      }
+      if(params.url.indexOf("\\") >= 0) {
+        params.url = params.url.replaceAll("\\", "/")
+      }
+      if(!this.isAuthorIncludeSelf) {
+        this.$message.error('请仔细检查作者列表！');
+        return;
+      }
       if (this.currentMonographCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editMonograph(params);
       } else {
         this.$refs["currentMonographCopy"].validate((valid) => {
           if (valid) {
             params.studentId = this.user.id
-            if(params == '' || params == null){
-              this.$message.error('请上传证明材料！')
-              return
-            }
-            if(!this.isAuthorIncludeSelf) {
-              this.$message.error('请仔细检查作者列表！');
-              return;
-            }
             this.postRequest1("/monograph/basic/add", params).then(
                 (resp) => {
                   if (resp) {

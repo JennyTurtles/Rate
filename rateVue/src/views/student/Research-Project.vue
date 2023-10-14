@@ -627,10 +627,6 @@ export default {
             this.$message.error('请选择项目类别！')
             return;
           }
-          if(params .url == '' || params == null){
-            this.$message.error('请上传证明材料！')
-            return
-          }
           if(!this.isAuthorIncludeSelf) {
             this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
             return;
@@ -659,6 +655,13 @@ export default {
       params.point = this.projectPoint;
       params.projectTypeId = this.selectProjectType.id;
       params.state = "commit";
+      if(params.url == '' || params.url == null){
+        this.$message.error('请上传证明材料！')
+        return
+      }
+      if(params.url.indexOf("\\") >= 0) {
+        params.url = params.url.replaceAll("\\", "/")
+      }
       if (this.currentProjectCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editProject(params);
       } else {
@@ -670,10 +673,6 @@ export default {
               return;
             }
             params.studentId = this.user.id;
-            if(params.url == '' || params.url == null){
-              this.$message.error('请上传证明材料！')
-              return
-            }
             if(!this.isAuthorIncludeSelf) {
               this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
               return;

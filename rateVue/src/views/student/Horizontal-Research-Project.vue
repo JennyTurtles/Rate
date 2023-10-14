@@ -624,6 +624,9 @@ export default {
         this.$message.error('请上传证明材料！')
         return
       }
+      if(params.url.indexOf("\\") >= 0) {
+        params.url = params.url.replaceAll("\\", "/")
+      }
       if(!params.indicatorId) {
         this.$message.error('请选择指标点！')
         return;
