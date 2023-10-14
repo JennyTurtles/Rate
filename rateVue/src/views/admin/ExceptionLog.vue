@@ -20,7 +20,7 @@
       <el-button @click="filterBtn" style="margin-left: 20px;" icon="el-icon-search" type="primary">筛选</el-button>
       <el-button @click="clear" style="margin-left: 20px;" icon="el-icon-refresh-left" type="success">重置</el-button>
       <el-button @click="Delete_multi" style="margin-left: 20px;" icon="el-icon-delete" type="danger">删除</el-button>
-      <el-button @click="Delete_all" style="margin-left: 20px;" icon="el-icon-delete" type="danger">清空</el-button>
+      <el-button @click="Delete_all" style="margin-left: 20px;" icon="el-icon-delete" type="danger">清空筛选数据</el-button>
     </div>
     <el-table
         :data="tableData"
@@ -50,12 +50,6 @@
           min-width="10%"
           label="异常类型"
           prop="errorType"
-      ></el-table-column>
-      <el-table-column
-          align="center"
-          min-width="20%"
-          label="邮件正文"
-          prop="body"
       ></el-table-column>
       <el-table-column
           align="center"
@@ -89,23 +83,6 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog
-        title="异常信息描述"
-        :visible.sync="dialogVisible_show"
-        center
-        width="70%">
-      <el-input
-          type="textarea"
-          v-model="description"
-          autosize
-          :autosize="{maxRows: 10}"
-          class="borderNone"
-          style="width: 100%"
-          ></el-input>
-      <span slot="footer" class="dialog-footer">
-         <el-button type="primary" @click="dialogVisible_show = false">确 定</el-button>
-      </span>
-    </el-dialog>
     <div style="display: flex; justify-content: flex-end; margin: 10px 0">
       <el-pagination
           background
@@ -133,7 +110,6 @@ export default {
       pageSize: 10,
       pageSizes: [10, 20, 50, 100],
       labelPosition: "left",
-      dialogVisible_show: false,
       title_show: "",
       loading: false,
       tableData: [], // 表格数据
@@ -150,17 +126,6 @@ export default {
   },
   created() {
     this.init();
-  },
-  filters: {
-    fileNameFilter: function (data) {
-      //将证明材料显示出来
-      if (data == null || data == "") {
-        return "无证明材料";
-      } else {
-        var arr = data.split("/");
-        return arr.reverse()[0];
-      }
-    },
   },
   methods: {
     sizeChange(currentSize) {
@@ -181,7 +146,6 @@ export default {
           'token': localStorage.getItem('user') ? this.user.token : ''
         }
       }).then((response) => {
-            console.log(response)
             this.loading = false;
             this.tableData = response.obj[0];
             this.totalCount = response.obj[1];
@@ -194,7 +158,6 @@ export default {
       this.fetchData(this.currentPage,this.pageSize)
     },
     Delete_multi(){
-      console.log(this.deleteData)
       this.$confirm('是否确定删除选中异常信息', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -214,7 +177,6 @@ export default {
       this.Delete_multi();
     },
     Delete_all(){
-      console.log(this.tableData)
       this.$confirm('是否确定删除所有异常信息', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -235,8 +197,20 @@ export default {
       this.deleteData=val;
     },
     showInfo(data){
-      this.description = data.errorDescription
-      this.dialogVisible_show = true;
+      var index
+      for (var i = 0; i < this.tableData.length; i++){
+        if (this.tableData[i].id === data.id){
+          index = (this.currentPage - 1) * this.pageSize + i + 1
+        }
+      }
+      const _this = this;
+      _this.$router.push({
+        path: "/Admin/ExceptionDetails",
+        query: {
+          id: data.id,
+          Index: index,
+        },
+      });
     },
     clear(){
       this.startTime = "";
@@ -245,6 +219,12 @@ export default {
       this.init();
     },
     filterBtn(){
+      var start = Date.parse(this.startTime)
+      var end = Date.parse(this.endTime)
+      if (end < start){
+        this.$message.warning("结束时间不可小于开始时间！")
+        return
+      }
       this.loading = true;
       this.getRequest("/exception/filterByDate?page="+this.currentPage + "&size=" + this.pageSize + "&start=" + this.startTime + "&end=" + this.endTime).then(resp => {
         console.log(resp)

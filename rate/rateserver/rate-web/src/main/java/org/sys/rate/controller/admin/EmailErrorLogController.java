@@ -13,6 +13,7 @@ import org.sys.rate.service.mail.EmailErrorLogService;
 import org.sys.rate.utils.POIUtils;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpServletResponse;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -66,5 +67,11 @@ public class EmailErrorLogController {
         PageInfo info = new PageInfo<>(pageNum.getResult());
         Object[] res = {all, info.getTotal()};
         return RespBean.ok("success",res);
+    }
+
+    @GetMapping("/getById")
+    public RespBean getById(Long id){
+        EmailErrorLog emailErrorLog = emailErrorLogMapper.getById(id);
+        return RespBean.ok("success", emailErrorLog);
     }
 }

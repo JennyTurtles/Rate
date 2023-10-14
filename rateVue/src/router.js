@@ -57,6 +57,13 @@ export default new Router({
           meta: { title: '异常信息查看' },
         },
         {
+          path: '/Admin/ExceptionDetails',
+          name: '异常信息详情查看',
+          hidden: true,
+          component: () => import('./views/admin/ExceptionDetails.vue'),
+          meta: { title: '异常信息详情查看' },
+        },
+        {
           path: '/admin/PersonalCenter',
           name: '管理员个人中心',
           hidden: true,

@@ -20,9 +20,9 @@
              >
                <el-dropdown @command="registerHandler" v-show="!user.role.includes('17')">
                  <span>注册为大学生</span>
-                 <el-dropdown-menu slot="dropdown" >
-                   <el-dropdown-item command="本科生" v-show="!user.role.includes('10') && !user.role.includes('11') && !user.role.includes('17')">本科生</el-dropdown-item>
-                   <el-dropdown-item command="硕士研究生" v-show="!role.includes('11') && !user.role.includes('17')">硕士研究生</el-dropdown-item>
+                 <el-dropdown-menu slot="dropdown" class="el-dropdown-back">
+                   <el-dropdown-item command="本科生" v-show="!user.role.includes('10')">本科生</el-dropdown-item>
+                   <el-dropdown-item command="硕士研究生" v-show="!role.includes('11')">硕士研究生</el-dropdown-item>
                    <el-dropdown-item command="博士研究生" v-show="!role.includes('17')">博士研究生</el-dropdown-item>
                  </el-dropdown-menu>
                </el-dropdown>
@@ -586,6 +586,9 @@ export default {
   color: white;
 }
 
+.el-dropdown-back {
+  background-color: rgb(220, 231, 251);
+}
 .el-main {
   background-color: #f4f4f5;
   color: #333;
