@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/exception")
@@ -47,10 +48,10 @@ public class EmailErrorLogController {
     @PostMapping("/deleteAll")
     public RespBean deleteAll(String start, String end) throws ParseException {
         SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date1 = sdf.parse(start);
-        Date date2 = sdf.parse(end);
-        Timestamp startTime = new Timestamp(date1.getTime());
-        Timestamp endTime = new Timestamp(date2.getTime());
+        Date date1 = start.equals("") ? null : sdf.parse(start);
+        Date date2 = end.equals("") ? null : sdf.parse(start);
+        Timestamp startTime = start.equals("") ? null : new Timestamp(date1.getTime());
+        Timestamp endTime = end.equals("") ? null : new Timestamp(date2.getTime());
         emailErrorLogMapper.deleteAll(startTime,endTime);
         return RespBean.ok("success");
     }
