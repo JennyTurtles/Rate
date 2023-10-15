@@ -31,10 +31,9 @@ public class LoginController {
             return RespBean.error("用户名不存在!");
         else if (res.getToken() == null) // 未得到token则返回密码错误
             return RespBean.error("密码错误!");
-        else
-        {
+        else {
             res.setPassword("");
-            return RespBean.ok ("登陆成功!",res);
+            return RespBean.ok("登陆成功!", res);
         }
 
     }

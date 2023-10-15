@@ -56,7 +56,7 @@ public class ExportPDF {
     private boolean hasCheckedFilesAndDirectories = false;
 
 
-    private boolean checkIfNecessaryFilesAndDirectoriesExist() throws IOException {
+    private boolean checkIfNecessaryFilesAndDirectoriesExist() {
         if (!hasCheckedFilesAndDirectories) {
             try {
                 boolean fontResult = checkIfResourceExists(FONT_PATH_Song, "导出PDF，模版文件不存在", "字体文件 " + FONT_PATH_Song + " 不存在");
@@ -68,7 +68,7 @@ public class ExportPDF {
                     DEST = FONT_PATH_Song.substring(0, FONT_PATH_Song.indexOf("static")) + DEST;
                     TEMPLATE_PATH10 = new ClassPathResource(TEMPLATE_PATH10).getFile().getPath().replace("/","\\");
                     TEMPLATE_PATH20 = new ClassPathResource(TEMPLATE_PATH20).getFile().getPath().replace("/","\\");
-
+                    hasCheckedFilesAndDirectories = true;
                     return true;
                 } else {
                     hasCheckedFilesAndDirectories = false;

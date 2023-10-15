@@ -15,8 +15,6 @@ import org.sys.rate.service.mail.EmailErrorLogService;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -31,8 +29,6 @@ public class ExportWord {
 
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);
-    //    private static final String TEMPLATE_PATH = "rate/rateserver/rate-web/src/main/resources/static/template/GradingTable.docx";
-//    private static final String TEMPLATE_PATH = "D:/software/rate/upload/template/GradingTable.docx";
     private static final String TEMPLATE_PATH = "static/template/GradingTable.docx";
     private static final SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
     private static final SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
@@ -300,7 +296,7 @@ public class ExportWord {
                 return GRADELEVELARRAY[i];
             }
         }
-        logger.error("you got wrong score!");
+//        logger.error("you got wrong score!");
         return GRADELEVELARRAY[4];
     }
 
@@ -310,7 +306,7 @@ public class ExportWord {
                 return i;
             }
         }
-        logger.error("you got wrong score!");
+//        logger.error("you got wrong score!");
         return 4;
     }
 
