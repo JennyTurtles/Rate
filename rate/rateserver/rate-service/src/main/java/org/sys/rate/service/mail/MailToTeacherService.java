@@ -87,13 +87,14 @@ public class MailToTeacherService {
         }
 
         Mail mail = mailService.handleNullPointerException();
+        if (mail == null) {
+            return;
+        }
 
         if (StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
             EmailErrorLog emailErrorLog = new EmailErrorLog();
             emailErrorLog.setErrorType("给导师发件错误");
-            emailErrorLog.setErrorDescription("对应的导师没有邮箱地址");
-            emailErrorLog.setSenderEmail(mail.getEmailAddress());
-            emailErrorLog.setRecipientEmail(sendMailContent.getTeacherEmail());
+            emailErrorLog.setErrorDescription("对应的导师没有邮箱地址。系统邮箱：" + mail.getEmailAddress() + "。成果信息：" + production.toString());
             emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
             emailErrorLogService.addEmailErrorLog(emailErrorLog);
             return;
@@ -383,9 +384,7 @@ public class MailToTeacherService {
         if (StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
             EmailErrorLog emailErrorLog = new EmailErrorLog();
             emailErrorLog.setErrorType("给导师发件错误");
-            emailErrorLog.setErrorDescription("对应的导师没有邮箱地址");
-            emailErrorLog.setSenderEmail(mail.getEmailAddress());
-            emailErrorLog.setRecipientEmail(sendMailContent.getTeacherEmail());
+            emailErrorLog.setErrorDescription("对应的导师没有邮箱地址。系统邮箱：" + mail.getEmailAddress() + "。成果信息：" + production.toString());
             emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
             emailErrorLogService.addEmailErrorLog(emailErrorLog);
             return;

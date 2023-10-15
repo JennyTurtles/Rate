@@ -45,12 +45,12 @@
           ></el-input>
         </template>
       </el-table-column>
-      <el-table-column
-          align="center"
-          min-width="20%"
-          label="邮件详情"
-          prop="body"
-      ></el-table-column>
+<!--      <el-table-column-->
+<!--          align="center"-->
+<!--          min-width="20%"-->
+<!--          label="邮件详情"-->
+<!--          prop="body"-->
+<!--      ></el-table-column>-->
       <el-table-column
           align="center"
           min-width="10%"

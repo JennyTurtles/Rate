@@ -120,7 +120,6 @@ public class ReceiveMails {
         e.printStackTrace(pw);
         String errorDetails = sw.toString();
         emailErrorLog.setErrorDescription(errorDetails);
-        emailErrorLog.setSenderEmail(emailAddress);
         emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
         emailErrorLogService.addEmailErrorLog(emailErrorLog);
@@ -185,9 +184,7 @@ public class ReceiveMails {
                 PrintWriter pw = new PrintWriter(sw);
                 e.printStackTrace(pw);
                 String errorDetails = sw.toString();
-                emailErrorLog.setErrorDescription(errorDetails);
-                emailErrorLog.setSenderEmail(mail.getEmailAddress());
-                emailErrorLog.setBody("原始邮件信息："+originalMessage);
+                emailErrorLog.setErrorDescription(errorDetails + "。原始邮件信息：" + originalMessage);
                 emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
                 emailErrorLogService.addEmailErrorLog(emailErrorLog);

@@ -27,7 +27,6 @@ public class EmailErrorLogService {
     private EmailErrorLogMapper emailErrorLogMapper;
 
     public void addEmailErrorLog(EmailErrorLog emailErrorLog) {
-        emailErrorLog.merge2body();
         emailErrorLogMapper.insert(emailErrorLog);
     }
 
