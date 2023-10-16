@@ -528,8 +528,8 @@ export default {
     //点击对话框中的确定按钮 触发事件
     auditing_commit(state){
       this.loading = true;
-      if(this.role == 'admin' && state.indexOf('pass') >= 0 && this.emp.state == 'commit') { //管理员通过 有提示
-        this.$confirm('目前导师尚未审核，是否确认审核通过？', '提示', {
+      if(this.role == 'admin' && (state.indexOf('pass') >= 0 || state.indexOf('reject') >= 0) && this.emp.state == 'commit') { //管理员通过 有提示
+        this.$confirm('目前导师尚未审核，是否确认审核该成果？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
