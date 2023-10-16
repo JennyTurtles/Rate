@@ -20,7 +20,7 @@ public class MailService {
     @Resource
     private EmailErrorLogService emailErrorLogService;
 
-    public Mail getMail(){
+    public Mail getMail() {
         return mailMapper.getMail();
     }
 
@@ -53,8 +53,7 @@ public class MailService {
     private void logAndHandleError(String errorDescription, String senderEmail) {
         EmailErrorLog emailErrorLog = new EmailErrorLog();
         emailErrorLog.setErrorType("发件人邮箱信息错误");
-        emailErrorLog.setErrorDescription(errorDescription);
-        emailErrorLog.setSenderEmail(senderEmail);
+        emailErrorLog.setErrorDescription(errorDescription + "。发件人邮箱地址为：" + senderEmail);
         emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
         emailErrorLogService.addEmailErrorLog(emailErrorLog);
     }

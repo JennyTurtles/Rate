@@ -17,14 +17,10 @@ import java.util.List;
  */
 @Mapper
 public interface EmailErrorLogMapper {
-    @Insert("INSERT INTO exception_log (error_type, error_description, body, timestamp) " +
-            "VALUES (#{errorType}, #{errorDescription}, #{body}, #{timestamp})")
+    @Insert("INSERT INTO exception_log (error_type, error_description, timestamp) " +
+            "VALUES (#{errorType}, #{errorDescription}, #{timestamp})")
     void insert(EmailErrorLog emailErrorLog);
 
-//    @Update("UPDATE exception_log SET error_type=#{errorType}, error_description=#{errorDescription}, " +
-//            "sender_email=#{senderEmail}, recipient_email=#{recipientEmail}, subject=#{subject}, body=#{body}, timestamp=#{timestamp} " +
-//            "WHERE id=#{id}")
-//    void update(EmailErrorLog emailErrorLog);
 
     @Delete("DELETE FROM exception_log WHERE id=#{id}")
     void delete(Long id);
@@ -33,10 +29,10 @@ public interface EmailErrorLogMapper {
 
     void deleteAll(Timestamp startTime, Timestamp endTime);
 
-    @Select("SELECT id, error_type, error_description, body, timestamp FROM exception_log WHERE id=#{id}")
+    @Select("SELECT id, error_type, error_description, timestamp FROM exception_log WHERE id=#{id}")
     EmailErrorLog getById(Long id);
 
-    @Select("SELECT id, error_type, error_description, body, timestamp FROM exception_log")
+    @Select("SELECT id, error_type, error_description, timestamp FROM exception_log")
     List<EmailErrorLog> getAll();
 
     List<EmailErrorLog> filterByDate(Timestamp startTime, Timestamp endTime);

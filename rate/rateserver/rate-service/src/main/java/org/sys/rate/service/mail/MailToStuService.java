@@ -35,21 +35,20 @@ public class MailToStuService {
         } else {
             sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(production.getStudentId()));
         }
-        if(sendMailContent==null){
+        if (sendMailContent == null) {
             return;
         }
 
         Mail mail = mailService.handleNullPointerException();
+        if (mail == null) {
+            return;
+        }
 
         if (StringUtil.isEmpty(sendMailContent.getStudentEmail())) {
             EmailErrorLog emailErrorLog = new EmailErrorLog();
             emailErrorLog.setErrorType("给学生发件错误");
-            emailErrorLog.setErrorDescription("学生邮箱地址为空");
-            emailErrorLog.setSenderEmail(mail.getEmailAddress());
-            emailErrorLog.setRecipientEmail(sendMailContent.getStudentEmail());
-            emailErrorLog.setBody(sendMailContent.toString());
+            emailErrorLog.setErrorDescription("学生邮箱地址为空。系统邮箱：" + mail.getEmailAddress() + "。邮件内容：" + sendMailContent.toString());
             emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
-
             emailErrorLogService.addEmailErrorLog(emailErrorLog);
             return;
         }
@@ -80,7 +79,7 @@ public class MailToStuService {
                 contentBuilder.append("已经被管理员驳回！</b><br>");
                 break;
             default:
-                throw new IllegalArgumentException("未知状态！");
+                break;
         }
         contentBuilder.append("登录<a href=\"http://106.15.36.190:8081/#/Student/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！<br><br>")
                 .append("本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系管理员</a>！");
@@ -90,9 +89,6 @@ public class MailToStuService {
         subject = subject != null ? subject : "东华大学计算机学院教学系统邮件";
         sendMails.sendMailAsync(sendMailContent.getStudentEmail(), subject, content, null);
     }
-
-
-
 
 
 }

@@ -36,10 +36,7 @@ public class SendMails {
         if (StringUtils.isEmpty(to)) {
             EmailErrorLog emailErrorLog = new EmailErrorLog();
             emailErrorLog.setErrorDescription("接收人的邮箱地址为空");
-            emailErrorLog.setSenderEmail(mail.getEmailAddress());
-            emailErrorLog.setRecipientEmail(to);
-            emailErrorLog.setSubject(subject);
-            emailErrorLog.setBody(content);
+            emailErrorLog.setSenderEmail(mail.getEmailAddress() + "。发件内容是：" + content);
             emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
             emailErrorLogService.addEmailErrorLog(emailErrorLog);
@@ -56,11 +53,7 @@ public class SendMails {
                 PrintWriter pw = new PrintWriter(sw);
                 e.printStackTrace(pw);
                 String errorDetails = sw.toString();
-                emailErrorLog.setErrorDescription(errorDetails);
-                emailErrorLog.setSenderEmail(mail.getEmailAddress());
-                emailErrorLog.setRecipientEmail(to);
-                emailErrorLog.setSubject(subject);
-                emailErrorLog.setBody(content);
+                emailErrorLog.setErrorDescription(errorDetails + "。收件人：" + to + "。发件内容：" + content);
                 emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
 
                 emailErrorLogService.addEmailErrorLog(emailErrorLog);
