@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.Doctor;
 import org.sys.rate.model.GraduateStudent;
 
@@ -34,5 +35,11 @@ public interface DoctorMapper {
     int deleteDoctorStudent(Doctor doctor);
 
     int editDoctorStudent(Doctor doctor);
+
+    @Update("UPDATE doctor SET point = point + #{score} WHERE studentID = #{stuID}")
+    public int updateScore(Long stuID,Long score);
+
+    @Update("UPDATE doctor SET point = point - #{score} WHERE studentID = #{stuID}")
+    public int updateScoreSub(Long stuID,Long score);
 
 }

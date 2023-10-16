@@ -80,4 +80,15 @@ public class DoctorController {
     public RespBean editDoctorStudent(@RequestBody Doctor doctor){
         return doctorService.editDoctorStudent(doctor);
     }
+
+    @PostMapping("/updateScore") //加法
+    public RespBean updateScoreAdd(@RequestBody Doctor record) {
+        Integer res = doctorMapper.updateScore(Long.valueOf(record.getStudentID().intValue()),Long.parseLong(record.getPoint()));
+        return RespBean.ok("ok", res);
+    }
+    @PostMapping("/updateScoreSub") //减法
+    public RespBean updateScoreSub(@RequestBody Doctor record) {
+        Integer res = doctorMapper.updateScoreSub(Long.valueOf(record.getStudentID().intValue()),Long.parseLong(record.getPoint()));
+        return RespBean.ok("ok", res);
+    }
 }

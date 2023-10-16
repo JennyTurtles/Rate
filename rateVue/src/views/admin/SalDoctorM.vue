@@ -70,7 +70,7 @@
             <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary" style="padding: 4px">编辑</el-button>
             <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)" style="padding: 4px">删除</el-button>
             <el-button size="mini" type="primary" plain @click="resetPasswordShow(scope.row)" style="padding: 4px">重置密码</el-button>
-<!--            <el-button size="mini" type="primary" plain @click="showDetailInfo(scope.row)" style="padding: 4px">查看详情</el-button>-->
+            <el-button size="mini" type="primary" plain @click="showDetailInfo(scope.row)" style="padding: 4px">查看详情</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -125,44 +125,6 @@
         </div>
       </el-form>
     </el-dialog>
-    <el-dialog title="查看详情" :visible.sync="dialogShowDetailInfo" center width="900px">
-      <el-tabs v-model="tabsActivateName" @tab-click="tabChange">
-        <el-tab-pane label="学术论文" name="paper"></el-tab-pane>
-        <el-tab-pane label="授权专利" name="patent"></el-tab-pane>
-        <el-tab-pane label="科研获奖" name="award"></el-tab-pane>
-        <el-tab-pane label="专著教材" name="monograph"></el-tab-pane>
-        <el-tab-pane label="学科竞赛" name="competition"></el-tab-pane>
-        <el-tab-pane label="纵向项目" name="project"></el-tab-pane>
-        <el-tab-pane label="横向项目" name="projectHorizontal"></el-tab-pane>
-        <el-tab-pane label="决策咨询" name="decision"></el-tab-pane>
-        <el-tab-pane label="产品应用" name="product"></el-tab-pane>
-        <el-tab-pane label="制定标准" name="standard"></el-tab-pane>
-      </el-tabs>
-      <el-table :data="tabsTableData" v-loading="tabsTableLoading">
-        <el-table-column prop="name" label="成果名称" align="center"></el-table-column>
-        <el-table-column prop="state" label="成果状态" align="center">
-          <template slot-scope="scope">
-            <span
-                style="padding: 4px"
-                :style="scope.row.state=='tea_reject' || scope.row.state=='adm_reject' ? {'color':'red'}:{'color':'gray'}"
-                size="mini"
-            >
-              {{
-                scope.row.state == "commit"
-                    ? "已提交"
-                    : scope.row.state == "tea_pass"
-                        ? "导师通过"
-                        : scope.row.state == "tea_reject"
-                            ? "导师驳回"
-                            : scope.row.state == "adm_pass"
-                                ? "管理员通过"
-                                : "管理员驳回"
-              }}
-              </span>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
     <div style="margin-top: 10px;text-align:right">
       <el-pagination @size-change="handleSizeChange"
                      @current-change="handleCurrentChange"
@@ -187,7 +149,6 @@ export default {
       tabsTableLoading: false,
       tabsTableData: [],
       tabsActivateName: 'paper',
-      dialogShowDetailInfo: false,
       selectTeaNameAndJobnumber:[],//编辑框中导师搜索一栏的下拉框绑定数据
       newPassword:'',
       dialogResetPassword:false,
@@ -233,28 +194,15 @@ export default {
     this.initDoctorStudents(this.currentPage,this.pageSize)
   },
   methods:{
-    tabChange(tab, event) {
-      this.getTableDataMethod();
-    },
-    getTableDataMethod() {
-      let url = '';
-      if(this.tabsActivateName != 'projectHorizontal') {
-        url = `${this.tabsActivateName}/basic/studentID?studentID=${this.currentDoctorStudent.studentID}`;
-      } else {
-        url = `project/basic/studentID/horizontal?studentID=${this.currentDoctorStudent.studentID}`
-      }
-      this.tabsTableLoading = true;
-      this.getRequest(url).then(response => {
-        if(response) {
-          this.tabsTableData = response.data;
-          this.tabsTableLoading = false;
+    showDetailInfo(data) { //点击查看详情按钮
+      this.currentDoctorStudent = data;
+      let url = this.$router.resolve({
+        path:'/admin/DoctorManageAchievementInfo',
+        query: {
+          studentId: this.currentDoctorStudent.studentID
         }
       })
-    },
-    showDetailInfo(data) { //点击查看详情按钮
-      this.dialogShowDetailInfo = true;
-      this.currentDoctorStudent = data;
-      this.getTableDataMethod();
+      window.open(url.href, '_blank')
     },
     searchTeaNameMethod(val) {
       if(val) {

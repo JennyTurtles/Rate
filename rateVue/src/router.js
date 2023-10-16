@@ -24,10 +24,18 @@ export default new Router({
       children: [
         {
           path: '/admin/GraduateManageAchievementInfo',
-          name: '学生成果详情',
+          name: '研究生成果详情',
           component: () => import('./views/admin/GraduateManageAchievementInfo'),
           meta: {
-            title: '学生成果详情',
+            title: '研究生成果详情',
+          },
+        },
+        {
+          path: '/admin/DoctorManageAchievementInfo',
+          name: '博士生成果详情',
+          component: () => import('./views/admin/DoctorManageAchievementInfo'),
+          meta: {
+            title: '博士生成果详情',
           },
         },
         {
