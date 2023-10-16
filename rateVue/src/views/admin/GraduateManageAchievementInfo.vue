@@ -54,12 +54,10 @@
           <span>{{scope.row.point}}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="paperoperList[0].remark" label="备注" align="center" key="6" v-if="dynamicTabs.length > 0 && dynamicTabs[parseInt(tabsActivateName)].name == 'paper' ? true : false">
-      </el-table-column>
-      <el-table-column prop="operationList[0].remark" label="备注" align="center" key="7" v-if="dynamicTabs.length > 0 && dynamicTabs[parseInt(tabsActivateName)].name == 'paper' ? false : true">
+      <el-table-column prop="remark" label="备注" align="center" key="6">
       </el-table-column>
       <el-table-column
-          key="8"
+          key="7"
           align="center"
           label="详情"
       >
@@ -112,7 +110,7 @@
           <span>{{ currentAchievementOfEdit.student.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="期刊页码:" v-show="dynamicTabs.length > 0 && dynamicTabs[parseInt(tabsActivateName)].name == 'paper'">
+        <el-form-item label="期刊页码:" v-show="dynamicTabs.length > 0 && tabActivateOfIndexName == 'paper'">
           <span>{{ currentAchievementOfEdit.pubPage}}</span
           ><br />
         </el-form-item>
@@ -356,6 +354,7 @@ export default {
             type: 'success',
             message: '操作成功'
           })
+          this.currentAchievementOfEdit.remark = this.rejectReason;
           this.doAddOper(status, this.rejectReason, this.currentAchievementOfEdit.id);
           let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
           this.$store.dispatch('changePendingMessageange', roleParam);
