@@ -4,16 +4,40 @@ import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.GraduateStudentService;
+import org.sys.rate.service.admin.OperationService;
 import org.sys.rate.service.admin.StudentService;
 import org.sys.rate.service.admin.UnderGraduateService;
 import org.sys.rate.service.expert.ExpertService;
 
+import javax.annotation.Resource;
 import java.applet.AppletStub;
 import java.util.List;
 
 @RestController
 @RequestMapping("/student/basic")
 public class StudentBasicController {
+
+    @Resource
+    private OperationService operationService;
+    @Resource
+    private PatentMapper patentMapper;
+    @Resource
+    private PaperMapper paperMapper;
+    @Resource
+    private DecisionMapper decisionMapper;
+    @Resource
+    private StandardMapper standardMapper;
+    @Resource
+    private AwardMapper awardMapper;
+    @Resource
+    private CompetitionMapper competitionMapper;
+    @Resource
+    private MonographMapper monographMapper;
+    @Resource
+    private ProductMapper productMapper;
+    @Resource
+    private ProjectMapper projectMapper;
+
     @Autowired
     StudentService StudentService;
     @Autowired
@@ -37,6 +61,24 @@ public class StudentBasicController {
     public List<Student> getAllStudent() {
         return StudentService.getAllStudent();
     }
+    @GetMapping("/getAllAchievement") //获取该学生所有类别成果
+    public Msg getAllAchievement(Integer studentId) {
+        List<Patent> patentList = patentMapper.selectListByIds(studentId);
+        List<Paper> paperList = paperMapper.selectListByIds(studentId);
+        List<Project> projectList = projectMapper.selectProjectListById(studentId);
+        List<Project> horizontalProjectList = projectMapper.selectHorizontalProjectListById(studentId);
+        List<Product> productList = productMapper.selectListByIds(studentId);
+        List<Monograph> monographList = monographMapper.selectMonographListById(studentId);
+        List<Decision> decisionList = decisionMapper.selectDecisionListById(studentId);
+        List<Standard> standardList = standardMapper.selectListByIds(studentId);
+        List<Award> awardList = awardMapper.selectAwardListById(studentId);
+        List<Competition> competitionList = competitionMapper.selectCompetitionListById(studentId);
+        return Msg.success().add("patent", patentList)
+                .add("paper", paperList).add("project", projectList).add("product", productList)
+                .add("monograph", monographList).add("decision", decisionList).add("standard", standardList)
+                .add("award", awardList).add("competition", competitionList).add("horizontalProject", horizontalProjectList);
+    }
+
     @GetMapping("/getStuByIDNumber")
     public RespBean getStuByIDNumber(String IDNumber,String stuType) {
         Student res = StudentService.getStuByIDNumber(IDNumber);
