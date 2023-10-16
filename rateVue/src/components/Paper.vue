@@ -609,6 +609,19 @@ export default {
     //点击对话框中的确定按钮 触发事件
     auditing_commit(status){
       this.loading = true;
+      if(this.role == 'admin' && (status.indexOf('pass') >= 0 || status.indexOf('reject') >= 0) && this.emp.state == 'commit') { //管理员通过 有提示
+        this.$confirm('目前导师尚未审核，是否确认审核该成果？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.rolePass(status);
+        }).catch(() => {
+          this.loading = false;
+        });
+      }else this.rolePass(status);
+    },
+    rolePass(status) {
       let url = "/paper/basic/edit_state?state=" + status + "&ID="+this.emp.id;
       this.dialogVisible_show = false
       this.getRequest(url).then((resp) => {
