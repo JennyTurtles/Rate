@@ -7,8 +7,12 @@ import Vuex from "vuex";
 import * as XLSX from 'xlsx/xlsx.mjs'
 import FileSaver from 'file-saver'
 import './utils/date.scss';
+import VueOfficeDocx from "@vue-office/docx";
+import VueOfficePdf from "@vue-office/pdf";
+import '@vue-office/docx/lib/index.css'
 
 import {
+    Image,
     Transfer,
     Button,
     Input,
@@ -76,6 +80,7 @@ Vue.use(Transfer)
 Vue.use(Switch);
 Vue.component(Message);
 Vue.use(CollapseItem);
+Vue.use(Image);
 Vue.use(Radio);
 Vue.use(Skeleton);
 Vue.use(SkeletonItem);
@@ -125,6 +130,8 @@ Vue.use(Tag);
 Vue.use(Vuex)
 Vue.use(Popconfirm)
 Vue.use(VueRouter)
+Vue.use(VueOfficeDocx)
+Vue.use(VueOfficePdf);
 // Vue.use(XLSX)
 // Vue.use(FileSaver)
 Vue.prototype.$message = Message
@@ -147,6 +154,7 @@ import { initMenu_ex } from "./utils/menus";
 import 'font-awesome/css/font-awesome.min.css'
 import Directives from './directives/index.js'
 import ro from "element-ui/src/locale/lang/ro";
+import axios from "axios";
 // import {time} from "html2canvas/dist/types/css/types/time";
 Vue.use(Directives)
 Vue.prototype.postRequest = postRequest;
@@ -288,6 +296,51 @@ Vue.prototype.initTutor = function (user){
         })
     }
 }
+Vue.prototype.previewFileMethod = function (data){ //预览证明材料
+    var fileName = data.url.split('/').reverse()[0]
+    var url = data.url
+    return axios({
+        url: '/paper/basic/downloadByUrl?url='+url,
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+            'token': JSON.parse(localStorage.getItem('user')).token ? JSON.parse(localStorage.getItem('user')).token : ''
+        }
+    }).then(response => {
+        let url = window.URL.createObjectURL(new Blob([response]));
+        return url;
+        // this.previewImageUrl = url;
+        // this.previewImageSrcList = [url];
+    });
+};
+Vue.prototype.downloadFileMethod = function (data){ //预览证明材料
+    var fileName = data.url.split('/').reverse()[0]
+    var url = data.url
+    axios({
+        url: '/paper/basic/downloadByUrl?url='+url,
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+            'token': JSON.parse(localStorage.getItem('user')).token ? JSON.parse(localStorage.getItem('user')).token : ''
+        }
+    }).then(response => {
+        let url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        if (url.startsWith('http:')) {
+            url = url.replace('http:', 'https:');
+        }
+        this.previewImageUrl = url;
+        this.previewImageSrcList = [url];
+
+        // this.previewFile(response);
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+};
+
 let vue = new Vue({
     router,
     store,
