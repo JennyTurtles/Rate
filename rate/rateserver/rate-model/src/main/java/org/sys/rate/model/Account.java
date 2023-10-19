@@ -1,6 +1,7 @@
 package org.sys.rate.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-
+@NoArgsConstructor
 public class Account implements UserDetails {
     Integer ID;
     String name;
@@ -24,6 +25,9 @@ public class Account implements UserDetails {
 
     private String role;
     private List<Role> roles;
+
+
+
 
     @Override
     public boolean equals(Object o) {

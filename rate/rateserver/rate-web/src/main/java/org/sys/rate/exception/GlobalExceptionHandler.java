@@ -1,5 +1,8 @@
 package org.sys.rate.exception;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -8,9 +11,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.sys.rate.model.Account;
-import org.sys.rate.model.EmailErrorLog;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.model.*;
+import org.sys.rate.service.admin.AdminService;
+import org.sys.rate.service.admin.StudentService;
+import org.sys.rate.service.admin.TeacherService;
 import org.sys.rate.service.mail.EmailErrorLogService;
 
 import javax.annotation.Resource;
@@ -26,6 +30,12 @@ import java.util.List;
 public class GlobalExceptionHandler {
     @Resource
     private EmailErrorLogService emailErrorLogService;
+    @Autowired
+    private AdminService adminService;
+    @Autowired
+    private StudentService studentService;
+    @Autowired
+    private TeacherService teacherService;
 
     @ExceptionHandler(SQLException.class)
     public RespBean sqlException(SQLException e) {
@@ -37,8 +47,29 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public RespBean sqlException(Exception e, HttpServletRequest request) {
-        // 获取用户信息（假设您已经实现了用户登录系统并将用户信息存储在会话中）
-        Account loggedInUser = (Account) request.getSession().getAttribute("user");
+
+        String token = request.getHeader("token");
+
+        String userId = JWT.decode(token).getAudience().get(0);
+        Admin admin = adminService.getById(Integer.parseInt(userId));
+        Teacher teacher = teacherService.getById(Integer.parseInt(userId));
+        Student student = studentService.getById(Integer.parseInt(userId));
+        Account loggedInUser = new Account();
+        if (admin == null && teacher == null && student == null) {
+            loggedInUser = null;
+        } else if (admin != null) {
+            loggedInUser.setName(admin.getName());
+            loggedInUser.setID(admin.getID());
+            loggedInUser.setRole("admin");
+        } else if (teacher != null) {
+            loggedInUser.setName(teacher.getName());
+            loggedInUser.setID(teacher.getID());
+            loggedInUser.setRole("teacher");
+        } else if (student != null) {
+            loggedInUser.setName(student.getName());
+            loggedInUser.setID(student.getID());
+            loggedInUser.setRole("student");
+        }
 
         // 获取请求的操作
         String operation = "；请求url：" + request.getRequestURL() + "；请求参数：" + request.getRequestURI() + "；";
@@ -52,10 +83,9 @@ public class GlobalExceptionHandler {
 
         // 存储用户信息和操作
         if (loggedInUser != null) {
-            errorDetails = "用户id：" + loggedInUser.getID() + "；用户姓名：" + loggedInUser.getName() + operation + errorDetails;
-
+            errorDetails = "用户角色：" + loggedInUser.getRole() + "；用户id：" + loggedInUser.getID() + "；用户姓名：" + loggedInUser.getName() + operation + errorDetails;
         } else {
-            errorDetails = "用户id：null；用户姓名：null" + operation + errorDetails;
+            errorDetails = "用户信息：null" + operation + errorDetails;
         }
 
 
