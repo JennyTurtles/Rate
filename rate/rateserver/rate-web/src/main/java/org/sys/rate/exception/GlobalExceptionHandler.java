@@ -48,7 +48,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public RespBean sqlException(Exception e, HttpServletRequest request) {
 
-        String token = request.getHeader("token");
+        String token = null;
+        try {
+            token = request.getHeader("token");
+        } catch (Exception ex) {
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("token未定义");
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
+
+            return RespBean.error("请邮件联系管理员ratemail@126.com，并截图说明相关操作。" + ex);
+        }
 
         String userId = JWT.decode(token).getAudience().get(0);
         Admin admin = adminService.getById(Integer.parseInt(userId));

@@ -19,12 +19,15 @@ import org.sys.rate.utils.ReadExcel;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
+import java.io.File;
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/undergraduateM/basic")
@@ -54,7 +57,7 @@ public class UnderGraduateMController {
         if (under.size() == 0 || stu.size() == 0 || under.size() != stu.size()) {
             return RespBean.error("未读取到有效导入数据");
         }
-        RespBean res = underGraduateService.addUnderGraduate(under, stu,institutionID);
+        RespBean res = underGraduateService.addUnderGraduate(under, stu, institutionID);
         return res;
     }
 
@@ -118,6 +121,31 @@ public class UnderGraduateMController {
             }
         }
         return RespBean.error("更新失败!");
+    }
+
+    @PostMapping("/uploadSign")
+    public RespBean uploadSign(@RequestParam("id") String id, @RequestParam("file") MultipartFile file) {
+        if (!file.isEmpty()) {
+            try {
+                String filePath = new File("files").getAbsolutePath() + "\\template\\signs\\"+ UUID.randomUUID() +"-";
+                String fileName = file.getOriginalFilename();
+
+                // 在指定路径下创建文件
+                File dest = new File(filePath + fileName);
+                file.transferTo(dest);
+
+                UnderGraduate underGraduate = new UnderGraduate();
+                underGraduate.setStudentID(Integer.valueOf(id));
+                underGraduate.setSign(dest.getAbsolutePath());
+                underGraduateMapper.save(underGraduate);
+
+                return RespBean.ok("");
+            } catch (IOException e) {
+                return RespBean.error("");
+            }
+        } else {
+            return RespBean.error("");
+        }
     }
 
 
@@ -233,7 +261,7 @@ public class UnderGraduateMController {
         //List<Thesis> students = (List<Thesis>) data.get("students");
         String groupWay = (String) data.get("groupWay");
         List<String> selectInfo = (List<String>) data.get("selectInfo");
-        return underGraduateService.createGroup(year, month, arr, exchangeNums, groupsNums, groupWay,selectInfo);
+        return underGraduateService.createGroup(year, month, arr, exchangeNums, groupsNums, groupWay, selectInfo);
         //返回分好组的选手信息
     }
 }

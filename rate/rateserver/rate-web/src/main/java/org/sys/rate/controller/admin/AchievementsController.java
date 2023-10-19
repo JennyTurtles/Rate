@@ -29,6 +29,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -48,7 +49,7 @@ public class AchievementsController {
     @PostMapping("/upload") //学生上传
     public JsonResult upload(@RequestParam MultipartFile file) throws IOException {
         String filename = file.getOriginalFilename();
-        String fPath = new File("files").getAbsolutePath() + "/upload/" + filename;
+        String fPath = new File("files").getAbsolutePath() + "\\upload\\" + UUID.randomUUID() + filename;
         File newFile = new File(fPath);
         file.transferTo(newFile);
 

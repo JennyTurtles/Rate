@@ -22,6 +22,8 @@ public class UnderGraduate extends Student{
     private String group;
     private Thesis thesis;
 
+    private String sign;
+
     public String getClassName() {
         return className;
     }
