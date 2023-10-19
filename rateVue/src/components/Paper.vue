@@ -617,19 +617,19 @@ export default {
       });
     },
     
-    previewFile(url) { //打开一个新标签页
-      let docwindow = window.open("",'DetailRunTime'); // 创建新窗口
-      let box = document.createElement('div')  // 创建一个div
-      let docx = require("docx-preview")
-      docx.renderAsync(url,box).then(() => {  // 渲染文件
-        docwindow.document.write(box.outerHTML);
-        //渲染文件后将div添加到新窗口中，div不能提前添加，否则新窗口中不能渲染出文件
-        //注意这里不能直接用box
-        docwindow.document.title = '文件预览' // 窗口标题
-        docwindow.document.getElementsByClassName('docx')[0].style.width = 'auto'
-        // 如果文件显示正常，不用设置宽度，我的出现了下图所示只显示了一半
-      })
-    },
+    // previewFile(url) { //打开一个新标签页
+    //   let docwindow = window.open("",'DetailRunTime'); // 创建新窗口
+    //   let box = document.createElement('div')  // 创建一个div
+    //   let docx = require("docx-preview")
+    //   docx.renderAsync(url,box).then(() => {  // 渲染文件
+    //     docwindow.document.write(box.outerHTML);
+    //     //渲染文件后将div添加到新窗口中，div不能提前添加，否则新窗口中不能渲染出文件
+    //     //注意这里不能直接用box
+    //     docwindow.document.title = '文件预览' // 窗口标题
+    //     docwindow.document.getElementsByClassName('docx')[0].style.width = 'auto'
+    //     // 如果文件显示正常，不用设置宽度，我的出现了下图所示只显示了一半
+    //   })
+    // },
 
     filter(val,options){
       document.getElementById(options).value=val
