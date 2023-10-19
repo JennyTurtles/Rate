@@ -274,7 +274,7 @@ export default {
      registerRoleVisible: false,
      routes: [],
      role: "",
-      roleName: '',
+     roleName: '',
      name: "",
      //获取页面高度
      clientHeight: "",
@@ -322,7 +322,7 @@ export default {
   methods: {
     checkPassword() {
       const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
-      if (!passwordRegex.test(this.user.password)) {
+      if (!passwordRegex.test(this.password)) {
         this.checkPwdState = false
         this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
       }else {

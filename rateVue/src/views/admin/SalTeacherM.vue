@@ -114,7 +114,7 @@ export default {
   name: "SalTeacherM",
   data(){
     return{
-      newPassword:'',//重置密码中的新密码
+      newPassword:'dhucst@11',//重置密码中的新密码
       pageSizes:[15,20,20,20,30],
       totalCount:0,
       currentPage:1,
@@ -171,7 +171,7 @@ export default {
       this.postRequest('/teacher/basic/updatePassword',this.currentTeacherOfEdit).then((response)=>{
         if(response){
           if(response.status == 200){
-            this.$message.success("重置成功")
+            this.$message.success("重置成功，密码重置为"+this.newPassword);
             this.closeDialogReset()
           }else {
             this.$message.fail("重置失败")

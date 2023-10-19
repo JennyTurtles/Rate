@@ -224,7 +224,7 @@
     >
       <el-form>
         <el-form-item label="请输入新密码:">
-          <el-input style="width: 60%" v-model="newPassword"></el-input>
+          <el-input style="width: 60%" v-model="newPassword" ></el-input>
         </el-form-item>
         <div class="footer">
           <el-button @click="resetPassword" type="primary">确认</el-button>
@@ -276,7 +276,7 @@ export default {
 
       database: [], //永久存储初始化页面获取的数据
 
-      newPassword: "", //重置密码中的新密码
+      newPassword: "dhucst@11", //重置密码中的新密码
       dialogResetPassword: false,
 
       dialogEdit: false,
@@ -348,8 +348,7 @@ export default {
       ).then((response) => {
         if (response) {
           if (response.status == 200) {
-            this.$message.success("重置成功");
-
+            this.$message.success("重置成功，密码重置为"+this.newPassword);
             this.closeDialogReset();
           } else {
             this.$message.fail("重置失败");
