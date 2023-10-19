@@ -523,7 +523,7 @@ export default {
       var formData=new FormData();
       this.files.push(file);
       formData.append("file",this.files[0].raw)
-      axios.post("/decision/basic/upload",formData,{
+      axios.post("/achievements/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? this.user.token : ''
         }
