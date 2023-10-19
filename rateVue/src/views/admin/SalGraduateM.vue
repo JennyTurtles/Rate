@@ -153,7 +153,7 @@ export default {
       tabsTableData: [],
       tabsActivateName: 'paper',
       selectTeaNameAndJobnumber:[],//编辑框中导师搜索一栏的下拉框绑定数据
-      newPassword:'',
+      newPassword:'dhucst@11',
       dialogResetPassword:false,
       pageSizes:[10,20,30,50,100],
       totalCount:0,
@@ -233,7 +233,7 @@ export default {
       this.postRequest('/graduatestudentM/basic/resetUnderPassword',this.currentGraduateStudent).then((response)=>{
         if(response){
           if(response.status == 200){
-            this.$message.success("重置成功")
+            this.$message.success("重置成功，密码重置为"+this.newPassword);
             this.closeDialogReset()
           }else {
             this.$message.fail("重置失败")
