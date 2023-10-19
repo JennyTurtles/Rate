@@ -12,6 +12,7 @@ import org.sys.rate.mapper.StudentMapper;
 import org.sys.rate.model.Admin;
 import org.sys.rate.model.RespPageBean;
 import org.sys.rate.model.Student;
+import org.sys.rate.model.UnderGraduate;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -148,7 +149,7 @@ public class StudentService implements UserDetailsService {
         return true;
     }
 
-    public Student getByUndergraduateId(Integer studentID) {
+    public UnderGraduate getByUndergraduateId(Integer studentID) {
         return studentMapper.getByUndergraduateId(studentID);
     }
 }

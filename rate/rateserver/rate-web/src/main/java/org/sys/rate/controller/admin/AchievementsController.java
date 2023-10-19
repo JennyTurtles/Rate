@@ -59,7 +59,7 @@ public class AchievementsController {
 
     @GetMapping("/download")
     public RespBean download(Integer paperID, String filename) throws IOException {
-        File newFile = new File(new File("files").getAbsolutePath() + "/upload/" + filename);
+        File newFile = new File(new File("files").getAbsolutePath() + "\\upload\\" + filename);
         return RespBean.ok("success", newFile);
     }
 
