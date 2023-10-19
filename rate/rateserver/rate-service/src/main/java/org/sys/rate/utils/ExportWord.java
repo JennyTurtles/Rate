@@ -15,7 +15,7 @@ import org.sys.rate.service.mail.EmailErrorLogService;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.sql.Timestamp;
+import java.io.File;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -29,7 +29,7 @@ public class ExportWord {
 
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);
-    private static final String TEMPLATE_PATH = "static/template/GradingTable.docx";
+    private String TEMPLATE_PATH;
     private static final SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
     private static final SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
     private static final SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
@@ -43,24 +43,8 @@ public class ExportWord {
     private static final String[] commentEnd = {"指导教师（签名）", "评阅教师（签名）", "答辩小组组长（签名）"};
     private int[] commentFontSize = {12, 12, 12};
 
-    private boolean hasCheckedFilesAndDirectories = false;
-
-    private boolean checkIfNecessaryFilesAndDirectoriesExist() {
-        if (!hasCheckedFilesAndDirectories) {
-            Resource resource = new ClassPathResource(TEMPLATE_PATH);
-            if (!resource.exists()) {
-                EmailErrorLog emailErrorLog = new EmailErrorLog();
-                emailErrorLog.setErrorType("导出word时模版文件不存在");
-                emailErrorLog.setErrorDescription("模版文件 " + TEMPLATE_PATH + " 不存在！！！");
-                emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
-                emailErrorLogService.addEmailErrorLog(emailErrorLog);
-
-                hasCheckedFilesAndDirectories = false;
-                return false;
-            }
-            hasCheckedFilesAndDirectories = true;
-        }
-        return true;
+    public ExportWord() {
+        this.TEMPLATE_PATH = new File("files").getAbsolutePath() + "\\template\\GradingTable.docx";
     }
 
 
@@ -311,9 +295,6 @@ public class ExportWord {
     }
 
     public byte[] generateListWord(List<GradeForm> gradeForms) throws Exception {
-        if (!checkIfNecessaryFilesAndDirectoriesExist()) {
-            return null;
-        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
 
@@ -333,8 +314,7 @@ public class ExportWord {
             boolean changeLineSpace = false;
 
 
-            Resource resource = new ClassPathResource(TEMPLATE_PATH);
-            try (XWPFDocument doc = WordExportUtil.exportWord07(resource.getFile().getPath().replace("/","\\"), params)) {
+            try (XWPFDocument doc = WordExportUtil.exportWord07(TEMPLATE_PATH, params)) {
                 // change the size of comment
                 if (isChangeInstCommentFont || isChangeReviewerCommentFont || isChangeLeaderCommentFont) {
                     loop:

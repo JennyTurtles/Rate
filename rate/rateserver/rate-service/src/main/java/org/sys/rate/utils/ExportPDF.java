@@ -46,53 +46,23 @@ public class ExportPDF {
     private final static int PRESUMROWS = 17;
     private final static int NEXTPLANROWS = 21;
     private final static int ONEROWMAXCOUNT = 35;
-    private String DEST = "static\\template\\exportFiles\\";
 
-    private String FONT_PATH_Song = "static/template/song.ttf";
-    private String TEMPLATE_PATH10 = "static/template/template_10.pdf";
-    private String TEMPLATE_PATH20 = "static/template/template_20.pdf";
+    private String uploadPath;
+    private String DEST;
+    private String FONT_PATH_Song;
+    private String TEMPLATE_PATH10;
+    private String TEMPLATE_PATH20;
 
-
-    private boolean hasCheckedFilesAndDirectories = false;
-
-
-    private boolean checkIfNecessaryFilesAndDirectoriesExist() {
-        if (!hasCheckedFilesAndDirectories) {
-            try {
-                boolean fontResult = checkIfResourceExists(FONT_PATH_Song, "导出PDF，模版文件不存在", "字体文件 " + FONT_PATH_Song + " 不存在");
-                boolean template10Result = checkIfResourceExists(TEMPLATE_PATH10, "导出PDF，模版文件不存在", "模版文件 " + TEMPLATE_PATH10 + " 不存在！！！");
-                boolean template20Result = checkIfResourceExists(TEMPLATE_PATH20, "导出PDF，模版文件不存在", "模版文件 " + TEMPLATE_PATH20 + " 不存在！！！");
-
-                if (fontResult && template10Result && template20Result) {
-                    FONT_PATH_Song = new ClassPathResource(FONT_PATH_Song).getFile().getPath().replace("/","\\");
-                    DEST = FONT_PATH_Song.substring(0, FONT_PATH_Song.indexOf("static")) + DEST;
-                    TEMPLATE_PATH10 = new ClassPathResource(TEMPLATE_PATH10).getFile().getPath().replace("/","\\");
-                    TEMPLATE_PATH20 = new ClassPathResource(TEMPLATE_PATH20).getFile().getPath().replace("/","\\");
-                    hasCheckedFilesAndDirectories = true;
-                    return true;
-                } else {
-                    hasCheckedFilesAndDirectories = false;
-                    return false;
-                }
-            } catch (IOException e) {
-                return false;
-            }
-        }
-        return true;
+    public ExportPDF() {
+        this.uploadPath = new File("files").getAbsolutePath() + "\\template\\";
+        this.DEST = uploadPath + "exportFiles\\";
+        this.FONT_PATH_Song = uploadPath + "song.ttf";
+        this.TEMPLATE_PATH10 = uploadPath + "template_10.pdf";
+        this.TEMPLATE_PATH20 = uploadPath + "template_20.pdf";
     }
 
-    private boolean checkIfResourceExists(String resourcePath, String errorType, String errorDescription) {
-        org.springframework.core.io.Resource resource = new ClassPathResource(resourcePath);
-        if (!resource.exists()) {
-            EmailErrorLog emailErrorLog = new EmailErrorLog();
-            emailErrorLog.setErrorType(errorType);
-            emailErrorLog.setErrorDescription(errorDescription);
-            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
-            emailErrorLogService.addEmailErrorLog(emailErrorLog);
-            return false;
-        }
-        return true;
-    }
+
+
 
     public boolean generatePDF(HttpServletResponse response, Integer thesisID) throws Exception {
         if (thesisID == null) {
@@ -104,10 +74,6 @@ public class ExportPDF {
         Teacher teacher = teacherService.getById(thesis.getTutorID());
         List<PaperComment> paperComments = paperCommentService.selectCommentListStuOrderByNum(thesisID);
 
-
-        if (!checkIfNecessaryFilesAndDirectoriesExist()) {
-            return false;
-        }
 
         String templatePath = paperComments.size() <= 10 ? TEMPLATE_PATH10 : TEMPLATE_PATH20;
         String fileName = student.getName() + "-" + UUID.randomUUID() + ".pdf";
