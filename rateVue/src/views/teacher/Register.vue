@@ -26,7 +26,10 @@
         <el-input style="width: 60%" v-model="user.username"></el-input>
       </el-form-item>
       <el-form-item label="请输入密码:">
-        <el-input style="width: 60%" v-model="user.password" type="password"></el-input>
+        <el-input style="width: 60%" v-model="user.password" type="password" @blur="checkPassword"></el-input>
+      </el-form-item>
+      <el-form-item label="请确认密码:" prop="confirmPassword">
+        <el-input style="width: 60%" v-model="confirmPassword" type="password" @blur="checkPasswordSame" ></el-input>
       </el-form-item>
       <el-form-item label="请输入密保问题:">
         <el-input style="width: 60%" v-model="user.registerQuestion"></el-input>
@@ -50,6 +53,7 @@ export default {
   name: "TeaRegister",
   data(){
     return{
+      confirmPassword:'',
       user:{
         name:'',
         phone:'',
@@ -71,8 +75,27 @@ export default {
     }
   },
   methods:{
+    checkPasswordSame(){
+      if(this.user.password != this.confirmPassword){
+        this.checkPwdState = false
+        this.$message.error('两次密码输入不一致，请检查');
+      }else{
+        this.checkPwdState = true
+      }
+    },
+    checkPassword() {
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+      if (!passwordRegex.test(this.user.password)) {
+        this.checkPwdState = false
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
+      }
+    },
     //点击注册按钮
     register(){
+      if(this.checkPwdState == false){
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)')
+        return
+      }
       if(this.user.idnumber == null || this.user.idnumber == ''){
         this.$message.warning('请输入身份证号！')
         return

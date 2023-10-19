@@ -173,6 +173,7 @@
             type="password"
             v-model="password"
             placeholder="请输入新密码"
+            @blur="checkPassword"
           ></el-input>
         </el-form-item>
         <el-form-item label="确认密码">
@@ -264,6 +265,7 @@ export default {
   name: "Home",
  data: function () {
   return {
+     checkPwdState: false,
      isStudentRole: false, //判断当前角色是否是学生中的四个角色之一，后续判断是否发送待办消息的请求和页面显示
      tutorName:'',
      stuType:['本科生','硕士研究生','博士研究生'],
@@ -318,6 +320,16 @@ export default {
     },
   },
   methods: {
+    checkPassword() {
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+      if (!passwordRegex.test(this.user.password)) {
+        this.checkPwdState = false
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
+      }else {
+        this.checkPwdState = true
+      }
+
+    },
     pendingMessageRoute(){ //点击待办消息导航
       this.$router.push('/pending/message');
     },
@@ -494,6 +506,10 @@ export default {
           type: "warning",
           message: "密码不能为空!",
         });
+        return;
+      }
+      if(this.checkPwdState == false){
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
         return;
       }
       if (this.password !== this.password_confirm) {

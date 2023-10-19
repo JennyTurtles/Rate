@@ -62,7 +62,7 @@
           <el-input style="width: 60%" v-model="user.username" :disabled="usernameAndPwdIsDisabled"></el-input>
         </el-form-item>
         <el-form-item label="密码:">
-          <el-input style="width: 60%" v-model="user.password" type="password" :disabled="usernameAndPwdIsDisabled"></el-input>
+          <el-input style="width: 60%" v-model="user.password" type="password" :disabled="usernameAndPwdIsDisabled"　 @blur="checkPassword"></el-input>
         </el-form-item>
         <el-form-item label="确认密码:" prop="confirmPassword">
           <el-input style="width: 60%" v-model="confirmPassword" type="password" :disabled="usernameAndPwdIsDisabled" ></el-input>
@@ -155,6 +155,13 @@ export default {
     }
   },
   methods:{
+    checkPassword() {
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+      if (!passwordRegex.test(this.user.password)) {
+        this.checkPwdState = false
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
+      }
+    },
     //因为form自带的表单验证有问题，所以自定义验证方法
     checkPwd(){
       if(this.confirmPassword !== this.user.password) this.checkPwdState = false
@@ -170,7 +177,7 @@ export default {
         this.$message.warning('请输入单位！')
         return
       }
-      console.log(this.currentInstitution);
+      // console.log(this.currentInstitution);
       if((this.selectStuType == null || this.selectStuType == '') && this.currentInstitution !== '其他'){
         this.$message.warning('请选择注册的学生身份！')
         return
@@ -184,7 +191,7 @@ export default {
         return
       }
       this.user.stuType = this.selectStuType
-      console.log(this.user);
+      // console.log(this.user);
       postRequest('/registerUser/stu',this.user).then((response)=>{
         if(response){
           this.$message.success('注册成功！')
