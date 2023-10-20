@@ -10,7 +10,19 @@
           </el-button>
           <el-button type="primary" icon="el-icon-download" @click="exportPDF">
             导出PDF
-          </el-button>
+          </el-button> &nbsp;
+          <el-upload
+              class="upload-demo"
+              :action="`/undergraduateM/basic/uploadSign?id=${this.user.id}`"
+              :show-file-list="false"
+              :on-success="handleUploadSuccess"
+              :before-upload="beforeUpload"
+              :headers="{'token':this.user.token}"
+          >
+            <el-button type="primary" icon="el-icon-upload">上传个人签名</el-button>&nbsp;&nbsp;&nbsp;&nbsp;
+            <span style="color:gray;font-size:11px">只允许jpg png类型文件，大小不能超过1MB
+                </span>
+          </el-upload>
         </div>
       </div>
     </div>
@@ -300,6 +312,7 @@ export default {
   name: "stuPaperComment",
   data() {
     return {
+      user: {},
       isShowAddButton: false,
       disabledInput: true,
       timer: null,
@@ -396,9 +409,6 @@ export default {
     },
   },
   computed: {
-    user() {
-      return this.$store.state.currentHr; //object信息
-    },
     menuHeight() {
       return this.publicationName.length * 50 > 150
           ? 150 + "px"
@@ -409,9 +419,27 @@ export default {
   },
   mounted() {
     this.initEmps();
+    this.user = JSON.parse(localStorage.getItem('user'))
   },
   filters: {},
   methods: {
+    handleUploadSuccess(response, file, fileList) {
+      this.$message.success("上传成功！")
+    },
+    beforeUpload(file) {
+      // 上传前的验证函数
+      const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png';
+      const isLt1M = file.size / 1024 / 1024 < 1;
+
+      if (!isJPGorPNG) {
+        this.$message.error('只能上传 JPG 或 PNG 文件');
+      }
+      if (!isLt1M) {
+        this.$message.error('文件大小不能超过 1MB');
+      }
+
+      return isJPGorPNG && isLt1M;
+    },
     exportPDF() {
       this.loading = true;
 
@@ -425,7 +453,7 @@ export default {
 
               const a = document.createElement('a');
               a.href = fileURL;
-              a.download = JSON.parse(localStorage.getItem('user')).name+'_毕业论文评审记录.pdf'; // 在这里设置你想要的文件名
+              a.download = this.user.name + '_毕业论文评审记录.pdf'; // 在这里设置你想要的文件名
               a.style.display = 'none';
               document.body.appendChild(a);
               a.click();
@@ -441,7 +469,6 @@ export default {
         this.$message.info("抱歉你还未添加毕设设计或论文！");
       }
     },
-
 
 
     handleCancel(event) {
@@ -549,7 +576,7 @@ export default {
             this.emp.preSum = empdata.preSum;
             this.emp.nextPlan = empdata.nextPlan;
             this.emp.dateStu = empdata.dateStu;
-            this.emp.studentID = JSON.parse(localStorage.getItem("user")).id;
+            this.emp.studentID = this.user.id;
             this.emp.thesisID = empdata.thesisID;
             this.emp.dateTea = null;
             this.emp.isPass = null;
@@ -573,7 +600,7 @@ export default {
             this.emp.preSum = empdata.preSum;
             this.emp.nextPlan = empdata.nextPlan;
             this.emp.dateStu = empdata.dateStu;
-            this.emp.studentID = JSON.parse(localStorage.getItem("user")).id;
+            this.emp.studentID = this.user.id;
             this.emp.thesisID = this.thesisID;
             this.emp.isPass = null;
 
@@ -655,6 +682,11 @@ export default {
 </script>
 
 <style>
+.upload-demo {
+  display: inline-block;
+  margin-right: 10px;
+}
+
 .el-loading-spinner {
   font-size: 20px;
   /*font-weight: bold;*/

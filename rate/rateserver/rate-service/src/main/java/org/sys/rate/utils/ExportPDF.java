@@ -3,10 +3,11 @@ package org.sys.rate.utils;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.Image;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.PaperCommentService;
@@ -62,15 +63,13 @@ public class ExportPDF {
     }
 
 
-
-
     public boolean generatePDF(HttpServletResponse response, Integer thesisID) throws Exception {
         if (thesisID == null) {
             // 参数校验，确保thesisID有效
             return false;
         }
         Thesis thesis = paperCommentService.getThesisByTID(thesisID);
-        Student student = studentService.getByUndergraduateId(thesis.getStudentID());
+        UnderGraduate student = studentService.getByUndergraduateId(thesis.getStudentID());
         Teacher teacher = teacherService.getById(thesis.getTutorID());
         List<PaperComment> paperComments = paperCommentService.selectCommentListStuOrderByNum(thesisID);
 
@@ -91,7 +90,7 @@ public class ExportPDF {
             FontSong.setSubset(true);
 
             Map<String, Object> model = generatePDFTemplateData(thesis, student, teacher, paperComments);
-            fillPDFTemplateFields(form, FontSong, model);
+            fillPDFTemplateFields(ps, form, FontSong, model);
             ps.setFormFlattening(false);
         } catch (Exception e) {
             handlePDFExportError(e, fileName);
@@ -124,12 +123,14 @@ public class ExportPDF {
         emailErrorLogService.addEmailErrorLog(emailErrorLog);
     }
 
-    private Map<String, Object> generatePDFTemplateData(Thesis thesis, Student student, Teacher teacher, List<PaperComment> paperComments) {
+    private Map<String, Object> generatePDFTemplateData(Thesis thesis, UnderGraduate student, Teacher teacher, List<PaperComment> paperComments) {
         Map<String, Object> data = new HashMap<>();
         data.put("stuNameFirst", student.getName());
         data.put("stuName", student.getName());
         data.put("stuID", thesis.getStudentNumber());
         data.put("tutorName", teacher.getName());
+        data.put("stuSign", student.getSign());
+
 
         for (int i = 0; i < paperComments.size(); i++) {
             data.put("num" + (i + 1), paperComments.get(i).getNum());
@@ -143,7 +144,7 @@ public class ExportPDF {
         return data;
     }
 
-    private void fillPDFTemplateFields(AcroFields form, BaseFont FontSong, Map<String, Object> data) throws IOException, DocumentException {
+    private void fillPDFTemplateFields(PdfStamper ps, AcroFields form, BaseFont FontSong, Map<String, Object> data) throws IOException, DocumentException {
         for (String key : data.keySet()) {
             form.setFieldProperty(key, "textfont", FontSong, null);
             if (key.equals("stuName") || key.equals("num")) {
@@ -154,6 +155,25 @@ public class ExportPDF {
                 form.setFieldProperty(key, "textsize", 10.5f, null);
             }
             form.setField(key, data.get(key).toString());
+        }
+        File stuSign = new File((String) data.get("stuSign"));
+        if (stuSign.exists()) {
+            // 读图片
+            List<AcroFields.FieldPosition> positions = form.getFieldPositions("stuSign");
+
+            for (AcroFields.FieldPosition position : positions) {
+                int pageNo = position.page;
+                Rectangle signRect = position.position;
+                float x = signRect.getLeft();
+                float y = signRect.getBottom();
+                PdfContentByte under = ps.getOverContent(pageNo);
+                Image image = Image.getInstance(stuSign.getAbsolutePath());
+                image.scaleToFit(signRect.getWidth(), signRect.getHeight());
+                image.setAbsolutePosition(x, y);
+                form.setField("stuSign", "");
+                under.addImage(image);
+            }
+
         }
     }
 

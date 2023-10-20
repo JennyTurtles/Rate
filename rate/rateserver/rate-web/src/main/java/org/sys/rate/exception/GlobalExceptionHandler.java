@@ -48,12 +48,30 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public RespBean sqlException(Exception e, HttpServletRequest request) {
 
-        String token = request.getHeader("token");
+        String token = null;
+        String userId = null;
+        Admin admin = null;
+        Teacher teacher = null;
+        Student student = null;
+        try {
+            token = request.getHeader("token");
+            userId = JWT.decode(token).getAudience().get(0);
+            admin = adminService.getById(Integer.parseInt(userId));
+            teacher = teacherService.getById(Integer.parseInt(userId));
+            student = studentService.getById(Integer.parseInt(userId));
+        } catch (Exception ex) {
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("获取错误的token");
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
 
-        String userId = JWT.decode(token).getAudience().get(0);
-        Admin admin = adminService.getById(Integer.parseInt(userId));
-        Teacher teacher = teacherService.getById(Integer.parseInt(userId));
-        Student student = studentService.getById(Integer.parseInt(userId));
+            return RespBean.error("请邮件联系管理员ratemail@126.com，并截图说明相关操作。" + ex);
+        }
+
+
         Account loggedInUser = new Account();
         if (admin == null && teacher == null && student == null) {
             loggedInUser = null;
