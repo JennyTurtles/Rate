@@ -39,7 +39,7 @@ public class LoginService {
 
         if(check(loginInf.getPassword(),account.getPassword())){
             BeanUtil.copyProperties(account, loginInf, true);
-            String token = TokenUtils.genToken(account.getID().toString(),account.getPassword());
+            String token = TokenUtils.genToken(account.getID().toString(),account.getPassword(), role);
             loginInf.setToken(token);
             loginInf.setID(account.getID());
             loginInf.setInstitutionID(account.getInstitutionID());

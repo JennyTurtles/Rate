@@ -45,16 +45,25 @@ public class JwtInterceptor implements HandlerInterceptor {
         }
         //获取token中的userid
         String userId;
+        String userRole;
         try {
             userId = JWT.decode(token).getAudience().get(0);
+            userRole = JWT.decode(token).getClaims().get("role").asString();
         } catch (JWTDecodeException j) {
             throw new ServiceException(Constants.CODE_401, "token验证失败，请重新登录");
         }
 
-        // 根据token中的userid查询数据库
-        Admin admin = adminService.getById(Integer.parseInt(userId));
-        Teacher teacher = teacherService.getById(Integer.parseInt(userId));
-        Student student = studentService.getById(Integer.parseInt(userId));
+        Admin admin = null;
+        Teacher teacher = null;
+        Student student = null;
+        // 根据token中的userid和role查询数据库
+        if(userRole.indexOf("admin") >= 0) {
+            admin = adminService.getById(Integer.parseInt(userId));
+        } else if (userRole.indexOf("teacher") >= 0) {
+            teacher = teacherService.getById(Integer.parseInt(userId));
+        } else if (userRole.indexOf("student") >= 0) {
+            student = studentService.getById(Integer.parseInt(userId));
+        }
         if (admin == null && teacher == null && student == null) {
             throw new ServiceException(Constants.CODE_401, "用户不存在，请重新登录");
         }
