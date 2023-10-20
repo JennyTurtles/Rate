@@ -10,6 +10,7 @@ import org.sys.rate.mapper.DoctorMapper;
 import org.sys.rate.mapper.StudentMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.DoctorService;
+import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.POIUtils;
 
 import javax.annotation.Resource;
@@ -90,5 +91,19 @@ public class DoctorController {
     public RespBean updateScoreSub(@RequestBody Doctor record) {
         Integer res = doctorMapper.updateScoreSub(Long.valueOf(record.getStudentID().intValue()),Long.parseLong(record.getPoint()));
         return RespBean.ok("ok", res);
+    }
+    @PostMapping("/resetUnderPassword")
+    public RespBean resetUnderPassword(@RequestBody Doctor doctor){
+        Integer res = 0;
+        try{
+            String p = ExpertService.sh1(doctor.getPassword());
+            res = studentMapper.updatePassword(doctor.getStudentID(),p);
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        if(res > 0){
+            return RespBean.ok("ok",null);
+        }
+        return RespBean.error("error",null);
     }
 }

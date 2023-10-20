@@ -230,7 +230,7 @@ export default {
       this.postRequest('/doctorM/basic/resetUnderPassword',this.currentDoctorStudent).then((response)=>{
         if(response){
           if(response.status == 200){
-            this.$message.success("重置成功，密码重置为"+this.newPassword);
+            this.$message.success("重置密码成功");
             this.closeDialogReset()
           }else {
             this.$message.fail("重置失败")
