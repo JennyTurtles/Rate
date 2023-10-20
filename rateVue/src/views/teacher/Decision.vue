@@ -280,10 +280,17 @@
         <el-form-item label="证明材料:" prop="url">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(emp)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{emp.url | fileNameFilter}}</a>
+          <span v-else>{{ emp.url | fileNameFilter }}</span>
+          <div>
+            <el-image
+                v-show="isImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+            <el-button @click="previewMethod('1')" v-show="!isImage">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
           <br />
         </el-form-item>
         <div >
@@ -337,6 +344,20 @@
           <el-button @click="isShowInfo = false">取消</el-button>
         </span>
     </el-dialog>
+    <el-dialog :visible.sync="dialogPreviewDocxFile" style="width: 100%;height: 100%">
+      <template v-if="isDocx">
+        <vue-office-docx
+            :src="previewUrl"
+            style="height: 100vh;"/>
+      </template>
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
+
+    </el-dialog>
   </div>
 </template>
 
@@ -347,6 +368,12 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      isImage: false,
+      isDocx: false,
+      isPdf: false,
+      dialogPreviewDocxFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
       searchStudentName: '',
       searchStatus: '',
       searchPointFront: '',
@@ -428,6 +455,16 @@ export default {
     }
   },
   methods: {
+    previewMethod(type) {
+      if(type == '1') {
+        this.previewFileMethod(this.emp).then(res => {
+          this.previewUrl = res;
+        });
+        this.dialogPreviewDocxFile = true;
+      } else {
+        this.downloadFileMethod(this.emp);
+      }
+    },
     changePointMethod(data) { //修改积分按钮
       var have_score = data.have_score
       var point = data.point
@@ -564,6 +601,16 @@ export default {
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
+      this.isPdf = this.isImage = this.isDocx = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.docx')) {
+        this.isDocx = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe')) {
+        this.isImage = true;
+      }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=决策咨询').then((resp) => {
         this.loading = false;
         if (resp) {
@@ -574,6 +621,12 @@ export default {
           })
         }
       });
+      if(this.isImage) {
+        this.previewFileMethod(data).then(res => {
+          this.previewUrl = res;
+          this.previewImageSrcList = [res];
+        });
+      }
     },
     //应该要分是否有无筛选条件
     sizeChange(currentSize) {
