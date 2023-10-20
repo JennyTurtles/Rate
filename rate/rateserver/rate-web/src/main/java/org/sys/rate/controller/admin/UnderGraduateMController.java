@@ -19,8 +19,8 @@ import org.sys.rate.utils.ReadExcel;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -145,6 +145,46 @@ public class UnderGraduateMController {
             }
         } else {
             return RespBean.error("");
+        }
+    }
+
+    @GetMapping("/downloadSign")
+    public void downloadSign(@RequestParam("id") String studentId, HttpServletResponse response) {
+        String signUrl = underGraduateMapper.getSignUrl(studentId);
+        File sign = new File(signUrl);
+        if(sign.exists()){
+            // 获取文件扩展名
+            String fileExtension = signUrl.substring(signUrl.lastIndexOf('.') + 1);
+
+            // 根据文件扩展名设置Content-Type
+            switch(fileExtension.toLowerCase()) {
+                case "png":
+                    response.setContentType("application/png");
+                    break;
+                case "jpg":
+                case "jpeg":
+                    response.setContentType("image/jpeg");
+                    break;
+                // 添加其他可能的文件类型...
+                default:
+                    response.setContentType("application/octet-stream"); // 默认为二进制流
+            }
+
+            // 设置响应头，指定文件名
+            response.setHeader("Content-Disposition", "attachment; filename=" + sign.getName());
+
+            try (InputStream is = new FileInputStream(sign); OutputStream os = response.getOutputStream()) {
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = is.read(buffer)) != -1) {
+                    os.write(buffer, 0, bytesRead);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // 文件不存在时返回错误响应
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 

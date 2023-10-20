@@ -8,21 +8,43 @@
           <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView" :disabled="!isShowAddButton">
             添加记录
           </el-button>
-          <el-button type="primary" icon="el-icon-download" @click="exportPDF">
+          <el-button type="success" icon="el-icon-download" @click="exportPDF">
             导出PDF
-          </el-button> &nbsp;
-          <el-upload
-              class="upload-demo"
-              :action="`/undergraduateM/basic/uploadSign?id=${this.user.id}`"
-              :show-file-list="false"
-              :on-success="handleUploadSuccess"
-              :before-upload="beforeUpload"
-              :headers="{'token':this.user.token}"
+          </el-button>
+          <!-- 点击按钮打开上传个人签名对话框 -->
+          <el-button type="success" icon="el-icon-upload" @click="showUploadSign">
+            上传个人签名
+          </el-button>
+
+          <!-- 上传个人签名对话框 -->
+          <el-dialog
+              title="上传个人签名"
+              :visible.sync="uploadSignDialogVisible"
+              width="40%"
+              :before-close="handleCloseUploadSignDialog"
+              :center="true"
           >
-            <el-button type="primary" icon="el-icon-upload">上传个人签名</el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-            <span style="color:gray;font-size:11px">只允许jpg png类型文件，大小不能超过1MB
-                </span>
-          </el-upload>
+            <el-upload
+                class="upload-demo"
+                :action="`/undergraduateM/basic/uploadSign?id=${this.user.id}`"
+                :show-file-list="false"
+                :on-success="handleUploadSuccess"
+                :before-upload="beforeUpload"
+                :headers="{'token': this.user.token}"
+            >
+              <el-button type="primary" icon="el-icon-upload">
+                上传个人签名
+              </el-button>
+              <span style="color:gray;font-size:11px">
+                只允许jpg png类型文件，大小不能超过200KB
+              </span>
+            </el-upload> &nbsp;&nbsp;&nbsp;
+
+            <!-- 下载个人签名按钮 -->
+            <el-button type="success" @click="downloadFile">
+              下载个人签名
+            </el-button>
+          </el-dialog>
         </div>
       </div>
     </div>
@@ -308,10 +330,13 @@
 
 <script>
 
+import axios from "axios";
+
 export default {
   name: "stuPaperComment",
   data() {
     return {
+      uploadSignDialogVisible: false,
       user: {},
       isShowAddButton: false,
       disabledInput: true,
@@ -423,22 +448,48 @@ export default {
   },
   filters: {},
   methods: {
-    handleUploadSuccess(response, file, fileList) {
+    downloadFile() {
+      axios({
+        url: '/undergraduateM/basic/downloadSign?id=' + this.user.id,
+        method: 'GET',
+        responseType: 'blob', // 将responseType设置为'blob'
+      }).then(response => {
+        // 获取文件名，如果服务器设置了Content-Disposition头
+        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+
+        // 打开一个新的页面来展示文件
+        const newWindow = window.open(url, '_blank');
+
+      }).catch(error => {
+        console.error('下载失败:', error);
+      });
+    },
+
+    showUploadSign() {
+      this.uploadSignDialogVisible = true;
+    },
+    handleCloseUploadSignDialog() {
+      this.uploadSignDialogVisible = false;
+    },
+    handleUploadSuccess() {
       this.$message.success("上传成功！")
+      this.handleCloseUploadSignDialog()
     },
     beforeUpload(file) {
       // 上传前的验证函数
       const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png';
-      const isLt1M = file.size / 1024 / 1024 < 1;
+      // const isLt1M = file.size / 1024 / 1024 < 1;
+      const isLt100KB = file.size / 1024 < 200; // 200KB
 
       if (!isJPGorPNG) {
-        this.$message.error('只能上传 JPG 或 PNG 文件');
+        this.$message.error('只能上传JPG或PNG文件');
       }
-      if (!isLt1M) {
-        this.$message.error('文件大小不能超过 1MB');
+      if (!isLt100KB) {
+        this.$message.error('文件大小不能超过200KB');
       }
 
-      return isJPGorPNG && isLt1M;
+      return isJPGorPNG && isLt100KB;
     },
     exportPDF() {
       this.loading = true;

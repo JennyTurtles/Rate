@@ -2,6 +2,7 @@ package org.sys.rate.exception;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -55,10 +56,25 @@ public class GlobalExceptionHandler {
         Student student = null;
         try {
             token = request.getHeader("token");
-            userId = JWT.decode(token).getAudience().get(0);
-            admin = adminService.getById(Integer.parseInt(userId));
-            teacher = teacherService.getById(Integer.parseInt(userId));
-            student = studentService.getById(Integer.parseInt(userId));
+            String userRole;
+            try {
+                userId = JWT.decode(token).getAudience().get(0);
+                userRole = JWT.decode(token).getClaims().get("role").asString();
+            } catch (JWTDecodeException j) {
+                throw new ServiceException(Constants.CODE_401, "token验证失败，请重新登录");
+            }
+
+            admin = null;
+            teacher = null;
+            student = null;
+            // 根据token中的userid和role查询数据库
+            if (userRole.indexOf("admin") >= 0) {
+                admin = adminService.getById(Integer.parseInt(userId));
+            } else if (userRole.indexOf("teacher") >= 0) {
+                teacher = teacherService.getById(Integer.parseInt(userId));
+            } else if (userRole.indexOf("student") >= 0) {
+                student = studentService.getById(Integer.parseInt(userId));
+            }
         } catch (Exception ex) {
             EmailErrorLog emailErrorLog = new EmailErrorLog();
             emailErrorLog.setErrorType("获取错误的token");

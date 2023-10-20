@@ -14,6 +14,9 @@
     <div style="margin-top: 10px">
       <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importStudents">导入毕业设计
       </el-button>
+      <el-button type="primary" icon="el-icon-upload" @click="showUploadSign">
+        上传个人签名
+      </el-button>
 
     </div>
     <div style="margin-top: 20px">
@@ -108,6 +111,34 @@
     </div>
 
     <el-dialog
+        title="上传个人签名"
+        :visible.sync="uploadSignDialogVisible"
+        width="40%"
+        :before-close="handleCloseUploadSignDialog"
+        :center="true"
+    >
+      <el-upload
+          class="upload-demo"
+          :action="`/system/teacher/uploadSign?id=${this.user.id}`"
+          :show-file-list="false"
+          :on-success="handleUploadSuccess"
+          :before-upload="beforeUploadSign"
+          :headers="{'token': this.user.token}"
+      >
+        <el-button type="primary" icon="el-icon-upload">
+          上传个人签名
+        </el-button>
+        <span style="color:gray;font-size:11px">
+                只允许jpg png类型文件，大小不能超过200KB
+        </span>
+      </el-upload> &nbsp;
+
+      <!-- 下载个人签名按钮 -->
+      <el-button type="success" @click="downloadFile">
+          下载个人签名
+      </el-button>
+    </el-dialog>
+    <el-dialog
         title="编辑论文题目"
         :visible.sync="editDialogVisible"
         width="50%" center
@@ -182,6 +213,7 @@ export default {
   name: "teaPaperComment",
   data() {
     return {
+      uploadSignDialogVisible: false,
       user: {},
       selectDate: '',
       selectSemester: '',
@@ -300,6 +332,49 @@ export default {
   },
   filters: {},
   methods: {
+    downloadFile() {
+      axios({
+        url: '/undergraduateM/basic/downloadSign?id=' + this.user.id,
+        method: 'GET',
+        responseType: 'blob', // 将responseType设置为'blob'
+      }).then(response => {
+        // 获取文件名，如果服务器设置了Content-Disposition头
+        const blob = new Blob([response.data], { type: 'application/octet-stream' });
+        const url = window.URL.createObjectURL(blob);
+
+        // 打开一个新的页面来展示文件
+        const newWindow = window.open(url, '_blank');
+
+      }).catch(error => {
+        console.error('下载失败:', error);
+      });
+    },
+
+    showUploadSign() {
+      this.uploadSignDialogVisible = true;
+    },
+    handleCloseUploadSignDialog() {
+      this.uploadSignDialogVisible = false;
+    },
+    handleUploadSuccess() {
+      this.$message.success("上传成功！")
+      this.handleCloseUploadSignDialog()
+    },
+    beforeUploadSign(file) {
+      // 上传前的验证函数
+      const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png';
+      // const isLt1M = file.size / 1024 / 1024 < 1;
+      const isLt100KB = file.size / 1024 < 200; // 200KB
+
+      if (!isJPGorPNG) {
+        this.$message.error('只能上传JPG或PNG文件');
+      }
+      if (!isLt100KB) {
+        this.$message.error('文件大小不能超过200KB');
+      }
+
+      return isJPGorPNG && isLt100KB;
+    },
     async fetchThesisExistDate() {
       try {
         const url = `/undergraduateM/basic/getThesisExistDate?institutionID=${this.user.institutionID}`;
@@ -475,6 +550,10 @@ export default {
 </script>
 
 <style>
+.upload-demo {
+  display: inline-block;
+  margin-right: 10px;
+}
 .el-loading-spinner {
   font-size: 20px;
   /*font-weight: bold;*/

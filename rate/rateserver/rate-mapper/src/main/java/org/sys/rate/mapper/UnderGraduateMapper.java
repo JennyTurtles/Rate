@@ -87,4 +87,7 @@ public interface UnderGraduateMapper {
 
     @Update("update undergraduate set sign = #{sign} where studentID = #{studentID} ")
     void save(UnderGraduate underGraduate);
+
+    @Select("select sign from undergraduate where studentID = #{studentID}")
+    String getSignUrl(String studentId);
 }

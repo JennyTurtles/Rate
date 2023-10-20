@@ -114,4 +114,7 @@ public interface TeachersMapper {
 
     @Select("select id from teacher where name=#{teacherName} and institutionID=#{institutionID}")
     List<Integer> getIdByName(String teacherName, Integer institutionID);
+
+    @Select("select name, sign from teacher where id = #{tutorID} ;")
+    Teachers getById(Integer tutorID);
 }
