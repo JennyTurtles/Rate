@@ -11,8 +11,8 @@ import org.sys.rate.model.UnderGraduate;
 import org.sys.rate.service.admin.TeacherService;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.List;
 import java.util.UUID;
 
@@ -62,6 +62,50 @@ public class TeacherController {
             }
         } else {
             return RespBean.error("");
+        }
+    }
+
+    @GetMapping("/downloadSign")
+    public void downloadSign(@RequestParam("id") String tutorId,
+                             @RequestParam(value = "isOnLine", defaultValue = "false") boolean isOnLine,
+                             HttpServletResponse response) {
+        String signUrl = teacherMapper.getSignUrl(tutorId);
+        File sign = new File(signUrl);
+
+        if (sign.exists()) {
+            try (FileInputStream fis = new FileInputStream(sign);
+                 BufferedInputStream bis = new BufferedInputStream(fis);
+                 OutputStream os = response.getOutputStream()) {
+
+                // 设置响应头信息
+                response.reset(); // 非常重要
+
+//                String filename = signUrl.substring(signUrl.length() - 3).equals("jpg") ? "个人签名.jpg" : "个人签名.png";
+                String filename = "个人签名.jpg";
+
+                if (isOnLine) {
+                    // 在线打开方式
+                    response.setContentType("application/octet-stream");
+                    response.setHeader("Content-Disposition", "inline; filename=" + java.net.URLEncoder.encode(filename, "UTF-8"));
+                } else {
+                    // 纯下载方式
+                    response.setContentType("application/octet-stream");
+                    response.setHeader("Content-Disposition", "attachment; filename=" + java.net.URLEncoder.encode(filename, "UTF-8"));
+                }
+
+                // 读取文件内容并写入响应流
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = bis.read(buffer)) != -1) {
+                    os.write(buffer, 0, len);
+                }
+                os.flush();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
     }
 

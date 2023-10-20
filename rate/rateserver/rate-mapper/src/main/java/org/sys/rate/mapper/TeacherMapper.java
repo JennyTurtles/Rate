@@ -66,4 +66,7 @@ public interface TeacherMapper {
 
     @Update("update teacher set sign = #{absolutePath} where ID = #{id}")
     void save(String id, String absolutePath);
+
+    @Select("select sign from teacher where ID = #{tutorId}")
+    String getSignUrl(String tutorId);
 }

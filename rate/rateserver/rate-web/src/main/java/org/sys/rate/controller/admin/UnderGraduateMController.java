@@ -127,7 +127,7 @@ public class UnderGraduateMController {
     public RespBean uploadSign(@RequestParam("id") String id, @RequestParam("file") MultipartFile file) {
         if (!file.isEmpty()) {
             try {
-                String filePath = new File("files").getAbsolutePath() + "\\template\\signs\\"+ UUID.randomUUID() +"-";
+                String filePath = new File("files").getAbsolutePath() + "\\template\\signs\\" + UUID.randomUUID() + "-";
                 String fileName = file.getOriginalFilename();
 
                 // 在指定路径下创建文件
@@ -149,42 +149,48 @@ public class UnderGraduateMController {
     }
 
     @GetMapping("/downloadSign")
-    public void downloadSign(@RequestParam("id") String studentId, HttpServletResponse response) {
+    public void downloadSign(@RequestParam("id") String studentId,
+                             @RequestParam(value = "isOnLine", defaultValue = "false") boolean isOnLine,
+                             HttpServletResponse response) {
         String signUrl = underGraduateMapper.getSignUrl(studentId);
         File sign = new File(signUrl);
-        if(sign.exists()){
-            // 获取文件扩展名
-            String fileExtension = signUrl.substring(signUrl.lastIndexOf('.') + 1);
 
-            // 根据文件扩展名设置Content-Type
-            switch(fileExtension.toLowerCase()) {
-                case "png":
-                    response.setContentType("application/png");
-                    break;
-                case "jpg":
-                case "jpeg":
-                    response.setContentType("image/jpeg");
-                    break;
-                // 添加其他可能的文件类型...
-                default:
-                    response.setContentType("application/octet-stream"); // 默认为二进制流
-            }
+        if (sign.exists()) {
+            try (FileInputStream fis = new FileInputStream(sign);
+                 BufferedInputStream bis = new BufferedInputStream(fis);
+                 OutputStream os = response.getOutputStream()) {
 
-            // 设置响应头，指定文件名
-            response.setHeader("Content-Disposition", "attachment; filename=" + sign.getName());
+                // 设置响应头信息
+                response.reset(); // 非常重要
 
-            try (InputStream is = new FileInputStream(sign); OutputStream os = response.getOutputStream()) {
-                byte[] buffer = new byte[1024];
-                int bytesRead;
-                while ((bytesRead = is.read(buffer)) != -1) {
-                    os.write(buffer, 0, bytesRead);
+//                String filename = signUrl.substring(signUrl.length() - 3).equals("jpg") ? "个人签名.jpg" : "个人签名.png";
+                String filename = "个人签名.jpg";
+
+                if (isOnLine) {
+                    // 在线打开方式
+                    response.setContentType("application/octet-stream");
+                    response.setHeader("Content-Disposition", "inline; filename=" + java.net.URLEncoder.encode(filename, "UTF-8"));
+                } else {
+                    // 纯下载方式
+                    response.setContentType("application/octet-stream");
+                    response.setHeader("Content-Disposition", "attachment; filename=" + java.net.URLEncoder.encode(filename, "UTF-8"));
                 }
+
+                // 读取文件内容并写入响应流
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = bis.read(buffer)) != -1) {
+                    os.write(buffer, 0, len);
+                }
+                os.flush();
+
             } catch (IOException e) {
+                // 在实际应用中，你可能会采取适当的措施来处理异常，如记录日志或返回适当的错误信息
                 e.printStackTrace();
             }
         } else {
-            // 文件不存在时返回错误响应
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            // 在实际应用中，你可能会在日志中记录文件不存在的情况
         }
     }
 

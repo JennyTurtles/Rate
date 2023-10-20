@@ -125,11 +125,11 @@
           :before-upload="beforeUploadSign"
           :headers="{'token': this.user.token}"
       >
-        <el-button type="primary" icon="el-icon-upload">
+        <el-button type="primary" icon="el-icon-upload" >
           上传个人签名
         </el-button>
         <span style="color:gray;font-size:11px">
-                只允许jpg png类型文件，大小不能超过200KB
+                只允许jpg类型文件，大小不能超过200KB
         </span>
       </el-upload> &nbsp;
 
@@ -333,21 +333,27 @@ export default {
   filters: {},
   methods: {
     downloadFile() {
-      axios({
-        url: '/undergraduateM/basic/downloadSign?id=' + this.user.id,
-        method: 'GET',
-        responseType: 'blob', // 将responseType设置为'blob'
-      }).then(response => {
-        // 获取文件名，如果服务器设置了Content-Disposition头
-        const blob = new Blob([response.data], { type: 'application/octet-stream' });
-        const url = window.URL.createObjectURL(blob);
+      this.loading = true
+      let url = '/system/teacher/downloadSign?id=' + this.user.id
+      fetch(url)
+          .then((response) => response.blob())
+          .then((blob) => {
+            this.loading = false
+            const fileURL = URL.createObjectURL(blob)
 
-        // 打开一个新的页面来展示文件
-        const newWindow = window.open(url, '_blank');
-
-      }).catch(error => {
-        console.error('下载失败:', error);
-      });
+            // 修改文件名后缀为 jpg
+            const a = document.createElement('a')
+            a.href = fileURL
+            a.download = this.user.name + '_个人签名.jpg'
+            a.style.display = 'none'
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+          })
+          .catch((error) => {
+            this.loading = false
+            this.$message.info("请重新添加个人签名")
+          })
     },
 
     showUploadSign() {
@@ -362,12 +368,13 @@ export default {
     },
     beforeUploadSign(file) {
       // 上传前的验证函数
-      const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png';
+      // const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png';
+      const isJPGorPNG = file.type === 'image/jpeg';
       // const isLt1M = file.size / 1024 / 1024 < 1;
       const isLt100KB = file.size / 1024 < 200; // 200KB
 
       if (!isJPGorPNG) {
-        this.$message.error('只能上传JPG或PNG文件');
+        this.$message.error('只能上传JPG文件');
       }
       if (!isLt100KB) {
         this.$message.error('文件大小不能超过200KB');
