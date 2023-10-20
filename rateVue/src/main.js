@@ -300,7 +300,7 @@ Vue.prototype.previewFileMethod = function (data){ //预览证明材料
     var fileName = data.url.split('/').reverse()[0]
     var url = data.url
     return axios({
-        url: '/paper/basic/downloadByUrl?url='+url,
+        url: '/achievements/basic/downloadByUrl?url='+url,
         method: 'GET',
         responseType: 'blob',
         headers: {
@@ -317,7 +317,7 @@ Vue.prototype.downloadFileMethod = function (data){ //预览证明材料
     var fileName = data.url.split('/').reverse()[0]
     var url = data.url
     axios({
-        url: '/paper/basic/downloadByUrl?url='+url,
+        url: '/achievements/basic/downloadByUrl?url='+url,
         method: 'GET',
         responseType: 'blob',
         headers: {

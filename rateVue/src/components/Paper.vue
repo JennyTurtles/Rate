@@ -735,10 +735,12 @@ export default {
             })
           }
       });
-      this.previewFileMethod(data).then(res => {
-        this.previewUrl = res;
-        this.previewImageSrcList = [res];
-      });
+      if(this.isImage) {
+        this.previewFileMethod(data).then(res => {
+          this.previewUrl = res;
+          this.previewImageSrcList = [res];
+        });
+      }
     },
     sizeChange(currentSize) {
       this.pageSize = currentSize;

@@ -317,10 +317,21 @@
         <el-form-item label="证明材料:" prop="url">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="currentCompetition.url == '' || currentCompetition.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(currentCompetition)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{currentCompetition.url | fileNameFilter}}</a>
+          <span v-else>{{ currentCompetition.url | fileNameFilter }}</span>
+          <div>
+            <el-image
+                v-show="isImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+            <el-button @click="previewMethod('1')" v-show="!isImage">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+<!--          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(currentCompetition)"-->
+<!--             onmouseover="this.style.color = 'blue'"-->
+<!--             onmouseleave="this.style.color = 'gray'">-->
+<!--            {{currentCompetition.url | fileNameFilter}}</a>-->
           <br />
         </el-form-item>
         <div >
@@ -374,6 +385,20 @@
           <el-button @click="isShowInfo = false">取消</el-button>
         </span>
     </el-dialog>
+    <el-dialog :visible.sync="dialogPreviewDocxFile" style="width: 100%;height: 100%">
+      <template v-if="isDocx">
+        <vue-office-docx
+            :src="previewUrl"
+            style="height: 100vh;"/>
+      </template>
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
+
+    </el-dialog>
   </div>
 </template>
 
@@ -384,6 +409,12 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      isImage: false,
+      isDocx: false,
+      isPdf: false,
+      dialogPreviewDocxFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
       searchCompetitionTypeName: '',
       searchPointFront: '',
       searchPointBack: '',
@@ -466,6 +497,16 @@ export default {
     }
   },
   methods: {
+    previewMethod(type) {
+      if(type == '1') {
+        this.previewFileMethod(this.currentCompetition).then(res => {
+          this.previewUrl = res;
+        });
+        this.dialogPreviewDocxFile = true;
+      } else {
+        this.downloadFileMethod(this.currentCompetition);
+      }
+    },
     changePointMethod(data) { //修改积分按钮
       var have_score = data.have_score
       var point = data.point
@@ -599,7 +640,23 @@ export default {
       this.titleName = "显示详情";
       this.currentCompetition = data;
       this.dialogVisible_show = true;
+      this.isPdf = this.isImage = this.isDocx = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.docx')) {
+        this.isDocx = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe')) {
+        this.isImage = true;
+      }
       this.getOperationListOfCompetition(data);
+      if(this.isImage) {
+        this.previewFileMethod(data).then(res => {
+          this.previewUrl = res;
+          this.previewImageSrcList = [res];
+        });
+      }
     },
     //获取改专著的操作列表
     getOperationListOfCompetition(data) {

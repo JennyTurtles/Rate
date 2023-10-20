@@ -78,5 +78,10 @@ public class AchievementsController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+    //    修改专利状态
+//    @GetMapping("/edit_state")
+//    public JsonResult getById(String state, Long ID) throws MessagingException {
+//        return new JsonResult(patentService.editState(state, ID));
+//    }
 
 }
