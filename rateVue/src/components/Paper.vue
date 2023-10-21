@@ -323,17 +323,22 @@
         </el-form-item>
         <el-form-item label="证明材料:">
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
-          <span v-else>{{ emp.url | fileNameFilter }}</span>
-          <div>
-            <el-image
-                v-show="isImage"
-                style="width: 100px; height: 100px"
-                :src="previewUrl"
-                :preview-src-list="previewImageSrcList">
-            </el-image>
-            <el-button @click="previewMethod('1')" v-show="!isImage">预览</el-button>
-            <el-button @click="previewMethod('2')">下载</el-button>
+          <div v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</div>
+<!--          <div v-else>{{ emp.url | fileNameFilter }}</div>-->
+          <br />
+          <div v-show="emp.url == '' || emp.url == null ? false : true">
+            <div>
+              <el-button @click="previewMethod('1')" v-show="!isImage">预览</el-button>
+              <el-button @click="previewMethod('2')">下载</el-button>
+            </div>
+            <div style="margin-top: 5px">
+              <el-image
+                  v-show="isImage"
+                  style="width: 100px; height: 100px"
+                  :src="previewUrl"
+                  :preview-src-list="previewImageSrcList">
+              </el-image>
+            </div>
           </div>
 <!--          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="previewImageMethod(emp)"-->
 <!--             onmouseover="this.style.color = 'blue'"-->
