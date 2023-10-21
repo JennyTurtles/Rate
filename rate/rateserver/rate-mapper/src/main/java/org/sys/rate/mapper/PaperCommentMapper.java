@@ -46,4 +46,7 @@ public interface PaperCommentMapper {
 
     @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment where #{thesisID} = thesisID ORDER BY num")
     List<PaperComment> selectCommentListStuOrderByNum(Integer thesisID);
+
+    @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment  where #{thesisID} = thesisID ORDER BY num desc")
+    List<PaperComment> selectCommentListStu(int thesisID);
 }

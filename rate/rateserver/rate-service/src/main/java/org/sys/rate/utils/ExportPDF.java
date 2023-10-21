@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.PaperCommentService;
 import org.sys.rate.service.admin.StudentService;
-import org.sys.rate.service.admin.TeacherService;
+import org.sys.rate.service.admin.TeachersService;
 import org.sys.rate.service.mail.EmailErrorLogService;
 
 import javax.annotation.Resource;
@@ -36,7 +36,7 @@ public class ExportPDF {
     private StudentService studentService;
 
     @Resource
-    private TeacherService teacherService;
+    private TeachersService teachersService;
 
     @Resource
     private PaperCommentService paperCommentService;
@@ -68,10 +68,18 @@ public class ExportPDF {
             // 参数校验，确保thesisID有效
             return false;
         }
-        Thesis thesis = paperCommentService.getThesisByTID(thesisID);
-        UnderGraduate student = studentService.getByUndergraduateId(thesis.getStudentID());
-        Teacher teacher = teacherService.getById(thesis.getTutorID());
-        List<PaperComment> paperComments = paperCommentService.selectCommentListStuOrderByNum(thesisID);
+        Thesis thesis = null;
+        UnderGraduate student = null;
+        Teachers teacher = null;
+        List<PaperComment> paperComments = null;
+        try {
+            thesis = paperCommentService.getThesisByTID(thesisID);
+            student = studentService.getByUndergraduateId(thesis.getStudentID());
+            teacher = teachersService.getById(thesis.getTutorID());
+            paperComments = paperCommentService.selectCommentListStuOrderByNum(thesisID);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
 
         String templatePath = paperComments.size() <= 10 ? TEMPLATE_PATH10 : TEMPLATE_PATH20;
@@ -91,7 +99,8 @@ public class ExportPDF {
 
             Map<String, Object> model = generatePDFTemplateData(thesis, student, teacher, paperComments);
             fillPDFTemplateFields(ps, form, FontSong, model);
-            ps.setFormFlattening(false);
+            ps.setFormFlattening(true);
+
         } catch (Exception e) {
             handlePDFExportError(e, fileName);
             return false;
@@ -123,13 +132,14 @@ public class ExportPDF {
         emailErrorLogService.addEmailErrorLog(emailErrorLog);
     }
 
-    private Map<String, Object> generatePDFTemplateData(Thesis thesis, UnderGraduate student, Teacher teacher, List<PaperComment> paperComments) {
+    private Map<String, Object> generatePDFTemplateData(Thesis thesis, UnderGraduate student, Teachers teacher, List<PaperComment> paperComments) {
         Map<String, Object> data = new HashMap<>();
         data.put("stuNameFirst", student.getName());
         data.put("stuName", student.getName());
         data.put("stuID", thesis.getStudentNumber());
         data.put("tutorName", teacher.getName());
         data.put("stuSign", student.getSign());
+        data.put("teaSign", teacher.getSign());
 
 
         for (int i = 0; i < paperComments.size(); i++) {
@@ -155,11 +165,14 @@ public class ExportPDF {
                 form.setFieldProperty(key, "textsize", 10.5f, null);
             }
             form.setField(key, data.get(key).toString());
+
         }
         File stuSign = new File((String) data.get("stuSign"));
         if (stuSign.exists()) {
             // 读图片
             List<AcroFields.FieldPosition> positions = form.getFieldPositions("stuSign");
+            form.setField("stuSign", "");
+
 
             for (AcroFields.FieldPosition position : positions) {
                 int pageNo = position.page;
@@ -168,12 +181,34 @@ public class ExportPDF {
                 float y = signRect.getBottom();
                 PdfContentByte under = ps.getOverContent(pageNo);
                 Image image = Image.getInstance(stuSign.getAbsolutePath());
-                image.scaleToFit(signRect.getWidth(), signRect.getHeight());
+//                image.scaleToFit(signRect.getWidth(), signRect.getHeight());
+                image.scaleAbsolute(signRect.getWidth(), signRect.getHeight());
+
                 image.setAbsolutePosition(x, y);
-                form.setField("stuSign", "");
                 under.addImage(image);
             }
+        }
 
+        File teaSign = new File((String) data.get("teaSign"));
+        if (teaSign.exists()) {
+            // 读图片
+            List<AcroFields.FieldPosition> positions = form.getFieldPositions("teaSign");
+            form.setField("teaSign", "");
+
+
+            for (AcroFields.FieldPosition position : positions) {
+                int pageNo = position.page;
+                Rectangle signRect = position.position;
+                float x = signRect.getLeft();
+                float y = signRect.getBottom();
+                PdfContentByte under = ps.getOverContent(pageNo);
+                Image image = Image.getInstance(teaSign.getAbsolutePath());
+//                image.scaleToFit(signRect.getWidth(), signRect.getHeight());
+                image.scaleAbsolute(signRect.getWidth(), signRect.getHeight());
+
+                image.setAbsolutePosition(x, y);
+                under.addImage(image);
+            }
         }
     }
 

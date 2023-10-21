@@ -136,4 +136,12 @@ public class TeachersService implements UserDetailsService {
         Integer idsBasedOnJobNumber = teachersMapper.checkTeacherExist(teacherJobNumber, teacherName, institutionID);
         return idsBasedOnJobNumber == null ? -2 : idsBasedOnJobNumber;
     }
+
+    public Teachers getById(Integer tutorID) {
+        Teachers tea = teachersMapper.getById(tutorID);
+        if(tea != null){
+            return tea;
+        }
+        return null;
+    }
 }

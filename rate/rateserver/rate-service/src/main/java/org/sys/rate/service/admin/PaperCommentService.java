@@ -55,8 +55,12 @@ public class PaperCommentService {
         return paperCommentMapper.getStuThesis(teaID);
     }
 
-    public List<PaperComment> selectCommentListStu(int thesisID) {
+    public List<PaperComment> selectCommentListTea(int thesisID) {
         return paperCommentMapper.selectCommentList(thesisID);
+    }
+
+    public List<PaperComment> selectCommentListStu(int thesisID) {
+        return paperCommentMapper.selectCommentListStu(thesisID);
     }
 
 

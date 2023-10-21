@@ -48,7 +48,7 @@ public class PaperCommentController {
     // 根据stuID和thesisID获取关于thesisID的所有评论 + 排序
     @GetMapping("/getAllComment")
     public JsonResult<List> list(int thesisID) {
-        return new JsonResult(paperCommentService.selectCommentListStu(thesisID));
+        return new JsonResult(paperCommentService.selectCommentListTea(thesisID));
     }
 
     @GetMapping("/getAllCommentStu")
@@ -126,13 +126,11 @@ public class PaperCommentController {
      */
     @GetMapping("/exportPDF")
     public void exportDataPDF(HttpServletResponse response, @RequestParam Integer thesisID) throws Exception {
+        boolean generatePDF = false;
         try {
-            boolean generatePDF = exportPDF.generatePDF(response, thesisID);
-            if(!generatePDF){
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().write("导出PDF发生错误！");
-            }
+            generatePDF = exportPDF.generatePDF(response, thesisID);
         } catch (Exception e) {
+            // 处理异常
             EmailErrorLog emailErrorLog = new EmailErrorLog();
             emailErrorLog.setErrorType("导出PDF出现错误");
             StringWriter sw = new StringWriter();
@@ -142,10 +140,13 @@ public class PaperCommentController {
             emailErrorLog.setErrorDescription(errorDetails);
             emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
             emailErrorLogService.addEmailErrorLog(emailErrorLog);
+        }
+
+        if (!generatePDF) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("导出PDF发生错误！");
         }
     }
+
 
 
 
