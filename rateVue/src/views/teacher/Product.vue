@@ -349,11 +349,6 @@
         </span>
     </el-dialog>
     <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%">
-      <template v-if="isDocx">
-        <vue-office-docx
-            :src="previewUrl"
-            style="height: 100vh;"/>
-      </template>
       <template v-if="isPdf">
         <vue-office-pdf
             :src="previewUrl"
