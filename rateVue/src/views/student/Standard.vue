@@ -243,11 +243,23 @@
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           <span v-if="currentStandard.url == '' || currentStandard.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
-             @click="download(currentStandard)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{currentStandard.url|fileNameFilter}}</a>
+          <div v-else>{{ currentStandard.url | fileNameFilter }}</div>
+          <br />
+          <div v-show="currentStandard.url == '' || currentStandard.url == null ? false : true">
+            <div>
+              <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+              <el-button @click="previewMethod('2')">下载</el-button>
+            </div>
+            <div style="margin-top: 5px">
+              <el-image
+                  v-show="false"
+                  ref="previewImage"
+                  style="width: 100px; height: 100px"
+                  :src="previewUrl"
+                  :preview-src-list="previewImageSrcList">
+              </el-image>
+            </div>
+          </div>
           <br />
         </el-form-item>
         <div >
@@ -286,6 +298,14 @@
         ></el-tree>
       </span>
     </el-dialog>
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%">
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -295,6 +315,11 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      isImage: false,
+      isPdf: false,
+      dialogPreviewPdfFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
       defaultExpandedKeys: [],
       zeroPointReason: '',
       isAuthorIncludeSelf: false,
@@ -378,6 +403,23 @@ export default {
     }
   },
   methods: {
+    previewMethod(type) {
+      if(type == '1') {
+        this.previewFileMethod(this.currentStandard).then(res => {
+          this.previewUrl = res;
+          if(this.isImage) {
+            this.previewImageSrcList = [res];
+            this.$refs.previewImage.showViewer = true;
+          }
+          if(this.isPdf) {
+            this.dialogPreviewPdfFile = true;
+          }
+        });
+      } else {
+        this.downloadFileMethod(this.currentStandard);
+      }
+    },
+
     //不进行rankN判断
     handleNodeClick(data, node) {
       if (data.children.length == 0) {
@@ -410,23 +452,6 @@ export default {
     //添加 编辑框点击取消出发事件
     cancelAddStandard() {
       this.dialogVisible = false;
-    },
-    download(data){//下载证明材料
-      var fileName = data.url.split('/').reverse()[0]
-      var url = data.url
-      axios({
-        url: '/standard/basic/downloadByUrl?url='+url,
-        method: 'GET',
-        responseType: 'blob'
-      }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
     },
     handleDelete() {//删除选择的文件
       var file={
@@ -539,6 +564,14 @@ export default {
       this.title_show = "显示详情";
       this.currentStandard = data
       this.dialogVisible_showInfo = true
+      this.isPdf = this.isImage = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe')) {
+        this.isImage = true;
+      }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=制定标准').then((resp) => {
         this.loading = false;
         if (resp) {
