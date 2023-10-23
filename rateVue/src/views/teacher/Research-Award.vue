@@ -353,7 +353,7 @@
           <el-button @click="isShowInfo = false">取消</el-button>
         </span>
     </el-dialog>
-    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%">
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
       <template v-if="isPdf">
         <vue-office-pdf
             :src="previewUrl"
