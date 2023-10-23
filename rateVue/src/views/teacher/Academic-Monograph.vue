@@ -305,6 +305,7 @@
                 :src="previewUrl"
                 :preview-src-list="previewImageSrcList">
             </el-image>
+          </div>
           <br />
         </el-form-item>
         <div >
