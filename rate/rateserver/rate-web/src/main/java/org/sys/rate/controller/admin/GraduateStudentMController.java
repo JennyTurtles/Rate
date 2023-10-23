@@ -76,7 +76,7 @@ public class GraduateStudentMController {
         return graduateStudentService.getTeaNamesBySelect(teaName);
     }
 
-    @GetMapping("/getGraduateStudentsBySelect")
+    @GetMapping("/getGraduateStudentsBySelect") //管理员段学生列表的筛选
     public RespBean getGraduateStudentsBySelect(@RequestParam("year")Integer year,@RequestParam("teaName")String teaName,@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
         Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
         List<GraduateStudent> t = graduateStudentService.getGraduateStudentsBySelect(year,teaName);
@@ -85,14 +85,12 @@ public class GraduateStudentMController {
         return RespBean.ok("ok", res);
     }
 
-    @GetMapping("/getGraduateListByTutorID")
-    public RespBean getGraduateListByTutorID(@RequestParam("tutorID") Integer tutorID, @RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
-        // 设置当前所在页和每页显示的条数
-        Page page = PageHelper.startPage(pageNum, pageSize);
-        List<GraduateStudent> t = graduateStudentService.getGraduateListByTutorID(tutorID);
+    @GetMapping("/getGraduateStudentsBySelectOfTeacher") //教师端学生列表的筛选
+    public RespBean getGraduateStudentsBySelectOfTeacher(@RequestParam("tutorID") Integer tutorID, @RequestParam("year")Integer year,@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
+        Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
+        List<GraduateStudent> t = graduateStudentService.getGraduateStudentsBySelectOfTeacher(tutorID, year);
         PageInfo info = new PageInfo<>(page.getResult());
-        // res是分页后的数据，info.getTotal()是总条数
-        Object[] res = {t, info.getTotal()};
+        Object[] res = {t, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return RespBean.ok("ok", res);
     }
 

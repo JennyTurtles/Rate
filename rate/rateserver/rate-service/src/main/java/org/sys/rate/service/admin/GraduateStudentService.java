@@ -225,21 +225,20 @@ public class GraduateStudentService {
         res = graduateStudentMapper.getTeaNamesBySelect(teaName);
         return RespBean.ok("ok",res);
     }
+    //管理员段筛选
     public List<GraduateStudent> getGraduateStudentsBySelect(Integer year, String teaName){
         List<GraduateStudent> res = new ArrayList<>();
         res = graduateStudentMapper.getGraduateStudentsBySelect(teaName,year);
         return res;
     }
+    //教师端筛选
+    public List<GraduateStudent> getGraduateStudentsBySelectOfTeacher(Integer tutorID, Integer year){
+        List<GraduateStudent> res = new ArrayList<>();
+        res = graduateStudentMapper.getGraduateStudentsBySelectOfTeacher(tutorID,year);
+        return res;
+    }
+
     public GraduateStudent getGradByStuID(Integer studentID){
         return graduateStudentMapper.getGradByStuID(studentID);
-    }
-    // 获取导师旗下研究生
-    public List<GraduateStudent> getGraduateListByTutorID(Integer tutorID) {
-        List<GraduateStudent> res = null;
-        try {
-            res = graduateStudentMapper.getGraduateListByTutorID(tutorID);
-        }catch (Exception e){
-        }
-        return res;
     }
 }

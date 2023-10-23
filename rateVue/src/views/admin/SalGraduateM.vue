@@ -149,9 +149,6 @@ export default {
       headers: {
         'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
       },
-      tabsTableLoading: false,
-      tabsTableData: [],
-      tabsActivateName: 'paper',
       selectTeaNameAndJobnumber:[],//编辑框中导师搜索一栏的下拉框绑定数据
       newPassword:'dhucst@11',
       dialogResetPassword:false,
