@@ -68,7 +68,7 @@
               size="mini"
           >查看详情</el-button
           >
-          <el-button v-show="scope.row.state == 'adm_pass' ? true : false" @click="changePointMethod(scope.row)" style="padding: 4px"
+          <el-button v-show="scope.row.state == 'adm_pass' && role == 'admin' ? true : false" @click="changePointMethod(scope.row)" style="padding: 4px"
                      size="mini">
             {{scope.row.changePointButton}}
           </el-button>
