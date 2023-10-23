@@ -295,14 +295,17 @@
           <span v-if="currentProject.url == '' || currentProject.url == null ? true:false" >无证明材料</span>
           <span v-else>{{ emp.url | fileNameFilter }}</span>
           <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
             <el-image
-                v-show="isImage"
+                v-show="false"
+                ref="previewImage"
                 style="width: 100px; height: 100px"
                 :src="previewUrl"
                 :preview-src-list="previewImageSrcList">
             </el-image>
-            <el-button @click="previewMethod('1')" v-show="!isImage">预览</el-button>
-            <el-button @click="previewMethod('2')">下载</el-button>
           </div>
           <br />
         </el-form-item>
@@ -357,12 +360,7 @@
           <el-button @click="isShowInfo = false">取消</el-button>
         </span>
     </el-dialog>
-    <el-dialog :visible.sync="dialogPreviewDocxFile" style="width: 100%;height: 100%">
-      <template v-if="isDocx">
-        <vue-office-docx
-            :src="previewUrl"
-            style="height: 100vh;"/>
-      </template>
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%">
       <template v-if="isPdf">
         <vue-office-pdf
             :src="previewUrl"
@@ -382,9 +380,8 @@ export default {
   data() {
     return {
       isImage: false,
-      isDocx: false,
       isPdf: false,
-      dialogPreviewDocxFile: false,
+      dialogPreviewPdfFile: false,
       previewImageSrcList: [],
       previewUrl: '',
       searchPointFront: '',
@@ -474,8 +471,14 @@ export default {
       if(type == '1') {
         this.previewFileMethod(this.emp).then(res => {
           this.previewUrl = res;
+          if(this.isImage) {
+            this.previewImageSrcList = [res];
+            this.$refs.previewImage.showViewer = true;
+          }
+          if(this.isPdf) {
+            this.dialogPreviewPdfFile = true;
+          }
         });
-        this.dialogPreviewDocxFile = true;
       } else {
         this.downloadFileMethod(this.emp);
       }
@@ -536,26 +539,6 @@ export default {
         this.auditing_commit('adm_reject')
       this.isShowInfo = false
     },
-    download(data){//下载证明材料
-      var fileName = data.url.split('/').reverse()[0]
-      var url = data.url
-      axios({
-        url: '/project/basic/downloadByUrl?url='+url,
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          'token': this.user.token
-        }
-      }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
-    },
     //点击对话框中的确定按钮 触发事件
     auditing_commit(state){
       this.loading = true;
@@ -613,23 +596,15 @@ export default {
       this.titleName = "显示详情";
       this.currentProject = data;
       this.dialogVisible_show = true;
-      this.isPdf = this.isImage = this.isDocx = false; //初始化
+      this.isPdf = this.isImage = false; //初始化
       this.previewUrl = '';
       this.previewImageSrcList = [];
       if(data.url.includes('.pdf')) { //判断文件类型
         this.isPdf = true;
-      } else if(data.url.includes('.docx')) {
-        this.isDocx = true;
       } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe')) {
         this.isImage = true;
       }
       this.getOperationListOfProject(data);
-      if(this.isImage) {
-        this.previewFileMethod(data).then(res => {
-          this.previewUrl = res;
-          this.previewImageSrcList = [res];
-        });
-      }
     },
     //获取改专著的操作列表
     getOperationListOfProject(data) {
