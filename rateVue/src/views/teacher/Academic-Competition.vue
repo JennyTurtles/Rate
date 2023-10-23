@@ -384,7 +384,7 @@
           <el-button @click="isShowInfo = false">取消</el-button>
         </span>
     </el-dialog>
-    <el-dialog :visible.sync="dialogPreviewDocxFile" style="width: 100%;height: 100%">
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%">
       <template v-if="isPdf">
         <vue-office-pdf
             :src="previewUrl"
@@ -405,7 +405,7 @@ export default {
     return {
       isImage: false,
       isPdf: false,
-      dialogPreviewDocxFile: false,
+      dialogPreviewPdfFile: false,
       previewImageSrcList: [],
       previewUrl: '',
       searchCompetitionTypeName: '',
