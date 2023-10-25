@@ -42,13 +42,12 @@ public class PaperCommentService {
     }
 
 
-
     public Thesis getThesis(int stuID, int year, int month) {
         return paperCommentMapper.getThesis(stuID, year, month);
     }
 
     public int updateTeaComment(PaperComment paperComment) {
-        return  paperCommentMapper.updateTeaComment(paperComment);
+        return paperCommentMapper.updateTeaComment(paperComment);
     }
 
     public List<Student> getStuThesis(int teaID) {
@@ -74,5 +73,9 @@ public class PaperCommentService {
 
     public List<PaperComment> selectCommentListStuOrderByNum(Integer thesisID) {
         return paperCommentMapper.selectCommentListStuOrderByNum(thesisID);
+    }
+
+    public int checkSign(Integer thesisID) {
+        return paperCommentMapper.checkSign(thesisID);
     }
 }

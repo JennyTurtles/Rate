@@ -38,6 +38,15 @@ public class PaperCommentController {
     @Resource
     private ExportPDF exportPDF;
 
+    // 根据thesisID返回学生和老师是否上传图片
+    // 1:都上传，0:学生没有上传，-1：教师没有上传,-2:都没有上传
+    @GetMapping("/checkSign")
+    public RespBean checkSign(Integer thesisID) {
+        int res = paperCommentService.checkSign(thesisID);
+        return RespBean.ok("", res);
+    }
+    // 根据教师ID返回学生和老师是否上传图片
+
 
     // 根据stuID和thesisID和num获取某一次评论
     @GetMapping("/getOneComment")
@@ -146,8 +155,6 @@ public class PaperCommentController {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
-
-
 
 
     @GetMapping("/editThesisName")

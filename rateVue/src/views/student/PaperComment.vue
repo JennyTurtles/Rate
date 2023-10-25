@@ -498,33 +498,62 @@ export default {
 
       return isJPGorPNG && isLt100KB;
     },
-    exportPDF() {
+    async exportPDF() {
       this.loading = true;
 
       if (this.thesisID !== null) {
-        let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(this.thesisID)}`;
-        fetch(url)
-            .then((response) => response.blob())
-            .then((blob) => {
-              this.loading = false;
-              const fileURL = URL.createObjectURL(blob);
+        const res = await this.getRequest("/paperComment/basic/checkSign?thesisID=" + this.thesisID);
+        let message = '';
 
-              const a = document.createElement('a');
-              a.href = fileURL;
-              a.download = this.user.name + '_毕业论文评审记录.pdf'; // 在这里设置你想要的文件名
-              a.style.display = 'none';
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-            })
-            .catch((error) => {
-              this.loading = false;
-              this.$message.error("导出PDF时发生错误！");
+        if (res.obj === -1 || res.obj === -2) {
+          message += "您的指导老师还没有上传签名图片，可联系教师上传后再导出。</br>";
+        }
+
+        if (res.obj === 0 || res.obj === -2) {
+          message += "您还没有上传签名图片（可以在导出PDF界面上传）</br>";
+        }
+
+        if (message) {
+          try {
+            await this.$confirm(message + `确认现在导出不含签名照片的PDF吗？`, '', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'info',
+              dangerouslyUseHTMLString: true,
+              customClass: 'custom-confirm'
             });
-
+            await this.downloadPDF();
+          } catch (error) {
+            // Handle cancel or other errors
+            this.loading = false;
+          }
+        }
       } else {
         this.loading = false;
         this.$message.info("抱歉你还未添加毕设设计或论文！");
+        return;
+      }
+    },
+
+
+    async downloadPDF() {
+      let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(this.thesisID)}`;
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        this.loading = false;
+        const fileURL = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = this.user.name + '_毕业论文评审记录.pdf';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (error) {
+        this.loading = false;
+        this.$message.error("导出PDF时发生错误！");
       }
     },
 
@@ -740,6 +769,9 @@ export default {
 </script>
 
 <style>
+.custom-confirm {
+  width: 550px; /* Set the width to your desired value */
+}
 .upload-demo {
   display: inline-block;
   margin-right: 10px;
