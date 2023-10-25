@@ -402,7 +402,7 @@ export default {
       selectSemester: '',
       startYear: null,
       selectTeacherNameOrJobnumber: '',//编辑框中导师搜索一栏的下拉框绑定数据
-      newPassword: 'dhucst@11',//重置密码中的新密码
+      newPassword: 'dhucst',//重置密码中的新密码
       conNewPassword: '',//重置密码中的确认新密码
       dialogResetPassword: false,
       pageSizes: [10, 20, 50, 100],
@@ -625,6 +625,11 @@ export default {
         return
       }
       this.currentUnderStudentOfEdit.password = this.newPassword
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z\d])[\S]{8,20}$/;
+      if (this.newPassword!="dhucst" && !passwordRegex.test(this.newPassword)) {
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
+        return
+      }
       this.postRequest('/undergraduateM/basic/resetUnderPassword', this.currentUnderStudentOfEdit).then((response) => {
         if (response) {
           if (response.status == 200) {

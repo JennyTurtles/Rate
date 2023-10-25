@@ -76,7 +76,7 @@ export default {
       headers: {
         'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
       },
-      newPassword:'dhucst@11',
+      newPassword:'dhucst',
       dialogResetPassword:false,
       pageSizes:[10,20,30,50,100],
       totalCount:0,
@@ -139,6 +139,11 @@ export default {
         return
       }
       this.currentGraduateStudent.password = this.newPassword
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z\d])[\S]{8,20}$/;
+      if (this.newPassword!="dhucst" && !passwordRegex.test(this.newPassword)) {
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
+        return
+      }
       this.postRequest('/graduatestudentM/basic/resetUnderPassword',this.currentGraduateStudent).then((response)=>{
         if(response){
           if(response.status == 200){
