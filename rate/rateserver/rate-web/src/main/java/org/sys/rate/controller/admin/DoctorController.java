@@ -63,6 +63,14 @@ public class DoctorController {
         Object[] res = {t, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return RespBean.ok("ok", res);
     }
+    @GetMapping("/getDoctorStudentsBySelectOfTeacher") //教师端学生列表的筛选
+    public RespBean getDoctorStudentsBySelectOfTeacher(@RequestParam("tutorID") Integer tutorID, @RequestParam("year")Integer year,@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
+        Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
+        List<Doctor> t = doctorService.getDoctorStudentsBySelectOfTeacher(tutorID, year);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {t, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return RespBean.ok("ok", res);
+    }
     @PostMapping("/importDoctors")
     public RespBean importUnderGraduate(Integer institutionID, MultipartFile file) throws ParseException {
         Map<String, List> mm = POIUtils.readExcel_doctrstudent(institutionID, file);

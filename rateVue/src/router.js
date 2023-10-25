@@ -23,7 +23,7 @@ export default new Router({
       },
       children: [
         {
-          path: '/admin/GraduateManageAchievementInfo',
+          path: '/achievement/GraduateManageAchievementInfo',
           name: '研究生成果详情',
           component: () => import('./views/admin/GraduateManageAchievementInfo'),
           meta: {
@@ -31,7 +31,7 @@ export default new Router({
           },
         },
         {
-          path: '/admin/DoctorManageAchievementInfo',
+          path: '/achievement/DoctorManageAchievementInfo',
           name: '博士生成果详情',
           component: () => import('./views/admin/DoctorManageAchievementInfo'),
           meta: {
