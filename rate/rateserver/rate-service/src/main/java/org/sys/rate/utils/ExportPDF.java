@@ -151,9 +151,9 @@ public class ExportPDF {
             data.put("DateStu" + (i + 1), paperComments.get(i).getDateStu());
             data.put("DateTea" + (i + 1), paperComments.get(i).getDateTea() == null || paperComments.get(i).getDateTea().isEmpty() ? "" : paperComments.get(i).getDateTea());
         }
-        data.put("year", LocalDateTime.now().getYear()+"");
-        data.put("month", LocalDateTime.now().getMonthValue()+"");
-        data.put("day", LocalDateTime.now().getDayOfMonth()+"");
+        data.put("year", LocalDateTime.now().getYear() + "");
+        data.put("month", LocalDateTime.now().getMonthValue() + "");
+        data.put("day", LocalDateTime.now().getDayOfMonth() + "");
 
         return data;
     }
@@ -163,12 +163,12 @@ public class ExportPDF {
             form.setFieldProperty(key, "textfont", FontSong, null);
             if (key.equals("stuName") || key.equals("num")) {
                 form.setFieldProperty(key, "textsize", 12f, null);
-            } else if (key.equals("stuNameFirst") || key.equals("stuID") || key.equals("tutorName")|| key.equals("year")|| key.equals("month")|| key.equals("day")) {
+            } else if (key.equals("stuNameFirst") || key.equals("stuID") || key.equals("tutorName") || key.equals("year") || key.equals("month") || key.equals("day")) {
                 form.setFieldProperty(key, "textsize", 16f, null);
             } else {
                 form.setFieldProperty(key, "textsize", 10.5f, null);
             }
-            form.setField(key, data.get(key).toString());
+            form.setField(key, data.get(key) != null ? data.get(key).toString() : "");
         }
 
         File stuSign = new File((String) data.get("stuSign"));
