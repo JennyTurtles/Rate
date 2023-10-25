@@ -197,7 +197,7 @@ export default {
     showDetailInfo(data) { //点击查看详情按钮
       this.currentGraduateStudent = data;
       let url = this.$router.resolve({
-        path:'/admin/GraduateManageAchievementInfo',
+        path:'/achievement/GraduateManageAchievementInfo',
         query: {
           studentId: this.currentGraduateStudent.studentID
         }

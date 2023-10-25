@@ -197,7 +197,7 @@ export default {
     showDetailInfo(data) { //点击查看详情按钮
       this.currentDoctorStudent = data;
       let url = this.$router.resolve({
-        path:'/admin/DoctorManageAchievementInfo',
+        path:'/achievement/DoctorManageAchievementInfo',
         query: {
           studentId: this.currentDoctorStudent.studentID
         }
