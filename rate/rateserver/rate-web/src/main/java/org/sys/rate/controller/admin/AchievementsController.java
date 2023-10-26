@@ -49,7 +49,7 @@ public class AchievementsController {
     @PostMapping("/upload") //学生上传
     public JsonResult upload(@RequestParam MultipartFile file) throws IOException {
         String filename = file.getOriginalFilename();
-        String fPath = new File("files").getAbsolutePath() + "\\upload\\" + UUID.randomUUID() + "#$%" + filename;
+        String fPath = new File("files").getAbsolutePath() + "/upload/#$%" + UUID.randomUUID() + "#$%" + filename;
         File newFile = new File(fPath);
         file.transferTo(newFile);
 
@@ -63,7 +63,7 @@ public class AchievementsController {
         return RespBean.ok("success", newFile);
     }
 
-    @GetMapping("/downloadByUrl") //下载证明材料
+    @PostMapping("/downloadByUrl") //下载证明材料
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
         File file = new File(url);
