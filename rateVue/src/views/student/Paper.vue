@@ -656,16 +656,6 @@ export default {
     this.initTutor(this.user);
     this.initEmps();
   },
-  filters: {
-    fileNameFilter: function (data) {//将证明材料显示出来
-      if (data == null || data == '') {
-        return '无证明材料'
-      } else {
-        var arr = data.split('/')
-        return arr.reverse()[0]
-      }
-    }
-  },
   methods: {
     previewMethod(type) {
       if(type == '1') {
@@ -974,26 +964,6 @@ export default {
             this.paperPoint = 0;
           }
         }
-      });
-    },
-    download(data) {//下载证明材料
-      var fileName = data.url.split('/').reverse()[0]
-      var url = data.url
-      axios({
-        url: '/achievements/basic/downloadByUrl?url=' + url,
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          'token': this.user.token ? this.user.token : ''
-        }
-      }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
       });
     },
     handleDelete() {//删除选择的文件

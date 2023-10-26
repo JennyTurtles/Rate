@@ -479,16 +479,6 @@ export default {
     else if(this.role == 'admin') this.searchStatus = '导师通过';
     this.searchCompetition(1,10);
   },
-  filters:{
-    fileNameFilter:function(data){//将证明材料显示出来
-      if(data == null || data == ''){
-        return '无证明材料'
-      }else{
-        var arr= data.split('/')
-        return  arr.reverse()[0]
-      }
-    }
-  },
   methods: {
     previewMethod(type) {
       if(type == '1') {

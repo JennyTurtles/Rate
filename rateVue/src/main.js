@@ -250,6 +250,14 @@ router.beforeEach((to, from, next) => {
         }
     }
 })
+Vue.filter('fileNameFilter', function (data) {
+    if (data == null || data == '') {
+        return '无证明材料'
+    } else {
+        var arr = data.split('/')
+        return arr.reverse()[0].split('#$%')[2]
+    }
+})
 // 注册一个全局过滤器(将得到的数据ms转为时间(年月日))
 Vue.filter('dataFormat', function (originVal) {
     const dt = new Date(originVal);

@@ -429,16 +429,6 @@ export default {
     this.currentDecisionCopy = JSON.parse(JSON.stringify(this.currentDecision));
     this.initDecisionsList();
   },
-  filters:{
-    fileNameFilter:function(data){//将证明材料显示出来
-      if(data == null || data == ''){
-        return '无证明材料'
-      }else{
-        var arr= data.split('/')
-        return  arr.reverse()[0]
-      }
-    }
-  },
   methods: {
     previewMethod(type) {
       if(type == '1') {
