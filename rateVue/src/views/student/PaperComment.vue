@@ -513,6 +513,7 @@ export default {
           message += "您还没有上传签名图片（可以在导出PDF界面上传）</br>";
         }
 
+
         if (message) {
           try {
             await this.$confirm(message + `确认现在导出不含签名照片的PDF吗？`, '', {
@@ -527,6 +528,8 @@ export default {
             // Handle cancel or other errors
             this.loading = false;
           }
+        } else {
+          await this.downloadPDF();
         }
       } else {
         this.loading = false;
@@ -772,6 +775,7 @@ export default {
 .custom-confirm {
   width: 550px; /* Set the width to your desired value */
 }
+
 .upload-demo {
   display: inline-block;
   margin-right: 10px;

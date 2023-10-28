@@ -101,7 +101,6 @@ public class ExportPDF {
             Map<String, Object> model = generatePDFTemplateData(thesis, student, teacher, paperComments);
             fillPDFTemplateFields(ps, form, FontSong, model);
             ps.setFormFlattening(true);
-
         } catch (Exception e) {
             handlePDFExportError(e, fileName);
             return false;
@@ -172,12 +171,10 @@ public class ExportPDF {
         }
 
         File stuSign = new File((String) data.get("stuSign"));
+        form.setField("stuSign", "");
         if (stuSign.exists()) {
             // 读图片
             List<AcroFields.FieldPosition> positions = form.getFieldPositions("stuSign");
-            form.setField("stuSign", "");
-
-
             for (AcroFields.FieldPosition position : positions) {
                 int pageNo = position.page;
                 Rectangle signRect = position.position;
@@ -194,12 +191,10 @@ public class ExportPDF {
         }
 
         File teaSign = new File((String) data.get("teaSign"));
+        form.setField("teaSign", "");
         if (teaSign.exists()) {
             // 读图片
             List<AcroFields.FieldPosition> positions = form.getFieldPositions("teaSign");
-            form.setField("teaSign", "");
-
-
             for (AcroFields.FieldPosition position : positions) {
                 int pageNo = position.page;
                 Rectangle signRect = position.position;

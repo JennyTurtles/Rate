@@ -185,12 +185,10 @@ public class UnderGraduateMController {
                 os.flush();
 
             } catch (IOException e) {
-                // 在实际应用中，你可能会采取适当的措施来处理异常，如记录日志或返回适当的错误信息
                 e.printStackTrace();
             }
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            // 在实际应用中，你可能会在日志中记录文件不存在的情况
         }
     }
 
