@@ -513,6 +513,10 @@ export default {
 
     // 导出pdf
     async exportPDF(data) {
+      if(data.thesis.comment_total<1){
+        this.$message.info("该生还未提交任何毕业论文指导记录！")
+        return;
+      }
       this.loading = true;
 
       if (this.thesisID !== null) {
@@ -575,6 +579,10 @@ export default {
 
     //查看详情
     showInfoItem(data) {
+      if(data.thesis.comment_total<1){
+        this.$message.info("该生还未提交任何毕业论文指导记录！")
+        return;
+      }
       const {id, sname, studentnumber} = data;
       const {startYear, selectSemester} = this;
 
