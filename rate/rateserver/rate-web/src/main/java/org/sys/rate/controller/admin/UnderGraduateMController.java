@@ -14,17 +14,11 @@ import org.sys.rate.service.admin.LogService;
 import org.sys.rate.service.admin.UnderGraduateService;
 import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.POIUtils;
-import org.sys.rate.utils.ReadExcel;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.*;
-import java.nio.file.Files;
-import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -226,6 +220,11 @@ public class UnderGraduateMController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {student, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
+    }
+
+    @PostMapping("/exportGroupsResult")
+    public ResponseEntity<byte[]> downloadExample_UnderGraduateStudents(@RequestBody List<UnderGraduate> underGraduates, HttpServletResponse response) {
+        return POIUtils.groupExcel(underGraduates);
     }
 
 
