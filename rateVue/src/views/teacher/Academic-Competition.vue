@@ -4,7 +4,7 @@
         style="display: flex; justify-content: space-between; margin: 15px 0"
     >
       <div>
-        <label style="fontSize:10px">学生姓名：</label>
+        <label>学生姓名：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
@@ -12,7 +12,7 @@
                v-model="searchStudentName"
                placeholder="学生姓名"
                autocomplete="off">
-        <label style="fontSize:10px;margin-left:16px">竞赛名称：</label>
+        <label style="margin-left:16px">竞赛名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
@@ -40,7 +40,7 @@
 <!--            </el-option>-->
 <!--          </el-select>-->
 <!--        </div>-->
-        <label style="fontSize:10px;margin-left:40px;">成果状态：</label>
+        <label style="margin-left:40px;">成果状态：</label>
         <el-select
             v-model="searchStatus"
             style="margin-left:3px;width:120px"
@@ -56,7 +56,7 @@
           >
           </el-option>
         </el-select>
-        <label style="fontSize:10px;margin-left:16px">积分范围：</label>
+        <label style="margin-left:16px">积分范围：</label>
         <el-select
             v-model="searchPointFront"
             style="margin-left:3px;width:60px"
@@ -114,9 +114,9 @@
       >
         <el-table-column
             fixed
-            prop="author"
+            prop="student.name"
             align="center"
-            label="获奖人"
+            label="学生姓名"
             min-width="15%"
         >
         </el-table-column>
@@ -282,8 +282,8 @@
           <span>{{ currentCompetition.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="获奖人:">
-          <span>{{ currentCompetition.author }}</span
+        <el-form-item label="学生姓名:">
+          <span>{{ currentCompetition.student.name }}</span
           ><br />
         </el-form-item>
         <el-form-item label="成果状态:">
@@ -306,6 +306,10 @@
           <span>{{currentCompetition.competitionType.name}}</span
           ><br />
         </el-form-item>
+        <el-form-item label="作者列表:">
+          <span>{{ currentCompetition.author }}</span
+          ><br />
+        </el-form-item>
         <el-form-item label="作者人数:">
           <span>{{currentCompetition.total}}</span
           ><br />
@@ -318,6 +322,8 @@
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="currentCompetition.url == '' || currentCompetition.url == null ? true:false" >无证明材料</span>
           <span v-else>{{ currentCompetition.url | fileNameFilter }}</span>
+        </el-form-item>
+        <div v-show="currentCompetition.url == '' || currentCompetition.url == null ? false : true" style="margin-left: 80px">
           <div>
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
             <el-button @click="previewMethod('2')">下载</el-button>
@@ -332,12 +338,12 @@
             </el-image>
           </div>
           <br />
-        </el-form-item>
+        </div>
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <div style="font-size: 10px;">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
+              <div>
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
               </div>
@@ -614,7 +620,7 @@ export default {
       this.previewImageSrcList = [];
       if(data.url.includes('.pdf')) { //判断文件类型
         this.isPdf = true;
-      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe')) {
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
         this.isImage = true;
       }
       this.getOperationListOfCompetition(data);
