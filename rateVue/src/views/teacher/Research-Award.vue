@@ -297,8 +297,8 @@
           <span>{{emp.rank}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="受理日期:" prop="date">
-          <span>{{emp.date | dataFormat}}</span
+        <el-form-item label="申报年月:" prop="date">
+          <span>{{emp.date}}</span
           ><br />
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
