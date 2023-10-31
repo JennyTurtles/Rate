@@ -330,14 +330,12 @@
           <div
               style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
             <div v-for="item in operList" :key="item.time"
-                 style="margin-top:18px;color:gray;font-size:10px;margin-left:14px">
-              <div>
-                <p>
+                 style="margin-top:18px;color:gray;margin-left:14px">
+                <div>
                   {{ item.time | dataFormat }}&nbsp;&nbsp;&nbsp;&nbsp;{{
                     item.operatorName
-                  }}&nbsp;&nbsp;&nbsp;&nbsp;{{ item.operationName }}</p>
-                <p v-show="item.remark == '' ? false : true">驳回理由：{{ item.remark }}</p>
-              </div>
+                  }}&nbsp;&nbsp;&nbsp;&nbsp;{{ item.operationName }}</div>
+                <div v-show="item.remark == '' ? false : true">驳回理由：{{ item.remark }}</div>
             </div>
           </div>
         </div>
@@ -1141,7 +1139,6 @@ export default {
           this.postRequest1("/paper/basic/edit", params).then((resp) => {
             if (resp) {
               this.dialogVisible = false;
-              this.$message.success('编辑成功');
               this.doAddOper("commit", this.currentEmp.id)
             }
           });
@@ -1210,6 +1207,7 @@ export default {
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper)
       await this.initEmps();
+      this.$message.success('操作成功');
     }
     ,
     showAddEmpView() {//点击添加论文按钮
