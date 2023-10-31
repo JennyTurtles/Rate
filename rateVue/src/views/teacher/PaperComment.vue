@@ -125,7 +125,7 @@
           :before-upload="beforeUploadSign"
           :headers="{'token': this.user.token}"
       >
-        <el-button type="primary" icon="el-icon-upload" >
+        <el-button type="primary" icon="el-icon-upload">
           上传个人签名
         </el-button>
         <span style="color:gray;font-size:11px">
@@ -135,7 +135,7 @@
 
       <!-- 下载个人签名按钮 -->
       <el-button type="success" @click="downloadFile">
-          下载个人签名
+        下载个人签名
       </el-button>
     </el-dialog>
     <el-dialog
@@ -513,6 +513,10 @@ export default {
 
     // 导出pdf
     async exportPDF(data) {
+      if (data.thesis.comment_total < 1) {
+        this.$message.info("该生还未提交任何毕业论文指导记录！")
+        return;
+      }
       this.loading = true;
 
       if (this.thesisID !== null) {
@@ -560,7 +564,7 @@ export default {
 
         const a = document.createElement('a');
         a.href = fileURL;
-        a.download = data.sname+'_毕业论文评审记录.pdf';
+        a.download = data.sname + '_毕业论文评审记录.pdf';
         a.style.display = 'none';
         document.body.appendChild(a);
         a.click();
@@ -572,9 +576,12 @@ export default {
     },
 
 
-
     //查看详情
     showInfoItem(data) {
+      if (data.thesis.comment_total < 1) {
+        this.$message.info("该生还未提交任何毕业论文指导记录！")
+        return;
+      }
       const {id, sname, studentnumber} = data;
       const {startYear, selectSemester} = this;
 
@@ -593,6 +600,7 @@ export default {
   display: inline-block;
   margin-right: 10px;
 }
+
 .el-loading-spinner {
   font-size: 20px;
   /*font-weight: bold;*/

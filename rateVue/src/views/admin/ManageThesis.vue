@@ -19,6 +19,9 @@
       <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="groupsForStudent">学生分组
       </el-button>
 
+      <el-button icon="el-icon-download" type="primary" style="margin-right: 10px" @click="exportGroupsResult">导出分组
+      </el-button>
+
       <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importTeachers">导入指导教师
       </el-button>
 
@@ -626,14 +629,14 @@ export default {
       }
       this.currentUnderStudentOfEdit.password = this.newPassword
       const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z\d])[\S]{8,20}$/;
-      if (this.newPassword!="dhucst" && !passwordRegex.test(this.newPassword)) {
+      if (this.newPassword != "dhucst" && !passwordRegex.test(this.newPassword)) {
         this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
         return
       }
       this.postRequest('/undergraduateM/basic/resetUnderPassword', this.currentUnderStudentOfEdit).then((response) => {
         if (response) {
           if (response.status == 200) {
-            this.$message.success("重置成功，密码重置为"+this.newPassword);
+            this.$message.success("重置成功，密码重置为" + this.newPassword);
             this.closeDialogReset()
           } else {
             this.$message.fail("重置失败")
@@ -824,6 +827,8 @@ export default {
         this.filterBtn()
       }
     },
+
+
     async initUnderGraduateStudents(pageNum, pageSize) {
       try {
         this.query.pageNum = pageNum;
@@ -888,7 +893,7 @@ export default {
     },
     creatGroup() {//创建分组
       var sum = 0
-     // 遍历this.groupNumsInput，如果value为0，报错
+      // 遍历this.groupNumsInput，如果value为0，报错
       for (var i = 0; i < this.groupNumsInput.length; i++) {
         if (this.groupNumsInput[i].value == 0) {
           this.$message.error('第' + (i + 1) + '组人数为0，请重新输入！')
@@ -939,6 +944,40 @@ export default {
           this.closeDialogGroup()
         }
       })
+    },
+    async exportGroupsResult() {
+      if (this.selectDate == "") {
+        this.$message.warning('请在上方选择导出毕业设计的批次！')
+        return
+      }
+      if (this.undergraduateStudents == null || this.undergraduateStudents.length == 0) {
+        this.$message.warning('请先导入学生！')
+        return
+      }
+      if (this.undergraduateStudents[0].group == null||this.undergraduateStudents[0].group == "") {
+        this.$message.warning('请先分组学生！')
+        return
+      }
+      const url = '/undergraduateM/basic/exportGroupsResult';
+      console.log(this.undergraduateStudents);
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(this.undergraduateStudents),
+      })
+          .then(response => response.blob())
+          .then(blob => {
+            const url = window.URL.createObjectURL(new Blob([blob]));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '本科生毕业设计分组结果.xls'; // 设置下载文件的名称
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          })
+          .catch(error => console.error('Error:', error));
     },
     groupsForStudent() {
       if (this.undergraduateStudents == null || this.undergraduateStudents.length == 0) {
