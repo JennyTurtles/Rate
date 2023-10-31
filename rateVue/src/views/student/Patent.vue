@@ -627,7 +627,7 @@ export default {
       this.previewImageSrcList = [];
       if(data.url.includes('.pdf')) { //判断文件类型
         this.isPdf = true;
-      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe')) {
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
         this.isImage = true;
       }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=授权专利').then((resp) => {
