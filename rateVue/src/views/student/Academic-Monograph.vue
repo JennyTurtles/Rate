@@ -229,14 +229,14 @@
     >
       <el-form
           :label-position="labelPosition"
-          label-width="120px"
+          label-width="80px"
           :model="currentMonograph"
           style="margin-left: 20px">
         <el-form-item label="著作名称:">
           <span>{{ currentMonograph.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者名称:">
+        <el-form-item label="作者列表:">
           <span>{{ currentMonograph.author }}</span
           >
         </el-form-item>
@@ -260,34 +260,34 @@
           <span>{{ currentMonograph.isbn }}</span
           >
         </el-form-item>
-        <el-form-item label="相关备注:">
-          <span>{{ currentMonograph.remark }}</span>
+        <el-form-item label="成果积分:">
+          <span>{{ currentMonograph.point }}</span
+          >
         </el-form-item>
         <el-form-item label="证明材料:">
           <span v-if="currentMonograph.url == '' || currentMonograph.url == null ? true:false" >无证明材料</span>
           <div v-else>{{ currentMonograph.url | fileNameFilter }}</div>
-          <br />
-          <div v-show="currentMonograph.url == '' || currentMonograph.url == null ? false : true">
-            <div>
-              <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
-            </div>
-            <div style="margin-top: 5px">
-              <el-image
-                  v-show="false"
-                  ref="previewImage"
-                  style="width: 100px; height: 100px"
-                  :src="previewUrl"
-                  :preview-src-list="previewImageSrcList">
-              </el-image>
-            </div>
-          </div>
-          <br />
         </el-form-item>
+        <div v-show="currentMonograph.url == '' || currentMonograph.url == null ? false : true" style="margin-left: 80px">
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
+        </div>
+        <br />
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
               <div >
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
