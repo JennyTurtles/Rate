@@ -613,7 +613,6 @@ export default {
       this.dialogVisible = true;
     },
     showEditEmpView_show(data) {
-      console.log(data)
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;

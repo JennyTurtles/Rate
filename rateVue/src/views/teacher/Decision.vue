@@ -4,7 +4,7 @@
         style="display: flex; justify-content: space-between; margin: 15px 0"
     >
       <div>
-        <label style="fontSize:10px">学生姓名：</label>
+        <label>学生姓名：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
@@ -12,7 +12,7 @@
                placeholder="学生姓名"
                autocomplete="off"
                v-model="searchStudentName">
-        <label style="fontSize:10px;margin-left:16px">决策名称：</label>
+        <label style="margin-left:16px">决策名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
@@ -20,7 +20,7 @@
                placeholder="决策名称"
                v-model="searchCompetitionName">
 
-        <label style="fontSize:10px;margin-left:40px;">决策状态：</label>
+        <label style="margin-left:40px;">决策状态：</label>
         <el-select
             v-model="searchStatus"
             style="margin-left:3px;width:120px"
@@ -36,7 +36,7 @@
           >
           </el-option>
         </el-select>
-        <label style="fontSize:10px;margin-left:16px">积分范围：</label>
+        <label style="margin-left:16px">积分范围：</label>
         <el-select
             v-model="searchPointFront"
             style="margin-left:3px;width:60px"
@@ -261,7 +261,23 @@
         </el-form-item>
         
         <el-form-item label="决策状态:" prop="state">
-          <span>{{emp.state}}</span
+          <span>{{emp.state=="commit"
+              ? "学生提交"
+              :emp.state=="tea_pass"
+                  ? "导师通过"
+                  :emp.state=="tea_reject"
+                      ? "导师驳回"
+                      :emp.state=="adm_pass"
+                          ? "管理员通过"
+                          :"管理员驳回"}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="决策类别:">
+          <span>{{emp.decisionType.name}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者列表:">
+          <span>{{emp.author}}</span
           ><br />
         </el-form-item>
         <el-form-item label="作者人数:" prop="total">
@@ -272,14 +288,16 @@
           <span>{{emp.rank}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="受理日期:" prop="date">
-          <span>{{emp.date | dataFormat}}</span
+        <el-form-item label="申报年月:" prop="date">
+          <span>{{emp.date}}</span
           ><br />
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
           <span v-else>{{ emp.url | fileNameFilter }}</span>
+        </el-form-item>
+        <div v-show="emp.url == '' || emp.url == null ? false : true" style="margin-left: 80px">
           <div>
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
             <el-button @click="previewMethod('2')">下载</el-button>
@@ -294,12 +312,12 @@
             </el-image>
           </div>
           <br />
-        </el-form-item>
+        </div>
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <div style="font-size: 10px;">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
+              <div>
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
               </div>
@@ -412,8 +430,9 @@ export default {
         id: null,
         institutionID: null,
         name: null,
-        scoreItemCount: "0",
-        score: "",
+        decisionType: {
+          name:''
+        },
         remark: "",
         state: "",
         student: {},
