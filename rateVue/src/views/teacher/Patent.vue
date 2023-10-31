@@ -267,7 +267,15 @@
           ><br />
         </el-form-item>
         <el-form-item label="专利状态:" prop="state">
-          <span>{{emp.state}}</span
+          <span>{{emp.state=="commit"
+              ? "学生提交"
+              :emp.state=="tea_pass"
+                  ? "导师通过"
+                  :emp.state=="tea_reject"
+                      ? "导师驳回"
+                      :emp.state=="adm_pass"
+                          ? "管理员通过"
+                          :"管理员驳回"}}</span
           ><br />
         </el-form-item>
         <el-form-item label="作者列表:" prop="total">
