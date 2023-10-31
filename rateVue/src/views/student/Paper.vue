@@ -271,11 +271,11 @@
           ref="empForm"
           style="margin-left: 20px"
       >
-        <el-form-item label="论文名:">
+        <el-form-item label="成果名称:">
           <span>{{ emp.name }}</span
           ><br/>
         </el-form-item>
-        <el-form-item label="积分:">
+        <el-form-item label="成果积分:">
           <span>{{ emp.point }}</span
           ><br/>
         </el-form-item>
@@ -291,7 +291,7 @@
           <span>{{ emp.author }}</span
           ><br/>
         </el-form-item>
-        <el-form-item label="排名:">
+        <el-form-item label="作者排名:">
           <span>{{ emp.rank }}</span
           ><br/>
         </el-form-item>
