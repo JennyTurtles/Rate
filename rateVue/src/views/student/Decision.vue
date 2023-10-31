@@ -229,7 +229,7 @@
     >
       <el-form
           :label-position="labelPosition"
-          label-width="120px"
+          label-width="80px"
           :model="currentDecision"
           style="margin-left: 20px">
         <el-form-item label="决策名称:">
