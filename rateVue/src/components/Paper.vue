@@ -4,21 +4,21 @@
         style="display: flex; justify-content: space-between; margin: 15px 0"
       >
         <div>
-              <label style="fontSize:10px">学生姓名：</label>
+              <label>学生姓名：</label>
               <input type="text" 
-                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
+                style="margin-left:5px;width:60px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
                 placeholder="学生姓名" autocomplete="off"
                 id="select_stuname">
-              <label style="fontSize:10px;margin-left:16px">论文名称：</label>
+              <label style="margin-left:16px">论文名称：</label>
               <input type="text" 
                 style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
                 placeholder="论文名称"
                 id="select_paperName">
-              <label style="fontSize:10px;margin-left:16px">期刊：</label>
+              <label style="margin-left:16px">期刊：</label>
               <div class="select_div_input">
                 <el-select
                     v-model="searchPaperPublicationName"
@@ -38,7 +38,7 @@
                   </el-option>
                 </el-select>
                 </div>
-              <label style="fontSize:10px;margin-left:40px;">论文状态：</label>
+              <label style="margin-left:15px;">论文状态：</label>
               <el-select
                   v-model="paperSelectedStatus"
                   style="margin-left:3px;width:120px"
@@ -54,7 +54,7 @@
                     >
                     </el-option>
               </el-select>
-              <label style="fontSize:10px;margin-left:16px">积分范围：</label>
+              <label style="margin-left:16px">积分范围：</label>
               <el-select
                   v-model="pointFront"
                   style="margin-left:3px;width:60px"
@@ -93,7 +93,7 @@
                   type="primary"
                   @click="searchEmps(1, 10)"
                   :disabled="showAdvanceSearchView"
-                  style="margin-left:30px"
+                  style="margin-left:10px"
                   >
                   搜索
               </el-button>
@@ -276,7 +276,7 @@
         ref="empForm"
         style="margin-left: 20px"
       >
-        <el-form-item label="论文名:">
+        <el-form-item label="论文名称:">
           <span>{{ emp.name }}</span
           ><br />
         </el-form-item>
@@ -284,7 +284,18 @@
           <span>{{ emp.student.name }}</span
           ><br />
         </el-form-item>
-
+        <el-form-item label="作者列表:">
+          <span>{{emp.author}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者人数:">
+          <span>{{emp.total}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者排名:">
+          <span>{{emp.rank}}</span
+          ><br />
+        </el-form-item>
         <el-form-item label="期刊页码:">
           <span>{{ emp.pubPage}}</span
           ><br />
@@ -301,18 +312,6 @@
                           :"管理员驳回"}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者人数:">
-          <span>{{emp.total}}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="作者列表:">
-          <span>{{emp.author}}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="排名:">
-          <span>{{emp.rank}}</span
-          ><br />
-        </el-form-item>
         <el-form-item label="发表年份:">
           <span>{{emp.year}}</span
           ><br />
@@ -325,32 +324,29 @@
           &nbsp;&nbsp;&nbsp;&nbsp;
           <div v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</div>
           <div v-else>{{ emp.url | fileNameFilter }}</div>
-          <br />
-          <div v-show="emp.url == '' || emp.url == null ? false : true">
-            <div>
-              <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
-            </div>
-            <div style="margin-top: 5px">
-              <el-image
-                  v-show="false"
-                  ref="previewImage"
-                  style="width: 100px; height: 100px"
-                  :src="previewUrl"
-                  :preview-src-list="previewImageSrcList">
-              </el-image>
-            </div>
-          </div>
-          <br />
         </el-form-item>
+        <div v-show="emp.url == '' || emp.url == null ? false : true" style="margin-left: 80px">
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
+        </div>
+        <br />
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <div style="font-size: 10px;">
-                <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
-                <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
-              </div>
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
+              <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
+              <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
             </div>
           </div>
         </div>
@@ -692,7 +688,7 @@ export default {
       this.previewImageSrcList = [];
       if(data.url.includes('.pdf')) { //判断文件类型
         this.isPdf = true;
-      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe')) {
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
         this.isImage = true;
       }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=学术论文').then((resp) => {
