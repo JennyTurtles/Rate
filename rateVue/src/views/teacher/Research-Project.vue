@@ -4,7 +4,7 @@
         style="display: flex; justify-content: space-between; margin: 15px 0"
     >
       <div>
-        <label style="fontSize:10px">学生姓名：</label>
+        <label>学生姓名：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
@@ -12,7 +12,7 @@
                v-model="searchStudentName"
                placeholder="学生姓名"
                autocomplete="off">
-        <label style="fontSize:10px;margin-left:16px">项目名称：</label>
+        <label style="margin-left:16px">项目名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
@@ -20,7 +20,7 @@
                placeholder="项目名称"
                v-model="searchProjectName"
                id="select_paperName">
-        <label style="fontSize:10px;margin-left:40px;">项目状态：</label>
+        <label style="margin-left:40px;">项目状态：</label>
         <el-select
             v-model="searchStatus"
             style="margin-left:3px;width:120px"
@@ -36,7 +36,7 @@
           >
           </el-option>
         </el-select>
-        <label style="fontSize:10px;margin-left:16px">积分范围：</label>
+        <label style="margin-left:16px">积分范围：</label>
         <el-select
             v-model="searchPointFront"
             style="margin-left:3px;width:60px"
@@ -261,25 +261,36 @@
           <span>{{ currentProject.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者列表:">
-          <span>{{ currentProject.author }}</span
+        <el-form-item label="学生姓名:">
+          <span>{{ currentProject.student.name }}</span
           ><br />
         </el-form-item>
-
         <el-form-item label="项目状态:">
-          <span>{{currentProject.state}}</span
+          <span>{{currentProject.state=="commit"
+              ? "学生提交"
+              :currentProject.state=="tea_pass"
+                  ? "导师通过"
+                  :currentProject.state=="tea_reject"
+                      ? "导师驳回"
+                      :currentProject.state=="adm_pass"
+                          ? "管理员通过"
+                          :"管理员驳回"}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="立项日期:">
+        <el-form-item label="立项年月:">
           <span>{{currentProject.startDate}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="结项日期:">
+        <el-form-item label="结项年月:">
           <span>{{currentProject.endDate}}</span
           ><br />
         </el-form-item>
         <el-form-item label="项目类别:">
           <span>{{currentProject.projectType.name}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者列表:">
+          <span>{{ currentProject.author }}</span
           ><br />
         </el-form-item>
         <el-form-item label="作者人数:">
@@ -293,7 +304,9 @@
         <el-form-item label="证明材料:" prop="url">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="currentProject.url == '' || currentProject.url == null ? true:false" >无证明材料</span>
-          <span v-else>{{ emp.url | fileNameFilter }}</span>
+          <span v-else>{{ currentProject.url | fileNameFilter }}</span>
+        </el-form-item>
+        <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
           <div>
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
             <el-button @click="previewMethod('2')">下载</el-button>
@@ -308,12 +321,12 @@
             </el-image>
           </div>
           <br />
-        </el-form-item>
+        </div>
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <div style="font-size: 10px;">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
+              <div>
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
               </div>
@@ -532,7 +545,7 @@ export default {
     //点击对话框中的确定按钮 触发事件
     auditing_commit(state){
       this.loading = true;
-      if(this.role == 'admin' && (state.indexOf('pass') >= 0 || state.indexOf('reject') >= 0) && this.currentMonograph.state == 'commit') { //管理员通过 有提示
+      if(this.role == 'admin' && (state.indexOf('pass') >= 0 || state.indexOf('reject') >= 0) && this.currentProject.state == 'commit') { //管理员通过 有提示
         this.$confirm('目前导师尚未审核，是否确认审核该成果？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
