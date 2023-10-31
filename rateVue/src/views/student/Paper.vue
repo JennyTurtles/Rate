@@ -308,23 +308,23 @@
           <span v-if="emp.url == '' || emp.url == null ? true:false">无证明材料</span>
           <div v-else>{{ emp.url | fileNameFilter }}</div>
           <br/>
-          <div v-show="emp.url == '' || emp.url == null ? false : true">
-            <div>
-              <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
-            </div>
-            <div style="margin-top: 5px">
-              <el-image
-                  v-show="false"
-                  ref="previewImage"
-                  style="width: 100px; height: 100px"
-                  :src="previewUrl"
-                  :preview-src-list="previewImageSrcList">
-              </el-image>
-            </div>
-          </div>
-          <br />
         </el-form-item>
+        <div v-show="emp.url == '' || emp.url == null ? false : true" style="margin-left: 80px">
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
+        </div>
+        <br />
         <div>
           <span>历史操作:</span>
           <div
