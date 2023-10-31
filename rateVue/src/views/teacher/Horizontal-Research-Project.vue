@@ -4,7 +4,7 @@
         style="display: flex; justify-content: space-between; margin: 15px 0"
     >
       <div>
-        <label style="fontSize:10px">学生姓名：</label>
+        <label>学生姓名：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
@@ -13,7 +13,7 @@
                autocomplete="off"
                v-model="searchStudentName"
                id="select_stuname">
-        <label style="fontSize:10px;margin-left:16px">项目名称：</label>
+        <label style="margin-left:16px">项目名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
@@ -21,8 +21,7 @@
                placeholder="项目名称"
                v-model="searchProjectName"
                id="select_paperName">
-
-        <label style="fontSize:10px;margin-left:40px;">项目状态：</label>
+        <label style="margin-left:40px;">项目状态：</label>
         <el-select
             v-model="searchProjectState"
             style="margin-left:3px;width:120px"
@@ -38,7 +37,7 @@
           >
           </el-option>
         </el-select>
-        <label style="fontSize:10px;margin-left:16px">积分范围：</label>
+        <label style="margin-left:16px">积分范围：</label>
         <el-select
             v-model="pointFront"
             style="margin-left:3px;width:60px"
@@ -247,7 +246,7 @@
         center>
       <el-form
           :label-position="labelPosition"
-          label-width="80px"
+          label-width="90px"
           :model="emp"
           ref="empForm"
           style="margin-left: 20px"
@@ -260,28 +259,48 @@
           <span>{{ emp.student.name }}</span
           ><br />
         </el-form-item>
-
-
         <el-form-item label="项目状态:" prop="state">
-          <span>{{emp.state}}</span
+          <span>{{emp.state=="commit"
+              ? "学生提交"
+              :emp.state=="tea_pass"
+                  ? "导师通过"
+                  :emp.state=="tea_reject"
+                      ? "导师驳回"
+                      :emp.state=="adm_pass"
+                          ? "管理员通过"
+                          :"管理员驳回"}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者列表:">
+          <span>{{emp.author}}</span
           ><br />
         </el-form-item>
         <el-form-item label="作者人数:" prop="total">
           <span>{{emp.total}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="排名:" prop="rank">
+        <el-form-item label="作者排名:" prop="rank">
           <span>{{emp.rank}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="受理年月:" prop="date">
-          <span>{{emp.date}}</span
+        <el-form-item label="立项年月:" prop="date">
+          <span>{{emp.startDate}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="结项年月:" prop="date">
+          <span>{{emp.endDate}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="指标点名称:">
+          <span>{{emp.indicator.name}}</span
           ><br />
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
           <span v-else>{{ emp.url | fileNameFilter }}</span>
+        </el-form-item>
+        <div v-show="emp.url == '' || emp.url == null ? false : true" style="margin-left: 80px">
           <div>
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
             <el-button @click="previewMethod('2')">下载</el-button>
@@ -295,13 +314,12 @@
                 :preview-src-list="previewImageSrcList">
             </el-image>
           </div>
-          <br />
-        </el-form-item>
+        </div>
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <div style="font-size: 10px;">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
+              <div>
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
               </div>
@@ -411,7 +429,7 @@ export default {
         operatorRole: "",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '项目应用',
+        prodType: '横向科研项目',
         operationName:"",
         state:"",
         remark:"",
@@ -422,13 +440,13 @@ export default {
         id: null,
         institutionID: null,
         name: null,
-        score: "100",
-        comment: "",
+        indicator: {
+          name: ''
+        },
         state:"",
         student:{},
         total:0,
         rank:0
-        // reason:"",
       },
     };
   },
@@ -595,6 +613,7 @@ export default {
       this.dialogVisible = true;
     },
     showEditEmpView_show(data) {
+      console.log(data)
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
@@ -606,7 +625,7 @@ export default {
       } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
         this.isImage = true;
       }
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=项目应用').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=横向科研项目').then((resp) => {
         this.loading = false;
         if (resp) {
           this.isShowInfo = false;
