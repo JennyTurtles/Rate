@@ -221,11 +221,12 @@ public class GroupsService {
             List<double []> point_participant = new ArrayList<>();
 //            List<Double> points = switchTypeOfScore();//转换数据类型
             for(Infos info : infosList){
-                double [] temp = new double[3];
+                double [] temp = new double[4];
                 point.add(Double.valueOf(info.getContent()));
                 temp[0] = Double.valueOf(info.getContent());//分数
                 temp[1] = Double.valueOf(info.getParticipantID());//选手id
                 temp[2] = Double.valueOf(-1);//组号标识
+                temp[3] = Double.valueOf(-1);
                 point_participant.add(temp);
             }
 //            for(int nn = 0;nn<167;nn++){

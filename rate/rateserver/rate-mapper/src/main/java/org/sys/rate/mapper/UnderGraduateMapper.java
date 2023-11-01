@@ -77,9 +77,10 @@ public interface UnderGraduateMapper {
 
     List<UnderGraduate> getUngrouped(Integer year, Integer month);
 
-    void updateGroup(Integer ID,String groupName);
-    List<Thesis> getUngroupedBySpecialty(Integer year,Integer month,String specialty);
-    List<Thesis> getUngroupedByClass(Integer year,Integer month,String className);
+    void updateGroup(@Param("ids")List<Integer> ids,String groupName);
+    List<Thesis> getUngroupedBySpecialty(Integer year,Integer month,@Param("specialty")List<String> specialty);
+    List<Thesis> getUngroupedByClass(Integer year,Integer month,@Param("className")List<String> className);
+    List<Thesis> getMultiByID(List<Integer> id);
     List<Thesis> getNoGrade(Integer year,Integer month);
 
     List<UnderGraduate> getStudentByConditions(StudentCondition studentCondition);

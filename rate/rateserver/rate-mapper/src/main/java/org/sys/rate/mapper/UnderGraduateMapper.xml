@@ -129,7 +129,10 @@
     <update id="updateGroup">
         update thesis
         set `group` =#{groupName}
-        where ID =#{ID}
+        where ID in
+        <foreach collection="ids" close=")" open="(" item="item" separator=",">
+            #{item}
+        </foreach>
     </update>
 
 
@@ -169,12 +172,18 @@
     <select id="getUngroupedBySpecialty" resultType="org.sys.rate.model.Thesis">
         select *
         from thesis t,undergraduate u
-        where t.year=#{year} and t.month=#{month} and t.studentID = u.ID and u.specialty =#{specialty} and t.`group` is null
+        where t.year=#{year} and t.month=#{month} and t.studentID = u.ID and t.`group` is null and u.specialty in
+        <foreach item="item" index="index" collection="specialty" open="(" separator="," close=")">
+            #{item}
+        </foreach>
     </select>
     <select id="getUngroupedByClass" resultType="org.sys.rate.model.Thesis">
         select *
         from thesis t,undergraduate u
-        where t.year=#{year} and t.month=#{month} and t.studentID = u.ID and u.class =#{className} and t.`group` is null
+        where t.year=#{year} and t.month=#{month} and t.studentID = u.ID and t.`group` is null and u.class in
+        <foreach item="item" index="index" collection="className" open="(" separator="," close=")">
+            #{item}
+        </foreach>
     </select>
     <select id="getNoGrade" resultType="org.sys.rate.model.Thesis">
         select *
@@ -221,9 +230,9 @@
 
     </select>
     <select id="getUngrouped" resultMap="ResultMapThesis">
-        select t.grade,u.ID,u.studentID,u.specialty,u.class
-        from thesis t,undergraduate u
-        where u.ID = t.studentID and t.year=#{year} and t.month=#{month} and t.group is null
+        select t.grade,u.ID,u.studentID,u.stuNumber,u.specialty,u.class,s.name
+        from thesis t,undergraduate u,student s
+        where u.ID = t.studentID and u.studentID = s.ID and t.year=#{year} and t.month=#{month} and t.group is null
     </select>
     <select id="checkAndReturnID" resultType="org.sys.rate.model.UnderGraduate">
         select *
@@ -231,6 +240,14 @@
         where institutionID = #{institutionID} and stuNumber in
         <foreach collection="stuList" close=")" open="(" item="item" separator=",">
             #{item.stuNumber}
+        </foreach>
+    </select>
+    <select id="getMultiByID" resultType="org.sys.rate.model.Thesis">
+        select *
+        from thesis t
+        where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
         </foreach>
     </select>
 

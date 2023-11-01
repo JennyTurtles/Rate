@@ -275,45 +275,78 @@ public class UnderGraduateService {
         }
     }
 
-    public String createGroup(Integer year, Integer month, List<Integer> arr, Integer exchangeNums, Integer groupsNums, String groupWay,List<String> selectInfo) {
+    public String createGroup(Integer year, Integer month, List<Integer> arr, Integer exchangeNums, Integer groupsNums, String groupWay,List<String> selectInfo,HashMap<String,List<Integer>> orderNums) {
         List<Double> point = new ArrayList<>();
         List<Thesis> students = new ArrayList<>();
         List<double[]> point_participant = new ArrayList<>();
-        for (String per:selectInfo){
-            List<Thesis> par = new ArrayList<>();
-            if (groupWay.equals("专业"))
-                par = underGraduateMapper.getUngroupedBySpecialty(year, month, per);
-            else if (groupWay.equals("班级"))
-                par = underGraduateMapper.getUngroupedByClass(year, month, per);
-            students.addAll(par);
-        }
+        if (groupWay.equals("专业"))
+            students = underGraduateMapper.getUngroupedBySpecialty(year, month, selectInfo);
+        else if (groupWay.equals("班级"))
+            students = underGraduateMapper.getUngroupedByClass(year, month, selectInfo);
         for (Thesis student : students) {
-            double[] temp = new double[3];
+            double[] temp = new double[4];
             point.add(Double.valueOf(student.getGrade()==null? 0.0:student.getGrade()));
             temp[0] = Double.valueOf(student.getGrade()==null? 0.0:student.getGrade());//分数
             temp[1] = Double.valueOf(student.getID());//学生id
             temp[2] = Double.valueOf(-1);//组号标识
+            temp[3] = Double.valueOf(-1); //-1：非指定的学生 x：指定为x组的学生
+            int index = 0;
+            for(String key:orderNums.keySet()){
+                boolean flag = false;
+                for (Integer id : orderNums.get(key)) {
+                    if (student.getStudentID().equals(id)) {
+                        temp[3] = Double.valueOf(index);
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag)
+                    break;
+                index++;
+            }
             point_participant.add(temp);
         }
         //得到交换后的groups
         List<List<double[]>> res = groupsService.createGroupsByScore(arr, exchangeNums, groupsNums, point, point_participant);
-        // 将res逆序
-        Collections.reverse(res);
         String name = "";
         //对每组遍历
         try {
             for (int residx = 0; residx < res.size(); residx++) {
+                List<Integer> ids = new ArrayList<>();
                 name = "第" + Integer.toString(residx + 1) + "组";
                 for (int item = 0; item < res.get(residx).size(); item++) {
                     Integer id = (int) res.get(residx).get(item)[1];
-                    underGraduateMapper.updateGroup(id, name);
+                    ids.add(id);
                 }
+                underGraduateMapper.updateGroup(ids, name);
             }
         } catch (Exception e) {
             e.printStackTrace();
             return "分组失败";
         }
         return "分组成功";
+    }
+
+    public String createGroup_judge(Integer year, Integer month, List<Integer> arr, Integer exchangeNums, Integer groupsNums, String groupWay,List<String> selectInfo,HashMap<String, List<Integer>> arrSub,HashMap<String, HashMap<String,List<Integer>>> orderNums) {
+        if (arrSub.size() == 0){ //无指定专业或班级分组
+            HashMap<String,List<Integer>> order_empty = new HashMap<>();
+            return createGroup(year,month,arr,exchangeNums,groupsNums,groupWay,selectInfo,order_empty);
+        }
+        else {
+            try {
+                for (String s : selectInfo) {
+                    List<String> info_single = new ArrayList<>();
+                    info_single.add(s);
+                    HashMap<String,List<Integer>> order = orderNums.get(s);
+                    createGroup(year, month, arrSub.get(s), exchangeNums, groupsNums, groupWay, info_single, order);
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return "分组失败";
+            }
+            return "分组成功";
+        }
     }
 
     public RespBean importThesisName(Integer tutorId, Integer institutionID, Integer year, Integer month, MultipartFile file) throws RespBean {

@@ -266,10 +266,9 @@
         </div>
       </template>
     </el-dialog>
-    <el-dialog :visible.sync="dialogStudentGroup" width="81%" title="学生分组-根据学生绩点分组" center
+    <el-dialog :visible.sync="dialogStudentGroup" width="85%" title="学生分组-根据学生绩点分组" center
                @close="closeDialogGroup">
       <div>
-        <div>
           <div style="margin-top: 15px;width: 100%">
             分组对象：
             <template>
@@ -327,6 +326,10 @@
             <template>
               <el-radio v-model="radio" label="1">均分每组人数</el-radio>
               <el-radio v-model="radio" label="2">指定每组人数</el-radio>
+              <el-radio v-model="radio" label="3">
+                <span v-if="groupWay === '专业'">指定每组每专业人数</span>
+                <span v-if="groupWay === '班级'">指定每组每班级人数</span>
+              </el-radio>
             </template>
             <el-button @click="creatGroup" type="primary">
               创建分组
@@ -335,16 +338,92 @@
               &nbsp;关&nbsp;&nbsp;闭&nbsp;
             </el-button>
           </div>
+          <div style="margin-bottom: 5px" v-show="selectedGroupNums > 0">
+            <span v-if="currentAllSelect!==filterNoGroupPar.length" style="color: red">分组人数：{{ currentAllSelect }}/{{ filterNoGroupPar.length }}</span>
+            <span v-else style="color: #4b8ffe">分组人数：{{ currentAllSelect }}/{{ filterNoGroupPar.length }}</span>
+            <span v-show="radio==='3'" v-for="item in selectedSubGroupInfo"
+                  style="padding-left: 5px; color: red"
+                  v-if="groupWay==='专业' && currentSubSelect[item]!==groupSpecialtyNums[item].length">{{ item }}：{{currentSubSelect[item]}}/{{ groupSpecialtyNums[item].length }}</span>
+            <span v-show="radio==='3'"
+                  v-for="item in selectedSubGroupInfo"
+                  style="padding-left: 5px; color: #4b8ffe"
+                  v-if="groupWay==='专业' && currentSubSelect[item]===groupSpecialtyNums[item].length">{{ item }}：{{currentSubSelect[item]}}/{{ groupSpecialtyNums[item].length }}</span>
+            <span v-show="radio==='3'"
+                  v-for="item in selectedSubGroupInfo"
+                  style="padding-left: 5px; color: red"
+                  v-if="groupWay==='班级' && currentSubSelect[item]!==groupClassNums[item].length">{{ item }}：{{currentSubSelect[item]}}/{{ groupClassNums[item].length }}</span>
+            <span v-show="radio==='3'"
+                  v-for="item in selectedSubGroupInfo"
+                  style="padding-left: 5px; color: #4b8ffe"
+                  v-if="groupWay==='班级' && currentSubSelect[item]===groupClassNums[item].length">{{ item }}：{{currentSubSelect[item]}}/{{ groupClassNums[item].length }}</span>
+          </div>
           <div id="tableOfGroupNums"
                class="inputOfGroupsBox"
                v-show="selectedGroupNums > 0"
+               v-for="item in groupNumsInput"
           >
-            <span v-for="item in groupNumsInput" style="margin: auto;width: 100%;padding-bottom: 2px">
+            <span style="margin: auto;width: 100%;padding-bottom: 5px">
               第{{ item.idx + 1 }}组：
-              <input v-model="item.value" style="width: 60px" :disabled="item.disabled"></input>
+              <input v-model="item.value" style="width: 60px; margin-bottom: 10px" :disabled="item.disabled" @input="currentInputChange"></input>
+            </span>
+            <el-button type="text" style="padding-left: 5px" v-show="radio==='3'" size="medium" @click="showStuTable(item)">指定分配{{ item.orderSum }}人</el-button>
+            <span style="padding-left: 5px" v-show="radio==='3'" v-for="info in selectedSubGroupInfo">{{ info }}：
+              <input v-model="item.selectGroupInfo[info]" style="width: 60px; margin-bottom: 10px" :disabled="item.disabled" @input="currentInputChange"></input>
             </span>
           </div>
-        </div>
+      </div>
+    </el-dialog>
+    <el-dialog :title="title_searchStu" :visible.sync="showStudents" width="55%" center @close="closeDialogSearch">
+      <el-input
+          v-model="searchText"
+          placeholder="请输入学号或姓名进行搜索"
+          @keyup.enter.native="searchStu"
+          @input="searchStu"
+      >
+      </el-input>
+      <span style="color: #4b8ffe">已选学生：</span>
+      <span v-for="item in selectStu" style="padding-left: 5px; color: #4b8ffe">{{item.name}}</span>
+      <el-table
+          ref="multipleTable"
+          :data="searchStudent"
+          :row-key="getRowKeys"
+          tooltip-effect="dark"
+          style="width: 100%"
+          max-height="400px"
+          @selection-change="handleSelectionChange">
+        <el-table-column
+            :reserve-selection="true"
+            type="selection"
+            width="40px">
+        </el-table-column>
+        <el-table-column
+            prop="stuNumber"
+            label="学号"
+            show-overflow-tooltip>
+        </el-table-column>
+        <el-table-column
+            prop="name"
+            label="姓名">
+        </el-table-column>
+        <el-table-column
+            prop="thesis.grade"
+            label="绩点">
+        </el-table-column>
+        <el-table-column
+            prop="className"
+            v-if="groupWay==='班级'"
+            label="班级">
+        </el-table-column>
+        <el-table-column
+            prop="specialty"
+            v-if="groupWay==='专业'"
+            label="专业">
+        </el-table-column>
+      </el-table>
+      <div style="color: #4b8ffe ;float: right;">
+        <el-button type="primary" @click="order" style="padding-left: 10px; padding-top: 5px">
+          确认分配
+        </el-button>
       </div>
     </el-dialog>
   </div>
@@ -353,6 +432,7 @@
 <script>
 import {Message} from "element-ui";
 import {debounce} from "@/utils/debounce";
+import PinYinMatch from "pinyin-match";
 
 
 export default {
@@ -394,8 +474,16 @@ export default {
       selectedSubGroupInfo: [],//选择的子信息项
       groupClassNums: {}, //班级计数
       groupSpecialtyNums: {}, //专业计数
+      currentAllSelect: 0, //当前选择的所有人数
+      currentSubSelect:[], //当前选择的不同子信息项人数
+      currentInputItem:'',
+      showStudents:false, //用于展示指定分配的table
+      selectStu:[],
+      title_searchStu:'',
       radio: '1',
       groupWay: '专业',
+      searchText: '',
+      searchStudent:[],
       options: [],
       selectDate: '',
       canImportStudents: false,
@@ -448,16 +536,26 @@ export default {
     selectedGroupNums: {//监听用户选择了分为几组
       handler(val) {
         this.groupNumsInput = []
+        this.showStudents = false
         for (var i = 0; i < val; i++) {
           this.groupNumsInput.push({
             idx: i,
             value: '',
-            disabled: true//默认是均分
-          })
+            disabled: true, //默认是均分
+            selectGroupInfo:{},
+            orderSum: 0, //指定分配人数
+            orderNum:{}
+          });
         }
-        if (this.radio == '2') {//如果是指定人数
+        if (this.radio == '2' || this.radio == '3') {//如果是指定人数
           for (var item of this.groupNumsInput) {
             item.disabled = false
+          }
+        }
+        for (var item of this.groupNumsInput) {
+          for (var info of this.selectedSubGroupInfo){
+            item.selectGroupInfo[info] = 0
+            item.orderNum[info] = []
           }
         }
         this.calculationGroupInputValue()
@@ -465,11 +563,12 @@ export default {
     },
     radio: {
       handler(val) {
+        this.showStudents = false
         if (this.radio == '1') {//均分
           for (var i = 0; i < this.selectedGroupNums; i++) {
             this.groupNumsInput[i].disabled = true
           }
-        } else if (this.radio == '2') {//指定每组人数
+        } else {//指定每组人数
           for (var i = 0; i < this.selectedGroupNums; i++) {
             this.groupNumsInput[i].disabled = false
           }
@@ -479,16 +578,33 @@ export default {
     },
     selectedSubGroupInfo: {//第一个下拉框的变化
       handler(val) {
+        this.showStudents = false
         if (this.groupWay == '专业')
           this.filterNoGroupPar = this.NoGroupPar.filter(item => this.selectedSubGroupInfo.includes(item.specialty))
         if (this.groupWay == '班级')
           this.filterNoGroupPar = this.NoGroupPar.filter(item => this.selectedSubGroupInfo.includes(item.className))
+        this.searchStudent = this.filterNoGroupPar
+        for (var item of this.groupNumsInput) {
+          for (var info of this.selectedSubGroupInfo){
+            item.orderSum = 0
+            item.orderNum[info] = []
+          }
+        }
         this.calculationGroupInputValue()
       }
     },
     groupWay: {
       handler(val) {
         this.selectedSubGroupInfo = []
+        this.radio = '1'
+        this.selectedGroupNums = null
+        this.currentAllSelect = 0
+        for (var item of this.groupNumsInput) {
+          for (var info of this.selectedSubGroupInfo){
+            item.orderSum = 0
+            item.orderNum[info] = []
+          }
+        }
       }
     }
   },
@@ -851,17 +967,23 @@ export default {
         this.$message.error("请求出现异常！");
       }
     },
+    getRowKeys(row) {
+      return row.id;
+    },
     calculationGroupInputValue() {//计算input框的值
-      if (this.filterNoGroupPar.length == 0 || this.selectedGroupNums == 0) {//如果没有选择分组个数或没有待分组的选手直接返回
+      if (this.filterNoGroupPar.length == 0) {//如果没有选择分组个数或没有待分组的选手直接返回
+        for (var i = 0; i < this.selectedGroupNums; i++)
+          this.groupNumsInput[i].value = null;
+        this.currentAllSelect = 0;
         return
       }
       if (this.selectedGroupNums > this.filterNoGroupPar.length) {
         this.$message.warning('分组数不能超过未分组人数！')
         return
       }
-      var participantNums = this.filterNoGroupPar.length//选手人数
-      var groupNums = this.selectedGroupNums//组数
-      if (this.selectedGroupNums != null) {//均分
+      var participantNums = this.filterNoGroupPar.length //学生人数
+      var groupNums = this.selectedGroupNums //组数
+      if (this.selectedGroupNums != null && this.radio !=='3') {//均分
         var baseNums = Math.floor(participantNums / groupNums);
         for (var i = 0; i < groupNums; i++) {
           this.groupNumsInput[i].value = baseNums;
@@ -869,6 +991,128 @@ export default {
         for (var i = 0; i < (participantNums - baseNums * groupNums); i++) {
           this.groupNumsInput[i].value++;
         }
+      }
+      else if (this.radio === '3'){
+        for (var i = 0; i < groupNums; i++) {
+          this.groupNumsInput[i].value = 0;
+        }
+        for (var info of this.selectedSubGroupInfo){
+          var infoSum = this.groupWay === '专业' ? this.groupSpecialtyNums[info].length : this.groupClassNums[info].length;
+          var baseNums = Math.floor(infoSum / groupNums);
+          for (var i = 0; i < groupNums; i++) {
+            this.groupNumsInput[i].value += baseNums;
+            this.groupNumsInput[i].selectGroupInfo[info] = baseNums;
+          }
+          for (var i = 0; i < (infoSum - baseNums * groupNums); i++) {
+            this.groupNumsInput[i].selectGroupInfo[info]++;
+            this.groupNumsInput[i].value++;
+          }
+        }
+      }
+      // for (var i = 0; i < groupNums; i++) {
+      //   var baseNums = Math.floor(this.groupNumsInput[i].value / this.selectedSubGroupInfo.length);
+      //   for (var j = 0; j < this.selectedSubGroupInfo.length; j++) {
+      //     this.groupNumsInput[i].selectGroupInfo[this.selectedSubGroupInfo[j]] = baseNums;
+      //   }
+      //   for (var j = 0; j < (this.groupNumsInput[i].value - baseNums * this.selectedSubGroupInfo.length); j++) {
+      //     this.groupNumsInput[i].selectGroupInfo[this.selectedSubGroupInfo[j]]++;
+      //   }
+      // }
+      this.currentInputChange();
+    },
+    currentInputChange(){
+      this.currentSubSelect = {}
+      if (this.radio === '3'){
+        for (var i = 0; i < this.groupNumsInput.length; i++){
+          var item = this.groupNumsInput[i];
+          item.value = 0;
+          for (var j = 0; j < this.selectedSubGroupInfo.length; j++){
+            var info = this.selectedSubGroupInfo[j];
+            if (!(info in this.currentSubSelect)) {
+              this.currentSubSelect[info] = 0;
+            }
+            this.currentSubSelect[info] += parseInt(item.selectGroupInfo[info]);
+            item.value += parseInt(item.selectGroupInfo[info]);
+          }
+        }
+      }
+      var sum = 0;
+      this.groupNumsInput.map(item => {
+        sum += parseInt(item.value)
+      })
+      this.currentAllSelect = sum;
+    },
+    handleSelectionChange(val){
+      this.selectStu = val;
+      if (val.length > 0) {
+        const ids = val.map((e) => e.id);
+        this.searchStudent = this.searchStudent.filter((e) => !ids.includes(e.id));
+        this.searchStudent.unshift(...val);
+      }
+    },
+    closeDialogSearch(){
+      this.showStudents = false;
+      this.$refs.multipleTable.clearSelection();
+      this.searchText = '';
+    },
+    order(){
+      var count = {};
+      for (var info of this.selectedSubGroupInfo){
+        if (!(info in count)){
+          count[info] = 0;
+        }
+        this.selectStu.forEach(item => {
+          if (this.groupWay === '专业' && item.specialty === info)
+            count[info]++;
+          if (this.groupWay === '班级' && item.className === info)
+            count[info]++;
+        })
+        if (count[info] > this.currentInputItem.selectGroupInfo[info]){
+          this.$message.error('分配的' + info + '人数大于该组' + info + '总人数，请重新选择！')
+          return
+        }
+      }
+      for (var info of this.selectedSubGroupInfo){
+        this.currentInputItem.orderNum[info] = []
+      }
+      this.currentInputItem.orderSum = 0
+      for (var i = 0; i < this.selectStu.length; i++ ){
+        if (this.groupWay === '专业') {
+          this.currentInputItem.orderNum[this.selectStu[i].specialty].push(this.selectStu[i]);
+        }
+        else
+          this.currentInputItem.orderNum[this.selectStu[i].className].push(this.selectStu[i]);
+        this.currentInputItem.orderSum++;
+      }
+      this.showStudents = false;
+    },
+    showStuTable(inputItem){
+      this.currentInputItem = inputItem;
+      console.log(this.currentInputItem)
+      let index = inputItem.idx+1;
+      this.showStudents = true
+      this.title_searchStu = "第" + index + "组";
+      this.searchStudent = this.filterNoGroupPar;
+      this.$nextTick(() => {
+        this.searchStudent.forEach(item => {
+          for (var info of this.selectedSubGroupInfo){
+            if (inputItem.orderNum[info].includes(item)){
+              this.$refs.multipleTable.toggleRowSelection(item, true)
+              break
+            }
+          }
+        })
+      })
+    },
+    searchStu() {
+      if (this.searchText === ''){
+        this.searchStudent = this.filterNoGroupPar
+      }else if (/^\d+$/.test(this.searchText)){ // 纯数字，按工号搜索
+        this.searchStudent = this.filterNoGroupPar.filter(item => item.stuNumber != null &&  item.stuNumber.includes(this.searchText))
+      }else if (/^[a-zA-Z]*$/.test(this.searchText)){ //纯英文，考虑首字母
+        this.searchStudent = this.filterNoGroupPar.filter(item => PinYinMatch.match(item.name,this.searchText))
+      } else { // 非纯数字，按姓名搜索
+        this.searchStudent = this.filterNoGroupPar.filter(item => item.name.includes(this.searchText))
       }
     },
     closeDialogGroup() {//选手分组对话框关闭,清空遗留数据
@@ -880,26 +1124,22 @@ export default {
       this.groupSubOfSelectedSpecialty = []
       this.groupWay = '专业'
       this.groupNumsInput = []
+      this.radio = '1'
     },
     creatGroup() {//创建分组
-      var sum = 0
-     // 遍历this.groupNumsInput，如果value为0，报错
-      for (var i = 0; i < this.groupNumsInput.length; i++) {
+      for (var i = 0; i < this.groupNumsInput.length; i++) { // 遍历this.groupNumsInput，如果value为0，报错
         if (this.groupNumsInput[i].value == 0) {
           this.$message.error('第' + (i + 1) + '组人数为0，请重新输入！')
           return
         }
       }
-      if (this.radio == '2') {
-        this.groupNumsInput.map(item => {
-          sum += parseInt(item.value)
-        })
-        if (sum != this.filterNoGroupPar.length) {
-          this.$message.error('待创建分组人数为' + this.filterNoGroupPar.length + '，分组总人数为' + sum + '，人数不相等！')
+      if (this.radio === '2' || this.radio === '3') {
+        if (this.currentAllSelect !== this.filterNoGroupPar.length) {
+          this.$message.error('待创建分组人数为' + this.filterNoGroupPar.length + '，分组总人数为' + this.currentAllSelect + '，人数不相等！')
           return
         }
       }
-      if (this.selectedGroupNums == 0) {
+      if (this.selectedGroupNums === 0) {
         this.$message.error('请选择分组数！')
         return
       }
@@ -908,6 +1148,24 @@ export default {
       var arr = this.groupNumsInput.map(item => {
         return parseInt(item.value)
       })
+      var orderNums = {}, arrSub = {}
+      for (var info of this.selectedSubGroupInfo){
+        if (!(info in arrSub)){
+          arrSub[info] = []
+        }
+        if (!(info in orderNums)){
+          orderNums[info] = {}
+        }
+        for (var item of this.groupNumsInput){
+          if (!(item.idx in orderNums[info])){
+            orderNums[info][item.idx] = []
+          }
+          arrSub[info].push(parseInt(item.selectGroupInfo[info]))
+          item.orderNum[info].forEach(per => {
+            orderNums[info][item.idx].push(per.thesis.id)
+          })
+        }
+      }
       var data = {
         'year': this.startYear,
         'month': this.selectSemester,
@@ -915,11 +1173,14 @@ export default {
         'exchangeNums': Math.ceil(this.selectedGroupNums / 2),
         'groupsNums': this.selectedGroupNums,
         'selectInfo': this.selectedSubGroupInfo,
-        'groupWay': this.groupWay
+        'groupWay': this.groupWay,
+        'orderNums': orderNums,
+        'arrSub': arrSub
       }
+      console.log(data)
       for (var i = 0; i < this.filterNoGroupPar.length; i++) {
         if (this.filterNoGroupPar[i].thesis.grade == null) {
-          this.$message.warning("选中的部分学生无绩点数据，按0进行分组")
+          this.$message.warning("选中的部分学生无绩点数据，将按0进行分组")
           break;
         }
       }
