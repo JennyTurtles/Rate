@@ -4,7 +4,7 @@
         style="display: flex; justify-content: space-between; margin: 15px 0"
     >
       <div>
-        <label style="fontSize:10px">学生姓名：</label>
+        <label>学生姓名：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
@@ -13,7 +13,7 @@
                autocomplete="off"
                v-model="searchStudentName"
                id="select_stuname">
-        <label style="fontSize:10px;margin-left:16px">标准名称：</label>
+        <label style="margin-left:16px">标准名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
@@ -22,7 +22,7 @@
                v-model="searchStandardName"
                id="select_paperName">
 
-        <label style="fontSize:10px;margin-left:40px;">标准状态：</label>
+        <label style="margin-left:40px;">标准状态：</label>
         <el-select
             v-model="searchStandardState"
             style="margin-left:3px;width:120px"
@@ -38,7 +38,7 @@
           >
           </el-option>
         </el-select>
-        <label style="fontSize:10px;margin-left:16px">积分范围：</label>
+        <label style="margin-left:16px">积分范围：</label>
         <el-select
             v-model="pointFront"
             style="margin-left:3px;width:60px"
@@ -254,7 +254,7 @@
         center>
       <el-form
           :label-position="labelPosition"
-          label-width="80px"
+          label-width="90px"
           :model="emp"
           ref="empForm"
           style="margin-left: 20px"
@@ -267,8 +267,6 @@
           <span>{{ emp.student.name }}</span
           ><br />
         </el-form-item>
-
-
         <el-form-item label="标准状态:">
           <span>{{emp.state=="commit"
               ? "学生提交"
@@ -281,11 +279,19 @@
                           :"管理员驳回"}}</span
           ><br />
         </el-form-item>
+        <el-form-item label="指标点名称:">
+          <span>{{emp.indicator.name}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者列表:">
+          <span>{{emp.author}}</span
+          ><br />
+        </el-form-item>
         <el-form-item label="作者人数:">
           <span>{{emp.total}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="排名:">
+        <el-form-item label="作者排名:">
           <span>{{emp.rank}}</span
           ><br />
         </el-form-item>
@@ -297,6 +303,8 @@
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
           <span v-else>{{ emp.url | fileNameFilter }}</span>
+        </el-form-item>
+        <div v-show="emp.url == '' || emp.url == null ? false : true" style="margin-left: 80px">
           <div>
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
             <el-button @click="previewMethod('2')">下载</el-button>
@@ -311,12 +319,12 @@
             </el-image>
           </div>
           <br />
-        </el-form-item>
+        </div>
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <div style="font-size: 10px;">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
+              <div>
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
               </div>
@@ -405,9 +413,6 @@ export default {
       labelPosition: "left",
       title: "",
       title_show: "",
-      importDataBtnText: "导入数据",
-      importDataBtnIcon: "el-icon-upload2",
-      importDataDisabled: false,
       showAdvanceSearchView: false,
       standards: [],
       loading: false,
@@ -435,7 +440,10 @@ export default {
         state:"",
         student:{},
         total:0,
-        rank:0
+        rank:0,
+        indicator: {
+          name: ''
+        }
       },
     };
   },
