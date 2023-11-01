@@ -250,7 +250,7 @@
     >
       <el-form
           :label-position="labelPosition"
-          label-width="120px"
+          label-width="80px"
           :model="currentCompetition"
           style="margin-left: 20px">
         <el-form-item label="竞赛名称:">
@@ -265,10 +265,6 @@
           <span>{{ currentCompetition.competitionType.name }}</span
           >
         </el-form-item>
-<!--        <el-form-item label="获奖级别:">-->
-<!--          <span>{{ currentCompetition.competitionLevel }}</span-->
-<!--          >-->
-<!--        </el-form-item>-->
         <el-form-item label="获奖年月:">
           <span>{{ currentCompetition.date }}</span
           >
@@ -295,20 +291,28 @@
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           <span v-if="currentCompetition.url == '' || currentCompetition.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
-             @click="download(currentCompetition)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{currentCompetition.url|fileNameFilter}}</a>
-          <br />
+          <div v-else>{{ currentCompetition.url | fileNameFilter }}</div>
         </el-form-item>
-        <el-form-item label="相关备注:">
-          <span>{{ currentCompetition.remark }}</span>
-        </el-form-item>
+        <div v-show="currentCompetition.url == '' || currentCompetition.url == null ? false : true" style="margin-left: 80px">
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
+        </div>
+        <br />
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
               <div >
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
@@ -324,7 +328,14 @@
         >
       </span>
     </el-dialog>
-
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -337,6 +348,11 @@ export default {
   name: "Academic-Competition",
   data() {
     return {
+      isImage: false,
+      isPdf: false,
+      dialogPreviewPdfFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
       defaultExpandedKeys: [],
       zeroPointReason: '',
       indicatorBtn: '选择指标点',
@@ -427,17 +443,24 @@ export default {
     this.currentCompetitionCopy = JSON.parse(JSON.stringify(this.currentCompetition));
     this.initCompetitionsList();
   },
-  filters:{
-    fileNameFilter:function(data){//将证明材料显示出来
-      if(data == null || data == ''){
-        return '无证明材料'
-      }else{
-        var arr = data.split('/');
-        return arr.reverse()[0];
-      }
-    }
-  },
   methods: {
+    previewMethod(type) {
+      if(type == '1') {
+        this.previewFileMethod(this.currentCompetition).then(res => {
+          this.previewUrl = res;
+          if(this.isImage) {
+            this.previewImageSrcList = [res];
+            this.$refs.previewImage.showViewer = true;
+          }
+          if(this.isPdf) {
+            this.dialogPreviewPdfFile = true;
+          }
+        });
+      } else {
+        this.downloadFileMethod(this.currentCompetition);
+      }
+    },
+
     //不进行rankN判断
     handleNodeClick(data, node) {
       if (data.children.length == 0) {
@@ -491,26 +514,6 @@ export default {
     cancelAdd() {
       this.dialogVisible = false;
     },
-    download(data) {//下载证明材料
-      var fileName = data.url.split('/').reverse()[0]
-      var url = data.url
-      axios({
-        url: '/competition/basic/downloadByUrl?url=' + url,
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
-        }
-      }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
-    },
     handleDelete() {//删除选择的文件
       var file={filepath:this.urlFile}
       this.postRequest1("/competition/basic/deleteFile",file).then((response)=>{
@@ -537,7 +540,7 @@ export default {
       var formData=new FormData();
       this.files.push(file);
       formData.append("file",this.files[0].raw)
-      axios.post("/competition/basic/upload",formData,{
+      axios.post("/achievements/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? this.user.token : ''
         }
@@ -631,6 +634,14 @@ export default {
       this.title_show = "显示详情";
       this.currentCompetition = data
       this.dialogVisible_showInfo = true
+      this.isPdf = this.isImage = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
+        this.isImage = true;
+      }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=学科竞赛').then((resp) => {
         this.loading = false;
         if (resp) {

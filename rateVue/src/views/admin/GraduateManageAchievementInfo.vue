@@ -68,7 +68,7 @@
               size="mini"
           >查看详情</el-button
           >
-          <el-button v-show="scope.row.state == 'adm_pass' ? true : false" @click="changePointMethod(scope.row)" style="padding: 4px"
+          <el-button v-show="scope.row.state == 'adm_pass' && role == 'admin' ? true : false" @click="changePointMethod(scope.row)" style="padding: 4px"
                      size="mini">
             {{scope.row.changePointButton}}
           </el-button>
@@ -146,10 +146,20 @@
         <el-form-item label="证明材料:">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="currentAchievementOfEdit.url == '' || currentAchievementOfEdit.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(currentAchievementOfEdit)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{currentAchievementOfEdit.url | fileNameFilter}}</a>
+          <span v-else>{{ currentAchievementOfEdit.url | fileNameFilter }}</span>
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
           <br />
         </el-form-item>
         <div >
@@ -190,6 +200,15 @@
             >关闭</el-button>
         </span>
     </el-dialog>
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
+
+    </el-dialog>
   </div>
 </template>
 
@@ -198,6 +217,11 @@ export default {
   name: "GraduateManageAchievementInfo",
   data() {
     return {
+      isImage: false,
+      isPdf: false,
+      dialogPreviewPdfFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
       oper:{
         operatorRole: "",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
@@ -255,17 +279,23 @@ export default {
       return this.dynamicTabs[this.tabsActivateName].label;
     }
   },
-  filters:{
-    fileNameFilter:function(data){//将证明材料显示出来
-      if(data == null || data == ''){
-        return '无证明材料'
-      }else{
-        var arr= data.split('/')
-        return  arr.reverse()[0]
-      }
-    }
-  },
   methods: {
+    previewMethod(type) {
+      if(type == '1') {
+        this.previewFileMethod(this.currentAchievementOfEdit).then(res => {
+          this.previewUrl = res;
+          if(this.isImage) {
+            this.previewImageSrcList = [res];
+            this.$refs.previewImage.showViewer = true;
+          }
+          if(this.isPdf) {
+            this.dialogPreviewPdfFile = true;
+          }
+        });
+      } else {
+        this.downloadFileMethod(this.currentAchievementOfEdit);
+      }
+    },
      //输入驳回理由对话框中的确定按钮
     rejectDialogConfirm(){
       if (this.role == 'teacher')
@@ -430,6 +460,14 @@ export default {
     showDetailInfo(data) {
       this.currentAchievementOfEdit = data;
       this.dialogVisibleOfDetailInfo = true;
+      this.isPdf = this.isImage = false;
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
+        this.isImage = true;
+      }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=' + this.tabActivateOfIndexLabel).then((resp) => {
         if (resp) {
           this.dialogOfReject = false;

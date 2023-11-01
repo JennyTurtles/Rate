@@ -2,6 +2,7 @@ package org.sys.rate.exception;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -48,12 +49,45 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public RespBean sqlException(Exception e, HttpServletRequest request) {
 
-        String token = request.getHeader("token");
+        String token = null;
+        String userId = null;
+        Admin admin = null;
+        Teacher teacher = null;
+        Student student = null;
+        try {
+            token = request.getHeader("token");
+            String userRole;
+            try {
+                userId = JWT.decode(token).getAudience().get(0);
+                userRole = JWT.decode(token).getClaims().get("role").asString();
+            } catch (JWTDecodeException j) {
+                throw new ServiceException(Constants.CODE_401, "token验证失败，请重新登录");
+            }
 
-        String userId = JWT.decode(token).getAudience().get(0);
-        Admin admin = adminService.getById(Integer.parseInt(userId));
-        Teacher teacher = teacherService.getById(Integer.parseInt(userId));
-        Student student = studentService.getById(Integer.parseInt(userId));
+            admin = null;
+            teacher = null;
+            student = null;
+            // 根据token中的userid和role查询数据库
+            if (userRole.indexOf("admin") >= 0) {
+                admin = adminService.getById(Integer.parseInt(userId));
+            } else if (userRole.indexOf("teacher") >= 0) {
+                teacher = teacherService.getById(Integer.parseInt(userId));
+            } else if (userRole.indexOf("student") >= 0) {
+                student = studentService.getById(Integer.parseInt(userId));
+            }
+        } catch (Exception ex) {
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("获取错误的token");
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
+
+            return RespBean.error("请邮件联系管理员ratemail@126.com，并截图说明相关操作。" + ex);
+        }
+
+
         Account loggedInUser = new Account();
         if (admin == null && teacher == null && student == null) {
             loggedInUser = null;

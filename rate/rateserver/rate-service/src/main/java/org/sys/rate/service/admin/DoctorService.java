@@ -167,6 +167,13 @@ public class DoctorService {
         res = doctorMapper.getDoctorsBySelect(teaName,year);
         return res;
     }
+    public List<Doctor> getDoctorStudentsBySelectOfTeacher(Integer tutorID, Integer year){
+        List<Doctor> res = new ArrayList<>();
+        res = doctorMapper.getDoctorStudentsBySelectOfTeacher(tutorID,year);
+        return res;
+    }
+
+
     public Msg deleteDoctorStudent(Doctor doctor){
         //点击删除也要删除student表中的学生信息，所以要判断这个student是不是还是选手或其他身份
         //同时也要删除对应老师的角色，所以也要判断这个老师是不是还是别的学生的导师

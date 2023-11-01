@@ -33,6 +33,7 @@ public interface DoctorMapper {
     int updateFROMImport(List<Doctor> record);
     List<Doctor> getDoctorsBySelect(String teaName,Integer year);
     int deleteDoctorStudent(Doctor doctor);
+    List<Doctor> getDoctorStudentsBySelectOfTeacher(Integer tutorID, Integer year);
 
     int editDoctorStudent(Doctor doctor);
 

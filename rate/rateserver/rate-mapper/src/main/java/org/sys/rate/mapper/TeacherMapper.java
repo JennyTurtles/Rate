@@ -1,10 +1,9 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.Activities;
-import org.sys.rate.model.ScoreItem;
 import org.sys.rate.model.Scores;
 import org.sys.rate.model.Teacher;
 import org.sys.rate.model.Teachers;
@@ -64,4 +63,10 @@ public interface TeacherMapper {
 
     @Select("select t.id, t.name from teacher t, graduatestudent g where g.studentID = #{studentID} and g.tutorID = t.ID order by g.ID limit 1;")
     Teacher getByStudentId(Long studentID);
+
+    @Update("update teacher set sign = #{absolutePath} where ID = #{id}")
+    void save(String id, String absolutePath);
+
+    @Select("select sign from teacher where ID = #{tutorId}")
+    String getSignUrl(String tutorId);
 }

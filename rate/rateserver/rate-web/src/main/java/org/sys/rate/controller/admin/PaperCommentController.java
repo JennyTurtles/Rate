@@ -38,6 +38,15 @@ public class PaperCommentController {
     @Resource
     private ExportPDF exportPDF;
 
+    // 根据thesisID返回学生和老师是否上传图片
+    // 1:都上传，0:学生没有上传，-1：教师没有上传,-2:都没有上传
+    @GetMapping("/checkSign")
+    public RespBean checkSign(Integer thesisID) {
+        int res = paperCommentService.checkSign(thesisID);
+        return RespBean.ok("", res);
+    }
+    // 根据教师ID返回学生和老师是否上传图片
+
 
     // 根据stuID和thesisID和num获取某一次评论
     @GetMapping("/getOneComment")
@@ -48,7 +57,7 @@ public class PaperCommentController {
     // 根据stuID和thesisID获取关于thesisID的所有评论 + 排序
     @GetMapping("/getAllComment")
     public JsonResult<List> list(int thesisID) {
-        return new JsonResult(paperCommentService.selectCommentListStu(thesisID));
+        return new JsonResult(paperCommentService.selectCommentListTea(thesisID));
     }
 
     @GetMapping("/getAllCommentStu")
@@ -126,13 +135,11 @@ public class PaperCommentController {
      */
     @GetMapping("/exportPDF")
     public void exportDataPDF(HttpServletResponse response, @RequestParam Integer thesisID) throws Exception {
+        boolean generatePDF = false;
         try {
-            boolean generatePDF = exportPDF.generatePDF(response, thesisID);
-            if(!generatePDF){
-                response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                response.getWriter().write("导出PDF发生错误！");
-            }
+            generatePDF = exportPDF.generatePDF(response, thesisID);
         } catch (Exception e) {
+            // 处理异常
             EmailErrorLog emailErrorLog = new EmailErrorLog();
             emailErrorLog.setErrorType("导出PDF出现错误");
             StringWriter sw = new StringWriter();
@@ -142,11 +149,12 @@ public class PaperCommentController {
             emailErrorLog.setErrorDescription(errorDetails);
             emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
             emailErrorLogService.addEmailErrorLog(emailErrorLog);
+        }
+
+        if (!generatePDF) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("导出PDF发生错误！");
         }
     }
-
 
 
     @GetMapping("/editThesisName")

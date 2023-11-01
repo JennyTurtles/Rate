@@ -10,6 +10,7 @@ import org.sys.rate.mapper.DoctorMapper;
 import org.sys.rate.mapper.StudentMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.DoctorService;
+import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.POIUtils;
 
 import javax.annotation.Resource;
@@ -62,6 +63,14 @@ public class DoctorController {
         Object[] res = {t, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return RespBean.ok("ok", res);
     }
+    @GetMapping("/getDoctorStudentsBySelectOfTeacher") //教师端学生列表的筛选
+    public RespBean getDoctorStudentsBySelectOfTeacher(@RequestParam("tutorID") Integer tutorID, @RequestParam("year")Integer year,@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
+        Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
+        List<Doctor> t = doctorService.getDoctorStudentsBySelectOfTeacher(tutorID, year);
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {t, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return RespBean.ok("ok", res);
+    }
     @PostMapping("/importDoctors")
     public RespBean importUnderGraduate(Integer institutionID, MultipartFile file) throws ParseException {
         Map<String, List> mm = POIUtils.readExcel_doctrstudent(institutionID, file);
@@ -90,5 +99,19 @@ public class DoctorController {
     public RespBean updateScoreSub(@RequestBody Doctor record) {
         Integer res = doctorMapper.updateScoreSub(Long.valueOf(record.getStudentID().intValue()),Long.parseLong(record.getPoint()));
         return RespBean.ok("ok", res);
+    }
+    @PostMapping("/resetUnderPassword")
+    public RespBean resetUnderPassword(@RequestBody Doctor doctor){
+        Integer res = 0;
+        try{
+            String p = ExpertService.sh1(doctor.getPassword());
+            res = studentMapper.updatePassword(doctor.getStudentID(),p);
+        }catch (Exception e){
+            return RespBean.error("error",null);
+        }
+        if(res > 0){
+            return RespBean.ok("ok",null);
+        }
+        return RespBean.error("error",null);
     }
 }

@@ -16,6 +16,6 @@ public interface LoginMapper{
     @Select("select * from teacher where username = #{username}")
     public Teacher loginTeacher(LoginInf loginInf);
 
-    @Update("update admin set password = #{password} where ID = #{ID}")
-    public int updatePassword(Integer ID, String password);
+    @Update("update ${table} set password = #{password} where ID = #{ID}")
+    public int updatePassword(String table, Integer ID, String password);
 }

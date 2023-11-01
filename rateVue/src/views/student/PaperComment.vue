@@ -8,9 +8,43 @@
           <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView" :disabled="!isShowAddButton">
             添加记录
           </el-button>
-          <el-button type="primary" icon="el-icon-download" @click="exportPDF">
+          <el-button type="success" icon="el-icon-download" @click="exportPDF">
             导出PDF
           </el-button>
+          <!-- 点击按钮打开上传个人签名对话框 -->
+          <el-button type="success" icon="el-icon-upload" @click="showUploadSign">
+            上传个人签名
+          </el-button>
+
+          <!-- 上传个人签名对话框 -->
+          <el-dialog
+              title="上传个人签名"
+              :visible.sync="uploadSignDialogVisible"
+              width="40%"
+              :before-close="handleCloseUploadSignDialog"
+              :center="true"
+          >
+            <el-upload
+                class="upload-demo"
+                :action="`/undergraduateM/basic/uploadSign?id=${this.user.id}`"
+                :show-file-list="false"
+                :on-success="handleUploadSuccess"
+                :before-upload="beforeUpload"
+                :headers="{'token': this.user.token}"
+            >
+              <el-button type="primary" icon="el-icon-upload">
+                上传个人签名
+              </el-button>
+              <span style="color:gray;font-size:11px">
+                只允许jpg类型文件，大小不能超过200KB
+              </span>
+            </el-upload> &nbsp;&nbsp;&nbsp;
+
+            <!-- 下载个人签名按钮 -->
+            <el-button type="success" @click="downloadFile">
+              下载个人签名
+            </el-button>
+          </el-dialog>
         </div>
       </div>
     </div>
@@ -296,10 +330,14 @@
 
 <script>
 
+import axios from "axios";
+
 export default {
   name: "stuPaperComment",
   data() {
     return {
+      uploadSignDialogVisible: false,
+      user: {},
       isShowAddButton: false,
       disabledInput: true,
       timer: null,
@@ -396,9 +434,6 @@ export default {
     },
   },
   computed: {
-    user() {
-      return this.$store.state.currentHr; //object信息
-    },
     menuHeight() {
       return this.publicationName.length * 50 > 150
           ? 150 + "px"
@@ -409,39 +444,121 @@ export default {
   },
   mounted() {
     this.initEmps();
+    this.user = JSON.parse(localStorage.getItem('user'))
   },
   filters: {},
   methods: {
-    exportPDF() {
+    downloadFile() {
+      this.loading = true
+      let url = '/undergraduateM/basic/downloadSign?id=' + this.user.id
+      fetch(url)
+          .then((response) => response.blob())
+          .then((blob) => {
+            this.loading = false
+            const fileURL = URL.createObjectURL(blob)
+
+            // 修改文件名后缀为 jpg
+            const a = document.createElement('a')
+            a.href = fileURL
+            a.download = this.user.name + '_个人签名.jpg'
+            a.style.display = 'none'
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+          })
+          .catch((error) => {
+            this.loading = false
+            this.$message.info("请重新添加个人签名")
+          })
+    },
+
+    showUploadSign() {
+      this.uploadSignDialogVisible = true;
+    },
+    handleCloseUploadSignDialog() {
+      this.uploadSignDialogVisible = false;
+    },
+    handleUploadSuccess() {
+      this.$message.success("上传成功！")
+      this.handleCloseUploadSignDialog()
+    },
+    beforeUpload(file) {
+      // 上传前的验证函数
+      // const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png';
+      const isJPGorPNG = file.type === 'image/jpeg';
+      // const isLt1M = file.size / 1024 / 1024 < 1;
+      const isLt100KB = file.size / 1024 < 200; // 200KB
+
+      if (!isJPGorPNG) {
+        this.$message.error('只能上传JPG文件');
+      }
+      if (!isLt100KB) {
+        this.$message.error('文件大小不能超过200KB');
+      }
+
+      return isJPGorPNG && isLt100KB;
+    },
+    async exportPDF() {
       this.loading = true;
 
       if (this.thesisID !== null) {
-        let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(this.thesisID)}`;
-        fetch(url)
-            .then((response) => response.blob())
-            .then((blob) => {
-              this.loading = false;
-              const fileURL = URL.createObjectURL(blob);
+        const res = await this.getRequest("/paperComment/basic/checkSign?thesisID=" + this.thesisID);
+        let message = '';
 
-              const a = document.createElement('a');
-              a.href = fileURL;
-              a.download = JSON.parse(localStorage.getItem('user')).name+'_毕业论文评审记录.pdf'; // 在这里设置你想要的文件名
-              a.style.display = 'none';
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-            })
-            .catch((error) => {
-              this.loading = false;
-              this.$message.error("导出PDF时发生错误！");
+        if (res.obj === -1 || res.obj === -2) {
+          message += "您的指导老师还没有上传签名图片，可联系教师上传后再导出。</br>";
+        }
+
+        if (res.obj === 0 || res.obj === -2) {
+          message += "您还没有上传签名图片（可以在导出PDF界面上传）</br>";
+        }
+
+
+        if (message) {
+          try {
+            await this.$confirm(message + `确认现在导出不含签名照片的PDF吗？`, '', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'info',
+              dangerouslyUseHTMLString: true,
+              customClass: 'custom-confirm'
             });
-
+            await this.downloadPDF();
+          } catch (error) {
+            // Handle cancel or other errors
+            this.loading = false;
+          }
+        } else {
+          await this.downloadPDF();
+        }
       } else {
         this.loading = false;
         this.$message.info("抱歉你还未添加毕设设计或论文！");
+        return;
       }
     },
 
+
+    async downloadPDF() {
+      let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(this.thesisID)}`;
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        this.loading = false;
+        const fileURL = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = this.user.name + '_毕业论文评审记录.pdf';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (error) {
+        this.loading = false;
+        this.$message.error("导出PDF时发生错误！");
+      }
+    },
 
 
     handleCancel(event) {
@@ -549,7 +666,7 @@ export default {
             this.emp.preSum = empdata.preSum;
             this.emp.nextPlan = empdata.nextPlan;
             this.emp.dateStu = empdata.dateStu;
-            this.emp.studentID = JSON.parse(localStorage.getItem("user")).id;
+            this.emp.studentID = this.user.id;
             this.emp.thesisID = empdata.thesisID;
             this.emp.dateTea = null;
             this.emp.isPass = null;
@@ -573,7 +690,7 @@ export default {
             this.emp.preSum = empdata.preSum;
             this.emp.nextPlan = empdata.nextPlan;
             this.emp.dateStu = empdata.dateStu;
-            this.emp.studentID = JSON.parse(localStorage.getItem("user")).id;
+            this.emp.studentID = this.user.id;
             this.emp.thesisID = this.thesisID;
             this.emp.isPass = null;
 
@@ -655,6 +772,15 @@ export default {
 </script>
 
 <style>
+.custom-confirm {
+  width: 550px; /* Set the width to your desired value */
+}
+
+.upload-demo {
+  display: inline-block;
+  margin-right: 10px;
+}
+
 .el-loading-spinner {
   font-size: 20px;
   /*font-weight: bold;*/

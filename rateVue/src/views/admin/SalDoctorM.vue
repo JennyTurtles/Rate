@@ -150,7 +150,7 @@ export default {
       tabsTableData: [],
       tabsActivateName: 'paper',
       selectTeaNameAndJobnumber:[],//编辑框中导师搜索一栏的下拉框绑定数据
-      newPassword:'dhucst@11',
+      newPassword:'dhucst',
       dialogResetPassword:false,
       pageSizes:[10,20,30,50,100],
       totalCount:0,
@@ -197,7 +197,7 @@ export default {
     showDetailInfo(data) { //点击查看详情按钮
       this.currentDoctorStudent = data;
       let url = this.$router.resolve({
-        path:'/admin/DoctorManageAchievementInfo',
+        path:'/achievement/DoctorManageAchievementInfo',
         query: {
           studentId: this.currentDoctorStudent.studentID
         }
@@ -227,10 +227,15 @@ export default {
         return
       }
       this.currentDoctorStudent.password = this.newPassword
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z\d])[\S]{8,20}$/;
+      if (this.newPassword!="dhucst" && !passwordRegex.test(this.newPassword)) {
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
+        return
+      }
       this.postRequest('/doctorM/basic/resetUnderPassword',this.currentDoctorStudent).then((response)=>{
         if(response){
           if(response.status == 200){
-            this.$message.success("重置成功，密码重置为"+this.newPassword);
+            this.$message.success("重置密码成功");
             this.closeDialogReset()
           }else {
             this.$message.fail("重置失败")

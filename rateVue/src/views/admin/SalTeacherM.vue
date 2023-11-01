@@ -114,7 +114,7 @@ export default {
   name: "SalTeacherM",
   data(){
     return{
-      newPassword:'dhucst@11',//重置密码中的新密码
+      newPassword:'dhucst',//重置密码中的新密码
       pageSizes:[15,20,20,20,30],
       totalCount:0,
       currentPage:1,
@@ -168,6 +168,11 @@ export default {
         return
       }
       this.currentTeacherOfEdit.password = this.newPassword
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z\d])[\S]{8,20}$/;
+      if (this.newPassword!="dhucst" && !passwordRegex.test(this.newPassword)) {
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
+        return
+      }
       this.postRequest('/teacher/basic/updatePassword',this.currentTeacherOfEdit).then((response)=>{
         if(response){
           if(response.status == 200){

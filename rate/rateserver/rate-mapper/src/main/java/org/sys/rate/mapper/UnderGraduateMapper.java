@@ -85,4 +85,10 @@ public interface UnderGraduateMapper {
 
     List<UnderGraduate> getStudentByConditions(StudentCondition studentCondition);
     List<UnderGraduate> checkAndReturnID(@Param("stuList") List<UnderGraduate> stuList,Integer institutionID);
+
+    @Update("update undergraduate set sign = #{sign} where studentID = #{studentID} ")
+    void save(UnderGraduate underGraduate);
+
+    @Select("select sign from undergraduate where studentID = #{studentID}")
+    String getSignUrl(String studentId);
 }

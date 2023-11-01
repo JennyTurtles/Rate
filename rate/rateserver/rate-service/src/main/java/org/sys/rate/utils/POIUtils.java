@@ -2120,4 +2120,73 @@ public class POIUtils {
         }
         return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
     }
+
+    public static ResponseEntity<byte[]> groupExcel(List<UnderGraduate> underGraduateList) {
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        workbook.createInformationProperties();
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        summInfo.setTitle("undergraduate");
+        summInfo.setAuthor("东华大学");
+        summInfo.setComments("本文档由东华大学计算机学院提供");
+
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        HSSFCellStyle dateCellStyle = workbook.createCellStyle();
+        dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+        HSSFSheet sheet = workbook.createSheet("undergraduate");
+
+        for (int i = 0; i < 9; i++) {
+            sheet.setColumnWidth(i, 20 * 256);
+        }
+
+        HSSFRow r0 = sheet.createRow(0);
+        HSSFCell c0 = r0.createCell(0);
+        c0.setCellValue("学号");
+        HSSFCell c1 = r0.createCell(1);
+        c1.setCellValue("姓名");
+        HSSFCell c2 = r0.createCell(2); // 注释掉绩点列
+        c2.setCellValue("入学年份");
+        HSSFCell c3 = r0.createCell(3);
+        c3.setCellValue("专业");
+        HSSFCell c4 = r0.createCell(4);
+        c4.setCellValue("班级");
+        HSSFCell c5 = r0.createCell(5);
+        c5.setCellValue("导师工号");
+        HSSFCell c6 = r0.createCell(6);
+        c6.setCellValue("导师姓名");
+        HSSFCell c7 = r0.createCell(7);
+        c7.setCellValue("分组");
+
+        Collections.sort(underGraduateList, Comparator.comparing(UnderGraduate::getGroup));
+
+        for (int i = 0; i < underGraduateList.size(); i++) {
+            HSSFRow row = sheet.createRow(i + 1);
+            UnderGraduate underGraduate = underGraduateList.get(i);
+            if (underGraduate == null) {
+                continue;
+            }
+            row.createCell(0).setCellValue(Optional.ofNullable(underGraduate.getStuNumber()).orElse(""));
+            row.createCell(1).setCellValue(Optional.ofNullable(underGraduate.getName()).orElse(""));
+            row.createCell(2).setCellValue(Optional.ofNullable(underGraduate.getYear() + "").orElse(""));
+            row.createCell(3).setCellValue(Optional.ofNullable(underGraduate.getSpecialty()).orElse(""));
+            row.createCell(4).setCellValue(Optional.ofNullable(underGraduate.getClassName()).orElse(""));
+            row.createCell(5).setCellValue(Optional.ofNullable(underGraduate.getTutorJobNumber()).orElse(""));
+            row.createCell(6).setCellValue(Optional.ofNullable(underGraduate.getTutorName()).orElse(""));
+            row.createCell(7).setCellValue(Optional.ofNullable(underGraduate.getGroup()).orElse(""));
+        }
+
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setContentDispositionFormData("attachment", new String("本科生毕业设计分组结果.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
 }

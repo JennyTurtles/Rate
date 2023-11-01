@@ -46,4 +46,18 @@ public interface PaperCommentMapper {
 
     @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment where #{thesisID} = thesisID ORDER BY num")
     List<PaperComment> selectCommentListStuOrderByNum(Integer thesisID);
+
+    @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment  where #{thesisID} = thesisID ORDER BY num desc")
+    List<PaperComment> selectCommentListStu(int thesisID);
+
+    //    @Select("SELECT IFNULL(u.sign, \"1\") , IFNULL(tea.sign, \"1\")  FROM `thesis` t, undergraduate u, teacher tea where t.ID = #{thesisID} and t.studentID = u.ID and t.tutorID = tea.ID")
+    @Select("SELECT CASE WHEN u.sign IS NULL AND tea.sign IS NULL THEN -2 " +
+            "            WHEN u.sign IS NULL THEN 0 " +
+            "            WHEN tea.sign IS NULL THEN -1 " +
+            "            ELSE 1 END " +
+            "FROM thesis t, undergraduate u, teacher tea " +
+            "WHERE t.ID = #{thesisID} AND t.studentID = u.ID AND t.tutorID = tea.ID")
+    int checkSign(Integer thesisID);
+
+
 }

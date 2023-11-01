@@ -115,8 +115,7 @@
             <if test="point != null">point,</if>
             <if test="state != null">state,</if>
             <if test="url != null">url,</if>
-            <if test="decisionTypeId != null">decision_type_id,</if>
-            <if test="indicatorId != null">indicator_id</if>
+            <if test="decisionTypeId != null">decision_type_id</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
@@ -129,8 +128,7 @@
             <if test="point != null">#{point},</if>
             <if test="state != null">#{state},</if>
             <if test="url != null">#{url},</if>
-            <if test="decisionTypeId != null">#{decisionTypeId},</if>
-            <if test="indicatorId != null">#{indicatorId}</if>
+            <if test="decisionTypeId != null">#{decisionTypeId}</if>
         </trim>
     </insert>
 
@@ -146,7 +144,6 @@
             <if test="state != null">state =#{state},</if>
             <if test="url != null">url = #{url},</if>
             <if test="decisionTypeId != null">decision_type_id = #{decisionTypeId},</if>
-            <if test="indicatorId != null">indicator_id = #{indicatorId}</if>
         </trim>
         where id = #{id}
     </update>

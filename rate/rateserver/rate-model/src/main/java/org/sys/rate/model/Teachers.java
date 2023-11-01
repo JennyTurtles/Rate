@@ -43,6 +43,18 @@ public class Teachers extends Account
     /** 删除标志 */
     private Long deleteflag;
 
+    private String sign;
+
+
+
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
+
     public String getRegisterAnswer() {
         return registerAnswer;
     }

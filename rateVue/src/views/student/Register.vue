@@ -156,12 +156,16 @@ export default {
   },
   methods:{
     checkPassword() {
-      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z\d])[\S]{8,20}$/;
+
       if (!passwordRegex.test(this.user.password)) {
-        this.checkPwdState = false
-        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
+        this.checkPwdState = false;
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符');
+      } else {
+        this.checkPwdState = true;
       }
     },
+
     //因为form自带的表单验证有问题，所以自定义验证方法
     checkPwd(){
       if(this.confirmPassword !== this.user.password) this.checkPwdState = false

@@ -30,9 +30,7 @@ public interface GraduateStudentMapper {
     int isGraduateStudent(Integer stuId);
     List<Teachers> getTeaNamesBySelect(String teaName);
     List<GraduateStudent> getGraduateStudentsBySelect(String teaName,Integer year);
-
-    // 获取研究生列表
-    List<GraduateStudent> getGraduateListByTutorID(Integer tutorID);
+    List<GraduateStudent> getGraduateStudentsBySelectOfTeacher(Integer tutorID, Integer year);
 
     @Select("SELECT CASE WHEN s.name = #{stuName} THEN s.id ELSE -1 END AS result " +
             "FROM graduatestudent u " +

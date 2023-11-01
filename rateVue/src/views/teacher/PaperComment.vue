@@ -14,6 +14,9 @@
     <div style="margin-top: 10px">
       <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importStudents">导入毕业设计
       </el-button>
+      <el-button type="primary" icon="el-icon-upload" @click="showUploadSign">
+        上传个人签名
+      </el-button>
 
     </div>
     <div style="margin-top: 20px">
@@ -108,6 +111,34 @@
     </div>
 
     <el-dialog
+        title="上传个人签名"
+        :visible.sync="uploadSignDialogVisible"
+        width="40%"
+        :before-close="handleCloseUploadSignDialog"
+        :center="true"
+    >
+      <el-upload
+          class="upload-demo"
+          :action="`/system/teacher/uploadSign?id=${this.user.id}`"
+          :show-file-list="false"
+          :on-success="handleUploadSuccess"
+          :before-upload="beforeUploadSign"
+          :headers="{'token': this.user.token}"
+      >
+        <el-button type="primary" icon="el-icon-upload">
+          上传个人签名
+        </el-button>
+        <span style="color:gray;font-size:11px">
+                只允许jpg类型文件，大小不能超过200KB
+        </span>
+      </el-upload> &nbsp;
+
+      <!-- 下载个人签名按钮 -->
+      <el-button type="success" @click="downloadFile">
+        下载个人签名
+      </el-button>
+    </el-dialog>
+    <el-dialog
         title="编辑论文题目"
         :visible.sync="editDialogVisible"
         width="50%" center
@@ -182,6 +213,7 @@ export default {
   name: "teaPaperComment",
   data() {
     return {
+      uploadSignDialogVisible: false,
       user: {},
       selectDate: '',
       selectSemester: '',
@@ -300,6 +332,56 @@ export default {
   },
   filters: {},
   methods: {
+    downloadFile() {
+      this.loading = true
+      let url = '/system/teacher/downloadSign?id=' + this.user.id
+      fetch(url)
+          .then((response) => response.blob())
+          .then((blob) => {
+            this.loading = false
+            const fileURL = URL.createObjectURL(blob)
+
+            // 修改文件名后缀为 jpg
+            const a = document.createElement('a')
+            a.href = fileURL
+            a.download = this.user.name + '_个人签名.jpg'
+            a.style.display = 'none'
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+          })
+          .catch((error) => {
+            this.loading = false
+            this.$message.info("请重新添加个人签名")
+          })
+    },
+
+    showUploadSign() {
+      this.uploadSignDialogVisible = true;
+    },
+    handleCloseUploadSignDialog() {
+      this.uploadSignDialogVisible = false;
+    },
+    handleUploadSuccess() {
+      this.$message.success("上传成功！")
+      this.handleCloseUploadSignDialog()
+    },
+    beforeUploadSign(file) {
+      // 上传前的验证函数
+      // const isJPGorPNG = file.type === 'image/jpeg' || file.type === 'image/png';
+      const isJPGorPNG = file.type === 'image/jpeg';
+      // const isLt1M = file.size / 1024 / 1024 < 1;
+      const isLt100KB = file.size / 1024 < 200; // 200KB
+
+      if (!isJPGorPNG) {
+        this.$message.error('只能上传JPG文件');
+      }
+      if (!isLt100KB) {
+        this.$message.error('文件大小不能超过200KB');
+      }
+
+      return isJPGorPNG && isLt100KB;
+    },
     async fetchThesisExistDate() {
       try {
         const url = `/undergraduateM/basic/getThesisExistDate?institutionID=${this.user.institutionID}`;
@@ -430,37 +512,76 @@ export default {
 
 
     // 导出pdf
-    exportPDF(data) {
+    async exportPDF(data) {
+      if (data.thesis.comment_total < 1) {
+        this.$message.info("该生还未提交任何毕业论文指导记录！")
+        return;
+      }
       this.loading = true;
-      if (this.thesisID !== null) {
-        let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(data.thesis.id)}`;
-        fetch(url)
-            .then((response) => response.blob())
-            .then((blob) => {
-              this.loading = false;
-              const fileURL = URL.createObjectURL(blob);
 
-              const a = document.createElement('a');
-              a.href = fileURL;
-              a.download = data.sname+'_毕业论文评审记录.pdf'; // 在这里设置你想要的文件名
-              a.style.display = 'none';
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-            })
-            .catch((error) => {
-              this.loading = false;
-              this.$message.error("导出PDF时发生错误！");
+      if (this.thesisID !== null) {
+        const res = await this.getRequest("/paperComment/basic/checkSign?thesisID=" + data.thesis.id);
+        let message = '';
+
+        if (res.obj === 0 || res.obj === -2) {
+          message += "您的学生还没有上传签名图片，可联系学生上传后再导出。</br>";
+        }
+
+        if (res.obj === -1 || res.obj === -2) {
+          message += "您还没有上传签名图片（可以在导出PDF界面上传）</br>";
+        }
+
+        if (message) {
+          try {
+            await this.$confirm(message + `确认现在导出不含签名照片的PDF吗？`, '', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'info',
+              dangerouslyUseHTMLString: true,
+              customClass: 'custom-confirm'
             });
+            await this.downloadPDF(data);
+          } catch (error) {
+            // Handle cancel or other errors
+            this.loading = false;
+          }
+        }
       } else {
         this.loading = false;
         this.$message.info("抱歉该学生还未添加毕设设计或论文！");
+        return;
+      }
+    },
+
+
+    async downloadPDF(data) {
+      let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(data.thesis.id)}`;
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        this.loading = false;
+        const fileURL = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = data.sname + '_毕业论文评审记录.pdf';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (error) {
+        this.loading = false;
+        this.$message.error("导出PDF时发生错误！");
       }
     },
 
 
     //查看详情
     showInfoItem(data) {
+      if (data.thesis.comment_total < 1) {
+        this.$message.info("该生还未提交任何毕业论文指导记录！")
+        return;
+      }
       const {id, sname, studentnumber} = data;
       const {startYear, selectSemester} = this;
 
@@ -475,6 +596,11 @@ export default {
 </script>
 
 <style>
+.upload-demo {
+  display: inline-block;
+  margin-right: 10px;
+}
+
 .el-loading-spinner {
   font-size: 20px;
   /*font-weight: bold;*/

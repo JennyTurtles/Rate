@@ -223,7 +223,7 @@
         ORDER BY book.id DESC
     </select>
     <select id="searchHorizontalProjectByConditions" resultMap="ProjectResult">
-        SELECT book.*,i.max_date,j.remark, s.name as sname
+        SELECT book.*,i.max_date,j.remark, s.name as sname, i.name as iname, i.id as indicatorid
         FROM i_project book
         JOIN (
         SELECT prod_id,MAX(i_oper.date) max_date

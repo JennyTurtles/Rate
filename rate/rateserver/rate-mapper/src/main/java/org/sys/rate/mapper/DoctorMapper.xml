@@ -89,4 +89,17 @@
         SET tutorID = #{tutorID}
         where ID=#{ID,jdbcType=INTEGER};
     </update>
+    <select id="getDoctorStudentsBySelectOfTeacher" resultMap="BaseResultMap">
+        select u.*,s.name,s.telephone,s.email,s.username,t.name as tname,t.jobnumber as tjobnumber
+        from doctor u
+        left join teacher t
+        on u.tutorID=t.ID
+        left join student s
+        on u.studentID=s.ID
+        <where>
+            <if test="year != null and year != 0">and u.year = #{year}</if>
+            and t.ID = #{tutorID}
+        </where>
+    </select>
+
 </mapper>

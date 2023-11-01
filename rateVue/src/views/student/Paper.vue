@@ -271,11 +271,11 @@
           ref="empForm"
           style="margin-left: 20px"
       >
-        <el-form-item label="论文名:">
+        <el-form-item label="成果名称:">
           <span>{{ emp.name }}</span
           ><br/>
         </el-form-item>
-        <el-form-item label="积分:">
+        <el-form-item label="成果积分:">
           <span>{{ emp.point }}</span
           ><br/>
         </el-form-item>
@@ -291,7 +291,7 @@
           <span>{{ emp.author }}</span
           ><br/>
         </el-form-item>
-        <el-form-item label="排名:">
+        <el-form-item label="作者排名:">
           <span>{{ emp.rank }}</span
           ><br/>
         </el-form-item>
@@ -306,26 +306,36 @@
         <el-form-item label="证明材料:" prop="url">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true:false">无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
-             @click="download(emp)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{ emp.url|fileNameFilter }}</a>
+          <div v-else>{{ emp.url | fileNameFilter }}</div>
           <br/>
         </el-form-item>
+        <div v-show="emp.url == '' || emp.url == null ? false : true" style="margin-left: 80px">
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
+        </div>
+        <br />
         <div>
           <span>历史操作:</span>
           <div
               style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
             <div v-for="item in operList" :key="item.time"
-                 style="margin-top:18px;color:gray;font-size:10px;margin-left:14px">
-              <div>
-                <p>
+                 style="margin-top:18px;color:gray;margin-left:14px">
+                <div>
                   {{ item.time | dataFormat }}&nbsp;&nbsp;&nbsp;&nbsp;{{
                     item.operatorName
-                  }}&nbsp;&nbsp;&nbsp;&nbsp;{{ item.operationName }}</p>
-                <p v-show="item.remark == '' ? false : true">驳回理由：{{ item.remark }}</p>
-              </div>
+                  }}&nbsp;&nbsp;&nbsp;&nbsp;{{ item.operationName }}</div>
+                <div v-show="item.remark == '' ? false : true">驳回理由：{{ item.remark }}</div>
             </div>
           </div>
         </div>
@@ -449,6 +459,15 @@
         <el-button type="primary" @click="doAddPublish" :disabled="cannotAddPublish">提 交</el-button>
       </span>
     </el-dialog>
+
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
+    </el-dialog>
   </div>
 
 </template>
@@ -463,6 +482,11 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      isImage: false,
+      isPdf: false,
+      dialogPreviewPdfFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
       loadingPublicationSearch: false, //期刊输入框的加载状态
       selectedPublicationScore: '', //单独记录一个选择某个期刊的score
       searchPublicationLoading: false, //输入期刊的loading状态
@@ -630,17 +654,23 @@ export default {
     this.initTutor(this.user);
     this.initEmps();
   },
-  filters: {
-    fileNameFilter: function (data) {//将证明材料显示出来
-      if (data == null || data == '') {
-        return '无证明材料'
-      } else {
-        var arr = data.split('/')
-        return arr.reverse()[0]
-      }
-    }
-  },
   methods: {
+    previewMethod(type) {
+      if(type == '1') {
+        this.previewFileMethod(this.emp).then(res => {
+          this.previewUrl = res;
+          if(this.isImage) {
+            this.previewImageSrcList = [res];
+            this.$refs.previewImage.showViewer = true;
+          }
+          if(this.isPdf) {
+            this.dialogPreviewPdfFile = true;
+          }
+        });
+      } else {
+        this.downloadFileMethod(this.emp);
+      }
+    },
     inputRemotePublication(val) { //所属期刊的输入框内容改变
       this.debounceSearch(val);
     },
@@ -934,23 +964,6 @@ export default {
         }
       });
     },
-    download(data) {//下载证明材料
-      var fileName = data.url.split('/').reverse()[0]
-      var url = data.url
-      axios({
-        url: '/paper/basic/downloadByUrl?url=' + url,
-        method: 'GET',
-        responseType: 'blob'
-      }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
-    },
     handleDelete() {//删除选择的文件
       var file = {
         filepath: this.urlFile
@@ -982,7 +995,7 @@ export default {
       var formData = new FormData();
       this.files.push(file);
       formData.append("file", this.files[0].raw)
-      axios.post("/paper/basic/upload", formData, {
+      axios.post("/achievements/basic/upload", formData, {
         headers: {
           'token': this.user ? this.user.token : ''
         }
@@ -1126,7 +1139,6 @@ export default {
           this.postRequest1("/paper/basic/edit", params).then((resp) => {
             if (resp) {
               this.dialogVisible = false;
-              this.$message.success('编辑成功');
               this.doAddOper("commit", this.currentEmp.id)
             }
           });
@@ -1195,6 +1207,7 @@ export default {
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper)
       await this.initEmps();
+      this.$message.success('操作成功');
     }
     ,
     showAddEmpView() {//点击添加论文按钮
@@ -1224,6 +1237,14 @@ export default {
       this.title_show = "显示详情";
       this.emp = data
       this.dialogVisible_showInfo = true
+      this.isPdf = this.isImage = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
+        this.isImage = true;
+      }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=学术论文').then((resp) => {
         this.loading = false;
         if (resp) {

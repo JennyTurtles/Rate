@@ -19,11 +19,11 @@
           </el-option>
         </el-select>
       </div>
-      <el-button @click="initGraduateStudents(1, 20)" style="margin-left: 30px;" type="primary">筛选</el-button>
+      <el-button @click="initDoctorStudents(1, 20)" style="margin-left: 30px;" type="primary">筛选</el-button>
     </div>
     <div style="margin-top: 10px">
       <el-table
-          :data="graduateStudents" v-loading="tableLoading">
+          :data="doctorStudents" v-loading="tableLoading">
         <el-table-column prop="stuNumber" label="学号" align="center"></el-table-column>
         <el-table-column prop="name" label="姓名" align="center" width="80px"></el-table-column>
         <el-table-column prop="username" label="用户名" align="center"></el-table-column>
@@ -69,14 +69,14 @@
 import {debounce} from "@/utils/debounce";
 
 export default {
-  name: "GraduateList",
+  name: "DoctorList",
   data(){
     return{
       tableLoading: false,
       headers: {
         'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
       },
-      newPassword:'dhucst',
+      newPassword:'dhucst@11',
       dialogResetPassword:false,
       pageSizes:[10,20,30,50,100],
       totalCount:0,
@@ -85,8 +85,8 @@ export default {
       selectYearsList:[],
       selectYear:'',
       user:{},
-      graduateStudents:[],
-      currentGraduateStudent:{
+      doctorStudents:[],
+      currentDoctorStudent:{
         ID:null,
         name:'',
         teachers:{
@@ -107,21 +107,18 @@ export default {
       return `${8 * 17}px`
     }
   },
-  created() {
-    //初始化防抖
-  },
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
     this.initSelectYearsList()
-    this.initGraduateStudents(this.currentPage,this.pageSize)
+    this.initDoctorStudents(this.currentPage,this.pageSize)
   },
   methods:{
     showDetailInfo(data) { //点击查看详情按钮
-      this.currentGraduateStudent = data;
+      this.currentDoctorStudent = data;
       let url = this.$router.resolve({
-        path:'/achievement/GraduateManageAchievementInfo',
+        path:'/achievement/DoctorManageAchievementInfo',
         query: {
-          studentId: this.currentGraduateStudent.studentID
+          studentId: this.currentDoctorStudent.studentID
         }
       })
       window.open(url.href, '_blank')
@@ -130,7 +127,7 @@ export default {
       this.dialogResetPassword = false
     },
     resetPasswordShow(data){//重制密码
-      this.currentGraduateStudent = JSON.parse(JSON.stringify(data));
+      this.currentDoctorStudent = JSON.parse(JSON.stringify(data));
       this.dialogResetPassword = true
     },
     resetPassword(){//重制密码
@@ -138,13 +135,8 @@ export default {
         this.$message.warning('请输入密码！')
         return
       }
-      this.currentGraduateStudent.password = this.newPassword
-      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z\d])[\S]{8,20}$/;
-      if (this.newPassword!="dhucst" && !passwordRegex.test(this.newPassword)) {
-        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
-        return
-      }
-      this.postRequest('/graduatestudentM/basic/resetUnderPassword',this.currentGraduateStudent).then((response)=>{
+      this.currentDoctorStudent.password = this.newPassword
+      this.postRequest('/doctorM/basic/resetUnderPassword',this.currentDoctorStudent).then((response)=>{
         if(response){
           if(response.status == 200){
             this.$message.success("重置成功，密码重置为"+this.newPassword);
@@ -161,13 +153,13 @@ export default {
       // 注意：在改变每页显示的条数时，要将页码显示到第一页
       this.currentPage=1
       //没有筛选条件
-      this.initGraduateStudents(this.currentPage, this.pageSize)
+      this.initDoctorStudents(this.currentPage, this.pageSize)
     },
     // 显示第几页
     handleCurrentChange(val) {
       // 改变默认的页数
       this.currentPage=val;
-      this.initGraduateStudents(this.currentPage,this.pageSize)
+      this.initDoctorStudents(this.currentPage,this.pageSize)
     },
     initSelectYearsList(){
       let timeDate = new Date()
@@ -178,16 +170,16 @@ export default {
         return b - a;
       })
     },
-    initGraduateStudents(curr,pagesize){
+    initDoctorStudents(curr,pagesize){
       let tempYear = this.selectYear
       if(this.selectYear == ''){
         tempYear = 0
       }
       this.tableLoading = true
-      this.getRequest(`/graduatestudentM/basic/getGraduateStudentsBySelectOfTeacher?tutorID=${this.user.id}&year=${tempYear}&pageNum=${curr}&pageSize=${pagesize}`).then((response)=>{
+      this.getRequest(`/doctorM/basic/getDoctorStudentsBySelectOfTeacher?tutorID=${this.user.id}&year=${tempYear}&pageNum=${curr}&pageSize=${pagesize}`).then((response)=>{
         if(response.status == 200){
           this.tableLoading = false
-          this.graduateStudents = response.obj[0]
+          this.doctorStudents = response.obj[0]
           this.totalCount = response.obj[1]
         }
       })

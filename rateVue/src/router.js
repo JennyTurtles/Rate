@@ -23,7 +23,7 @@ export default new Router({
       },
       children: [
         {
-          path: '/admin/GraduateManageAchievementInfo',
+          path: '/achievement/GraduateManageAchievementInfo',
           name: '研究生成果详情',
           component: () => import('./views/admin/GraduateManageAchievementInfo'),
           meta: {
@@ -31,7 +31,7 @@ export default new Router({
           },
         },
         {
-          path: '/admin/DoctorManageAchievementInfo',
+          path: '/achievement/DoctorManageAchievementInfo',
           name: '博士生成果详情',
           component: () => import('./views/admin/DoctorManageAchievementInfo'),
           meta: {
@@ -533,6 +533,15 @@ export default new Router({
           component: () => import('./views/teacher/StuList'),
           meta: {
             title: '研究生导师的研究生列表',
+          },
+        },
+        {
+          path: '/teacher/DoctorList',
+          name: '研究生导师的博士生列表',
+          hidden: true,
+          component: () => import('./views/teacher/DoctorStudentList'),
+          meta: {
+            title: '研究生导师的博士生列表',
           },
         },
         {

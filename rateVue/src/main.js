@@ -250,6 +250,14 @@ router.beforeEach((to, from, next) => {
         }
     }
 })
+Vue.filter('fileNameFilter', function (data) {
+    if (data == null || data == '') {
+        return '无证明材料'
+    } else {
+        var arr = data.split('/')
+        return arr.reverse()[0].split('#$%')[2]
+    }
+})
 // 注册一个全局过滤器(将得到的数据ms转为时间(年月日))
 Vue.filter('dataFormat', function (originVal) {
     const dt = new Date(originVal);
@@ -297,29 +305,26 @@ Vue.prototype.initTutor = function (user){
     }
 }
 Vue.prototype.previewFileMethod = function (data){ //预览证明材料
-    var fileName = data.url.split('/').reverse()[0]
-    var url = data.url
     return axios({
-        url: '/paper/basic/downloadByUrl?url='+url,
-        method: 'GET',
+        url: '/achievements/basic/downloadByUrl',
+        method: 'post',
         responseType: 'blob',
+        data: qs.stringify({url: data.url}),
         headers: {
             'token': JSON.parse(localStorage.getItem('user')).token ? JSON.parse(localStorage.getItem('user')).token : ''
         }
     }).then(response => {
         let url = window.URL.createObjectURL(new Blob([response]));
         return url;
-        // this.previewImageUrl = url;
-        // this.previewImageSrcList = [url];
     });
 };
 Vue.prototype.downloadFileMethod = function (data){ //预览证明材料
     var fileName = data.url.split('/').reverse()[0]
-    var url = data.url
     axios({
-        url: '/paper/basic/downloadByUrl?url='+url,
-        method: 'GET',
+        url: '/achievements/basic/downloadByUrl',
+        method: 'post',
         responseType: 'blob',
+        data: qs.stringify({url: data.url}),
         headers: {
             'token': JSON.parse(localStorage.getItem('user')).token ? JSON.parse(localStorage.getItem('user')).token : ''
         }
@@ -329,10 +334,6 @@ Vue.prototype.downloadFileMethod = function (data){ //预览证明材料
         if (url.startsWith('http:')) {
             url = url.replace('http:', 'https:');
         }
-        this.previewImageUrl = url;
-        this.previewImageSrcList = [url];
-
-        // this.previewFile(response);
         link.href = url;
         link.setAttribute('download', fileName);
         document.body.appendChild(link);

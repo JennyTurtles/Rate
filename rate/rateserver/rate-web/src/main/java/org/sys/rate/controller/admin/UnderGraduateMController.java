@@ -14,14 +14,16 @@ import org.sys.rate.service.admin.LogService;
 import org.sys.rate.service.admin.UnderGraduateService;
 import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.POIUtils;
-import org.sys.rate.utils.ReadExcel;
 
 import javax.annotation.Resource;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
-import java.sql.Timestamp;
+import java.io.*;
 import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -53,7 +55,7 @@ public class UnderGraduateMController {
         if (under.size() == 0 || stu.size() == 0 || under.size() != stu.size()) {
             return RespBean.error("未读取到有效导入数据");
         }
-        RespBean res = underGraduateService.addUnderGraduate(under, stu,institutionID);
+        RespBean res = underGraduateService.addUnderGraduate(under, stu, institutionID);
         return res;
     }
 
@@ -119,6 +121,75 @@ public class UnderGraduateMController {
         return RespBean.error("更新失败!");
     }
 
+    @PostMapping("/uploadSign")
+    public RespBean uploadSign(@RequestParam("id") String id, @RequestParam("file") MultipartFile file) {
+        if (!file.isEmpty()) {
+            try {
+                String filePath = new File("files").getAbsolutePath() + "\\template\\signs\\" + UUID.randomUUID() + "-";
+                String fileName = file.getOriginalFilename();
+
+                // 在指定路径下创建文件
+                File dest = new File(filePath + fileName);
+                file.transferTo(dest);
+
+                UnderGraduate underGraduate = new UnderGraduate();
+                underGraduate.setStudentID(Integer.valueOf(id));
+                underGraduate.setSign(dest.getAbsolutePath());
+                underGraduateMapper.save(underGraduate);
+
+                return RespBean.ok("");
+            } catch (IOException e) {
+                return RespBean.error("");
+            }
+        } else {
+            return RespBean.error("");
+        }
+    }
+
+    @GetMapping("/downloadSign")
+    public void downloadSign(@RequestParam("id") String studentId,
+                             @RequestParam(value = "isOnLine", defaultValue = "false") boolean isOnLine,
+                             HttpServletResponse response) {
+        String signUrl = underGraduateMapper.getSignUrl(studentId);
+        File sign = new File(signUrl);
+
+        if (sign.exists()) {
+            try (FileInputStream fis = new FileInputStream(sign);
+                 BufferedInputStream bis = new BufferedInputStream(fis);
+                 OutputStream os = response.getOutputStream()) {
+
+                // 设置响应头信息
+                response.reset(); // 非常重要
+
+//                String filename = signUrl.substring(signUrl.length() - 3).equals("jpg") ? "个人签名.jpg" : "个人签名.png";
+                String filename = "个人签名.jpg";
+
+                if (isOnLine) {
+                    // 在线打开方式
+                    response.setContentType("application/octet-stream");
+                    response.setHeader("Content-Disposition", "inline; filename=" + java.net.URLEncoder.encode(filename, "UTF-8"));
+                } else {
+                    // 纯下载方式
+                    response.setContentType("application/octet-stream");
+                    response.setHeader("Content-Disposition", "attachment; filename=" + java.net.URLEncoder.encode(filename, "UTF-8"));
+                }
+
+                // 读取文件内容并写入响应流
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = bis.read(buffer)) != -1) {
+                    os.write(buffer, 0, len);
+                }
+                os.flush();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        }
+    }
+
 
     @PostMapping("/importThesis")
     public RespBean importThesis(@RequestParam("type") String type,
@@ -153,6 +224,11 @@ public class UnderGraduateMController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {student, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
+    }
+
+    @PostMapping("/exportGroupsResult")
+    public ResponseEntity<byte[]> downloadExample_UnderGraduateStudents(@RequestBody List<UnderGraduate> underGraduates, HttpServletResponse response) {
+        return POIUtils.groupExcel(underGraduates);
     }
 
 
@@ -233,6 +309,6 @@ public class UnderGraduateMController {
         List<String> selectInfo = (List<String>) data.get("selectInfo");
         HashMap<String, List<Integer>> arrSub = (HashMap<String, List<Integer>>) data.get("arrSub");
         HashMap<String, HashMap<String,List<Integer>>> orderNums = (HashMap<String, HashMap<String,List<Integer>>>) data.get("orderNums");
-        return underGraduateService.createGroup_judge(year, month, arr, exchangeNums, groupsNums, groupWay,selectInfo,arrSub,orderNums);
+        return underGraduateService.createGroup_judge(year, month, arr, exchangeNums, groupsNums, groupWay, selectInfo, arrSub, orderNums);
     }
 }
