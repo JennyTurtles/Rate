@@ -126,12 +126,12 @@
                           :"管理员驳回"}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者人数:">
-          <span>{{currentAchievementOfEdit.total}}</span
-          ><br />
-        </el-form-item>
         <el-form-item label="作者列表:">
           <span>{{currentAchievementOfEdit.author}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者人数:">
+          <span>{{currentAchievementOfEdit.total}}</span
           ><br />
         </el-form-item>
         <el-form-item label="作者排名:">
@@ -145,8 +145,10 @@
         </el-form-item>
         <el-form-item label="证明材料:">
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <span v-if="currentAchievementOfEdit.url == '' || currentAchievementOfEdit.url == null ? true:false" >无证明材料</span>
+          <span v-if="currentAchievementOfEdit.url == '' || currentAchievementOfEdit.url == null ? true : false" >无证明材料</span>
           <span v-else>{{ currentAchievementOfEdit.url | fileNameFilter }}</span>
+        </el-form-item>
+        <div v-show="currentAchievementOfEdit.url == '' || currentAchievementOfEdit.url == null ? false : true" style="margin-left: 80px">
           <div>
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
             <el-button @click="previewMethod('2')">下载</el-button>
@@ -161,12 +163,12 @@
             </el-image>
           </div>
           <br />
-        </el-form-item>
+        </div>
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <div style="font-size: 10px;">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
+              <div>
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
               </div>
