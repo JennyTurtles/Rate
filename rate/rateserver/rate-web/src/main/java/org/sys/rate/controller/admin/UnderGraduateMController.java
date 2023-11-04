@@ -15,6 +15,8 @@ import org.sys.rate.service.admin.UnderGraduateService;
 import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.POIUtils;
 
+import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.*;
@@ -22,6 +24,8 @@ import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RestController
 @RequestMapping("/undergraduateM/basic")
@@ -299,12 +303,12 @@ public class UnderGraduateMController {
         Integer year = (Integer) data.get("year");
         Integer month = (Integer) data.get("month");
         List<Integer> arr = (List<Integer>) data.get("arr");
-        Integer exchangeNums = (Integer) data.get("exchangeNums");
+        Integer exchangeNums = (Integer) data.get("groupsNums");
         Integer groupsNums = (Integer) data.get("groupsNums");
-        //List<Thesis> students = (List<Thesis>) data.get("students");
         String groupWay = (String) data.get("groupWay");
         List<String> selectInfo = (List<String>) data.get("selectInfo");
-        return underGraduateService.createGroup(year, month, arr, exchangeNums, groupsNums, groupWay, selectInfo);
-        //返回分好组的选手信息
+        HashMap<String, List<Integer>> arrSub = (HashMap<String, List<Integer>>) data.get("arrSub");
+        HashMap<String, HashMap<String,List<Integer>>> orderNums = (HashMap<String, HashMap<String,List<Integer>>>) data.get("orderNums");
+        return underGraduateService.createGroup_judge(year, month, arr, exchangeNums, groupsNums, groupWay, selectInfo, arrSub, orderNums);
     }
 }

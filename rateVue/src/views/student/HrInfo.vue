@@ -28,7 +28,8 @@
         <el-input v-model="hr.studentType" disabled></el-input>
       </el-form-item>
       <el-form-item label="指导老师"  v-show="hr.stuType === '博士生' || hr.stuType === '硕士生'">
-        <el-input v-model="hr.teachers.name" disabled></el-input>
+        <el-input v-if="hr.teachers!==null" v-model="hr.teachers.name" disabled></el-input>
+        <el-input v-if="hr.teachers===null" disabled></el-input>
       </el-form-item>
       <el-form-item label="姓名">
         <el-input v-model="hr.name" @input="infoChange"></el-input>
@@ -74,11 +75,11 @@ export default {
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
-    console.log(this.user.role)
     if (this.user.role.includes("17")){
       this.currentType = "博士生";
     }
     else if (this.user.role.includes("11")){
+      console.log("研究生")
       this.currentType = "硕士生";
     }
     else if (this.user.role.includes("10")){
@@ -120,6 +121,7 @@ export default {
       this.getRequest('/student/basic/getStuInfo?id=' + this.user.id + "&stuType=" + this.currentType).then(resp => {
         if (resp) {
           if(resp.status == 200) this.hr = resp.obj;
+          console.log(this.hr)
         }
       })
     },
