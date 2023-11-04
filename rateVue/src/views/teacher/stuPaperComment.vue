@@ -33,12 +33,16 @@
               <div style="margin-bottom: 10px;">
                 提交日期:
                 <span
-                    style="display: inline-block; width: 100px; text-align: left; margin-left: 10px;">{{ scope.row.dateStu }}</span>
+                    style="display: inline-block; width: 100px; text-align: left; margin-left: 10px;">{{
+                    scope.row.dateStu
+                  }}</span>
               </div>
               <div style="margin-bottom: 10px;">
                 评价日期:
                 <span
-                    style="display: inline-block; width: 100px; text-align: left; margin-left: 10px;color: black;">{{ scope.row.dateTea || '待填写' }}</span>
+                    style="display: inline-block; width: 100px; text-align: left; margin-left: 10px;color: black;">{{
+                    scope.row.dateTea || '待填写'
+                  }}</span>
               </div>
               <div style="margin-bottom: 10px;left">审核结果:
                 <span
@@ -203,7 +207,7 @@
       <span slot="footer" class="dialog-footer">
                 <el-button @click.stop.prevent="handleCancel">取 消</el-button>
                 <el-button type="primary" @click="doAddEmp()" v-show="addButtonState">提 交</el-button>
-            </span>
+      </span>
     </el-dialog>
 
   </div>
@@ -254,7 +258,7 @@ export default {
 
       thesisName: "",
       stuName: "",
-      studentNumber:'',
+      studentNumber: '',
       stuID: '', // 从老师毕设评论页面传来的学生ID
       total: 0, // 现在显示的数据个数
       prePlan: "", // 上期安排
@@ -500,33 +504,20 @@ export default {
       }
     },
     doAddEmp() {
-      //确定是添加记录还是新增记录 emptyEmp中没有将id设置为空 所以可以判断
-      var empdata = this.emp;
-      this.emptyEmp();
+      this.emp.studentID = this.stuID
+      this.emp.thesisID = this.thesis.id
+      console.log(this.emp);
+
+      const _this = this;
       this
-          .$refs["empForm"]
-          .validate((valid) => {
-            if (valid) {
-              this.emp.num = empdata.num
-              this.emp.dateTea = empdata.dateTea
-              this.emp.tutorComment = empdata.tutorComment
-              this.emp.studentID = this.stuID
-              this.emp.thesisID = this.thesis.id
-              this.emp.isPass = empdata.isPass
-
-
-              const _this = this;
-              this
-                  .postRequest1("/paperComment/basic/updateTea", _this.emp)
-                  .then((resp) => {
-                    if (resp) {
-                      this.dialogVisible = false;
-                      this.initEmps();
-                    }
-                  });
-
+          .postRequest("/paperComment/basic/updateTea", _this.emp)
+          .then((resp) => {
+            if (resp) {
+              this.dialogVisible = false;
+              this.initEmps();
             }
           });
+
 
     },
     async initEmps() {

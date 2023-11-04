@@ -137,6 +137,11 @@ public class ExportPDF {
         data.put("stuNameFirst", student.getName());
         data.put("stuName", student.getName());
         data.put("stuID", thesis.getStudentNumber());
+        if(!thesis.getName().isEmpty()) {
+            data.put("thesisName1", thesis.getName().length() <= 15 ? thesis.getName() : thesis.getName().substring(0, 15));
+            data.put("thesisName2", thesis.getName().length() <= 15 ? "" : " " + thesis.getName().substring(15));
+        }
+
         data.put("tutorName", teacher.getName());
         data.put("stuSign", student.getSign());
         data.put("teaSign", teacher.getSign());
@@ -162,7 +167,7 @@ public class ExportPDF {
             form.setFieldProperty(key, "textfont", FontSong, null);
             if (key.equals("stuName") || key.equals("num")) {
                 form.setFieldProperty(key, "textsize", 12f, null);
-            } else if (key.equals("stuNameFirst") || key.equals("stuID") || key.equals("tutorName") || key.equals("year") || key.equals("month") || key.equals("day")) {
+            } else if (key.equals("stuNameFirst") || key.equals("stuID") || key.equals("tutorName") || key.equals("year") || key.equals("month") || key.equals("day") || key.equals("thesisName1") || key.equals("thesisName2")) {
                 form.setFieldProperty(key, "textsize", 16f, null);
             } else {
                 form.setFieldProperty(key, "textsize", 10.5f, null);

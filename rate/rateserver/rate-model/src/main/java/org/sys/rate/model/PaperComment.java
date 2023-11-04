@@ -46,9 +46,9 @@ public class PaperComment {
     /**
      * 获取毕业论文或设计的实体
      */
-    private Thesis thesis;
+//    private Thesis thesis;
 
-    private Student student;
+//    private Student student;
 
     /**
      * 第几次评论
@@ -126,13 +126,13 @@ public class PaperComment {
         this.tutorComment = tutorComment;
     }
 
-    public Thesis getThesis() {
-        return thesis;
-    }
-
-    public void setThesis(Thesis thesis) {
-        this.thesis = thesis;
-    }
+//    public Thesis getThesis() {
+//        return thesis;
+//    }
+//
+//    public void setThesis(Thesis thesis) {
+//        this.thesis = thesis;
+//    }
 
     public int getNum() {
         return num;

@@ -72,7 +72,7 @@ public class PaperCommentController {
 
     // 更新导师的评价时间和评价
     @PostMapping("/updateTea")
-    public JsonResult updateTeaComment(PaperComment paperComment) throws MessagingException {
+    public JsonResult updateTeaComment(@RequestBody PaperComment paperComment) {
         return new JsonResult(paperCommentService.updateTeaComment(paperComment));
     }
 
