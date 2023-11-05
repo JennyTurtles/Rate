@@ -6,6 +6,9 @@
           :show-file-list="false"
           :before-upload="beforeUpload"
           :on-success="onSuccess"
+          :headers="{
+        'token': user.token
+      }"
           style="display: inline-flex; margin-left: 8px"
           :action="UploadUrl()"
       >

@@ -1,5 +1,4 @@
 package org.sys.rate.utils;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
