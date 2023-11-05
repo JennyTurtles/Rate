@@ -8,6 +8,9 @@
       <el-upload
 
           :show-file-list="false"
+          :headers="{
+        'token': user.token
+      }"
           :before-upload="beforeUpload"
           :on-success="onSuccess"
           style="display: inline-flex; margin-left: 1px"
