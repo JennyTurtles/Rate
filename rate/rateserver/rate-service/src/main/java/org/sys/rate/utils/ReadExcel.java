@@ -229,13 +229,13 @@ public class ReadExcel {
             if (id.equals(-1)) {
                 return RespBean.error("学生学号和姓名不匹配");
             }
-            if ("student".equals(type)) {
-                try {
+            try {
+                if ("student".equals(type)) {
                     underGraduateMapper.updateWithInstitutionID(underGraduate);
-                    return RespBean.ok("exist", id);
-                } catch (Exception e) {
-                    return RespBean.error("更新本科生表出现错误！");
                 }
+                return RespBean.ok("exist", id);
+            } catch (Exception e) {
+                return RespBean.error("更新本科生表出现错误！");
             }
         }
         // 首先插入到student表，获取主键id，然后插入undergraduate表中
