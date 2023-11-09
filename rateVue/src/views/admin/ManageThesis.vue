@@ -397,7 +397,6 @@
         <el-table-column
             :reserve-selection="true"
             type="selection"
-            :selectable="checkSelection"
             width="40px">
         </el-table-column>
         <el-table-column
@@ -1169,43 +1168,40 @@ export default {
       let index = inputItem.idx+1
       this.showStudents = true
       this.title_searchStu = "第" + index + "组"
-      this.searchStudent = this.filterNoGroupPar
+      for (let i = 0; i < this.filterNoGroupPar.length; i++)
+        this.searchStudent[i] = this.filterNoGroupPar[i]
       this.$nextTick(() => {
-        this.searchStudent.forEach(item => {
+        for (let i = 0; i < this.searchStudent.length; i++) {
+          var item = this.searchStudent[i]
           for (var info of this.selectedSubGroupInfo){
-            var flag = true
             for (var per of this.groupNumsInput){
               if (per.orderNum[info].includes(item)){
-                this.$refs.multipleTable.toggleRowSelection(item, true)
-                flag = false
+                if (per === this.currentInputItem)
+                  this.$refs.multipleTable.toggleRowSelection(item, true)
+                else{
+                  this.searchStudent.splice(i, 1)
+                  i--
+                }
                 break
               }
             }
-            if (!flag) break
           }
-        })
+        }
       })
     },
-    checkSelection(row){
-      for (var item of this.groupNumsInput){
-        if (item.idx === this.currentInputItem.idx)
-          continue
-        for (var info of this.selectedSubGroupInfo){
-          if (item.orderNum[info].includes(row))
-            return false
-        }
-      }
-      return true
-    },
     searchStu() {
+      this.showStuTable(this.currentInputItem)
+      var filter_new = []
+      for (var i = 0; i < this.searchStudent.length; i++)
+        filter_new[i] = this.searchStudent[i]
       if (this.searchText === ''){
-        this.searchStudent = this.filterNoGroupPar
+        this.searchStudent = filter_new
       }else if (/^\d+$/.test(this.searchText)){ // 纯数字，按工号搜索
-        this.searchStudent = this.filterNoGroupPar.filter(item => item.stuNumber != null &&  item.stuNumber.includes(this.searchText))
+        this.searchStudent = filter_new.filter(item => item.stuNumber != null &&  item.stuNumber.includes(this.searchText))
       }else if (/^[a-zA-Z]*$/.test(this.searchText)){ //纯英文，考虑首字母
-        this.searchStudent = this.filterNoGroupPar.filter(item => PinYinMatch.match(item.name,this.searchText))
+        this.searchStudent = filter_new.filter(item => PinYinMatch.match(item.name,this.searchText))
       } else { // 非纯数字，按姓名搜索
-        this.searchStudent = this.filterNoGroupPar.filter(item => item.name.includes(this.searchText))
+        this.searchStudent = filter_new.filter(item => item.name.includes(this.searchText))
       }
     },
     closeDialogGroup() {//选手分组对话框关闭,清空遗留数据
