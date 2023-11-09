@@ -313,7 +313,8 @@ public class UnderGraduateService {
                     Integer id = (int) res.get(residx).get(item)[1];
                     ids.add(id);
                 }
-                underGraduateMapper.updateGroup(ids, name);
+                if (ids.size() > 0)
+                    underGraduateMapper.updateGroup(ids, name);
             }
         } catch (Exception e) {
             e.printStackTrace();

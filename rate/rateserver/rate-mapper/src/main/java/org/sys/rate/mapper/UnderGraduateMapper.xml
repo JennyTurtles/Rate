@@ -233,6 +233,7 @@
         select t.grade,u.ID,u.studentID,u.stuNumber,u.specialty,u.class,s.name
         from thesis t,undergraduate u,student s
         where u.ID = t.studentID and u.studentID = s.ID and t.year=#{year} and t.month=#{month} and t.group is null
+        order by u.class
     </select>
     <select id="checkAndReturnID" resultType="org.sys.rate.model.UnderGraduate">
         select *

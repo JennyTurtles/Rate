@@ -329,10 +329,10 @@
             <template>
               <el-radio v-model="radio" label="1">均分每组人数</el-radio>
               <el-radio v-model="radio" label="2">指定每组人数</el-radio>
-              <el-radio v-model="radio" label="3">
-                <span v-if="groupWay === '专业'">指定每组每专业人数</span>
-                <span v-if="groupWay === '班级'">指定每组每班级人数</span>
-              </el-radio>
+<!--              <el-radio v-model="radio" label="3">-->
+<!--                <span v-if="groupWay === '专业'">指定每组每专业人数</span>-->
+<!--                <span v-if="groupWay === '班级'">指定每组每班级人数</span>-->
+<!--              </el-radio>-->
             </template>
             <el-button @click="creatGroup" type="primary">
               创建分组
@@ -341,24 +341,9 @@
               &nbsp;关&nbsp;&nbsp;闭&nbsp;
             </el-button>
           </div>
-          <div style="margin-bottom: 5px" v-show="selectedGroupNums > 0">
+          <div style="margin-bottom: 5px" v-show="selectedGroupNums > 0" >
             <span v-if="currentAllSelect!==filterNoGroupPar.length" style="color: red">分组人数：{{ currentAllSelect }}/{{ filterNoGroupPar.length }}</span>
             <span v-else style="color: #4b8ffe">分组人数：{{ currentAllSelect }}/{{ filterNoGroupPar.length }}</span>
-            <span v-show="radio==='3'" v-for="item in selectedSubGroupInfo"
-                  style="padding-left: 5px; color: red"
-                  v-if="groupWay==='专业' && currentSubSelect[item]!==groupSpecialtyNums[item].length">{{ item }}：{{currentSubSelect[item]}}/{{ groupSpecialtyNums[item].length }}</span>
-            <span v-show="radio==='3'"
-                  v-for="item in selectedSubGroupInfo"
-                  style="padding-left: 5px; color: #4b8ffe"
-                  v-if="groupWay==='专业' && currentSubSelect[item]===groupSpecialtyNums[item].length">{{ item }}：{{currentSubSelect[item]}}/{{ groupSpecialtyNums[item].length }}</span>
-            <span v-show="radio==='3'"
-                  v-for="item in selectedSubGroupInfo"
-                  style="padding-left: 5px; color: red"
-                  v-if="groupWay==='班级' && currentSubSelect[item]!==groupClassNums[item].length">{{ item }}：{{currentSubSelect[item]}}/{{ groupClassNums[item].length }}</span>
-            <span v-show="radio==='3'"
-                  v-for="item in selectedSubGroupInfo"
-                  style="padding-left: 5px; color: #4b8ffe"
-                  v-if="groupWay==='班级' && currentSubSelect[item]===groupClassNums[item].length">{{ item }}：{{currentSubSelect[item]}}/{{ groupClassNums[item].length }}</span>
           </div>
           <div id="tableOfGroupNums"
                class="inputOfGroupsBox"
@@ -367,11 +352,26 @@
           >
             <span style="margin: auto;width: 100%;padding-bottom: 5px">
               第{{ item.idx + 1 }}组：
-              <input v-model="item.value" style="width: 60px; margin-bottom: 10px" :disabled="item.disabled" @input="currentInputChange"></input>
+              <input v-model="item.value" style="width: 60px; margin-bottom: 10px" :disabled="item.disabled"
+                     @input="currentInputChange"/>
             </span>
-            <el-button type="text" style="padding-left: 5px" v-show="radio==='3'" size="medium" @click="showStuTable(item)">指定分配{{ item.orderSum }}人</el-button>
-            <span style="padding-left: 5px" v-show="radio==='3'" v-for="info in selectedSubGroupInfo">{{ info }}：
-              <input v-model="item.selectGroupInfo[info]" style="width: 60px; margin-bottom: 10px" :disabled="item.disabled" @input="currentInputChange"></input>
+            <el-checkbox v-show="radio === '2'" v-model="item.order" style="padding-left: 5px" @change="currentInputChange"></el-checkbox>
+            <el-button type="text" style="padding-left: 2px" v-show="radio === '2'" size="medium" @click="showStuTable(item)">指定分配{{ item.orderSum }}人</el-button>
+            <span style="padding-left: 5px" v-show="item.order === true" v-for="info in selectedSubGroupInfo">{{ info }}：
+              <input v-model="item.selectGroupInfo[info]" style="width: 60px; margin-bottom: 10px" :disabled="item.disabled"
+                     @input="currentInputChange"/>
+              <span v-show="radio === '2' && item.order === true"
+                    style="padding-left: 5px; color: #4b8ffe"
+                    v-if="groupWay === '专业' && currentSubSelect[info] <= groupSpecialtyNums[info].length">{{currentSubSelect[info]}}/{{ groupSpecialtyNums[info].length }}</span>
+              <span v-show="radio==='2' && item.order === true"
+                    style="padding-left: 5px; color: red"
+                    v-if="groupWay === '专业' && currentSubSelect[info] > groupSpecialtyNums[info].length">{{currentSubSelect[info]}}/{{ groupSpecialtyNums[info].length }}</span>
+              <span v-show="radio === '2' && item.order === true"
+                    style="padding-left: 5px; color: #4b8ffe"
+                    v-if="groupWay === '班级' && currentSubSelect[info] <= groupClassNums[info].length">{{currentSubSelect[info]}}/{{ groupClassNums[info].length }}</span>
+              <span v-show="radio === '2' && item.order === true"
+                    style="padding-left: 5px; color: red"
+                    v-if="groupWay === '班级' && currentSubSelect[info] > groupClassNums[info].length">{{currentSubSelect[info]}}/{{ groupClassNums[info].length }}</span>
             </span>
           </div>
       </div>
@@ -384,7 +384,7 @@
           @input="searchStu"
       >
       </el-input>
-      <span style="color: #4b8ffe">已选学生：</span>
+      <span style="color: #4b8ffe">已选学生({{selectStu.length}})人：</span>
       <span v-for="item in selectStu" style="padding-left: 5px; color: #4b8ffe">{{item.name}}</span>
       <el-table
           ref="multipleTable"
@@ -397,6 +397,7 @@
         <el-table-column
             :reserve-selection="true"
             type="selection"
+            :selectable="checkSelection"
             width="40px">
         </el-table-column>
         <el-table-column
@@ -414,12 +415,12 @@
         </el-table-column>
         <el-table-column
             prop="className"
-            v-if="groupWay==='班级'"
+            v-if="groupWay === '班级'"
             label="班级">
         </el-table-column>
         <el-table-column
             prop="specialty"
-            v-if="groupWay==='专业'"
+            v-if="groupWay === '专业'"
             label="专业">
         </el-table-column>
       </el-table>
@@ -478,7 +479,7 @@ export default {
       groupClassNums: {}, //班级计数
       groupSpecialtyNums: {}, //专业计数
       currentAllSelect: 0, //当前选择的所有人数
-      currentSubSelect:[], //当前选择的不同子信息项人数
+      currentSubSelect:[], //当前指定的不同子信息项人数
       currentInputItem:'',
       showStudents:false, //用于展示指定分配的table
       selectStu:[],
@@ -547,10 +548,11 @@ export default {
             disabled: true, //默认是均分
             selectGroupInfo:{},
             orderSum: 0, //指定分配人数
-            orderNum:{}
+            orderNum: {},
+            order: false
           });
         }
-        if (this.radio == '2' || this.radio == '3') {//如果是指定人数
+        if (this.radio === '2') {//如果是指定人数
           for (var item of this.groupNumsInput) {
             item.disabled = false
           }
@@ -567,7 +569,7 @@ export default {
     radio: {
       handler(val) {
         this.showStudents = false
-        if (this.radio == '1') {//均分
+        if (this.radio === '1') {//均分
           for (var i = 0; i < this.selectedGroupNums; i++) {
             this.groupNumsInput[i].disabled = true
           }
@@ -582,9 +584,9 @@ export default {
     selectedSubGroupInfo: {//第一个下拉框的变化
       handler(val) {
         this.showStudents = false
-        if (this.groupWay == '专业')
+        if (this.groupWay === '专业')
           this.filterNoGroupPar = this.NoGroupPar.filter(item => this.selectedSubGroupInfo.includes(item.specialty))
-        if (this.groupWay == '班级')
+        if (this.groupWay === '班级')
           this.filterNoGroupPar = this.NoGroupPar.filter(item => this.selectedSubGroupInfo.includes(item.className))
         this.searchStudent = this.filterNoGroupPar
         for (var item of this.groupNumsInput) {
@@ -981,7 +983,7 @@ export default {
       return row.id;
     },
     calculationGroupInputValue() {//计算input框的值
-      if (this.filterNoGroupPar.length == 0) {//如果没有选择分组个数或没有待分组的选手直接返回
+      if (this.filterNoGroupPar.length === 0) {//如果没有选择分组个数或没有待分组的选手直接返回
         for (var i = 0; i < this.selectedGroupNums; i++)
           this.groupNumsInput[i].value = null;
         this.currentAllSelect = 0;
@@ -993,7 +995,7 @@ export default {
       }
       var participantNums = this.filterNoGroupPar.length //学生人数
       var groupNums = this.selectedGroupNums //组数
-      if (this.selectedGroupNums != null && this.radio !=='3') {//均分
+      if (this.selectedGroupNums != null && this.radio ==='1') {//均分
         var baseNums = Math.floor(participantNums / groupNums);
         for (var i = 0; i < groupNums; i++) {
           this.groupNumsInput[i].value = baseNums;
@@ -1002,7 +1004,7 @@ export default {
           this.groupNumsInput[i].value++;
         }
       }
-      else if (this.radio === '3'){
+      else if (this.radio === '2'){
         for (var i = 0; i < groupNums; i++) {
           this.groupNumsInput[i].value = 0;
         }
@@ -1019,34 +1021,92 @@ export default {
           }
         }
       }
-      // for (var i = 0; i < groupNums; i++) {
-      //   var baseNums = Math.floor(this.groupNumsInput[i].value / this.selectedSubGroupInfo.length);
-      //   for (var j = 0; j < this.selectedSubGroupInfo.length; j++) {
-      //     this.groupNumsInput[i].selectGroupInfo[this.selectedSubGroupInfo[j]] = baseNums;
-      //   }
-      //   for (var j = 0; j < (this.groupNumsInput[i].value - baseNums * this.selectedSubGroupInfo.length); j++) {
-      //     this.groupNumsInput[i].selectGroupInfo[this.selectedSubGroupInfo[j]]++;
-      //   }
-      // }
       this.currentInputChange();
     },
     currentInputChange(){
       this.currentSubSelect = {}
-      if (this.radio === '3'){
-        for (var i = 0; i < this.groupNumsInput.length; i++){
-          var item = this.groupNumsInput[i];
-          item.value = 0;
-          for (var j = 0; j < this.selectedSubGroupInfo.length; j++){
-            var info = this.selectedSubGroupInfo[j];
-            if (!(info in this.currentSubSelect)) {
-              this.currentSubSelect[info] = 0;
+      let un_ordered = [], sumNums = {}, itemSum= {}  //sumNums:各专业的已指定人数和总人数记录 itemSum:每个未指定分配的item已自动分配的人数
+      for (let info of this.selectedSubGroupInfo){
+        this.currentSubSelect[info] = 0
+        sumNums[info] = []
+        sumNums[info].push(0)  //0:指定的人数 1:总人数
+        let num = this.groupWay === '专业' ? this.groupSpecialtyNums[info].length : this.groupClassNums[info].length
+        sumNums[info].push(num)
+      }
+      if (this.radio === '2'){
+        for (let item of this.groupNumsInput) { //取出未指定分配的组，进行自动分配
+          if (item.order === true) {
+            item.value = 0
+            for (let info of this.selectedSubGroupInfo) {
+              sumNums[info][0] += parseInt(item.selectGroupInfo[info])
+              this.currentSubSelect[info] += item.selectGroupInfo[info] === null ? 0 : parseInt(item.selectGroupInfo[info]);
+              item.value += parseInt(item.selectGroupInfo[info]);
             }
-            this.currentSubSelect[info] += parseInt(item.selectGroupInfo[info]);
-            item.value += parseInt(item.selectGroupInfo[info]);
+          } else {
+            item.value = parseInt(item.value)
+            un_ordered.push(item)
+            itemSum[item.idx] = 0
+            for (let info of this.selectedSubGroupInfo) {
+              item.selectGroupInfo[info] = 0
+              if (item.orderNum[info].length > 0) {
+                item.selectGroupInfo[info] = item.orderNum[info].length
+                itemSum[item.idx] += item.orderNum[info].length
+                sumNums[info][0] += parseInt(item.orderNum[info].length)
+              }
+            }
+          }
+        }
+        let temp_selectInfo = []
+        for (let i = 0; i < this.selectedSubGroupInfo.length; i++)
+          temp_selectInfo[i] = this.selectedSubGroupInfo[i]
+        for (let k = 0; k < temp_selectInfo.length - 1; k++) {  //对选择的信息项按照人数进行排序从小到大，使自动分配更平均
+          for (let i=0; i < temp_selectInfo.length - 1 - k ; i++) {
+            let num1 = this.groupWay === '专业' ? this.groupSpecialtyNums[temp_selectInfo[i]] : this.groupClassNums[temp_selectInfo[i]]
+            let num2 = this.groupWay === '专业' ? this.groupSpecialtyNums[temp_selectInfo[i + 1]] : this.groupClassNums[temp_selectInfo[i + 1]]
+            if (num1 > num2) {
+              let temp = temp_selectInfo[i];
+              temp_selectInfo[i] = temp_selectInfo[i + 1];
+              temp_selectInfo[i + 1] = temp;
+            }
+          }
+        }
+        let max = []  //max：已满组
+        for (let info of temp_selectInfo){  //对每组进行分配
+          let participantNums = sumNums[info][1] - sumNums[info][0]  //学生人数
+          let i = 1
+          while (i <= participantNums && max.length < un_ordered.length){
+            for (let item of un_ordered){
+              if (itemSum[item.idx] === item.value){
+                if (!(max.includes(item.idx)))
+                  max.push(item.idx)
+                continue
+              }
+              item.selectGroupInfo[info]++
+              itemSum[item.idx]++
+              i++
+              if (i > participantNums || max.length === un_ordered.length) break
+            }
+          }
+        }
+        for (let item of this.groupNumsInput){   // 当输入的人数大于总人数时对人数不足的组补齐
+          let sum = 0
+          for (let info of this.selectedSubGroupInfo)
+            sum += item.selectGroupInfo[info]
+          var flag = true
+          while (sum < item.value){
+            for (let info of this.selectedSubGroupInfo){
+              item.selectGroupInfo[info]++
+              sum++
+              if (sum === item.value){
+                flag = false
+                break
+              }
+            }
+            if (!flag) break
           }
         }
       }
-      var sum = 0;
+      let sum = 0;
       this.groupNumsInput.map(item => {
         sum += parseInt(item.value)
       })
@@ -1066,53 +1126,76 @@ export default {
       this.searchText = '';
     },
     order(){
-      var count = {};
+      var count = {}, sum = 0;
       for (var info of this.selectedSubGroupInfo){
         if (!(info in count)){
           count[info] = 0;
         }
         this.selectStu.forEach(item => {
-          if (this.groupWay === '专业' && item.specialty === info)
+          if (this.groupWay === '专业' && item.specialty === info) {
             count[info]++;
-          if (this.groupWay === '班级' && item.className === info)
+            sum++;
+          }
+          if (this.groupWay === '班级' && item.className === info) {
             count[info]++;
+            sum++;
+          }
         })
-        if (count[info] > this.currentInputItem.selectGroupInfo[info]){
+        if (count[info] > this.currentInputItem.selectGroupInfo[info] && this.currentInputItem.order === true){
           this.$message.error('分配的' + info + '人数大于该组' + info + '总人数，请重新选择！')
+          return
+        }
+        if (sum > this.currentInputItem.value){
+          this.$message.error('分配的人数大于该组总人数，请重新选择！')
           return
         }
       }
       for (var info of this.selectedSubGroupInfo){
         this.currentInputItem.orderNum[info] = []
       }
-      this.currentInputItem.orderSum = 0
+      this.currentInputItem.orderSum = sum
       for (var i = 0; i < this.selectStu.length; i++ ){
         if (this.groupWay === '专业') {
           this.currentInputItem.orderNum[this.selectStu[i].specialty].push(this.selectStu[i]);
         }
         else
           this.currentInputItem.orderNum[this.selectStu[i].className].push(this.selectStu[i]);
-        this.currentInputItem.orderSum++;
       }
+      this.currentInputChange();
       this.showStudents = false;
     },
     showStuTable(inputItem){
-      this.currentInputItem = inputItem;
-      console.log(this.currentInputItem)
-      let index = inputItem.idx+1;
+      this.currentInputItem = inputItem
+      let index = inputItem.idx+1
       this.showStudents = true
-      this.title_searchStu = "第" + index + "组";
-      this.searchStudent = this.filterNoGroupPar;
+      this.title_searchStu = "第" + index + "组"
+      this.searchStudent = this.filterNoGroupPar
       this.$nextTick(() => {
         this.searchStudent.forEach(item => {
           for (var info of this.selectedSubGroupInfo){
-            if (inputItem.orderNum[info].includes(item)){
-              this.$refs.multipleTable.toggleRowSelection(item, true)
-              break
+            var flag = true
+            for (var per of this.groupNumsInput){
+              if (per.orderNum[info].includes(item)){
+                this.$refs.multipleTable.toggleRowSelection(item, true)
+                flag = false
+                break
+              }
             }
+            if (!flag) break
           }
         })
       })
+    },
+    checkSelection(row){
+      for (var item of this.groupNumsInput){
+        if (item.idx === this.currentInputItem.idx)
+          continue
+        for (var info of this.selectedSubGroupInfo){
+          if (item.orderNum[info].includes(row))
+            return false
+        }
+      }
+      return true
     },
     searchStu() {
       if (this.searchText === ''){
@@ -1137,13 +1220,19 @@ export default {
       this.radio = '1'
     },
     creatGroup() {//创建分组
-      for (var i = 0; i < this.groupNumsInput.length; i++) { // 遍历this.groupNumsInput，如果value为0，报错
-        if (this.groupNumsInput[i].value == 0) {
-          this.$message.error('第' + (i + 1) + '组人数为0，请重新输入！')
+      for (let item of this.groupNumsInput) { // 遍历this.groupNumsInput，如果value为0，报错
+        if (item.value === 0) {
+          this.$message.error('第' + (item.idx + 1) + '组人数为0，请重新输入！')
           return
         }
+        for (let info of this.selectedSubGroupInfo){
+          if (item.orderNum[info].length > item.selectGroupInfo[info]){
+            this.$message.error('第' + (item.idx + 1) + '组' + info + '人数小于指定分配的' + info + '人数，请重新输入！')
+            return
+          }
+        }
       }
-      if (this.radio === '2' || this.radio === '3') {
+      if (this.radio === '2') {
         if (this.currentAllSelect !== this.filterNoGroupPar.length) {
           this.$message.error('待创建分组人数为' + this.filterNoGroupPar.length + '，分组总人数为' + this.currentAllSelect + '，人数不相等！')
           return
