@@ -193,10 +193,9 @@ public class UnderGraduateMController {
     @PostMapping("/importThesis")
     public RespBean importThesis(@RequestParam("type") String type,
                                  @RequestParam("institutionID") Integer institutionID,
-                                 @RequestParam("year") Integer year,
-                                 @RequestParam("semester") String semester, MultipartFile file) throws RespBean {
+                                 @RequestParam("startThesisID") Integer startThesisID, MultipartFile file) throws RespBean {
         try {
-            return underGraduateService.importThesis(type, institutionID, year, semester, file);
+            return underGraduateService.importThesis(type, institutionID, startThesisID, file);
         } catch (RespBean res) {
             return RespBean.error(res.getMsg());
         }
@@ -233,6 +232,7 @@ public class UnderGraduateMController {
 
     @GetMapping("/getStudents")
     public Msg getStudents(@RequestParam("institutionID") Integer institutionID,
+                           @RequestParam("adminID") Integer adminID,
                            @RequestParam("year") Integer year,
                            @RequestParam("semester") String semester,
                            @RequestParam("pageNum") Integer pageNum,
@@ -245,24 +245,28 @@ public class UnderGraduateMController {
             month = Integer.valueOf(semester);
             semester = 3 == month ? "春季" : "秋季";
         }
-        List<UnderGraduate> student = underGraduateService.getStudent(institutionID, year, month);
+        Integer startThisThesisID = underGraduateMapper.GetStartThisThesisID(institutionID, adminID, year, semester);
+        List<UnderGraduate> student = underGraduateService.getStudent(institutionID, startThisThesisID);
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {student, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         // 再加上一个判断，该年该月该单位是否开启
-        boolean havingStart = underGraduateMapper.havingStartThisThesis(institutionID, year, semester);
-        return Msg.success().add("res", res).add("havingStart", havingStart);
+        Boolean havingStart = false;
+        if (startThisThesisID != null)
+            havingStart = true;
+        return Msg.success().add("res", res).add("havingStart", havingStart).add("startThisThesisID", startThisThesisID);
     }
 
     @GetMapping("/getThesisExistDate")
-    public RespBean getThesisExistDate(@RequestParam("institutionID") Integer institutionID) {
-        return underGraduateService.getThesisExistDate(institutionID);
+    public RespBean getThesisExistDate(@RequestParam("institutionID") Integer institutionID, @RequestParam("adminID") Integer adminID) {
+        return underGraduateService.getThesisExistDate(institutionID, adminID);
     }
 
     @PostMapping("/startThesis")
     public RespBean startThesis(@RequestParam("institutionID") @NotNull Integer institutionID,
+                                @RequestParam("adminID") @NotNull Integer adminID,
                                 @RequestParam("year") @NotNull Integer year,
                                 @RequestParam("semester") @NotNull String semester) {
-        return underGraduateService.startThesis(institutionID, year, semester);
+        return underGraduateService.startThesis(institutionID, adminID, year, semester);
     }
 
     @PutMapping("/updateUndergraduate")
@@ -292,15 +296,14 @@ public class UnderGraduateMController {
     }
 
     @GetMapping("/getUngrouped")
-    public RespBean getUngrouped(@RequestParam("year") Integer year, @RequestParam("month") Integer month) {
-        List<UnderGraduate> res = underGraduateMapper.getUngrouped(year, month);
+    public RespBean getUngrouped(@RequestParam("startThesisID") Integer startThesisID) {
+        List<UnderGraduate> res = underGraduateMapper.getUngrouped(startThesisID);
         return RespBean.ok("success", res);
     }
 
     @PostMapping("/createGroups")
     public String createGroup(@RequestBody Map<String, Object> data) {
-        Integer year = (Integer) data.get("year");
-        Integer month = (Integer) data.get("month");
+        Integer startThesisID = (Integer) data.get("startThesisID");
         List<Integer> arr = (List<Integer>) data.get("arr");
         Integer exchangeNums = (Integer) data.get("groupsNums");
         Integer groupsNums = (Integer) data.get("groupsNums");
@@ -308,6 +311,6 @@ public class UnderGraduateMController {
         List<String> selectInfo = (List<String>) data.get("selectInfo");
         HashMap<String, List<Integer>> arrSub = (HashMap<String, List<Integer>>) data.get("arrSub");
         HashMap<String, HashMap<String,List<Integer>>> orderNums = (HashMap<String, HashMap<String,List<Integer>>>) data.get("orderNums");
-        return underGraduateService.createGroup_judge(year, month, arr, exchangeNums, groupsNums, groupWay, selectInfo, arrSub, orderNums);
+        return underGraduateService.createGroup_judge(startThesisID, arr, exchangeNums, groupsNums, groupWay, selectInfo, arrSub, orderNums);
     }
 }

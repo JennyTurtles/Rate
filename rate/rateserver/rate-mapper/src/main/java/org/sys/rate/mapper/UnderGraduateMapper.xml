@@ -172,7 +172,7 @@
     <select id="getUngroupedBySpecialty" resultType="org.sys.rate.model.Thesis">
         select *
         from thesis t,undergraduate u
-        where t.year=#{year} and t.month=#{month} and t.studentID = u.ID and t.`group` is null and u.specialty in
+        where t.start_thesis_id=#{startThesisID} and t.studentID = u.ID and t.`group` is null and u.specialty in
         <foreach item="item" index="index" collection="specialty" open="(" separator="," close=")">
             #{item}
         </foreach>
@@ -180,7 +180,7 @@
     <select id="getUngroupedByClass" resultType="org.sys.rate.model.Thesis">
         select *
         from thesis t,undergraduate u
-        where t.year=#{year} and t.month=#{month} and t.studentID = u.ID and t.`group` is null and u.class in
+        where t.start_thesis_id=#{startThesisID} and t.studentID = u.ID and t.`group` is null and u.class in
         <foreach item="item" index="index" collection="className" open="(" separator="," close=")">
             #{item}
         </foreach>
@@ -215,8 +215,7 @@
 
 
         where
-        t.YEAR = #{startYear}
-        AND t.MONTH = #{month}
+        t.start_thesis_id = #{startThesisID}
         AND u.institutionID = #{institutionID}
         <if test="stuNumber != null and stuNumber != ''">and u.stuNumber like concat('%', #{stuNumber}, '%')</if>
         <if test="name != null and name != ''">and s.name like concat('%', #{name}, '%')</if>
@@ -232,7 +231,7 @@
     <select id="getUngrouped" resultMap="ResultMapThesis">
         select t.grade,u.ID,u.studentID,u.stuNumber,u.specialty,u.class,s.name
         from thesis t,undergraduate u,student s
-        where u.ID = t.studentID and u.studentID = s.ID and t.year=#{year} and t.month=#{month} and t.group is null
+        where u.ID = t.studentID and u.studentID = s.ID and t.start_thesis_id=#{startThesisID} and t.group is null
         order by u.class
     </select>
     <select id="checkAndReturnID" resultType="org.sys.rate.model.UnderGraduate">

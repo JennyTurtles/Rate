@@ -9,6 +9,7 @@ import org.sys.rate.model.*;
 import org.sys.rate.utils.ReadExcel;
 
 import javax.annotation.Resource;
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
 
 @Service
@@ -164,7 +165,7 @@ public class UnderGraduateService {
     }
 
     @Transactional()
-    public RespBean importThesis(String type, Integer institutionID, Integer year, String semester, MultipartFile file) throws RespBean {
+    public RespBean importThesis(String type, Integer institutionID, Integer startThesisID, MultipartFile file) throws RespBean {
         // 1. 从excel解析出来的数据
         Msg excelData = readExcel.readStartThesisExcelData(type, institutionID, file);
         if (excelData.getCode() == 500) {
@@ -172,16 +173,16 @@ public class UnderGraduateService {
         }
 
         // 3.对于学期进行分解，3-春季，9-秋季
-        Integer month;
-        if (semester.length() > 1) {
-            month = "春季".equals(semester) ? 3 : 9;
-        } else {
-            month = Integer.valueOf(semester);
-        }
+//        Integer month;
+//        if (semester.length() > 1) {
+//            month = "春季".equals(semester) ? 3 : 9;
+//        } else {
+//            month = Integer.valueOf(semester);
+//        }
 
         // 4.插入thesis表(或者当type==teacher时，需要更新thesis表)
         List thesisList = (List<Thesis>) excelData.getExtend().get("thesis");
-        RespBean thesisResBean = this.insertOrUpdateThesis(thesisList, year, month, type);
+        RespBean thesisResBean = this.insertOrUpdateThesis(thesisList, startThesisID, type);
         if (thesisResBean.getStatus().equals(500)) {
             return thesisResBean;
         }
@@ -197,10 +198,10 @@ public class UnderGraduateService {
     }
 
 
-    private RespBean insertOrUpdateThesis(List<Thesis> thesisList, Integer year, Integer month, String type) {
+    private RespBean insertOrUpdateThesis(List<Thesis> thesisList, Integer startThesisID, String type) {
         int rows = 0;
         try {
-            rows = thesisService.upsert(thesisList, year, month, type);
+            rows = thesisService.upsert(thesisList, startThesisID, type);
         } catch (Exception e) {
             String errorMessage = "插入或者更新操作毕业论文信息时出错！";
             return RespBean.error(errorMessage);
@@ -210,22 +211,22 @@ public class UnderGraduateService {
     }
 
 
-    public List<UnderGraduate> getStudent(Integer institutionID, Integer year, Integer month) {
-        return underGraduateMapper.getStudent(institutionID, year, month);
+    public List<UnderGraduate> getStudent(Integer institutionID, Integer startThisThesisID) {
+        return underGraduateMapper.getStudent(institutionID, startThisThesisID);
     }
 
-    public RespBean getThesisExistDate(Integer institutionID) {
+    public RespBean getThesisExistDate(Integer institutionID, Integer adminID) {
         try {
-            List<String> date = underGraduateMapper.getThesisExistDate(institutionID);
+            List<String> date = underGraduateMapper.getThesisExistDate(institutionID, adminID);
             return RespBean.ok("", date);
         } catch (Exception e) {
             return RespBean.error("");
         }
     }
 
-    public RespBean startThesis(Integer institutionID, Integer year, String semester) {
+    public RespBean startThesis(Integer institutionID, Integer adminID, Integer year, String semester) {
         try {
-            underGraduateMapper.startThesis(institutionID, year, semester);
+            underGraduateMapper.startThesis(institutionID, adminID, year, semester);
             return RespBean.ok("");
         } catch (Exception e) {
             return RespBean.error("开启毕业设计失败！");
@@ -270,14 +271,14 @@ public class UnderGraduateService {
         }
     }
 
-    public String createGroup(Integer year, Integer month, List<Integer> arr, Integer exchangeNums, Integer groupsNums, String groupWay,List<String> selectInfo,HashMap<String,List<Integer>> orderNums) {
+    public String createGroup(Integer startThesisID, List<Integer> arr, Integer exchangeNums, Integer groupsNums, String groupWay,List<String> selectInfo,HashMap<String,List<Integer>> orderNums) {
         List<Double> point = new ArrayList<>();
         List<Thesis> students = new ArrayList<>();
         List<double[]> point_participant = new ArrayList<>();
         if (groupWay.equals("专业"))
-            students = underGraduateMapper.getUngroupedBySpecialty(year, month, selectInfo);
+            students = underGraduateMapper.getUngroupedBySpecialty(startThesisID, selectInfo);
         else if (groupWay.equals("班级"))
-            students = underGraduateMapper.getUngroupedByClass(year, month, selectInfo);
+            students = underGraduateMapper.getUngroupedByClass(startThesisID, selectInfo);
         for (Thesis student : students) {
             double[] temp = new double[4];
             point.add(Double.valueOf(student.getGrade()==null? 0.0:student.getGrade()));
@@ -323,10 +324,10 @@ public class UnderGraduateService {
         return "分组成功";
     }
 
-    public String createGroup_judge(Integer year, Integer month, List<Integer> arr, Integer exchangeNums, Integer groupsNums, String groupWay,List<String> selectInfo,HashMap<String, List<Integer>> arrSub,HashMap<String, HashMap<String,List<Integer>>> orderNums) {
-        if (arrSub.size() == 0){ //无指定专业或班级分组
+    public String createGroup_judge(Integer startThesisID, List<Integer> arr, Integer exchangeNums, Integer groupsNums, String groupWay,List<String> selectInfo,HashMap<String, List<Integer>> arrSub,HashMap<String, HashMap<String,List<Integer>>> orderNums) {
+        if (arrSub == null){ //无指定专业或班级分组
             HashMap<String,List<Integer>> order_empty = new HashMap<>();
-            return createGroup(year,month,arr,exchangeNums,groupsNums,groupWay,selectInfo,order_empty);
+            return createGroup(startThesisID,arr,exchangeNums,groupsNums,groupWay,selectInfo,order_empty);
         }
         else {
             try {
@@ -334,7 +335,7 @@ public class UnderGraduateService {
                     List<String> info_single = new ArrayList<>();
                     info_single.add(s);
                     HashMap<String,List<Integer>> order = orderNums.get(s);
-                    createGroup(year, month, arrSub.get(s), exchangeNums, groupsNums, groupWay, info_single, order);
+                    createGroup(startThesisID, arrSub.get(s), exchangeNums, groupsNums, groupWay, info_single, order);
                 }
             }
             catch (Exception e) {

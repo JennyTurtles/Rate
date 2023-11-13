@@ -76,7 +76,7 @@
             :before-upload="beforeUpload"
             :on-success="onSuccess"
             style="display: inline-flex; margin-left: 1px"
-            :action="`/undergraduateM/basic/importThesis?type=teacher&institutionID=${user.institutionID}&year=${startYear}&semester=${selectSemester}`"
+            :action="`/undergraduateM/basic/importThesis?type=teacher&institutionID=${user.institutionID}&startThesisID=${selectThesis}`"
         >
           <el-button icon="el-icon-plus" type="success" :disabled="selectDate==''">导入教师</el-button>
         </el-upload>
@@ -105,7 +105,7 @@
             :before-upload="beforeUpload"
             :on-success="onSuccess"
             style="display: inline-flex; margin-left: 1px"
-            :action="`/undergraduateM/basic/importThesis?type=student&institutionID=${user.institutionID}&year=${startYear}&semester=${selectSemester}`"
+            :action="`/undergraduateM/basic/importThesis?type=student&institutionID=${user.institutionID}&startThesisID=${selectThesis}`"
         >
           <el-button icon="el-icon-plus" type="success" :disabled="selectDate==''">导入学生</el-button>
         </el-upload>
@@ -452,6 +452,7 @@ export default {
         tutorJobNumber: '',
         tutorName: '',
         institutionID: null,
+        startThesisID: null,
         startYear: null,
         month: null,
         pageNum: null,
@@ -492,6 +493,7 @@ export default {
       canImportStudents: false,
       selectSemester: '',
       startYear: null,
+      selectThesis: null,
       selectTeacherNameOrJobnumber: '',//编辑框中导师搜索一栏的下拉框绑定数据
       newPassword: 'dhucst',//重置密码中的新密码
       conNewPassword: '',//重置密码中的确认新密码
@@ -640,6 +642,7 @@ export default {
         institutionID: null,
         startYear: null,
         month: null,
+        startThesisID: null,
         pageNum: null,
         pageSize: null,
       };
@@ -701,7 +704,7 @@ export default {
 
     async fetchThesisExistDate() {
       try {
-        const url = `/undergraduateM/basic/getThesisExistDate?institutionID=${this.user.institutionID}`;
+        const url = `/undergraduateM/basic/getThesisExistDate?institutionID=${this.user.institutionID}&adminID=${this.user.id}`;
         const response = await this.getRequest(url);
         if (response.status === 200) {
           this.options = this.transformOptions(response.obj);
@@ -715,17 +718,20 @@ export default {
 
     transformOptions(options) {
       return options.map(option => {
-        let year = option.substring(0, 4);
-        let season = option.slice(-2) === '春季' ? 3 : 9;
+        let message = option.split('.')[1];
+        let year = message.substring(0, 4);
+        let season = message.slice(-2) === '春季' ? 3 : 9;
+        let optionID = option.split('.')[0];
         let optionValue = year + season
 
-        return {value: optionValue, label: option};
+        return {value: optionID, label: message};
       });
     },
 
     handleSelectSemesterChange() {
       this.startYear = parseInt(this.selectDate.substring(0, 4));
       this.selectSemester = parseInt(this.selectDate.charAt(4));
+      this.selectThesis = parseInt(this.selectDate);
       this.initUnderGraduateStudents(1, 10);
     },
 
@@ -951,9 +957,11 @@ export default {
         this.query.pageNum = pageNum;
         this.query.pageSize = pageSize;
         this.query.institutionID = this.user.institutionID;
+        this.query.startThesisID = this.selectThesis;
         this.query.startYear = this.startYear;
         this.query.month = this.selectSemester;
 
+        console.log(this.query)
         const url = `/undergraduateM/basic/getStudentsByConditions`
         const response = await this.postRequest(url, this.query);
         const {code, extend} = response;
@@ -1261,9 +1269,9 @@ export default {
           })
         }
       }
+      arrSub = this.radio === '1' ? null : arrSub
       var data = {
-        'year': this.startYear,
-        'month': this.selectSemester,
+        'startThesisID': this.selectThesis,
         'arr': arr,
         'exchangeNums': Math.ceil(this.selectedGroupNums / 2),
         'groupsNums': this.selectedGroupNums,
@@ -1334,7 +1342,7 @@ export default {
       this.groupSubOfSelectedClass = []
       this.groupClassNums = {}
       this.groupSpecialtyNums = {}
-      var url = '/undergraduateM/basic/getUngrouped/?year=' + this.startYear + "&month=" + this.selectSemester;
+      var url = '/undergraduateM/basic/getUngrouped/?startThesisID=' + this.selectThesis;
       this.getRequest(url).then((resp) => {
         if (resp.status == 200) {
           this.NoGroupPar = resp.obj;

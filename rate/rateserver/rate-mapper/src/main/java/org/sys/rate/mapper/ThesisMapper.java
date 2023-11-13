@@ -43,11 +43,11 @@ public interface ThesisMapper {
     @Insert("insert into thesis (studentID, year, month, tutorID, grade) VALUES (#{studentID}, #{year}, #{month}, #{tutorID}, #{grade})")
     void insert(Thesis thesis);
 
-    @Insert("INSERT INTO thesis (studentID, year, month, tutorID, grade) " +
-            "VALUES (#{thesis.studentID}, #{year}, #{month}, #{thesis.tutorID, jdbcType=NUMERIC}, #{thesis.grade}) " +
+    @Insert("INSERT INTO thesis (studentID, start_thesis_id, tutorID, grade) " +
+            "VALUES (#{thesis.studentID}, #{startThesisID}, #{thesis.tutorID, jdbcType=NUMERIC}, #{thesis.grade}) " +
             "ON DUPLICATE KEY UPDATE tutorID = VALUES(tutorID), grade = VALUES(grade)")
     @Options(useGeneratedKeys = true, keyProperty = "thesis.ID")
-    void upsert(Thesis thesis, Integer year, Integer month);
+    void upsert(Thesis thesis, Integer startThesisID);
 
 
     Integer batchUpsert(Map<String, Object> paramMap);
