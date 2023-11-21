@@ -60,7 +60,7 @@ public class LoginService {
 
     public int updatePassword(String userRole, Integer ID, String password) {
         String table = "";
-        if(userRole.indexOf("admin") >= 0) {
+        if (userRole.indexOf("admin") >= 0) {
             table = "admin";
         } else if (userRole.indexOf("teacher") >= 0) {
             table = "teacher";
@@ -68,5 +68,17 @@ public class LoginService {
             table = "student";
         }
         return loginMapper.updatePassword(table, ID, password);
+    }
+
+    public boolean checkPassword(String userRole, Integer id, String password) {
+        String table = "";
+        if (userRole.indexOf("admin") >= 0) {
+            table = "admin";
+        } else if (userRole.indexOf("teacher") >= 0) {
+            table = "teacher";
+        } else if (userRole.indexOf("student") >= 0) {
+            table = "student";
+        }
+        return loginMapper.checkPassword(table, id, password) != 0;
     }
 }

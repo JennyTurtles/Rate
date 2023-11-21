@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.*;
 
 @Mapper
-public interface LoginMapper{
+public interface LoginMapper {
     @Select("select * from admin where username = #{username}")
     public Admin loginAdmin(LoginInf loginInf);
 
@@ -18,4 +18,7 @@ public interface LoginMapper{
 
     @Update("update ${table} set password = #{password} where ID = #{ID}")
     public int updatePassword(String table, Integer ID, String password);
+
+    @Select("select count(ID) from ${table} where password = #{password} and ID = #{id}")
+    int checkPassword(String table, Integer id, String password);
 }

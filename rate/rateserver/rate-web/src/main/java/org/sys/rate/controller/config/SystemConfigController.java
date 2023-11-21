@@ -91,4 +91,21 @@ public class SystemConfigController {
         }
         return RespBean.ok("修改成功", loginService.updatePassword(userRole, ID, password));
     }
+
+    @GetMapping("/checkPassword")
+    public RespBean checkPassword(HttpServletRequest request, @RequestParam Integer ID, @RequestParam String password) {
+        String token = request.getHeader("token");
+        if (StrUtil.isBlank((token))) {
+            //没有token，重新获取
+            throw new ServiceException(Constants.CODE_401, "无token，请重新登录");
+        }
+        //获取token中的userid
+        String userRole;
+        try {
+            userRole = JWT.decode(token).getClaims().get("role").asString();
+        } catch (JWTDecodeException j) {
+            throw new ServiceException(Constants.CODE_401, "token验证失败，请重新登录");
+        }
+        return RespBean.ok("", loginService.checkPassword(userRole, ID, password));
+    }
 }

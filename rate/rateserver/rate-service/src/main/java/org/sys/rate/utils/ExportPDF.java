@@ -137,7 +137,7 @@ public class ExportPDF {
         data.put("stuNameFirst", student.getName());
         data.put("stuName", student.getName());
         data.put("stuID", thesis.getStudentNumber());
-        if(!thesis.getName().isEmpty()) {
+        if (!thesis.getName().isEmpty()) {
             data.put("thesisName1", thesis.getName().length() <= 15 ? thesis.getName() : thesis.getName().substring(0, 15));
             data.put("thesisName2", thesis.getName().length() <= 15 ? "" : " " + thesis.getName().substring(15));
         }
@@ -172,7 +172,7 @@ public class ExportPDF {
             } else {
                 form.setFieldProperty(key, "textsize", 10.5f, null);
             }
-            form.setField(key, data.get(key) != null ? data.get(key).toString() : "");
+            form.setField(key, data.get(key) != null ? data.get(key) + "" : "");
         }
 
         File stuSign = new File((String) data.get("stuSign"));

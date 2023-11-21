@@ -76,7 +76,7 @@ export default {
       headers: {
         'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
       },
-      newPassword:'dhucst@11',
+      newPassword:'dhucst',
       dialogResetPassword:false,
       pageSizes:[10,20,30,50,100],
       totalCount:0,
