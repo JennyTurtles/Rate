@@ -282,15 +282,13 @@ public class UnderGraduateMController {
     @PostMapping("/deleteThesis")
     public RespBean deleteThesis(@RequestParam("studentID") @NotNull Integer studentID,
                                  @RequestParam("tutorID") String tutorIDStr,
-                                 @RequestParam("year") @NotNull Integer year,
-                                 @RequestParam("month") @NotNull Integer month) {
+                                 @RequestParam("startThesisID") @NotNull Integer startThesisID) {
         Integer tutorID = tutorIDStr.equals("none") ? null : Integer.parseInt(tutorIDStr);
 
         UnderGraduate underGraduate = new UnderGraduate();
         underGraduate.setStudentID(studentID);
         underGraduate.setTutorID(tutorID);
-        underGraduate.setYear(year);
-        underGraduate.setMonth(month);
+        underGraduate.setStartThesisID(startThesisID);
 
         return underGraduateService.deleteThesis(underGraduate);
     }

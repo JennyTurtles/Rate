@@ -10,8 +10,6 @@ import org.sys.rate.mapper.ParticipatesMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.utils.createGroups;
 
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;

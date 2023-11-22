@@ -329,10 +329,6 @@
             <template>
               <el-radio v-model="radio" label="1">均分每组人数</el-radio>
               <el-radio v-model="radio" label="2">指定每组人数</el-radio>
-<!--              <el-radio v-model="radio" label="3">-->
-<!--                <span v-if="groupWay === '专业'">指定每组每专业人数</span>-->
-<!--                <span v-if="groupWay === '班级'">指定每组每班级人数</span>-->
-<!--              </el-radio>-->
             </template>
             <el-button @click="creatGroup" type="primary">
               创建分组
@@ -341,38 +337,65 @@
               &nbsp;关&nbsp;&nbsp;闭&nbsp;
             </el-button>
           </div>
-          <div style="margin-bottom: 5px" v-show="selectedGroupNums > 0" >
-            <span v-if="currentAllSelect!==filterNoGroupPar.length" style="color: red">分组人数：{{ currentAllSelect }}/{{ filterNoGroupPar.length }}</span>
-            <span v-else style="color: #4b8ffe">分组人数：{{ currentAllSelect }}/{{ filterNoGroupPar.length }}</span>
-          </div>
-          <div id="tableOfGroupNums"
-               class="inputOfGroupsBox"
-               v-show="selectedGroupNums > 0"
-               v-for="item in groupNumsInput"
-          >
-            <span style="margin: auto;width: 100%;padding-bottom: 5px">
-              第{{ item.idx + 1 }}组：
-              <input v-model="item.value" style="width: 60px; margin-bottom: 10px" :disabled="item.disabled"
-                     @input="currentInputChange"/>
-            </span>
-            <el-checkbox v-show="radio === '2'" v-model="item.order" style="padding-left: 5px" @change="currentInputChange"></el-checkbox>
-            <el-button type="text" style="padding-left: 2px" v-show="radio === '2'" size="medium" @click="showStuTable(item)">指定分配{{ item.orderSum }}人</el-button>
-            <span style="padding-left: 5px" v-show="item.order === true" v-for="info in selectedSubGroupInfo">{{ info }}：
-              <input v-model="item.selectGroupInfo[info]" style="width: 60px; margin-bottom: 10px" :disabled="item.disabled"
-                     @input="currentInputChange"/>
-              <span v-show="radio === '2' && item.order === true"
-                    style="padding-left: 5px; color: #4b8ffe"
-                    v-if="groupWay === '专业' && currentSubSelect[info] <= groupSpecialtyNums[info].length">{{currentSubSelect[info]}}/{{ groupSpecialtyNums[info].length }}</span>
-              <span v-show="radio==='2' && item.order === true"
-                    style="padding-left: 5px; color: red"
-                    v-if="groupWay === '专业' && currentSubSelect[info] > groupSpecialtyNums[info].length">{{currentSubSelect[info]}}/{{ groupSpecialtyNums[info].length }}</span>
-              <span v-show="radio === '2' && item.order === true"
-                    style="padding-left: 5px; color: #4b8ffe"
-                    v-if="groupWay === '班级' && currentSubSelect[info] <= groupClassNums[info].length">{{currentSubSelect[info]}}/{{ groupClassNums[info].length }}</span>
-              <span v-show="radio === '2' && item.order === true"
-                    style="padding-left: 5px; color: red"
-                    v-if="groupWay === '班级' && currentSubSelect[info] > groupClassNums[info].length">{{currentSubSelect[info]}}/{{ groupClassNums[info].length }}</span>
-            </span>
+          <div class="table" v-show="selectedGroupNums > 0" >
+            <el-table
+                :data="groupNumsInput"
+                :key="bomCheckKey"
+                style="width: 100%">
+              <el-table-column
+                  type="index"
+                  label="组号"
+                  min-width="3%"
+                  show-overflow-tooltip>
+              </el-table-column>
+              <el-table-column
+                  :label=" '人数 ' + currentAllSelect + '/' + filterNoGroupPar.length"
+                  min-width="10%">
+                <template slot-scope="scope">
+                  <input v-model="scope.row.value" style="width: 60px; margin-bottom: 10px" :disabled="scope.row.disabled || scope.row.order"
+                         @blur="currentInputChange()"/>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  label="指定分配人数"
+                  min-width="10%"
+                  v-if="radio === '2'">
+                <template slot-scope="scope">
+                  <span>{{scope.row.orderSum}}</span>
+                  <el-button
+                      type="text"
+                      icon="el-icon-edit"
+                      size="medium"
+                      style="padding-left: 5px"
+                      @click="showStuTable(scope.row)">
+                  </el-button>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  prop="className"
+                  min-width="10%"
+                  v-if="radio === '2'"
+                  label="是否指定分配专业/班级">
+                <template slot-scope="scope">
+                  <el-checkbox
+                      v-show="radio === '2'"
+                      v-model="scope.row.order"
+                      style="padding-left: 5px">
+                  </el-checkbox>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  v-for="(info) in this.selectedSubGroupInfo"
+                  :label="info +' ' + currentSubSelect[info] + '/' + (groupWay === '专业' ? groupSpecialtyNums[info].length : groupClassNums[info].length)"
+                  min-width="10%"
+                  v-if="radio === '2'">
+                <template slot-scope="scope">
+                  <input v-model="scope.row.selectGroupInfo[info]" style="width: 60px; margin-bottom: 10px" :disabled="!scope.row.order"
+                         @focus="getInfoBefore(scope.row.selectGroupInfo[info])"
+                         @blur="juegeInput(scope.row, info)"/>
+                </template>
+              </el-table-column>
+            </el-table>
           </div>
       </div>
     </el-dialog>
@@ -482,6 +505,8 @@ export default {
       currentSubSelect:[], //当前指定的不同子信息项人数
       currentInputItem:'',
       showStudents:false, //用于展示指定分配的table
+      inputBefore: null,
+      bomCheckKey: 0,
       selectStu:[],
       title_searchStu:'',
       radio: '1',
@@ -862,8 +887,7 @@ export default {
         const queryParams = {
           studentID: data.studentID,
           tutorID: data.tutorID || "none", // 处理可能为空的情况
-          year: this.startYear,
-          month: this.selectSemester
+          startThesisID: this.selectThesis
         };
         const queryParamsStr = Object.entries(queryParams)
             .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
@@ -1028,13 +1052,30 @@ export default {
           }
         }
       }
-      this.currentInputChange();
+      this.currentInputChange('总人数');
+    },
+    calculationCurrentInput(){
+      if (this.radio === '2'){
+        this.currentSubSelect = {}
+        for (let item of this.groupNumsInput){
+          item.value = 0
+          for (let info of this.selectedSubGroupInfo){
+            if (!(info in this.currentSubSelect))
+              this.currentSubSelect[info] = 0
+            this.currentSubSelect[info] += item.selectGroupInfo[info] === null ? 0 : parseInt(item.selectGroupInfo[info])
+            item.value += item.selectGroupInfo[info] === null ? 0 : parseInt(item.selectGroupInfo[info])
+          }
+        }
+      }
+      let sum = 0;
+      this.groupNumsInput.map(item => {
+        sum += parseInt(item.value)
+      })
+      this.currentAllSelect = sum;
     },
     currentInputChange(){
-      this.currentSubSelect = {}
       let un_ordered = [], sumNums = {}, itemSum= {}  //sumNums:各专业的已指定人数和总人数记录 itemSum:每个未指定分配的item已自动分配的人数
       for (let info of this.selectedSubGroupInfo){
-        this.currentSubSelect[info] = 0
         sumNums[info] = []
         sumNums[info].push(0)  //0:指定的人数 1:总人数
         let num = this.groupWay === '专业' ? this.groupSpecialtyNums[info].length : this.groupClassNums[info].length
@@ -1046,7 +1087,6 @@ export default {
             item.value = 0
             for (let info of this.selectedSubGroupInfo) {
               sumNums[info][0] += parseInt(item.selectGroupInfo[info])
-              this.currentSubSelect[info] += item.selectGroupInfo[info] === null ? 0 : parseInt(item.selectGroupInfo[info]);
               item.value += parseInt(item.selectGroupInfo[info]);
             }
           } else {
@@ -1083,7 +1123,7 @@ export default {
           let i = 1
           while (i <= participantNums && max.length < un_ordered.length){
             for (let item of un_ordered){
-              if (itemSum[item.idx] === item.value){
+              if (itemSum[item.idx] === item.value || i/un_ordered.length < item.orderNum[info].length){
                 if (!(max.includes(item.idx)))
                   max.push(item.idx)
                 continue
@@ -1113,19 +1153,27 @@ export default {
           }
         }
       }
-      let sum = 0;
-      this.groupNumsInput.map(item => {
-        sum += parseInt(item.value)
-      })
-      this.currentAllSelect = sum;
+      this.calculationCurrentInput()
+    },
+    getInfoBefore(value){
+      this.inputBefore = value;
+    },
+    juegeInput(row, info){
+      if (row.orderNum[info].length > row.selectGroupInfo[info]){
+        this.$alert('当前输入的人数小于该组' + info + '分配的人数，请重新输入', '提示', {
+          confirmButtonText: '确定',
+          type: 'warning',
+          callback: action => {
+            row.selectGroupInfo[info] = this.inputBefore
+            this.bomCheckKey++
+          }
+        });
+      }
+      else
+        this.calculationCurrentInput()
     },
     handleSelectionChange(val){
       this.selectStu = val;
-      if (val.length > 0) {
-        const ids = val.map((e) => e.id);
-        this.searchStudent = this.searchStudent.filter((e) => !ids.includes(e.id));
-        this.searchStudent.unshift(...val);
-      }
     },
     closeDialogSearch(){
       this.showStudents = false;
@@ -1174,27 +1222,27 @@ export default {
     showStuTable(inputItem){
       this.currentInputItem = inputItem
       let index = inputItem.idx+1
-      this.showStudents = true
       this.title_searchStu = "第" + index + "组"
+      var curr_ids = [], other_ids = []
       for (let i = 0; i < this.filterNoGroupPar.length; i++)
         this.searchStudent[i] = this.filterNoGroupPar[i]
-      this.$nextTick(() => {
-        for (let i = 0; i < this.searchStudent.length; i++) {
-          var item = this.searchStudent[i]
-          for (var info of this.selectedSubGroupInfo){
-            for (var per of this.groupNumsInput){
-              if (per.orderNum[info].includes(item)){
-                if (per === this.currentInputItem)
-                  this.$refs.multipleTable.toggleRowSelection(item, true)
-                else{
-                  this.searchStudent.splice(i, 1)
-                  i--
-                }
-                break
-              }
-            }
+      for (var info of this.selectedSubGroupInfo){
+        for (var item of this.groupNumsInput){
+          if (item.orderNum[info].length > 0){
+            if (item === inputItem)
+              item.orderNum[info].forEach(e => { curr_ids.push(e.id) })
+            else
+              item.orderNum[info].forEach(e => { other_ids.push(e.id) })
           }
         }
+      }
+      this.searchStudent = this.searchStudent.filter((e) => !other_ids.includes(e.id))
+      this.showStudents = true
+      this.$nextTick(() => {
+        this.searchStudent.forEach(item => {
+          if (curr_ids.includes(item.id))
+            this.$refs.multipleTable.toggleRowSelection(item, true)
+        })
       })
     },
     searchStu() {
@@ -1228,12 +1276,6 @@ export default {
         if (item.value === 0) {
           this.$message.error('第' + (item.idx + 1) + '组人数为0，请重新输入！')
           return
-        }
-        for (let info of this.selectedSubGroupInfo){
-          if (item.orderNum[info].length > item.selectGroupInfo[info]){
-            this.$message.error('第' + (item.idx + 1) + '组' + info + '人数小于指定分配的' + info + '人数，请重新输入！')
-            return
-          }
         }
       }
       if (this.radio === '2') {
@@ -1411,5 +1453,19 @@ export default {
   /*padding-top: 7px;*/
   padding-left: 12px;
   width: 100%;
+}
+</style>
+
+<style lang="less">
+.table {
+  //避免单元格之间出现白色边框
+  .el-table__row > td {
+    border: none;
+  }
+  //修改表格边框颜色
+  .el-table {
+    --el-table-border-color: #ffffff;
+  }
+  .el-table::before { height: 0px; }
 }
 </style>

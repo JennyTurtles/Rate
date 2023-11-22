@@ -31,7 +31,7 @@ public interface ThesisMapper {
 
     @Delete("DELETE FROM thesis " +
             "WHERE studentID IN (SELECT ID FROM undergraduate WHERE studentID = #{studentID}) " +
-            "AND (tutorID = #{tutorID} OR tutorID IS NULL) AND YEAR = #{year} AND MONTH = #{month}")
+            "AND (tutorID = #{tutorID} OR tutorID IS NULL) AND start_thesis_id = #{startThesisID}")
     void delete(UnderGraduate under);
 
     @Select("select count(id)>0 from thesis where studentID=#{studentID} and year =#{year} and month=#{month}")
