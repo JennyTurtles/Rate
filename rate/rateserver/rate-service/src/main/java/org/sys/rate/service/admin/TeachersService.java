@@ -119,9 +119,11 @@ public class TeachersService implements UserDetailsService {
         try {
             if (insertTeas.size() > 0) {
                 for (Teachers tea: insertTeas){  //密码加密
-                    String old_pass = tea.getPassword();
-                    String new_pass = PasswordUtils.sh1(old_pass);
-                    tea.setPassword(new_pass);
+                    if (tea.getPassword() == null || tea.getPassword().equals("")) {
+                        tea.setPassword(PasswordUtils.sh1(tea.getIDNumber().substring(12, 18)));
+                    } else {
+                        tea.setPassword(PasswordUtils.sh1(tea.getPassword()));
+                    }
                 }
                 teachersMapper.insertFROMImport(insertTeas);
             }
