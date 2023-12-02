@@ -344,11 +344,10 @@
         </foreach>
     </update>
     <insert id="insertFROMImport" parameterType="org.sys.rate.model.Teachers">
-        insert into teacher(ID,name,institutionID,jobnumber,sex,department,IDNumber,phone,email,username,password,deleteflag,role) values
+        insert into teacher(name,institutionID,jobnumber,sex,department,IDNumber,phone,email,username,password,deleteflag,role) values
         <foreach collection="list" separator="," item="teachers">
-            (#{teachers.ID,jdbcType=INTEGER},
-            #{teachers.name,jdbcType=VARCHAR},
-            #{teachers.institutionID,jdbcType=INTEGER},
+            (#{teachers.name,jdbcType=VARCHAR},
+            #{teachers.institutionid,jdbcType=INTEGER},
             #{teachers.jobnumber,jdbcType=VARCHAR},
             #{teachers.sex,jdbcType=VARCHAR},#{teachers.department,jdbcType=VARCHAR},
             #{teachers.IDNumber,jdbcType=VARCHAR},#{teachers.phone,jdbcType=VARCHAR},

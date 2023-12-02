@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.TeachersMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.expert.ExpertService;
+import org.sys.rate.utils.PasswordUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,6 +118,11 @@ public class TeachersService implements UserDetailsService {
         }
         try {
             if (insertTeas.size() > 0) {
+                for (Teachers tea: insertTeas){  //密码加密
+                    String old_pass = tea.getPassword();
+                    String new_pass = PasswordUtils.sh1(old_pass);
+                    tea.setPassword(new_pass);
+                }
                 teachersMapper.insertFROMImport(insertTeas);
             }
         } catch (Exception e) {

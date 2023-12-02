@@ -1516,8 +1516,10 @@ public class POIUtils {
         sheet.setColumnWidth(2, 10 * 256);
         sheet.setColumnWidth(3, 6 * 256);
         sheet.setColumnWidth(4, 20 * 256);
-        sheet.setColumnWidth(5, 15 * 256);
-        sheet.setColumnWidth(6, 15 * 256);
+        sheet.setColumnWidth(5, 20 * 256);
+        sheet.setColumnWidth(6, 20 * 256);
+        sheet.setColumnWidth(7, 15 * 256);
+        sheet.setColumnWidth(8, 15 * 256);
         //6. 创建标题行
         HSSFRow r0 = sheet.createRow(0);
         HSSFCell c0 = r0.createCell(0);
@@ -1531,17 +1533,23 @@ public class POIUtils {
         HSSFCell c4 = r0.createCell(4);
         c4.setCellValue("身份证号码");
         HSSFCell c5 = r0.createCell(5);
-        c5.setCellValue("手机号");
+        c5.setCellValue("用户名");
         HSSFCell c6 = r0.createCell(6);
-        c6.setCellValue("邮箱");
+        c6.setCellValue("密码");
+        HSSFCell c7 = r0.createCell(7);
+        c7.setCellValue("手机号");
+        HSSFCell c8 = r0.createCell(8);
+        c8.setCellValue("邮箱");
         HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("20131000");
         row.createCell(1).setCellValue("张三");
         row.createCell(2).setCellValue("计算机学院");
         row.createCell(3).setCellValue("男");
         row.createCell(4).setCellValue("123456789123456789");
-        row.createCell(5).setCellValue("13812341234");
-        row.createCell(6).setCellValue("123@dhu.edu.cn");
+        row.createCell(5).setCellValue("zhangsan");
+        row.createCell(6).setCellValue("123456");
+        row.createCell(7).setCellValue("13812341234");
+        row.createCell(8).setCellValue("123@dhu.edu.cn");
         sheet.createRow(2).createCell(0).setCellValue("注意事项：");
         sheet.createRow(3).createCell(0).setCellValue("1.如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。");
         sheet.createRow(4).createCell(0).setCellValue("2.如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。");
@@ -1593,6 +1601,8 @@ public class POIUtils {
                     String department = null;//部门
                     String phone = null;//手机号
                     String idCard = null;//身份证号，主键
+                    String username = null;//用户名
+                    String password = null;//密码
                     String email = null;//邮箱
                     String sex = null;//性别
                     for (int k = 0; k < Cells; k++) {
@@ -1609,6 +1619,12 @@ public class POIUtils {
                                     break;
                                 case "身份证号码":
                                     idCard = cellValue;
+                                    break;
+                                case "用户名":
+                                    username = cellValue;
+                                    break;
+                                case "密码":
+                                    password = cellValue;
                                     break;
                                 case "邮箱":
                                     email = cellValue;
@@ -1638,6 +1654,9 @@ public class POIUtils {
                     teachers.setDepartment(department);
                     teachers.setSex(sex);
                     teachers.setJobnumber(jobNumber);
+                    teachers.setUsername(username);
+                    teachers.setPassword(password);
+                    teachers.setRole("3");
                     teachersList.add(teachers);
                 }
             }
