@@ -1149,7 +1149,23 @@ export default {
       this.dialogVisible_checkbox=false;
       Message.success("正在下载模板");
       let url = "/participants/basic/exportMoPar_Group?activityid="+this.keywords+"&dymatic_list="+this.dymatic_list+"&scoreitem="+this.scoreitem+"&infoitem="+this.infoitem;
-      window.open(url, '_parent');
+      //window.open(url, '_parent');
+      axios({
+        url: url,
+        method: 'get',
+        responseType: 'blob',
+        headers: {
+          'token': this.user.token ? this.user.token : ''
+        }
+      }).then((res) => {
+        let url = window.URL.createObjectURL(new Blob([res]))
+        let link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.setAttribute('download', 'participants'  + '.xls')
+        document.body.appendChild(link);
+        link.click();
+      });
     },
     showEditEmpView(data) {
       this.title = "编辑选手信息";
