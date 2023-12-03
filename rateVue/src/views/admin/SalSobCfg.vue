@@ -531,6 +531,9 @@
                     :on-success="onSuccess"
                     :on-error="onError"
                     :disabled="importDataDisabled"
+                    :headers="{
+                      'token': user.token
+                    }"
                     style="display: inline-flex; margin-right: 8px"
                     :action="UploadUrl()"
                 >
