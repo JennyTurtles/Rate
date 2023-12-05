@@ -250,6 +250,8 @@
             #{item}
         </foreach>
     </select>
-
+    <select id="checkStuNumber" resultType="org.sys.rate.model.UnderGraduate">
+        select * from undergraduate where stuNumber=#{stuNumber}
+    </select>
 
 </mapper>

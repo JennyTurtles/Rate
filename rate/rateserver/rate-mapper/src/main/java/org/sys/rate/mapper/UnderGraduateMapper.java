@@ -11,6 +11,8 @@ import java.util.List;
 @Mapper
 public interface UnderGraduateMapper {
 
+    UnderGraduate checkStuNumber(@Param("stuNumber") String record);
+
     List<UnderGraduate> getUnderStudent();
     UnderGraduate getUnderByStuID(Integer studentID);
     int insert(UnderGraduate record);

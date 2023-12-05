@@ -180,4 +180,7 @@
         </set>
         WHERE institutionID = #{institutionID} AND stuNumber = #{stuNumber}
     </update>
+    <select id="checkStuNumber" resultType="org.sys.rate.model.GraduateStudent">
+        select * from graduatestudent where stuNumber=#{stuNumber}
+    </select>
 </mapper>

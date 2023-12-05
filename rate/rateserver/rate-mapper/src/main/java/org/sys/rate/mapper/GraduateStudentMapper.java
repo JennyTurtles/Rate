@@ -1,10 +1,12 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.GraduateStudent;
 import org.sys.rate.model.Teachers;
+import org.sys.rate.model.UnderGraduate;
 
 import java.util.List;
 
@@ -45,4 +47,7 @@ public interface GraduateStudentMapper {
 
     @Update("UPDATE graduatestudent SET point = point - #{score} WHERE studentID = #{stuID}")
     public int updateScoreSub(Long stuID,Long score);
+
+    GraduateStudent checkStuNumber(@Param("stuNumber") String record);
+
 }

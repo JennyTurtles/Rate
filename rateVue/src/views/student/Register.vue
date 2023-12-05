@@ -1,9 +1,6 @@
 <template>
   <div class="box">
       <el-form class="registerContainer" :label-width="labelWidth" :rules="rules">
-<!--        <el-form-item label="请输入身份证号:">-->
-<!--          <el-input style="width: 60%"  @input="idNumberChange" v-model="user.idnumber"></el-input>-->
-<!--        </el-form-item>-->
         <el-form-item label="姓名:">
           <el-input style="width: 60%" v-model="user.name" :disabled="userInfoIsDisabled"></el-input>
         </el-form-item>
@@ -148,11 +145,6 @@ export default {
         // this.debounceCheckPwd()
       }
     },
-    selectStuType:{
-      handler(){
-        this.getStu()
-      }
-    }
   },
   methods:{
     checkPassword() {
@@ -173,15 +165,10 @@ export default {
     },
 
     register(){
-      // if(this.user.idnumber == null || this.user.idnumber == ''){
-      //   this.$message.warning('请输入身份证号！')
-      //   return
-      // }
       if (this.currentInstitution == ''){
         this.$message.warning('请输入单位！')
         return
       }
-      // console.log(this.currentInstitution);
       if((this.selectStuType == null || this.selectStuType == '') && this.currentInstitution !== '其他'){
         this.$message.warning('请选择注册的学生身份！')
         return
@@ -195,54 +182,11 @@ export default {
         return
       }
       this.user.stuType = this.selectStuType
-      // console.log(this.user);
       postRequest('/registerUser/stu',this.user).then((response)=>{
         if(response){
           this.$message.success('注册成功！')
           this.$router.replace('/')
         }
-      })
-    },
-    //填写身份证号
-    idNumberChange(){
-      if(this.user.idnumber.length == 15 || this.user.idnumber.length == 18){
-        this.getStu()
-      }
-    },
-    getStu(){
-      if(this.user.idnumber == '' || this.user.idnumber == null){
-        return
-      }
-      let url = '/student/basic/getStuByIDNumber?IDNumber=' +  this.user.idnumber + '&stuType=' + this.selectStuType
-      getRequest(url).then((resp)=>{
-        if(resp){
-          if(resp.status == 200 && resp.obj != null){
-            this.user = resp.obj
-            if(this.user.registerQuestion != '' && this.user.registerQuestion != null && this.user.registerAnswer != '' && this.user.registerAnswer != null){
-              this.userInfoIsDisabled = true
-            }else {
-              this.userInfoIsDisabled = false
-            }
-            if(this.user.username != '' && this.user.username != null && this.user.password != '' && this.user.password != null){
-              this.usernameAndPwdIsDisabled = true
-            }else {
-              this.usernameAndPwdIsDisabled = false
-            }
-          }else if(resp.obj == null && (this.selectStuType == "" || this.selectStuType == null)){
-            this.user.name = ''
-            this.user.telephone = ''
-            this.user.email = ''
-            this.user.registerQuestion = ''
-            this.user.registerAnswer = ''
-            this.user.username = ''
-            this.user.password = ''
-            this.user.institutionID = ''
-            this.usernameAndPwdIsDisabled = false
-            this.userInfoIsDisabled = false
-          }
-        }
-      }).catch((err)=>{
-        console.log(err)
       })
     },
     clearStuUser(){
