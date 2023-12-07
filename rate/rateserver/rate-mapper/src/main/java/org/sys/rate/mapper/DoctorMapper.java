@@ -1,6 +1,7 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.Doctor;
@@ -13,6 +14,7 @@ import java.util.List;
 public interface DoctorMapper {
 
     int update(Doctor record);
+    int insert(Doctor record);
 
     @Select("select d.ID,d.institutionID,d.studentID,d.stuNumber,d.year,d.studentType,d.point,d.specialty,d.class as className,d.tutorID,s.name,s.telephone,s.email,s.username,s.password,s.role,s.registerQuestion,s.registerAnswer " +
             "from doctor d,student s where d.studentID=#{studentID} and s.ID = d.studentID")
@@ -43,4 +45,5 @@ public interface DoctorMapper {
     @Update("UPDATE doctor SET point = point - #{score} WHERE studentID = #{stuID}")
     public int updateScoreSub(Long stuID,Long score);
 
+    Doctor checkStuNumber(@Param("stuNumber") String record);
 }

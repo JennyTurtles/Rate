@@ -44,10 +44,21 @@
             <el-input style="width: 60%" v-model="user.year" :placeholder="defaultYear" ></el-input>
           </el-form-item>
         </div>
-        <div v-show="selectStuType === '研究生'">
+        <div v-show="selectStuType === '研究生' && user.institutionID!==''">
           <el-form-item label="研究生类型:">
             <el-select v-model="user.gradType">
-              <el-option v-for="val in ['专硕','学硕','博士']"
+              <el-option v-for="val in ['专硕','学硕']"
+                         :value="val"
+                         :label="val"
+                         :key="val">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </div>
+        <div v-show="selectStuType === '博士生' && user.institutionID!==''">
+          <el-form-item label="博士生类型:">
+            <el-select v-model="user.gradType">
+              <el-option v-for="val in ['专博','学博']"
                          :value="val"
                          :label="val"
                          :key="val">
@@ -92,7 +103,7 @@ export default {
       confirmPassword:'',
       checkPwdState:false,
       currentInstitution:'',
-      stuType:['本科生','研究生','不是大学生'],
+      stuType:['本科生','研究生','博士生','不是大学生'],
       user:{
         name:'',
         telephone:'',

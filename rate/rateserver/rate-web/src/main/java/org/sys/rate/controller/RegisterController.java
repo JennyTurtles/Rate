@@ -23,6 +23,8 @@ public class RegisterController {
     StudentMapper studentMapper;
     @Autowired
     TeachersMapper teachersMapper;
+    @Autowired
+    DoctorMapper doctorMapper;
 
     //学生注册
     @PostMapping("/stu")
@@ -44,6 +46,11 @@ public class RegisterController {
                     student.setRole("11");
                     GraduateStudent grad = graduateStudentMapper.checkStuNumber(student.getStudentnumber());
                     if(grad != null) student.setID(grad.getStudentID());
+                    break;
+                case "博士生":
+                    student.setRole("17");
+                    Doctor doc = doctorMapper.checkStuNumber(student.getStudentnumber());
+                    if(doc != null) student.setID(doc.getStudentID());
                     break;
                 default:student.setRole("7");break; //选手
             }
@@ -75,6 +82,18 @@ public class RegisterController {
                 grad.setPoint(null);//怎么处理？
                 if(graduateStudentMapper.getGradByStuID(student.getID()) == null){
                     graduateStudentMapper.insert(grad);
+                }
+            }else if(stuType.equals("博士生")){
+                Doctor doc = new Doctor();
+                doc.setStuNumber(student.getStudentnumber());
+                doc.setTutorID(null);
+                doc.setInstitutionID(student.getInstitutionID());
+                doc.setYear(student.getYear());
+                doc.setStudentID(student.getID());
+                doc.setStudentType(student.getGradType());
+                doc.setPoint(null);
+                if(doctorMapper.getDocByStuID(student.getID()) == null){
+                    doctorMapper.insert(doc);
                 }
             }
 //            else if(stuType.equals("没有本校学号")){//选手

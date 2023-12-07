@@ -52,6 +52,15 @@
             #{doctor.studentType,jdbcType=VARCHAR},#{doctor.point,jdbcType=VARCHAR},#{doctor.specialty},#{doctor.className})
         </foreach>
     </insert>
+    <insert id="insert">
+        insert into doctor (ID,studentID,institutionID,stuNumber,year,tutorID,studentType,point)
+        values  (#{ID,jdbcType=INTEGER},
+                 #{studentID,jdbcType=INTEGER},
+                 #{institutionID,jdbcType=INTEGER},
+                 #{stuNumber,jdbcType=VARCHAR},
+                 #{year,jdbcType=VARCHAR}, #{tutorID,jdbcType=INTEGER},
+                 #{studentType,jdbcType=VARCHAR},#{point,jdbcType=VARCHAR})
+    </insert>
     <update id="updateFROMImport" parameterType="org.sys.rate.model.Doctor">
         <foreach collection="list" item="item" open="" close="" separator=";">
             update doctor
@@ -100,6 +109,9 @@
             <if test="year != null and year != 0">and u.year = #{year}</if>
             and t.ID = #{tutorID}
         </where>
+    </select>
+    <select id="checkStuNumber" resultType="org.sys.rate.model.Doctor">
+        select * from doctor where stuNumber=#{stuNumber}
     </select>
 
 </mapper>
