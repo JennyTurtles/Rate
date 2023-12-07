@@ -127,8 +127,10 @@
     <!--        and username = #{username,jdbcType=VARCHAR}-->
     <!--    </delete>-->
     <delete id="deleteById" parameterType="Integer">
+        delete from expertactivities
+        where teacherID = #{ID,jdbcType=INTEGER};
         delete from teacher
-        where ID = #{id,jdbcType=INTEGER}
+        where ID = #{ID,jdbcType=INTEGER};
     </delete>
     <insert id="insert" parameterType="org.sys.rate.model.Teacher">
         insert into teacher (ID, institutionID,
@@ -311,12 +313,11 @@
         where rate.teacher.ID = #{id,jdbcType=INTEGER};
     </update>
 
-    <update id="update" parameterType="org.sys.rate.model.Student">
-        UPDATE rate.teacher SET name=#{name,jdbcType=VARCHAR},
-                                jobnumber=#{jobnumber,jdbcType=VARCHAR},
-                                phone=#{phone,jdbcType=VARCHAR},
-                                email=#{email,jdbcType=VARCHAR}
-        where rate.teacher.ID=#{id,jdbcType=INTEGER};
+    <update id="updateTeachers" parameterType="org.sys.rate.model.Teachers">
+        UPDATE teacher SET      phone=#{phone,jdbcType=VARCHAR},
+                                email=#{email,jdbcType=VARCHAR},
+                                department=#{department,jdbcType=VARCHAR}
+        where ID=#{ID,jdbcType=INTEGER};
     </update>
 
     <select id="check" resultMap="BaseResultMap" parameterType="org.sys.rate.model.Teachers">

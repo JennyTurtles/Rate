@@ -52,8 +52,8 @@ public class TeacherBasicController {
     }
 
     @PostMapping("/delete")
-    public RespBean deleteTeacher(@RequestBody Teacher record) {
-        if (TeacherService.deleteTeacher(record) == 1) {
+    public RespBean deleteTeacher(@RequestBody Teachers record) {
+        if (teachersMapper.deleteById(record) == 1) {
             return RespBean.ok("删除成功!");
         }
         return RespBean.error("删除失败!");
@@ -61,8 +61,8 @@ public class TeacherBasicController {
 
 
     @PostMapping("/update")
-    public RespBean updateTeacher(@RequestBody Teacher record) {
-        if (TeacherService.updateTeacher(record) == 1) {
+    public RespBean updateTeacher(@RequestBody Teachers record) {
+        if (teachersMapper.updateTeachers(record) == 1) {
             return RespBean.ok("更新成功!");
         }
         return RespBean.error("更新失败!");

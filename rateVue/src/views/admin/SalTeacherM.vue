@@ -245,13 +245,8 @@ export default {
       this.currentTeacherOfEdit = data
     },
     editGraduate(){//点击编辑中的确定按钮
-      if(this.currentGraduateStudentOfEdit.teachers.name == '' || this.currentGraduateStudentOfEdit.teachers.jobnumber == '' ||
-          this.currentGraduateStudentOfEdit.teachers.name == null || this.currentGraduateStudentOfEdit.teachers.jobnumber == null){
-        this.$message.warning('请填写老师姓名和工号！')
-        return
-      }
-      let data = this.currentGraduateStudentOfEdit
-      this.postRequest('/graduatestudentM/basic/editGraduateStudent',data).then((resp)=>{
+      let data = this.currentTeacherOfEdit
+      this.postRequest('/teacher/basic/update',data).then((resp)=>{
         if(resp){
           if(resp.status == 200){
             this.dialogEdit = false
@@ -263,17 +258,25 @@ export default {
         }
       })
     },
-    deleteUnder(data){//删除研究生
-      this.postRequest('/graduatestudentM/basic/deleteGraduateStudent',data).then((resp)=>{
-        if(resp.code == 200){
-          this.$message.success('删除成功')
-          this.initGraduateStudents()
-        }
+    deleteUnder(data){//删除教师
+      this.$confirm('是否确定删除'+data.name+'教师?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() =>{
+        this.postRequest('/teacher/basic/delete',data).then((resp)=>{
+          console.log(resp)
+          if(resp.status == 200){
+            this.$message.success('删除成功')
+            this.initTeachers()
+          }
+        })
       })
     },
     onSuccess(res){
       if(res.status == 200){
         this.$message.success("导入成功")
+        this.initTeachers()
       }else {
         this.$message.error("导入失败")
       }
