@@ -24,7 +24,10 @@ public class ThesisService {
                 upsertRows = thesisMapper.upsert(thesis);
             }
 
-            if (upsertRows == 1) {
+//            if () {
+//                ++rows;
+//            }
+            if (thesis.getID() != null && upsertRows == 1) {
                 ++rows;
             }
         }
