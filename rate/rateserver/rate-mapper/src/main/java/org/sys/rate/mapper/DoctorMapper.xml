@@ -111,7 +111,7 @@
         </where>
     </select>
     <select id="checkStuNumber" resultType="org.sys.rate.model.Doctor">
-        select * from doctor where stuNumber=#{stuNumber}
+        select * from doctor where stuNumber=#{stuNumber} and institutionID = #{institutionID}
     </select>
 
 </mapper>

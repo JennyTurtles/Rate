@@ -37,19 +37,19 @@ public class RegisterController {
             switch (stuType){
                 case "本科生" :
                     student.setRole("10");
-                    UnderGraduate under = underGraduateMapper.checkStuNumber(student.getStudentnumber());
+                    UnderGraduate under = underGraduateMapper.checkStuNumber(student.getStudentnumber(), student.getInstitutionID());
                     if(under != null) { //本科生里有这条数据，拿到stuID
                         student.setID(under.getStudentID());
                     }
                     break;
                 case "研究生" :
                     student.setRole("11");
-                    GraduateStudent grad = graduateStudentMapper.checkStuNumber(student.getStudentnumber());
+                    GraduateStudent grad = graduateStudentMapper.checkStuNumber(student.getStudentnumber(), student.getInstitutionID());
                     if(grad != null) student.setID(grad.getStudentID());
                     break;
                 case "博士生":
                     student.setRole("17");
-                    Doctor doc = doctorMapper.checkStuNumber(student.getStudentnumber());
+                    Doctor doc = doctorMapper.checkStuNumber(student.getStudentnumber(), student.getInstitutionID());
                     if(doc != null) student.setID(doc.getStudentID());
                     break;
                 default:student.setRole("7");break; //选手

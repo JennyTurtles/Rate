@@ -45,5 +45,5 @@ public interface DoctorMapper {
     @Update("UPDATE doctor SET point = point - #{score} WHERE studentID = #{stuID}")
     public int updateScoreSub(Long stuID,Long score);
 
-    Doctor checkStuNumber(@Param("stuNumber") String record);
+    Doctor checkStuNumber(@Param("stuNumber") String record, @Param("institutionID") Integer institutionID);
 }
