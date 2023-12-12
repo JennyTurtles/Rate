@@ -16,11 +16,18 @@ public class ThesisService {
     public Integer upsert(List<Thesis> thesisList, Integer startThesisID, String type) {
         int rows = 0;
         for (var thesis : thesisList) {
+            thesis.setStartThesisId(startThesisID);
+            int upsertRows = 0;
             if ("teacher".equals(type)) {
-                thesis.setGrade(0d);
+                upsertRows = thesisMapper.upsertTutorId(thesis);
+            } else {
+                upsertRows = thesisMapper.upsert(thesis);
             }
-            thesisMapper.upsert(thesis, startThesisID);
-            if (thesis.getID() != null) {
+
+//            if () {
+//                ++rows;
+//            }
+            if (thesis.getID() != null && upsertRows == 1) {
                 ++rows;
             }
         }

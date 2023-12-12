@@ -59,7 +59,7 @@ public class PaperCommentService {
     }
 
     public List<PaperComment> selectCommentListStu(int thesisID) {
-        return paperCommentMapper.selectCommentListStu(thesisID);
+        return paperCommentMapper.selectCommentListStuOrderByNum(thesisID);
     }
 
 
