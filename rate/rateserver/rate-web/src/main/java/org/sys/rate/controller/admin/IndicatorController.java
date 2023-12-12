@@ -203,6 +203,30 @@ public class IndicatorController {
         idAndRes.add(res);
         return RespBean.ok("getAll success!", idAndRes); //异常处理待添加
     }
+    @GetMapping("/getAllByType")
+    public RespBean getAllByType(String type) {
+        List<Indicator> data = indicatorService.getAllByType(type);
+        int maxId = 0;
+        Map<List<Integer>, TreeNode> map = new HashMap<>();
+        for (Indicator indicator : data) {
+            if (indicator.getId() > maxId)
+                maxId = indicator.getId();
+            //将order转换为int型的list，并加入map
+            String tmp[] = indicator.getOrder().split("\\.");
+            List<Integer> key = new ArrayList<>();
+            for (String numString : tmp)
+                key.add(Integer.parseInt(numString));
+            TreeNode Node = new TreeNode(indicator.getId(), indicator.getOrder() + " " + indicator.getName(), indicator.getType(), indicator.getOrder(), indicator.getScore(), indicator.getRankN(),indicator.getLevel());
+            map.put(key, Node);
+        }
+        List<Integer> empty = new ArrayList<>();
+        List<TreeNode> res = getChildrenStructure(map, empty);
+        res = indicatorService.removeType(res, type);
+        List<Object> idAndRes = new ArrayList<>();
+        idAndRes.add(maxId + 1);//返回最大的id
+        idAndRes.add(res);
+        return RespBean.ok("getAll success!", idAndRes); //异常处理待添加
+    }
 
     @PostMapping
     public RespBean save(@RequestBody Indicator indicator) {
@@ -260,9 +284,9 @@ public class IndicatorController {
             List<Integer> orderList = stringToList(indicatorService.selectOrder(indicator.getId()));
             List<TreeNode> children = new ArrayList<>();
             getChildren(map, orderList, children);
-            //修改所有子节点的score
+            //修改所有子节点的score和rankN
             for (TreeNode child : children) {
-                Indicator updateObj = new Indicator(child.getId(), child.getLabel(), "", "", indicator.getScore(), 0);
+                Indicator updateObj = new Indicator(child.getId(), child.getLabel(), "", "", indicator.getScore(), 0,indicator.getRankN());
                 boolean f = indicatorService.updateScoreName(updateObj);
                 if (!f)
                     flag = false;

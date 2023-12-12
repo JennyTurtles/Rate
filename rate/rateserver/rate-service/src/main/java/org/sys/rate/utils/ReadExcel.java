@@ -8,14 +8,11 @@ package org.sys.rate.utils;/**
  * @Version 1.0
  */
 
-import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.mapper.StudentMapper;
-import org.sys.rate.mapper.TeachersMapper;
-import org.sys.rate.mapper.ThesisMapper;
 import org.sys.rate.mapper.UnderGraduateMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.TeachersService;
@@ -58,7 +55,7 @@ public class ReadExcel {
                 if (rowIndex == 1) {
                     continue; // 跳过第一行
                 }
-                if(row.getLastCellNum() < 3){
+                if (row.getLastCellNum() < 3) {
                     --rowIndex;
                     continue;
                 }
@@ -156,38 +153,52 @@ public class ReadExcel {
                 }
 
                 // ?工号可以不存在，但是若是重名必须提供工号！
-                if ("teacher".equals(type) && teacherNameCell == null) {
-                    record.setFailReasonForRowIndex(rowIndex, "指导教师姓名为空");
-                    continue;
+                if (teacherNameCell == null) {
+                    if ("teacher".equals(type)) {
+                        record.setFailReasonForRowIndex(rowIndex, "指导教师姓名为空");
+                        continue;
+                    } else {
+                        Thesis thesis = new Thesis();
+                        thesis.setGrade(grade);
+                        thesis.setStudentID(undergraduateId);
+                        thesis.setTutorID(null);
+
+                        thesisList.add(thesis);
+                        continue;
+                    }
                 }
 
-//                if ((teacherJobNumberCell == null && teacherNameCell != null) || (teacherJobNumberCell != null && teacherNameCell == null)) {
-//                    record.setFailReasonForRowIndex(rowIndex, "指导教师姓名和工号其中一个为空，不匹配");
-//                    continue;
-//                }
+                // 1. 姓名
+                // 1.1 姓名为空，教师端出错，学生端就不做判断
+                // 1.2 姓名不为空，教师端和学生端都做判断
+
+
                 String teacherJobNumber = "";
                 String teacherName = "";
                 Integer tutorID = null;
-                if (teacherJobNumberCell != null) {
-                    try {
-                        teacherJobNumber = teacherJobNumberCell.getCellType() == CellType.NUMERIC ? String.valueOf((int) teacherJobNumberCell.getNumericCellValue()) : teacherJobNumberCell.getStringCellValue();
-                        teacherName = teacherNameCell.getStringCellValue();
-                        tutorID = teachersService.checkTeacherExist(teacherJobNumber, teacherName, institutionID);
-                        if (tutorID == null) {
-                            record.setFailReasonForRowIndex(rowIndex, "指导教师姓名不存在");
-                            continue;
-                        } else if (tutorID.equals(-1)) {
-                            record.setFailReasonForRowIndex(rowIndex, "指导教师姓名存在重名，但是未提供工号");
-                            continue;
-                        } else if (tutorID.equals(-2)) {
-                            record.setFailReasonForRowIndex(rowIndex, "指导教师姓名和工号不匹配");
-                            continue;
-                        }
 
-                    } catch (NumberFormatException e) {
-                        record.setFailReasonForRowIndex(rowIndex, "指导教师工号或者姓名格式错误");
+                try {
+                    if (teacherJobNumberCell == null) {
+                        teacherJobNumber = null;
+                    } else {
+                        teacherJobNumber = teacherJobNumberCell.getCellType() == CellType.NUMERIC ? String.valueOf((int) teacherJobNumberCell.getNumericCellValue()) : teacherJobNumberCell.getStringCellValue();
+                    }
+
+                    teacherName = teacherNameCell.getStringCellValue();
+                    tutorID = teachersService.checkTeacherExist(teacherJobNumber, teacherName, institutionID);
+                    if (tutorID == null) {
+                        record.setFailReasonForRowIndex(rowIndex, "指导教师姓名不存在");
+                        continue;
+                    } else if (tutorID.equals(-1)) {
+                        record.setFailReasonForRowIndex(rowIndex, "指导教师姓名存在重名，但是未提供工号");
+                        continue;
+                    } else if (tutorID.equals(-2)) {
+                        record.setFailReasonForRowIndex(rowIndex, "指导教师姓名和工号不匹配");
                         continue;
                     }
+                } catch (NumberFormatException e) {
+                    record.setFailReasonForRowIndex(rowIndex, "指导教师工号或者姓名格式错误");
+                    continue;
                 }
 
 
@@ -218,13 +229,13 @@ public class ReadExcel {
             if (id.equals(-1)) {
                 return RespBean.error("学生学号和姓名不匹配");
             }
-            if ("student".equals(type)) {
-                try {
+            try {
+                if ("student".equals(type)) {
                     underGraduateMapper.updateWithInstitutionID(underGraduate);
-                    return RespBean.ok("exist", id);
-                } catch (Exception e) {
-                    return RespBean.error("更新本科生表出现错误！");
                 }
+                return RespBean.ok("exist", id);
+            } catch (Exception e) {
+                return RespBean.error("更新本科生表出现错误！");
             }
         }
         // 首先插入到student表，获取主键id，然后插入undergraduate表中
@@ -259,7 +270,7 @@ public class ReadExcel {
 
     }
 
-    public Msg readThesisNameExcelData(Integer tutorId, Integer institutionID, Integer year, Integer month, MultipartFile file) {
+    public Msg readThesisNameExcelData(Integer tutorId, Integer institutionID, Integer startThesisID, MultipartFile file) {
         Msg msg = new Msg();
         // 还需要记录多少行成功，多少行失败，多少行重复插入，还有第几行是因为什么原因失败
         DataProcessingResult record = new DataProcessingResult();
@@ -321,8 +332,7 @@ public class ReadExcel {
                 thesis.setName(thesisName);
                 thesis.setStudentID(undergraduateId);
                 thesis.setTutorID(tutorId);
-                thesis.setYear(year);
-                thesis.setMonth(month);
+                thesis.setStartThesisID(startThesisID);
 
                 RespBean existOrUpdate = notExistOrUpdate(thesis);
 

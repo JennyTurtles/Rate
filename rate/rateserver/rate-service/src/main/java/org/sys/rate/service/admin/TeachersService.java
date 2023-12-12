@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.TeachersMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.expert.ExpertService;
+import org.sys.rate.utils.PasswordUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,6 +118,13 @@ public class TeachersService implements UserDetailsService {
         }
         try {
             if (insertTeas.size() > 0) {
+                for (Teachers tea: insertTeas){  //密码加密
+                    if (tea.getPassword() == null || tea.getPassword().equals("")) {
+                        tea.setPassword(PasswordUtils.sh1(tea.getIDNumber().substring(12, 18)));
+                    } else {
+                        tea.setPassword(PasswordUtils.sh1(tea.getPassword()));
+                    }
+                }
                 teachersMapper.insertFROMImport(insertTeas);
             }
         } catch (Exception e) {
@@ -135,5 +143,13 @@ public class TeachersService implements UserDetailsService {
         }
         Integer idsBasedOnJobNumber = teachersMapper.checkTeacherExist(teacherJobNumber, teacherName, institutionID);
         return idsBasedOnJobNumber == null ? -2 : idsBasedOnJobNumber;
+    }
+
+    public Teachers getById(Integer tutorID) {
+        Teachers tea = teachersMapper.getById(tutorID);
+        if(tea != null){
+            return tea;
+        }
+        return null;
     }
 }

@@ -13,6 +13,7 @@
         <result property="name" column="name" jdbcType="VARCHAR"/>
         <result property="email" column="email" jdbcType="VARCHAR"/>
         <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
+        <result property="role" column="role" jdbcType="VARCHAR"/>
         <result property="IDNumber" column="IDNumber" jdbcType="VARCHAR"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="password" column="password" jdbcType="VARCHAR"/>
@@ -128,7 +129,10 @@
     <update id="updateGroup">
         update thesis
         set `group` =#{groupName}
-        where ID =#{ID}
+        where ID in
+        <foreach collection="ids" close=")" open="(" item="item" separator=",">
+            #{item}
+        </foreach>
     </update>
 
 
@@ -158,7 +162,7 @@
         select exists (select * from undergraduate where tutorID = #{tutorID} and ID != #{ID})
     </select>
     <select id="getUnderByStuID" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.username,s.password,s.registerQuestion,s.registerAnswer
+        select u.*,s.name,s.telephone,s.email,s.username,s.role,s.password,s.registerQuestion,s.registerAnswer
         from undergraduate u,student s
         where u.studentID = #{studentID} and s.ID = u.studentID
     </select>
@@ -168,12 +172,18 @@
     <select id="getUngroupedBySpecialty" resultType="org.sys.rate.model.Thesis">
         select *
         from thesis t,undergraduate u
-        where t.year=#{year} and t.month=#{month} and t.studentID = u.ID and u.specialty =#{specialty} and t.`group` is null
+        where t.start_thesis_id=#{startThesisID} and t.studentID = u.ID and t.`group` is null and u.specialty in
+        <foreach item="item" index="index" collection="specialty" open="(" separator="," close=")">
+            #{item}
+        </foreach>
     </select>
     <select id="getUngroupedByClass" resultType="org.sys.rate.model.Thesis">
         select *
         from thesis t,undergraduate u
-        where t.year=#{year} and t.month=#{month} and t.studentID = u.ID and u.class =#{className} and t.`group` is null
+        where t.start_thesis_id=#{startThesisID} and t.studentID = u.ID and t.`group` is null and u.class in
+        <foreach item="item" index="index" collection="className" open="(" separator="," close=")">
+            #{item}
+        </foreach>
     </select>
     <select id="getNoGrade" resultType="org.sys.rate.model.Thesis">
         select *
@@ -205,8 +215,7 @@
 
 
         where
-        t.YEAR = #{startYear}
-        AND t.MONTH = #{month}
+        t.start_thesis_id = #{startThesisID}
         AND u.institutionID = #{institutionID}
         <if test="stuNumber != null and stuNumber != ''">and u.stuNumber like concat('%', #{stuNumber}, '%')</if>
         <if test="name != null and name != ''">and s.name like concat('%', #{name}, '%')</if>
@@ -220,9 +229,10 @@
 
     </select>
     <select id="getUngrouped" resultMap="ResultMapThesis">
-        select t.grade,u.ID,u.studentID,u.specialty,u.class
-        from thesis t,undergraduate u
-        where u.ID = t.studentID and t.year=#{year} and t.month=#{month} and t.group is null
+        select t.grade,u.ID,u.studentID,u.stuNumber,u.specialty,u.class,s.name
+        from thesis t,undergraduate u,student s
+        where u.ID = t.studentID and u.studentID = s.ID and t.start_thesis_id=#{startThesisID} and t.group is null
+        order by u.class
     </select>
     <select id="checkAndReturnID" resultType="org.sys.rate.model.UnderGraduate">
         select *
@@ -232,6 +242,16 @@
             #{item.stuNumber}
         </foreach>
     </select>
-
+    <select id="getMultiByID" resultType="org.sys.rate.model.Thesis">
+        select *
+        from thesis t
+        where id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="checkStuNumber" resultType="org.sys.rate.model.UnderGraduate">
+        select * from undergraduate where stuNumber=#{stuNumber}
+    </select>
 
 </mapper>

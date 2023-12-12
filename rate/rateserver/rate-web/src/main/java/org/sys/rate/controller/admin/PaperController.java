@@ -12,8 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
-import org.sys.rate.model.*;
-import org.sys.rate.service.admin.*;
+import org.sys.rate.mapper.PaperMapper;
+import org.sys.rate.model.Msg;
+import org.sys.rate.model.Paper;
+import org.sys.rate.model.RespBean;
+import org.sys.rate.service.admin.IndicatorService;
+import org.sys.rate.service.admin.PaperService;
+import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.annotation.Resource;
@@ -22,8 +27,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Date;
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +42,8 @@ import java.util.Map;
 public class PaperController {
     @Resource
     private PaperService paperService;
+    @Resource
+    private PaperMapper paperMapper;
     @Resource
     PublicationService publicationService;
     @Resource
@@ -81,15 +86,23 @@ public class PaperController {
         return new JsonResult(list);
     }
 
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Long ID, @RequestBody Paper paper) {
+        paper.setID(ID);
+        Integer res = paperMapper.editPoint(paper);
+        return new JsonResult(res);
+    }
+
 
     /**
      * 新增保存论文成果
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Paper paper) throws FileNotFoundException {
-        Integer res = paperService.insertPaper(paper);
-//        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
+    public JsonResult addSave(Paper paper) {
+        paperService.insertPaper(paper);
+        mailToTeacherService.sendTeaCheckMail(paper, "学术论文","添加");
         return new JsonResult(paper.getID());
     }
 
@@ -99,8 +112,9 @@ public class PaperController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Paper paper) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", uploadFileName);
-        return new JsonResult(paperService.updatePaper(paper));
+        int res = paperService.updatePaper(paper);
+        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", "修改");
+        return new JsonResult(res);
     }
 
     /**
@@ -108,7 +122,7 @@ public class PaperController {
      */
     @DeleteMapping("/remove/{ID}")
     public JsonResult remove(@PathVariable Long ID) {
-        Integer res=paperService.deletePaperById(ID);
+        Integer res = paperService.deletePaperById(ID);
         return new JsonResult(res);
     }
 
@@ -119,7 +133,6 @@ public class PaperController {
         File newFile = new File(fPath);
         file.transferTo(newFile);
 
-        uploadFileName = filename;
         //返回文件存储路径
         return new JsonResult(fPath);
     }

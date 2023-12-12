@@ -1,54 +1,74 @@
 package org.sys.rate.service.mail;
 
+import com.github.pagehelper.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.sys.rate.model.Production;
-import org.sys.rate.model.Student;
-import org.sys.rate.model.Teacher;
-import org.sys.rate.service.admin.StudentService;
-import org.sys.rate.service.admin.TeacherService;
+import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
+import java.sql.Timestamp;
 
 @Slf4j
 @Service
 public class MailToStuService {
     @Resource
-    SendMails sendMails;
+    private SendMails sendMails;
 
     @Resource
-    StudentService studentService;
+    private SendMailContentService sendMailContentService;
 
     @Resource
-    TeacherService teacherService;
+    private EmailErrorLogService emailErrorLogService;
 
-    private String from = null;
+    @Resource
+    private MailService mailService;
 
-    public <T extends Production> void sendStuMail(String state, T production, String type) {
+
+    public <T extends Production> void sendStuMail(String state, T production, Paper paper, String type) {
         if (state.equals("commit")) {
             return;
         }
 
-        Student student = studentService.getById(Math.toIntExact(production.getStudentId()));
-        Teacher teacher = teacherService.getById(student.getTutorID());
+        SendMailContent sendMailContent;
+        if (paper != null) {
+            sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(paper.getStudentID()));
+        } else {
+            sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(production.getStudentId()));
+        }
+        if (sendMailContent == null) {
+            return;
+        }
+
+        Mail mail = mailService.handleNullPointerException();
+        if (mail == null) {
+            return;
+        }
+
+        if (StringUtil.isEmpty(sendMailContent.getStudentEmail())) {
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("给学生发件错误");
+            emailErrorLog.setErrorDescription("学生邮箱地址为空。系统邮箱：" + mail.getEmailAddress() + "。邮件内容：" + sendMailContent.toString());
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
+            return;
+        }
+
 
         String subject = "", content = "";
 
         StringBuilder contentBuilder = new StringBuilder();
         contentBuilder.append("亲爱的同学：<br>")
                 .append("您好！<br>")
-                .append("<b>您的").append(production.getName());
+                .append("<b>您的").append(paper == null ? production.getName() : paper.getName());
 
         switch (state) {
             case "tea_pass":
                 subject = "恭喜你，你的" + type + "已经被导师通过！";
-                contentBuilder.append("已经被").append(teacher.getName()).append("老师通过！</b><br>");
+                contentBuilder.append("已经被").append(sendMailContent.getTeacherName()).append("老师通过！</b><br>");
                 break;
             case "tea_reject":
                 subject = "你的" + type + "已经被导师驳回！";
-                contentBuilder.append("已经被").append(teacher.getName()).append("老师驳回！</b><br>");
+                contentBuilder.append("已经被").append(sendMailContent.getTeacherName()).append("老师驳回！</b><br>");
                 break;
             case "adm_pass":
                 subject = "恭喜你，你的" + type + "已经被管理员通过！";
@@ -59,15 +79,15 @@ public class MailToStuService {
                 contentBuilder.append("已经被管理员驳回！</b><br>");
                 break;
             default:
-                throw new IllegalArgumentException("未知状态！");
+                break;
         }
-        contentBuilder.append("登录<a href=\"https://localhost:8080/#/Teacher/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！<br><br>")
-                .append("本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系<a href=\"mailto:rateAdmin@126.com?\">管理员</a>！");
+        contentBuilder.append("登录<a href=\"http://106.15.36.190:8081/#/Student/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！<br><br>")
+                .append("本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系管理员</a>！");
         content = contentBuilder.toString();
 
         // 设置邮件主题
         subject = subject != null ? subject : "东华大学计算机学院教学系统邮件";
-        sendMails.sendMailAsync(student.getEmail(), subject, content);
+        sendMails.sendMailAsync(sendMailContent.getStudentEmail(), subject, content, null);
     }
 
 

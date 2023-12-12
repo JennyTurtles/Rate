@@ -63,9 +63,9 @@
         >
         </el-table-column>
         <el-table-column
-            prop="author"
+            prop="indicator.name"
             align="center"
-            label="制定人"
+            label="指标点"
             min-width="15%"
         >
         </el-table-column>
@@ -140,27 +140,30 @@
           <el-date-picker
               style="width: 80%"
               v-model="currentDecisionCopy.date"
-              @change="changeProjectStartDate($event)"
+              @change="changeDecisionStartDate($event)"
               type="month"
               value-format="yyyy-MM"
               placeholder="选择年月">
           </el-date-picker>
         </el-form-item>
+        <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-button size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
+        </el-form-item>
         <el-form-item label="决策类别:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-select
-              :disabled="disabledSelectDecisionType"
+              :disabled="disabledSelectDecisionType || JSON.stringify(currentIndicator) == '{}'"
               v-model="selectDecisionType"
               value-key="id"
               filterable
               remote
               clearable
               reserve-keyword
-              @change="selectOption($event)"
               loading-text="搜索中..."
               :loading="searchTypeLoading"
               placeholder="请输入决策咨询类别"
-              :remote-method="selectDecisionTypeMethod">
+              @focus="selectDecisionTypeMethod">
             <el-option
                 v-for="item in selectDecisionTypeList"
                 :key="item.id"
@@ -168,7 +171,7 @@
                 :value="item">
             </el-option>
           </el-select>
-          <el-tooltip class="item" effect="dark" content="如：xxx等" placement="top-start">
+          <el-tooltip class="item" effect="dark" content="如：参与撰写完整的项目需求报告、技术设计报告、综述报告等" placement="top-start">
             <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
           </el-tooltip>
         </el-form-item>
@@ -226,7 +229,7 @@
     >
       <el-form
           :label-position="labelPosition"
-          label-width="120px"
+          label-width="80px"
           :model="currentDecision"
           style="margin-left: 20px">
         <el-form-item label="决策名称:">
@@ -237,16 +240,16 @@
           <span>{{ currentDecision.author }}</span
           >
         </el-form-item>
-        <el-form-item label="决策类别:">
-          <span>{{ currentDecision.decisionType.name }}</span
+        <el-form-item label="制定年月:">
+          <span>{{ currentDecision.date }}</span
+          >
+        </el-form-item>
+        <el-form-item label="制定人数:">
+          <span>{{ currentDecision.total }}</span
           >
         </el-form-item>
         <el-form-item label="作者排名:">
           <span>{{ currentDecision.rank }}</span
-          >
-        </el-form-item>
-        <el-form-item label="制定年月:">
-          <span>{{ currentDecision.date }}</span
           >
         </el-form-item>
         <el-form-item label="成果状态:">
@@ -266,17 +269,28 @@
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           <span v-if="currentDecision.url == '' || currentDecision.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
-             @click="download(currentDecision)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{currentDecision.url|fileNameFilter}}</a>
-          <br />
+          <div v-else>{{ currentDecision.url | fileNameFilter }}</div>
         </el-form-item>
+        <div v-show="currentDecision.url == '' || currentDecision.url == null ? false : true">
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
+        </div>
+        <br />
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
               <div >
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
@@ -292,6 +306,32 @@
         >
       </span>
     </el-dialog>
+
+    <el-dialog title="" center :visible.sync="showTreeDialog" width="60%">
+      <div slot="title">
+        <div>选择指标点分类</div>
+        <div style="font-size: 14px;margin-top: 10px">以下仅显示本类型的指标点</div>
+      </div>
+      <span class="el-tree-node">
+        <el-tree
+            :data="indicatorData"
+            :props="defaultProps"
+            @node-click="handleNodeClick"
+            :expand-on-click-node="false"
+            :highlight-current="true"
+            node-key="id"
+            :default-expanded-keys="defaultExpandedKeys"
+        ></el-tree>
+      </span>
+    </el-dialog>
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -303,6 +343,19 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      isImage: false,
+      isPdf: false,
+      dialogPreviewPdfFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
+      defaultExpandedKeys: [],
+      showTreeDialog: false,
+      indicatorData: [],
+      indicatorBtn: '选择指标点',
+      defaultProps: {
+        children: "children",
+        label: "label",
+      },
       currentIndicator: {},
       zeroPointReason: '',
       searchTypeLoading: false,
@@ -316,7 +369,6 @@ export default {
       },
       files:[],//选择上传的文件列表
       urlFile:'',//文件路径
-      addButtonState:true,//是否允许添加项目
       operList:[],//每个项目的历史操作记录
       labelPosition: "left",
       title: "",
@@ -376,18 +428,53 @@ export default {
     this.currentDecisionCopy = JSON.parse(JSON.stringify(this.currentDecision));
     this.initDecisionsList();
   },
-  filters:{
-    fileNameFilter:function(data){//将证明材料显示出来
-      if(data == null || data == ''){
-        return '无证明材料'
-      }else{
-        var arr= data.split('/')
-        return  arr.reverse()[0]
-      }
-    }
-  },
   methods: {
-    changeProjectStartDate(data) {
+    previewMethod(type) {
+      if(type == '1') {
+        this.previewFileMethod(this.currentDecision).then(res => {
+          this.previewUrl = res;
+          if(this.isImage) {
+            this.previewImageSrcList = [res];
+            this.$refs.previewImage.showViewer = true;
+          }
+          if(this.isPdf) {
+            this.dialogPreviewPdfFile = true;
+          }
+        });
+      } else {
+        this.downloadFileMethod(this.currentDecision);
+      }
+    },
+    //不进行rankN判断
+    handleNodeClick(data, node) {
+      if (data.children.length == 0) {
+        this.indicatorBtn = data.label;
+        this.currentIndicator = data;
+        this.currentDecisionCopy.indicatorId = data.id;
+        if (!this.isAuthorIncludeSelf) {
+          this.decisionPoint = 0;
+          this.zeroPointReason = '参与人未包含自己'
+        } else {
+          this.decisionPoint = data.score;
+          this.zeroPointReason = '';
+        }
+        this.showTreeDialog = false;
+      }
+    },
+    initTree() {
+      this.getRequest("/indicator/getAllByType?type=决策咨询").then( resp => {
+        this.showTreeDialog = true;
+        this.defaultExpandedKeys = [];
+        if (resp) {
+          this.indicatorData = resp.obj[1];
+          if(this.indicatorData.length > 0)
+            if(this.indicatorData[0].children.length > 0) {
+              this.defaultExpandedKeys.push(this.indicatorData[0].children[0].id);
+            } else this.defaultExpandedKeys.push(this.indicatorData[0].id);
+        }
+      });
+    },
+    changeDecisionStartDate(data) { //选择年月和指标点后才可以输入选择类别
       if(data) {
         this.disabledSelectDecisionType = false;
       }else {
@@ -412,7 +499,7 @@ export default {
     },
     debounceSearchType(data) {
       if (this.currentDecisionCopy.date != null && this.currentDecisionCopy.date != '' && data != null && data != '') {
-        this.getRequest('/decision/basic/getIndicatorByYearAndType?year=' + this.currentDecisionCopy.date.split('-')[0] + '&type=' + data).then(response => {
+        this.getRequest('/decision/basic/getIndicatorByYearAndType?year=' + this.currentDecisionCopy.date.split('-')[0] + '&indicatorId=' + this.currentIndicator.id).then(response => {
           if(response) {
             this.selectDecisionTypeList = response.data;
             this.searchTypeLoading = false;
@@ -422,19 +509,10 @@ export default {
     },
     selectDecisionTypeMethod(data) {
       this.searchTypeLoading = true;
-      this.debounceSearch(data);
+      this.debounceSearchType(data);
     },
     cancelAdd() {
       this.dialogVisible = false;
-    },
-    download(data){//下载证明材料
-      var fileName = data.url.split('/').reverse()[0]
-      if(localStorage.getItem("user")){
-        var url="/decision/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
-        window.location.href = encodeURI(url);
-      }else{
-        this.$message.error("请重新登录！");
-      }
     },
     handleDelete() {//删除选择的文件
       var file={
@@ -466,7 +544,7 @@ export default {
       var formData=new FormData();
       this.files.push(file);
       formData.append("file",this.files[0].raw)
-      axios.post("/decision/basic/upload",formData,{
+      axios.post("/achievements/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? this.user.token : ''
         }
@@ -475,7 +553,6 @@ export default {
             this.$message({
               message:'上传成功！'
             })
-            this.addButtonState = true
             //获取文件路径
             this.urlFile = response.data
           },()=>{}
@@ -510,10 +587,10 @@ export default {
         this.zeroPointReason = '参与人未包含自己'
         this.decisionPoint = 0;
       } else {
-        if(JSON.stringify(this.currentIndicator) == '{}') { //项目类别是空白
+        if(JSON.stringify(this.currentIndicator) == '{}') { //未选择指标点
           this.decisionPoint = 0;
-          this.zeroPointReason = '请输入项目类别';
-        }else { //选择了项目类别
+          this.zeroPointReason = '请选择指标点';
+        }else {
           this.decisionPoint = this.currentIndicator.score;
           this.zeroPointReason = '';
         }
@@ -529,9 +606,9 @@ export default {
     showEditEmpView(data, idx) {
       this.title = "编辑决策信息";
       this.currentIndicator = data.indicator;
+      this.indicatorBtn = this.currentIndicator.name;
       this.currentDecisionCopy = JSON.parse(JSON.stringify(data));
       this.isAuthorIncludeSelf = true;
-      this.addButtonState = true;
       this.disabledSelectDecisionType = false;
       this.decisionPoint = data.point;
       const { id, name } = data.decisionType;
@@ -550,6 +627,14 @@ export default {
       this.title_show = "显示详情";
       this.currentDecision = data
       this.dialogVisible_showInfo = true
+      this.isPdf = this.isImage = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
+        this.isImage = true;
+      }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=决策咨询').then((resp) => {
         this.loading = false;
         if (resp) {
@@ -591,6 +676,7 @@ export default {
         if (valid) {
           params.id = this.currentDecisionCopy.id;
           params.decisionTypeId = this.currentDecisionCopy.decisionType.id;
+          params.studentId = this.user.id;
           this.postRequest1("/decision/basic/edit", params).then(
               (resp) => {
                 if (resp) {
@@ -614,9 +700,21 @@ export default {
       params.point = this.decisionPoint;
       params.decisionLevel = this.currentDecisionCopy.decisionLevel;
       params.state = "commit";
+      params.indicatorId = this.currentIndicator.id;
+      if(JSON.stringify(this.currentIndicator) === '{}') {
+        this.$message.error('请选择指标点！');
+        return;
+      }
+      if(JSON.stringify(this.selectDecisionType) == '{}' || this.selectDecisionType == '') {
+        this.$message.error('请选择决策类别！')
+        return;
+      }
       if(params.url == '' || params.url == null){
         this.$message.error('请上传证明材料！')
         return
+      }
+      if(params.url.indexOf("\\") >= 0) {
+        params.url = params.url.replaceAll("\\", "/")
       }
       if(!this.isAuthorIncludeSelf) {
         this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
@@ -654,8 +752,8 @@ export default {
       this.currentIndicator = {};
       this.urlFile = ''
       this.currentDecisionCopy = {};
-      this.addButtonState = false;
       this.selectDecisionType = {};
+      this.indicatorBtn = '选择指标点'
       this.title = "添加决策咨询";
       this.dialogVisible = true;
       this.decisionPoint = '';

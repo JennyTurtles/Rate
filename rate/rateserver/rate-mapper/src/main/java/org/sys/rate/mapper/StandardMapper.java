@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.sys.rate.model.Patent;
 import org.sys.rate.model.Standard;
 
 import java.util.List;
@@ -90,5 +91,9 @@ public interface StandardMapper
     public Standard selectByID(Long ID);
 
     public List<Standard> searchStandardByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
+    public Integer selectStandardNumberOfPendingMessing(String state);
+
+    @Update("UPDATE i_standard SET have_score = #{have_score} WHERE id = #{id}")
+    public Integer editPoint(Standard standard);
 
 }

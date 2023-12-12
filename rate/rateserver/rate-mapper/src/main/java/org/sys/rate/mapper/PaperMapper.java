@@ -93,4 +93,11 @@ public interface PaperMapper
     public Paper selectByID(Long ID);
 
     public List<Paper> searchPaperByConditions (String studentName, String state, String name, String pointFront, String pointBack, String pub);
+    public Integer selectPaperNumberOfPendingMessing(String state);
+
+    @Select("select t.email from teacher t, graduatestudent g where g.studentID = #{studentId} and g.tutorID = t.ID order by g.ID limit 1")
+    String getEmailByPaperId(Long studentId);
+
+    @Update("UPDATE paper SET have_score = #{have_score} WHERE ID = #{ID}")
+    public Integer editPoint(Paper paper);
 }

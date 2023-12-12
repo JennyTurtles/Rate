@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.IndicatorMapper;
+import org.sys.rate.mapper.ProjectMapper;
 import org.sys.rate.model.*;
-import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.ProjectService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
@@ -36,9 +36,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/project/basic")
 public class ProjectController {
-    
+
     @Resource
     private ProjectService projectService;
+    @Resource
+    ProjectMapper projectMapper;
     @Resource
     private IndicatorMapper indicatorMapper;
     @Resource
@@ -51,6 +53,12 @@ public class ProjectController {
     @GetMapping("/studentID")//无页码要求
     public JsonResult<List> getById(Integer studentID) {
         List<Project> list = projectService.selectProjectListById(studentID);
+        return new JsonResult<>(list);
+    }
+
+    @GetMapping("/studentID/horizontal")//无页码要求
+    public JsonResult<List> getHorizontalProjectById(Integer studentID) {
+        List<Project> list = projectService.selectHorizontalProjectListById(studentID);
         return new JsonResult<>(list);
     }
 
@@ -69,14 +77,15 @@ public class ProjectController {
 //        Object[] res = {list, info.getTotal()};
         return Msg.success().add("res", list);
     }
+
     /**
      * 新增保存专著成果
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Project project) {
+    public JsonResult addSave(Project project) throws FileNotFoundException {
         Integer res = projectService.insertProject(project);
-//        mailToTeacherService.sendTeaCheckMail(project, "科研奖励", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(project, project.getProjectTypeId() == null ? "横向科研项目" : "纵向科研项目","添加");
         return new JsonResult(project.getId());
     }
 
@@ -86,8 +95,11 @@ public class ProjectController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Project project) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(project, "科研奖励", uploadFileName);
-        return new JsonResult(projectService.updateProject(project));
+        int res = projectService.updateProject(project);
+        if (res > 0) {
+            mailToTeacherService.sendTeaCheckMail(project, project.getProjectTypeId() == null ? "横向科研项目" : "纵向科研项目","修改");
+        }
+        return new JsonResult(res);
     }
 
     /**
@@ -127,6 +139,7 @@ public class ProjectController {
         }
         return new JsonResult(flag);
     }
+
     @GetMapping("/downloadByUrl")
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
@@ -144,14 +157,16 @@ public class ProjectController {
     }
 
     @GetMapping("/getIndicatorByYearAndType")
-    public JsonResult getIndicatorByYearAndType(String year,String type) {
-        List<ProjectType> list = projectService.getIndicatorByYearAndType(year,type);
+    public JsonResult getIndicatorByYearAndType(String year, String type) {
+        List<ProjectType> list = projectService.getIndicatorByYearAndType(year, type);
         return new JsonResult(list);
     }
+
     @GetMapping("/getIndicatorScore")
     public JsonResult getScore(Integer id) {
         return new JsonResult(indicatorMapper.getIndicatorById(id));
     }
+
     @PostMapping("/searchProjectByConditions")
     public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
         Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
@@ -159,5 +174,21 @@ public class ProjectController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
+    }
+
+    @PostMapping("/searchProjectByConditions/horizontal")
+    public Msg searchHorizontalProjectByConditions(@RequestBody Map<String, String> params) {
+        Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
+        List<Project> list = projectService.searchHorizontalProjectByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"));
+        PageInfo info = new PageInfo<>(page.getResult());
+        Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
+        return Msg.success().add("res", res);
+    }
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Project project) {
+        project.setId(ID);
+        Integer res = projectMapper.editPoint(project);
+        return new JsonResult(res);
     }
 }

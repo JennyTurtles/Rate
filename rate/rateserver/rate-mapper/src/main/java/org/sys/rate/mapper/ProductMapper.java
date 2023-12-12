@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.sys.rate.model.Patent;
 import org.sys.rate.model.Product;
 
 import java.util.List;
@@ -90,5 +91,8 @@ public interface ProductMapper
     public Product selectByID(Long ID);
 
     public List<Product> searchProductByConditions(String studentName, String state, String productName, String pointFront, String pointBack);
+    public Integer selectProductNumberOfPendingMessing(String state);
 
+    @Update("UPDATE i_application SET have_score = #{have_score} WHERE id = #{id}")
+    public Integer editPoint(Product product);
 }

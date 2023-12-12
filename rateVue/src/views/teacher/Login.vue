@@ -13,8 +13,8 @@ export default {
   data() {
     return {
       loginForm: {
-        username: 'teacher',
-        password: '123456',
+        username: '',
+        password: '',
         role: 'teacher'
       },
     };

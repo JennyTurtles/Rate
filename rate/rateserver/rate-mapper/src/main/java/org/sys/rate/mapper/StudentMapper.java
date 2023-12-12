@@ -33,6 +33,9 @@ public interface StudentMapper {
     @Select("select studentID from graduatestudent where studentID = #{ID}")
     Integer checkIDInGraduate(@Param("ID") Integer ID);
 
+    @Select("select studentID from doctor where studentID = #{ID}")
+    Integer checkIDInDoctor(@Param("ID") Integer ID);
+
     @Select("select studentID from undergraduate where studentID = #{ID}")
     Integer checkIDInUndergraduate(@Param("ID") Integer ID);
 
@@ -64,13 +67,21 @@ public interface StudentMapper {
             "where stuNumber = #{studentNumber} AND s.ID = g.studentID")
     Student getGraduateByStudentNumber(String studentNumber);
 
+    @Select("select name,s.ID as ID from doctor g, student s\n" +
+            "where stuNumber = #{studentNumber} AND s.ID = g.studentID")
+    Student getDoctorByStudentNumber(String studentNumber);
+
     @Select("select name,s.ID as ID from undergraduate g, student s\n" +
             "where stuNumber = #{studentNumber} AND s.ID = g.studentID")
     Student getUndergraduateByStudentNumber(String studentNumber);
 
     @Insert("INSERT INTO graduatestudent(institutionID,studentID,stuNumber,year,studentType,point,tutorID)\n" +
-            "VALUES (#{institutionid},#{ID},#{studentnumber},#{year},#{gradType},0,#{tutorID})")
+            "VALUES (#{institutionID},#{ID},#{studentnumber},#{year},#{gradType},0,#{tutorID})")
     void registerGraduate(Student student);
+
+    @Insert("INSERT INTO doctor(institutionID,studentID,stuNumber,year,studentType,point,tutorID)\n" +
+            "VALUES (#{institutionID},#{ID},#{studentnumber},#{year},#{gradType},0,#{tutorID})")
+    void registerDoctor(Student student);
 
     @Update("UPDATE graduatestudent SET studentID = #{newID}\n" +
             "WHERE ID = (SELECT ID2 FROM (SELECT ID ID2 FROM graduatestudent WHERE studentID = #{oldID}) AS a)")
@@ -80,8 +91,12 @@ public interface StudentMapper {
             "WHERE ID = (SELECT ID2 FROM (SELECT ID ID2 FROM undergraduate WHERE studentID = #{oldID}) AS a)")
     void updateUndergraduateStudentID(Integer oldID, Integer newID);
 
+    @Update("UPDATE doctor SET studentID = #{newID}\n" +
+            "WHERE ID = (SELECT ID2 FROM (SELECT ID ID2 FROM undergraduate WHERE studentID = #{oldID}) AS a)")
+    void updateDoctorStudentID(Integer oldID, Integer newID);
+
     @Insert("INSERT INTO undergraduate(institutionID,studentID,stuNumber,year)\n" +
-            "VALUES (#{institutionid},#{ID},#{studentnumber},#{year})")
+            "VALUES (#{institutionID},#{ID},#{studentnumber},#{year})")
     void registerUndergraduate(Student student);
 
 
@@ -90,6 +105,9 @@ public interface StudentMapper {
 
     @Update("UPDATE graduatestudent SET year = #{year}, tutorID = #{tutorID} ,studentType = #{gradType} WHERE studentID = #{ID}")
     void updateGraduate(Student student);
+
+    @Update("UPDATE doctor SET year = #{year}, tutorID = #{tutorID} ,studentType = #{gradType} WHERE studentID = #{ID}")
+    void updateDoctor(Student student);
 
     @Update("UPDATE undergraduate SET year = #{year} WHERE studentID = #{ID}")
     void updateUnderGraduate(Student student);
@@ -105,6 +123,8 @@ public interface StudentMapper {
     @Update("update student set name = #{name}, email=#{email}, telephone=#{telephone} where ID=#{studentID}")
     void edit(UnderGraduate under);
 
-    @Select("select s.name, s.ID, s.institutionID from student s, undergraduate u where u.ID=#{studentID} and u.studentID = s.ID")
-    Student getByUndergraduateId(Integer studentID);
+    @Select("select s.name, s.ID, s.institutionID, u.sign from student s, undergraduate u where u.ID=#{studentID} and u.studentID = s.ID")
+    UnderGraduate getByUndergraduateId(Integer studentID);
+
+    int insertStudentByImportGraduate(Student student);
 }

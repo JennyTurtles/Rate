@@ -61,7 +61,6 @@ export default {
         this.mail.imaphost = 'imap.126.com'
         this.mail.smtphost = 'smtp.126.com'
       } else if (email.endsWith('dhu.edu.cn')) {
-        let university = this.extractEmail(email);
         this.mail.imaphost = 'imap.dhu.edu.cn'
         this.mail.smtphost = 'smtp.dhu.edu.cn'
       }
@@ -81,9 +80,7 @@ export default {
       const that = this;
 
       let promise1 = new Promise((resolve, reject) => {
-        // console.log('正在发送请求 1，参数为：', adminData);
         this.postRequest(url1, adminData).then((response) => {
-          // console.log('请求 1 的响应结果为：', response);
           if (response && response.status === 200) {
             resolve();
           } else {
@@ -94,9 +91,7 @@ export default {
       });
 
       promise1.then(() => {
-        // console.log('请求 1 执行成功，即将发送请求 2，参数为：', mailData);
         this.postRequest(url2, mailData).then((response) => {
-          // console.log('请求 2 的响应结果为：', response);
           if (response && response.status === 200) {
             that.$message.success(response.msg)
             that.infoIsChanged = false;
@@ -104,24 +99,22 @@ export default {
             sessionStorage.setItem('user', JSON.stringify(this.user));
             that.reload();
           } else {
-            // console.error('错误：更新邮箱地址信息失败');
             that.$message.fail('错误：更新邮箱地址信息失败');
           }
         });
       }).catch((error) => {
-        // console.error(error.message);
         that.$message.fail(error.message);
       });
     },
     async init() {
       try {
-        const superAdminResp = await this.getRequest(`/info/admin?id=${this.user.id}`);
-        this.superAdmin = superAdminResp.obj;
+        const superAdminResp = await this.getRequest(`/system/admin/getSuperAdminInfo?id=${this.user.id}`);
+        this.superAdmin = superAdminResp.extend.admin;
 
-        const mailResp = await this.getRequest("/info/mail");
-        this.mail = mailResp.obj;
+        // const mailResp = await this.getRequest("/info/mail");
+        this.mail = superAdminResp.extend.mail;
       } catch (error) {
-        console.error(error);
+        // console.error(error);
         throw new Error("Error initializing the app");
       }
     }

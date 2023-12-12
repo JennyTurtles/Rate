@@ -12,12 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.StandardMapper;
 import org.sys.rate.model.Msg;
-import org.sys.rate.model.Standard;
+import org.sys.rate.model.Patent;
 import org.sys.rate.model.RespBean;
+import org.sys.rate.model.Standard;
 import org.sys.rate.service.admin.IndicatorService;
-import org.sys.rate.service.admin.StandardService;
-import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.admin.StandardService;
 import org.sys.rate.service.mail.MailToTeacherService;
 
@@ -39,9 +39,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/standard/basic")
 public class StandardController {
-    
+
     @Resource
     private StandardService standardService;
+    @Resource
+    StandardMapper standardMapper;
     @Resource
     IndicatorService indicatorService;
     @Resource
@@ -51,9 +53,9 @@ public class StandardController {
     private String uploadFileName;
 
     @GetMapping("/studentID")//无页码要求
-    public RespBean getById(Integer studentID) {
+    public JsonResult<List> getById(Integer studentID) {
         List<Standard> list = standardService.selectListByIds(studentID);
-        return RespBean.ok("success", list);
+        return new JsonResult<>(list);
     }
 
     //    修改专利状态
@@ -88,9 +90,9 @@ public class StandardController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Standard standard) {
+    public JsonResult addSave(Standard standard) throws FileNotFoundException {
         Integer res = standardService.insertStandard(standard);
-//        mailToTeacherService.sendTeaCheckMail(standard, "授权专利", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(standard, "制定标准","添加");
         return new JsonResult(standard.getId());
     }
 
@@ -100,8 +102,11 @@ public class StandardController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Standard standard) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(standard, "授权专利", uploadFileName);
-        return new JsonResult(standardService.updateStandard(standard));
+        int res = standardService.updateStandard(standard);
+        if (res > 0) {
+            mailToTeacherService.sendTeaCheckMail(standard, "制定标准","修改");
+        }
+        return new JsonResult(res);
     }
 
     /**
@@ -141,6 +146,7 @@ public class StandardController {
         }
         return new JsonResult(flag);
     }
+
     @GetMapping("/downloadByUrl")
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
@@ -156,6 +162,7 @@ public class StandardController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
     @PostMapping("/searchStandardByConditions")
     public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
         Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
@@ -163,5 +170,12 @@ public class StandardController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
+    }
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Standard standard) {
+        standard.setId(ID);
+        Integer res = standardMapper.editPoint(standard);
+        return new JsonResult(res);
     }
 }

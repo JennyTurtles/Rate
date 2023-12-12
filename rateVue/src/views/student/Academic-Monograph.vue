@@ -142,14 +142,14 @@
               placeholder="请输入专著或教材名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="完成日期:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="完成年月:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-date-picker
               style="width: 80%"
               v-model="currentMonographCopy.date"
               type="month"
               value-format="yyyy-MM"
-              placeholder="选择日期">
+              placeholder="选择年月">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="完成人:" label-width="80px" style="margin-left: 20px;" prop="author">
@@ -229,14 +229,14 @@
     >
       <el-form
           :label-position="labelPosition"
-          label-width="120px"
+          label-width="80px"
           :model="currentMonograph"
           style="margin-left: 20px">
         <el-form-item label="著作名称:">
           <span>{{ currentMonograph.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者名称:">
+        <el-form-item label="作者列表:">
           <span>{{ currentMonograph.author }}</span
           >
         </el-form-item>
@@ -260,22 +260,34 @@
           <span>{{ currentMonograph.isbn }}</span
           >
         </el-form-item>
-        <el-form-item label="相关备注:">
-          <span>{{ currentMonograph.remark }}</span>
+        <el-form-item label="成果积分:">
+          <span>{{ currentMonograph.point }}</span
+          >
         </el-form-item>
         <el-form-item label="证明材料:">
           <span v-if="currentMonograph.url == '' || currentMonograph.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
-             @click="download(currentMonograph)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{currentMonograph.url|fileNameFilter}}</a>
-          <br />
+          <div v-else>{{ currentMonograph.url | fileNameFilter }}</div>
         </el-form-item>
+        <div v-show="currentMonograph.url == '' || currentMonograph.url == null ? false : true" style="margin-left: 80px">
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
+        </div>
+        <br />
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
               <div >
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
@@ -292,7 +304,11 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="选择指标点分类" center :visible.sync="showTreeDialog" width="60%">
+    <el-dialog title="" center :visible.sync="showTreeDialog" width="60%">
+      <div slot="title">
+        <div>选择指标点分类</div>
+        <div style="font-size: 14px;margin-top: 10px">以下仅显示本类型的指标点</div>
+      </div>
       <span class="el-tree-node">
         <el-tree
             :data="data"
@@ -300,9 +316,18 @@
             @node-click="handleNodeClick"
             :expand-on-click-node="false"
             :highlight-current="true"
-            default-expand-all
+            node-key="id"
+            :default-expanded-keys="defaultExpandedKeys"
         ></el-tree>
       </span>
+    </el-dialog>
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -314,6 +339,12 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      isImage: false,
+      isPdf: false,
+      dialogPreviewPdfFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
+      defaultExpandedKeys: [],
       zeroPointReason: '',
       currentSelectedIndicator: {},
       monoLimitRankN: '',
@@ -394,17 +425,24 @@ export default {
     this.currentMonographCopy = JSON.parse(JSON.stringify(this.currentMonograph));
     this.initMonographsList();
   },
-  filters:{
-    fileNameFilter:function(data){//将证明材料显示出来
-      if(data == null || data == ''){
-        return '无证明材料'
-      }else{
-        var arr = data.split('/');
-        return arr.reverse()[0];
-      }
-    }
-  },
   methods: {
+    previewMethod(type) {
+      if(type == '1') {
+        this.previewFileMethod(this.currentMonograph).then(res => {
+          this.previewUrl = res;
+          if(this.isImage) {
+            this.previewImageSrcList = [res];
+            this.$refs.previewImage.showViewer = true;
+          }
+          if(this.isPdf) {
+            this.dialogPreviewPdfFile = true;
+          }
+        });
+      } else {
+        this.downloadFileMethod(this.currentMonograph);
+      }
+    },
+
     handleNodeClick(data, node) {
       if (data.children.length == 0) {
         this.indicatorBtn = data.label;
@@ -415,32 +453,20 @@ export default {
       }
     },
     initTree() {
-      this.getRequest("/indicator").then( resp => {
+      this.getRequest("/indicator/getAllByType?type=学术专著和教材").then( resp => {
         this.showTreeDialog = true;
+        this.defaultExpandedKeys = [];
         if (resp) {
           this.data = resp.obj[1];
+          if(this.data.length > 0)
+            if(this.data[0].children.length > 0) {
+              this.defaultExpandedKeys.push(this.data[0].children[0].id);
+            } else this.defaultExpandedKeys.push(this.data[0].id);
         }
       });
     },
     cancelAdd() {
       this.dialogVisible = false;
-    },
-    download(data) {//下载证明材料
-      var fileName = data.url.split('/').reverse()[0]
-      var url = data.url
-      axios({
-        url: '/monograph/basic/downloadByUrl?url=' + url,
-        method: 'GET',
-        responseType: 'blob'
-      }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
     },
     handleDelete() {//删除选择的文件
       var file={
@@ -472,7 +498,7 @@ export default {
       var formData=new FormData();
       this.files.push(file);
       formData.append("file",this.files[0].raw)
-      axios.post("/monograph/basic/upload",formData,{
+      axios.post("/achievements/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? this.user.token : ''
         }
@@ -568,6 +594,14 @@ export default {
       this.title_show = "显示详情";
       this.currentMonograph = data
       this.dialogVisible_showInfo = true
+      this.isPdf = this.isImage = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
+        this.isImage = true;
+      }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=专著教材').then((resp) => {
         this.loading = false;
         if (resp) {
@@ -605,17 +639,10 @@ export default {
       })
     },
     editMonograph(params) {
+      params.studentId = this.user.id;
       this.$refs["currentMonographCopy"].validate((valid) => {
         if (valid) {
           params.id = this.currentMonographCopy.id;
-          if(params.url == '' || params == null){
-            this.$message.error('请上传证明材料！')
-            return
-          }
-          if(!this.isAuthorIncludeSelf) {
-            this.$message.error('请仔细检查作者列表！');
-            return;
-          }
           this.postRequest1("/monograph/basic/edit", params).then(
               (resp) => {
                 if (resp) {
@@ -641,20 +668,24 @@ export default {
       params.isbn = this.currentMonographCopy.isbn;
       params.point = this.monographPoint;
       params.state = "commit";
+      params.studentId = this.user.id;
+      if(params.url == '' || params.url == null){
+        this.$message.error('请上传证明材料！')
+        return
+      }
+      if(params.url.indexOf("\\") >= 0) {
+        params.url = params.url.replaceAll("\\", "/")
+      }
+      if(!this.isAuthorIncludeSelf) {
+        this.$message.error('请仔细检查作者列表！');
+        return;
+      }
       if (this.currentMonographCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editMonograph(params);
       } else {
         this.$refs["currentMonographCopy"].validate((valid) => {
           if (valid) {
             params.studentId = this.user.id
-            if(params == '' || params == null){
-              this.$message.error('请上传证明材料！')
-              return
-            }
-            if(!this.isAuthorIncludeSelf) {
-              this.$message.error('请仔细检查作者列表！');
-              return;
-            }
             this.postRequest1("/monograph/basic/add", params).then(
                 (resp) => {
                   if (resp) {

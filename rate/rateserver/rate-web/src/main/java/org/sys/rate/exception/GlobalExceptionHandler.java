@@ -1,24 +1,43 @@
 package org.sys.rate.exception;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.sys.rate.model.RespBean;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.sys.rate.model.*;
+import org.sys.rate.service.admin.AdminService;
+import org.sys.rate.service.admin.StudentService;
+import org.sys.rate.service.admin.TeacherService;
+import org.sys.rate.service.mail.EmailErrorLogService;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.Timestamp;
 import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @Resource
+    private EmailErrorLogService emailErrorLogService;
+    @Autowired
+    private AdminService adminService;
+    @Autowired
+    private StudentService studentService;
+    @Autowired
+    private TeacherService teacherService;
+
     @ExceptionHandler(SQLException.class)
     public RespBean sqlException(SQLException e) {
         if (e instanceof SQLIntegrityConstraintViolationException) {
@@ -26,6 +45,93 @@ public class GlobalExceptionHandler {
         }
         return RespBean.error(e.getMessage());
     }
+
+    @ExceptionHandler(Exception.class)
+    public RespBean sqlException(Exception e, HttpServletRequest request) {
+
+        String token = null;
+        String userId = null;
+        Admin admin = null;
+        Teacher teacher = null;
+        Student student = null;
+        try {
+            token = request.getHeader("token");
+            String userRole;
+            try {
+                userId = JWT.decode(token).getAudience().get(0);
+                userRole = JWT.decode(token).getClaims().get("role").asString();
+            } catch (JWTDecodeException j) {
+                throw new ServiceException(Constants.CODE_401, "token验证失败，请重新登录");
+            }
+
+            admin = null;
+            teacher = null;
+            student = null;
+            // 根据token中的userid和role查询数据库
+            if (userRole.indexOf("admin") >= 0) {
+                admin = adminService.getById(Integer.parseInt(userId));
+            } else if (userRole.indexOf("teacher") >= 0) {
+                teacher = teacherService.getById(Integer.parseInt(userId));
+            } else if (userRole.indexOf("student") >= 0) {
+                student = studentService.getById(Integer.parseInt(userId));
+            }
+        } catch (Exception ex) {
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("获取错误的token");
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
+
+            return RespBean.error("请邮件联系管理员ratemail@126.com，并截图说明相关操作。" + ex);
+        }
+
+
+        Account loggedInUser = new Account();
+        if (admin == null && teacher == null && student == null) {
+            loggedInUser = null;
+        } else if (admin != null) {
+            loggedInUser.setName(admin.getName());
+            loggedInUser.setID(admin.getID());
+            loggedInUser.setRole("admin");
+        } else if (teacher != null) {
+            loggedInUser.setName(teacher.getName());
+            loggedInUser.setID(teacher.getID());
+            loggedInUser.setRole("teacher");
+        } else if (student != null) {
+            loggedInUser.setName(student.getName());
+            loggedInUser.setID(student.getID());
+            loggedInUser.setRole("student");
+        }
+
+        // 获取请求的操作
+        String operation = "；请求url：" + request.getRequestURL() + "；请求参数：" + request.getRequestURI() + "；";
+
+        EmailErrorLog emailErrorLog = new EmailErrorLog();
+        emailErrorLog.setErrorType("异常未处理");
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        String errorDetails = sw.toString();
+
+        // 存储用户信息和操作
+        if (loggedInUser != null) {
+            errorDetails = "用户角色：" + loggedInUser.getRole() + "；用户id：" + loggedInUser.getID() + "；用户姓名：" + loggedInUser.getName() + operation + errorDetails;
+        } else {
+            errorDetails = "用户信息：null" + operation + errorDetails;
+        }
+
+
+        emailErrorLog.setErrorDescription(errorDetails);
+
+
+        emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+        emailErrorLogService.addEmailErrorLog(emailErrorLog);
+
+        return RespBean.error("请邮件联系管理员ratemail@126.com，并截图说明相关操作。" + errorDetails);
+    }
+
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler({MethodArgumentNotValidException.class})

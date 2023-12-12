@@ -1,10 +1,8 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
-import org.sys.rate.model.Indicator;
 import org.sys.rate.model.Publication;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -109,4 +107,7 @@ public interface PublicationMapper {
 
     @Select("select id from i_publication where name =#{name}")
     Integer selectIdByName(String name);
+
+    @Select("select name from i_publication where id =#{publicationID}")
+    String getPublicationNameById(Long publicationID);
 }

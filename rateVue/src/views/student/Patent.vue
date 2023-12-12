@@ -137,16 +137,21 @@
               placeholder="请输入专利名称"
           ></el-input>
         </el-form-item>
+        <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
+          <span class="isMust">*</span>
+          <el-button ref="selectBtn" size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
+        </el-form-item>
         <el-form-item prop="grantedStatus" label="专利状态:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-select
               size="mini"
               style="width:80%"
+              :disabled="disabledGrantedStatusSelected"
               prefix-icon="el-icon-edit"
               v-model="currentPatentCopy.grantedStatus"
               placeholder="请选择专利状态"
           >
-            <el-option v-for="item in patentStatusList" :key="item.value" :value="item" :label="item.label"></el-option>
+            <el-option v-for="item in patentStatusList" :key="item.value" :value="item.name" :label="item.name"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item :label="currentPatentCopy.grantedStatus ? currentPatentCopy.grantedStatus + '年月:' : '状态年月:'" prop="date" label-width="80px" style="margin-left: 20px;">
@@ -168,10 +173,6 @@
               @blur="judgePatentee()"
               placeholder="请输入参与人,如有多个用分号按顺位分隔"
           ></el-input>
-        </el-form-item>
-        <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
-          <span class="isMust">*</span>
-          <el-button ref="selectBtn" size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
@@ -233,19 +234,19 @@
           <span>{{ currentPatent.author }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="总人数:" prop="total">
+        <el-form-item label="参与人数:" prop="total">
           <span>{{ currentPatent.total }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="排名:" prop="rank">
+        <el-form-item label="作者排名:" prop="rank">
           <span>{{ currentPatent.rank }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="积分:" prop="point">
+        <el-form-item label="成果积分:" prop="point">
           <span>{{ currentPatent.point }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="状态:" prop="state">
+        <el-form-item label="成果状态:" prop="state">
           <span>{{ currentPatent.state=="commit"
               ? "已提交"
               :currentPatent.state=="tea_pass"
@@ -259,17 +260,29 @@
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           <span v-if="currentPatent.url == '' || currentPatent.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
-             @click="download(currentPatent)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{currentPatent.url|fileNameFilter}}</a>
+          <div v-else>{{ currentPatent.url | fileNameFilter }}</div>
           <br />
         </el-form-item>
+        <div v-show="currentPatent.url == '' || currentPatent.url == null ? false : true" style="margin-left: 80px">
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
+        </div>
+        <br />
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
               <div >
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
@@ -285,7 +298,11 @@
       </span>
     </el-dialog>
 
-    <el-dialog title="选择指标点分类" center :visible.sync="showTreeDialog" width="60%">
+    <el-dialog title="" center :visible.sync="showTreeDialog" width="60%">
+      <div slot="title">
+        <div>选择指标点分类</div>
+        <div style="font-size: 14px;margin-top: 10px">以下仅显示本类型的指标点</div>
+      </div>
       <span class="el-tree-node">
         <el-tree
             :data="indicatorData"
@@ -293,9 +310,18 @@
             @node-click="handleNodeClick"
             :expand-on-click-node="false"
             :highlight-current="true"
-            default-expand-all
+            node-key="id"
+            :default-expanded-keys="defaultExpandedKeys"
         ></el-tree>
       </span>
+    </el-dialog>
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -307,6 +333,13 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      isImage: false,
+      isPdf: false,
+      dialogPreviewPdfFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
+      defaultExpandedKeys: [],
+      disabledGrantedStatusSelected: true,
       zeroPointReason: '',
       isAuthorIncludeSelf: false,
       indicatorBtn: '选择指标点',
@@ -319,7 +352,28 @@ export default {
       indicatorData: [],
       //在编辑状态时，做一个副本，用户点击取消可恢复原始状态
       currentPatentCopy: {},
-      patentStatusList: ['受理', '初审', '公布', '实审', '授权', '转让'],
+      patentStatusList: [],
+      patentStatusListObject: [
+        {
+          name: '受理',
+          value: 0
+        },{
+          name: '初审',
+          value: 1
+        },{
+          name: '公布',
+          value: 2
+        },
+        {
+          name: '实审',
+          value: 3
+        },{
+          name: '授权',
+          value: 4
+        },{
+          name: '转让',
+          value: 5
+        }],
       patentPoint:0,
       headers: {
         'Content-Type': 'multipart/form-data'
@@ -380,25 +434,52 @@ export default {
   mounted() {
     this.currentPatentCopy = JSON.parse(JSON.stringify(this.currentPatent));
     this.initEmps();
-    // this.initTutor(this.user);
-  },
-  filters:{
-    fileNameFilter:function(data){//将证明材料显示出来
-      if(data == null || data == ''){
-        return '无证明材料'
-      }else{
-        var arr= data.split('/')
-        return  arr.reverse()[0]
-      }
-    }
   },
   methods: {
+    previewMethod(type) {
+      if(type == '1') {
+        this.previewFileMethod(this.currentPatent).then(res => {
+          this.previewUrl = res;
+          if(this.isImage) {
+            this.previewImageSrcList = [res];
+            this.$refs.previewImage.showViewer = true;
+          }
+          if(this.isPdf) {
+            this.dialogPreviewPdfFile = true;
+          }
+        });
+      } else {
+        this.downloadFileMethod(this.currentPatent);
+      }
+    },
+
+    judgeGrantedStatusSelected(data) {
+      if(data.level == null || data.level == '') {
+        this.patentStatusList = this.patentStatusListObject.slice(3);
+      } else {
+        this.patentStatusListObject.map(item => {
+          if(item.name == data.level) {
+            if(item.value < 3) { //如果选中的指标点状态属于前三个
+              this.patentStatusList = this.patentStatusListObject.slice(3);
+              return;
+            }else { //如果选中的指标点状态属于后三个
+              this.patentStatusList = this.patentStatusListObject.slice(item.value);
+              return;
+            }
+          }
+        })
+      }
+    },
     //不进行rankN判断
     handleNodeClick(data, node) {
       if (data.children.length == 0) {
         this.indicatorBtn = data.label;
+        this.patentStatusList = [];
+        this.disabledGrantedStatusSelected = false;
         this.currentSelectedIndicator = data;
         this.currentPatentCopy.indicatorId = data.id;
+        //根据选择指标点的level，决定授权状态的可选列表有哪些
+        this.judgeGrantedStatusSelected(data);
         if (!this.isAuthorIncludeSelf) {
           this.patentPoint = 0;
           this.zeroPointReason = '参与人未包含自己'
@@ -411,33 +492,21 @@ export default {
       }
     },
     initTree() {
-      this.getRequest("/indicator").then( resp => {
+      this.getRequest("/indicator/getAllByType?type=授权专利").then( resp => {
         this.showTreeDialog = true;
+        this.defaultExpandedKeys = [];
         if (resp) {
           this.indicatorData = resp.obj[1];
+          if(this.indicatorData.length > 0)
+            if(this.indicatorData[0].children.length > 0) {
+              this.defaultExpandedKeys.push(this.indicatorData[0].children[0].id);
+            } else this.defaultExpandedKeys.push(this.indicatorData[0].id);
         }
       });
     },
     //添加 编辑框点击取消出发事件
     cancelAddPatent() {
       this.dialogVisible = false;
-    },
-    download(data){//下载证明材料
-      var fileName = data.url.split('/').reverse()[0]
-      var url = data.url
-      axios({
-        url: '/patent/basic/downloadByUrl?url='+url,
-        method: 'GET',
-        responseType: 'blob'
-      }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
     },
     handleDelete() {//删除选择的文件
       var file={
@@ -469,7 +538,7 @@ export default {
       var formData=new FormData();
       this.files.push(file);
       formData.append("file",this.files[0].raw)
-      axios.post("/patent/basic/upload",formData,{
+      axios.post("/achievements/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
         }
@@ -533,6 +602,8 @@ export default {
     showEditEmpView(data) {
       this.dialogVisible = true;
       this.title = "编辑专利信息";
+      this.disabledGrantedStatusSelected = false;
+      this.judgeGrantedStatusSelected(data.indicator);
       this.currentPatentCopy = JSON.parse(JSON.stringify(data));
       this.files = [
         {
@@ -551,6 +622,14 @@ export default {
       this.title_show = "显示详情";
       this.currentPatent = data
       this.dialogVisible_showInfo = true
+      this.isPdf = this.isImage = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
+        this.isImage = true;
+      }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=授权专利').then((resp) => {
         this.loading = false;
         if (resp) {
@@ -588,6 +667,7 @@ export default {
       })
     },
     editAward(params) {
+      params.studentId = this.user.id
       this.$refs["currentPatentCopy"].validate((valid) => {
         if (valid) {
           this.postRequest1("/patent/basic/edit", params).then(
@@ -616,9 +696,13 @@ export default {
       params.date = this.currentPatentCopy.date;
       params.point = this.patentPoint;
       params.state = "commit";
+      params.studentId = this.user.id
       if(params.url == '' || params.url == null){
         this.$message.error('请上传证明材料！')
         return
+      }
+      if(params.url.indexOf("\\") >= 0) {
+        params.url = params.url.replaceAll("\\", "/")
       }
       if(!this.isAuthorIncludeSelf) {
         this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
@@ -658,6 +742,7 @@ export default {
       this.dialogVisible = true;
       this.urlFile = '';
       this.files = [];
+      this.disabledGrantedStatusSelected = true;
       this.patentPoint = '';
       this.zeroPointReason = '';
       this.indicatorBtn = '选择指标点';
@@ -670,7 +755,7 @@ export default {
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.emps = resp.obj;
+          this.emps = resp.data;
         }
       });
     },

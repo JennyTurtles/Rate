@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Mapper
 public interface DecisionTypeMapper {
-    public List<DecisionType> getIndicatorByYearAndType(String year, String type);
+    public List<DecisionType> getIndicatorByYearAndType(String year, Integer indicatorId);
 
     @Select("select a.id, a.name, a.year, i.rankN from i_decision_type a, indicator i where a.indicator_id = #{indicatorId} and year = #{year} and a.indicator_id = i.id")
     List<DecisionType> selectDecisionTypeListByYear(Integer indicatorId, Integer year);

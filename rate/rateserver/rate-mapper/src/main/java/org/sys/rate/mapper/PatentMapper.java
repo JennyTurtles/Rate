@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.sys.rate.model.Paper;
 import org.sys.rate.model.Patent;
 import org.sys.rate.model.Project;
 
@@ -92,4 +93,8 @@ public interface PatentMapper
 
     public List<Patent> searchPatentByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
 
+    public Integer selectPatentNumberOfPendingMessing(String state);
+
+    @Update("UPDATE i_patent SET have_score = #{have_score} WHERE id = #{id}")
+    public Integer editPoint(Patent patent);
 }

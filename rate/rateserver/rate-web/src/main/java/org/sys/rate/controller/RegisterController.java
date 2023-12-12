@@ -23,19 +23,35 @@ public class RegisterController {
     StudentMapper studentMapper;
     @Autowired
     TeachersMapper teachersMapper;
+    @Autowired
+    DoctorMapper doctorMapper;
 
     //学生注册
     @PostMapping("/stu")
     public RespBean registerStu(@RequestBody Student student){
-        //根据身份证判断 如果有这个student，就设置用户名密码和密保
         //没有就插入，同时判断选择注册的身份
         String stuType = student.getStuType();
         try{
             String password = ExpertService.sh1(student.getPassword());
             student.setPassword(password);
             switch (stuType){
-                case "本科生" : student.setRole("10");break;
-                case "研究生" : student.setRole("11");break;
+                case "本科生" :
+                    student.setRole("10");
+                    UnderGraduate under = underGraduateMapper.checkStuNumber(student.getStudentnumber());
+                    if(under != null) { //本科生里有这条数据，拿到stuID
+                        student.setID(under.getStudentID());
+                    }
+                    break;
+                case "研究生" :
+                    student.setRole("11");
+                    GraduateStudent grad = graduateStudentMapper.checkStuNumber(student.getStudentnumber());
+                    if(grad != null) student.setID(grad.getStudentID());
+                    break;
+                case "博士生":
+                    student.setRole("17");
+                    Doctor doc = doctorMapper.checkStuNumber(student.getStudentnumber());
+                    if(doc != null) student.setID(doc.getStudentID());
+                    break;
                 default:student.setRole("7");break; //选手
             }
             //可以直接根据id判断，因为在填写时已经做了查询，查到了id会存在，没查到就是null
@@ -66,6 +82,18 @@ public class RegisterController {
                 grad.setPoint(null);//怎么处理？
                 if(graduateStudentMapper.getGradByStuID(student.getID()) == null){
                     graduateStudentMapper.insert(grad);
+                }
+            }else if(stuType.equals("博士生")){
+                Doctor doc = new Doctor();
+                doc.setStuNumber(student.getStudentnumber());
+                doc.setTutorID(null);
+                doc.setInstitutionID(student.getInstitutionID());
+                doc.setYear(student.getYear());
+                doc.setStudentID(student.getID());
+                doc.setStudentType(student.getGradType());
+                doc.setPoint(null);
+                if(doctorMapper.getDocByStuID(student.getID()) == null){
+                    doctorMapper.insert(doc);
                 }
             }
 //            else if(stuType.equals("没有本校学号")){//选手

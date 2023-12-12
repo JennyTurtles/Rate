@@ -14,6 +14,7 @@ public class UnderGraduate extends Student{
     private Integer studentID;
     private Integer year;
     private Integer month;
+    private Integer startThesisID;
     private Integer tutorID;
     private String specialty;
     private String className;
@@ -21,6 +22,8 @@ public class UnderGraduate extends Student{
     private String tutorJobNumber;
     private String group;
     private Thesis thesis;
+
+    private String sign;
 
     public String getClassName() {
         return className;

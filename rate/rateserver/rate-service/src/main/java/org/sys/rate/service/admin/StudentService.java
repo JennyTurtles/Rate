@@ -12,6 +12,7 @@ import org.sys.rate.mapper.StudentMapper;
 import org.sys.rate.model.Admin;
 import org.sys.rate.model.RespPageBean;
 import org.sys.rate.model.Student;
+import org.sys.rate.model.UnderGraduate;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -96,6 +97,32 @@ public class StudentService implements UserDetailsService {
         return true;
     }
 
+    public boolean registerDoctor(Student student) {
+        Student studentInTable = studentMapper.getDoctorByStudentNumber(student.getStudentnumber());
+        if(studentInTable == null){ // 博士生表无该学号
+            Integer studentID = studentMapper.checkIDInDoctor(student.getID());
+            if(studentID == null) // 博士生表无该学生ID
+                studentMapper.registerDoctor(student);
+            else // 该学生已经是博士生了，重复注册，但是学号改了。修改博士生表的信息。
+                studentMapper.updateDoctor(student);
+            studentMapper.update(student);
+        }else if (!studentInTable.getID().equals(student.getID())){ // 查到了，但是studentID不是本人
+            // 检查姓名是否一样，防止填错学号
+            if (!studentInTable.getName().equals(student.getName())){
+                return false;
+            }
+            Integer studentID = studentInTable.getID();
+            studentMapper.updateDoctorStudentID(studentID,student.getID());
+            studentMapper.updateDoctor(student);
+            studentMapper.deleteStudent(studentID);
+            studentMapper.update(student);
+        }else {
+            studentMapper.updateDoctor(student);
+            studentMapper.update(student);
+        }
+        return true;
+    }
+
     public boolean registerUndergraduate(Student student) {
         Student studentInTable = studentMapper.getUndergraduateByStudentNumber(student.getStudentnumber());
         if(studentInTable == null){ // 本科生表无该学号
@@ -122,7 +149,7 @@ public class StudentService implements UserDetailsService {
         return true;
     }
 
-    public Student getByUndergraduateId(Integer studentID) {
+    public UnderGraduate getByUndergraduateId(Integer studentID) {
         return studentMapper.getByUndergraduateId(studentID);
     }
 }

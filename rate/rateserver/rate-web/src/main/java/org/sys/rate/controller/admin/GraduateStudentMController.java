@@ -46,10 +46,10 @@ public class GraduateStudentMController {
         Map<String, List> mm = POIUtils.readExcel_graduatestudent(institutionID, file);
         List<GraduateStudent> graduate = mm.get("graduatelist");
         List<Student> stu = mm.get("studentlist");
-        if (graduate.size() == 0 || stu.size() == 0 || graduate.size() != stu.size()) {
+        if (graduate.size() == 0) { //先将excel中读取到的数据行拿出来，student和graduate列表是同样的数量才对
             return RespBean.error("未读取到有效导入数据");
         }
-        RespBean res = graduateStudentService.addGraduate(graduate, stu);
+        RespBean res = graduateStudentService.addGraduate(graduate);
         return res;
     }
 
@@ -76,7 +76,7 @@ public class GraduateStudentMController {
         return graduateStudentService.getTeaNamesBySelect(teaName);
     }
 
-    @GetMapping("/getGraduateStudentsBySelect")
+    @GetMapping("/getGraduateStudentsBySelect") //管理员段学生列表的筛选
     public RespBean getGraduateStudentsBySelect(@RequestParam("year")Integer year,@RequestParam("teaName")String teaName,@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
         Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
         List<GraduateStudent> t = graduateStudentService.getGraduateStudentsBySelect(year,teaName);
@@ -85,14 +85,12 @@ public class GraduateStudentMController {
         return RespBean.ok("ok", res);
     }
 
-    @GetMapping("/getGraduateListByTutorID")
-    public RespBean getGraduateListByTutorID(@RequestParam("tutorID") Integer tutorID, @RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
-        // 设置当前所在页和每页显示的条数
-        Page page = PageHelper.startPage(pageNum, pageSize);
-        List<GraduateStudent> t = graduateStudentService.getGraduateListByTutorID(tutorID);
+    @GetMapping("/getGraduateStudentsBySelectOfTeacher") //教师端学生列表的筛选
+    public RespBean getGraduateStudentsBySelectOfTeacher(@RequestParam("tutorID") Integer tutorID, @RequestParam("year")Integer year,@RequestParam("pageNum")Integer pageNum,@RequestParam("pageSize")Integer pageSize){
+        Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
+        List<GraduateStudent> t = graduateStudentService.getGraduateStudentsBySelectOfTeacher(tutorID, year);
         PageInfo info = new PageInfo<>(page.getResult());
-        // res是分页后的数据，info.getTotal()是总条数
-        Object[] res = {t, info.getTotal()};
+        Object[] res = {t, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return RespBean.ok("ok", res);
     }
 
@@ -110,12 +108,24 @@ public class GraduateStudentMController {
         }
         return RespBean.error("error",null);
     }
+
+    @PostMapping("/updateScore") //加法
+    public RespBean updateScoreAdd(@RequestBody GraduateStudent record) {
+        Integer res = graduateStudentMapper.updateScore(Long.valueOf(record.getStudentID().intValue()),Long.parseLong(record.getPoint()));
+        return RespBean.ok("ok", res);
+    }
+    @PostMapping("/updateScoreSub") //减法
+    public RespBean updateScoreSub(@RequestBody GraduateStudent record) {
+        Integer res = graduateStudentMapper.updateScoreSub(Long.valueOf(record.getStudentID().intValue()),Long.parseLong(record.getPoint()));
+        return RespBean.ok("ok", res);
+    }
+
     @PostMapping("/update")
     public RespBean updateStudent(@RequestBody GraduateStudent record) {
-        if (graduateStudentMapper.checkHaveStudentOfStuNumber(record.getInstitutionID(),record.getStuNumber(),record.getStudentID()) == 1){
+        if (graduateStudentMapper.checkHaveStudentOfStuNumber(record.getInstitutionID(), record.getStuNumber(), record.getStudentID()) == 1) {
             return RespBean.error("学号已存在，请重新修改或联系管理员！");
         }
-        if (studentMapper.update(record) == 1){
+        if (studentMapper.update(record) == 1) {
             if (graduateStudentMapper.update(record) == 1) {
                 return RespBean.ok("更新成功!");
             }

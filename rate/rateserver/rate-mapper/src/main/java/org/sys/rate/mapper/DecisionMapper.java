@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.Decision;
+import org.sys.rate.model.Patent;
 
 import java.util.List;
 
@@ -81,5 +82,8 @@ public interface DecisionMapper
     public Decision selectByID(Long ID);
 
     public List<Decision> searchDecisionByConditions(String studentName, String state, String decisionName, String pointFront, String pointBack);
+    public Integer selectDecisionNumberOfPendingMessing(String state);
 
+    @Update("UPDATE i_decision SET have_score = #{have_score} WHERE id = #{id}")
+    public Integer editPoint(Decision decision);
 }

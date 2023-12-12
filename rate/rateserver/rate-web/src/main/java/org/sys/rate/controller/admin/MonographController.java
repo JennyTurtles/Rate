@@ -12,11 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.MonographMapper;
 import org.sys.rate.model.Monograph;
 import org.sys.rate.model.Msg;
-import org.sys.rate.model.Operation;
+import org.sys.rate.model.Patent;
 import org.sys.rate.model.RespBean;
-import org.sys.rate.service.admin.MonographService;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.MonographService;
 import org.sys.rate.service.mail.MailToTeacherService;
@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +42,8 @@ public class MonographController {
     
     @Resource
     private MonographService monographService;
+    @Resource
+    MonographMapper monographMapper;
     @Resource
     IndicatorService indicatorService;
     @Resource
@@ -77,9 +78,9 @@ public class MonographController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Monograph monograph) {
+    public JsonResult addSave(Monograph monograph) throws FileNotFoundException {
         Integer res = monographService.insertMonograph(monograph);
-//        mailToTeacherService.sendTeaCheckMail(monograph, "科研奖励", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(monograph, "学术专著和教材","添加");
         return new JsonResult(monograph.getId());
     }
 
@@ -89,8 +90,9 @@ public class MonographController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Monograph monograph) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(monograph, "科研奖励", uploadFileName);
-        return new JsonResult(monographService.updateMonograph(monograph));
+        int res = monographService.updateMonograph(monograph);
+        mailToTeacherService.sendTeaCheckMail(monograph, "学术专著和教材","修改");
+        return new JsonResult(res);
     }
 
     /**
@@ -152,5 +154,12 @@ public class MonographController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
+    }
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Monograph monograph) {
+        monograph.setId(ID);
+        Integer res = monographMapper.editPoint(monograph);
+        return new JsonResult(res);
     }
 }

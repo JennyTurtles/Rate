@@ -17,12 +17,13 @@
         <result property="publisher" column="publisher"/>
         <result property="isbn" column="isbn"/>
         <result property="indicatorId" column="indicator_id"/>
+        <result property="have_score" column="have_score"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>
         </association>
         <association property="indicator" javaType="org.sys.rate.model.Indicator">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="indicatorid" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
             <result property="rankN" column="rankN"/>
@@ -45,20 +46,6 @@
         from i_book
     </sql>
 
-    <select id="selectAllMonographList" resultMap="MonographResult">
-        -- 老师查询所有学生的获奖
-        SELECT p.*,
-               s.name as sname,
-               i.name as iname,
-               i.score,
-               oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
-               oper.state,oper.remark
-        FROM i_book p
-                 LEFT JOIN student s ON p.student_id = s.ID
-                 LEFT JOIN indicator i ON i.id = p.indicator_id
-                 LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '专著教材'
-    </select>
-
     <select id="selectListById" resultMap="MonographResult">
         <include refid="selectMonographVo"></include>
         <where>
@@ -71,15 +58,23 @@
 
 <!--    学生专著教材页面初始化-->
     <select id="selectMonographListById" resultMap="MonographResult" parameterType="Integer">
-        select a.id, a.name, student_id, a.date, author, a.state, url, indicator_id, `rank`, total, point, publisher, a.ISBN as isbn,
-               oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
-               oper.state,oper.remark,
-               i.name as iname,
-               i.score,i.rankN
+        SELECT a.*,
+               j.remark,ind.name as iname,ind.score, ind.id as indicatorid, ind.rankN, s.name as sname
         FROM i_book a
-                 LEFT JOIN indicator i ON i.id = a.indicator_id
-                 LEFT JOIN i_oper oper ON a.id = oper.prod_id and oper.prod_type = '专著教材'
-        where a.student_id = #{studentID}
+                 JOIN (
+            SELECT prod_id,MAX(i_oper.date) max_date
+            FROM i_oper
+            WHERE prod_type = '专著教材'
+            GROUP BY prod_id
+        ) i ON a.id = i.prod_id
+                 JOIN (
+            SELECT prod_id,remark,`date`
+            FROM i_oper
+            WHERE prod_type = '专著教材'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+                 JOIN indicator ind ON ind.id = a.indicator_id AND a.student_id = #{studentID}
+                 JOIN student s ON s.ID = a.student_id
+        ORDER BY a.id DESC;
     </select>
 
     <select id="selectMonographList" parameterType="org.sys.rate.model.Monograph" resultMap="MonographResult">
@@ -175,14 +170,32 @@
         </foreach>
     </delete>
     <select id="searchMonographByConditions" resultMap="MonographResult">
-        select book.*, s.name as sname
-        from i_book book, student s
+        SELECT book.*,i.max_date, j.remark, s.name as sname, i.name as iname, i.score
+        FROM i_book book
+        JOIN (
+        SELECT prod_id,MAX(i_oper.date) max_date
+        FROM i_oper
+        WHERE prod_type = '专著教材'
+        GROUP BY prod_id
+        ) i ON book.id = i.prod_id
+        JOIN (
+        SELECT prod_id,remark,`date`
+        FROM i_oper
+        WHERE prod_type = '专著教材'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+        JOIN indicator i ON book.indicator_id = i.id
+        JOIN student s ON s.ID = book.student_id
         <where>
             <if test="monoName != null and monoName != ''">and book.name like concat('%', #{monoName}, '%')</if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
-            <if test="state != null and state != ''">and state = #{state}</if>
-            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and point between #{pointFront} and #{pointBack}</if>
-            and s.ID = book.student_id
+            <if test="state != null and state != ''">and book.state = #{state}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
         </where>
+        ORDER BY book.id DESC
+    </select>
+    <select id="selectMonographNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_book
+        where state = #{state}
     </select>
 </mapper>

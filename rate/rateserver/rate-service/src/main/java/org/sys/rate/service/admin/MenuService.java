@@ -42,14 +42,27 @@ public class MenuService {
     public List<Menu> getChild(Integer id,List<Menu> rootMenu,Menu newMenu){
         // 子菜单
         List<Menu> childList = new ArrayList<Menu>();
+//        List<Integer> childMenuId = new ArrayList<Integer>();
         for (Menu menu : rootMenu){
             //遍历所有的一级菜单和全部菜单，全部菜单id和一级菜单比较
             if (menu.getParentId() != 1){
                 if (menu.getParentId()==id){
                     childList.add(menu);
+//                    childMenuId.add(menu.getId());
                 }
             }
         }
+//        for (Menu menu : rootMenu){
+//            //遍历所有的一级菜单的子菜单
+//            if (menu.getParentId() == 1){
+//                for (Menu subMenu : menu.getChildren()){ //遍历一级菜单的子菜单
+//                    //因为此时res里面的一级菜单下面可能同时包括没有子菜单的二级菜单和有子菜单的二级菜单，将没有子菜单的二级加入列表
+//                    if (!childMenuId.contains(subMenu.getId())){
+//                        childList.add(subMenu);
+//                    }
+//                }
+//            }
+//        }
         return childList;
     }
     //获取每个角色的菜单
@@ -71,15 +84,15 @@ public class MenuService {
             res = menuMapper.getMenusById(Integer.parseInt(role));
 //            return res;
         }
-        List<Menu> newMenu=new ArrayList<>();
+        //拿到最根级的菜单（一级菜单）
+        List<Menu> firstRootMenu=new ArrayList<>();
         for (int i = 0 ;i<res.size();i++){
-
             if(res.get(i).getParentId() == 1){
-                newMenu.add(res.get(i));
+                firstRootMenu.add(res.get(i));
             }
         }
         //设置子菜单
-        for(Menu menu:newMenu) {
+        for(Menu menu:firstRootMenu) {
             if(menu.getChildren() != null){
                 //有三级
                 List<Menu> subMenu = getChild(menu.getId(),res,menu);
@@ -88,31 +101,26 @@ public class MenuService {
                 }
             }
         }
-        return newMenu;
+        return firstRootMenu;
     }
 
     public List<Menu> getMenusByAdminId(Integer id, String role) {
-//        if (participatesMapper.isParticipants(id) != 0){//选手
-//            if(!role.contains("7")){
-//                role = role + ";7";
-//            }
-//        }
-        // 如果是学生
-        if (studentMapper.isStudent(id) != null){
+        // 如果是学生 单独靠id判断，在多个角色中可能会存在id重复的情况
+        if (studentMapper.isStudent(id) != null && (role.contains("17") || role.contains("10") || role.contains("11") || role.contains("7"))){
             if(!role.contains("7")){ // 让所有学生都显示参与活动
                 role = role + ";7";
             }
         }
-        if (underGraduateMapper.isUndergraduate(id) != 0){//本科生
-            if(!role.contains("10")){
-                role = role + ";10";
-            }
-        }
-        if (graduateStudentMapper.isGraduateStudent(id) != 0){//研究生
-            if(!role.contains("11")){
-                role = role + ";11";
-            }
-        }
+//        if (underGraduateMapper.isUndergraduate(id) != 0){//本科生
+//            if(!role.contains("10")){
+//                role = role + ";10";
+//            }
+//        }
+//        if (graduateStudentMapper.isGraduateStudent(id) != 0){//研究生
+//            if(!role.contains("11")){
+//                role = role + ";11";
+//            }
+//        }
         if (expertsMapper.isExpert(id) != 0){
             if(!role.contains("3")){
                 role = role + ";3";

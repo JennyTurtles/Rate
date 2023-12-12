@@ -15,15 +15,17 @@
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
         <result property="grantedStatus" column="granted_status"/>
+        <result property="have_score" column="have_score"/>
         <result property="indicatorId" column="indicator_id"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>
         </association>
         <association property="indicator" javaType="org.sys.rate.model.Indicator">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="indicatorid" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
+            <result property="level" column="level"/>
         </association>
         <collection property="operationList" ofType="org.sys.rate.model.Operation">
             <result property="operatorRole" column="operator_role"/>
@@ -80,7 +82,8 @@
 
 <!--    学生专利页面初始化-->
     <select id="selectListByIds" resultMap="PatentResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.granted_status, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score
+        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.granted_status, a.indicator_id, a.date,ind.level,
+               j.remark,ind.name as iname,ind.score, ind.id as indicatorid, s.name as sname
         FROM i_patent a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -94,12 +97,18 @@
             WHERE prod_type = '授权专利'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN indicator ind ON ind.id = a.indicator_id AND a.student_id = #{studentID}
+                JOIN student s ON s.ID = a.student_id
         ORDER BY a.id DESC;
     </select>
 
     <select id="selectPaperById" parameterType="Long" resultMap="PatentResult">
         <include refid="selectPaperVo"/>
         where ID = #{ID}
+    </select>
+    <select id="selectPatentNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_patent
+        where state = #{state}
     </select>
 
     <insert id="insertPatent" parameterType="org.sys.rate.model.Patent" useGeneratedKeys="true" keyProperty="id">

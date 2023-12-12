@@ -190,8 +190,7 @@ public class PublicationController {
             if (publicationMapper.checkByNames(publication.getName())!=1){
                 publicationMapper.insertPublication(publication);
             }
-            String[] names = publication.getIndicatorName().split(" ");
-            publicationMapper.insertIndicatorPublication(indicatorMapper.getIdByName(names[1]), publicationMapper.getIdByName(publication.getName()), publication.getYear());
+            publicationMapper.insertIndicatorPublication(publication.getIndicatorId(), publicationMapper.getIdByName(publication.getName()), publication.getYear());
         }
         return RespBean.ok("添加成功！");
     }

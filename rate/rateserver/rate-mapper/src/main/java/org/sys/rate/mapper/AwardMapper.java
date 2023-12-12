@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.Award;
 import org.sys.rate.model.Award;
+import org.sys.rate.model.Patent;
 import org.sys.rate.model.Project;
 
 import java.util.List;
@@ -83,5 +84,8 @@ public interface AwardMapper
     public Award selectByID(Long ID);
 
     public List<Award> searchAwardByConditions(String studentName, String state, String awardName, String pointFront, String pointBack);
+    public Integer selectAwardNumberOfPendingMessing(String state);
 
+    @Update("UPDATE i_award SET have_score = #{have_score} WHERE id = #{id}")
+    public Integer editPoint(Award award);
 }

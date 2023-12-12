@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.Monograph;
+import org.sys.rate.model.Patent;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public interface MonographMapper
      * @param ID
      * @return
      */
-    @Select("select * from i_monograph where ID = #{ID}")
+    @Select("select * from i_book where id = #{ID}")
     Monograph getById(Integer ID);
 
     /**
@@ -68,17 +69,22 @@ public interface MonographMapper
     public List<Monograph> selectMonographListById(@Param("studentID") Integer studentID);
 
 
-    @Select("SELECT ID FROM i_monograph WHERE studentID = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
+    @Select("SELECT id FROM i_book WHERE studentID = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
     public Integer checkScore(Long stuID);
 
-    @Update("UPDATE i_monograph SET state = #{state},have_score = #{valid} WHERE ID = #{ID}")
+    @Update("UPDATE i_book SET state = #{state},have_score = #{valid} WHERE id = #{ID}")
     public Integer editState2(String state, Long ID, Integer valid);
 
     @Update("UPDATE graduatestudent SET point = point + #{score} WHERE ID = #{stuID}")
     public int updateScore(Long stuID,Long score);
 
-    @Select("SELECT * FROM i_monograph WHERE  ID = #{ID}")
+    @Select("SELECT * FROM i_book WHERE  id = #{ID}")
     public Monograph selectByID(Long ID);
 
     public List<Monograph> searchMonographByConditions(String studentName, String state, String monoName, String pointFront, String pointBack);
+    public Integer selectMonographNumberOfPendingMessing(String state);
+
+    @Update("UPDATE i_book SET have_score = #{have_score} WHERE id = #{id}")
+    public Integer editPoint(Monograph monograph);
+
 }

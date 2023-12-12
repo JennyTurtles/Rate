@@ -1,17 +1,12 @@
 package org.sys.rate.service.admin;
 
-import com.baomidou.mybatisplus.extension.api.R;
-import com.github.pagehelper.util.StringUtil;
-import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
-import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.ReadExcel;
-import org.sys.rate.utils.createGroups;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -168,8 +163,8 @@ public class UnderGraduateService {
         return underGraduateMapper.getUnderByStuID(studentID);
     }
 
-    @Transactional
-    public RespBean importThesis(String type, Integer institutionID, Integer year, String semester, MultipartFile file) throws RespBean {
+    @Transactional()
+    public RespBean importThesis(String type, Integer institutionID, Integer startThesisID, MultipartFile file) throws RespBean {
         // 1. 从excel解析出来的数据
         Msg excelData = readExcel.readStartThesisExcelData(type, institutionID, file);
         if (excelData.getCode() == 500) {
@@ -177,18 +172,18 @@ public class UnderGraduateService {
         }
 
         // 3.对于学期进行分解，3-春季，9-秋季
-        Integer month;
-        if (semester.length() > 1) {
-            month = "春季".equals(semester) ? 3 : 9;
-        } else {
-            month = Integer.valueOf(semester);
-        }
+//        Integer month;
+//        if (semester.length() > 1) {
+//            month = "春季".equals(semester) ? 3 : 9;
+//        } else {
+//            month = Integer.valueOf(semester);
+//        }
 
         // 4.插入thesis表(或者当type==teacher时，需要更新thesis表)
         List thesisList = (List<Thesis>) excelData.getExtend().get("thesis");
-        RespBean thesisResBean = this.insertOrUpdateThesis(thesisList, year, month);
+        RespBean thesisResBean = this.insertOrUpdateThesis(thesisList, startThesisID, type);
         if (thesisResBean.getStatus().equals(500)) {
-            throw thesisResBean;
+            return thesisResBean;
         }
 
         // 5. 全部成功后，要记录多少行成功，多少行失败，多少行重复插入，还有第几行是因为什么原因失败
@@ -202,10 +197,10 @@ public class UnderGraduateService {
     }
 
 
-    private RespBean insertOrUpdateThesis(List<Thesis> thesisList, Integer year, Integer month) {
+    private RespBean insertOrUpdateThesis(List<Thesis> thesisList, Integer startThesisID, String type) {
         int rows = 0;
         try {
-            rows = thesisService.upsert(thesisList, year, month);
+            rows = thesisService.upsert(thesisList, startThesisID, type);
         } catch (Exception e) {
             String errorMessage = "插入或者更新操作毕业论文信息时出错！";
             return RespBean.error(errorMessage);
@@ -215,22 +210,26 @@ public class UnderGraduateService {
     }
 
 
-    public List<UnderGraduate> getStudent(Integer institutionID, Integer year, Integer month) {
-        return underGraduateMapper.getStudent(institutionID, year, month);
+    public List<UnderGraduate> getStudent(Integer institutionID, Integer startThisThesisID) {
+        return underGraduateMapper.getStudent(institutionID, startThisThesisID);
     }
 
-    public RespBean getThesisExistDate(Integer institutionID) {
+    public RespBean getThesisExistDate(Integer institutionID, Integer adminID) {
         try {
-            List<String> date = underGraduateMapper.getThesisExistDate(institutionID);
+            List<String> date;
+            if (adminID != -1)
+                date = underGraduateMapper.getThesisExistDateByAdmin(institutionID, adminID);
+            else
+                date = underGraduateMapper.getThesisExistDate(institutionID);
             return RespBean.ok("", date);
         } catch (Exception e) {
             return RespBean.error("");
         }
     }
 
-    public RespBean startThesis(Integer institutionID, Integer year, String semester) {
+    public RespBean startThesis(Integer institutionID, Integer adminID, Integer year, String semester) {
         try {
-            underGraduateMapper.startThesis(institutionID, year, semester);
+            underGraduateMapper.startThesis(institutionID, adminID, year, semester);
             return RespBean.ok("");
         } catch (Exception e) {
             return RespBean.error("开启毕业设计失败！");
@@ -275,39 +274,51 @@ public class UnderGraduateService {
         }
     }
 
-    public String createGroup(Integer year, Integer month, List<Integer> arr, Integer exchangeNums, Integer groupsNums, String groupWay,List<String> selectInfo) {
+    public String createGroup(Integer startThesisID, List<Integer> arr, Integer exchangeNums, Integer groupsNums, String groupWay,List<String> selectInfo,HashMap<String,List<Integer>> orderNums) {
         List<Double> point = new ArrayList<>();
         List<Thesis> students = new ArrayList<>();
         List<double[]> point_participant = new ArrayList<>();
-        for (String per:selectInfo){
-            List<Thesis> par = new ArrayList<>();
-            if (groupWay.equals("专业"))
-                par = underGraduateMapper.getUngroupedBySpecialty(year, month, per);
-            else if (groupWay.equals("班级"))
-                par = underGraduateMapper.getUngroupedByClass(year, month, per);
-            students.addAll(par);
-        }
+        if (groupWay.equals("专业"))
+            students = underGraduateMapper.getUngroupedBySpecialty(startThesisID, selectInfo);
+        else if (groupWay.equals("班级"))
+            students = underGraduateMapper.getUngroupedByClass(startThesisID, selectInfo);
         for (Thesis student : students) {
-            double[] temp = new double[3];
+            double[] temp = new double[4];
             point.add(Double.valueOf(student.getGrade()==null? 0.0:student.getGrade()));
             temp[0] = Double.valueOf(student.getGrade()==null? 0.0:student.getGrade());//分数
             temp[1] = Double.valueOf(student.getID());//学生id
             temp[2] = Double.valueOf(-1);//组号标识
+            temp[3] = Double.valueOf(-1); //-1：非指定的学生 x：指定为x组的学生
+            int index = 0;
+            for(String key:orderNums.keySet()){
+                boolean flag = false;
+                for (Integer id : orderNums.get(key)) {
+                    if (student.getStudentID().equals(id)) {
+                        temp[3] = Double.valueOf(index);
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag)
+                    break;
+                index++;
+            }
             point_participant.add(temp);
         }
         //得到交换后的groups
         List<List<double[]>> res = groupsService.createGroupsByScore(arr, exchangeNums, groupsNums, point, point_participant);
-        // 将res逆序
-        Collections.reverse(res);
         String name = "";
         //对每组遍历
         try {
             for (int residx = 0; residx < res.size(); residx++) {
+                List<Integer> ids = new ArrayList<>();
                 name = "第" + Integer.toString(residx + 1) + "组";
                 for (int item = 0; item < res.get(residx).size(); item++) {
                     Integer id = (int) res.get(residx).get(item)[1];
-                    underGraduateMapper.updateGroup(id, name);
+                    ids.add(id);
                 }
+                if (ids.size() > 0)
+                    underGraduateMapper.updateGroup(ids, name);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -316,9 +327,31 @@ public class UnderGraduateService {
         return "分组成功";
     }
 
-    public RespBean importThesisName(Integer tutorId, Integer institutionID, Integer year, Integer month, MultipartFile file) throws RespBean {
+    public String createGroup_judge(Integer startThesisID, List<Integer> arr, Integer exchangeNums, Integer groupsNums, String groupWay,List<String> selectInfo,HashMap<String, List<Integer>> arrSub,HashMap<String, HashMap<String,List<Integer>>> orderNums) {
+        if (arrSub == null){ //无指定专业或班级分组
+            HashMap<String,List<Integer>> order_empty = new HashMap<>();
+            return createGroup(startThesisID,arr,exchangeNums,groupsNums,groupWay,selectInfo,order_empty);
+        }
+        else {
+            try {
+                for (String s : selectInfo) {
+                    List<String> info_single = new ArrayList<>();
+                    info_single.add(s);
+                    HashMap<String,List<Integer>> order = orderNums.get(s);
+                    createGroup(startThesisID, arrSub.get(s), exchangeNums, groupsNums, groupWay, info_single, order);
+                }
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                return "分组失败";
+            }
+            return "分组成功";
+        }
+    }
+
+    public RespBean importThesisName(Integer tutorId, Integer institutionID, Integer startThesisID, MultipartFile file) throws RespBean {
         // 1. 从excel解析出来的数据
-        Msg excelData = readExcel.readThesisNameExcelData(tutorId, institutionID, year, month, file);
+        Msg excelData = readExcel.readThesisNameExcelData(tutorId, institutionID, startThesisID, file);
         if (excelData.getCode() == 500) {
             throw RespBean.error(excelData.getMsg());
         }

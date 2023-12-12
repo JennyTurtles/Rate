@@ -31,7 +31,7 @@ public interface ThesisMapper {
 
     @Delete("DELETE FROM thesis " +
             "WHERE studentID IN (SELECT ID FROM undergraduate WHERE studentID = #{studentID}) " +
-            "AND (tutorID = #{tutorID} OR tutorID IS NULL) AND YEAR = #{year} AND MONTH = #{month}")
+            "AND (tutorID = #{tutorID} OR tutorID IS NULL) AND start_thesis_id = #{startThesisID}")
     void delete(UnderGraduate under);
 
     @Select("select count(id)>0 from thesis where studentID=#{studentID} and year =#{year} and month=#{month}")
@@ -43,12 +43,21 @@ public interface ThesisMapper {
     @Insert("insert into thesis (studentID, year, month, tutorID, grade) VALUES (#{studentID}, #{year}, #{month}, #{tutorID}, #{grade})")
     void insert(Thesis thesis);
 
-    @Insert("INSERT INTO thesis (studentID, year, month, tutorID, grade) " +
-            "VALUES (#{thesis.studentID}, #{year}, #{month}, #{thesis.tutorID, jdbcType=NUMERIC}, #{thesis.grade}) " +
+    @Insert("INSERT INTO thesis (studentID, start_thesis_id, tutorID, grade) " +
+            "VALUES (#{studentID}, #{startThesisID}, #{tutorID, jdbcType=NUMERIC}, #{grade}) " +
             "ON DUPLICATE KEY UPDATE tutorID = VALUES(tutorID), grade = VALUES(grade)")
-    @Options(useGeneratedKeys = true, keyProperty = "thesis.ID")
-    void upsert(Thesis thesis, Integer year, Integer month);
+    @Options(useGeneratedKeys = true, keyProperty = "ID", keyColumn = "ID")
+    int upsert(Thesis thesis);
 
+
+    @Insert("INSERT INTO thesis (studentID, tutorID) " +
+            "VALUES (#{studentID}, #{tutorID, jdbcType=NUMERIC}) " +
+            "ON DUPLICATE KEY UPDATE tutorID = VALUES(tutorID)")
+    @Options(useGeneratedKeys = true, keyProperty = "ID", keyColumn = "ID")
+    int upsertTutorId(Thesis thesis);
+
+
+//
 
     Integer batchUpsert(Map<String, Object> paramMap);
 
@@ -56,7 +65,7 @@ public interface ThesisMapper {
     void editThesisName(Integer thesisId, String thesisName);
 
 
-    @Update("UPDATE thesis SET name = #{name} WHERE studentID = #{studentID} AND year = #{year} AND `month` = #{month} AND tutorID = #{tutorID}")
+    @Update("UPDATE thesis SET name = #{name} WHERE studentID = #{studentID} AND start_thesis_id = #{startThesisID} AND tutorID = #{tutorID}")
     Integer notExistOrUpdate(Thesis thesis);
 
     @Select("select studentID from undergraduate where ID=#{studentID}")

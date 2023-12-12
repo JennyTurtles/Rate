@@ -1,9 +1,12 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.GraduateStudent;
 import org.sys.rate.model.Teachers;
+import org.sys.rate.model.UnderGraduate;
 
 import java.util.List;
 
@@ -29,7 +32,22 @@ public interface GraduateStudentMapper {
     int isGraduateStudent(Integer stuId);
     List<Teachers> getTeaNamesBySelect(String teaName);
     List<GraduateStudent> getGraduateStudentsBySelect(String teaName,Integer year);
+    List<GraduateStudent> getGraduateStudentsBySelectOfTeacher(Integer tutorID, Integer year);
 
-    // 获取研究生列表
-    List<GraduateStudent> getGraduateListByTutorID(Integer tutorID);
+    @Select("SELECT CASE WHEN s.name = #{stuName} THEN s.id ELSE -1 END AS result " +
+            "FROM graduatestudent u " +
+            "JOIN student s ON u.studentID = s.ID " +
+            "WHERE u.stuNumber = #{stuNumber} AND u.institutionID = #{institutionID}")
+    Integer checkStudentExist(String stuNumber, String stuName, Integer institutionID);
+
+    int updateWithInstitutionID(GraduateStudent graduateStudent);
+
+    @Update("UPDATE graduatestudent SET point = point + #{score} WHERE studentID = #{stuID}")
+    public int updateScore(Long stuID,Long score);
+
+    @Update("UPDATE graduatestudent SET point = point - #{score} WHERE studentID = #{stuID}")
+    public int updateScoreSub(Long stuID,Long score);
+
+    GraduateStudent checkStuNumber(@Param("stuNumber") String record);
+
 }

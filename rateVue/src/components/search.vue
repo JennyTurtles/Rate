@@ -292,7 +292,7 @@
           </template>
         </el-table-column>
       </el-table>
-<!--      科研项目搜索-->
+<!--      纵向科研项目搜索-->
       <el-table
           v-if="searchPathInf.type === 'project'"
           :data="listSearchPublicationsByName"
@@ -486,6 +486,7 @@
       <el-table
           v-show="uploadResult"
           :data="tableUploadData"
+          max-height="200"
           :row-class-name="checkUploadData"
           style="width: 100%"
       >
@@ -493,9 +494,7 @@
         <el-table-column prop="刊物简称" label="刊物简称" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
         <el-table-column prop="出版社" label="出版社" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
         <el-table-column prop="网址" label="网址" v-if="indicatorTypeZH=='学术论文'"></el-table-column>
-        <el-table-column prop="收录级别 （不同收录级别请用分号隔开）" label="收录级别 （不同收录级别请用分号隔开）"
-                         v-if="indicatorTypeZH=='学术论文'"></el-table-column>
-        <el-table-column prop="项目名称" label="项目名称" v-if="indicatorTypeZH=='科研项目'"></el-table-column>
+        <el-table-column prop="项目名称" label="项目名称" v-if="indicatorTypeZH=='纵向科研项目'"></el-table-column>
         <el-table-column prop="奖项名称" label="奖励名称" v-if="indicatorTypeZH=='科研获奖'"></el-table-column>
         <el-table-column prop="成果名称" label="成果名称" v-if="indicatorTypeZH=='决策咨询'"></el-table-column>
         <el-table-column prop="学科竞赛名称" label="学科竞赛名称" v-if="indicatorTypeZH=='学科竞赛'"></el-table-column>
@@ -721,7 +720,7 @@
       </span>
     </el-dialog>
 
-    <!--科研项目-->
+    <!--纵向科研项目-->
     <el-table
         v-if="indicatorType === 'project'"
         :data="tableData"
@@ -751,7 +750,7 @@
     <!--新增-->
     <el-dialog :visible.sync="dialogVisibleAppendProgram" width="40%">
       <span slot="title" style="float: left; font-size: 20px"
-      >请输入科研项目类别的的相关信息</span
+      >请输入纵向科研项目类别的的相关信息</span
       >
       <el-form :model="programInf">
         <el-form-item label="类别名">
@@ -776,7 +775,7 @@
     <!--编辑-->
     <el-dialog :visible.sync="dialogVisibleUpdateProgram" width="30%">
       <span slot="title" style="float: left; font-size: 20px"
-      >请输入科研项目的相关信息</span
+      >请输入纵向科研项目的相关信息</span
       >
       <el-form :model="rowData">
         <el-form-item label="科研项目名">
@@ -995,7 +994,6 @@
     <!--      <el-table-column prop="abbr" label="刊物简称"></el-table-column>-->
     <!--      <el-table-column prop="publisher" label="出版社"></el-table-column>-->
     <!--      <el-table-column prop="url" label="网址"></el-table-column>-->
-    <!--      <el-table-column prop="level" label="收录级别"></el-table-column>-->
     <!--    </el-table>-->
   </div>
 </template>
@@ -1034,7 +1032,7 @@ export default {
       selectTypes: [
         {label: "学术论文", value: "publication"},
         // {label: "科研获奖", value: "award"},
-        {label: "科研项目", value: "project"},
+        {label: "纵向科研项目", value: "project"},
         {label: "决策咨询", value: "decision"},
         // {label: "学科竞赛", value: "competition"},
       ],
@@ -1113,7 +1111,6 @@ export default {
           刊物简称: "AI",
           出版社: "Elsevier",
           网址: "http://dblp.uni-trier.de/db/journals/ai/",
-          "收录级别 （不同收录级别请用分号隔开）": "SCI;",
         },
       ],
       tableTechnicalSample: [
@@ -1123,7 +1120,7 @@ export default {
         },
       ],
       tableProjectSample: [
-        //科研项目
+        //纵向科研项目
         {
           项目名称: "",
         },
@@ -1152,7 +1149,7 @@ export default {
     },
   },
   mounted() {
-    axios.get("/indicator").then((resp) => {
+    this.getRequest("/indicator").then((resp) => {
       //获得所有指标点
       var data = resp.obj[1];
       var that = this;
@@ -1168,7 +1165,7 @@ export default {
                 ...that.typeOfAllPaper,
                 subItem,
               ];
-            } else if (subItem.type == "科研项目") {
+            } else if (subItem.type == "纵向科研项目") {
               that.typeOfAllProject = [
                 ...that.typeOfAllProject,
                 subItem,
@@ -1205,6 +1202,7 @@ export default {
       }
     },
     async getYearList(year) {
+      // console.log(this.indicatorType);
       try {
         const url = `/indicator/getAllYear/${this.indicatorID}/${this.indicatorType}`;
         await this.getRequest(url).then((resp) => {
@@ -1257,7 +1255,7 @@ export default {
      return
     }
     try {
-     const resp = await axios.get(
+     const resp = await this.getRequest(
          `/indicator/getAwardByYearLevel?level=${level}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}`
      );
      if (resp.extend.res != null) {
@@ -1282,7 +1280,7 @@ export default {
      return
     }
     try {
-     const resp = await axios.get(
+     const resp = await this.getRequest(
          `/indicator/getCompetitionByYearLevel?year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}`
      );
      if (resp.extend.res != null) {
@@ -1380,11 +1378,11 @@ export default {
       )}&fullName=${encodeURIComponent(val)}`;
       this.getRequest(url).then((resp) => {
         this.loading = false;
-        console.log(resp)
+        // console.log(resp)
         if (resp && resp.obj.length !== 0) {
-          console.log(resp.obj)
+          // console.log(resp.obj)
           resp.obj.forEach((item) => {
-            const data = {name: item.name};
+            // const data = {name: item.name};
             if (this.searchPathInf.type == "publication") {
               data.abbr = item.abbr;
               data.id = item.id;
@@ -1449,7 +1447,7 @@ export default {
         try {
           const resp = await this.getRequest(url);
           this.loading = false;
-          console.log(resp)
+          // console.log(resp)
           if (resp && resp.obj != null) {
             this.select_pubName = resp.obj.map(item => ({value: item}));
           } else {
@@ -1471,7 +1469,7 @@ export default {
         return
       }
       try {
-        const resp = await axios.get(
+        const resp = await this.getRequest(
             `/indicator/getProductByYear?indicatorId=${indicatorId}&year=${year}&pageNum=${this.currentPage}&pageSize=${this.PageSize}&type=${type}`
         );
         if (resp.extend.res != null) {
@@ -1514,7 +1512,7 @@ export default {
 
       this.$confirm("确定要删除该条记录吗？", "提示", {type: "warning"})
           .then(() => {
-            return axios.delete(url);
+            return this.deleteRequest(url);
           })
           .then((resp) => {
             if (resp.status === 200) {
@@ -1565,7 +1563,7 @@ export default {
 
         const url = `/${paths[indicatorType] || indicatorType}`;
 
-        await axios.put(url, rowData).then((resp) => {
+        await this.putRequest(url, rowData).then((resp) => {
           if (resp.status === 200) {
             this.$message({
               type: "success",
@@ -1595,7 +1593,7 @@ export default {
         return;
       }
       this.$refs['appendPublicationForm'].validate((valid) => {
-        console.log(valid)
+        // console.log(valid)
         if (valid) {
           var postData = {
             name: this.publicationInf.name,
@@ -1658,9 +1656,8 @@ export default {
           abbr: this.tableUploadData[i]["刊物简称"],
           publisher: this.tableUploadData[i]["出版社"],
           url: this.tableUploadData[i]["网址"],
-          level: this.tableUploadData[i]["收录级别"],
           year: this.importSelectYear,
-          indicatorName: this.indicatorName,
+          indicatorId: this.indicatorID,
         };
         publicationInfList.push(publicationInf);
       }
@@ -1758,8 +1755,7 @@ export default {
         year: this.programInf.year,
       };
       var that = this;
-      axios
-          .post("/projectType", postData)
+      this.postRequest("/projectType", postData)
           .then(function (resp) {
             const queryParams = new URLSearchParams({
               indicatorId: postData.indicatorId,
@@ -1771,7 +1767,7 @@ export default {
               type: "success",
               message: resp.msg,
             });
-            return axios.get("/projectByYear?" + queryParams.toString());
+            return this.getRequest("/projectByYear?" + queryParams.toString());
           })
           .then(function (resp) {
             that.tableData = resp.data;
@@ -1790,7 +1786,7 @@ export default {
         year: this.decisionInf.year,
       };
       var that = this;
-      axios.post("/decisionType", postData).then(function (resp) {
+      this.postRequest("/decisionType", postData).then(function (resp) {
         if (resp) {
           that.$message({
             type: "success",
@@ -1809,7 +1805,7 @@ export default {
         year: this.competitionInf.year,
       };
       var that = this;
-      axios.post("/competitionType", postData).then(function (resp) {
+      this.postRequest("/competitionType", postData).then(function (resp) {
         if (resp) {
           that.$message({
             type: "success",
@@ -1882,7 +1878,7 @@ export default {
           学术论文: "publication",
           授权专利: "patent",
           科研获奖: "award",
-          科研项目: "project",
+          纵向科研项目: "project",
           制定标准: "standard",
           决策咨询: "decision",
           学术专著和教材: "book",
@@ -1933,7 +1929,7 @@ export default {
       this.rowData = this.searchInf2;
       var type = "";
       if (indicatorType === "学术论文") type = "publication";
-      else if (indicatorType === "科研项目") type = "program";
+      else if (indicatorType === "纵向科研项目") type = "program";
       else if (indicatorType === "科研获奖奖") type = "award";
       else if (indicatorType === "决策咨询") type = "decision";
       this.update(type);
@@ -1941,7 +1937,7 @@ export default {
     searchDelete(id, indicatorType) {
       var type = "";
       if (indicatorType === "学术论文") type = "publication";
-      else if (indicatorType === "科研项目") type = "program";
+      else if (indicatorType === "纵向科研项目") type = "program";
       else if (indicatorType === "科研获奖奖") type = "award";
       else if (indicatorType === "决策咨询") type = "decision";
       this.remove(id, type);
@@ -2019,10 +2015,12 @@ export default {
               if (this.indicatorTypeZH == "学术论文" && typeof results[firstSheetName][j]["刊物全称"] == "undefined") {
                 this.uploadResultError = true;
                 this.errorMessage = "刊物全称不可为空";
-              } else if (this.indicatorTypeZH == "学术论文" && typeof results[firstSheetName][j]["出版社"] == "undefined") {
-                this.uploadResultError = true;
-                this.errorMessage = "出版社不可为空";
-              } else if (this.indicatorTypeZH == "科研项目" && typeof results[firstSheetName][j]["项目名称"] == "undefined") {
+              }
+              // else if (this.indicatorTypeZH == "学术论文" && typeof results[firstSheetName][j]["出版社"] == "undefined") {
+              //   this.uploadResultError = true;
+              //   this.errorMessage = "出版社不可为空";
+              // }
+              else if (this.indicatorTypeZH == "纵向科研项目" && typeof results[firstSheetName][j]["项目名称"] == "undefined") {
                 this.uploadResultError = true;
                 this.errorMessage = "项目名称不可为空";
               } else if (this.indicatorTypeZH == "决策咨询" && typeof results[firstSheetName][j]["成果名称"] == "undefined") {
@@ -2106,7 +2104,7 @@ export default {
         case "学术论文":
           await this.appendPublicationAsync();
           break;
-        case "科研项目":
+        case "纵向科研项目":
           await this.appendProjectAsync();
           break;
         case "科研获奖":
@@ -2238,7 +2236,7 @@ export default {
       if (this.indicatorTypeZH == "学术论文" && (typeof row["刊物全称"] === "undefined" || typeof row["出版社"] === "undefined")) {
         return "warning-row";
       }
-      if (this.indicatorTypeZH == "科研项目" && typeof row["项目名称"] === "undefined") {
+      if (this.indicatorTypeZH == "纵向科研项目" && typeof row["项目名称"] === "undefined") {
         return "warning-row";
       }
       if (this.indicatorTypeZH == "决策咨询" && typeof row["成果名称"] === "undefined") {

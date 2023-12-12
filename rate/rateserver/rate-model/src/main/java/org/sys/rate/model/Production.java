@@ -43,6 +43,7 @@ public class Production {
     String url;
 
     List<Operation> operationList;
+    Integer have_score;
 
     // 排名
     Integer rank;
@@ -51,6 +52,16 @@ public class Production {
     Integer total;
 
     Integer point;
+
+    @DateTimeFormat(pattern = "yyyy-MM")
+    @JsonFormat(pattern = "yyyy-MM", timezone = "GMT+8")
+    Date startDate;
+
+    @DateTimeFormat(pattern = "yyyy-MM")
+    @JsonFormat(pattern = "yyyy-MM", timezone = "GMT+8")
+    Date endDate;
+
+    String publisher;
 
 }
 

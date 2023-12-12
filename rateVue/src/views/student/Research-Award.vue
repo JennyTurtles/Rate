@@ -160,7 +160,7 @@
         </el-form-item>
         <el-form-item label="奖励级别:" label-width="80px" style="margin-left: 20px;" prop="awardLevel">
           <span class="isMust">*</span>
-          <el-select size="mini" v-model="currentAwardCopy.awardLevel" placeholder="请选择奖励级别" style="width: 80%">
+          <el-select size="mini" v-model="currentAwardCopy.awardLevel" placeholder="请选择奖励级别" style="width: 80%" @change="selectedAwardLevel = false">
             <el-option v-for="item in awardLevelList" :key="item.value" :value="item.label" :label="item.label"></el-option>
           </el-select>
         </el-form-item>
@@ -168,7 +168,7 @@
         <el-form-item label="奖励类别:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-select
-              :disabled="disabledSelectAwardType"
+              :disabled="disabledSelectAwardType || selectedAwardLevel"
               v-model="selectAwardType"
               value-key="id"
               filterable
@@ -177,7 +177,7 @@
               reserve-keyword
               placeholder="请选择科研获奖类别"
               loading-text="搜索中..."
-              @focus="selectAwardTypeMethod"
+              @focus="selectAwardTypeMethod($event)"
               :loading="searchTypeLoading">
             <el-option
                 v-for="item in selectAwardTypeList"
@@ -233,7 +233,11 @@
         <el-button type="primary" @click="addAward">提 交</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="选择指标点分类" center :visible.sync="showTreeDialog" width="60%">
+    <el-dialog title="" center :visible.sync="showTreeDialog" width="60%">
+      <div slot="title">
+        <div>选择指标点分类</div>
+        <div style="font-size: 14px;margin-top: 10px">以下仅显示本类型的指标点</div>
+      </div>
       <span class="el-tree-node">
         <el-tree
             :data="indicatorData"
@@ -241,7 +245,8 @@
             @node-click="handleNodeClick"
             :expand-on-click-node="false"
             :highlight-current="true"
-            default-expand-all
+            node-key="id"
+            :default-expanded-keys="defaultExpandedKeys"
         ></el-tree>
       </span>
     </el-dialog>
@@ -256,7 +261,7 @@
     >
       <el-form
           :label-position="labelPosition"
-          label-width="120px"
+          label-width="80px"
           :model="currentAward"
           style="margin-left: 20px">
         <el-form-item label="奖励名称:">
@@ -273,6 +278,14 @@
         </el-form-item>
         <el-form-item label="奖励级别:">
           <span>{{ currentAward.awardLevel }}</span
+          >
+        </el-form-item>
+        <el-form-item label="奖励积分:">
+          <span>{{ currentAward.point }}</span
+          >
+        </el-form-item>
+        <el-form-item label="作者人数:">
+          <span>{{ currentAward.total }}</span
           >
         </el-form-item>
         <el-form-item label="作者排名:">
@@ -295,22 +308,30 @@
                           :"管理员驳回"}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="备  注:">
-          <span>{{ currentAward.remark }}</span>
-        </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           <span v-if="currentAward.url == '' || currentAward.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
-             @click="download(currentAward)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{currentAward.url|fileNameFilter}}</a>
-          <br />
+          <div v-else>{{ currentAward.url | fileNameFilter }}</div>
         </el-form-item>
+        <div v-show="currentAward.url == '' || currentAward.url == null ? false : true" style="margin-left: 80px">
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
+        </div>
+        <br />
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
               <div >
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
@@ -326,6 +347,14 @@
         >
       </span>
     </el-dialog>
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -337,6 +366,13 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      isImage: false,
+      isPdf: false,
+      dialogPreviewPdfFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
+      selectedAwardLevel: true,
+      defaultExpandedKeys: [],
       zeroPointReason: '',
       indicatorBtn: '选择指标点',
       defaultProps: {
@@ -438,17 +474,24 @@ export default {
       }
     }
   },
-  filters:{
-    fileNameFilter:function(data){//将证明材料显示出来
-      if(data == null || data == ''){
-        return '无证明材料'
-      }else{
-        var arr= data.split('/')
-        return  arr.reverse()[0]
-      }
-    }
-  },
   methods: {
+    previewMethod(type) {
+      if(type == '1') {
+        this.previewFileMethod(this.currentAward).then(res => {
+          this.previewUrl = res;
+          if(this.isImage) {
+            this.previewImageSrcList = [res];
+            this.$refs.previewImage.showViewer = true;
+          }
+          if(this.isPdf) {
+            this.dialogPreviewPdfFile = true;
+          }
+        });
+      } else {
+        this.downloadFileMethod(this.currentAward);
+      }
+    },
+
     //不进行rankN判断
     handleNodeClick(data, node) {
       if (data.children.length == 0) {
@@ -469,10 +512,15 @@ export default {
     },
     //初始化指标点树
     initTree() {
-      this.getRequest("/indicator").then( resp => {
+      this.getRequest("/indicator/getAllByType?type=科研获奖").then( resp => {
         this.showTreeDialog = true;
+        this.defaultExpandedKeys = [];
         if (resp) {
           this.indicatorData = resp.obj[1];
+          if(this.indicatorData.length > 0)
+            if(this.indicatorData[0].children.length > 0) {
+              this.defaultExpandedKeys.push(this.indicatorData[0].children[0].id);
+            } else this.defaultExpandedKeys.push(this.indicatorData[0].id);
         }
       });
     },
@@ -486,6 +534,7 @@ export default {
     debounceSearchType() {
       if(this.currentAwardCopy.date == null || this.currentAwardCopy.date == '') return;
       if(this.currentAwardCopy.awardLevel == null || this.currentAwardCopy.awardLevel == '') return;
+      this.searchTypeLoading = true;
       this.getRequest('/award/basic/getIndicatorByYearAndType?year=' + this.currentAwardCopy.date.split('-')[0] + '&type=' + this.currentAwardCopy.awardLevel).then(response => {
         if(response) {
           this.searchTypeLoading = false;
@@ -494,20 +543,10 @@ export default {
       })
     },
     selectAwardTypeMethod() {
-      this.searchTypeLoading = true;
       this.debounceSearchType();
     },
     cancelAdd() {
       this.dialogVisible = false;
-    },
-    download(data){//下载证明材料
-      var fileName = data.url.split('/').reverse()[0]
-      if(localStorage.getItem("user")){
-        var url="/award/basic/download?fileUrl=" + data.url + "&fileName=" + fileName
-        window.location.href = encodeURI(url);
-      }else{
-        this.$message.error("请重新登录！");
-      }
     },
     handleDelete() {//删除选择的文件
       var file={
@@ -539,7 +578,7 @@ export default {
       var formData=new FormData();
       this.files.push(file);
       formData.append("file",this.files[0].raw)
-      axios.post("/award/basic/upload",formData,{
+      axios.post("/achievements/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? this.user.token : ''
         }
@@ -617,6 +656,7 @@ export default {
       this.currentAwardCopy = JSON.parse(JSON.stringify(data));
       this.isAuthorIncludeSelf = true;
       this.disabledSelectAwardType = false;
+      this.selectedAwardLevel = false;
       this.awardPoint = data.point;
       this.zeroPointReason = '';
       const { id, name } = data.awardType;
@@ -636,6 +676,14 @@ export default {
       this.title_show = "显示详情";
       this.currentAward = data
       this.dialogVisible_showInfo = true
+      this.isPdf = this.isImage = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
+        this.isImage = true;
+      }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研获奖').then((resp) => {
         this.loading = false;
         if (resp) {
@@ -676,16 +724,8 @@ export default {
       this.$refs["currentAwardCopy"].validate((valid) => {
         if (valid) {
           params.id = this.currentAwardCopy.id;
+          params.studentId = this.user.id
           params.awardTypeId = this.currentAwardCopy.awardType.id;
-          if(params.url == '' || params.url == null){
-            this.$message.error('请上传证明材料！')
-            return
-          }
-          if(!this.isAuthorIncludeSelf) {
-            this.$message.error('请仔细检查作者列表！');
-            return;
-          }
-
           this.postRequest1("/award/basic/edit", params).then(
               (resp) => {
                 if (resp) {
@@ -710,6 +750,17 @@ export default {
       params.awardLevel = this.currentAwardCopy.awardLevel;
       params.state = "commit";
       params.indicatorId = this.selectedIndicator.id;
+      if(params.url == '' || params.url == null){
+        this.$message.error('请上传证明材料！')
+        return
+      }
+      if(params.url.indexOf("\\") >= 0) {
+        params.url = params.url.replaceAll("\\", "/")
+      }
+      if(!this.isAuthorIncludeSelf) {
+        this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+        return;
+      }
       if (this.currentAwardCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editAward(params);
       } else {
@@ -717,14 +768,6 @@ export default {
           if (valid) {
             params.studentId = this.user.id;
             params.awardTypeId = this.selectAwardType.id;
-            if(params.url == '' || params.url == null){
-              this.$message.error('请上传证明材料！')
-              return
-            }
-            if(!this.isAuthorIncludeSelf) {
-              this.$message.error('请仔细检查作者列表！');
-              return;
-            }
             this.postRequest1("/award/basic/add", params).then(
                 (resp) => {
                   if (resp) {
@@ -760,6 +803,7 @@ export default {
       this.zeroPointReason = '';
       this.isAuthorIncludeSelf = false;
       this.disabledSelectAwardType = true;
+      this.selectedAwardLevel = true;
       this.selectAwardTypeList = [];
     },
     initAwardsList() {

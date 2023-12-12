@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.CompetitionMapper;
 import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.CompetitionService;
@@ -38,6 +39,8 @@ public class CompetitionController {
 
     @Resource
     private CompetitionService competitionService;
+    @Resource
+    CompetitionMapper competitionMapper;
     @Resource
     private IndicatorMapper indicatorMapper;
     @Resource
@@ -73,9 +76,9 @@ public class CompetitionController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Competition project) {
+    public JsonResult addSave(Competition project) throws FileNotFoundException {
         Integer res = competitionService.insertCompetition(project);
-//        mailToTeacherService.sendTeaCheckMail(project, "科研奖励", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(project, "学科竞赛","添加");
         return new JsonResult(project.getId());
     }
 
@@ -85,8 +88,9 @@ public class CompetitionController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Competition project) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(project, "科研奖励", uploadFileName);
-        return new JsonResult(competitionService.updateCompetition(project));
+        int res = competitionService.updateCompetition(project);
+        mailToTeacherService.sendTeaCheckMail(project, "学科竞赛","修改");
+        return new JsonResult(res);
     }
 
     /**
@@ -158,5 +162,12 @@ public class CompetitionController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
+    }
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Competition competition) {
+        competition.setId(ID);
+        Integer res = competitionMapper.editPoint(competition);
+        return new JsonResult(res);
     }
 }

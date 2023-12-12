@@ -1095,6 +1095,84 @@ public class POIUtils {
         return mm;
     }
 
+    public static ResponseEntity<byte[]> writeDoctorStudent() {
+        //1. 创建一个 Excel 文档
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        workbook.createInformationProperties();
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        //文档标题
+        summInfo.setTitle("Doctor");
+        //文档作者
+        summInfo.setAuthor("东华大学");
+        summInfo.setComments("本文档由东华大学计算机学院提供");
+        //5. 创建样式
+        //创建标题行的样式
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        HSSFCellStyle dateCellStyle = workbook.createCellStyle();
+        dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+        HSSFSheet sheet = workbook.createSheet("Doctor");
+        //设置列的宽度
+        sheet.setColumnWidth(0, 10 * 256);
+        sheet.setColumnWidth(1, 10 * 256);
+        sheet.setColumnWidth(2, 20 * 256);
+        sheet.setColumnWidth(3, 15 * 256);
+        sheet.setColumnWidth(4, 20 * 256);
+        sheet.setColumnWidth(5, 20 * 256);
+        sheet.setColumnWidth(6, 15 * 256);
+        sheet.setColumnWidth(7, 10 * 256);
+        sheet.setColumnWidth(8, 15 * 256);
+        sheet.setColumnWidth(9, 15 * 256);
+        //6. 创建标题行
+        HSSFRow r0 = sheet.createRow(0);
+        HSSFRow row = sheet.createRow(1);
+
+        HSSFCell c0 = r0.createCell(0);
+        c0.setCellValue("姓名");
+        HSSFCell c1 = r0.createCell(1);
+        c1.setCellValue("学号");
+        HSSFCell c2 = r0.createCell(2);
+        c2.setCellValue("手机号");
+        HSSFCell c3 = r0.createCell(3);
+        c3.setCellValue("邮箱");
+        HSSFCell c4 = r0.createCell(4);
+        c4.setCellValue("导师工号");
+        HSSFCell c5 = r0.createCell(5);
+        c5.setCellValue("导师姓名");
+        HSSFCell c6 = r0.createCell(6);
+        c6.setCellValue("入学年份");
+        HSSFCell c7 = r0.createCell(7);
+        c7.setCellValue("学生类别");
+        HSSFCell c8 = r0.createCell(8);
+        c8.setCellValue("专业");
+        HSSFCell c9 = r0.createCell(9);
+        c9.setCellValue("班级");
+        row.createCell(0).setCellValue("张三");
+        row.createCell(1).setCellValue("1111");
+        row.createCell(2).setCellValue("13812341234");
+        row.createCell(3).setCellValue("123@dhu.edu.cn");
+        row.createCell(4).setCellValue("1111");
+        row.createCell(5).setCellValue("李华");
+        row.createCell(6).setCellValue("2018");
+        row.createCell(7).setCellValue("专博/学博");
+        row.createCell(8).setCellValue("软件工程");
+        row.createCell(9).setCellValue("软件1901");
+
+        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。导师工号和导师姓名如果不填写，则默认没有导师，如果两者都填写，按照导师工号查询。两者可填可不填。手机号和邮箱可为空");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setContentDispositionFormData("attachment", new String("博士生模板.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
+
     //管理员下载研究生模版excel
     public static ResponseEntity<byte[]> writeGraduateStudent() {
         //1. 创建一个 Excel 文档
@@ -1125,6 +1203,7 @@ public class POIUtils {
         sheet.setColumnWidth(6, 15 * 256);
         sheet.setColumnWidth(7, 10 * 256);
         sheet.setColumnWidth(8, 15 * 256);
+        sheet.setColumnWidth(9, 15 * 256);
         //6. 创建标题行
         HSSFRow r0 = sheet.createRow(0);
         HSSFRow row = sheet.createRow(1);
@@ -1134,30 +1213,33 @@ public class POIUtils {
         HSSFCell c1 = r0.createCell(1);
         c1.setCellValue("学号");
         HSSFCell c2 = r0.createCell(2);
-        c2.setCellValue("身份证号码");
+        c2.setCellValue("手机号");
         HSSFCell c3 = r0.createCell(3);
-        c3.setCellValue("手机号");
+        c3.setCellValue("邮箱");
         HSSFCell c4 = r0.createCell(4);
-        c4.setCellValue("邮箱");
+        c4.setCellValue("导师工号");
         HSSFCell c5 = r0.createCell(5);
-        c5.setCellValue("导师工号");
+        c5.setCellValue("导师姓名");
         HSSFCell c6 = r0.createCell(6);
-        c6.setCellValue("导师姓名");
+        c6.setCellValue("入学年份");
         HSSFCell c7 = r0.createCell(7);
-        c7.setCellValue("入学年份");
+        c7.setCellValue("学生类别");
         HSSFCell c8 = r0.createCell(8);
-        c8.setCellValue("学生类别");
+        c8.setCellValue("专业");
+        HSSFCell c9 = r0.createCell(9);
+        c9.setCellValue("班级");
         row.createCell(0).setCellValue("张三");
         row.createCell(1).setCellValue("1111");
-        row.createCell(2).setCellValue("123456789123456789");
-        row.createCell(3).setCellValue("13812341234");
-        row.createCell(4).setCellValue("123@dhu.edu.cn");
-        row.createCell(5).setCellValue("1111");
-        row.createCell(6).setCellValue("李华");
-        row.createCell(7).setCellValue("2018");
-        row.createCell(8).setCellValue("专硕/学硕");
+        row.createCell(2).setCellValue("13812341234");
+        row.createCell(3).setCellValue("123@dhu.edu.cn");
+        row.createCell(4).setCellValue("1111");
+        row.createCell(5).setCellValue("李华");
+        row.createCell(6).setCellValue("2018");
+        row.createCell(7).setCellValue("专硕/学硕");
+        row.createCell(8).setCellValue("软件工程");
+        row.createCell(9).setCellValue("软件1901");
 
-        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。导师工号和导师姓名如果不填写，则默认没有导师，如果两者都填写，按照导师工号查询。两者可填可不填");
+        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。导师工号和导师姓名如果不填写，则默认没有导师，如果两者都填写，按照导师工号查询。两者可填可不填。手机号和邮箱可为空");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -1206,7 +1288,8 @@ public class POIUtils {
                     String stuNumber = null;//学号
                     String name = null;//姓名
                     String phone = null;//手机号
-                    String idCard = null;//身份证号
+                    String specialty = null;//专业
+                    String class_ = null;// 班级
                     String email = null;//邮箱
                     String teaJobNumber = null;
                     String teaName = null;
@@ -1227,8 +1310,11 @@ public class POIUtils {
                                 case "手机号":
                                     phone = cellValue;
                                     break;
-                                case "身份证号码":
-                                    idCard = cellValue;
+                                case "专业":
+                                    specialty = cellValue;
+                                    break;
+                                case "班级":
+                                    class_ = cellValue;
                                     break;
                                 case "邮箱":
                                     email = cellValue;
@@ -1250,21 +1336,25 @@ public class POIUtils {
                             }
                         }
                     }
-                    if (phone == null || stuNumber == null || email == null || name == null || idCard == null || studentType == null) {
+                    if (stuNumber == null || name == null || specialty == null || studentType == null || class_ == null) { //手机号和邮箱可为空
                         continue;
                     }
-                    student.setName(name);
-                    student.setTelephone(phone);
-                    student.setIDNumber(idCard);
-                    student.setEmail(email);
+//                    student.setName(name);
+//                    student.setTelephone(phone);
+//                    student.setEmail(email);
+//                    student.setInstitutionid(institutionID);
                     tea.setJobnumber(teaJobNumber);
                     tea.setName(teaName);
                     graduateStudent.setTeachers(tea);
                     graduateStudent.setStuNumber(stuNumber);
+                    graduateStudent.setName(name);
                     graduateStudent.setYear(Integer.parseInt(year));
                     graduateStudent.setInstitutionID(institutionID);
-                    graduateStudent.setIDNumber(idCard);
+                    graduateStudent.setSpecialty(specialty);
+                    graduateStudent.setClassName(class_);
                     graduateStudent.setStudentType(studentType);
+                    graduateStudent.setTelephone(phone);
+                    graduateStudent.setEmail(email);
                     studentList.add(student);
                     graduateList.add(graduateStudent);
                 }
@@ -1276,6 +1366,123 @@ public class POIUtils {
         Map<String, List> mm = new HashMap<>();
         mm.put("studentlist", studentList);
         mm.put("graduatelist", graduateList);
+        return mm;
+    }
+
+    //管理员上传博士生模版excel
+    public static Map<String, List> readExcel_doctrstudent(Integer institutionID, MultipartFile file) {
+        //tutorid目前没有处理
+        List<Doctor> doctorList = new ArrayList<>();
+        Doctor doctor = new Doctor();
+        Teachers tea = new Teachers();
+        List<Student> studentList = new ArrayList<>();
+        Student student = new Student();
+        try {//1. 创建一个 workbook 对象
+            HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
+            //2. 获取 workbook 中表单的数量
+            int numberOfSheets = workbook.getNumberOfSheets();
+            for (int i = 0; i < numberOfSheets; i++) {//3. 获取表单
+                HSSFSheet sheet = workbook.getSheetAt(i);//4. 获取表单中的行数
+                int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
+                int Cells = sheet.getRow(0).getPhysicalNumberOfCells();
+                HashMap<Integer, String> map = new HashMap<>();
+                for (int m = 0; m < Cells; m++) {
+                    if (sheet.getRow(0).getCell(m).getStringCellValue() != null)
+                        map.put(m, sheet.getRow(0).getCell(m).getStringCellValue());
+                }
+                for (int j = 0; j < physicalNumberOfRows; j++) {//5. 跳过标题行
+                    if (j == 0) {
+                        continue;//跳过标题行//获得表头，为后续对应位置
+                    }//6. 获取行
+                    HSSFRow row = sheet.getRow(j);
+                    if (row == null) {
+                        continue;//防止数据中间有空行
+                    }//7. 获取列数
+                    int physicalNumberOfCells = row.getPhysicalNumberOfCells();
+                    doctor = new Doctor();
+                    student = new Student();
+                    tea = new Teachers();
+                    String stuNumber = null;//学号
+                    String name = null;//姓名
+                    String phone = null;//手机号
+                    String specialty = null;//专业
+                    String class_ = null;// 班级
+                    String email = null;//邮箱
+                    String teaJobNumber = null;
+                    String teaName = null;
+                    String year = null;
+                    String studentType = null;
+                    for (int k = 0; k < Cells; k++) {
+                        HSSFCell cell = row.getCell(k);
+                        if (cell != null) {
+                            cell.setCellType(CellType.STRING);
+                            String cellValue = cell.getStringCellValue();
+                            switch (map.get(k)) {
+                                case "姓名":
+                                    name = cellValue;
+                                    break;
+                                case "学号":
+                                    stuNumber = cellValue;
+                                    break;
+                                case "手机号":
+                                    phone = cellValue;
+                                    break;
+                                case "专业":
+                                    specialty = cellValue;
+                                    break;
+                                case "班级":
+                                    class_ = cellValue;
+                                    break;
+                                case "邮箱":
+                                    email = cellValue;
+                                    break;
+                                case "导师工号":
+                                    teaJobNumber = cellValue;
+                                    break;
+                                case "导师姓名":
+                                    teaName = cellValue;
+                                    break;
+                                case "入学年份":
+                                    year = cellValue;
+                                    break;
+                                case "学生类别":
+                                    studentType = cellValue;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    if (stuNumber == null || name == null || specialty == null || studentType == null || class_ == null) { //手机号和邮箱可为空
+                        continue;
+                    }
+//                    student.setName(name);
+//                    student.setTelephone(phone);
+//                    student.setEmail(email);
+//                    student.setInstitutionid(institutionID);
+                    tea.setJobnumber(teaJobNumber);
+                    tea.setName(teaName);
+                    doctor.setTeachers(tea);
+                    doctor.setStuNumber(stuNumber);
+                    doctor.setName(name);
+                    doctor.setYear(Integer.parseInt(year));
+                    doctor.setInstitutionID(institutionID);
+                    doctor.setSpecialty(specialty);
+                    doctor.setClassName(class_);
+                    doctor.setStudentType(studentType);
+                    doctor.setTelephone(phone);
+                    doctor.setEmail(email);
+                    studentList.add(student);
+                    doctorList.add(doctor);
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Map<String, List> mm = new HashMap<>();
+        mm.put("studentlist", studentList);
+        mm.put("doctorlist", doctorList);
         return mm;
     }
 
@@ -1309,8 +1516,10 @@ public class POIUtils {
         sheet.setColumnWidth(2, 10 * 256);
         sheet.setColumnWidth(3, 6 * 256);
         sheet.setColumnWidth(4, 20 * 256);
-        sheet.setColumnWidth(5, 15 * 256);
-        sheet.setColumnWidth(6, 15 * 256);
+        sheet.setColumnWidth(5, 20 * 256);
+        sheet.setColumnWidth(6, 20 * 256);
+        sheet.setColumnWidth(7, 15 * 256);
+        sheet.setColumnWidth(8, 15 * 256);
         //6. 创建标题行
         HSSFRow r0 = sheet.createRow(0);
         HSSFCell c0 = r0.createCell(0);
@@ -1324,17 +1533,23 @@ public class POIUtils {
         HSSFCell c4 = r0.createCell(4);
         c4.setCellValue("身份证号码");
         HSSFCell c5 = r0.createCell(5);
-        c5.setCellValue("手机号");
+        c5.setCellValue("用户名");
         HSSFCell c6 = r0.createCell(6);
-        c6.setCellValue("邮箱");
+        c6.setCellValue("密码");
+        HSSFCell c7 = r0.createCell(7);
+        c7.setCellValue("手机号");
+        HSSFCell c8 = r0.createCell(8);
+        c8.setCellValue("邮箱");
         HSSFRow row = sheet.createRow(1);
         row.createCell(0).setCellValue("20131000");
         row.createCell(1).setCellValue("张三");
         row.createCell(2).setCellValue("计算机学院");
         row.createCell(3).setCellValue("男");
         row.createCell(4).setCellValue("123456789123456789");
-        row.createCell(5).setCellValue("13812341234");
-        row.createCell(6).setCellValue("123@dhu.edu.cn");
+        row.createCell(5).setCellValue("zhangsan");
+        row.createCell(6).setCellValue("123456");
+        row.createCell(7).setCellValue("13812341234");
+        row.createCell(8).setCellValue("123@dhu.edu.cn");
         sheet.createRow(2).createCell(0).setCellValue("注意事项：");
         sheet.createRow(3).createCell(0).setCellValue("1.如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。");
         sheet.createRow(4).createCell(0).setCellValue("2.如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。");
@@ -1386,6 +1601,8 @@ public class POIUtils {
                     String department = null;//部门
                     String phone = null;//手机号
                     String idCard = null;//身份证号，主键
+                    String username = null;//用户名
+                    String password = null;//密码
                     String email = null;//邮箱
                     String sex = null;//性别
                     for (int k = 0; k < Cells; k++) {
@@ -1402,6 +1619,12 @@ public class POIUtils {
                                     break;
                                 case "身份证号码":
                                     idCard = cellValue;
+                                    break;
+                                case "用户名":
+                                    username = cellValue;
+                                    break;
+                                case "密码":
+                                    password = cellValue;
                                     break;
                                 case "邮箱":
                                     email = cellValue;
@@ -1431,6 +1654,9 @@ public class POIUtils {
                     teachers.setDepartment(department);
                     teachers.setSex(sex);
                     teachers.setJobnumber(jobNumber);
+                    teachers.setUsername(username);
+                    teachers.setPassword(password);
+                    teachers.setRole("3");
                     teachersList.add(teachers);
                 }
             }
@@ -1906,6 +2132,75 @@ public class POIUtils {
         HttpHeaders headers = new HttpHeaders();
         try {
             headers.setContentDispositionFormData("attachment", new String("本科生毕业论文题目模板.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
+
+    public static ResponseEntity<byte[]> groupExcel(List<UnderGraduate> underGraduateList) {
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        workbook.createInformationProperties();
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        summInfo.setTitle("undergraduate");
+        summInfo.setAuthor("东华大学");
+        summInfo.setComments("本文档由东华大学计算机学院提供");
+
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        HSSFCellStyle dateCellStyle = workbook.createCellStyle();
+        dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+        HSSFSheet sheet = workbook.createSheet("undergraduate");
+
+        for (int i = 0; i < 9; i++) {
+            sheet.setColumnWidth(i, 20 * 256);
+        }
+
+        HSSFRow r0 = sheet.createRow(0);
+        HSSFCell c0 = r0.createCell(0);
+        c0.setCellValue("学号");
+        HSSFCell c1 = r0.createCell(1);
+        c1.setCellValue("姓名");
+        HSSFCell c2 = r0.createCell(2); // 注释掉绩点列
+        c2.setCellValue("入学年份");
+        HSSFCell c3 = r0.createCell(3);
+        c3.setCellValue("专业");
+        HSSFCell c4 = r0.createCell(4);
+        c4.setCellValue("班级");
+        HSSFCell c5 = r0.createCell(5);
+        c5.setCellValue("导师工号");
+        HSSFCell c6 = r0.createCell(6);
+        c6.setCellValue("导师姓名");
+        HSSFCell c7 = r0.createCell(7);
+        c7.setCellValue("分组");
+
+        Collections.sort(underGraduateList, Comparator.comparing(UnderGraduate::getGroup));
+
+        for (int i = 0; i < underGraduateList.size(); i++) {
+            HSSFRow row = sheet.createRow(i + 1);
+            UnderGraduate underGraduate = underGraduateList.get(i);
+            if (underGraduate == null) {
+                continue;
+            }
+            row.createCell(0).setCellValue(Optional.ofNullable(underGraduate.getStuNumber()).orElse(""));
+            row.createCell(1).setCellValue(Optional.ofNullable(underGraduate.getName()).orElse(""));
+            row.createCell(2).setCellValue(Optional.ofNullable(underGraduate.getYear() + "").orElse(""));
+            row.createCell(3).setCellValue(Optional.ofNullable(underGraduate.getSpecialty()).orElse(""));
+            row.createCell(4).setCellValue(Optional.ofNullable(underGraduate.getClassName()).orElse(""));
+            row.createCell(5).setCellValue(Optional.ofNullable(underGraduate.getTutorJobNumber()).orElse(""));
+            row.createCell(6).setCellValue(Optional.ofNullable(underGraduate.getTutorName()).orElse(""));
+            row.createCell(7).setCellValue(Optional.ofNullable(underGraduate.getGroup()).orElse(""));
+        }
+
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setContentDispositionFormData("attachment", new String("本科生毕业设计分组结果.xls".getBytes("UTF-8"), "ISO-8859-1"));
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             workbook.write(baos);
         } catch (IOException e) {

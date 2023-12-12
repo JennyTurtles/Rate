@@ -16,6 +16,7 @@
         <result property="total" column="total"/>
         <result property="competitionLevel" column="competition_level"/>
         <result property="indicatorId" column="indicator_id"/>
+        <result property="have_score" column="have_score"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>
@@ -55,7 +56,7 @@
                  JOIN (
             SELECT prod_id,MAX(date) max_date
             FROM i_oper
-            WHERE prod_type = '科研项目'
+            WHERE prod_type = '学科竞赛'
             GROUP BY prod_id
         ) i ON p.id = i.prod_id
                  JOIN (
@@ -81,7 +82,7 @@
 
 <!--    学生科研项目页面初始化-->
     <select id="selectCompetitionListById" resultMap="CompetitionResult">
-        SELECT a.*,i.max_date,j.remark, type.`name` as tname, type.id as projectTypeId, type.year,ind.id as indicatorid, ind.name as iname, ind.score, ind.rankN
+        SELECT a.*,i.max_date,j.remark, type.`name` as tname, type.id as projectTypeId, type.year,ind.id as indicatorid, ind.name as iname, ind.score, ind.rankN, s.name as sname
         FROM i_competition a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -96,6 +97,7 @@
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_competition_type type ON type.id = a.competition_type_id AND a.student_id = #{studentID}
                  JOIN indicator ind ON ind.id = a.indicator_id
+                 JOIN student s ON s.ID = a.student_id
         ORDER BY a.id DESC;
     </select>
 
@@ -192,7 +194,7 @@
         </foreach>
     </delete>
     <select id="searchCompetitionByConditions" resultMap="CompetitionResult">
-        SELECT book.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, s.name as sname
+        SELECT book.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, s.name as sname
         FROM i_competition book
         JOIN (
         SELECT prod_id,MAX(i_oper.date) max_date
@@ -217,4 +219,9 @@
     </select>
 
     <select id="selectCompetitionListByYear" resultType="org.sys.rate.model.Competition"></select>
+    <select id="selectCompetitionNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_competition
+        where state = #{state}
+    </select>
 </mapper>

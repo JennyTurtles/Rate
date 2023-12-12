@@ -42,21 +42,24 @@ public class PaperCommentService {
     }
 
 
-
-    public Thesis getThesis(int stuID, int year, int month) {
-        return paperCommentMapper.getThesis(stuID, year, month);
+    public Thesis getThesis(int stuID, int startThesisID) {
+        return paperCommentMapper.getThesis(stuID, startThesisID);
     }
 
     public int updateTeaComment(PaperComment paperComment) {
-        return  paperCommentMapper.updateTeaComment(paperComment);
+        return paperCommentMapper.updateTeaComment(paperComment);
     }
 
     public List<Student> getStuThesis(int teaID) {
         return paperCommentMapper.getStuThesis(teaID);
     }
 
-    public List<PaperComment> selectCommentListStu(int thesisID) {
+    public List<PaperComment> selectCommentListTea(int thesisID) {
         return paperCommentMapper.selectCommentList(thesisID);
+    }
+
+    public List<PaperComment> selectCommentListStu(int thesisID) {
+        return paperCommentMapper.selectCommentListStuOrderByNum(thesisID);
     }
 
 
@@ -64,7 +67,15 @@ public class PaperCommentService {
         return paperCommentMapper.getThesisByTID(thesisID);
     }
 
-    public List<Student> getStuThesis(Integer tutorId, Integer year, Integer month) {
-        return paperCommentMapper.getStuThesisWithDate(tutorId, year, month);
+    public List<Student> getStuThesis(Integer tutorId, Integer startThesisID) {
+        return paperCommentMapper.getStuThesisWithDate(tutorId, startThesisID);
+    }
+
+    public List<PaperComment> selectCommentListStuOrderByNum(Integer thesisID) {
+        return paperCommentMapper.selectCommentListStuOrderByNum(thesisID);
+    }
+
+    public int checkSign(Integer thesisID) {
+        return paperCommentMapper.checkSign(thesisID);
     }
 }

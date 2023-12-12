@@ -12,9 +12,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.PatentMapper;
 import org.sys.rate.model.Msg;
+import org.sys.rate.model.Paper;
 import org.sys.rate.model.Patent;
-import org.sys.rate.model.Project;
 import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.PatentService;
@@ -39,9 +40,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/patent/basic")
 public class PatentController {
-    
+
     @Resource
     private PatentService patentService;
+    @Resource
+    private PatentMapper patentMapper;
     @Resource
     PublicationService publicationService;
     @Resource
@@ -53,9 +56,9 @@ public class PatentController {
     private String uploadFileName;
 
     @GetMapping("/studentID")//无页码要求
-    public RespBean getById(Integer studentID) {
+    public JsonResult<List> getById(Integer studentID) {
         List<Patent> list = patentService.selectListByIds(studentID);
-        return RespBean.ok("success", list);
+        return new JsonResult<>(list);
     }
 
     //    修改专利状态
@@ -96,9 +99,9 @@ public class PatentController {
      */
     @PostMapping("/add")
     @ResponseBody
-    public JsonResult addSave(Patent patent) {
+    public JsonResult addSave(Patent patent) throws FileNotFoundException {
         Integer res = patentService.insertPatent(patent);
-//        mailToTeacherService.sendTeaCheckMail(patent, "授权专利", uploadFileName);
+        mailToTeacherService.sendTeaCheckMail(patent, "授权专利", "添加");
         return new JsonResult(patent.getId());
     }
 
@@ -108,8 +111,11 @@ public class PatentController {
     @PostMapping("/edit")
     @ResponseBody
     public JsonResult editSave(Patent patent) throws FileNotFoundException {
-//        mailToTeacherService.sendTeaCheckMail(patent, "授权专利", uploadFileName);
-        return new JsonResult(patentService.updatePatent(patent));
+        int res = patentService.updatePatent(patent);
+        if (res > 0) {
+            mailToTeacherService.sendTeaCheckMail(patent, "授权专利", "修改");
+        }
+        return new JsonResult(res);
     }
 
     /**
@@ -149,6 +155,7 @@ public class PatentController {
         }
         return new JsonResult(flag);
     }
+
     @GetMapping("/downloadByUrl")
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
@@ -164,6 +171,7 @@ public class PatentController {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(resource);
     }
+
     @PostMapping("/searchPatentByConditions")
     public Msg searchProjectByConditions(@RequestBody Map<String, String> params) {
         Page page = PageHelper.startPage(Integer.parseInt(params.get("pageNum")), Integer.parseInt(params.get("pageSize")));
@@ -171,5 +179,12 @@ public class PatentController {
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
+    }
+    //管理员修改该学生论文积分
+    @PostMapping("/editPoint/{ID}")
+    public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Patent patent) {
+        patent.setId(ID);
+        Integer res = patentMapper.editPoint(patent);
+        return new JsonResult(res);
     }
 }

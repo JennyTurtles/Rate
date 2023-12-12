@@ -15,21 +15,21 @@
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
         <result property="decisionTypeId" column="decision_type_id"/>
+        <result property="have_score" column="have_score"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>
         </association>
         <association property="indicator" javaType="org.sys.rate.model.Indicator">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="indicatorid" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
             <result property="rankN" column="rankN"/>
         </association>
         <association property="decisionType" javaType="org.sys.rate.model.DecisionType">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="decisionid" jdbcType="INTEGER"/>
             <result property="name" column="tname"/>
             <result property="year" column="year"/>
-            <result property="indicatorId" column="indicator_id"/>
         </association>
         <collection property="operationList" ofType="org.sys.rate.model.Operation">
             <result property="operatorRole" column="operator_role"/>
@@ -49,19 +49,6 @@
         from i_decision
     </sql>
 
-    <select id="selectAllDecisionList" resultMap="DecisionResult">
-        -- 老师查询所有学生的获奖
-        SELECT p.*,
-               s.name as sname,
-               i.name as iname,
-               i.score,
-               oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
-               oper.state,oper.remark
-        FROM i_decision p
-                 LEFT JOIN student s ON p.student_id = s.ID
-                 LEFT JOIN indicator i ON i.id = p.indicator_id
-                 LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '决策咨询'
-    </select>
 
     <select id="selectListById" resultMap="DecisionResult">
         <include refid="selectDecisionVo"></include>
@@ -75,17 +62,23 @@
 
 <!--    学生奖励页面初始化-->
     <select id="selectDecisionListById" resultMap="DecisionResult" parameterType="Integer">
-        select a.id, a.name, student_id, a.date, author, a.state, url, indicator_id, `rank`, total, point, a.decision_type_id,
-               oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
-               oper.state,oper.remark,
-               i.name as iname,
-               i.score,i.rankN,
-               type.name as tname,type.year,type.indicator_id
+        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as decisionid, ip.year, i.name as iname, i.score,i.rankN, i.id as indicatorid, s.name as sname
         FROM i_decision a
-                 LEFT JOIN i_decision_type type ON type.id = a.decision_type_id
-                 LEFT JOIN indicator i ON i.id = type.indicator_id
-                 LEFT JOIN i_oper oper ON a.id = oper.prod_id and oper.prod_type = '决策咨询'
-        where a.student_id = #{studentID}
+                 JOIN (
+            SELECT prod_id,MAX(i_oper.date) max_date
+            FROM i_oper
+            WHERE prod_type = '决策咨询'
+            GROUP BY prod_id
+        ) i ON a.id = i.prod_id
+                 JOIN (
+            SELECT prod_id,remark,`date`
+            FROM i_oper
+            WHERE prod_type = '决策咨询'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+                 JOIN i_decision_type ip ON a.decision_type_id = ip.id AND a.student_id = #{studentID}
+                 JOIN indicator i ON ip.indicator_id = i.id
+                 JOIN student s ON s.ID = a.student_id
+        ORDER BY a.id DESC;
     </select>
 
     <select id="selectDecisionList" parameterType="org.sys.rate.model.Decision" resultMap="DecisionResult">
@@ -149,7 +142,8 @@
             <if test="total != null">total = #{total},</if>
             <if test="point != null">point = #{point},</if>
             <if test="state != null">state =#{state},</if>
-            <if test="url != null">url = #{url}</if>
+            <if test="url != null">url = #{url},</if>
+            <if test="decisionTypeId != null">decision_type_id = #{decisionTypeId},</if>
         </trim>
         where id = #{id}
     </update>
@@ -197,5 +191,10 @@
             <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
         </where>
         ORDER BY book.id DESC
+    </select>
+    <select id="selectDecisionNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_decision
+        where state = #{state}
     </select>
 </mapper>

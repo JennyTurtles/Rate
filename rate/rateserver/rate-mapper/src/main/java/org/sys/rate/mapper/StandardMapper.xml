@@ -15,6 +15,7 @@
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
         <result property="indicatorId" column="indicator_id"/>
+        <result property="have_score" column="have_score"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>
@@ -79,7 +80,8 @@
 
 <!--    学生页面初始化-->
     <select id="selectListByIds" resultMap="StandardResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score, ind.id as indicatorid
+        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score, ind.id as indicatorid,
+            s.name as sname
         FROM i_standard a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -93,6 +95,7 @@
             WHERE prod_type = '制定标准'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN indicator ind ON ind.id = a.indicator_id AND a.student_id = #{studentID}
+                 JOIN student s ON s.ID = a.student_id
         ORDER BY a.id DESC;
     </select>
 
@@ -166,5 +169,9 @@
             #{ID}
         </foreach>
     </delete>
-
+    <select id="selectStandardNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_standard
+        where state = #{state}
+    </select>
 </mapper>

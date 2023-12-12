@@ -4,21 +4,21 @@
         style="display: flex; justify-content: space-between; margin: 15px 0"
       >
         <div>
-              <label style="fontSize:10px">学生姓名：</label>
+              <label>学生姓名：</label>
               <input type="text" 
-                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
+                style="margin-left:5px;width:60px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
                 placeholder="学生姓名" autocomplete="off"
                 id="select_stuname">
-              <label style="fontSize:10px;margin-left:16px">论文名称：</label>
+              <label style="margin-left:16px">论文名称：</label>
               <input type="text" 
                 style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
                 border-radius:4px;color:grey"
                 placeholder="论文名称"
                 id="select_paperName">
-              <label style="fontSize:10px;margin-left:16px">期刊：</label>
+              <label style="margin-left:16px">期刊：</label>
               <div class="select_div_input">
                 <el-select
                     v-model="searchPaperPublicationName"
@@ -38,16 +38,14 @@
                   </el-option>
                 </el-select>
                 </div>
-              <label style="fontSize:10px;margin-left:40px;">论文状态：</label>
+              <label style="margin-left:15px;">论文状态：</label>
               <el-select
-                  v-model="tmp1"
+                  v-model="paperSelectedStatus"
                   style="margin-left:3px;width:120px"
                   prefix-icon="el-icon-edit"
                   clearable
                   filterable
                   placeholder="状态筛选"
-                  @change="((val) => filter(val,'select_state'))"
-                  id="select_state"
                   >
                     <el-option
                       v-for="val in option"
@@ -56,16 +54,14 @@
                     >
                     </el-option>
               </el-select>
-              <label style="fontSize:10px;margin-left:16px">积分范围：</label>
+              <label style="margin-left:16px">积分范围：</label>
               <el-select
-                  v-model="tmp2"
+                  v-model="pointFront"
                   style="margin-left:3px;width:60px"
                   prefix-icon="el-icon-edit"
                   clearable
                   filterable
                   placeholder="1"
-                  @change="((val) => filter(val,'select_point1'))"
-                  id="select_point1"
                   >
                     <el-option
                       style=""
@@ -77,14 +73,12 @@
               </el-select>
               <label >&nbsp; - &nbsp;</label>
               <el-select
-                  v-model="tmp3"
+                  v-model="pointBack"
                   style="margin-left:3px;width:60px"
                   prefix-icon="el-icon-edit"
                   clearable
                   filterable
                   placeholder="12"
-                  @change="((val) => filter(val,'select_point2'))"
-                  id="select_point2"
                   >
                     <el-option
                       style=""
@@ -99,7 +93,7 @@
                   type="primary"
                   @click="searchEmps(1, 10)"
                   :disabled="showAdvanceSearchView"
-                  style="margin-left:30px"
+                  style="margin-left:10px"
                   >
                   搜索
               </el-button>
@@ -118,7 +112,7 @@
         style="width: 100%"
       >
         <el-table-column
-          prop="student.sname"
+          prop="student.name"
           align="center"
           label="学生姓名"
           min-width="10%"
@@ -165,22 +159,25 @@
         >
         </el-table-column>
         <el-table-column
-          prop="point"
           label="积分"
+          prop="point"
           align="center"
           min-width="8%"
         >
+          <template slot-scope="scope">
+            <span>{{scope.row.have_score == 1 ? scope.row.point : 0}}</span>
+            <span>/</span>
+            <span>{{scope.row.point}}</span>
+          </template>
         </el-table-column>
         <el-table-column min-width="15%"
-          prop="paperoperList[0].remark"
+          prop="remark"
           label="备注"
           align="center"
-          :formatter="checkScoreComent"
         >
         </el-table-column>
         <el-table-column
-          width="130"
-          min-width="15%"
+          min-width="20%"
           align="center"
           label="详情"
         >
@@ -191,6 +188,10 @@
               size="mini"
               >查看详情</el-button
             >
+            <el-button v-show="scope.row.state == 'adm_pass' ? true : false" @click="changePointMethod(scope.row)" style="padding: 4px"
+                       size="mini">
+              {{scope.row.changePointButton}}
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -275,15 +276,26 @@
         ref="empForm"
         style="margin-left: 20px"
       >
-        <el-form-item label="论文名:">
+        <el-form-item label="论文名称:">
           <span>{{ emp.name }}</span
           ><br />
         </el-form-item>
         <el-form-item label="学生姓名:">
-          <span>{{ emp.student.sname }}</span
+          <span>{{ emp.student.name }}</span
           ><br />
         </el-form-item>
-
+        <el-form-item label="作者列表:">
+          <span>{{emp.author}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者人数:">
+          <span>{{emp.total}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者排名:">
+          <span>{{emp.rank}}</span
+          ><br />
+        </el-form-item>
         <el-form-item label="期刊页码:">
           <span>{{ emp.pubPage}}</span
           ><br />
@@ -300,18 +312,6 @@
                           :"管理员驳回"}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者人数:">
-          <span>{{emp.total}}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="作者列表:">
-          <span>{{emp.author}}</span
-          ><br />
-        </el-form-item>
-        <el-form-item label="排名:">
-          <span>{{emp.rank}}</span
-          ><br />
-        </el-form-item>
         <el-form-item label="发表年份:">
           <span>{{emp.year}}</span
           ><br />
@@ -322,21 +322,31 @@
         </el-form-item>
         <el-form-item label="证明材料:">
           &nbsp;&nbsp;&nbsp;&nbsp;
-          <span v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(emp)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{emp.url|fileNameFilter}}</a>
-          <br />
+          <div v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</div>
+          <div v-else>{{ emp.url | fileNameFilter }}</div>
         </el-form-item>
+        <div v-show="emp.url == '' || emp.url == null ? false : true" style="margin-left: 80px">
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
+        </div>
+        <br />
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <div style="font-size: 10px;">
-                <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
-                <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
-              </div>
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
+              <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
+              <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
             </div>
           </div>
         </div>
@@ -344,7 +354,7 @@
         <span slot="footer" class="dialog-footer" :model="emp">
             <el-button
                   id="but_pass"
-                  v-show="((emp.state=='commit' && role == 'teacher') || (emp.state=='tea_pass' && role == 'admin')) ? true:false"
+                  v-show="(emp.state == 'commit' || (emp.state == 'tea_pass' && role == 'admin')) ? true : false"
                   @click="(()=>{
                   if (role == 'teacher')
                    auditing_commit('tea_pass')
@@ -355,7 +365,7 @@
                   >审核通过</el-button>
             <el-button
                   id="but_reject"
-                  v-show="((emp.state=='commit' && role == 'teacher') || (emp.state=='tea_pass' && role == 'admin')) ? true:false"
+                  v-show="(emp.state == 'commit' || (emp.state == 'tea_pass' && role == 'admin')) ? true : false"
                   @click="isShowInfo = true"
                   type="primary"
                   >审核不通过</el-button>
@@ -387,6 +397,15 @@
           <el-button @click="isShowInfo = false">取消</el-button>
         </span>
     </el-dialog>
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
+
+    </el-dialog>
   </div>
 </template>
 
@@ -398,12 +417,19 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      isImage: false,
+      isPdf: false,
+      dialogPreviewPdfFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
+      pointBack: '',
+      pointFront: '',
+      paperSelectedStatus: '',
       totalCount:0,
       currentPage:1,
       pageSize: 10,
       pageSizes:[10, 20, 50, 100],
       searchPaperPublicationName: '',
-      tmp1:'',tmp2:'',tmp3:'', //假装绑定了v-model，让控制台不报错
       ispubFlag:false,
       ispubShow:false,
       select_pub_option:'',
@@ -489,29 +515,74 @@ export default {
         : '${this.select_pubName.length * 50}px'
     },
     role() {
-      return JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ||
-      JSON.parse(localStorage.getItem('user')).roleName.indexOf('expert') >= 0 ? 'teacher' : 'admin';
+      return JSON.parse(localStorage.getItem('user')).roleName == 'expert' || JSON.parse(localStorage.getItem('user')).roleName == 'expert;' ?
+          'expert' : JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ?
+              'teacher' : JSON.parse(localStorage.getItem('user')).roleName.indexOf('admin') >= 0 ? 'admin' : '';
     }
   },
   created() {
     this.debounceSearch = debounce(this.searchPublicationMethod,400);
   },
   mounted() {
+    if(this.role == 'teacher') this.paperSelectedStatus = '学生提交';
+    else if(this.role == 'admin') this.paperSelectedStatus = '导师通过';
     this.searchEmps(1, 10);
   },
-  filters:{
-    fileNameFilter:function(data){//将证明材料显示出来
-      if(data == null || data == ''){
-        return '无证明材料'
-      }else{
-        var arr= data.split('/')
-        return  arr.reverse()[0]
-      }
-    }
-  },
-  watch:{
-  },
   methods: {
+    previewMethod(type) {
+      if(type == '1') {
+         this.previewFileMethod(this.emp).then(res => {
+           this.previewUrl = res;
+           if(this.isImage) {
+             this.previewImageSrcList = [res];
+             this.$refs.previewImage.showViewer = true;
+           }
+           if(this.isPdf) {
+             this.dialogPreviewPdfFile = true;
+           }
+        });
+      } else {
+        this.downloadFileMethod(this.emp);
+      }
+    },
+    changePointMethod(data) { //修改积分按钮
+      var have_score = data.have_score
+      var point = data.point
+      var score = have_score == 1 ? 0 : point
+      this.$confirm(`确定将积分修改为${score}分?`,'提示',{
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(() => {
+        this.changePaperPoint(data, score).then(() => {
+          this.changeStudentPoint(data, score).then(() => {
+            this.$message.success('修改成功！')
+                data.have_score = 1 - data.have_score;
+                if(data.have_score == 1) data.changePointButton = '取消积分'
+                else if(data.have_score == 0) data.changePointButton = '计入积分'
+          });
+        })
+      }).catch(() => {
+        data.have_score = have_score;
+      })
+    },
+    changePaperPoint(data, point) {
+      const params = {
+        point: point,
+        have_score: 1 - data.have_score
+      }
+      return this.postRequest(`/paper/basic/editPoint/${data.id}`, params).then()
+    },
+    changeStudentPoint(data, point) {
+      const params = {
+        studentID: data.studentID,
+        point: data.point //传递需要进行加法或减法的数值
+      }
+      if(point == 0) { //减法
+        return this.postRequest('/graduatestudentM/basic/updateScoreSub', params).then()
+      } else { //加法
+        return this.postRequest('/graduatestudentM/basic/updateScore', params).then()
+      }
+    },
     searchPublicationMethod(val) {
       let url = "/publication/basic/listByName?publicationName=" + val
       this.getRequest(url).then((resp) => {
@@ -531,29 +602,6 @@ export default {
         }
       });
     },
-    selectOption() {
-
-    },
-    download(data){//下载证明材料
-      var fileName = data.url.split('/').reverse()[0]
-      var url = data.url
-      axios({
-        url: '/paper/basic/downloadByUrl?url='+url,
-        method: 'GET',
-        responseType: 'blob'
-      }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
-    },
-    filter(val,options){
-      document.getElementById(options).value=val
-    },
     filter_pub(val){//选择期刊
       this.select_pub_option=val
       this.ispubFlag=false
@@ -562,6 +610,19 @@ export default {
     //点击对话框中的确定按钮 触发事件
     auditing_commit(status){
       this.loading = true;
+      if(this.role == 'admin' && (status.indexOf('pass') >= 0 || status.indexOf('reject') >= 0) && this.emp.state == 'commit') { //管理员通过 有提示
+        this.$confirm('目前导师尚未审核，是否确认审核该成果？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.rolePass(status);
+        }).catch(() => {
+          this.loading = false;
+        });
+      }else this.rolePass(status);
+    },
+    rolePass(status) {
       let url = "/paper/basic/edit_state?state=" + status + "&ID="+this.emp.id;
       this.dialogVisible_show = false
       this.getRequest(url).then((resp) => {
@@ -576,6 +637,8 @@ export default {
             message: '操作成功'
           })
           this.doAddOper(status, this.reason, this.emp.id);
+          let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+          this.$store.dispatch('changePendingMessageange', roleParam);
         }
       }).finally(()=>{
         this.searchEmps(this.currentPage, this.pageSize);
@@ -620,6 +683,14 @@ export default {
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
+      this.isPdf = this.isImage = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
+        this.isImage = true;
+      }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=学术论文').then((resp) => {
           this.loading = false;
           if (resp) {
@@ -639,33 +710,10 @@ export default {
       this.currentPage = currentPage;
       this.searchEmps(this.currentPage, this.pageSize);
     },
-    // initEmps() {
-    //   this.loading = true;
-    //   let url = "/paper/basic/List" ;
-    //   this.getRequest(url).then((resp) => {
-    //     this.loading = false;
-    //     if (resp) {
-    //       this.emps = resp.data;
-    //       this.copyemps = this.emps
-    //       this.total = resp.total;
-    //       //什么意思？
-    //       for(var i = 0; i < this.emps.length; i ++){
-    //         var papername = this.emps[i].name
-    //         if(this.select_paperName.indexOf(papername)==-1){
-    //           this.select_paperName.push(papername)
-    //         }
-    //         var judge=this.emps[i].student.sname
-    //         if(this.select_stuName.indexOf(judge)==-1){
-    //           this.select_stuName.push(judge)
-    //         }
-    //       }
-    //     }
-    //   });
-    // },
     searchEmps(pageNum, pageSize) {//根据条件搜索论文
       const params = {};
       params.studentName = document.getElementById("select_stuname").value
-      var state = document.getElementById("select_state").value
+      var state = this.paperSelectedStatus;
       if(state == '导师通过'){
         state = 'tea_pass'
       }else if(state == '导师驳回'){
@@ -678,17 +726,15 @@ export default {
         state = 'adm_reject'
       }else state = '';
       params.state = state;
-      var pointFront = document.getElementById("select_point1").value
-      var pointBack = document.getElementById("select_point2").value
-      if(pointFront == '全部') {
+      if(this.pointFront == '全部') {
         params.pointFront = '';
       }else {
-        params.pointFront = pointFront;
+        params.pointFront = this.pointFront;
       }
-      if(pointBack == '全部') {
+      if(this.pointBack == '全部') {
         params.pointBack = '';
       }else {
-        params.pointBack = pointBack;
+        params.pointBack = this.pointBack;
       }
       params.name = document.getElementById("select_paperName").value
       params.pub = this.searchPaperPublicationName;
@@ -697,6 +743,14 @@ export default {
       this.postRequest('/paper/basic/searchPaperByConditions', params).then((response) => {
         if(response) {
           this.emps = response.extend.res[0];
+          this.emps.map(item => {
+            item.remark = item.paperoperList[0].remark;
+            if(item.have_score == 1) {
+              this.$set(item, 'changePointButton', '取消积分')
+            } else {
+              this.$set(item, 'changePointButton', '计入积分')
+            }
+          })
           this.totalCount = response.extend.res[1];
         }
       })
@@ -704,7 +758,8 @@ export default {
     checkScoreComent(row){
       if (row.state === "adm_pass" && row.point === 2 && row.have_score === 0)
       {
-        return (row.remark === null ? "" : row.remark+";") + "本类别论文只计算一篇，本论文积分不计入总分"
+        // return (row.remark === null ? "" : row.remark+";") + "本类别论文只计算一篇，本论文积分不计入总分"
+        return (row.remark === null ? "" : row.remark+";") + ""
       }
       return row.remark
     },

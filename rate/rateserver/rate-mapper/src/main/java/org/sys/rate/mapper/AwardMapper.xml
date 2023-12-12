@@ -17,12 +17,13 @@
         <result property="awardLevel" column="award_level"/>
         <result property="awardTypeId" column="award_type_id"/>
         <result property="indicatorId" column="indicator_id"/>
+        <result property="have_score" column="have_score"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>
         </association>
         <association property="indicator" javaType="org.sys.rate.model.Indicator">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="indicatorid" jdbcType="INTEGER"/>
             <result property="name" column="iname"/>
             <result property="score" column="score"/>
             <result property="rankN" column="rankN"/>
@@ -51,20 +52,6 @@
         from i_award
     </sql>
 
-    <select id="selectAllAwardList" resultMap="AwardResult">
-        -- 老师查询所有学生的获奖
-        SELECT p.*,
-               s.name as sname,
-               i.name as iname,
-               i.score,
-               oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
-               oper.state,oper.remark
-        FROM i_award p
-                 LEFT JOIN student s ON p.student_id = s.ID
-                 LEFT JOIN indicator i ON i.id = p.indicator_id
-                 LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '科研获奖'
-    </select>
-
     <select id="selectListById" resultMap="AwardResult">
         <include refid="selectAwardVo"></include>
         <where>
@@ -77,7 +64,7 @@
 
 <!--    学生奖励页面初始化-->
     <select id="selectAwardListById" resultMap="AwardResult" parameterType="Integer">
-        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, i.name as iname, i.score,i.rankN
+        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, i.name as iname, i.score,i.rankN, i.id as indicatorid, s.name as sname
         FROM i_award a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
@@ -92,6 +79,7 @@
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_award_type ip ON a.award_type_id = ip.id AND a.student_id = #{studentID}
                  JOIN indicator i ON a.indicator_id = i.id
+                 JOIN student s ON s.ID = a.student_id
         ORDER BY a.id DESC;
     </select>
 
@@ -188,7 +176,7 @@
     </delete>
 
     <select id="searchAwardByConditions" resultMap="AwardResult">
-        SELECT book.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, s.name as sname
+        SELECT book.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, s.name as sname
         FROM i_award book
         JOIN (
         SELECT prod_id,MAX(i_oper.date) max_date
@@ -210,5 +198,10 @@
             <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
         </where>
         ORDER BY book.id DESC
+    </select>
+    <select id="selectAwardNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_award
+        where state = #{state}
     </select>
 </mapper>

@@ -23,6 +23,27 @@ export default new Router({
       },
       children: [
         {
+          path: '/achievement/GraduateManageAchievementInfo',
+          name: '研究生成果详情',
+          component: () => import('./views/admin/GraduateManageAchievementInfo'),
+          meta: {
+            title: '研究生成果详情',
+          },
+        },
+        {
+          path: '/achievement/DoctorManageAchievementInfo',
+          name: '博士生成果详情',
+          component: () => import('./views/admin/DoctorManageAchievementInfo'),
+          meta: {
+            title: '博士生成果详情',
+          },
+        },
+        {
+          path: '/pending/message',
+          name: '待办消息',
+          component: () => import('./views/teacher/PendingMessage.vue')
+        },
+        {
           path: '/Expert/EassignPE', //路由跳转路径
           name: '分配人员', //路由名称
           hidden: true,
@@ -35,6 +56,20 @@ export default new Router({
           hidden: true,
           component: () => import('./views/admin/AssignPE.vue'),
           meta: { title: '分配人员(主活动)' },
+        },
+        {
+          path: '/Admin/ExceptionLog',
+          name: '异常信息查看',
+          hidden: true,
+          component: () => import('./views/admin/ExceptionLog.vue'),
+          meta: { title: '异常信息查看' },
+        },
+        {
+          path: '/Admin/ExceptionDetails',
+          name: '异常信息详情查看',
+          hidden: true,
+          component: () => import('./views/admin/ExceptionDetails.vue'),
+          meta: { title: '异常信息详情查看' },
         },
         {
           path: '/admin/PersonalCenter',
@@ -218,11 +253,20 @@ export default new Router({
         },
         {
           path: '/student/ResearchProject',
-          name: '科研项目1',
+          name: '纵向科研项目',
           hidden: true,
           component: () => import('./views/student/Research-Project'),
           meta: {
-            title: '科研项目1',
+            title: '纵向科研项目',
+          },
+        },
+        {
+          path: '/student/HorizontalResearchProject',
+          name: '横向科研项目',
+          hidden: true,
+          component: () => import('./views/student/Horizontal-Research-Project'),
+          meta: {
+            title: '横向科研项目',
           },
         },
         {
@@ -326,11 +370,11 @@ export default new Router({
         },
         {
           path: '/student/Product',
-          name: '科研产品',
+          name: '产品应用',
           hidden: true,
           component: () => import('./views/student/Product'),
           meta: {
-            title: '科研产品',
+            title: '产品应用',
           },
         },
         {
@@ -371,11 +415,20 @@ export default new Router({
         },
         {
           path: '/teacher/tResearchProject',
-          name: '科研项目',
+          name: '纵向科研项目',
           hidden: true,
           component: () => import('./views/teacher/Research-Project'),
           meta: {
-            title: '科研项目',
+            title: '纵向科研项目',
+          },
+        },
+        {
+          path: '/teacher/tHorizontalResearchProject',
+          name: '横向科研项目',
+          hidden: true,
+          component: () => import('./views/teacher/Horizontal-Research-Project'),
+          meta: {
+            title: '横向科研项目',
           },
         },
         {
@@ -389,11 +442,11 @@ export default new Router({
         },
         {
           path: '/teacher/Product',
-          name: '科研产品',
+          name: '产品应用',
           hidden: true,
           component: () => import('./views/teacher/Product'),
           meta: {
-            title: '科研产品',
+            title: '产品应用',
           },
         },
         {
@@ -426,15 +479,6 @@ export default new Router({
           component: () => import('./views/secretary/ActManage.vue'),
           meta: {
             title: '秘书管理',
-          },
-        },
-        {
-          path: '/teacher/tResearchProject11111',
-          name: '科研项目2',
-          hidden: true,
-          component: () => import('./views/teacher/Research-Project'),
-          meta: {
-            title: '科研项目2',
           },
         },
         {
@@ -489,6 +533,15 @@ export default new Router({
           component: () => import('./views/teacher/StuList'),
           meta: {
             title: '研究生导师的研究生列表',
+          },
+        },
+        {
+          path: '/teacher/DoctorList',
+          name: '研究生导师的博士生列表',
+          hidden: true,
+          component: () => import('./views/teacher/DoctorStudentList'),
+          meta: {
+            title: '研究生导师的博士生列表',
           },
         },
         {
@@ -565,11 +618,20 @@ export default new Router({
         },
         {
           path: '/admin/GraduateM',
-          name: '研究生管理',
+          name: '研究生列表',
           hidden: true,
           component: () => import('./views/admin/SalGraduateM'),
           meta: {
-            title: '研究生管理',
+            title: '研究生列表',
+          },
+        },
+        {
+          path: '/admin/DoctorM',
+          name: '研究生列表',
+          hidden: true,
+          component: () => import('./views/admin/SalDoctorM'),
+          meta: {
+            title: '研究生列表',
           },
         },
         {

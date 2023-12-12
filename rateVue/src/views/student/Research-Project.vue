@@ -6,7 +6,7 @@
       >
         <div>
           <el-button type="primary" icon="el-icon-plus" @click="addProjectDialog">
-            添加科研项目
+            添加纵向科研项目
           </el-button>
         </div>
       </div>
@@ -71,7 +71,7 @@
         </el-table-column>
         <el-table-column
             prop="startDate"
-            label="立项时间"
+            label="立项年月"
             align="center"
             min-width="10%"
         >
@@ -80,7 +80,7 @@
             prop="endDate"
             min-width="10%"
             align="center"
-            label="结项时间"
+            label="结项年月"
         >
         </el-table-column>
         <el-table-column
@@ -149,7 +149,7 @@
               placeholder="请输入科研项目名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="立项时间:" label-width="80px" style="margin-left: 20px;" prop="startDate">
+        <el-form-item label="立项年月:" label-width="80px" style="margin-left: 20px;" prop="startDate">
           <span class="isMust">*</span>
           <el-date-picker
               style="width: 80%"
@@ -157,16 +157,16 @@
               type="month"
               @change="changeProjectStartDate($event)"
               value-format="yyyy-MM"
-              placeholder="选择立项时间">
+              placeholder="选择立项年月">
           </el-date-picker>
         </el-form-item>
-        <el-form-item label="结项时间:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="结项年月:" label-width="80px" style="margin-left: 20px;">
           <el-date-picker
               style="width: 80%"
               v-model="currentProjectCopy.endDate"
               type="month"
               value-format="yyyy-MM"
-              placeholder="选择结项时间">
+              placeholder="选择结项年月">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="参与人:" label-width="80px" style="margin-left: 20px;" prop="author">
@@ -196,6 +196,7 @@
               :remote-method="selectProjectTypeMethod"
               :loading="searchTypeLoading">
             <el-option
+                style="width: 550px;overflow: scroll"
                 v-for="item in selectProjectTypeList"
                 :key="item.id"
                 :label="item.name"
@@ -253,7 +254,7 @@
     >
       <el-form
           :label-position="labelPosition"
-          label-width="120px"
+          label-width="80px"
           :model="currentProject"
           style="margin-left: 20px">
         <el-form-item label="项目名称:">
@@ -264,11 +265,11 @@
           <span>{{ currentProject.author }}</span
           >
         </el-form-item>
-        <el-form-item label="立项日期:">
+        <el-form-item label="立项年月:">
           <span>{{ currentProject.startDate }}</span
           >
         </el-form-item>
-        <el-form-item label="结项日期:">
+        <el-form-item label="结项年月:">
           <span>{{ currentProject.endDate }}</span
           >
         </el-form-item>
@@ -286,20 +287,28 @@
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
           <span v-if="currentProject.url == '' || currentProject.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer"
-             @click="download(currentProject)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{currentProject.url|fileNameFilter}}</a>
-          <br />
+          <div v-else>{{ currentProject.url | fileNameFilter }}</div>
         </el-form-item>
-        <el-form-item label="相关备注:">
-          <span>{{ currentProject.remark }}</span>
-        </el-form-item>
+        <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
+        </div>
+        <br />
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
               <div >
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
@@ -315,7 +324,14 @@
         >
       </span>
     </el-dialog>
-
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -327,6 +343,11 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      isImage: false,
+      isPdf: false,
+      dialogPreviewPdfFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
       currentIndicator: {},
       zeroPointReason: '',
       searchTypeLoading: false,
@@ -356,7 +377,7 @@ export default {
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '科研项目',
+        prodType: '纵向科研项目',
         operationName: '',
         state: '',
         remark: '',
@@ -381,7 +402,7 @@ export default {
       },
       rules: {
         name: [{ required: true, message: "请输入科研项目名称", trigger: "blur" }],
-        startDate: [{ required: true, message: "请输入科研项目立项时间", trigger: "blur" }],
+        startDate: [{ required: true, message: "请输入科研项目立项年月", trigger: "blur" }],
         author: [{ required: true, message: "请输入科研项目作者", trigger: "blur" }],
       },
     };
@@ -399,17 +420,24 @@ export default {
     this.currentProjectCopy = JSON.parse(JSON.stringify(this.currentProject));
     this.initProjectsList();
   },
-  filters:{
-    fileNameFilter:function(data){//将证明材料显示出来
-      if(data == null || data == ''){
-        return '无证明材料'
-      }else{
-        var arr = data.split('/');
-        return arr.reverse()[0];
-      }
-    }
-  },
   methods: {
+    previewMethod(type) {
+      if(type == '1') {
+        this.previewFileMethod(this.currentProject).then(res => {
+          this.previewUrl = res;
+          if(this.isImage) {
+            this.previewImageSrcList = [res];
+            this.$refs.previewImage.showViewer = true;
+          }
+          if(this.isPdf) {
+            this.dialogPreviewPdfFile = true;
+          }
+        });
+      } else {
+        this.downloadFileMethod(this.currentProject);
+      }
+    },
+
     //选择下拉框的某个选项
     selectOption(data) {
       if(data) {
@@ -446,31 +474,14 @@ export default {
     },
     //输入项目类别 发送请求调用的函数
     selectProjectTypeMethod(data) {
+      if(data == null || data == '') {
+        return;
+      }
       this.searchTypeLoading = true;
       this.debounceSearch(data);
     },
     cancelAdd() {
       this.dialogVisible = false;
-    },
-    download(data) {//下载证明材料
-      var fileName = data.url.split('/').reverse()[0]
-      var url = data.url
-      axios({
-        url: '/project/basic/downloadByUrl?url=' + url,
-        method: 'GET',
-        responseType: 'blob',
-        headers: {
-          'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
-        }
-      }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
     },
     handleDelete() {//删除选择的文件
       var file={filepath:this.urlFile}
@@ -498,7 +509,7 @@ export default {
       var formData=new FormData();
       this.files.push(file);
       formData.append("file",this.files[0].raw)
-      axios.post("/project/basic/upload",formData,{
+      axios.post("/achievements/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? this.user.token : ''
         }
@@ -578,7 +589,15 @@ export default {
       this.title_show = "显示详情";
       this.currentProject = data
       this.dialogVisible_showInfo = true
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研项目').then((resp) => {
+      this.isPdf = this.isImage = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
+        this.isImage = true;
+      }
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=纵向科研项目').then((resp) => {
         this.loading = false;
         if (resp) {
           this.operList = resp.obj
@@ -607,7 +626,7 @@ export default {
     deleteOperationList(data) {
       const params = {}
       params.prodId = data.id;
-      params.prodType = '科研项目'
+      params.prodType = '纵向科研项目'
       return new Promise((resolve, reject) => {
         this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
           resolve('success');
@@ -618,16 +637,13 @@ export default {
       this.$refs["currentProjectCopy"].validate((valid) => {
         if (valid) {
           params.id = this.currentProjectCopy.id;
+          params.studentId = this.user.id
           if(JSON.stringify(this.selectProjectType) == '{}' || this.selectProjectType == '') {
             this.$message.error('请选择项目类别！')
             return;
           }
-          if(params .url == '' || params == null){
-            this.$message.error('请上传证明材料！')
-            return
-          }
           if(!this.isAuthorIncludeSelf) {
-            this.$message.error('请仔细检查作者列表！');
+            this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
             return;
           }
           this.postRequest1("/project/basic/edit", params).then(
@@ -654,20 +670,24 @@ export default {
       params.point = this.projectPoint;
       params.projectTypeId = this.selectProjectType.id;
       params.state = "commit";
+      if(params.url == '' || params.url == null){
+        this.$message.error('请上传证明材料！')
+        return
+      }
+      if(params.url.indexOf("\\") >= 0) {
+        params.url = params.url.replaceAll("\\", "/")
+      }
       if (this.currentProjectCopy.id) {//emptyEmp中没有将id设置为空 所以可以判断
         this.editProject(params);
       } else {
         this.$refs["currentProjectCopy"].validate((valid) => {
           if (valid) {
+            params.indicatorId = null;
             if(JSON.parse(JSON.stringify(this.selectProjectType)) == '{}' || this.selectProjectType == '') {
               this.$message.error('请选择项目类别！')
               return;
             }
             params.studentId = this.user.id;
-            if(params.url == '' || params.url == null){
-              this.$message.error('请上传证明材料！')
-              return
-            }
             if(!this.isAuthorIncludeSelf) {
               this.$message.error("您的姓名【 " + this.user.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + this.user.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
               return;
@@ -699,7 +719,7 @@ export default {
       this.files = [];
       this.currentProjectCopy = {};
       this.projectPoint = '';
-      this.title = "添加项目";
+      this.title = "添加纵向项目";
       this.selectProjectType = '';
       this.isAuthorIncludeSelf = false;
       this.disabledSelectProjectType = true;

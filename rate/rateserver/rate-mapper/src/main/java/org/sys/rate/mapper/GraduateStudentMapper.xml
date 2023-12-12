@@ -6,7 +6,7 @@
         <id column="studentID" property="studentID" jdbcType="INTEGER"/>
         <result column="institutionID" jdbcType="INTEGER" property="institutionID" />
         <result column="stuNumber" property="stuNumber" jdbcType="VARCHAR"/>
-        <result column="year" property="year" jdbcType="INTEGER"/>
+        <result column="year" property="year"/>
         <result column="specialty" property="specialty" jdbcType="VARCHAR"/>
         <result column="class" property="className" jdbcType="VARCHAR"/>
         <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
@@ -14,8 +14,8 @@
         <result column="point" property="point" jdbcType="VARCHAR"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
         <result property="email" column="email" jdbcType="VARCHAR"/>
+        <result property="role" column="role" jdbcType="VARCHAR"/>
         <result property="telephone" column="telephone" jdbcType="VARCHAR"/>
-        <result property="IDNumber" column="IDNumber" jdbcType="VARCHAR"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="password" column="password" jdbcType="VARCHAR"/>
         <result column="registerAnswer" property="registerAnswer" jdbcType="VARCHAR"/>
@@ -28,7 +28,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        select  ID, studentID,institutionID,stuNumber, year, tutorID,studentType,point,s.name,s.email,s.telephone,s.IDNumber,t.tname,t.tjobnumber
+        select  ID, studentID,institutionID,stuNumber, year, tutorID,studentType,point,s.name,s.email,s.telephone,t.tname,t.tjobnumber
         from graduatestudent u,student s,teacher t
     </sql>
 
@@ -46,14 +46,14 @@
                  #{studentType,jdbcType=VARCHAR},#{point,jdbcType=VARCHAR})
     </insert>
     <insert id="insertFROMImport" parameterType="org.sys.rate.model.GraduateStudent">
-        insert into graduatestudent(ID,studentID,institutionID,stuNumber,year,tutorID,studentType,point) values
+        insert into graduatestudent(ID,studentID,institutionID,stuNumber,year,tutorID,studentType,point, specialty, class) values
         <foreach collection="list" separator="," item="graduate">
                (#{graduate.ID,jdbcType=INTEGER},
                 #{graduate.studentID,jdbcType=INTEGER},
                 #{graduate.institutionID,jdbcType=INTEGER},
                 #{graduate.stuNumber,jdbcType=VARCHAR},
                 #{graduate.year,jdbcType=VARCHAR}, #{graduate.tutorID,jdbcType=INTEGER},
-                #{graduate.studentType,jdbcType=VARCHAR},#{graduate.point,jdbcType=VARCHAR})
+                #{graduate.studentType,jdbcType=VARCHAR},#{graduate.point,jdbcType=VARCHAR},#{graduate.specialty},#{graduate.className})
         </foreach>
     </insert>
 
@@ -61,14 +61,13 @@
         <foreach collection="list" item="item" open="" close="" separator=";">
             update graduatestudent
             <set>
-                institutionID=#{item.institutionID},
-                stuNumber = #{item.stuNumber},
-                year = #{item.year},
-                tutorID = #{item.tutorID},
-                point = #{item.point},
-                studentType = #{item.studentType}
+                <if test="item.year != null and item.year != ''">year = #{item.year},</if>
+                <if test="item.tutorID != null and item.tutorID != ''">tutorID = #{item.tutorID},</if>
+                <if test="item.specialty != null and item.specialty != ''">specialty = #{item.specialty},</if>
+                <if test="item.className != null and item.className != ''">class = #{item.className},</if>
+                <if test="item.studentType != null and item.studentType != ''">studentType = #{item.studentType},</if>
             </set>
-            where studentID = #{item.studentID}
+            WHERE institutionID = #{item.institutionID} AND stuNumber = #{item.stuNumber}
         </foreach>
     </update>
     <select id="check" resultType="java.lang.Integer">
@@ -80,7 +79,7 @@
         </foreach>
     </select>
     <select id="getGraduateStudent" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,t.name as tname,t.jobnumber as tjobnumber
+        select u.*,s.name,s.telephone,s.email,s.username,t.name as tname,t.jobnumber as tjobnumber
         from graduatestudent u
         left join teacher t
         on u.tutorID=t.ID
@@ -112,13 +111,14 @@
     </update>
     <select id="getTeaNamesBySelect" resultType="org.sys.rate.model.Teachers">
         select t.*
-        from graduatestudent g,teacher t
+        from teacher t
         <where>
             <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
         </where>
     </select>
+<!--    管理员端学生列表筛选-->
     <select id="getGraduateStudentsBySelect" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,t.name as tname,t.jobnumber as tjobnumber
+        select u.*,s.name,s.telephone,s.email,s.username,t.name as tname,t.jobnumber as tjobnumber
         from graduatestudent u
         left join teacher t
         on u.tutorID=t.ID
@@ -129,6 +129,19 @@
             <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
         </where>
     </select>
+<!--    老师端学生列表筛选-->
+    <select id="getGraduateStudentsBySelectOfTeacher" resultMap="BaseResultMap">
+        select u.*,s.name,s.telephone,s.email,s.username,t.name as tname,t.jobnumber as tjobnumber
+        from graduatestudent u
+        left join teacher t
+        on u.tutorID=t.ID
+        left join student s
+        on u.studentID=s.ID
+        <where>
+            <if test="year != null and year != 0">and u.year = #{year}</if>
+            and t.ID = #{tutorID}
+        </where>
+    </select>
     <select id="checkHaveStudentOfstudenID" resultType="java.lang.Integer">
         select exists (select * from graduatestudent where studentID = #{studentID})
     </select>
@@ -136,7 +149,7 @@
         select exists (select * from graduatestudent where tutorID = #{tutorID} and ID != #{ID})
     </select>
     <select id="getGradByStuID" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.username,s.password,s.registerQuestion,s.registerAnswer
+        select u.*,s.name,s.telephone,s.email,s.username,s.role,s.password,s.registerQuestion,s.registerAnswer
         from graduatestudent u,student s
         where u.studentID=#{studentID} and s.ID = u.studentID
     </select>
@@ -153,29 +166,21 @@
         <result property="username" column="username" jdbcType="VARCHAR"/>
     </resultMap>
 
-<!--   这里通过stuNumber进行改变，也行-->
-    <select id="getGraduateListByTutorID" resultMap="GraduateListMap">
-        SELECT
-            s.ID AS ID,
-            g.stuNumber,
-            s.`name`,
-            g.studentType,
-            g.`year`,
-            g.point,
-            s.email,
-            s.telephone,
-            s.username
-        FROM
-            `graduatestudent` g,
-            `student` s
-        WHERE
-            g.tutorID = #{tutorID}
-          AND g.studentID = s.ID
-          AND s.deleteflag = 0
-        ORDER BY
-            g.stuNumber
-    </select>
     <select id="checkHaveStudentOfStuNumber" resultType="java.lang.Integer">
         select exists (select * from graduatestudent where institutionID = #{institutionID} and stuNumber = #{stuNumber} and studentID != #{studentID} )
+    </select>
+    <update id="updateWithInstitutionID" parameterType="org.sys.rate.model.GraduateStudent">
+        UPDATE graduatestudent
+        <set>
+            <if test="year != null and year != ''">year = #{year},</if>
+            <if test="tutorID != null and year != ''">tutorID = #{tutorID},</if>
+            <if test="specialty != null and specialty != ''">specialty = #{specialty},</if>
+            <if test="className != null and className != ''">class = #{className},</if>
+            <if test="studentType != null and studentType != ''">studentType = #{studentType}</if>
+        </set>
+        WHERE institutionID = #{institutionID} AND stuNumber = #{stuNumber}
+    </update>
+    <select id="checkStuNumber" resultType="org.sys.rate.model.GraduateStudent">
+        select * from graduatestudent where stuNumber=#{stuNumber}
     </select>
 </mapper>

@@ -3,17 +3,19 @@ package org.sys.rate.utils;
 import cn.afterturn.easypoi.word.WordExportUtil;
 import org.apache.poi.xwpf.usermodel.*;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.sys.rate.model.Comment;
+import org.sys.rate.model.EmailErrorLog;
 import org.sys.rate.model.GradeForm;
 import org.sys.rate.model.ScoreItem;
+import org.sys.rate.service.mail.EmailErrorLogService;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -22,9 +24,12 @@ import java.util.zip.ZipOutputStream;
 
 @Service
 public class ExportWord {
+    @Autowired
+    private EmailErrorLogService emailErrorLogService;
+
+
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ExportWord.class);
-    private static final String TEMPLATE_PATH = "rate/rateserver/rate-web/src/main/resources/static/template/GradingTable.docx";
-//    private static final String TEMPLATE_PATH = "D:/rateTemplate/GradingTable.docx";
+    private String TEMPLATE_PATH;
     private static final SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
     private static final SimpleDateFormat sdfMonth = new SimpleDateFormat("MM");
     private static final SimpleDateFormat sdfDay = new SimpleDateFormat("dd");
@@ -37,20 +42,11 @@ public class ExportWord {
     private static final String[] commentStart = {"指导教师评语", "评阅教师评语", "答辩评语"};
     private static final String[] commentEnd = {"指导教师（签名）", "评阅教师（签名）", "答辩小组组长（签名）"};
     private int[] commentFontSize = {12, 12, 12};
-    private boolean necessaryFilesAndDirectoriesExist;
 
-    public ExportWord() throws IOException {
-        this.necessaryFilesAndDirectoriesExist = checkIfNecessaryFilesAndDirectoriesExist();
+    public ExportWord() {
+        this.TEMPLATE_PATH = new File("files").getAbsolutePath() + "\\template\\GradingTable.docx";
     }
 
-    private boolean checkIfNecessaryFilesAndDirectoriesExist() throws IOException {
-        File file = new File(TEMPLATE_PATH);
-        if (!file.exists()) {
-            logger.error("模版文件 " + TEMPLATE_PATH + " 不存在！！！");
-            return false;
-        }
-        return true;
-    }
 
     public static int calculateChars(String sentence) {
         int count = 0;
@@ -284,7 +280,7 @@ public class ExportWord {
                 return GRADELEVELARRAY[i];
             }
         }
-        logger.error("you got wrong score!");
+//        logger.error("you got wrong score!");
         return GRADELEVELARRAY[4];
     }
 
@@ -294,14 +290,11 @@ public class ExportWord {
                 return i;
             }
         }
-        logger.error("you got wrong score!");
+//        logger.error("you got wrong score!");
         return 4;
     }
 
     public byte[] generateListWord(List<GradeForm> gradeForms) throws Exception {
-        if (!necessaryFilesAndDirectoriesExist) {
-            return null;
-        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ZipOutputStream zos = new ZipOutputStream(baos);
 
@@ -319,6 +312,7 @@ public class ExportWord {
 
             boolean[] inRange = {false, false, false};
             boolean changeLineSpace = false;
+
 
             try (XWPFDocument doc = WordExportUtil.exportWord07(TEMPLATE_PATH, params)) {
                 // change the size of comment

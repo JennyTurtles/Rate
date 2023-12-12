@@ -13,11 +13,21 @@ public class ThesisService {
     @Resource
     private ThesisMapper thesisMapper;
 
-    public Integer upsert(List<Thesis> thesisList, Integer year, Integer month) {
+    public Integer upsert(List<Thesis> thesisList, Integer startThesisID, String type) {
         int rows = 0;
-        for(var thesis:thesisList){
-            thesisMapper.upsert(thesis, year, month);
-            if(thesis.getID()!=null){
+        for (var thesis : thesisList) {
+            thesis.setStartThesisID(startThesisID);
+            int upsertRows = 0;
+            if ("teacher".equals(type)) {
+                upsertRows = thesisMapper.upsertTutorId(thesis);
+            } else {
+                upsertRows = thesisMapper.upsert(thesis);
+            }
+
+//            if () {
+//                ++rows;
+//            }
+            if (thesis.getID() != null && upsertRows == 1) {
                 ++rows;
             }
         }

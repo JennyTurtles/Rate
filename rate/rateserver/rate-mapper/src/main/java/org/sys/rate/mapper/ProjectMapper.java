@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.sys.rate.model.Patent;
 import org.sys.rate.model.Project;
 
 import java.util.List;
@@ -66,6 +67,7 @@ public interface ProjectMapper
     public List<Project> selectAllProjectList();
     public List<Project> selectListById(@Param("studentID") Integer studentID, @Param("page") Integer page, @Param("size") Integer size);
     public List<Project> selectProjectListById(Integer studentID);
+    public List<Project> selectHorizontalProjectListById(Integer studentID);
 
 
     @Select("SELECT ID FROM i_project WHERE studentID = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
@@ -81,6 +83,11 @@ public interface ProjectMapper
     public Project selectByID(Long ID);
 
     public List<Project> searchProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
+    public List<Project> searchHorizontalProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
 
+    Integer selectProjectNumberOfPendingMessing(String state);
+    Integer selectHorizontalProjectNumberOfPendingMessing(String state);
 
+    @Update("UPDATE i_project SET have_score = #{have_score} WHERE id = #{id}")
+    public Integer editPoint(Project project);
 }

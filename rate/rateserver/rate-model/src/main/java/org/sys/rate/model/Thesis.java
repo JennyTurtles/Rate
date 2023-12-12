@@ -51,6 +51,6 @@ public class Thesis {
     private String studentNumber;
 
     private Double grade;
-    private Integer startThesisId;
+    private Integer startThesisID;
 
 }

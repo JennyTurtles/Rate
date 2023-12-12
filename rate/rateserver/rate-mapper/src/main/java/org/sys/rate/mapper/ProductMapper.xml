@@ -15,6 +15,7 @@
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
         <result property="indicatorId" column="indicator_id"/>
+        <result property="have_score" column="have_score"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>
@@ -48,13 +49,13 @@
         JOIN (
         SELECT prod_id,MAX(i_oper.date) max_date
         FROM i_oper
-        WHERE prod_type = '科研产品'
+        WHERE prod_type = '产品应用'
         GROUP BY prod_id
         ) i ON book.id = i.prod_id
         JOIN (
         SELECT prod_id,remark,`date`
         FROM i_oper
-        WHERE prod_type = '科研产品'
+        WHERE prod_type = '产品应用'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
         JOIN indicator i ON book.indicator_id = i.id
         JOIN student s ON s.ID = book.student_id
@@ -79,20 +80,21 @@
 
 <!--    学生产品页面初始化-->
     <select id="selectListByIds" resultMap="ProductResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score
+        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score, s.name as sname
         FROM i_application a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
             FROM i_oper
-            WHERE prod_type = '科研产品'
+            WHERE prod_type = '产品应用'
             GROUP BY prod_id
         ) i ON a.id = i.prod_id
                  JOIN (
             SELECT prod_id,remark,`date`
             FROM i_oper
-            WHERE prod_type = '科研产品'
+            WHERE prod_type = '产品应用'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN indicator ind ON ind.id = a.indicator_id AND a.student_id = #{studentID}
+                 JOIN student s ON s.ID = a.student_id
         ORDER BY a.id DESC;
     </select>
 
@@ -166,5 +168,9 @@
             #{ID}
         </foreach>
     </delete>
-
+    <select id="selectProductNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_application
+        where state = #{state}
+    </select>
 </mapper>

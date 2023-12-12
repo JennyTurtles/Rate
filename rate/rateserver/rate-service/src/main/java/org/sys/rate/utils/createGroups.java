@@ -17,28 +17,54 @@ public class createGroups {
         return sum;
     }
 
+    public void isVerse(List<Integer> arr){
+        List<List<double []>> groups_new = new ArrayList<>();
+        for (int i = 0; i < arr.size(); i++){
+            for (List<double[]> item: groups)
+            {
+                if (item.size() == arr.get(i)) {
+                    groups_new.add(item);
+                    groups.remove(item);
+                    break;
+                }
+            }
+        }
+        groups = groups_new;
+    }
+
     List<List<double []>> temparr = new ArrayList<List<double []>>();
     public List<List<double []>> devideGroupsFixedNums(List<Integer> arr,List<Double> point,
                                                        Integer exChangeNums,Integer groupsNums,
                                                        Integer studentNums,List<double []> point_participant) {
+        temparr.clear();
+        List<Integer> arr_temp = new ArrayList<>();
         for (int i = 0; i < groupsNums; i++) {
             temparr.add(new ArrayList<>());
+            arr_temp.add(arr.get(i));
         }
+        groups.clear();
+        avg = 0;
+        meanValueOfGroups = new double[groupsNums][];
         int index = 0;
         int i = 0;
+        int j = point_participant.size()-1;
         boolean flag = false;
         while (allGroupsNums() < studentNums) {
-            if (temparr.get(index).size() < arr.get(index)) {
+            if (temparr.get(index).size() < arr.get(index)) { //arr：每组人数
                 if(flag){
-                    temparr.get(index).add(point_participant.get(point_participant.size() - 1 - i + 1));
+//                    temparr.get(index).add(point_participant.get(point_participant.size() - 1 - i + 1));
+                    temparr.get(index).add(point_participant.get(i));
                 }
                 if (temparr.get(index).size() < arr.get(index)){
+                    if (flag)
+                        i++;
                     temparr.get(index).add(point_participant.get(i));
                 }
                 if (temparr.get(index).size() < arr.get(index)) {
                     flag = false;
-                    if (i < point.size() - 1 - i) {
-                        temparr.get(index).add(point_participant.get(point_participant.size() - 1 - i));
+                    if (i < j) {
+                        temparr.get(index).add(point_participant.get(j));
+                        j--;
                     }
                 }
                 else {
@@ -62,10 +88,14 @@ public class createGroups {
             if(temparr.size() > 0){
                 index = (index + 1) % temparr.size();
             }else {
+                isVerse(arr_temp);
+                adjust_order();
                 return groups;
             }
             i++;
         }
+        isVerse(arr_temp);
+        adjust_order();
         return groups;
     }
 
@@ -90,8 +120,12 @@ public class createGroups {
     public static ArrayList<double[]> calD_ValueBetweenGroups(List<double[]> arr1, List<double[]> arr2) {
         List<double[]> D_ValueBetweenGroups = new ArrayList<>();
         for (int j = 0; j < arr1.size(); j++) {
+            if (arr1.get(j)[3] != -1)
+                continue;
             for (int k = 0; k < arr2.size(); k++) {
-                D_ValueBetweenGroups.add(new double[]{arr1.get(j)[0] - arr2.get(k)[0], j, k});
+                if (arr2.get(k)[3] != -1)
+                    continue;
+                D_ValueBetweenGroups.add(new double[]{arr1.get(j)[0] - arr2.get(k)[0], j, k}); //两两之间相差的分数
             }
         }
         Collections.sort(D_ValueBetweenGroups, (a, b) -> Double.compare(b[0], a[0]));
@@ -164,9 +198,9 @@ public class createGroups {
                     break;
                 } //3(差值) 1(理想均值差距) -2 (差值) 3 -1 -2
                 if(D_ValueBetweenGroups.get(k)[0] > (meanValueOfGroups[i][0] * meanValueOfGroups[i][1]) && D_ValueBetweenGroups.get(k + 1)[0] < (meanValueOfGroups[i][0] * meanValueOfGroups[i][1])){
-                    int mid = (int) (meanValueOfGroups[i][0] * meanValueOfGroups[i][1]);
-                    int max_ = (int) D_ValueBetweenGroups.get(k)[0];
-                    int min_ = (int) D_ValueBetweenGroups.get(k + 1)[0];
+                    double mid = meanValueOfGroups[i][0] * meanValueOfGroups[i][1];
+                    double max_ = D_ValueBetweenGroups.get(k)[0];
+                    double min_ = D_ValueBetweenGroups.get(k + 1)[0];
                     if(max_ == 0 && min_ != 0){
                         k = k + 1;
                     }else if(min_ != 0 && max_ != 0){
@@ -190,5 +224,51 @@ public class createGroups {
             }
         }
         return groups;
+    }
+
+    public static double findClosestNumber(List<double []> arr, double target, int order) { //二分查找最接近的成绩
+        List<double []> unorder = new ArrayList<>();
+        for (double [] per : arr){
+            if (per[3] != order)
+                unorder.add(per);
+        }
+        int left = 0;
+        int right = unorder.size() - 1;
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (unorder.get(mid)[0] == target) {
+                return mid;
+            } else if (unorder.get(mid)[0] > target) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        // 当左边界大于右边界时，返回左边界
+        return unorder.get(left)[0];
+    }
+
+    //将指定学生换回原来的组
+    public void adjust_order(){
+        for (int i = 0;i < groups.size(); i++) {  //item：当前遍历的组
+            List<double[]> item = groups.get(i);
+            for (int j = 0;j < item.size(); j++){
+                double[] curr = item.get(j);  //curr: 当前组遍历的学生
+                if (curr[3] == i || curr[3] == -1)
+                    continue;
+                int order = (int) curr[3];
+                List<double[]> order_group = groups.get(order);  //order_group: curr本应该在的组
+                order_group.sort((a, b) -> Double.compare(b[0], a[0]));
+                double closest = findClosestNumber(order_group,curr[0],order);
+                int index2 = -1;
+                for (int k = 0; k < order_group.size(); k++){
+                    if (order_group.get(k)[0] == closest){
+                        index2 = k;
+                        break;
+                    }
+                }
+                exChange(item,order_group,j,index2);
+            }
+        }
     }
 }

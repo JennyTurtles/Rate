@@ -27,6 +27,7 @@ public class StudentCondition {
     private Integer institutionID;
     private Integer startYear;
     private Integer month;
+    private Integer startThesisID;
     private Integer pageNum;
     private Integer pageSize;
 }

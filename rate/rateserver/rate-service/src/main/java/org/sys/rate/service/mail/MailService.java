@@ -1,122 +1,62 @@
 package org.sys.rate.service.mail;
 
+import com.github.pagehelper.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.sys.rate.mapper.MailMapper;
+import org.sys.rate.model.EmailErrorLog;
 import org.sys.rate.model.Mail;
 
 import javax.annotation.Resource;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Store;
-import javax.mail.Transport;
-import java.util.Map;
-import java.util.Properties;
+import java.sql.Timestamp;
 
 @Service
-@Transactional
 @Slf4j
 public class MailService {
-    @Resource
-    private JdbcTemplate jdbcTemplate;
+
     @Resource
     MailMapper mailMapper;
 
-    private String IMAPHost;
-    private String emailAddress;
-    private String IMAPVerifyCode;
-    private String SMTPHost;
+    @Resource
+    private EmailErrorLogService emailErrorLogService;
 
-    private Map<String, Object> cachedMail;
-
-    public String getSMTPHost() {
-        return SMTPHost;
+    public Mail getMail() {
+        return mailMapper.getMail();
     }
 
-    public void setSMTPHost(String SMTPHost) {
-        this.SMTPHost = SMTPHost;
+
+    public boolean updateMail(Mail mail) {
+        return mailMapper.updateMail(mail) == 1;
     }
 
-    public void setIMAPHost(String IMAPHost) {
-        this.IMAPHost = IMAPHost;
-    }
+    public Mail handleNullPointerException() {
+        Mail mail = this.getMail();
 
-    public String getIMAPHost() {
-        return IMAPHost;
-    }
-
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
-    }
-
-    public String getEmailAddress() {
-        if (cachedMail != null && cachedMail.get("emailAddress") != null) {
-            return (String) cachedMail.get("emailAddress");
-        } else {
+        if (StringUtil.isEmpty(mail.getEmailAddress())) {
+            logAndHandleError("发件人的邮箱地址为空", mail.getEmailAddress());
             return null;
         }
-    }
 
-    public void setIMAPVerifyCode(String IMAPVerifyCode) {
-        this.IMAPVerifyCode = IMAPVerifyCode;
-    }
-
-    public String getIMAPVerifyCode() {
-        if (cachedMail != null && cachedMail.get("IMAPVerifyCode") != null) {
-            return (String) cachedMail.get("IMAPVerifyCode");
-        } else {
+        if (StringUtil.isEmpty(mail.getIMAPVerifyCode())) {
+            logAndHandleError("发件人的IMAP验证码为空", mail.getEmailAddress());
             return null;
         }
-    }
 
-    public void setMail() {
-        String sql = "SELECT emailAddress, IMAPVerifyCode, IMAPHost, SMTPHost FROM mail WHERE id =0";
-        cachedMail = jdbcTemplate.queryForMap(sql);
-
-        setEmailAddress((String) cachedMail.get("emailAddress"));
-        setIMAPVerifyCode((String) cachedMail.get("IMAPVerifyCode"));
-        setIMAPHost((String) cachedMail.get("IMAPHost"));
-        setSMTPHost((String) cachedMail.get("SMTPHost"));
-        //log.info("更新了超级管理员的邮箱信息！" + getEmailAddress());
-    }
-
-    public boolean updateMail(Mail mail) throws MessagingException {
-        boolean result = false;
-        if(mailMapper.updateMail(mail)==1){
-            result = true;
+        if (StringUtil.isEmpty(mail.getSMTPHost())) {
+            logAndHandleError("发件人的SMTP的host为空", mail.getEmailAddress());
+            return null;
         }
-        return result;
+
+        return mail;
     }
 
-    public boolean checkMail(Mail mail) throws MessagingException {
-        Properties props = new Properties();
-        props.setProperty("mail.smtp.host", mail.getSMTPHost());
-        props.setProperty("mail.imap.host", mail.getIMAPHost());
-        props.setProperty("mail.smtp.auth", "true");
-        Session session = Session.getDefaultInstance(props);
-
-        Transport transport = session.getTransport("smtp");
-        transport.connect(mail.getSMTPHost(), mail.getEmailAddress(), mail.getIMAPVerifyCode());
-
-        Store store = session.getStore("imap");
-        store.connect(mail.getIMAPHost(), mail.getEmailAddress(), mail.getIMAPVerifyCode());
-
-        try{
-            if(transport.isConnected() && store.isConnected()){
-                return true;
-            }
-        }finally {
-            transport.close();
-            store.close();
-        }
-        return false;
+    private void logAndHandleError(String errorDescription, String senderEmail) {
+        EmailErrorLog emailErrorLog = new EmailErrorLog();
+        emailErrorLog.setErrorType("发件人邮箱信息错误");
+        emailErrorLog.setErrorDescription(errorDescription + "。发件人邮箱地址为：" + senderEmail);
+        emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+        emailErrorLogService.addEmailErrorLog(emailErrorLog);
     }
 
-    public MailService() {
 
-    }
 }

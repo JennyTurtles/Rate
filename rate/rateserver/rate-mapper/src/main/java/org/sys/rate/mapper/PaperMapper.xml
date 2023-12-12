@@ -23,10 +23,10 @@
         <result property="point" column="point"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
-            <result property="sname" column="sname"/>
+            <result property="name" column="sname"/>
         </association>
         <association property="publication" javaType="org.sys.rate.model.Publication">
-            <id property="id" column="id" jdbcType="INTEGER"/>
+            <id property="id" column="publicationid" jdbcType="INTEGER"/>
             <result property="name" column="pname"/>
         </association>
         <collection property="paperoperList" ofType="org.sys.rate.model.Operation">
@@ -43,7 +43,7 @@
     </resultMap>
 
     <sql id="selectPaperVo">
-        select ID, studentID, name, year, month, author, `rank`, total, point, have_score, publicationID, pubPage, state, url
+        select *
         from paper
     </sql>
 
@@ -79,7 +79,7 @@
 
     <select id="selectListByIds" resultMap="PaperResult" parameterType="Integer">
 -- 学生初始化
-        SELECT p.*,i.max_date,j.remark,ip.`name` as pubName
+        SELECT p.*,i.max_date,j.remark,ip.`name` as pubName, ip.id as publicationid,s.name as sname
         FROM paper p
                  JOIN (
             SELECT prod_id,MAX(date) max_date
@@ -218,5 +218,11 @@
             <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and p.point between #{pointFront} and #{pointBack}</if>
         </where>
         ORDER BY p.ID DESC
+    </select>
+
+    <select id="selectPaperNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from paper
+        where state = #{state}
     </select>
 </mapper>

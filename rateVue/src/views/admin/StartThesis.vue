@@ -21,10 +21,11 @@
       第二步：
       <el-upload
           :show-file-list="false"
+          :headers="{'token':user.token}"
           :before-upload="beforeUpload"
           :on-success="onSuccess"
           style="display: inline-flex; margin-left: 1px"
-          :action="`/undergraduateM/basic/importThesis?type=student&institutionID=${this.user.institutionID}&year=${this.startYear}&semester=${encodeURIComponent(this.selectSemester)}`"
+          :action="`/undergraduateM/basic/importThesis?type=student&institutionID=${this.user.institutionID}&startThesisID=${selectThesis}`"
       >
         <el-button icon="el-icon-plus" type="success" :disabled=havingStart>导入学生</el-button>
       </el-upload>
@@ -182,6 +183,7 @@ export default {
       select_teachers: [],
       selectTeacerName: '',
       selectYear: '',
+      selectThesis: null,
       currentUnderStudentOfEdit: {
         ID: null,
         name: '',
@@ -238,7 +240,7 @@ export default {
   },
   methods: {
     async startThesis() {
-      const url = `/undergraduateM/basic/startThesis?institutionID=${this.user.institutionID}&year=${this.startYear}&semester=${encodeURIComponent(this.selectSemester)}`;
+      const url = `/undergraduateM/basic/startThesis?institutionID=${this.user.institutionID}&adminID=${this.user.id}&year=${this.startYear}&semester=${encodeURIComponent(this.selectSemester)}`;
       try {
         const resp = await this.postRequest1(url);
         if (resp.status == 200) {
@@ -347,7 +349,7 @@ export default {
       this.dialogEdit = false
     },
     editDialogShow(data) {//控制变量
-      console.log(data);
+      // console.log(data);
       this.dialogEdit = true
       this.currentUnderStudentOfEdit = data
     },
@@ -460,7 +462,7 @@ export default {
     },
     async initUnderGraduateStudents(curr, pageSize) {
       try {
-        const url = `/undergraduateM/basic/getStudents?institutionID=${this.user.institutionID}&year=${this.startYear}&semester=${this.selectSemester}&pageNum=${curr}&pageSize=${pageSize}`;
+        const url = `/undergraduateM/basic/getStudents?institutionID=${this.user.institutionID}&adminID=${this.user.id}&year=${this.startYear}&semester=${this.selectSemester}&pageNum=${curr}&pageSize=${pageSize}`;
 
         const response = await this.getRequest(url);
         const {code, extend} = response;
@@ -469,6 +471,7 @@ export default {
           this.undergraduateStudents = students;
           this.totalCount = totalCount;
           this.havingStart = !extend.havingStart;
+          this.selectThesis = extend.startThisThesisID;
           if (extend.havingStart == true) {
             // this.$message.success("本学期已经开启毕业设计活动！");
             this.start = true;

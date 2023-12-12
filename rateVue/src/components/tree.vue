@@ -48,6 +48,17 @@
           placeholder="指标点名称"
           size="normal"
       ></el-input>
+      <div v-show="isLeaf">
+        <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+          <el-radio :label="1">有排名限制</el-radio>
+          <el-radio :label="0">无排名限制</el-radio>
+        </el-radio-group>
+        <div v-if="selectedOption === 1" style="margin-top: 10px">
+          限排名前
+          <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+          有积分
+        </div>
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button
@@ -119,22 +130,24 @@
           <el-input v-model="label"></el-input>
         </el-form-item>
       </el-form>
-     <el-radio-group v-model="selectedOption" @change="handleRadioChange">
-      <el-radio :label="1">有排名限制</el-radio>
-      <el-radio :label="0">无排名限制</el-radio>
-     </el-radio-group>
-     <div v-if="selectedOption === 1" style="margin-top: 10px">
-      限排名前
-      <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
-      有积分
-     </div>
-     <div v-show="type === '科研获奖'" style="margin-top: 10px">
-      级别：
-     <el-radio-group v-model="level"  @change="">
-      <el-radio :label="0">国家级</el-radio>
-      <el-radio :label="1">省部级</el-radio>
-     </el-radio-group>
-     </div>
+      <div v-show="isLeaf">
+        <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+          <el-radio :label="1">有排名限制</el-radio>
+          <el-radio :label="0">无排名限制</el-radio>
+        </el-radio-group>
+        <div v-if="selectedOption === 1" style="margin-top: 10px">
+          限排名前
+          <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+          有积分
+        </div>
+      </div>
+      <div v-show="type === '科研获奖'" style="margin-top: 10px">
+        级别：
+        <el-radio-group v-model="level" @change="">
+          <el-radio :label="0">国家级</el-radio>
+          <el-radio :label="1">省部级</el-radio>
+        </el-radio-group>
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleType = false">取 消</el-button>
         <el-button
@@ -147,7 +160,7 @@
         >
       </span>
     </el-dialog>
-    <!--修改非一二级目录的名字-->
+    <!--修改非一二三级目录的名字-->
     <el-dialog :visible.sync="dialogVisibleUpdate" width="35%">
       <span slot="title" style="float: left; font-size: 20px"
       >请输入需要修改的名字</span
@@ -157,6 +170,18 @@
           placeholder="标签名"
           size="normal"
       ></el-input>
+      <div style="margin-top: 10px" v-show="isLeaf">
+        <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+          <el-radio :label="1">有排名限制</el-radio>
+          <el-radio :label="0">无排名限制</el-radio>
+        </el-radio-group>
+
+        <div v-if="selectedOption === 1" style="margin-top: 10px">
+          限排名前
+          <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+          有积分
+        </div>
+      </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisibleUpdate = false">取 消</el-button>
         <el-button
@@ -190,6 +215,18 @@
               :max="50"
           />
         </el-form-item>
+        <div v-show="isLeaf">
+          <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+            <el-radio :label="1">有排名限制</el-radio>
+            <el-radio :label="0">无排名限制</el-radio>
+          </el-radio-group>
+
+          <div v-if="selectedOption === 1" style="margin-top: 10px">
+            限排名前
+            <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+            有积分
+          </div>
+        </div>
       </el-form>
 
       <span slot="footer" class="dialog-footer">
@@ -199,12 +236,12 @@
         >
       </span>
     </el-dialog>
-    <!--修改二级目录的名字-->
+    <!--修改二、三级目录的名字-->
     <el-dialog :visible.sync="dialogVisibleUpdateType" width="35%">
       <span slot="title" style="float: left; font-size: 25px"
       >指标点修改</span
       >
-      <el-form label-width="auto" >
+      <el-form label-width="auto">
         <el-form-item label="类型">
           <el-select
               v-model="type"
@@ -225,24 +262,41 @@
         <el-form-item label="分类名">
           <el-input v-model="labelUpdate"></el-input>
         </el-form-item>
+        <el-form-item label="状态" v-if="type === '授权专利'">
+          <el-select
+              v-model="state"
+              placeholder="请从下拉菜单中选择"
+              style="width: 100%"
+          >
+            <el-option
+                v-for="item in ['受理','初审','公布','实审','授权','转让']"
+                :key="item"
+                :label="item"
+                :value="item"
+            >
+            </el-option>
+          </el-select>
+        </el-form-item>
         <div>
-          <el-radio-group v-model="selectedOption" @change="handleRadioChange">
-            <el-radio :label="1">有排名限制</el-radio>
-            <el-radio :label="0">无排名限制</el-radio>
-          </el-radio-group>
+          <div v-show="isLeaf">
+            <el-radio-group v-model="selectedOption" @change="handleRadioChange">
+              <el-radio :label="1">有排名限制</el-radio>
+              <el-radio :label="0">无排名限制</el-radio>
+            </el-radio-group>
 
-          <div v-if="selectedOption === 1" style="margin-top: 10px">
-            限排名前
-            <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
-            有积分
+            <div v-if="selectedOption === 1" style="margin-top: 10px">
+              限排名前
+              <el-input-number v-model="rank" :min="1" :max="99" style="width: 120px"></el-input-number>
+              有积分
+            </div>
           </div>
-         <div style="margin-top: 10px" v-if="type === '科研获奖' ">
-         级别
-         <el-radio-group v-model="level"  @change="">
-          <el-radio :label="0">国家级</el-radio>
-          <el-radio :label="1">省部级</el-radio>
-         </el-radio-group>
-         </div>
+          <div style="margin-top: 10px" v-if="type === '科研获奖' ">
+            级别
+            <el-radio-group v-model="level" @change="">
+              <el-radio :label="0">国家级</el-radio>
+              <el-radio :label="1">省部级</el-radio>
+            </el-radio-group>
+          </div>
         </div>
 
       </el-form>
@@ -269,7 +323,7 @@ export default {
   name: "tree",
   created() {
     var that = this;
-    axios.get("/indicator").then(function (resp) {
+    this.getRequest("/indicator").then(function (resp) {
       //此处可以让父组件向子组件传递url,提高复用性
       that.id = resp.obj[0];
       that.data = resp.obj[1];
@@ -279,6 +333,7 @@ export default {
   data() {
     return {
       level: 0,
+      state: "", //专利的状态
       selectedOption: 1,
       rank: null,
       label: "",
@@ -303,6 +358,7 @@ export default {
       dialogVisibleUpdateRoot: false,
       dialogVisibleUpdateType: false,
       data: [],
+      isLeaf: false,
       ruleForm: {
         name: "",
         score: "",
@@ -311,6 +367,7 @@ export default {
       defaultProps: {
         children: "children",
         label: "label",
+        isLeaf: "isLeaf",
       },
       id: 0,
       TypeOptions: [
@@ -330,8 +387,13 @@ export default {
           disabled: false,
         },
         {
-          value: "科研项目",
-          label: "科研项目",
+          value: "纵向科研项目",
+          label: "纵向科研项目",
+          disabled: false,
+        },
+        {
+          value: "横向科研项目",
+          label: "横向科研项目",
           disabled: false,
         },
         {
@@ -359,7 +421,11 @@ export default {
           label: "学科竞赛",
           disabled: false,
         },
-
+        {
+          value: "产品应用",
+          label: "产品应用",
+          disabled: false,
+        }
       ],
       rules: {
         name: [{required: true, message: "请输入分类名称", trigger: "blur"}],
@@ -374,13 +440,13 @@ export default {
         this.rank = 0
       }
     },
-   handleAddChange(val) {
-    if (val !== '科研获奖'){
-     this.level = null
-    }else{
-     this.level = 0
-    }
-   },
+    handleAddChange(val) {
+      if (val !== '科研获奖') {
+        this.level = null
+      } else {
+        this.level = 0
+      }
+    },
     onScoreInput(value) {
       const pattern = /^[0-9]*$/;
       if (!pattern.test(value)) {
@@ -420,15 +486,15 @@ export default {
                 // type="text"
                 icon="el-icon-circle-plus-outline"
                 on-click={() => {
-                 event.stopPropagation()
+                  event.stopPropagation()
                   this.data1 = data;
-                  if (node.level > 1){
-                   this.dialogVisible = true;
-                  }
-                  else {
-                   this.dialogVisibleType = true;
-                   this.selectedOption = 0
-                   this.rankN = 0
+                  this.isLeaf = node.isLeaf;
+                  if (node.level > 1) {
+                    this.dialogVisible = true;
+                  } else {
+                    this.dialogVisibleType = true;
+                    this.selectedOption = 0
+                    this.rankN = 0
                   }
 
                 }}
@@ -438,8 +504,8 @@ export default {
                 icon-color="red"
                 icon="el-icon-info"
                 on-confirm={() => {
-                 event.stopPropagation()
-                 this.remove(node, data)
+                  event.stopPropagation()
+                  this.remove(node, data)
                 }}
             >
               <el-button
@@ -448,7 +514,7 @@ export default {
                   slot="reference"
                   size="mini"
                   on-click={() => {
-                   event.stopPropagation()
+                    event.stopPropagation()
                   }}
                   // type="text"
                   icon="el-icon-delete"
@@ -461,23 +527,25 @@ export default {
                 // type="text"
                 icon="el-icon-edit"
                 on-click={() => {
-                 event.stopPropagation()
+                  event.stopPropagation()
                   this.data1 = data;
+                  this.isLeaf = node.isLeaf;
                   this.labelUpdate = data.label.substring(data.order.length + 1);
-                  if (node.level > 2) this.dialogVisibleUpdate = true;
+                  this.rank = data.rankN;
+                  if (!data.rankN || data.rankN == 0) {
+                    this.selectedOption = 0
+                  } else
+                    this.selectedOption = 1
+                  if (node.level > 3) this.dialogVisibleUpdate = true;
                   else if (node.level === 1) {
                     this.dialogVisibleUpdateRoot = true;
                     this.scoreUpdate = data.score;
                     this.ruleForm.name = this.labelUpdate;
                     this.ruleForm.score = this.scoreUpdate;
-                  } else if (node.level === 2) {
+                  } else if (node.level === 2 || node.level === 3) {
                     this.type = data.type;
-                    this.rank = data.rankN;
-                   this.level = data.level === '国家级' ? 0 : 1;
-                    if (!data.rankN || data.rankN == 0){
-                     this.selectedOption = 0
-                    }else
-                     this.selectedOption = 1
+                    this.state = data.level;
+                    this.level = data.level === '国家级' ? 0 : 1;
                     this.dialogVisibleUpdateType = true;
                   }
                 }}
@@ -528,7 +596,7 @@ export default {
           order: newChild.order,
           score: data.score,
           rankN: this.rank,
-          level: this.level != null ? ( this.level == 0 ? '国家级' : '省部级') : this.level,
+          level: this.level != null ? (this.level == 0 ? '国家级' : '省部级') : this.level,
         };
         if (!data.children) {
           this.$set(data, "children", []);
@@ -554,7 +622,8 @@ export default {
         };
         this.data.push(newChild);
       }
-      axios.post("/indicator", postData)
+      console.log(postData)
+      this.postRequest("/indicator", postData)
           .then(function (resp) {
             // console.log(resp);
             if (resp.status != 200) {
@@ -566,7 +635,7 @@ export default {
               });
 
               // 在 POST 请求成功后再发送 GET 请求
-              axios.get("/indicator")
+              that.getRequest("/indicator")
                   .then(function (resp) {
                     that.id = resp.obj[0];
                     that.data = resp.obj[1];
@@ -574,7 +643,7 @@ export default {
             }
           })
           .catch(function (error) {
-            console.log(error);
+            // console.log(error);
             alert("添加指标失败：" + error.message);
           });
 
@@ -584,14 +653,14 @@ export default {
     },
     remove(node, data) {
       var that = this;
-      axios.delete("/indicator/" + node.data.id).then(function (resp) {
+      this.deleteRequest("/indicator/" + node.data.id).then(function (resp) {
         if (resp.status != 200) alert("删除失败！");
         else {
           that.$message({
             type: "success",
             message: "删除成功",
           });
-          axios.get("/indicator").then(function (resp) {
+          this.getRequest("/indicator").then(function (resp) {
             //此处可以让父组件向子组件传递url,提高复用性
             that.id = resp.obj[0];
             that.data = resp.obj[1];
@@ -601,27 +670,30 @@ export default {
     },
     update(data) {
       data.label = this.labelUpdate;
+      var level_trans = this.level === 0 ? '国家级' : '省部级';
+      if (data.type === '授权专利')
+        level_trans = this.state;
       var postData = {
         id: data.id,
         name: this.labelUpdate,
         score: this.scoreUpdate,
         order: data.order,
         rankN: this.rank,
-        level: this.level == 0 ? '国家级' : '省部级',
+        level: level_trans,
       };
-      if (data.level){
-       data.level = data.level === '国家级' ? '省部级' : '国家级'
+      if (data.level && data.type === '科研获奖') {
+        data.level = data.level === '国家级' ? '省部级' : '国家级'
       }
-     this.$emit("getLabelInfo", data);
+      this.$emit("getLabelInfo", data);
       var that = this;
-      axios.put("/indicator", postData).then(function (resp) {
+      this.putRequest("/indicator", postData).then(function (resp) {
         if (resp.status != 200) alert("修改失败！");
         else {
           that.$message({
             type: "success",
             message: "修改成功",
           });
-          axios.get("/indicator").then(function (resp) {
+          this.getRequest("/indicator").then(function (resp) {
             //此处可以让父组件向子组件传递url,提高复用性
             that.id = resp.obj[0];
             that.data = resp.obj[1];
@@ -720,8 +792,8 @@ export default {
             dropNodeData.order + "." + dropNodeData.children.length;
       }
       var that = this;
-      axios.post("/indicator/insert", postData).then(function (resp) {
-        axios.get("/indicator").then(function (resp) {
+      this.postRequest("/indicator/insert", postData).then(function (resp) {
+        this.getRequest("/indicator").then(function (resp) {
           that.id = resp.obj[0];
           that.data = resp.obj[1];
         });
@@ -739,7 +811,7 @@ export default {
     },
     updateAll() {
       var that = this;
-      axios.get("/indicator").then(function (resp) {
+      this.getRequest("/indicator").then(function (resp) {
         //此处可以让父组件向子组件传递url,提高复用性
         that.id = resp.obj[0];
         that.data = resp.obj[1];
@@ -808,7 +880,7 @@ export default {
         data["p2"] = node.parent.data.label;
         data["p1"] = node.parent.parent.data.label;
         if (data.type == "授权专利" || data.type == "制定标准" || data.type == "学术专著和教材" || data.type == "制造或设计的产品") {
-          this.$message.warning(data.type+"类别无需设置！")
+          this.$message.warning(data.type + "类别无需设置！")
           return
         }
 

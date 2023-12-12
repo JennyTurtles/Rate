@@ -16,6 +16,8 @@
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
         <result property="projectTypeId" column="project_type_id"/>
+        <result property="have_score" column="have_score"/>
+        <result property="indicatorId" column="indicator_id"/>
         <association property="student" javaType="org.sys.rate.model.Student">
             <id property="ID" column="ID" jdbcType="INTEGER"/>
             <result property="name" column="sname"/>
@@ -55,31 +57,18 @@
                  JOIN (
             SELECT prod_id,MAX(date) max_date
             FROM i_oper
-            WHERE prod_type = '科研项目'
+            WHERE prod_type = '纵向科研项目'
             GROUP BY prod_id
         ) i ON p.id = i.prod_id
                  JOIN (
             SELECT prod_id,remark,`date`
             FROM i_oper
-            WHERE prod_type = '科研项目'
+            WHERE prod_type = '纵向科研项目'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_project_type type ON p.project_type_id = type.id
                  JOIN student s ON s.ID = p.student_id
                 JOIN indicator i ON i.id = type.indicator_id
         ORDER BY p.id DESC;
-        -- 老师查询所有学生的获奖
---         SELECT p.*,
---                s.name as sname,
---                i.name as iname,
---                i.score,
---                oper.operator_role,oper.operator_id,oper.operator_name,oper.prod_type,oper.prod_id,oper.date as operdate,oper.operation_name,
---                oper.state,oper.remark,
---                type.name as tname,type.year,type.indicator_id
---         FROM i_project p
---                  LEFT JOIN i_project_type type ON type.id = p.project_type_id
---                  LEFT JOIN student s ON p.student_id = s.ID
---                  LEFT JOIN indicator i ON i.id = p.indicator_id
---                  LEFT JOIN i_oper oper ON p.id = oper.prod_id and oper.prod_type = '科研项目'
     </select>
 
     <select id="selectListById" resultMap="ProjectResult">
@@ -92,40 +81,45 @@
         </where>
     </select>
 
-<!--    学生科研项目页面初始化-->
+<!--    学生纵向科研项目页面初始化-->
     <select id="selectProjectListById" resultMap="ProjectResult">
-        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, i.id as indicatorid, i.score, i.name as iname
+        SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, i.id as indicatorid, i.score, i.name as iname, s.name as sname
         FROM i_project a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
             FROM i_oper
-            WHERE prod_type = '科研项目'
+            WHERE prod_type = '纵向科研项目'
             GROUP BY prod_id
         ) i ON a.id = i.prod_id
                  JOIN (
             SELECT prod_id,remark,`date`
             FROM i_oper
-            WHERE prod_type = '科研项目'
+            WHERE prod_type = '纵向科研项目'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN i_project_type ip ON a.project_type_id = ip.id AND a.student_id = #{studentID}
                  JOIN indicator i ON i.id = ip.indicator_id
+                 JOIN student s ON s.ID = a.student_id
         ORDER BY a.id DESC;
     </select>
 
-    <select id="selectProjectList" parameterType="org.sys.rate.model.Project" resultMap="ProjectResult">
-        <include refid="selectProjectVo"/>
-        <where>
-            <if test="id !=null and id !=''">and id =#{id}</if>
-            <if test="student_id != null ">and student_id = #{student_id}</if>
-            <if test="name != null  and name != ''">and name like concat('%', #{name}, '%')</if>
-            <if test="year != null  and year != ''">and year = #{year}</if>
-            <if test="month != null ">and month = #{month}</if>
-            <if test="`rank` != null ">and `rank` = #{rank}</if>
-            <if test="total != null ">and total = #{total}</if>
-            <if test="point != null ">and point = #{point}</if>
-            <if test=" != null ">and  = #{}</if>
-            <if test="url != null ">and url = #{url}</if>
-        </where>
+    <!--    学生横向科研项目页面初始化-->
+    <select id="selectHorizontalProjectListById" resultMap="ProjectResult">
+        SELECT a.*,i.max_date,j.remark, i.id as indicatorid, i.score, i.name as iname, s.name as sname
+        FROM i_project a
+                 JOIN (
+            SELECT prod_id,MAX(i_oper.date) max_date
+            FROM i_oper
+            WHERE prod_type = '横向科研项目'
+            GROUP BY prod_id
+        ) i ON a.id = i.prod_id
+                 JOIN (
+            SELECT prod_id,remark,`date`
+            FROM i_oper
+            WHERE prod_type = '横向科研项目'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+                 JOIN indicator i ON i.id = a.indicator_id AND a.student_id = #{studentID}
+                 JOIN student s ON s.ID = a.student_id
+        ORDER BY a.id DESC;
     </select>
 
     <select id="selectProjectById" parameterType="Long" resultMap="ProjectResult">
@@ -138,10 +132,11 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
             <if test="studentId != null">student_id,</if>
-            <if test="projectTypeId != null">project_type_id,</if>
+            project_type_id,
             <if test="name != null and name != ''">name,</if>
             <if test="startDate != null">start_date,</if>
             end_date,
+            indicator_id,
             <if test="author != null">author,</if>
             <if test="`rank` != null">`rank`,</if>
             <if test="total != null">total,</if>
@@ -152,10 +147,11 @@
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="studentId != null">#{studentId},</if>
-            <if test="projectTypeId != null">#{projectTypeId},</if>
+            #{projectTypeId},
             <if test="name != null and name != ''">#{name},</if>
             <if test="startDate != null">#{startDate},</if>
             #{endDate},
+            #{indicatorId},
             <if test="author != null">#{author},</if>
             <if test="`rank` != null">#{rank},</if>
             <if test="total != null">#{total},</if>
@@ -177,7 +173,8 @@
             <if test="point != null">point = #{point},</if>
             <if test="state != null">state =#{state},</if>
             <if test="url != null">url = #{url},</if>
-            <if test="projectTypeId != null">project_type_id = #{projectTypeId}</if>
+            <if test="projectTypeId != null">project_type_id = #{projectTypeId},</if>
+            <if test="indicatorId != null">indicator_id = #{indicatorId}</if>
         </trim>
         where id = #{id}
     </update>
@@ -207,13 +204,13 @@
         JOIN (
         SELECT prod_id,MAX(i_oper.date) max_date
         FROM i_oper
-        WHERE prod_type = '科研项目'
+        WHERE prod_type = '纵向科研项目'
         GROUP BY prod_id
         ) i ON book.id = i.prod_id
         JOIN (
         SELECT prod_id,remark,`date`
         FROM i_oper
-        WHERE prod_type = '科研项目'
+        WHERE prod_type = '纵向科研项目'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
         JOIN i_project_type ip ON book.project_type_id = ip.id
         JOIN student s ON s.ID = book.student_id
@@ -225,6 +222,40 @@
         </where>
         ORDER BY book.id DESC
     </select>
+    <select id="searchHorizontalProjectByConditions" resultMap="ProjectResult">
+        SELECT book.*,i.max_date,j.remark, s.name as sname, i.name as iname, i.id as indicatorid
+        FROM i_project book
+        JOIN (
+        SELECT prod_id,MAX(i_oper.date) max_date
+        FROM i_oper
+        WHERE prod_type = '横向科研项目'
+        GROUP BY prod_id
+        ) i ON book.id = i.prod_id
+        JOIN (
+        SELECT prod_id,remark,`date`
+        FROM i_oper
+        WHERE prod_type = '横向科研项目'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+        JOIN indicator i ON book.indicator_id = i.id
+        JOIN student s ON s.ID = book.student_id
+        <where>
+            <if test="projectName != null and projectName != ''">and book.name like concat('%', #{projectName}, '%')</if>
+            <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
+            <if test="state != null and state != ''">and book.state = #{state}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
+        </where>
+        ORDER BY book.id DESC
+    </select>
 
     <select id="selectProjectListByYear" resultType="org.sys.rate.model.Project"></select>
+    <select id="selectProjectNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_project
+        where state = #{state} and project_type_id != -1
+    </select>
+    <select id="selectHorizontalProjectNumberOfPendingMessing" resultType="Integer">
+        select count(*)
+        from i_project
+        where state = #{state} and project_type_id = -1
+    </select>
 </mapper>

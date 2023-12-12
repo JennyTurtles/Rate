@@ -3,17 +3,17 @@ package org.sys.rate.utils;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.*;
+import com.itextpdf.text.Image;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.sys.rate.model.PaperComment;
-import org.sys.rate.model.Student;
-import org.sys.rate.model.Teacher;
-import org.sys.rate.model.Thesis;
-import org.sys.rate.service.admin.StudentService;
-import org.sys.rate.service.admin.TeacherService;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.PaperCommentService;
-import org.sys.rate.service.admin.ThesisService;
+import org.sys.rate.service.admin.StudentService;
+import org.sys.rate.service.admin.TeachersService;
+import org.sys.rate.service.mail.EmailErrorLogService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -22,17 +22,14 @@ import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.StandardOpenOption;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * @author zyk
- * @Return null
- * @description 完成下载功能
- * @date 2023/4/4 16:50
- */
+
 @Slf4j
 @Service
 public class ExportPDF {
@@ -40,75 +37,51 @@ public class ExportPDF {
     private StudentService studentService;
 
     @Resource
-    private TeacherService teacherService;
+    private TeachersService teachersService;
 
     @Resource
     private PaperCommentService paperCommentService;
 
-    @Resource
-    private ThesisService thesisService;
+    @Autowired
+    private EmailErrorLogService emailErrorLogService;
 
     private final static int PRESUMROWS = 17;
     private final static int NEXTPLANROWS = 21;
     private final static int ONEROWMAXCOUNT = 35;
-    private final static String DEST = "src/main/resources/exportFiles/";
-    private final String FONT_PATH_Song = "rate/rateserver/rate-web/src/main/resources/static/template/song.ttf";
-    private final String TEMPLATE_PATH10 = "rate/rateserver/rate-web/src/main/resources/static/template/template_10.pdf";
-    private final String TEMPLATE_PATH20 = "rate/rateserver/rate-web/src/main/resources/static/template/template_20.pdf";
 
-
-//    private final String FONT_PATH_Song = "D:/rateTemplate/song.ttf";
-//    private final String TEMPLATE_PATH10 = "D:/rateTemplate/template_10.pdf";
-//    private final String TEMPLATE_PATH20 = "D:/rateTemplate/template_20.pdf";
-    private boolean necessaryFilesAndDirectoriesExist;
+    private String uploadPath;
+    private String DEST;
+    private String FONT_PATH_Song;
+    private String TEMPLATE_PATH10;
+    private String TEMPLATE_PATH20;
 
     public ExportPDF() {
-        this.necessaryFilesAndDirectoriesExist = checkIfNecessaryFilesAndDirectoriesExist();
+        this.uploadPath = new File("files").getAbsolutePath() + "\\template\\";
+        this.DEST = uploadPath + "exportFiles\\";
+        this.FONT_PATH_Song = uploadPath + "song.ttf";
+        this.TEMPLATE_PATH10 = uploadPath + "template_10.pdf";
+        this.TEMPLATE_PATH20 = uploadPath + "template_20.pdf";
     }
 
-    private boolean checkIfNecessaryFilesAndDirectoriesExist() {
-        // 检查目录是否存在
-        File directory = new File(DEST);
-        if (!directory.exists()) {
-            boolean result = directory.mkdirs();
-            if (result) {
-                log.info("目录 " + DEST + " 创建成功！");
-            } else {
-                log.error("目录 " + DEST + " 创建失败！");
-                return false;
-            }
-        }
-        // 检查字体文件是否存在
-        File file = new File(FONT_PATH_Song);
-        if (!file.exists()) {
-            log.error("字体文件 " + FONT_PATH_Song + " 不存在！！！");
-            return false;
-        }
-        // 检查TEMPLATE_PATH10是否存在
-        File file10 = new File(TEMPLATE_PATH10);
-        if (!file10.exists()) {
-            log.error("模版文件 " + TEMPLATE_PATH10 + " 不存在！！！");
-            return false;
-        }
-        // 检查TEMPLATE_PATH20是否存在
-        File file20 = new File(TEMPLATE_PATH10);
-        if (!file20.exists()) {
-            log.error("模版文件 " + TEMPLATE_PATH10 + " 不存在！！！");
-            return false;
-        }
-        return true;
-    }
 
-    public void generatePDF(HttpServletResponse response, Integer thesisID) throws Exception {
-        Thesis thesis = paperCommentService.getThesisByTID(thesisID);
-        Student student = studentService.getByUndergraduateId(thesis.getStudentID());
-        Teacher teacher = teacherService.getById(thesis.getTutorID());
-        List<PaperComment> paperComments = paperCommentService.selectCommentListStu(thesisID);
-
-        if (!necessaryFilesAndDirectoriesExist) {
-            log.error("生成PDF时必要的文件和目录不存在！");
-            return;
+    public boolean generatePDF(HttpServletResponse response, Integer thesisID) throws Exception {
+        if (thesisID == null) {
+            // 参数校验，确保thesisID有效
+            return false;
         }
+        Thesis thesis = null;
+        UnderGraduate student = null;
+        Teachers teacher = null;
+        List<PaperComment> paperComments = null;
+        try {
+            thesis = paperCommentService.getThesisByTID(thesisID);
+            student = studentService.getByUndergraduateId(thesis.getStudentID());
+            teacher = teachersService.getById(thesis.getTutorID());
+            paperComments = paperCommentService.selectCommentListStuOrderByNum(thesisID);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
 
         String templatePath = paperComments.size() <= 10 ? TEMPLATE_PATH10 : TEMPLATE_PATH20;
         String fileName = student.getName() + "-" + UUID.randomUUID() + ".pdf";
@@ -126,11 +99,11 @@ public class ExportPDF {
             FontSong.setSubset(true);
 
             Map<String, Object> model = generatePDFTemplateData(thesis, student, teacher, paperComments);
-            fillPDFTemplateFields(form, FontSong, model);
-            ps.setFormFlattening(false);
+            fillPDFTemplateFields(ps, form, FontSong, model);
+            ps.setFormFlattening(true);
         } catch (Exception e) {
-            log.error("PDF导出失败");
-            e.printStackTrace();
+            handlePDFExportError(e, fileName);
+            return false;
         } finally {
             ps.close();
             reader.close();
@@ -142,17 +115,37 @@ public class ExportPDF {
             } else {
                 getDownload(response, DEST + fileName, false);
             }
-            log.info("PDF导出成功");
             deleteAllFiles();
         }
+        return true;
     }
 
-    private Map<String, Object> generatePDFTemplateData(Thesis thesis, Student student, Teacher teacher, List<PaperComment> paperComments) {
+
+    private void handlePDFExportError(Exception e, String fileName) {
+        EmailErrorLog emailErrorLog = new EmailErrorLog();
+        emailErrorLog.setErrorType("PDF导出失败");
+        StringWriter sw = new StringWriter();
+        e.printStackTrace(new PrintWriter(sw));
+        String errorDetails = sw.toString();
+        emailErrorLog.setErrorDescription("PDF名字：" + fileName + "\n" + "其他错误信息：" + errorDetails);
+        emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+        emailErrorLogService.addEmailErrorLog(emailErrorLog);
+    }
+
+    private Map<String, Object> generatePDFTemplateData(Thesis thesis, UnderGraduate student, Teachers teacher, List<PaperComment> paperComments) {
         Map<String, Object> data = new HashMap<>();
         data.put("stuNameFirst", student.getName());
         data.put("stuName", student.getName());
         data.put("stuID", thesis.getStudentNumber());
+        if (!thesis.getName().isEmpty()) {
+            data.put("thesisName1", thesis.getName().length() <= 15 ? thesis.getName() : thesis.getName().substring(0, 15));
+            data.put("thesisName2", thesis.getName().length() <= 15 ? "" : " " + thesis.getName().substring(15));
+        }
+
         data.put("tutorName", teacher.getName());
+        data.put("stuSign", student.getSign());
+        data.put("teaSign", teacher.getSign());
+
 
         for (int i = 0; i < paperComments.size(); i++) {
             data.put("num" + (i + 1), paperComments.get(i).getNum());
@@ -162,21 +155,64 @@ public class ExportPDF {
             data.put("DateStu" + (i + 1), paperComments.get(i).getDateStu());
             data.put("DateTea" + (i + 1), paperComments.get(i).getDateTea() == null || paperComments.get(i).getDateTea().isEmpty() ? "" : paperComments.get(i).getDateTea());
         }
+        data.put("year", LocalDateTime.now().getYear() + "");
+        data.put("month", LocalDateTime.now().getMonthValue() + "");
+        data.put("day", LocalDateTime.now().getDayOfMonth() + "");
 
         return data;
     }
 
-    private void fillPDFTemplateFields(AcroFields form, BaseFont FontSong, Map<String, Object> data) throws IOException, DocumentException {
+    private void fillPDFTemplateFields(PdfStamper ps, AcroFields form, BaseFont FontSong, Map<String, Object> data) throws IOException, DocumentException {
         for (String key : data.keySet()) {
             form.setFieldProperty(key, "textfont", FontSong, null);
             if (key.equals("stuName") || key.equals("num")) {
                 form.setFieldProperty(key, "textsize", 12f, null);
-            } else if (key.equals("stuNameFirst") || key.equals("stuID") || key.equals("tutorName")) {
+            } else if (key.equals("stuNameFirst") || key.equals("stuID") || key.equals("tutorName") || key.equals("year") || key.equals("month") || key.equals("day") || key.equals("thesisName1") || key.equals("thesisName2")) {
                 form.setFieldProperty(key, "textsize", 16f, null);
             } else {
                 form.setFieldProperty(key, "textsize", 10.5f, null);
             }
-            form.setField(key, data.get(key).toString());
+            form.setField(key, data.get(key) != null ? data.get(key) + "" : "");
+        }
+
+        File stuSign = new File((String) data.get("stuSign"));
+        form.setField("stuSign", "");
+        if (stuSign.exists()) {
+            // 读图片
+            List<AcroFields.FieldPosition> positions = form.getFieldPositions("stuSign");
+            for (AcroFields.FieldPosition position : positions) {
+                int pageNo = position.page;
+                Rectangle signRect = position.position;
+                float x = signRect.getLeft();
+                float y = signRect.getBottom();
+                PdfContentByte under = ps.getOverContent(pageNo);
+                Image image = Image.getInstance(stuSign.getAbsolutePath());
+//                image.scaleToFit(signRect.getWidth(), signRect.getHeight());
+                image.scaleAbsolute(signRect.getWidth(), signRect.getHeight());
+
+                image.setAbsolutePosition(x, y);
+                under.addImage(image);
+            }
+        }
+
+        File teaSign = new File((String) data.get("teaSign"));
+        form.setField("teaSign", "");
+        if (teaSign.exists()) {
+            // 读图片
+            List<AcroFields.FieldPosition> positions = form.getFieldPositions("teaSign");
+            for (AcroFields.FieldPosition position : positions) {
+                int pageNo = position.page;
+                Rectangle signRect = position.position;
+                float x = signRect.getLeft();
+                float y = signRect.getBottom();
+                PdfContentByte under = ps.getOverContent(pageNo);
+                Image image = Image.getInstance(teaSign.getAbsolutePath());
+//                image.scaleToFit(signRect.getWidth(), signRect.getHeight());
+                image.scaleAbsolute(signRect.getWidth(), signRect.getHeight());
+
+                image.setAbsolutePosition(x, y);
+                under.addImage(image);
+            }
         }
     }
 
@@ -222,16 +258,30 @@ public class ExportPDF {
                     try {
                         if (file.exists()) {
                             file.delete();
-                        } else {
-                            continue;
                         }
                     } catch (SecurityException e) {
-                        log.error("Unable to delete file: " + file.getName(), e);
+                        EmailErrorLog emailErrorLog = new EmailErrorLog();
+                        emailErrorLog.setErrorType("PDF删除失败");
+                        StringWriter sw = new StringWriter();
+                        PrintWriter pw = new PrintWriter(sw);
+                        e.printStackTrace(pw);
+                        String errorDetails = sw.toString();
+                        emailErrorLog.setErrorDescription("PDF名字：" + file.getName() + "\n" + "其他错误信息：" + errorDetails);
+                        emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                        emailErrorLogService.addEmailErrorLog(emailErrorLog);
                     } finally {
                         lock.release();
                     }
                 } catch (IOException e) {
-                    log.error("Unable to acquire lock on file: " + file.getName());
+                    EmailErrorLog emailErrorLog = new EmailErrorLog();
+                    emailErrorLog.setErrorType("PDF获取锁失败");
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    e.printStackTrace(pw);
+                    String errorDetails = sw.toString();
+                    emailErrorLog.setErrorDescription("PDF名字：" + file.getName() + "\n" + "其他错误信息：" + errorDetails);
+                    emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+                    emailErrorLogService.addEmailErrorLog(emailErrorLog);
                 }
             }
         }
@@ -253,8 +303,16 @@ public class ExportPDF {
             copy.freeReader(reader);
             reader.close();
             d.close();
-        } catch (FileNotFoundException e1) {
-            throw new Exception("Error while removing page from PDF", e1);
+        } catch (Exception e) {
+            EmailErrorLog emailErrorLog = new EmailErrorLog();
+            emailErrorLog.setErrorType("PDF删除多余页失败");
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            String errorDetails = sw.toString();
+            emailErrorLog.setErrorDescription("PDF路径：" + path + "\n" + "其他错误信息：" + errorDetails);
+            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            emailErrorLogService.addEmailErrorLog(emailErrorLog);
         } finally {
             if (fos != null) {
                 fos.close();

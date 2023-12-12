@@ -6,6 +6,9 @@
           :show-file-list="false"
           :before-upload="beforeUpload"
           :on-success="onSuccess"
+          :headers="{
+        'token': user.token
+      }"
           style="display: inline-flex; margin-left: 8px"
           :action="UploadUrl()"
       >
@@ -114,7 +117,7 @@ export default {
   name: "SalTeacherM",
   data(){
     return{
-      newPassword:'',//重置密码中的新密码
+      newPassword:'dhucst',//重置密码中的新密码
       pageSizes:[15,20,20,20,30],
       totalCount:0,
       currentPage:1,
@@ -168,10 +171,15 @@ export default {
         return
       }
       this.currentTeacherOfEdit.password = this.newPassword
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z\d])[\S]{8,20}$/;
+      if (this.newPassword!="dhucst" && !passwordRegex.test(this.newPassword)) {
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
+        return
+      }
       this.postRequest('/teacher/basic/updatePassword',this.currentTeacherOfEdit).then((response)=>{
         if(response){
           if(response.status == 200){
-            this.$message.success("重置成功")
+            this.$message.success("重置成功，密码重置为"+this.newPassword);
             this.closeDialogReset()
           }else {
             this.$message.fail("重置失败")
@@ -237,13 +245,8 @@ export default {
       this.currentTeacherOfEdit = data
     },
     editGraduate(){//点击编辑中的确定按钮
-      if(this.currentGraduateStudentOfEdit.teachers.name == '' || this.currentGraduateStudentOfEdit.teachers.jobnumber == '' ||
-          this.currentGraduateStudentOfEdit.teachers.name == null || this.currentGraduateStudentOfEdit.teachers.jobnumber == null){
-        this.$message.warning('请填写老师姓名和工号！')
-        return
-      }
-      let data = this.currentGraduateStudentOfEdit
-      this.postRequest('/graduatestudentM/basic/editGraduateStudent',data).then((resp)=>{
+      let data = this.currentTeacherOfEdit
+      this.postRequest('/teacher/basic/update',data).then((resp)=>{
         if(resp){
           if(resp.status == 200){
             this.dialogEdit = false
@@ -255,17 +258,25 @@ export default {
         }
       })
     },
-    deleteUnder(data){//删除研究生
-      this.postRequest('/graduatestudentM/basic/deleteGraduateStudent',data).then((resp)=>{
-        if(resp.code == 200){
-          this.$message.success('删除成功')
-          this.initGraduateStudents()
-        }
+    deleteUnder(data){//删除教师
+      this.$confirm('是否确定删除'+data.name+'教师?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() =>{
+        this.postRequest('/teacher/basic/delete',data).then((resp)=>{
+          console.log(resp)
+          if(resp.status == 200){
+            this.$message.success('删除成功')
+            this.initTeachers()
+          }
+        })
       })
     },
     onSuccess(res){
       if(res.status == 200){
         this.$message.success("导入成功")
+        this.initTeachers()
       }else {
         this.$message.error("导入失败")
       }

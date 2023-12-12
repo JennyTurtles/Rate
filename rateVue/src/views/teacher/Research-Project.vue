@@ -4,7 +4,7 @@
         style="display: flex; justify-content: space-between; margin: 15px 0"
     >
       <div>
-        <label style="fontSize:10px">学生姓名：</label>
+        <label>学生姓名：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
@@ -12,7 +12,7 @@
                v-model="searchStudentName"
                placeholder="学生姓名"
                autocomplete="off">
-        <label style="fontSize:10px;margin-left:16px">项目名称：</label>
+        <label style="margin-left:16px">项目名称：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
                 border:1px solid lightgrey;color:lightgrey;
@@ -20,7 +20,7 @@
                placeholder="项目名称"
                v-model="searchProjectName"
                id="select_paperName">
-        <label style="fontSize:10px;margin-left:40px;">项目状态：</label>
+        <label style="margin-left:40px;">项目状态：</label>
         <el-select
             v-model="searchStatus"
             style="margin-left:3px;width:120px"
@@ -36,7 +36,7 @@
           >
           </el-option>
         </el-select>
-        <label style="fontSize:10px;margin-left:16px">积分范围：</label>
+        <label style="margin-left:16px">积分范围：</label>
         <el-select
             v-model="searchPointFront"
             style="margin-left:3px;width:60px"
@@ -146,6 +146,11 @@
             align="center"
             min-width="8%"
         >
+          <template slot-scope="scope">
+            <span>{{scope.row.have_score == 1 ? scope.row.point : 0}}</span>
+            <span>/</span>
+            <span>{{scope.row.point}}</span>
+          </template>
         </el-table-column>
         <el-table-column
             min-width="15%"
@@ -166,6 +171,10 @@
                 size="mini"
             >查看详情</el-button
             >
+            <el-button v-show="scope.row.state == 'adm_pass' ? true : false" @click="changePointMethod(scope.row)" style="padding: 4px"
+                       size="mini">
+              {{scope.row.changePointButton}}
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -252,25 +261,36 @@
           <span>{{ currentProject.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="作者列表:">
-          <span>{{ currentProject.author }}</span
+        <el-form-item label="学生姓名:">
+          <span>{{ currentProject.student.name }}</span
           ><br />
         </el-form-item>
-
         <el-form-item label="项目状态:">
-          <span>{{currentProject.state}}</span
+          <span>{{currentProject.state=="commit"
+              ? "学生提交"
+              :currentProject.state=="tea_pass"
+                  ? "导师通过"
+                  :currentProject.state=="tea_reject"
+                      ? "导师驳回"
+                      :currentProject.state=="adm_pass"
+                          ? "管理员通过"
+                          :"管理员驳回"}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="立项日期:">
+        <el-form-item label="立项年月:">
           <span>{{currentProject.startDate}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="结项日期:">
+        <el-form-item label="结项年月:">
           <span>{{currentProject.endDate}}</span
           ><br />
         </el-form-item>
         <el-form-item label="项目类别:">
           <span>{{currentProject.projectType.name}}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="作者列表:">
+          <span>{{ currentProject.author }}</span
           ><br />
         </el-form-item>
         <el-form-item label="作者人数:">
@@ -284,17 +304,29 @@
         <el-form-item label="证明材料:" prop="url">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="currentProject.url == '' || currentProject.url == null ? true:false" >无证明材料</span>
-          <a v-else style="color:gray;font-size:11px;text-decoration:none;cursor:pointer" @click="download(currentProject)"
-             onmouseover="this.style.color = 'blue'"
-             onmouseleave="this.style.color = 'gray'">
-            {{currentProject.url | fileNameFilter}}</a>
-          <br />
+          <span v-else>{{ currentProject.url | fileNameFilter }}</span>
         </el-form-item>
+        <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
+          <div>
+            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
+          </div>
+          <div style="margin-top: 5px">
+            <el-image
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
+            </el-image>
+          </div>
+          <br />
+        </div>
         <div >
           <span>历史操作:</span>
           <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
-            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;font-size:5px;margin-left:5px">
-              <div style="font-size: 10px;">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
+              <div>
                 <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
                 <p v-show="item.remark == '' || item.remark == null ? false : true">驳回理由：{{item.remark}}</p>
               </div>
@@ -305,7 +337,7 @@
       <span slot="footer" class="dialog-footer" :model="currentProject">
             <el-button
                 id="but_pass"
-                v-show="((currentProject.state=='commit' && role == 'teacher') || (currentProject.state=='tea_pass' && role == 'admin')) ? true:false"
+                v-show="(currentProject.state == 'commit' || (currentProject.state == 'tea_pass' && role == 'admin')) ? true : false"
                 @click="(()=>{
                   if (role == 'teacher')
                    auditing_commit('tea_pass')
@@ -316,8 +348,8 @@
             >审核通过</el-button>
             <el-button
                 id="but_reject"
-                v-show="((currentProject.state=='commit' && role == 'teacher') || (currentProject.state=='tea_pass' && role == 'admin')) ? true:false"
-                @click="isShowInfo = true"
+                v-show="(currentProject.state == 'commit' || (currentProject.state == 'tea_pass' && role == 'admin')) ? true : false"
+                @click="rejectDialog"
                 type="primary"
             >审核不通过</el-button>
             <el-button
@@ -337,9 +369,18 @@
       >
       </el-input>
       <span slot="footer">
-          <el-button @click="rejectDialog()" type="primary">确定</el-button>
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
           <el-button @click="isShowInfo = false">取消</el-button>
         </span>
+    </el-dialog>
+    <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+      <template v-if="isPdf">
+        <vue-office-pdf
+            :src="previewUrl"
+            style="height: 100vh;"
+        />
+      </template>
+
     </el-dialog>
   </div>
 </template>
@@ -351,6 +392,11 @@ export default {
   name: "SalSearch",
   data() {
     return {
+      isImage: false,
+      isPdf: false,
+      dialogPreviewPdfFile: false,
+      previewImageSrcList: [],
+      previewUrl: '',
       searchPointFront: '',
       searchPointBack: '',
       searchProjectName: '',
@@ -380,7 +426,7 @@ export default {
         operatorRole: "",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '科研项目',
+        prodType: '纵向科研项目',
         operationName:"",
         state:"",
         remark:"",
@@ -410,71 +456,128 @@ export default {
       return this.$store.state.currentHr; //object信息
     },
     role() {
-      return JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ||
-      JSON.parse(localStorage.getItem('user')).roleName.indexOf('expert') >= 0 ? 'teacher' : 'admin';
+      // return JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ||
+      // JSON.parse(localStorage.getItem('user')).roleName.indexOf('expert') >= 0 ? 'teacher' : 'admin';
+      return JSON.parse(localStorage.getItem('user')).roleName == 'expert' || JSON.parse(localStorage.getItem('user')).roleName == 'expert;' ?
+          'expert' : JSON.parse(localStorage.getItem('user')).roleName.indexOf('teacher') >= 0 ?
+              'teacher' : JSON.parse(localStorage.getItem('user')).roleName.indexOf('admin') >= 0 ? 'admin' : '';
     }
   },
   created() {},
   mounted() {
-    // this.test();
+    if(this.role == 'teacher') this.searchStatus = '学生提交';
+    else if(this.role == 'admin') this.searchStatus = '导师通过';
     this.searchProject(1,10);
   },
-  filters:{
-    fileNameFilter:function(data){//将证明材料显示出来
-      if(data == null || data == ''){
-        return '无证明材料'
-      }else{
-        var arr= data.split('/')
-        return  arr.reverse()[0]
-      }
-    }
-  },
   methods: {
-    rejectDialog(){
+    previewMethod(type) {
+      if(type == '1') {
+        this.previewFileMethod(this.emp).then(res => {
+          this.previewUrl = res;
+          if(this.isImage) {
+            this.previewImageSrcList = [res];
+            this.$refs.previewImage.showViewer = true;
+          }
+          if(this.isPdf) {
+            this.dialogPreviewPdfFile = true;
+          }
+        });
+      } else {
+        this.downloadFileMethod(this.emp);
+      }
+    },
+    changePointMethod(data) { //修改积分按钮
+      var have_score = data.have_score
+      var point = data.point
+      var score = have_score == 1 ? 0 : point
+      this.$confirm(`确定将积分修改为${score}分?`,'提示',{
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(() => {
+        this.changePaperPoint(data, score).then(() => {
+          this.changeStudentPoint(data, score).then(() => {
+            this.$message.success('修改成功！')
+            data.have_score = 1 - data.have_score;
+            if(data.have_score == 1) data.changePointButton = '取消积分'
+            else if(data.have_score == 0) data.changePointButton = '计入积分'
+          });
+        })
+      }).catch(() => {
+        data.have_score = have_score;
+      })
+    },
+    changePaperPoint(data, point) {
+      const params = {
+        point: point,
+        have_score: 1 - data.have_score
+      }
+      return this.postRequest(`/project/basic/editPoint/${data.id}`, params).then()
+    },
+    changeStudentPoint(data, point) {
+      const params = {
+        studentID: data.studentId,
+        point: data.point //传递需要进行加法或减法的数值
+      }
+      if(point == 0) { //减法
+        return this.postRequest('/graduatestudentM/basic/updateScoreSub', params).then()
+      } else { //加法
+        return this.postRequest('/graduatestudentM/basic/updateScore', params).then()
+      }
+    },
+    rejectDialog() {
+      if(this.role == 'admin' && this.currentProject.state == 'commit') { //管理员驳回 有提示
+        this.$confirm('目前导师尚未审核，是否确认审核驳回？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.isShowInfo = true;
+        }).catch(() => {});
+      }else this.isShowInfo = true;
+    },
+    rejectDialogConfirm(){
       if (this.role == 'teacher')
         this.auditing_commit('tea_reject')
       else if (this.role == 'admin')
         this.auditing_commit('adm_reject')
       this.isShowInfo = false
     },
-    download(data){//下载证明材料
-      var fileName = data.url.split('/').reverse()[0]
-      var url = data.url
-      axios({
-        url: '/project/basic/downloadByUrl?url='+url,
-        method: 'GET',
-        responseType: 'blob'
-      }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
-    },
     //点击对话框中的确定按钮 触发事件
-    auditing_commit(num){
+    auditing_commit(state){
       this.loading = true;
-      let url = "/project/basic/edit_state?state=" + num + "&ID=" + this.currentProject.id;
+      if(this.role == 'admin' && (state.indexOf('pass') >= 0 || state.indexOf('reject') >= 0) && this.currentProject.state == 'commit') { //管理员通过 有提示
+        this.$confirm('目前导师尚未审核，是否确认审核该成果？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.rolePass(state);
+        }).catch(() => {
+          this.loading = false;
+        });
+      }else this.rolePass(state);
+    },
+    rolePass(state) {
+      let url = "/project/basic/edit_state?state=" + state + "&ID=" + this.currentProject.id;
       this.dialogVisible_show=false
-      if(num.indexOf('reject') >= 0){
+      if(state.indexOf('reject') >= 0){
         this.currentProject.remark = this.reason;
       }
       this.getRequest(url).then((resp) => {
         this.loading = false;
         if (resp) {
-          this.currentProject.state = num
+          this.currentProject.state = state
           this.$message({
             type: 'success',
             message: '操作成功'
           })
-          this.doAddOper(num, this.reason, this.currentProject.id);
+          this.doAddOper(state, this.reason, this.currentProject.id);
+          let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+          this.$store.dispatch('changePendingMessageange', roleParam);
         }
       })
     },
-    doAddOper(state,remark,projectID) {
+    async doAddOper(state,remark,projectID) {
       this.oper.state = state;
       this.oper.remark = remark;
       this.oper.prodId = projectID;
@@ -485,7 +588,8 @@ export default {
       } else if (this.oper.state =="tea_reject" || this.oper.state == 'adm_reject'){
         this.oper.operationName = "审核驳回"
       }
-      this.postRequest1("/oper/basic/add", this.oper);
+      await this.postRequest1("/oper/basic/add", this.oper);
+      await this.searchProject(this.currentPage, this.pageSize);
     },
     rowClass(){
       return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
@@ -495,11 +599,19 @@ export default {
       this.titleName = "显示详情";
       this.currentProject = data;
       this.dialogVisible_show = true;
+      this.isPdf = this.isImage = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      if(data.url.includes('.pdf')) { //判断文件类型
+        this.isPdf = true;
+      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
+        this.isImage = true;
+      }
       this.getOperationListOfProject(data);
     },
     //获取改专著的操作列表
     getOperationListOfProject(data) {
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=科研项目').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=纵向科研项目').then((resp) => {
         this.loading = false;
         if (resp) {
           this.isShowInfo = false;
@@ -582,6 +694,13 @@ export default {
       this.postRequest('/project/basic/searchProjectByConditions', params).then((response) => {
         if(response) {
           this.projectList = response.extend.res[0];
+          this.projectList.map(item => {
+            if(item.have_score == 1) {
+              this.$set(item, 'changePointButton', '取消积分')
+            } else {
+              this.$set(item, 'changePointButton', '计入积分')
+            }
+          })
           this.totalCount = response.extend.res[1];
         }else this.projectList = [];
       })

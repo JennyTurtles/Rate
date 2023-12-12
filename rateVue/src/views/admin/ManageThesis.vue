@@ -19,6 +19,9 @@
       <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="groupsForStudent">学生分组
       </el-button>
 
+      <el-button icon="el-icon-download" type="primary" style="margin-right: 10px" @click="exportGroupsResult">导出分组
+      </el-button>
+
       <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importTeachers">导入指导教师
       </el-button>
 
@@ -69,10 +72,11 @@
       <div style="margin-top: 10px;margin-left: 10px">第二步：
         <el-upload
             :show-file-list="false"
+            :headers="{'token':user.token}"
             :before-upload="beforeUpload"
             :on-success="onSuccess"
             style="display: inline-flex; margin-left: 1px"
-            :action="`/undergraduateM/basic/importThesis?type=teacher&institutionID=${user.institutionID}&year=${startYear}&semester=${selectSemester}`"
+            :action="`/undergraduateM/basic/importThesis?type=teacher&institutionID=${user.institutionID}&startThesisID=${selectThesis}`"
         >
           <el-button icon="el-icon-plus" type="success" :disabled="selectDate==''">导入教师</el-button>
         </el-upload>
@@ -97,10 +101,11 @@
       <div style="margin-top: 10px;margin-left: 10px">第二步：
         <el-upload
             :show-file-list="false"
+            :headers="{'token':user.token}"
             :before-upload="beforeUpload"
             :on-success="onSuccess"
             style="display: inline-flex; margin-left: 1px"
-            :action="`/undergraduateM/basic/importThesis?type=student&institutionID=${user.institutionID}&year=${startYear}&semester=${selectSemester}`"
+            :action="`/undergraduateM/basic/importThesis?type=student&institutionID=${user.institutionID}&startThesisID=${selectThesis}`"
         >
           <el-button icon="el-icon-plus" type="success" :disabled="selectDate==''">导入学生</el-button>
         </el-upload>
@@ -264,11 +269,11 @@
         </div>
       </template>
     </el-dialog>
-    <el-dialog :visible.sync="dialogStudentGroup" width="81%" title="学生分组-根据学生绩点分组" center
+    <el-dialog :visible.sync="dialogStudentGroup" width="85%" title="学生分组-根据学生绩点分组" center
                @close="closeDialogGroup">
       <div>
-        <div>
           <div style="margin-top: 15px;width: 100%">
+            分组对象：
             <template>
               <el-radio v-model="groupWay" label="专业">待分组学生专业</el-radio>
               <el-radio v-model="groupWay" label="班级">待分组学生班级</el-radio>
@@ -332,16 +337,119 @@
               &nbsp;关&nbsp;&nbsp;闭&nbsp;
             </el-button>
           </div>
-          <div id="tableOfGroupNums"
-               class="inputOfGroupsBox"
-               v-show="selectedGroupNums > 0"
-          >
-            <span v-for="item in groupNumsInput" style="margin: auto;width: 100%;padding-bottom: 2px">
-              第{{ item.idx + 1 }}组：
-              <input v-model="item.value" style="width: 60px" :disabled="item.disabled"></input>
-            </span>
+          <div class="table" v-show="selectedGroupNums > 0" >
+            <el-table
+                :data="groupNumsInput"
+                :key="bomCheckKey"
+                style="width: 100%">
+              <el-table-column
+                  type="index"
+                  label="组号"
+                  min-width="3%"
+                  show-overflow-tooltip>
+              </el-table-column>
+              <el-table-column
+                  :label=" '人数 ' + currentAllSelect + '/' + filterNoGroupPar.length"
+                  min-width="10%">
+                <template slot-scope="scope">
+                  <input v-model="scope.row.value" style="width: 60px; margin-bottom: 10px" :disabled="scope.row.disabled || scope.row.order"
+                         @blur="currentInputChange()"/>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  label="指定分配人数"
+                  min-width="10%"
+                  v-if="radio === '2'">
+                <template slot-scope="scope">
+                  <span>{{scope.row.orderSum}}</span>
+                  <el-button
+                      type="text"
+                      icon="el-icon-edit"
+                      size="medium"
+                      style="padding-left: 5px"
+                      @click="showStuTable(scope.row)">
+                  </el-button>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  prop="className"
+                  min-width="10%"
+                  v-if="radio === '2'"
+                  label="是否指定分配专业/班级">
+                <template slot-scope="scope">
+                  <el-checkbox
+                      v-show="radio === '2'"
+                      v-model="scope.row.order"
+                      style="padding-left: 5px">
+                  </el-checkbox>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  v-for="(info) in this.selectedSubGroupInfo"
+                  :label="info +' ' + currentSubSelect[info] + '/' + (groupWay === '专业' ? groupSpecialtyNums[info].length : groupClassNums[info].length)"
+                  min-width="10%"
+                  v-if="radio === '2'">
+                <template slot-scope="scope">
+                  <input v-model="scope.row.selectGroupInfo[info]" style="width: 60px; margin-bottom: 10px" :disabled="!scope.row.order"
+                         @focus="getInfoBefore(scope.row.selectGroupInfo[info])"
+                         @blur="juegeInput(scope.row, info)"/>
+                </template>
+              </el-table-column>
+            </el-table>
           </div>
-        </div>
+      </div>
+    </el-dialog>
+    <el-dialog :title="title_searchStu" :visible.sync="showStudents" width="55%" center @close="closeDialogSearch">
+      <el-input
+          v-model="searchText"
+          placeholder="请输入学号或姓名进行搜索"
+          @keyup.enter.native="searchStu"
+          @input="searchStu"
+      >
+      </el-input>
+      <span style="color: #4b8ffe">已选学生({{selectStu.length}})人：</span>
+      <span v-for="item in selectStu" style="padding-left: 5px; color: #4b8ffe">{{item.name}}</span>
+      <el-table
+          ref="multipleTable"
+          :data="searchStudent"
+          :row-key="getRowKeys"
+          tooltip-effect="dark"
+          style="width: 100%"
+          max-height="400px"
+          @selection-change="handleSelectionChange">
+        <el-table-column
+            :reserve-selection="true"
+            type="selection"
+            width="40px">
+        </el-table-column>
+        <el-table-column
+            prop="stuNumber"
+            label="学号"
+            show-overflow-tooltip>
+        </el-table-column>
+        <el-table-column
+            prop="name"
+            label="姓名">
+        </el-table-column>
+        <el-table-column
+            prop="thesis.grade"
+            label="绩点">
+        </el-table-column>
+        <el-table-column
+            prop="className"
+            v-if="groupWay === '班级'"
+            label="班级">
+        </el-table-column>
+        <el-table-column
+            prop="specialty"
+            v-if="groupWay === '专业'"
+            label="专业">
+        </el-table-column>
+      </el-table>
+      <div style="color: #4b8ffe ;float: right;">
+        <el-button type="primary" @click="order" style="padding-left: 10px; padding-top: 5px">
+          确认分配
+        </el-button>
       </div>
     </el-dialog>
   </div>
@@ -350,6 +458,7 @@
 <script>
 import {Message} from "element-ui";
 import {debounce} from "@/utils/debounce";
+import PinYinMatch from "pinyin-match";
 
 
 export default {
@@ -366,6 +475,7 @@ export default {
         tutorJobNumber: '',
         tutorName: '',
         institutionID: null,
+        startThesisID: null,
         startYear: null,
         month: null,
         pageNum: null,
@@ -391,15 +501,26 @@ export default {
       selectedSubGroupInfo: [],//选择的子信息项
       groupClassNums: {}, //班级计数
       groupSpecialtyNums: {}, //专业计数
+      currentAllSelect: 0, //当前选择的所有人数
+      currentSubSelect:[], //当前指定的不同子信息项人数
+      currentInputItem:'',
+      showStudents:false, //用于展示指定分配的table
+      inputBefore: null,
+      bomCheckKey: 0,
+      selectStu:[],
+      title_searchStu:'',
       radio: '1',
       groupWay: '专业',
+      searchText: '',
+      searchStudent:[],
       options: [],
       selectDate: '',
       canImportStudents: false,
       selectSemester: '',
       startYear: null,
+      selectThesis: null,
       selectTeacherNameOrJobnumber: '',//编辑框中导师搜索一栏的下拉框绑定数据
-      newPassword: '',//重置密码中的新密码
+      newPassword: 'dhucst',//重置密码中的新密码
       conNewPassword: '',//重置密码中的确认新密码
       dialogResetPassword: false,
       pageSizes: [10, 20, 50, 100],
@@ -445,16 +566,27 @@ export default {
     selectedGroupNums: {//监听用户选择了分为几组
       handler(val) {
         this.groupNumsInput = []
+        this.showStudents = false
         for (var i = 0; i < val; i++) {
           this.groupNumsInput.push({
             idx: i,
             value: '',
-            disabled: true//默认是均分
-          })
+            disabled: true, //默认是均分
+            selectGroupInfo:{},
+            orderSum: 0, //指定分配人数
+            orderNum: {},
+            order: false
+          });
         }
-        if (this.radio == '2') {//如果是指定人数
+        if (this.radio === '2') {//如果是指定人数
           for (var item of this.groupNumsInput) {
             item.disabled = false
+          }
+        }
+        for (var item of this.groupNumsInput) {
+          for (var info of this.selectedSubGroupInfo){
+            item.selectGroupInfo[info] = 0
+            item.orderNum[info] = []
           }
         }
         this.calculationGroupInputValue()
@@ -462,11 +594,12 @@ export default {
     },
     radio: {
       handler(val) {
-        if (this.radio == '1') {//均分
+        this.showStudents = false
+        if (this.radio === '1') {//均分
           for (var i = 0; i < this.selectedGroupNums; i++) {
             this.groupNumsInput[i].disabled = true
           }
-        } else if (this.radio == '2') {//指定每组人数
+        } else {//指定每组人数
           for (var i = 0; i < this.selectedGroupNums; i++) {
             this.groupNumsInput[i].disabled = false
           }
@@ -476,16 +609,33 @@ export default {
     },
     selectedSubGroupInfo: {//第一个下拉框的变化
       handler(val) {
-        if (this.groupWay == '专业')
+        this.showStudents = false
+        if (this.groupWay === '专业')
           this.filterNoGroupPar = this.NoGroupPar.filter(item => this.selectedSubGroupInfo.includes(item.specialty))
-        if (this.groupWay == '班级')
+        if (this.groupWay === '班级')
           this.filterNoGroupPar = this.NoGroupPar.filter(item => this.selectedSubGroupInfo.includes(item.className))
+        this.searchStudent = this.filterNoGroupPar
+        for (var item of this.groupNumsInput) {
+          for (var info of this.selectedSubGroupInfo){
+            item.orderSum = 0
+            item.orderNum[info] = []
+          }
+        }
         this.calculationGroupInputValue()
       }
     },
     groupWay: {
       handler(val) {
         this.selectedSubGroupInfo = []
+        this.radio = '1'
+        this.selectedGroupNums = null
+        this.currentAllSelect = 0
+        for (var item of this.groupNumsInput) {
+          for (var info of this.selectedSubGroupInfo){
+            item.orderSum = 0
+            item.orderNum[info] = []
+          }
+        }
       }
     }
   },
@@ -505,6 +655,24 @@ export default {
     this.fetchThesisExistDate()
   },
   methods: {
+    emptyQuery() {
+      this.query = {
+        stuNumber: '',
+        name: '',
+        specialty: '',
+        className: '',
+        year: null,
+        tutorJobNumber: '',
+        tutorName: '',
+        institutionID: null,
+        startYear: null,
+        month: null,
+        startThesisID: null,
+        pageNum: null,
+        pageSize: null,
+      };
+    },
+
 
     // 打开搜索框
     search() {
@@ -561,7 +729,7 @@ export default {
 
     async fetchThesisExistDate() {
       try {
-        const url = `/undergraduateM/basic/getThesisExistDate?institutionID=${this.user.institutionID}`;
+        const url = `/undergraduateM/basic/getThesisExistDate?institutionID=${this.user.institutionID}&adminID=${this.user.id}`;
         const response = await this.getRequest(url);
         if (response.status === 200) {
           this.options = this.transformOptions(response.obj);
@@ -575,17 +743,21 @@ export default {
 
     transformOptions(options) {
       return options.map(option => {
-        let year = option.substring(0, 4);
-        let season = option.slice(-2) === '春季' ? 3 : 9;
-        let optionValue = year + season
+        let message = option.split('.')[1];
+        let year = message.substring(0, 4);
+        let season = message.slice(-2) === '春季' ? 3 : 9;
+        let optionID = option.split('.')[0];
+        let optionValue = optionID + '.' + year + season
 
-        return {value: optionValue, label: option};
+        return {value: optionValue, label: message};
       });
     },
 
     handleSelectSemesterChange() {
-      this.startYear = parseInt(this.selectDate.substring(0, 4));
-      this.selectSemester = parseInt(this.selectDate.charAt(4));
+      let message = this.selectDate.split('.')[1];
+      this.startYear = parseInt(message.substring(0, 4));
+      this.selectSemester = parseInt(message.charAt(4));
+      this.selectThesis = parseInt(this.selectDate.split('.')[0]);
       this.initUnderGraduateStudents(1, 10);
     },
 
@@ -605,10 +777,15 @@ export default {
         return
       }
       this.currentUnderStudentOfEdit.password = this.newPassword
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z\d])[\S]{8,20}$/;
+      if (this.newPassword != "dhucst" && !passwordRegex.test(this.newPassword)) {
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
+        return
+      }
       this.postRequest('/undergraduateM/basic/resetUnderPassword', this.currentUnderStudentOfEdit).then((response) => {
         if (response) {
           if (response.status == 200) {
-            this.$message.success("重置成功")
+            this.$message.success("重置成功，密码重置为" + this.newPassword);
             this.closeDialogReset()
           } else {
             this.$message.fail("重置失败")
@@ -690,6 +867,8 @@ export default {
         if (resp && resp.status === 200) {
           this.dialogEdit = false;
           this.$message.success("修改成功！");
+          // 将搜索框中的内容制空
+          this.emptyQuery()
           await this.initUnderGraduateStudents(this.currentPage, this.pageSize);
         } else {
           this.$message.error("修改失败！");
@@ -709,8 +888,7 @@ export default {
         const queryParams = {
           studentID: data.studentID,
           tutorID: data.tutorID || "none", // 处理可能为空的情况
-          year: this.startYear,
-          month: this.selectSemester
+          startThesisID: this.selectThesis
         };
         const queryParamsStr = Object.entries(queryParams)
             .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
@@ -721,6 +899,7 @@ export default {
         this.postRequest(url).then(async (resp) => {
           if (resp.status === 200) {
             this.$message.success('删除成功');
+            this.emptyQuery()
             await this.initUnderGraduateStudents(this.currentPage, this.pageSize);
           } else {
             this.$message.warning('删除失败！');
@@ -796,14 +975,18 @@ export default {
         this.filterBtn()
       }
     },
+
+
     async initUnderGraduateStudents(pageNum, pageSize) {
       try {
         this.query.pageNum = pageNum;
         this.query.pageSize = pageSize;
         this.query.institutionID = this.user.institutionID;
+        this.query.startThesisID = this.selectThesis;
         this.query.startYear = this.startYear;
         this.query.month = this.selectSemester;
 
+        console.log(this.query)
         const url = `/undergraduateM/basic/getStudentsByConditions`
         const response = await this.postRequest(url, this.query);
         const {code, extend} = response;
@@ -828,17 +1011,23 @@ export default {
         this.$message.error("请求出现异常！");
       }
     },
+    getRowKeys(row) {
+      return row.id;
+    },
     calculationGroupInputValue() {//计算input框的值
-      if (this.filterNoGroupPar.length == 0 || this.selectedGroupNums == 0) {//如果没有选择分组个数或没有待分组的选手直接返回
+      if (this.filterNoGroupPar.length === 0) {//如果没有选择分组个数或没有待分组的选手直接返回
+        for (var i = 0; i < this.selectedGroupNums; i++)
+          this.groupNumsInput[i].value = null;
+        this.currentAllSelect = 0;
         return
       }
       if (this.selectedGroupNums > this.filterNoGroupPar.length) {
         this.$message.warning('分组数不能超过未分组人数！')
         return
       }
-      var participantNums = this.filterNoGroupPar.length//选手人数
-      var groupNums = this.selectedGroupNums//组数
-      if (this.selectedGroupNums != null) {//均分
+      var participantNums = this.filterNoGroupPar.length //学生人数
+      var groupNums = this.selectedGroupNums //组数
+      if (this.selectedGroupNums != null && this.radio ==='1') {//均分
         var baseNums = Math.floor(participantNums / groupNums);
         for (var i = 0; i < groupNums; i++) {
           this.groupNumsInput[i].value = baseNums;
@@ -846,6 +1035,230 @@ export default {
         for (var i = 0; i < (participantNums - baseNums * groupNums); i++) {
           this.groupNumsInput[i].value++;
         }
+      }
+      else if (this.radio === '2'){
+        for (var i = 0; i < groupNums; i++) {
+          this.groupNumsInput[i].value = 0;
+        }
+        for (var info of this.selectedSubGroupInfo){
+          var infoSum = this.groupWay === '专业' ? this.groupSpecialtyNums[info].length : this.groupClassNums[info].length;
+          var baseNums = Math.floor(infoSum / groupNums);
+          for (var i = 0; i < groupNums; i++) {
+            this.groupNumsInput[i].value += baseNums;
+            this.groupNumsInput[i].selectGroupInfo[info] = baseNums;
+          }
+          for (var i = 0; i < (infoSum - baseNums * groupNums); i++) {
+            this.groupNumsInput[i].selectGroupInfo[info]++;
+            this.groupNumsInput[i].value++;
+          }
+        }
+      }
+      this.currentInputChange('总人数');
+    },
+    calculationCurrentInput(){
+      if (this.radio === '2'){
+        this.currentSubSelect = {}
+        for (let item of this.groupNumsInput){
+          item.value = 0
+          for (let info of this.selectedSubGroupInfo){
+            if (!(info in this.currentSubSelect))
+              this.currentSubSelect[info] = 0
+            this.currentSubSelect[info] += item.selectGroupInfo[info] === null ? 0 : parseInt(item.selectGroupInfo[info])
+            item.value += item.selectGroupInfo[info] === null ? 0 : parseInt(item.selectGroupInfo[info])
+          }
+        }
+      }
+      let sum = 0;
+      this.groupNumsInput.map(item => {
+        sum += parseInt(item.value)
+      })
+      this.currentAllSelect = sum;
+    },
+    currentInputChange(){
+      let un_ordered = [], sumNums = {}, itemSum= {}  //sumNums:各专业的已指定人数和总人数记录 itemSum:每个未指定分配的item已自动分配的人数
+      for (let info of this.selectedSubGroupInfo){
+        sumNums[info] = []
+        sumNums[info].push(0)  //0:指定的人数 1:总人数
+        let num = this.groupWay === '专业' ? this.groupSpecialtyNums[info].length : this.groupClassNums[info].length
+        sumNums[info].push(num)
+      }
+      if (this.radio === '2'){
+        for (let item of this.groupNumsInput) { //取出未指定分配的组，进行自动分配
+          if (item.order === true) {
+            item.value = 0
+            for (let info of this.selectedSubGroupInfo) {
+              sumNums[info][0] += parseInt(item.selectGroupInfo[info])
+              item.value += parseInt(item.selectGroupInfo[info]);
+            }
+          } else {
+            item.value = parseInt(item.value)
+            un_ordered.push(item)
+            itemSum[item.idx] = 0
+            for (let info of this.selectedSubGroupInfo) {
+              item.selectGroupInfo[info] = 0
+              if (item.orderNum[info].length > 0) {
+                item.selectGroupInfo[info] = item.orderNum[info].length
+                itemSum[item.idx] += item.orderNum[info].length
+                sumNums[info][0] += parseInt(item.orderNum[info].length)
+              }
+            }
+          }
+        }
+        let temp_selectInfo = []
+        for (let i = 0; i < this.selectedSubGroupInfo.length; i++)
+          temp_selectInfo[i] = this.selectedSubGroupInfo[i]
+        for (let k = 0; k < temp_selectInfo.length - 1; k++) {  //对选择的信息项按照人数进行排序从小到大，使自动分配更平均
+          for (let i=0; i < temp_selectInfo.length - 1 - k ; i++) {
+            let num1 = this.groupWay === '专业' ? this.groupSpecialtyNums[temp_selectInfo[i]] : this.groupClassNums[temp_selectInfo[i]]
+            let num2 = this.groupWay === '专业' ? this.groupSpecialtyNums[temp_selectInfo[i + 1]] : this.groupClassNums[temp_selectInfo[i + 1]]
+            if (num1 > num2) {
+              let temp = temp_selectInfo[i];
+              temp_selectInfo[i] = temp_selectInfo[i + 1];
+              temp_selectInfo[i + 1] = temp;
+            }
+          }
+        }
+        let max = []  //max：已满组
+        for (let info of temp_selectInfo){  //对每组进行分配
+          let participantNums = sumNums[info][1] - sumNums[info][0]  //学生人数
+          let i = 1
+          while (i <= participantNums && max.length < un_ordered.length){
+            for (let item of un_ordered){
+              if (itemSum[item.idx] === item.value || i/un_ordered.length < item.orderNum[info].length){
+                if (!(max.includes(item.idx)))
+                  max.push(item.idx)
+                continue
+              }
+              item.selectGroupInfo[info]++
+              itemSum[item.idx]++
+              i++
+              if (i > participantNums || max.length === un_ordered.length) break
+            }
+          }
+        }
+        for (let item of this.groupNumsInput){   // 当输入的人数大于总人数时对人数不足的组补齐
+          let sum = 0
+          for (let info of this.selectedSubGroupInfo)
+            sum += item.selectGroupInfo[info]
+          var flag = true
+          while (sum < item.value){
+            for (let info of this.selectedSubGroupInfo){
+              item.selectGroupInfo[info]++
+              sum++
+              if (sum === item.value){
+                flag = false
+                break
+              }
+            }
+            if (!flag) break
+          }
+        }
+      }
+      this.calculationCurrentInput()
+    },
+    getInfoBefore(value){
+      this.inputBefore = value;
+    },
+    juegeInput(row, info){
+      if (row.orderNum[info].length > row.selectGroupInfo[info]){
+        this.$alert('当前输入的人数小于该组' + info + '分配的人数，请重新输入', '提示', {
+          confirmButtonText: '确定',
+          type: 'warning',
+          callback: action => {
+            row.selectGroupInfo[info] = this.inputBefore
+            this.bomCheckKey++
+          }
+        });
+      }
+      else
+        this.calculationCurrentInput()
+    },
+    handleSelectionChange(val){
+      this.selectStu = val;
+    },
+    closeDialogSearch(){
+      this.showStudents = false;
+      this.$refs.multipleTable.clearSelection();
+      this.searchText = '';
+    },
+    order(){
+      var count = {}, sum = 0;
+      for (var info of this.selectedSubGroupInfo){
+        if (!(info in count)){
+          count[info] = 0;
+        }
+        this.selectStu.forEach(item => {
+          if (this.groupWay === '专业' && item.specialty === info) {
+            count[info]++;
+            sum++;
+          }
+          if (this.groupWay === '班级' && item.className === info) {
+            count[info]++;
+            sum++;
+          }
+        })
+        if (count[info] > this.currentInputItem.selectGroupInfo[info] && this.currentInputItem.order === true){
+          this.$message.error('分配的' + info + '人数大于该组' + info + '总人数，请重新选择！')
+          return
+        }
+        if (sum > this.currentInputItem.value){
+          this.$message.error('分配的人数大于该组总人数，请重新选择！')
+          return
+        }
+      }
+      for (var info of this.selectedSubGroupInfo){
+        this.currentInputItem.orderNum[info] = []
+      }
+      this.currentInputItem.orderSum = sum
+      for (var i = 0; i < this.selectStu.length; i++ ){
+        if (this.groupWay === '专业') {
+          this.currentInputItem.orderNum[this.selectStu[i].specialty].push(this.selectStu[i]);
+        }
+        else
+          this.currentInputItem.orderNum[this.selectStu[i].className].push(this.selectStu[i]);
+      }
+      this.currentInputChange();
+      this.showStudents = false;
+    },
+    showStuTable(inputItem){
+      this.currentInputItem = inputItem
+      let index = inputItem.idx+1
+      this.title_searchStu = "第" + index + "组"
+      var curr_ids = [], other_ids = []
+      for (let i = 0; i < this.filterNoGroupPar.length; i++)
+        this.searchStudent[i] = this.filterNoGroupPar[i]
+      for (var info of this.selectedSubGroupInfo){
+        for (var item of this.groupNumsInput){
+          if (item.orderNum[info].length > 0){
+            if (item === inputItem)
+              item.orderNum[info].forEach(e => { curr_ids.push(e.id) })
+            else
+              item.orderNum[info].forEach(e => { other_ids.push(e.id) })
+          }
+        }
+      }
+      this.searchStudent = this.searchStudent.filter((e) => !other_ids.includes(e.id))
+      this.showStudents = true
+      this.$nextTick(() => {
+        this.searchStudent.forEach(item => {
+          if (curr_ids.includes(item.id))
+            this.$refs.multipleTable.toggleRowSelection(item, true)
+        })
+      })
+    },
+    searchStu() {
+      this.showStuTable(this.currentInputItem)
+      var filter_new = []
+      for (var i = 0; i < this.searchStudent.length; i++)
+        filter_new[i] = this.searchStudent[i]
+      if (this.searchText === ''){
+        this.searchStudent = filter_new
+      }else if (/^\d+$/.test(this.searchText)){ // 纯数字，按工号搜索
+        this.searchStudent = filter_new.filter(item => item.stuNumber != null &&  item.stuNumber.includes(this.searchText))
+      }else if (/^[a-zA-Z]*$/.test(this.searchText)){ //纯英文，考虑首字母
+        this.searchStudent = filter_new.filter(item => PinYinMatch.match(item.name,this.searchText))
+      } else { // 非纯数字，按姓名搜索
+        this.searchStudent = filter_new.filter(item => item.name.includes(this.searchText))
       }
     },
     closeDialogGroup() {//选手分组对话框关闭,清空遗留数据
@@ -857,26 +1270,22 @@ export default {
       this.groupSubOfSelectedSpecialty = []
       this.groupWay = '专业'
       this.groupNumsInput = []
+      this.radio = '1'
     },
     creatGroup() {//创建分组
-      var sum = 0
-     // 遍历this.groupNumsInput，如果value为0，报错
-      for (var i = 0; i < this.groupNumsInput.length; i++) {
-        if (this.groupNumsInput[i].value == 0) {
-          this.$message.error('第' + (i + 1) + '组人数为0，请重新输入！')
+      for (let item of this.groupNumsInput) { // 遍历this.groupNumsInput，如果value为0，报错
+        if (item.value === 0) {
+          this.$message.error('第' + (item.idx + 1) + '组人数为0，请重新输入！')
           return
         }
       }
-      if (this.radio == '2') {
-        this.groupNumsInput.map(item => {
-          sum += parseInt(item.value)
-        })
-        if (sum != this.filterNoGroupPar.length) {
-          this.$message.error('待创建分组人数为' + this.filterNoGroupPar.length + '，分组总人数为' + sum + '，人数不相等！')
+      if (this.radio === '2') {
+        if (this.currentAllSelect !== this.filterNoGroupPar.length) {
+          this.$message.error('待创建分组人数为' + this.filterNoGroupPar.length + '，分组总人数为' + this.currentAllSelect + '，人数不相等！')
           return
         }
       }
-      if (this.selectedGroupNums == 0) {
+      if (this.selectedGroupNums === 0) {
         this.$message.error('请选择分组数！')
         return
       }
@@ -885,19 +1294,39 @@ export default {
       var arr = this.groupNumsInput.map(item => {
         return parseInt(item.value)
       })
+      var orderNums = {}, arrSub = {}
+      for (var info of this.selectedSubGroupInfo){
+        if (!(info in arrSub)){
+          arrSub[info] = []
+        }
+        if (!(info in orderNums)){
+          orderNums[info] = {}
+        }
+        for (var item of this.groupNumsInput){
+          if (!(item.idx in orderNums[info])){
+            orderNums[info][item.idx] = []
+          }
+          arrSub[info].push(parseInt(item.selectGroupInfo[info]))
+          item.orderNum[info].forEach(per => {
+            orderNums[info][item.idx].push(per.thesis.id)
+          })
+        }
+      }
+      arrSub = this.radio === '1' ? null : arrSub
       var data = {
-        'year': this.startYear,
-        'month': this.selectSemester,
+        'startThesisID': this.selectThesis,
         'arr': arr,
         'exchangeNums': Math.ceil(this.selectedGroupNums / 2),
         'groupsNums': this.selectedGroupNums,
         'selectInfo': this.selectedSubGroupInfo,
-        'groupWay': this.groupWay
+        'groupWay': this.groupWay,
+        'orderNums': orderNums,
+        'arrSub': arrSub
       }
-      console.log(data);
+      console.log(data)
       for (var i = 0; i < this.filterNoGroupPar.length; i++) {
         if (this.filterNoGroupPar[i].thesis.grade == null) {
-          this.$message.warning("选中的部分学生无绩点数据，按0进行分组")
+          this.$message.warning("选中的部分学生无绩点数据，将按0进行分组")
           break;
         }
       }
@@ -913,6 +1342,40 @@ export default {
         }
       })
     },
+    async exportGroupsResult() {
+      if (this.selectDate == "") {
+        this.$message.warning('请在上方选择导出毕业设计的批次！')
+        return
+      }
+      if (this.undergraduateStudents == null || this.undergraduateStudents.length == 0) {
+        this.$message.warning('请先导入学生！')
+        return
+      }
+      if (this.undergraduateStudents[0].group == null||this.undergraduateStudents[0].group == "") {
+        this.$message.warning('请先分组学生！')
+        return
+      }
+      const url = '/undergraduateM/basic/exportGroupsResult';
+      console.log(this.undergraduateStudents);
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(this.undergraduateStudents),
+      })
+          .then(response => response.blob())
+          .then(blob => {
+            const url = window.URL.createObjectURL(new Blob([blob]));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '本科生毕业设计分组结果.xls'; // 设置下载文件的名称
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          })
+          .catch(error => console.error('Error:', error));
+    },
     groupsForStudent() {
       if (this.undergraduateStudents == null || this.undergraduateStudents.length == 0) {
         this.$message.warning('请先导入学生！')
@@ -922,7 +1385,7 @@ export default {
       this.groupSubOfSelectedClass = []
       this.groupClassNums = {}
       this.groupSpecialtyNums = {}
-      var url = '/undergraduateM/basic/getUngrouped/?year=' + this.startYear + "&month=" + this.selectSemester;
+      var url = '/undergraduateM/basic/getUngrouped/?startThesisID=' + this.selectThesis;
       this.getRequest(url).then((resp) => {
         if (resp.status == 200) {
           this.NoGroupPar = resp.obj;
@@ -947,7 +1410,6 @@ export default {
             this.groupNums = Array.from(Array(10).keys(), n => n + 1)
           }
           this.dialogStudentGroup = true
-          console.log(this.NoGroupPar);
         }
       })
     },
@@ -992,5 +1454,19 @@ export default {
   /*padding-top: 7px;*/
   padding-left: 12px;
   width: 100%;
+}
+</style>
+
+<style lang="less">
+.table {
+  //避免单元格之间出现白色边框
+  .el-table__row > td {
+    border: none;
+  }
+  //修改表格边框颜色
+  .el-table {
+    --el-table-border-color: #ffffff;
+  }
+  .el-table::before { height: 0px; }
 }
 </style>

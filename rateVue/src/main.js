@@ -7,8 +7,12 @@ import Vuex from "vuex";
 import * as XLSX from 'xlsx/xlsx.mjs'
 import FileSaver from 'file-saver'
 import './utils/date.scss';
+import VueOfficeDocx from "@vue-office/docx";
+import VueOfficePdf from "@vue-office/pdf";
+import '@vue-office/docx/lib/index.css'
 
 import {
+    Image,
     Transfer,
     Button,
     Input,
@@ -32,6 +36,8 @@ import {
     Tabs,
     TabPane,
     Breadcrumb,
+    Skeleton,
+    SkeletonItem,
     BreadcrumbItem,
     Dropdown,
     Steps,
@@ -74,7 +80,10 @@ Vue.use(Transfer)
 Vue.use(Switch);
 Vue.component(Message);
 Vue.use(CollapseItem);
+Vue.use(Image);
 Vue.use(Radio);
+Vue.use(Skeleton);
+Vue.use(SkeletonItem);
 Vue.use(RadioGroup);
 Vue.use(CheckboxGroup);
 Vue.use(DatePicker);
@@ -121,6 +130,8 @@ Vue.use(Tag);
 Vue.use(Vuex)
 Vue.use(Popconfirm)
 Vue.use(VueRouter)
+Vue.use(VueOfficeDocx)
+Vue.use(VueOfficePdf);
 // Vue.use(XLSX)
 // Vue.use(FileSaver)
 Vue.prototype.$message = Message
@@ -143,6 +154,7 @@ import { initMenu_ex } from "./utils/menus";
 import 'font-awesome/css/font-awesome.min.css'
 import Directives from './directives/index.js'
 import ro from "element-ui/src/locale/lang/ro";
+import axios from "axios";
 // import {time} from "html2canvas/dist/types/css/types/time";
 Vue.use(Directives)
 Vue.prototype.postRequest = postRequest;
@@ -210,6 +222,10 @@ router.beforeEach((to, from, next) => {
                 next()
                 return
             }
+            if (to.path == '/pending/message') { //待办消息菜单
+                next()
+                return
+            }
             initMenu(router, store).then((data) => {
                 if (data.indexOf(to.path) == -1) {
                     next('/')
@@ -232,6 +248,14 @@ router.beforeEach((to, from, next) => {
         } else {
             next('/')
         }
+    }
+})
+Vue.filter('fileNameFilter', function (data) {
+    if (data == null || data == '') {
+        return '无证明材料'
+    } else {
+        var arr = data.split('/')
+        return arr.reverse()[0].split('#$%')[2]
     }
 })
 // 注册一个全局过滤器(将得到的数据ms转为时间(年月日))
@@ -280,6 +304,44 @@ Vue.prototype.initTutor = function (user){
         })
     }
 }
+Vue.prototype.previewFileMethod = function (data){ //预览证明材料
+    return axios({
+        url: '/achievements/basic/downloadByUrl',
+        method: 'post',
+        responseType: 'blob',
+        data: qs.stringify({url: data.url}),
+        headers: {
+            'token': JSON.parse(localStorage.getItem('user')).token ? JSON.parse(localStorage.getItem('user')).token : ''
+        }
+    }).then(response => {
+        let url = window.URL.createObjectURL(new Blob([response]));
+        return url;
+    });
+};
+Vue.prototype.downloadFileMethod = function (data){ //预览证明材料
+    var fileName = data.url.split('/').reverse()[0]
+    axios({
+        url: '/achievements/basic/downloadByUrl',
+        method: 'post',
+        responseType: 'blob',
+        data: qs.stringify({url: data.url}),
+        headers: {
+            'token': JSON.parse(localStorage.getItem('user')).token ? JSON.parse(localStorage.getItem('user')).token : ''
+        }
+    }).then(response => {
+        let url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        if (url.startsWith('http:')) {
+            url = url.replace('http:', 'https:');
+        }
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+};
+
 let vue = new Vue({
     router,
     store,

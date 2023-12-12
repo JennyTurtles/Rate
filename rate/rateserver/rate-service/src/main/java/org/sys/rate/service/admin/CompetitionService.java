@@ -1,14 +1,13 @@
 package org.sys.rate.service.admin;
 
 import org.springframework.stereotype.Service;
+import org.sys.rate.mapper.CompetitionMapper;
 import org.sys.rate.mapper.CompetitionTypeMapper;
 import org.sys.rate.mapper.OperationMapper;
-import org.sys.rate.mapper.CompetitionMapper;
-import org.sys.rate.mapper.ProjectTypeMapper;
+import org.sys.rate.model.Competition;
 import org.sys.rate.model.CompetitionType;
 import org.sys.rate.model.Operation;
-import org.sys.rate.model.Competition;
-import org.sys.rate.model.ProjectType;
+import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -24,8 +23,10 @@ public class CompetitionService {
     private CompetitionTypeMapper competitionTypeMapper;
     @Resource
     private OperationMapper operationMapper;
+    @Resource
+    private MailToStuService mailToStuService;
 
-    public List<Competition> selectCompetitionListById(Integer studentID){
+    public List<Competition> selectCompetitionListById(Integer studentID) {
         List<Competition> list = competitionMapper.selectCompetitionListById(studentID);
         return list;
     }
@@ -36,10 +37,11 @@ public class CompetitionService {
      * @param competition 科研专著教材成果
      * @return 结果
      */
-    public int insertCompetition(Competition competition){
+    public int insertCompetition(Competition competition) {
         return competitionMapper.insertCompetition(competition);
     }
-    public int updateCompetition(Competition competition){
+
+    public int updateCompetition(Competition competition) {
         return competitionMapper.updateCompetition(competition);
     }
 
@@ -49,14 +51,15 @@ public class CompetitionService {
      * @param ID 科研专著教材成果ID
      * @return 结果
      */
-    public int deleteCompetitionById(Long ID){
+    public int deleteCompetitionById(Long ID) {
         return competitionMapper.deleteCompetitionById(ID);
     }
 
-    public List<Competition> selectAllCompetitionList(){
+    public List<Competition> selectAllCompetitionList() {
         List<Competition> list = competitionMapper.selectAllCompetitionList();
         return list;
     }
+
     public List<Competition> setCompetitionOperation(List<Competition> list) {
         for (int i = 0; i < list.size(); i++) {
             Competition competition = list.get(i);
@@ -102,14 +105,16 @@ public class CompetitionService {
 
     //    修改科研专著教材状态
     public int editState(String state, Long ID) throws MessagingException {
-        //mailToStuServicei.sendStuMail(state, paper, "科研专著教材");
-        return competitionMapper.editState(state,ID);
+        Competition competition = competitionMapper.getById(Math.toIntExact(ID));
+        mailToStuService.sendStuMail(state, competition, null, "学科竞赛");
+        return competitionMapper.editState(state, ID);
     }
 
     public List<Competition> searchCompetitionByConditions(String studentName, String state, String competitionName, String pointFront, String pointBack) {
         List<Competition> list = competitionMapper.searchCompetitionByConditions(studentName, state, competitionName, pointFront, pointBack);
         return list;
     }
+
     public List<CompetitionType> getIndicatorByYearAndType(String year) {
         List<CompetitionType> list = competitionTypeMapper.getIndicatorByYearAndType(year);
         return list;

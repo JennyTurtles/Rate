@@ -355,7 +355,7 @@ export default {
 
     init(pageNum, pageSize) {
       this.loading = true;
-      axios.get(`/publicationSubmission/getStuSubmission?stuID=${JSON.parse(localStorage.getItem('user')).id}&page=${pageNum}&size=${pageSize}`)
+      this.getRequest(`/publicationSubmission/getStuSubmission?stuID=${JSON.parse(localStorage.getItem('user')).id}&page=${pageNum}&size=${pageSize}`)
           .then((response) => {
             this.loading = false;
             this.tableData = response.extend.res[0]; // 将返回的数据赋值给 submission

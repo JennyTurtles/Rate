@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.ActivityGrantMapper;
 import org.sys.rate.mapper.AdminMapper;
+import org.sys.rate.mapper.MailMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.AdminService;
 import org.sys.rate.service.admin.RoleService;
@@ -15,6 +16,7 @@ import org.sys.rate.service.mail.MailService;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController("ratesystemAdmin")
@@ -45,9 +47,7 @@ public class AdminController {
     @PostMapping("/updateMail")
     public RespBean updateMail(@RequestBody Mail mail) throws MessagingException {
         if (mailService.updateMail(mail)) {
-//            if(mailService.checkMail(mail)) {
             if(true) {
-                mailService.setMail();
                 return RespBean.ok("更新成功!");
             }else{
                 return RespBean.error("邮箱设置错误!请检查各项邮箱配置。");
@@ -125,5 +125,18 @@ public class AdminController {
             return RespBean.error("error",null);
         }
         return RespBean.ok("ok",admin);
+    }
+
+    @GetMapping("/getSuperAdminInfo")
+    public Msg getSuperAdminInfo(@RequestParam Integer id){
+        Admin admin = null;
+        Mail mail = null;
+        try{
+            admin = adminMapper.getById(id);
+            mail = mailService.getMail();
+        }catch (Exception e){
+            return Msg.fail();
+        }
+        return Msg.success().add("admin", admin).add("mail", mail);
     }
 }

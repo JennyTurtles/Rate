@@ -531,6 +531,9 @@
                     :on-success="onSuccess"
                     :on-error="onError"
                     :disabled="importDataDisabled"
+                    :headers="{
+                      'token': user.token
+                    }"
                     style="display: inline-flex; margin-right: 8px"
                     :action="UploadUrl()"
                 >
@@ -589,6 +592,7 @@ import sha1 from "sha1";
 import PinYinMatch from 'pinyin-match';
 import AddActStep from "@/components/AddActStep.vue";
 import {log} from "@/utils/sockjs";
+import axios from "axios";
 
 export default {
   name: "SalSobCfg",
@@ -740,7 +744,6 @@ export default {
     this.ACNAME = this.$route.query.keywords_name;
     this.mode = this.$route.query.mode;
     this.haveSub = this.$route.query.haveSub;
-    // console.log(this.haveSub);
     this.flag = this.$route.query.flag == 1 ? 1 : 0;
     this.initHrs();
   },
@@ -1390,12 +1393,30 @@ export default {
     },
     exportMo() {
       Message.success("正在下载模板");
-
+      let url =''
         if (typeof this.keywords !== "undefined") {
-            window.open("/participants/basic/exportMoWithGroupName", "_parent");
+           // window.open("/participants/basic/exportMoWithGroupName", "_parent");
+          url = "/participants/basic/exportMoWithGroupName"
         }else{
-            window.open("/participants/basic/exportMo", "_parent");
+          //  window.open("/participants/basic/exportMo", "_parent");
+          url = "/participants/basic/exportMo"
         }
+      axios({
+        url: url,
+        method: 'get',
+        responseType: 'blob',
+        headers: {
+          'token': this.user.token ? this.user.token : ''
+        }
+      }).then((res) => {
+        let url = window.URL.createObjectURL(new Blob([res]))
+        let link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.setAttribute('download', 'expert'  + '.xls')
+        document.body.appendChild(link);
+        link.click();
+      });
     },
     reset_password(row) {
       row.institutionid=this.user.institutionID;
@@ -1518,7 +1539,6 @@ export default {
       })
     },
     handleSelectionChange(val){
-     console.log(val)
       for(let i=0;i<val.length;i++){
         for (let j=0;j<this.hrs.length;j++){
           if (val[i].idnumber===this.hrs[j].idnumber){
