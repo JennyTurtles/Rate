@@ -270,7 +270,7 @@ public class ReadExcel {
 
     }
 
-    public Msg readThesisNameExcelData(Integer tutorId, Integer institutionID, Integer year, Integer month, MultipartFile file) {
+    public Msg readThesisNameExcelData(Integer tutorId, Integer institutionID, Integer startThesisID, MultipartFile file) {
         Msg msg = new Msg();
         // 还需要记录多少行成功，多少行失败，多少行重复插入，还有第几行是因为什么原因失败
         DataProcessingResult record = new DataProcessingResult();
@@ -332,8 +332,7 @@ public class ReadExcel {
                 thesis.setName(thesisName);
                 thesis.setStudentID(undergraduateId);
                 thesis.setTutorID(tutorId);
-                thesis.setYear(year);
-                thesis.setMonth(month);
+                thesis.setStartThesisID(startThesisID);
 
                 RespBean existOrUpdate = notExistOrUpdate(thesis);
 

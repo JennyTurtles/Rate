@@ -747,16 +747,17 @@ export default {
         let year = message.substring(0, 4);
         let season = message.slice(-2) === '春季' ? 3 : 9;
         let optionID = option.split('.')[0];
-        let optionValue = year + season
+        let optionValue = optionID + '.' + year + season
 
-        return {value: optionID, label: message};
+        return {value: optionValue, label: message};
       });
     },
 
     handleSelectSemesterChange() {
-      this.startYear = parseInt(this.selectDate.substring(0, 4));
-      this.selectSemester = parseInt(this.selectDate.charAt(4));
-      this.selectThesis = parseInt(this.selectDate);
+      let message = this.selectDate.split('.')[1];
+      this.startYear = parseInt(message.substring(0, 4));
+      this.selectSemester = parseInt(message.charAt(4));
+      this.selectThesis = parseInt(this.selectDate.split('.')[0]);
       this.initUnderGraduateStudents(1, 10);
     },
 

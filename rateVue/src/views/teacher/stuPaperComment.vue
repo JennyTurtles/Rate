@@ -257,6 +257,7 @@ export default {
       dialogVisible_showInfo: false,
 
       thesisName: "",
+      startThesisID: null,
       stuName: "",
       studentNumber: '',
       stuID: '', // 从老师毕设评论页面传来的学生ID
@@ -357,11 +358,10 @@ export default {
   created() {
   },
   mounted() {
-    const {keyword, keyname, studentNumber, year, month} = this.$route.query;
+    const {keyword, keyname, studentNumber, startThesisID} = this.$route.query;
     this.stuID = keyword;
     this.stuName = keyname;
-    this.year = year;
-    this.month = month;
+    this.startThesisID = startThesisID;
     this.studentNumber = studentNumber
 
     this.initEmps();
@@ -523,7 +523,7 @@ export default {
     async initEmps() {
       try {
         this.loading = true;
-        const thesisResponse = await this.getRequest(`/paperComment/basic/getThesis?stuID=${this.stuID}&year=${this.year}&month=${this.month}`);
+        const thesisResponse = await this.getRequest(`/paperComment/basic/getThesis?stuID=${this.stuID}&startThesisID=${this.startThesisID}`);
         if (thesisResponse) {
           this.thesis = thesisResponse.data;
           const commentResponse = await this.getRequest(`/paperComment/basic/getAllComment?thesisID=${this.thesis.id}`);

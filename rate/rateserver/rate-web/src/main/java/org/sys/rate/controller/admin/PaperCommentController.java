@@ -66,8 +66,8 @@ public class PaperCommentController {
     }
 
     @GetMapping("/getThesis")
-    public JsonResult getThesis(int stuID, int year, int month) {
-        return new JsonResult(paperCommentService.getThesis(stuID, year, month));
+    public JsonResult getThesis(int stuID, int startThesisID) {
+        return new JsonResult(paperCommentService.getThesis(stuID, startThesisID));
     }
 
     // 更新导师的评价时间和评价
@@ -120,10 +120,9 @@ public class PaperCommentController {
      */
     @GetMapping("/getStuThesis")
     public RespBean getStuThesis(@RequestParam("tutorId") Integer tutorId,
-                                 @RequestParam("year") Integer year,
-                                 @RequestParam("month") Integer month) {
+                                 @RequestParam("startThesisID") Integer startThesisID) {
         try {
-            List<Student> stuThesis = paperCommentService.getStuThesis(tutorId, year, month);
+            List<Student> stuThesis = paperCommentService.getStuThesis(tutorId, startThesisID);
             return RespBean.ok("", stuThesis);
         } catch (Exception e) {
             return RespBean.error("获取毕业设计信息错误！");

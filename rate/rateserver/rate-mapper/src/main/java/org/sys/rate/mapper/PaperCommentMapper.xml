@@ -72,8 +72,7 @@
                 INNER JOIN thesis t ON t.studentID = u.ID
                 LEFT JOIN papercomment p ON p.thesisID = t.ID
         WHERE
-            t.year = #{year}
-          AND t.month = #{month}
+            t.start_thesis_id = #{startThesisID}
           AND t.tutorID = #{tutorId}
         GROUP BY
             t.ID

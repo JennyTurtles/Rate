@@ -216,7 +216,11 @@ public class UnderGraduateService {
 
     public RespBean getThesisExistDate(Integer institutionID, Integer adminID) {
         try {
-            List<String> date = underGraduateMapper.getThesisExistDate(institutionID, adminID);
+            List<String> date;
+            if (adminID != -1)
+                date = underGraduateMapper.getThesisExistDateByAdmin(institutionID, adminID);
+            else
+                date = underGraduateMapper.getThesisExistDate(institutionID);
             return RespBean.ok("", date);
         } catch (Exception e) {
             return RespBean.error("");
@@ -345,9 +349,9 @@ public class UnderGraduateService {
         }
     }
 
-    public RespBean importThesisName(Integer tutorId, Integer institutionID, Integer year, Integer month, MultipartFile file) throws RespBean {
+    public RespBean importThesisName(Integer tutorId, Integer institutionID, Integer startThesisID, MultipartFile file) throws RespBean {
         // 1. 从excel解析出来的数据
-        Msg excelData = readExcel.readThesisNameExcelData(tutorId, institutionID, year, month, file);
+        Msg excelData = readExcel.readThesisNameExcelData(tutorId, institutionID, startThesisID, file);
         if (excelData.getCode() == 500) {
             throw RespBean.error(excelData.getMsg());
         }

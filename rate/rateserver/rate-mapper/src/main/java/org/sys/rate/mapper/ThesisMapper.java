@@ -56,7 +56,7 @@ public interface ThesisMapper {
     void editThesisName(Integer thesisId, String thesisName);
 
 
-    @Update("UPDATE thesis SET name = #{name} WHERE studentID = #{studentID} AND year = #{year} AND `month` = #{month} AND tutorID = #{tutorID}")
+    @Update("UPDATE thesis SET name = #{name} WHERE studentID = #{studentID} AND start_thesis_id = #{startThesisID} AND tutorID = #{tutorID}")
     Integer notExistOrUpdate(Thesis thesis);
 
     @Select("select studentID from undergraduate where ID=#{studentID}")

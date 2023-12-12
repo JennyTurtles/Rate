@@ -42,8 +42,8 @@ public class PaperCommentService {
     }
 
 
-    public Thesis getThesis(int stuID, int year, int month) {
-        return paperCommentMapper.getThesis(stuID, year, month);
+    public Thesis getThesis(int stuID, int startThesisID) {
+        return paperCommentMapper.getThesis(stuID, startThesisID);
     }
 
     public int updateTeaComment(PaperComment paperComment) {
@@ -67,8 +67,8 @@ public class PaperCommentService {
         return paperCommentMapper.getThesisByTID(thesisID);
     }
 
-    public List<Student> getStuThesis(Integer tutorId, Integer year, Integer month) {
-        return paperCommentMapper.getStuThesisWithDate(tutorId, year, month);
+    public List<Student> getStuThesis(Integer tutorId, Integer startThesisID) {
+        return paperCommentMapper.getStuThesisWithDate(tutorId, startThesisID);
     }
 
     public List<PaperComment> selectCommentListStuOrderByNum(Integer thesisID) {

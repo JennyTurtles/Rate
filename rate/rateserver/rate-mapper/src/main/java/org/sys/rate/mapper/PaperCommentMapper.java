@@ -31,8 +31,8 @@ public interface PaperCommentMapper {
     @Update("update papercomment set dateStu = #{dateStu}, preSum = #{preSum}, nextPlan = #{nextPlan},dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass} where thesisID = #{thesisID} and num = #{num}")
     int updateStuComment(PaperComment paperComment);
 
-    @Select("SELECT t.id, t.studentid, t.NAME, t.url, t.YEAR, t.MONTH, t.tutorid, t.grade, t.start_thesis_id FROM thesis t, student s, undergraduate u WHERE u.studentID = #{stuID} and t.studentID = u.ID and u.studentID = s.ID and t.year = #{year} and t.`month` = #{month};")
-    Thesis getThesis(int stuID, int year, int month);
+    @Select("SELECT t.id, t.studentid, t.NAME, t.url, t.YEAR, t.MONTH, t.tutorid, t.grade, t.start_thesis_id FROM thesis t, student s, undergraduate u WHERE u.studentID = #{stuID} and t.studentID = u.ID and u.studentID = s.ID and t.start_thesis_id = #{startThesisID}")
+    Thesis getThesis(int stuID, int startThesisID);
 
     @Update("update papercomment set dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass} where thesisID = #{thesisID} and num = #{num}")
     int updateTeaComment(PaperComment paperComment);
@@ -42,7 +42,7 @@ public interface PaperCommentMapper {
     @Select("SELECT t.id, t.studentid, t.name, t.url, t.year, t.month, t.tutorid, t.grade, t.start_thesis_id, u.stuNumber studentNumber FROM thesis t,undergraduate u WHERE t.ID = #{ID} and t.studentID = u.ID")
     Thesis getThesisByTID(Integer thesisID);
 
-    List<Student> getStuThesisWithDate(Integer tutorId, Integer year, Integer month);
+    List<Student> getStuThesisWithDate(Integer tutorId, Integer startThesisID);
 
     @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment where #{thesisID} = thesisID ORDER BY num")
     List<PaperComment> selectCommentListStuOrderByNum(Integer thesisID);

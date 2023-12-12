@@ -204,10 +204,9 @@ public class UnderGraduateMController {
     @PostMapping("/importThesisName")
     public RespBean importThesis(@RequestParam("tutorId") Integer tutorId,
                                  @RequestParam("institutionId") Integer institutionId,
-                                 @RequestParam("year") Integer year,
-                                 @RequestParam("semester") Integer semester, MultipartFile file) throws RespBean {
+                                 @RequestParam("startThesisID") Integer startThesisID, MultipartFile file) throws RespBean {
         try {
-            return underGraduateService.importThesisName(tutorId, institutionId, year, semester, file);
+            return underGraduateService.importThesisName(tutorId, institutionId, startThesisID, file);
         } catch (RespBean res) {
             return RespBean.error(res.getMsg());
         }

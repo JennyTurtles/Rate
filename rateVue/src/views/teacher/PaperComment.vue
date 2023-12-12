@@ -173,7 +173,7 @@
             :before-upload="beforeUpload"
             :on-success="onSuccess"
             style="display: inline-flex; margin-left: 1px"
-            :action="`/undergraduateM/basic/importThesisName?tutorId=${user.id}&institutionId=${user.institutionID}&year=${startYear}&semester=${selectSemester}`"
+            :action="`/undergraduateM/basic/importThesisName?tutorId=${user.id}&institutionId=${user.institutionID}&startThesisID=${selectThesis}`"
         >
           <el-button icon="el-icon-plus" type="success" :disabled="selectDate==''">导入毕业设计</el-button>
         </el-upload>
@@ -218,6 +218,7 @@ export default {
       selectDate: '',
       selectSemester: '',
       startYear: null,
+      selectThesis: null,
       duplicateInsertRowsCount: 0,
       failedRowsCount: 0,
       successfulRowsCount: 0,
@@ -384,9 +385,10 @@ export default {
     },
     async fetchThesisExistDate() {
       try {
-        const url = `/undergraduateM/basic/getThesisExistDate?institutionID=${this.user.institutionID}`;
+        const url = `/undergraduateM/basic/getThesisExistDate?institutionID=${this.user.institutionID}&adminID=${-1}`;
         const response = await this.getRequest(url);
         if (response.status === 200) {
+          console.log(response)
           this.options = this.transformOptions(response.obj);
         } else {
           throw new Error("请求失败!");
@@ -397,16 +399,20 @@ export default {
     },
     transformOptions(options) {
       return options.map(option => {
-        let year = option.substring(0, 4);
-        let season = option.slice(-2) === '春季' ? 3 : 9;
-        let optionValue = year + season
+        let message = option.split('.')[1];
+        let year = message.substring(0, 4);
+        let season = message.slice(-2) === '春季' ? 3 : 9;
+        let optionID = option.split('.')[0];
+        let optionValue = optionID + '.' + year + season
 
-        return {value: optionValue, label: option};
+        return {value: optionValue, label: message};
       });
     },
     handleSelectSemesterChange() {
-      this.startYear = parseInt(this.selectDate.substring(0, 4));
-      this.selectSemester = parseInt(this.selectDate.charAt(4));
+      let message = this.selectDate.split('.')[1];
+      this.startYear = parseInt(message.substring(0, 4));
+      this.selectSemester = parseInt(message.charAt(4));
+      this.selectThesis = parseInt(this.selectDate.split('.')[0]);
       this.initEmps();
     },
     onSuccess(res) {
@@ -493,7 +499,7 @@ export default {
       }
 
       this.loading = true;
-      const url = `/paperComment/basic/getStuThesis?tutorId=${this.user.id}&year=${this.startYear}&month=${this.selectSemester}`;
+      const url = `/paperComment/basic/getStuThesis?tutorId=${this.user.id}&startThesisID=${this.selectThesis}`;
 
       this.getRequest(url)
           .then((resp) => {
@@ -583,11 +589,11 @@ export default {
         return;
       }
       const {id, sname, studentnumber} = data;
-      const {startYear, selectSemester} = this;
+      const {selectThesis} = this;
 
       this.$router.push({
         path: `/teacher/stuPaperComment`,
-        query: {keyword: id, keyname: sname, studentNumber: studentnumber, year: startYear, month: selectSemester},
+        query: {keyword: id, keyname: sname, studentNumber: studentnumber, startThesisID: selectThesis},
       });
     },
 

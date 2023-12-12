@@ -69,7 +69,10 @@ public interface UnderGraduateMapper {
 //    @Select("SELECT DISTINCT CONCAT(t.year, t.month) AS date FROM thesis t, undergraduate u " +
 //            "WHERE u.institutionID = #{institutionID} AND t.studentID = u.ID")
     @Select("select concat(s.id,'.',s.year,'年',s.semester) from startThesis s where s.institutionID = #{institutionID} and s.adminID = #{adminID} order by id desc")
-    List<String> getThesisExistDate(Integer institutionID, Integer adminID);
+    List<String> getThesisExistDateByAdmin(Integer institutionID, Integer adminID);
+
+    @Select("select concat(s.id,'.',s.year,'年',s.semester) from startThesis s where s.institutionID = #{institutionID} order by id desc")
+    List<String> getThesisExistDate(Integer institutionID);
 
     @Insert("insert  into startThesis (year, semester, institutionID, adminID) values (#{year}, #{semester}, #{institutionID}, #{adminID})")
     void startThesis(Integer institutionID, Integer adminID, Integer year, String semester);
