@@ -16,7 +16,7 @@ public class ThesisService {
     public Integer upsert(List<Thesis> thesisList, Integer startThesisID, String type) {
         int rows = 0;
         for (var thesis : thesisList) {
-            thesis.setStartThesisId(startThesisID);
+            thesis.setStartThesisID(startThesisID);
             int upsertRows = 0;
             if ("teacher".equals(type)) {
                 upsertRows = thesisMapper.upsertTutorId(thesis);
