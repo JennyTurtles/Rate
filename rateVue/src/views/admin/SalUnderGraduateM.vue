@@ -198,7 +198,7 @@ export default {
       newPassword: 'dhucst',//重置密码中的新密码
       conNewPassword: '',//重置密码中的确认新密码
       dialogResetPassword: false,
-      pageSizes: [20, 20, 20, 20, 30],
+      pageSizes: [10, 20, 30],
       totalCount: 0,
       currentPage: 1,
       pageSize: 20,

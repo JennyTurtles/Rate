@@ -149,7 +149,7 @@
             </template>
             <!-- </template> -->
           </el-menu>
-          <div v-show="!isStudentRole"
+          <div v-show="roleName.indexOf('admin') >= 0"
                style="padding-left: 25px; font-size: 14px; line-height: 56px; font-weight: 500;cursor: pointer">
             <a @click="showException">
               <span>异常信息查看</span>
@@ -326,6 +326,7 @@ export default {
       let roleParam = this.roleName.indexOf('admin') >= 0 ? 'admin' : this.roleName.indexOf('teacher') >= 0 ? 'teacher' : '';
       this.$store.dispatch('changePendingMessageange', roleParam); //不是学生才会发送请求
     }
+    console.log(this.roleName)
   },
   watch: {
     // 如果 `clientHeight` 发生改变，这个函数就会运行
