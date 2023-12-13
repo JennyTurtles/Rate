@@ -10,8 +10,8 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class InitRunner  {
 
-    @Resource
-    public ReceiveMails receiveMails;
+//    @Resource
+//    public ReceiveMails receiveMails;
 
 
 //    60000 2
