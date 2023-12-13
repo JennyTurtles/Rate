@@ -191,6 +191,7 @@
               type="password"
               v-model="password_confirm"
               placeholder="请再次输入新密码"
+              :disabled="!checkPwdState"
           ></el-input>
         </el-form-item>
       </el-form>

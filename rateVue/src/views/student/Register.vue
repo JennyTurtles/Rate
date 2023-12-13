@@ -73,7 +73,7 @@
           <el-input style="width: 60%" v-model="user.password" type="password" :disabled="usernameAndPwdIsDisabled"　 @blur="checkPassword"></el-input>
         </el-form-item>
         <el-form-item label="确认密码:" prop="confirmPassword">
-          <el-input style="width: 60%" v-model="confirmPassword" type="password" :disabled="usernameAndPwdIsDisabled" ></el-input>
+          <el-input style="width: 60%" v-model="confirmPassword" type="password" :disabled="!checkPwdState" ></el-input>
         </el-form-item>
         <el-form-item label="密保问题:">
           <el-input style="width: 60%" v-model="user.registerQuestion" :disabled="userInfoIsDisabled"></el-input>

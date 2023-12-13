@@ -29,7 +29,7 @@
         <el-input style="width: 60%" v-model="user.password" type="password" @blur="checkPassword"></el-input>
       </el-form-item>
       <el-form-item label="请确认密码:" prop="confirmPassword">
-        <el-input style="width: 60%" v-model="confirmPassword" type="password" @blur="checkPasswordSame" ></el-input>
+        <el-input style="width: 60%" v-model="confirmPassword" type="password" :disabled="!checkPwdState" @blur="checkPasswordSame" ></el-input>
       </el-form-item>
       <el-form-item label="请输入密保问题:">
         <el-input style="width: 60%" v-model="user.registerQuestion"></el-input>
@@ -53,6 +53,7 @@ export default {
   name: "TeaRegister",
   data(){
     return{
+      checkPwdState: false,
       confirmPassword:'',
       user:{
         name:'',
