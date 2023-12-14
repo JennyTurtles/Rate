@@ -69,12 +69,12 @@
                 </el-button>
                 <el-button
                     @click="showRefuseEmpView(scope.row)"
-                    style="padding: 4px; margin-right: 10px; margin-left: auto; margin-right: auto;"
+                    style="padding: 4px; margin-right: 10px; margin-left: auto; margin-right: auto; margin-top: 20px"
                     size="mini"
-                    type="warning"
+                    type="danger"
                     icon="el-icon-delete"
                     plain="plain"
-                    v-show="scope.row.isPass === 'tea_pass'?true:false">驳 回
+                    v-show="scope.row.isPass === 'tea_pass'?true:false">我要驳回
                 </el-button>
               </div>
             </div>
@@ -177,10 +177,14 @@
           <span class="isMust">*</span>
           <!-- <div :style="{ color: emp.isPass === '驳回' ? 'red' : '' }"> {{ emp.isPass }}
           </div> -->
-          <el-select v-model="emp.isPass" placeholder="请选择">
-            <el-option label="通过" value="tea_pass"></el-option>
-            <el-option label="驳回" value="tea_deny"></el-option>
-          </el-select>
+<!--          <el-select v-model="emp.isPass" placeholder="请选择">-->
+<!--            <el-option label="通过" value="tea_pass"></el-option>-->
+<!--            <el-option label="驳回" value="tea_deny"></el-option>-->
+<!--          </el-select>-->
+          <template>
+            <el-radio v-model="emp.isPass" label="tea_pass" style="padding-top: 5px">通过</el-radio>
+            <el-radio v-model="emp.isPass" label="tea_deny" style="padding-top: 5px">驳回</el-radio>
+          </template>
         </el-form-item>
 
         <el-form-item
@@ -215,8 +219,6 @@
 
 <script>
 // import { delete } from 'vue/types/umd';
-import axios from "axios";
-import {postRequest1} from "@/utils/api";
 
 export default {
   name: "stuPaperComment",
@@ -428,7 +430,7 @@ export default {
       this.emp.isPass = 'tea_deny'
 
       this
-          .postRequest1("/paperComment/basic/updateTea", this.emp)
+          .postRequest("/paperComment/basic/updateTea", this.emp)
           .then((resp) => {
             if (resp) {
               this.initEmps();
@@ -489,6 +491,16 @@ export default {
       }
 
       this.dialogVisible = true;
+      this.emp.isPass = 'tea_pass';
+      let now = new Date()
+      let year = now.getFullYear() // 得到年份
+      let month = now.getMonth() // 得到月份
+      let date = now.getDate() // 得到日期
+      month = month + 1
+      month = month.toString().padStart(2, '0')
+      date = date.toString().padStart(2, '0')
+      this.emp.dateTea = year + '-' + month + '-' + date;
+      console.log(this.emp)
     },
     deleteEmp(data) {
       //点击删除按钮
