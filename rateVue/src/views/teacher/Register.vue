@@ -2,6 +2,7 @@
   <div class="box">
     <el-form class="registerContainer" :label-width="labelWidth">
       <el-form-item label="请输入身份证号:">
+        <span class="isMust" style="margin-left: -30px">*</span>
         <el-input style="width: 60%"  @input="idNumberChange" v-model="user.idnumber"></el-input>
       </el-form-item>
       <el-form-item label="请输入教师姓名:">
@@ -26,15 +27,19 @@
         <el-input style="width: 60%" v-model="user.username"></el-input>
       </el-form-item>
       <el-form-item label="请输入密码:">
+        <span class="isMust" style="margin-left: -1px">*</span>
         <el-input style="width: 60%" v-model="user.password" type="password" @blur="checkPassword"></el-input>
       </el-form-item>
       <el-form-item label="请确认密码:" prop="confirmPassword">
+        <span class="isMust" style="margin-left: -1px">*</span>
         <el-input style="width: 60%" v-model="confirmPassword" type="password" :disabled="!checkPwdState" @blur="checkPasswordSame" ></el-input>
       </el-form-item>
       <el-form-item label="请输入密保问题:">
+        <span class="isMust" style="margin-left: -30px">*</span>
         <el-input style="width: 60%" v-model="user.registerQuestion"></el-input>
       </el-form-item>
       <el-form-item label="请输入密保答案:">
+        <span class="isMust" style="margin-left: -30px">*</span>
         <el-input style="width: 60%" v-model="user.registerAnswer"></el-input>
       </el-form-item>
       <div class="footer">
@@ -54,6 +59,7 @@ export default {
   data(){
     return{
       checkPwdState: false,
+      checkPwdSame: false,
       confirmPassword:'',
       user:{
         name:'',
@@ -78,10 +84,10 @@ export default {
   methods:{
     checkPasswordSame(){
       if(this.user.password != this.confirmPassword){
-        this.checkPwdState = false
+        this.checkPwdSame = false
         this.$message.error('两次密码输入不一致，请检查');
       }else{
-        this.checkPwdState = true
+        this.checkPwdSame = true
       }
     },
     checkPassword() {
@@ -89,6 +95,8 @@ export default {
       if (!passwordRegex.test(this.user.password)) {
         this.checkPwdState = false
         this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
+      }else{
+        this.checkPwdState = true
       }
     },
     //点击注册按钮
@@ -101,6 +109,11 @@ export default {
         this.$message.warning('请输入身份证号！')
         return
       }
+      if(this.checkPwdSame == false){
+        this.$message.warning('请输入确认密码')
+        return
+      }
+
       postRequest('/registerUser/tea',this.user).then((response)=>{
         if(response){
           console.log(response)
@@ -152,4 +165,12 @@ export default {
   border: 1px solid #eaeaea;
   box-shadow: 0 0 25px #cac6c6;
 }
+
+.isMust {
+  position: absolute;
+  color: #F56C6C;
+  top: 2px;
+  left: -100px;
+}
+
 </style>
