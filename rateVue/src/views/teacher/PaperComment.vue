@@ -12,7 +12,7 @@
       </el-select>
     </div>
     <div style="margin-top: 10px">
-      <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importStudents">导入毕业设计
+      <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importStudents">导入论文题目
       </el-button>
       <el-button type="primary" icon="el-icon-upload" @click="showUploadSign">
         上传个人签名
@@ -158,7 +158,7 @@
 
     <el-dialog :visible.sync="dialogStudentVisible" width="30%">
       <template v-slot:title>
-        <div style="text-align: center; font-size: 20px;">导入毕业设计信息</div>
+        <div style="text-align: center; font-size: 20px;">导入论文题目</div>
       </template>
       <div style="margin-left: 10px">第一步：
         <el-button icon="el-icon-upload" type="primary" style="margin-right: 10px" @click="downloadExcel('thesisName')">
@@ -175,7 +175,7 @@
             style="display: inline-flex; margin-left: 1px"
             :action="`/undergraduateM/basic/importThesisName?tutorId=${user.id}&institutionId=${user.institutionID}&startThesisID=${selectThesis}`"
         >
-          <el-button icon="el-icon-plus" type="success" :disabled="selectDate==''">导入毕业设计</el-button>
+          <el-button icon="el-icon-plus" type="success" :disabled="selectDate==''">导入论文题目</el-button>
         </el-upload>
       </div>
       <template #footer>
@@ -185,7 +185,7 @@
       </template>
 
     </el-dialog>
-    <el-dialog :visible.sync="dialogImportResult" width="40%" title="导入毕业设计结果统计" :center="true">
+    <el-dialog :visible.sync="dialogImportResult" width="40%" title="导入论文题目结果统计" :center="true">
       <p>
         共计<span :style="{ color: 'blue', fontWeight: 'bold' }">{{ totalRows }}</span>条记录，
         成功更新<span :style="{ color: 'orange', fontWeight: 'bold' }">{{ duplicateInsertRowsCount }}</span>条记录，
@@ -388,8 +388,8 @@ export default {
         const url = `/undergraduateM/basic/getThesisExistDate?institutionID=${this.user.institutionID}&adminID=${-1}`;
         const response = await this.getRequest(url);
         if (response.status === 200) {
-          console.log(response)
           this.options = this.transformOptions(response.obj);
+          this.selectDate = this.options[this.options.length-1].value
         } else {
           throw new Error("请求失败!");
         }
