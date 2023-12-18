@@ -50,8 +50,8 @@ public interface ThesisMapper {
     int upsert(Thesis thesis);
 
 
-    @Insert("INSERT INTO thesis (studentID, tutorID) " +
-            "VALUES (#{studentID}, #{tutorID, jdbcType=NUMERIC}) " +
+    @Insert("INSERT INTO thesis (studentID, start_thesis_id, tutorID, grade) " +
+            "VALUES (#{studentID}, #{startThesisID}, #{tutorID, jdbcType=NUMERIC}, #{grade}) " +
             "ON DUPLICATE KEY UPDATE tutorID = VALUES(tutorID)")
     @Options(useGeneratedKeys = true, keyProperty = "ID", keyColumn = "ID")
     int upsertTutorId(Thesis thesis);

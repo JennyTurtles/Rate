@@ -520,26 +520,28 @@ export default {
     // 导出pdf
     async exportPDF(data) {
       if (data.thesis.comment_total < 1) {
-        this.$message.info("该生还未提交任何毕业论文指导记录！")
+        this.$message.info("该生还未提交任何毕业论文指导记录！");
         return;
       }
+
       this.loading = true;
 
       if (this.thesisID !== null) {
-        const res = await this.getRequest("/paperComment/basic/checkSign?thesisID=" + data.thesis.id);
-        let message = '';
+        const url = `/paperComment/basic/checkSign?thesisID=${data.thesis.id}`;
+        const res = await this.getRequest(url);
 
-        if (res.obj === 0 || res.obj === -2) {
-          message += "您的学生还没有上传签名图片，可联系学生上传后再导出。</br>";
-        }
+        const messages = {
+          0: "您的学生还没有上传签名图片，可联系学生上传后再导出。</br>",
+          '-1': "您还没有上传签名图片（可以在导出PDF界面上传）</br>",
+          '-2': "您的学生还没有上传签名图片，可联系学生上传后再导出。</br>您还没有上传签名图片（可以在导出PDF界面上传）</br>"
+        };
 
-        if (res.obj === -1 || res.obj === -2) {
-          message += "您还没有上传签名图片（可以在导出PDF界面上传）</br>";
-        }
+        let message = messages[res.obj] || '';
 
         if (message) {
           try {
-            await this.$confirm(message + `确认现在导出不含签名照片的PDF吗？`, '', {
+            this.loading = false;
+            await this.$confirm(`${message}确认现在导出不含签名照片的PDF吗？`, '', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
               type: 'info',

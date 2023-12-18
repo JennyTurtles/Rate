@@ -250,7 +250,7 @@
       </el-pagination>
     </div>
 
-    <el-dialog :visible.sync="dialogImportResult" width="40%" title="导入学生结果统计" :center="true">
+    <el-dialog :visible.sync="dialogImportResult" width="45%" title="导入学生结果统计" :center="true">
       <p>
         共计<span :style="{ color: 'blue', fontWeight: 'bold' }">{{ totalRows }}</span>条记录，
         成功插入<span :style="{ color: 'green', fontWeight: 'bold' }">{{ successfulRowsCount }}</span>条记录，
