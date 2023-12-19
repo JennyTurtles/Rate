@@ -389,7 +389,7 @@ export default {
         const response = await this.getRequest(url);
         if (response.status === 200) {
           this.options = this.transformOptions(response.obj);
-          this.selectDate = this.options[this.options.length-1].value
+          this.selectDate = this.options[0].value
         } else {
           throw new Error("请求失败!");
         }

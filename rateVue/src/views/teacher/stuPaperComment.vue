@@ -6,6 +6,11 @@
       <div>{{ stuName }}({{ studentNumber }})</div>
       <!-- <div style="margin: 0 auto;">{{ thesis.name }}</div> -->
       <div style="margin-left: 20px;">{{ thesis.name }}</div>
+      <div style="margin-left: auto">
+        <el-button icon="el-icon-back" type="primary" @click="back">
+          返回
+        </el-button>
+      </div>
     </div>
 
     <div style="margin-top: 10px">
@@ -550,8 +555,10 @@ export default {
         console.error("Error:", error);
         this.loading = false;
       }
+    },
+    back(){
+      this.$router.go(-1);
     }
-
   }
 };
 </script>
