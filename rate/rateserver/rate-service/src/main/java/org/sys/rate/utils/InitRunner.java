@@ -14,7 +14,7 @@ public class InitRunner  {
     public ReceiveMails receiveMails;
 
 
-//    60000 2
+//    // 60000 2
 //    @Scheduled(fixedRateString = "60000")
 //    public void readMails() {
 //        try {

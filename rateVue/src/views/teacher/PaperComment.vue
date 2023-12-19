@@ -328,8 +328,8 @@ export default {
   },
   mounted() {
     this.user = JSON.parse(localStorage.getItem('user'))
-    this.initEmps();
     this.fetchThesisExistDate()
+    this.initEmps();
   },
   filters: {},
   methods: {
@@ -494,7 +494,8 @@ export default {
     },
 
     initEmps() {
-      if (this.startYear == null) {
+      // console.log(this.selectThesis);
+      if (this.selectThesis == null) {
         return;
       }
 
@@ -515,9 +516,6 @@ export default {
             this.loading = false;
           });
     },
-
-
-    // 导出pdf
     async exportPDF(data) {
       if (data.thesis.comment_total < 1) {
         this.$message.info("该生还未提交任何毕业论文指导记录！");
@@ -526,7 +524,7 @@ export default {
 
       this.loading = true;
 
-      if (this.thesisID !== null) {
+      const checkSign = async () => {
         const url = `/paperComment/basic/checkSign?thesisID=${data.thesis.id}`;
         const res = await this.getRequest(url);
 
@@ -538,49 +536,51 @@ export default {
 
         let message = messages[res.obj] || '';
 
-        if (message) {
+        if (message !== '') {
           try {
-            this.loading = false;
-            await this.$confirm(`${message}确认现在导出不含签名照片的PDF吗？`, '', {
+            const confirm = await this.$confirm(`${message}确认现在导出不含签名照片的PDF吗？`, '', {
               confirmButtonText: '确定',
               cancelButtonText: '取消',
               type: 'info',
               dangerouslyUseHTMLString: true,
-              customClass: 'custom-confirm'
+              customClass: 'custom-confirm',
+
             });
-            await this.downloadPDF(data);
+
+            if (confirm) {
+              await downloadPDF(data);
+            }
           } catch (error) {
             // Handle cancel or other errors
             this.loading = false;
           }
+        } else {
+          await downloadPDF(data);
         }
-      } else {
-        this.loading = false;
-        this.$message.info("抱歉该学生还未添加毕设设计或论文！");
-        return;
-      }
-    },
+      };
 
+      const downloadPDF = async () => {
+        let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(data.thesis.id)}`;
+        try {
+          const response = await fetch(url);
+          const blob = await response.blob();
+          this.loading = false;
+          const fileURL = URL.createObjectURL(blob);
 
-    async downloadPDF(data) {
-      let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(data.thesis.id)}`;
-      try {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        this.loading = false;
-        const fileURL = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = fileURL;
+          a.download = data.sname + '_毕业论文评审记录.pdf';
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } catch (error) {
+          this.loading = false;
+          this.$message.error("导出PDF时发生错误！");
+        }
+      };
 
-        const a = document.createElement('a');
-        a.href = fileURL;
-        a.download = data.sname + '_毕业论文评审记录.pdf';
-        a.style.display = 'none';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } catch (error) {
-        this.loading = false;
-        this.$message.error("导出PDF时发生错误！");
-      }
+      await checkSign();
     },
 
 
@@ -747,5 +747,9 @@ div::-webkit-scrollbar-thumb {
   border-radius: 8px;
   border: 3px solid rgba(255, 255, 255, 0.4);
   background-color: rgba(0, 0, 0, 0.5);
+}
+
+.custom-confirm{
+  width: 500px;
 }
 </style>

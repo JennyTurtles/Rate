@@ -856,8 +856,7 @@ export default {
           ...this.currentUnderStudentOfEdit,
           thesis: {
             studentID: this.currentUnderStudentOfEdit.studentID,
-            year: this.startYear,
-            month: this.selectSemester,
+            startThesisID: this.selectThesis,
             tutorID: this.currentUnderStudentOfEdit.tutorID
           }
         };
