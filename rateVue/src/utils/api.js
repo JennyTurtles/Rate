@@ -3,12 +3,14 @@ import {Message} from 'element-ui';
 import router from '../router'
 import {mymessage} from '@/utils/mymessage';
 import qs from 'qs';
+import ExceptionDialog from '@/utils/Exception'
 
 axios.interceptors.response.use(success => {  //
     if (success.status && success.status == 200 && success.data.status == 500) {
         if (success.data.msg === '该数据有关联数据，操作失败!')
             return
-        Message.error({message: success.data.msg})
+        ExceptionDialog.call({ content: success.data.msg });
+        //Message.error({message: success.data.msg})
         return;
     }
     if (success.data.msg) {
