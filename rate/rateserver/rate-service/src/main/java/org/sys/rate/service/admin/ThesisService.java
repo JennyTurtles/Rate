@@ -19,6 +19,7 @@ public class ThesisService {
             thesis.setStartThesisID(startThesisID);
             int upsertRows = 0;
             if ("teacher".equals(type)) {
+                thesis.setGrade(0.0);
                 upsertRows = thesisMapper.upsertTutorId(thesis);
             } else {
                 upsertRows = thesisMapper.upsert(thesis);

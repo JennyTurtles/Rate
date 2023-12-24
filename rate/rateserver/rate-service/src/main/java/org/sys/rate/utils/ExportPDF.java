@@ -1,6 +1,7 @@
 package org.sys.rate.utils;
 
 
+import com.github.pagehelper.util.StringUtil;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Rectangle;
@@ -137,7 +138,7 @@ public class ExportPDF {
         data.put("stuNameFirst", student.getName());
         data.put("stuName", student.getName());
         data.put("stuID", thesis.getStudentNumber());
-        if (!thesis.getName().isEmpty()) {
+        if (StringUtil.isNotEmpty(thesis.getName())) {
             data.put("thesisName1", thesis.getName().length() <= 15 ? thesis.getName() : thesis.getName().substring(0, 15));
             data.put("thesisName2", thesis.getName().length() <= 15 ? "" : " " + thesis.getName().substring(15));
         }
