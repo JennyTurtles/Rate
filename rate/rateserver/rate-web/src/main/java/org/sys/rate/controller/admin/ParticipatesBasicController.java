@@ -277,9 +277,9 @@ public class ParticipatesBasicController {
 
     @GetMapping("/getParticipantIDByIdNumber")
     @ResponseBody
-    public Msg getParticipantIDByIdNumber(@RequestParam Integer activityID,@RequestParam String IDNumber){
+    public Msg getParticipantIDByIdNumber(@RequestParam Integer activityID,@RequestParam Integer participantID){
         //通过IDNumber大拿到选手id，通过三个id去找到infos，包括了content
-        Participates participant = participatesService.getParticipantIDByIDNumber(activityID,IDNumber);
+        Participates participant = participatesService.getParticipantNameByID(participantID);
         List<InfoItem> infoItems = infoItemService.getInforItemAndContentByActivityIdAndPIdAndInfoId(activityID,participant.getID());
         return Msg.success().add("infoitems",infoItems).add("name",participant.getName());
     }

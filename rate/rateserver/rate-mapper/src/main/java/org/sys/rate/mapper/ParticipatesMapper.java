@@ -122,7 +122,7 @@ public interface ParticipatesMapper {
     int insertParByRegister(Participates par);
     List<Participates> getParticipantByAIdAndID(Integer activityID, List<Integer> participantID);
 
-    Participates getParticipantIDByIDNumber(Integer activityID,String IDNumber);
+    Participates getParticipantNameByID(Integer participantID);
 
     void deleteGroupsOfParticipantsAnaAcitivity(Integer activityID);
     void deleteGroups(Integer activityID);

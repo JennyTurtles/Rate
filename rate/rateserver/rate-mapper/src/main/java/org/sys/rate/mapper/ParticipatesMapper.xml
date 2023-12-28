@@ -446,10 +446,10 @@
         from participants
         where activityID = #{activityID}
     </select>
-    <select id="getParticipantIDByIDNumber" resultMap="BaseResultMap">
+    <select id="getParticipantNameByID" resultMap="BaseResultMap">
         select p.ID,s.name
         from student as s,participants as p
-        where s.IDNumber = #{IDNumber} and s.ID = p.studentID and p.activityID = #{activityID}
+        where p.ID = #{participantID} and s.ID = p.studentID
     </select>
     <select id="getExpertScore" resultType="org.sys.rate.model.PEexport">
         select s.expertID,t.name as expertName,p.groupID,g.name as groupName,s.participantID,stu.name as participantName,p.code,p.displaySequence,s.scoreitemID,sc.name as scoreItemName,s.score from scores s,teacher t,student stu,participants p,scoreitem sc,`groups` g,expertactivities ea where s.expertID=t.ID and stu.ID=p.studentID and p.ID=s.participantID and s.scoreitemID=sc.ID and p.groupID=g.ID and ea.teacherID=t.ID and p.groupID=#{groupID} and p.activityID=#{activityID}

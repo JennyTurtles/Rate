@@ -50,7 +50,7 @@ export default {
     return {
       labelWidth:'',
       labelPosition:"left",
-      IDNumber:'',
+      participantID:'',
       activityID:null,
       datalist:{},
       dialogdata:{},
@@ -83,14 +83,14 @@ export default {
         num=arr[0].indexOf("=");
         this.activityID = arr[0].substr(num+1);
       }
-      if(arr[1].indexOf("IDNumber") == 0){
+      if(arr[1].indexOf("participantID") == 0){
         num=arr[1].indexOf("=");
-        this.IDNumber = arr[1].substr(num+1);
+        this.participantID = arr[1].substr(num+1);
       }
-      this.getInfosDetails(this.IDNumber,this.activityID)
+      this.getInfosDetails(this.participantID,this.activityID)
     },
-    getInfosDetails(IDNumber,activityID){
-      var url = '/participants/basic/getParticipantIDByIdNumber?activityID=' + activityID +'&IDNumber=' + IDNumber.toString()
+    getInfosDetails(participantID,activityID){
+      var url = '/participants/basic/getParticipantIDByIdNumber?activityID=' + activityID +'&participantID=' + participantID
       this.getRequest(url).then((res)=>{
         if(res.code == 200){
           this.datalist = res.extend.infoitems
@@ -99,7 +99,7 @@ export default {
           var arr = this.datalist.map(item=>{
             return item.name.length
           })
-          this.labelWidth = Math.max.apply(null,arr) * 17 + 'px';
+          this.labelWidth = Math.max.apply(null,arr) * 18 + 'px';
         }
       })
     },

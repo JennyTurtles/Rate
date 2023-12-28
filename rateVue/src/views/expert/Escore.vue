@@ -622,11 +622,12 @@ export default {
       }
     },
     showEditEmpView_show(row, index) {
+      console.log(row.student)
       let routeUrl = this.$router.resolve({
         path:"/teacher/tperact/InformationDetails",
         query: {
           activityID: this.Adata.Aid,
-          IDNumber: row.student.idnumber,
+          participantID: row.id,
         },
       })
       window.open(routeUrl.href)    },
