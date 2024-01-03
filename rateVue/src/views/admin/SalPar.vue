@@ -696,22 +696,25 @@ export default {
       fd.append("file", file.file);
       fd.append("key", fileName);
       let url = "/participants/basic/check?groupid="+this.groupID;
-      axios.post(url, fd, {
+      this.postRequest(url, fd, {
         headers: {
           "Content-Type": "multipart/form-data",
+          'token':this.user.token
         },
       })
           .then((res1) => {
             if(res1.length===0)
             {
               url = "/participants/basic/import?groupid="+this.groupID+"&activityid="+this.activityID+"&insititutionID="+this.user.institutionID;
-              axios.post(url, fd, {
+              this.postRequest(url, fd, {
                 headers: {
                   "Content-Type": "multipart/form-data",
+                  'token':this.user.token
                 },
               }).then((res) => {
                 this.refreshact()
                 this.$message(res.msg);
+                this.dialogVisible_method = false;
               })
             }
             else{
@@ -728,9 +731,10 @@ export default {
                 type: 'warning'
               }).then(() => {
                 url = "/participants/basic/import?groupid="+this.groupID+"&activityid="+this.activityID+"&insititutionID="+this.user.institutionID;
-                axios.post(url, fd, {
+                this.postRequest(url, fd, {
                   headers: {
                     "Content-Type": "multipart/form-data",
+                    'token':this.user.token
                   },
                 }).then((res) => {
                   this.onSuccess(res);
