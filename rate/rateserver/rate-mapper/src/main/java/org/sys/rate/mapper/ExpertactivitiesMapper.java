@@ -2,6 +2,7 @@ package org.sys.rate.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
@@ -63,4 +64,7 @@ public interface ExpertactivitiesMapper {
             "(SELECT COUNT(*) from expertactivities WHERE groupID = #{groupID} ) \n" +
             "where ID = #{groupID}")
     void updateGroupExpertCount(Integer groupID);
+
+    @Delete("DELETE FROM expertactivities WHERE activityID = #{activityID}")
+    void deleteByActivityid(Integer activityID);
 }

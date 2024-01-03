@@ -38,6 +38,8 @@ public class ParticipatesService {
     GroupsMapper groupsMapper;
     @Autowired
     RabbitTemplate rabbitTemplate;
+    @Autowired
+    ExpertactivitiesMapper expertactivitiesMapper;
 
     public final static Logger logger = LoggerFactory.getLogger(ParticipatesService.class);
     SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
@@ -610,6 +612,7 @@ public class ParticipatesService {
         Integer res = groupsMapper.isGroupsExit(activityID);
         if(res > 0){
             participatesMapper.deleteGroupsOfParticipantsAnaAcitivity(activityID);//删除选手表和活动表中的groupid
+            expertactivitiesMapper.deleteByActivityid(activityID);//删除expertactivities表中的数据
             participatesMapper.deleteGroups(activityID);//删除groups表中的数据
             return "删除成功";
         }else {
