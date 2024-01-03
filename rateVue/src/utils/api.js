@@ -10,6 +10,7 @@ axios.interceptors.response.use(success => {  //
         if (success.data.msg === '该数据有关联数据，操作失败!')
             return
         if (success.data.msg.includes("token验证失败，请重新登录")){
+            Message.error({message: '登录失效，请重新登录！'})
             var role = success.data.msg.match(/用户角色：(\S*)；用户id：/)[1];
             //console.log(role)
             switch (role){
@@ -21,8 +22,10 @@ axios.interceptors.response.use(success => {  //
             }
             return;
         }
-        ExceptionDialog.call({ content: success.data.msg });
-        //Message.error({message: success.data.msg})
+        if (success.data.msg.includes("请邮件联系管理员"))
+            ExceptionDialog.call({ content: success.data.msg });
+        else
+            Message.error({message: success.data.msg})
         return;
     }
     if (success.data.msg) {

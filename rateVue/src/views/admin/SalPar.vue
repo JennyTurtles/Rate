@@ -736,6 +736,7 @@ export default {
                   this.onSuccess(res);
                   this.initEmps();
                   this.$message(res.msg);
+                  this.dialogVisible_method = false;
                 })
               })
             }
