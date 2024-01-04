@@ -405,7 +405,23 @@ export default {
           "&groupId=" +
           this.Adata.AgroupId;
       this.loading = false;
-      window.open(url, "_parent");
+      axios({
+        url: url,
+        method: 'get',
+        responseType: 'blob',
+        headers: {
+          'token': this.user.token ? this.user.token : ''
+        }
+      }).then((res) => {
+        let url = window.URL.createObjectURL(new Blob([res]))
+        let link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.setAttribute('download', '_parent'  + '.xls')
+        document.body.appendChild(link);
+        link.click();
+      });
+      //window.open(url, "_parent");
     },
     uploadButton(){
       this.$confirm('请注意计算好学生的总评分再导入，无总评分的行将被认为未评分。系统将使用excel里的数据覆盖浏览器界面上的数据，而不会融合两者的数据。请确保excel文件里包含所有评分。',{
