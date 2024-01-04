@@ -12,7 +12,7 @@
         </el-button>
       </div>
     </div>
-    <div>标红分数：小于该项分数的及格分数</div>
+    <div v-show="setBySelf === 1">标红分数：小于该展示项设置的及格分数</div>
     <div style="margin-top: 15px">
       <span>请选择筛选依据：  </span>
       <el-select
@@ -169,6 +169,7 @@ export default {
       keyword: '',
       size: 10,
       mode:'',
+      setBySelf: 1,
       columns: [{ label: "性别", prop: "name", width: 100, show: true },
         { label: "民族", prop: "sex", width: 150, show: true },
         { label: "政治面貌", prop: "age", width: 100, show: true }],
@@ -211,6 +212,7 @@ export default {
     this.flag = this.$route.query.flag;
     this.groupID = this.$route.query.groupID;
     this.initEmps();
+    this.initMethod();
   },
   methods: {
     initEmps() {
@@ -257,6 +259,15 @@ export default {
       if(!this.groupNums){
         this.groupNums = Array.from(Array(10).keys(),n=>n+1)
         }
+    },
+    initMethod(){
+      this.loading = true;
+      this.getRequest(
+          "/displayItem/getSetMethod?activityID=" +
+          this.keywords
+      ).then((resp) => {
+        this.setBySelf = resp;
+      });
     },
     filterPar(){
       var newPar = []

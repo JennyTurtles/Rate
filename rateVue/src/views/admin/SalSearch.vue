@@ -338,6 +338,7 @@
 
 <script>
 import {Message} from "element-ui";
+import axios from "axios";
 
 export default {
   name: "SalSearch",
@@ -444,7 +445,23 @@ export default {
       this.text='正在';
       Message.success("正在导出");
       let url = '/participants/basic/export?activityID=' + data.id;
-      window.open(url, "_parent");
+      axios({
+        url: url,
+        method: 'get',
+        responseType: 'blob',
+        headers: {
+          'token': this.user.token ? this.user.token : ''
+        }
+      }).then((res) => {
+        let url = window.URL.createObjectURL(new Blob([res]))
+        let link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.setAttribute('download', '专家打分表'  + '.xls')
+        document.body.appendChild(link);
+        link.click();
+      });
+      //window.open(url, "_parent");
       this.loading=false;
       this.text='';
     },
