@@ -1,11 +1,7 @@
 <template>
   <div>
-    <!-- 这里显示学生的姓名和毕业设计的题目 -->
-    <div
-        style="display: flex; justify-content: flex-start; margin: 15px 0; font-weight: bold;">
+    <div style="display: flex; justify-content: flex-start; margin: 15px 0; font-weight: bold;">
       <div>{{ stuName }}({{ studentNumber }})</div>
-      <!-- <div style="margin: 0 auto;">{{ thesis.name }}</div> -->
-      <div style="margin-left: 20px;">{{ thesis.name }}</div>
       <div style="margin-left: auto">
         <el-button icon="el-icon-back" type="primary" @click="back">
           返回
@@ -25,42 +21,37 @@
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.12)"
           style="width: 100%">
-        <el-table-column align="center" label="操作" width="220px">
+        <el-table-column align="center" label="操作" width="300px">
           <template slot-scope="scope">
             <div
-                style="text-align: center; height: 300px; display: flex; flex-direction: column; justify-content: center;">
-              <div style="margin-bottom: 10px;left">指导期次:
-                <span
-                    style="color: black;font-size:bold;display: inline-block; width: 100px; text-align: left; margin-left: 10px;">
-                                    第{{ scope.row.num }}次
-                                </span>
+                style="text-align: left; height: 300px; display: flex; flex-direction: column; justify-content: center;">
+              <div style="margin-bottom: 10px;">指导期次:
+                <span style="color: black;display: inline-block; text-align: left; margin-left: 10px;">
+                  第{{ scope.row.num }}次</span>
               </div>
               <div style="margin-bottom: 10px;">
-                提交日期:
-                <span
-                    style="display: inline-block; width: 100px; text-align: left; margin-left: 10px;">{{
-                    scope.row.dateStu
-                  }}</span>
+                工作时长:
+                <span style="color: black;display: inline-block; width:200px; text-align: left; margin-left: 10px;">
+                  {{ scope.row.workHours }}小时</span>
+              </div>
+              <div style="margin-bottom: 10px;">
+                工作区间:
+                <span style="color: black;display: inline-block; width:200px; text-align: left; margin-left: 10px;">
+                  {{ scope.row.startDateStu }} 至 {{ scope.row.endDateStu }}</span>
               </div>
               <div style="margin-bottom: 10px;">
                 评价日期:
-                <span
-                    style="display: inline-block; width: 100px; text-align: left; margin-left: 10px;color: black;">{{
-                    scope.row.dateTea || '待填写'
-                  }}</span>
+                <span style="display: inline-block; width: 100px; text-align: left; margin-left: 10px;color: black;">{{ scope.row.dateTea || '待填写' }}</span>
               </div>
-              <div style="margin-bottom: 10px;left">审核结果:
+              <div style="margin-bottom: 10px;">审核结果:
                 <span
                     style="display: inline-block; width: 100px; text-align: left; margin-left: 10px;"
-                    :style="scope.row.isPass=='tea_deny' ? {'color':'red'}:{'color':'black'}">
+                    :style="scope.row.isPass === 'tea_pass' ? { color: 'green' } : scope.row.isPass === 'tea_deny' ? { color: 'red' } : { color: 'black' }">
                                     {{
-                    scope.row.isPass == "tea_pass" ? "导师通过"
-                        : scope.row.isPass == "tea_deny" ? "导师驳回"
+                    scope.row.isPass === "tea_pass" ? "导师通过"
+                        : scope.row.isPass === "tea_deny" ? "导师驳回"
                             : "待填写"
                   }}</span>
-                <!-- <div :style="{ color: emp.isPass === '驳回' ? 'red' : '' }"> {{ emp.isPass }}
-                </div> -->
-
               </div>
               <div style="display: flex; justify-content: center;">
                 <el-button
@@ -128,18 +119,24 @@
             prop="num"
             label-width="80px"
             style="margin-left: 20px">
-          <!-- <span class="isMust">*</span> -->
           <div>
-            {{ curIndex }}
+            {{ emp.num }}
           </div>
         </el-form-item>
         <el-form-item
-            label="提交时间:"
+            label="工作时长:"
             label-width="80px"
             style="margin-left: 20px">
-          <!-- <span class="isMust">*</span> -->
           <div>
-            {{ this.showDateStu }}
+            {{ emp.workHours }}小时
+          </div>
+        </el-form-item>
+        <el-form-item
+            label="工作区间:"
+            label-width="80px"
+            style="margin-left: 20px">
+          <div>
+            {{ emp.startDateStu }} 至 {{ emp.endDateStu }}
           </div>
         </el-form-item>
 
@@ -181,12 +178,6 @@
             label-width="80px"
             style="margin-left: 20px">
           <span class="isMust">*</span>
-          <!-- <div :style="{ color: emp.isPass === '驳回' ? 'red' : '' }"> {{ emp.isPass }}
-          </div> -->
-<!--          <el-select v-model="emp.isPass" placeholder="请选择">-->
-<!--            <el-option label="通过" value="tea_pass"></el-option>-->
-<!--            <el-option label="驳回" value="tea_deny"></el-option>-->
-<!--          </el-select>-->
           <template>
             <el-radio v-model="emp.isPass" label="tea_pass" style="padding-top: 5px">通过</el-radio>
             <el-radio v-model="emp.isPass" label="tea_deny" style="padding-top: 5px">驳回</el-radio>
@@ -227,7 +218,7 @@
 // import { delete } from 'vue/types/umd';
 
 export default {
-  name: "stuPaperComment",
+  name: "stuProgramRecord",
   data() {
     return {
       disabledInput: true,
@@ -264,7 +255,6 @@ export default {
       dialogVisible_show: false,
       dialogVisible_showInfo: false,
 
-      thesisName: "",
       startThesisID: null,
       stuName: "",
       studentNumber: '',
@@ -273,12 +263,9 @@ export default {
       prePlan: "", // 上期安排
       preDate: new Date(), // 上一条记录的时间
       nextDate: new Date(), // 下一条记录的时间
-      thesis: {},
       timeChoose: 0,
-      curIndex: 0,
       showTooltip: true,
       pageMonth: new Date().getMonth(),
-      showDateStu: null,
 
       page: 1,
       keyword: "",
@@ -291,12 +278,12 @@ export default {
 
       emp: {
         id: null,
-
+        studentID: null,
         num: null,
-        thesisID: null,
         preSum: "",
         nextPlan: "",
-        dateStu: new Date(),
+        startDateStu: new Date(),
+        endDateStu: null,
         dateTea: new Date(),
         tutorComment: ""
       },
@@ -366,10 +353,9 @@ export default {
   created() {
   },
   mounted() {
-    const {keyword, keyname, studentNumber, startThesisID} = this.$route.query;
+    const {keyword, keyname, studentNumber} = this.$route.query;
     this.stuID = keyword;
     this.stuName = keyname;
-    this.startThesisID = startThesisID;
     this.studentNumber = studentNumber
 
     this.initEmps();
@@ -398,45 +384,21 @@ export default {
     },
 
     handleCancel(event) {
-      // 阻止事件冒泡，避免点击其他元素也能关闭对话框
-      //event.stopPropagation();
-      // 阻止默认行为，避免触发其他元素的默认行为
-      //event.preventDefault();
-      // 关闭对话框
-      this.dialogVisible = false;
       this.initEmps();
+      this.dialogVisible = false;
     },
 
     rowClass() {
       return "background:#b3d8ff;color:black;font-size:13px;text-align:center";
     },
 
-    emptyEmp() {
-      this.emp = {
-        dateTea: null,
-        id: null,
-        num: null,
-        preSum: "",
-        nextPlan: "",
-        thesisID: null,
-        tutorComment: null,
-        isPass: ""
-      };
-    },
-
     // 驳回按钮
     showRefuseEmpView(data) {
 
-      this.emptyEmp();
-      this.emp.num = data.num
-      this.emp.dateTea = null
-      this.emp.tutorComment = data.tutorComment
-      this.emp.studentID = data.stuID
-      this.emp.thesisID = data.thesisID
-      this.emp.isPass = 'tea_deny'
-
+      this.emp = data;
+      this.emp.isPass = 'tea_deny';
       this
-          .postRequest("/paperComment/basic/updateTea", this.emp)
+          .postRequest("/programRecord/basic/updateTea", this.emp)
           .then((resp) => {
             if (resp) {
               this.initEmps();
@@ -450,14 +412,13 @@ export default {
       // this.initPositions();
       this.title = "填写评价";
       this.emp = data;
-      this.showDateStu = data.dateStu;
       let sortedEmps = this
           .emps
           .slice()
           .sort((a, b) => a.num - b.num);
       this.sortedEmps = sortedEmps;
       // this.emps.num = data.num; console.log(this.emps);  也就是这个可以获取当前表格中的所有数据
-      this.curIndex = data.num
+      //this.curIndex = data.num
 
       if (data.num > 1) {
         this.showTooltip = true;
@@ -475,7 +436,6 @@ export default {
               .dateStu;
         } else if (data.num = this.total) {
           this.timeChoose = 11;
-
         }
       } else {
         this.showTooltip = false;
@@ -493,7 +453,6 @@ export default {
           this.timeChoose = 11;
 
         }
-
       }
 
       this.dialogVisible = true;
@@ -506,29 +465,15 @@ export default {
       month = month.toString().padStart(2, '0')
       date = date.toString().padStart(2, '0')
       this.emp.dateTea = year + '-' + month + '-' + date;
-      console.log(this.emp)
-    },
-    deleteEmp(data) {
-      //点击删除按钮
-      if (confirm("此操作将永久删除【第" + data.num + "条记录】, 是否继续?")) {
-        this.deleteRequest("/paperComment/basic/remove/" + data.num + "/" + data.thesisID)
-            .then((resp) => {
-              if (resp) {
-                // console.log(resp);
-                this.dialogVisible = false;
-                this.initEmps();
-              }
-            });
-      }
+      //console.log(this.emp)
     },
     doAddEmp() {
       this.emp.studentID = this.stuID
-      this.emp.thesisID = this.thesis.id
-      console.log(this.emp);
+      //console.log(this.emp);
 
       const _this = this;
       this
-          .postRequest("/paperComment/basic/updateTea", _this.emp)
+          .postRequest("/programRecord/basic/updateTea", _this.emp)
           .then((resp) => {
             if (resp) {
               this.dialogVisible = false;
@@ -541,16 +486,12 @@ export default {
     async initEmps() {
       try {
         this.loading = true;
-        const thesisResponse = await this.getRequest(`/paperComment/basic/getThesis?stuID=${this.stuID}&startThesisID=${this.startThesisID}`);
-        if (thesisResponse) {
-          this.thesis = thesisResponse.data;
-          const commentResponse = await this.getRequest(`/paperComment/basic/getAllComment?thesisID=${this.thesis.id}`);
-          if (commentResponse) {
-            this.emps = commentResponse.data;
-            this.total = commentResponse.data.length;
-          }
+        const RecordResponse = await this.getRequest(`/programRecord/basic/getAllRecordTea?studentID=${this.stuID}`);
+        if (RecordResponse) {
+          this.emps = RecordResponse.data;
+          //console.log(this.emps)
+          this.total = RecordResponse.data.length;
         }
-
         this.loading = false;
       } catch (error) {
         console.error("Error:", error);

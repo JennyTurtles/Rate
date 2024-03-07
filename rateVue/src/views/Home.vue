@@ -460,13 +460,12 @@ export default {
           type: "warning",
         })
             .then(() => {
-              let role = JSON.parse(localStorage.getItem("user")).role;
               var url = "/";
               if (
-                  this.role == "8" ||
-                  this.role == "9" ||
-                  this.role == "3" ||
-                  this.role == "4"
+                  this.role.indexOf("8") >=0 ||
+                  this.role.indexOf("9") >=0 ||
+                  this.role.indexOf("3") >=0 ||
+                  this.role.indexOf("4") >=0
               )
                 url = "/Teacher/Login";
               else if (this.role.indexOf("13") >= 0 || this.role.indexOf("14") >= 0 || this.role.indexOf("15") >= 0 || this.role.indexOf("16") >= 0) url = "/Admin/Login";

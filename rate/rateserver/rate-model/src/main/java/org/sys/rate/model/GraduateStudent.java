@@ -14,6 +14,13 @@ public class GraduateStudent extends Student{
     private String point;
     private String specialty;
     private String className;
+    private Integer fillMiss;
+
+    //统计研究生项目记录审核信息
+    private Double workHoursTotal;
+    private Integer programRecordTotal;
+    private Integer programRecordPass;
+    private Integer programRecordDeny;
 
     // 建议对继承的方法加上Override
     @Override
@@ -86,5 +93,13 @@ public class GraduateStudent extends Student{
 
     public void setStudentType(String studentType) {
         this.studentType = studentType;
+    }
+
+    public Double getWorkHoursTotal() {
+        return this.workHoursTotal;
+    }
+
+    public void setWorkHoursTotal(Double workHours_total) {
+        this.workHoursTotal = workHours_total;
     }
 }

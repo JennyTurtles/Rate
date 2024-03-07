@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.sys.rate.mapper.ProgramRecordMapper">
+    <!-- Teachers的ResultMap -->
+    <resultMap id="TeacherResultMap" type="org.sys.rate.model.Teachers">
+        <id property="ID" column="teacherID"/>
+        <result property="name" column="teacherName"/>
+    </resultMap>
+
+    <!-- GraduateStudent的ResultMap -->
+    <resultMap id="GraduateStudentResultMap" type="org.sys.rate.model.GraduateStudent">
+        <id property="ID" column="ID"/>
+        <result property="stuNumber" column="stuNumber"/>
+        <result property="studentType" column="studentType"/>
+        <result property="specialty" column="specialty"/>
+        <result property="fillMiss" column="fillMiss"/>
+        <result property="year" column="year"/>
+        <result property="tutorID" column="tutorID"/>
+        <result property="name" column="stuName"/>
+        <result property="workHoursTotal" column="workHoursTotal"/>
+        <result property="programRecordPass" column="programRecordPass"/>
+        <result property="programRecordDeny" column="programRecordDeny"/>
+        <result property="programRecordTotal" column="programRecordTotal"/>
+        <association property="teachers" resultMap="TeacherResultMap"/>
+    </resultMap>
+
+    <select id="getStuByFilter" resultMap="GraduateStudentResultMap">
+        SELECT
+            g.ID,
+            g.stuNumber,
+            g.studentType,
+            g.specialty,
+            g.fillMiss,
+            g.year,
+            g.tutorID,
+            s.name AS stuName,
+            t.id AS teacherID,
+            t.name AS teacherName,
+            SUM(CASE WHEN p.isPass = 'tea_pass' THEN p.workHours ELSE 0.0 END) AS workHoursTotal,
+            SUM(CASE WHEN p.isPass = 'tea_pass' THEN 1 ELSE 0 END) AS programRecordPass,
+            SUM(CASE WHEN p.isPass = 'tea_deny' THEN 1 ELSE 0 END) AS programRecordDeny,
+            SUM(CASE WHEN p.isPass IN ('tea_pass', 'tea_deny', '') THEN 1 ELSE 0 END) AS programRecordTotal
+        FROM
+            graduatestudent g
+            INNER JOIN student s ON s.ID = g.studentID
+            LEFT JOIN teacher t ON t.ID = g.tutorID
+            LEFT JOIN programrecord p ON p.studentID = g.ID
+
+        <where>
+            <if test="tutorID != null and tutorID != ''">
+                AND g.tutorID = #{tutorID}
+            </if>
+            <if test="searchNumber != null and searchNumber != ''">
+                AND g.stuNumber LIKE CONCAT('%', #{searchNumber}, '%')
+            </if>
+            <if test="searchName != null and searchName != ''">
+                AND s.name LIKE CONCAT('%', #{searchName}, '%')
+            </if>
+            <if test="searchSpecialty != null and searchSpecialty != ''">
+                AND g.specialty = #{searchSpecialty}
+            </if>
+            <if test="searchStuType != null and searchStuType != ''">
+                AND g.studentType = #{searchStuType}
+            </if>
+            <if test="searchYears != null and !searchYears.isEmpty()">
+                AND g.year IN
+                <foreach item="year" collection="searchYears" open="(" separator="," close=")">
+                    #{year}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+            g.ID, g.stuNumber, g.studentType, g.specialty, g.fillMiss, g.year, g.tutorID, s.name, t.id, t.name
+        HAVING
+            1=1
+            <if test="minWorkHours != null and minWorkHours != ''">
+                AND workHoursTotal &gt;= #{minWorkHours}
+            </if>
+            <if test="maxWorkHours != null and maxWorkHours != ''">
+                AND workHoursTotal &lt;= #{maxWorkHours}
+            </if>
+    </select>
+    <select id="getGraduateStudentsOfTutorID" resultType="org.sys.rate.model.GraduateStudent">
+        SELECT
+            g.ID,
+            g.stuNumber,
+            g.studentType,
+            g.specialty,
+            g.fillMiss,
+            g.year,
+            s.name,
+            SUM(CASE WHEN p.isPass = 'tea_pass' THEN p.workHours ELSE 0.0 END) AS workHoursTotal,
+            SUM(CASE WHEN p.isPass = 'tea_pass' THEN 1 ELSE 0 END) AS programRecordPass,
+            SUM(CASE WHEN p.isPass = 'tea_deny' THEN 1 ELSE 0 END) AS programRecordDeny,
+            SUM(CASE WHEN p.isPass IN ('tea_pass', 'tea_deny', '') THEN 1 ELSE 0 END) AS programRecordTotal
+        FROM
+            graduatestudent g
+            INNER JOIN student s ON s.ID = g.studentID
+            LEFT JOIN programrecord p ON p.studentID = g.ID
+        WHERE
+            g.tutorID = #{tutorID}
+        GROUP BY
+            g.ID, g.stuNumber, g.studentType, g.specialty, g.fillMiss, g.year, s.name;
+    </select>
+</mapper>

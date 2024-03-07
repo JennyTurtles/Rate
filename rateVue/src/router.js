@@ -333,6 +333,15 @@ export default new Router({
           },
         },
         {
+          path: '/student/ProgramRecord',
+          name: '项目进度记录',
+          hidden: true,
+          component: () => import('./views/student/ProgramRecord'),
+          meta: {
+            title: '项目进度记录',
+          },
+        },
+        {
           path: '/student/addPublication',
           name: '添加期刊',
           hidden: true,
@@ -554,6 +563,15 @@ export default new Router({
           },
         },
         {
+          path: '/teacher/ProgramRecord',
+          name: '项目进度审核',
+          hidden: true,
+          component: () => import('./views/teacher/ProgramRecord'),
+          meta: {
+            title: '项目进度审核',
+          },
+        },
+        {
           path: '/teacher/gradeForm',
           name: '成绩评定表导出',
           hidden: true,
@@ -569,6 +587,15 @@ export default new Router({
           component: () => import('./views/teacher/stuPaperComment'),
           meta: {
             title: '教师毕业论文评审记录',
+          },
+        },
+        {
+          path: '/teacher/stuProgramRecord',
+          name: '教师项目进度审核记录详情界面',
+          hidden: true,
+          component: () => import('./views/teacher/stuProgramRecord'),
+          meta: {
+            title: '教师项目进度审核记录',
           },
         },
         {
@@ -661,7 +688,15 @@ export default new Router({
             title: '管理毕业论文',
           },
         },
-
+        {
+          path: '/admin/ProgramRecord',
+          name: '项目进度审核',
+          hidden: true,
+          component: () => import('./views/admin/ProgramRecord'),
+          meta: {
+            title: '项目进度审核',
+          },
+        },
       ],
     },
       //新打开一个页面
