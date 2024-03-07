@@ -161,7 +161,7 @@
               class="homeWelcome"
               v-if="this.$router.currentRoute.path == '/home'"
           >
-            {{ user.name }}欢迎来到评分管理系统!
+            {{ user.name }}欢迎来到教学辅助系统!
           </div>
           <router-view class="homeRouterView"/>
         </el-main>

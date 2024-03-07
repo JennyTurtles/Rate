@@ -57,7 +57,6 @@
             align="center"
             label="学号"
             width="100px"
-            sortable
             :show-overflow-tooltip="true"
         ></el-table-column>
         <el-table-column
@@ -65,7 +64,6 @@
             align="center"
             label="姓名"
             width="150px"
-            sortable
             :show-overflow-tooltip="true"
         ></el-table-column>
         <el-table-column
@@ -73,7 +71,6 @@
             align="center"
             label="入学年份"
             width="100px"
-            sortable
             :show-overflow-tooltip="true"
         ></el-table-column>
         <el-table-column
@@ -81,7 +78,6 @@
             align="center"
             label="专业"
             width="100px"
-            sortable
             :show-overflow-tooltip="true"
         ></el-table-column>
         <el-table-column
@@ -89,7 +85,6 @@
             align="center"
             label="研究生类型"
             width="100px"
-            sortable
             :show-overflow-tooltip="true"
         ></el-table-column>
         <el-table-column
@@ -100,13 +95,13 @@
             sortable
         ></el-table-column>
 
-        <el-table-column align="center" label="已提交" width="100px" sortable>
+        <el-table-column align="center" label="已提交" width="100px">
           <template slot-scope="scope">
             {{ scope.row.programRecordTotal}}
           </template>
         </el-table-column>
 
-        <el-table-column align="center" label="待审核" width="100px" sortable>
+        <el-table-column align="center" label="待审核" width="100px">
           <template slot-scope="scope">
             {{
               scope.row.programRecordTotal - scope.row.programRecordDeny - scope.row.programRecordPass
@@ -114,7 +109,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column align="center" width="150px" label="是否可以补填" sortable>
+        <el-table-column align="center" width="150px" label="是否可以补填">
           <template v-slot:header='scope'>
             <span>
               	  <el-tooltip

@@ -56,7 +56,7 @@ export default {
               this.$store.commit("initRoutes", []); //清空路由
               this.$store.commit("initRoutesAllSameForm", []); //清空路由
             })
-            this.$router.replace("/Expert/Login");
+            this.$router.replace("/Teacher/Login");
           })
           .catch(() => {
             this.$message({
@@ -73,7 +73,7 @@ export default {
   .homeRouterView {
     margin-top: 10px;
   }
-  
+
   .homeHeader {
     /* background-color:#409eff; */
     display: flex;
@@ -84,18 +84,18 @@ export default {
     background-color: #409eff;
     /*background-image: */
   }
-  
+
   .homeHeader .title {
     font-size: 30px;
     font-family: 华文行楷;
     color: #ffffff;
-  
+
   }
-  
+
   .homeHeader .userInfo {
     cursor: pointer;
   }
-  
+
   .homeContainer .aside {
     background-color: #ecf5ff;
   }
@@ -105,20 +105,20 @@ export default {
   .homeContainer .aside .menu .submenu {
     background-color: #ecf5ff;
   }
-  
+
   .el-dropdown-link img {
     width: 48px;
     height: 48px;
     border-radius: 24px;
     margin-left: 8px;
   }
-  
+
   .el-dropdown-link {
     display: flex;
     align-items: center;
     color: white;
   }
-  
+
   .homeMain{
     background-color: #f4f4f5;
     color: #333;
@@ -129,4 +129,3 @@ export default {
       0px 10px 10px -10px rgb(119, 117, 117);
   }
   </style>
-  
