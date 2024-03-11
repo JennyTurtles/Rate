@@ -65,10 +65,11 @@ public class ProgramRecordController {
                                    @RequestParam String searchSpecialty,
                                    @RequestParam String searchStuType,
                                    @RequestParam List<Integer> searchYears,
+                                   @RequestParam(required = false) String searchTutorName,
                                    @RequestParam(required = false) Integer minWorkHours,
                                    @RequestParam(required = false) Integer maxWorkHours,
                                    @RequestParam(required = false) Integer tutorID) {
-        List<GraduateStudent> data = programRecordMapper.getStuByFilter(searchNumber, searchName, searchSpecialty, searchStuType, searchYears, minWorkHours, maxWorkHours, tutorID);
+        List<GraduateStudent> data = programRecordMapper.getStuByFilter(searchNumber, searchName, searchSpecialty, searchStuType, searchYears, searchTutorName, minWorkHours, maxWorkHours, tutorID);
         return RespBean.ok("success",data);
     }
 

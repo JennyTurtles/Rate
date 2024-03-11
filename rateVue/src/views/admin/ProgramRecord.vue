@@ -1,33 +1,20 @@
 <template>
   <div>
     <div style="display: flex; align-items: center;">
-      <label style="margin-right: 10px;">填写信息搜索：</label>
-      <el-input v-model="searchNumber" placeholder="请输入学号" style="margin-right: 10px; width: 150px" prefix-icon="el-icon-search"></el-input>
-      <el-input v-model="searchName" placeholder="请输入学生姓名" style="margin-right: 10px; width: 150px" prefix-icon="el-icon-search"></el-input>
+      <label>学号：</label>
+      <el-input v-model="searchNumber" placeholder="请输入" style="margin-right: 20px; width: 120px"></el-input>
+      <label>学生姓名：</label>
+      <el-input v-model="searchName" placeholder="请输入" style="margin-right: 20px; width: 120px"></el-input>
+      <label>导师姓名：</label>
       <el-autocomplete
-          style="margin-right: 10px; width: 150px;" prefix-icon="el-icon-search"
-          placeholder="请输入导师姓名"
+          style="margin-right: 20px; width: 120px;"
+          placeholder="请输入"
           v-model="searchTutorName"
           :fetch-suggestions="querySearchAsync"
           @select="handleSelectTutor">
       </el-autocomplete>
-      <el-select v-model="searchSpecialty" placeholder="请选择专业" style="width: 150px; margin-right: 10px;" prefix-icon="el-icon-search">
-        <el-option
-            v-for="item in Specialties"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-        </el-option>
-      </el-select>
-      <el-select v-model="searchStuType" placeholder="请选择学生类型" style="width: 150px; margin-right: 10px;" prefix-icon="el-icon-search">
-        <el-option
-            v-for="item in StuTypes"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value">
-        </el-option>
-      </el-select>
-      <el-select v-model="searchYears" multiple placeholder="请选择年份" style="margin-right: 10px; width: 220px" prefix-icon="el-icon-search">
+      <label>入学年份：</label>
+      <el-select v-model="searchYears" multiple placeholder="请选择" style="margin-right: 20px; width: 220px">
         <el-option
             v-for="year in years"
             :key="year"
@@ -37,10 +24,27 @@
       </el-select>
     </div>
     <div style="display: flex; align-items: center;">
-      <label style="margin-right: 10px;">填写工作时长范围搜索：</label>
-      <el-input v-model="minWorkHours" placeholder="请输入最小工作时长" style="margin-right: 10px; width: 200px" prefix-icon="el-icon-search"></el-input>
-      <p>-</p>
-      <el-input v-model="maxWorkHours" placeholder="请输入最大工作时长" style="margin-right: 10px; margin-left: 10px; width: 200px" prefix-icon="el-icon-search"></el-input>
+      <label>专业：</label>
+      <el-select v-model="searchSpecialty" placeholder="请选择" style="width: 120px; margin-right: 20px;">
+        <el-option
+            v-for="item in Specialties"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+        </el-option>
+      </el-select>
+      <label>学生类型：</label>
+      <el-select v-model="searchStuType" placeholder="请选择" style="width: 120px; margin-right: 20px;">
+        <el-option
+            v-for="item in StuTypes"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+        </el-option>
+      </el-select>
+      <label>工作时长：</label>
+      <el-input v-model="minWorkHours" placeholder="请输入" style="margin-right: 5px; width: 120px"></el-input><p>至</p>
+      <el-input v-model="maxWorkHours" placeholder="请输入" style="margin-right: 10px; margin-left: 5px; width: 120px"></el-input>
       <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button>
       <el-button type="success" icon="el-icon-refresh-right" @click="refresh">重置</el-button>
     </div>
@@ -294,19 +298,23 @@ export default {
     },
     search(){
       this.loading = true;
+      if (this.searchTutorName !== '')
+        this.searchTeacherID = ''
       const params = {
         searchNumber: this.searchNumber,
         searchName: this.searchName,
         searchSpecialty: this.searchSpecialty,
         searchStuType: this.searchStuType,
         searchYears: this.searchYears,
+        searchTutorName: this.searchTutorName,
         minWorkHours: this.minWorkHours,
         maxWorkHours: this.maxWorkHours,
         tutorID: this.searchTeacherID,
       };
       const queryParams = new URLSearchParams(params).toString();
       const url = '/programRecord/basic/getStuByFilter?' + queryParams;
-      console.log(url)
+      console.log(this.searchTutorName)
+      console.log(this.searchTeacherID)
       this.getRequest(url)
           .then((resp) => {
             this.loading = false;

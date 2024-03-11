@@ -30,7 +30,7 @@ public interface ProgramRecordMapper {
     @Select("SELECT ID FROM graduatestudent WHERE studentID = #{studentID}")
     Integer getIDByStudentID(Integer studentID);
 
-    List<GraduateStudent> getStuByFilter(String searchNumber, String searchName, String searchSpecialty, String searchStuType, @Param("searchYears") List<Integer> searchYears, Integer minWorkHours, Integer maxWorkHours, Integer tutorID);
+    List<GraduateStudent> getStuByFilter(String searchNumber, String searchName, String searchSpecialty, String searchStuType, @Param("searchYears") List<Integer> searchYears, String searchTutorName, Integer minWorkHours, Integer maxWorkHours, Integer tutorID);
 
     @Select("SELECT fillMiss FROM graduatestudent WHERE studentID = #{studentID}")
     Integer getFillMiss(Integer studentID);

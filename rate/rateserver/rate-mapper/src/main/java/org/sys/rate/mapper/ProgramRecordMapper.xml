@@ -51,6 +51,9 @@
             <if test="tutorID != null and tutorID != ''">
                 AND g.tutorID = #{tutorID}
             </if>
+            <if test="searchTutorName != null and searchTutorName != ''">
+                AND t.name LIKE CONCAT('%', #{searchTutorName}, '%')
+            </if>
             <if test="searchNumber != null and searchNumber != ''">
                 AND g.stuNumber LIKE CONCAT('%', #{searchNumber}, '%')
             </if>
