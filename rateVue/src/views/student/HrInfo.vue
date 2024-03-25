@@ -34,7 +34,7 @@
       <el-form-item label="姓名">
         <el-input v-model="hr.name" @input="infoChange"></el-input>
       </el-form-item>
-      <div v-show="hr.stuType !== '不是大学生'">
+      <div v-show="hr.stuType !== '活动选手'">
         <el-form-item label="学号">
           <el-input v-model="hr.stuNumber" @input="infoChange"></el-input>
         </el-form-item>
@@ -86,7 +86,7 @@ export default {
       this.currentType = "本科生";
     }
     else{
-      this.currentType = "不是大学生";
+      this.currentType = "活动选手";
     }
     this.initHr();
   },

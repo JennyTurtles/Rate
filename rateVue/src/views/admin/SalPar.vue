@@ -31,7 +31,7 @@
         </div> -->
         <div>
           <el-button type="success" @click="showMethod">
-            添加选手
+            导入选手信息
           </el-button>
         </div>
         <div>
@@ -1027,7 +1027,7 @@ export default {
       })
     },
     showMethod(){
-      this.title = "添加选手";
+      this.title = "导入选手信息";
       this.dialogVisible_method=true;
       this.getCurrentParticipants();
     },

@@ -43,6 +43,7 @@
                   :action="Upload()"
                   ref="uploadExcel"
                   :disabled="datalist.finished == true"
+                  :headers="{'token':user.token}"
               >
                 <el-button type="primary" icon="el-icon-upload2" @click.stop="uploadButton" :disabled="datalist.finished == true"
                 >上传评分表
@@ -320,9 +321,9 @@
 </template>
 
 <script>
-import { Message } from "element-ui";
-import { getRequest } from "@/utils/api";
+import {Message} from "element-ui";
 import axios from "axios";
+
 export default {
   name: "score",
   inject: ["reload"],
@@ -625,7 +626,27 @@ export default {
               "&groupId=" +
               this.Adata.AgroupId;
           this.loading = false;
-          window.open(url);
+          //window.open(url);
+          axios({
+            url: url,
+            method: 'get',
+            responseType: 'blob',
+            headers: {
+              'token': this.user.token ? this.user.token : ''
+            }
+          }).then((res) => {
+            let blobUrl = window.URL.createObjectURL(new Blob([res], { type: 'application/pdf' }));
+            let link = document.createElement('a');
+            link.style.display = 'none';
+            link.href = blobUrl;
+            link.setAttribute('download', 'response.pdf');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+          }).catch((error) => {
+            console.error('下载PDF失败:', error);
+          });
         } else {
           // setRowspan(1);
           this.$alert(

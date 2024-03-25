@@ -51,6 +51,7 @@
 
     <update id="update" parameterType="org.sys.rate.model.Student">
         UPDATE student SET name=#{name,jdbcType=VARCHAR},
+                           institutionID=#{institutionID, jdbcType=INTEGER},
                            username=#{username,jdbcType=VARCHAR},
                                 telephone=#{telephone,jdbcType=VARCHAR},
                                 email=#{email,jdbcType=VARCHAR},
@@ -151,12 +152,11 @@
         )
     </insert>
     <insert id="insertStuFromRegister" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
-        insert into student  (ID,name,institutionID,username,password,telephone,email,deleteflag,role,registerQuestion,registerAnswer)
-        values (#{ID,jdbcType=INTEGER},
+        insert into student  (name,username,password,telephone,email,deleteflag,role,registerQuestion,registerAnswer)
+        values (
         #{name,jdbcType=VARCHAR},
-        #{institutionID,jdbcType=INTEGER},
         #{username,jdbcType=VARCHAR},
-        #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false,#{role,jdbcType=VARCHAR},
+        #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false, #{role,jdbcType=VARCHAR},
                 #{registerQuestion,jdbcType=VARCHAR}, #{registerQuestion,jdbcType=VARCHAR}
         )
     </insert>

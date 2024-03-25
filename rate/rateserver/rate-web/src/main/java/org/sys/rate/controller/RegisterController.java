@@ -30,77 +30,82 @@ public class RegisterController {
     @PostMapping("/stu")
     public RespBean registerStu(@RequestBody Student student){
         //没有就插入，同时判断选择注册的身份
-        String stuType = student.getStuType();
+        //String stuType = student.getStuType();
         try{
             String password = ExpertService.sh1(student.getPassword());
             student.setPassword(password);
-            switch (stuType){
-                case "本科生" :
-                    student.setRole("10");
-                    UnderGraduate under = underGraduateMapper.checkStuNumber(student.getStudentnumber(), student.getInstitutionID());
-                    if(under != null) { //本科生里有这条数据，拿到stuID
-                        student.setID(under.getStudentID());
-                    }
-                    break;
-                case "研究生" :
-                    student.setRole("11");
-                    GraduateStudent grad = graduateStudentMapper.checkStuNumber(student.getStudentnumber(), student.getInstitutionID());
-                    if(grad != null) student.setID(grad.getStudentID());
-                    break;
-                case "博士生":
-                    student.setRole("17");
-                    Doctor doc = doctorMapper.checkStuNumber(student.getStudentnumber(), student.getInstitutionID());
-                    if(doc != null) student.setID(doc.getStudentID());
-                    break;
-                default:student.setRole("7");break; //选手
-            }
-            //可以直接根据id判断，因为在填写时已经做了查询，查到了id会存在，没查到就是null
-            if(student.getID() == null){//插入学生表 并返回id
-                studentMapper.insertStuFromRegister(student);
-            }else {//有这个学生，就更新用户名和密码和密保
-                studentMapper.updatePasswordAndUsername(student);
-            }
-
-            if(stuType.equals("本科生")){
-                UnderGraduate under = new UnderGraduate();
-                under.setStuNumber(student.getStudentnumber());
-                under.setTutorID(null);
-                under.setInstitutionID(student.getInstitutionID());//怎么处理？
-                under.setYear(student.getYear());
-                under.setStudentID(student.getID());
-                if(underGraduateMapper.getUnderByStuID(student.getID()) == null){
-                    underGraduateMapper.insert(under);
-                }
-            }else if(stuType.equals("研究生")){
-                GraduateStudent grad = new GraduateStudent();
-                grad.setStuNumber(student.getStudentnumber());
-                grad.setTutorID(null);
-                grad.setInstitutionID(student.getInstitutionID());//怎么处理？
-                grad.setYear(student.getYear());
-                grad.setStudentID(student.getID());
-                grad.setStudentType(student.getGradType());
-                grad.setPoint(null);//怎么处理？
-                if(graduateStudentMapper.getGradByStuID(student.getID()) == null){
-                    graduateStudentMapper.insert(grad);
-                }
-            }else if(stuType.equals("博士生")){
-                Doctor doc = new Doctor();
-                doc.setStuNumber(student.getStudentnumber());
-                doc.setTutorID(null);
-                doc.setInstitutionID(student.getInstitutionID());
-                doc.setYear(student.getYear());
-                doc.setStudentID(student.getID());
-                doc.setStudentType(student.getGradType());
-                doc.setPoint(null);
-                if(doctorMapper.getDocByStuID(student.getID()) == null){
-                    doctorMapper.insert(doc);
-                }
-            }
+            student.setRole("");
+//            switch (stuType){
+//                case "本科生" :
+//                    student.setRole("10");
+//                    UnderGraduate under = underGraduateMapper.checkStuNumber(student.getStudentnumber(), student.getInstitutionID());
+//                    if(under != null) { //本科生里有这条数据，拿到stuID
+//                        student.setID(under.getStudentID());
+//                    }
+//                    break;
+//                case "研究生" :
+//                    student.setRole("11");
+//                    GraduateStudent grad = graduateStudentMapper.checkStuNumber(student.getStudentnumber(), student.getInstitutionID());
+//                    if(grad != null) student.setID(grad.getStudentID());
+//                    break;
+//                case "博士生":
+//                    student.setRole("17");
+//                    Doctor doc = doctorMapper.checkStuNumber(student.getStudentnumber(), student.getInstitutionID());
+//                    if(doc != null) student.setID(doc.getStudentID());
+//                    break;
+//                default: //活动选手
+//                    student.setRole("7");
+//
+//                    break; //选手
+//            }
+//            //可以直接根据id判断，因为在填写时已经做了查询，查到了id会存在，没查到就是null
+//            if(student.getID() == null){//插入学生表 并返回id
+//                studentMapper.insertStuFromRegister(student);
+//            }else {//有这个学生，就更新用户名和密码和密保
+//                studentMapper.updatePasswordAndUsername(student);
+//            }
+//
+//            if(stuType.equals("本科生")){
+//                UnderGraduate under = new UnderGraduate();
+//                under.setStuNumber(student.getStudentnumber());
+//                under.setTutorID(null);
+//                under.setInstitutionID(student.getInstitutionID());//怎么处理？
+//                under.setYear(student.getYear());
+//                under.setStudentID(student.getID());
+//                if(underGraduateMapper.getUnderByStuID(student.getID()) == null){
+//                    underGraduateMapper.insert(under);
+//                }
+//            }else if(stuType.equals("研究生")){
+//                GraduateStudent grad = new GraduateStudent();
+//                grad.setStuNumber(student.getStudentnumber());
+//                grad.setTutorID(null);
+//                grad.setInstitutionID(student.getInstitutionID());//怎么处理？
+//                grad.setYear(student.getYear());
+//                grad.setStudentID(student.getID());
+//                grad.setStudentType(student.getGradType());
+//                grad.setPoint(null);//怎么处理？
+//                if(graduateStudentMapper.getGradByStuID(student.getID()) == null){
+//                    graduateStudentMapper.insert(grad);
+//                }
+//            }else if(stuType.equals("博士生")){
+//                Doctor doc = new Doctor();
+//                doc.setStuNumber(student.getStudentnumber());
+//                doc.setTutorID(null);
+//                doc.setInstitutionID(student.getInstitutionID());
+//                doc.setYear(student.getYear());
+//                doc.setStudentID(student.getID());
+//                doc.setStudentType(student.getGradType());
+//                doc.setPoint(null);
+//                if(doctorMapper.getDocByStuID(student.getID()) == null){
+//                    doctorMapper.insert(doc);
+//                }
+//            }
 //            else if(stuType.equals("没有本校学号")){//选手
 //                Participates par = null;//code?display?都怎么处理？
 //                par.setStudentID(student.getID());
 ////                participatesMapper.insertParByRegister(par);
 //            }
+            studentMapper.insertStuFromRegister(student);
         }catch (Exception e){
             return RespBean.error("error",null);
         }

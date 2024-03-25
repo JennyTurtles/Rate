@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
+import org.sys.rate.mapper.InfosMapper;
 import org.sys.rate.mapper.PaperMapper;
 import org.sys.rate.model.Msg;
 import org.sys.rate.model.Paper;
@@ -50,6 +51,8 @@ public class PaperController {
     IndicatorService indicatorService;
     @Resource
     MailToTeacherService mailToTeacherService;
+    @Resource
+    InfosMapper infosMapper;
 
     private static final Logger logger = LoggerFactory.getLogger(PaperController.class);
 
@@ -156,7 +159,8 @@ public class PaperController {
 
     @GetMapping("/downloadByUrl")
     @ResponseBody
-    public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
+    public ResponseEntity<InputStreamResource> downloadFile(Integer infoItemID, Integer participantID, Integer activityID) throws IOException {
+        String url = infosMapper.selectInfosContent(activityID,participantID,infoItemID);
         File file = new File(url);
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
 

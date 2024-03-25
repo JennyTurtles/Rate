@@ -69,7 +69,7 @@
 <!--            </el-button>-->
 <!--          </el-upload>-->
           <el-button type="success" @click="showMethod">
-            添加选手
+            导入选手信息
           </el-button>
           <el-button type="primary" @click="groupsForParticipant" icon="el-icon-upload" style="margin-left: 10px">
             选手分组
@@ -1302,7 +1302,7 @@ export default {
       });
     },
     showMethod(){
-      this.title = "添加选手";
+      this.title = "导入选手信息";
       this.dialogVisible_method=true;
       this.getCurrentParticipants();
     },

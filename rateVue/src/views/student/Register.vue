@@ -5,21 +5,21 @@
         <el-input style="width: 60%" v-model="user.name" :disabled="userInfoIsDisabled"></el-input>
       </el-form-item>
 
-      <el-form-item label="单位:">
-        <span class="isMust" style="margin-left: 26px">*</span>
-        <el-autocomplete
-            class="inline-input"
-            v-model="currentInstitution"
-            :fetch-suggestions="querySearch"
-            :trigger-on-focus="false"
-            @select="handleSelect"
-            value-key="company"
-        >
-          <!--            <template v-if="user.institutionID===0" slot-scope="{ item }">-->
-          <!--              <div class="default">{{ item.default }}</div>-->
-          <!--            </template>-->
-        </el-autocomplete>
-      </el-form-item>
+<!--      <el-form-item label="单位:">-->
+<!--        <span class="isMust" style="margin-left: 26px">*</span>-->
+<!--        <el-autocomplete-->
+<!--            class="inline-input"-->
+<!--            v-model="currentInstitution"-->
+<!--            :fetch-suggestions="querySearch"-->
+<!--            :trigger-on-focus="false"-->
+<!--            @select="handleSelect"-->
+<!--            value-key="company"-->
+<!--        >-->
+<!--          &lt;!&ndash;            <template v-if="user.institutionID===0" slot-scope="{ item }">&ndash;&gt;-->
+<!--          &lt;!&ndash;              <div class="default">{{ item.default }}</div>&ndash;&gt;-->
+<!--          &lt;!&ndash;            </template>&ndash;&gt;-->
+<!--        </el-autocomplete>-->
+<!--      </el-form-item>-->
       <el-form-item label="电话:">
         <el-input style="width: 60%" v-model="user.telephone" :disabled="userInfoIsDisabled"></el-input>
       </el-form-item>
@@ -27,50 +27,48 @@
         <el-input style="width: 60%" v-model="user.email" :disabled="userInfoIsDisabled"></el-input>
       </el-form-item>
 
-      <el-form-item label="注册的学生类型:" v-show="user.institutionID!==''">
-        <!--          <span class="selectTitle"></span>-->
-        <span class="isMust" style="margin-left: -50px">*</span>
-        <el-select v-model="selectStuType" clearable>
-          <el-option
-              v-for="val in stuType"
-              :value="val"
-              :label="val"
-              :key="val">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <!--        <div v-show="selectStuType == '本科生' || selectStuType == '研究生'">-->
-      <div
-          v-show="selectStuType !== '没有本校学号' && selectStuType !== null && selectStuType !== '' && selectStuType !== '不是大学生'">
-        <el-form-item label="学号:">
-          <el-input style="width: 60%" v-model="user.studentnumber"></el-input>
-        </el-form-item>
-        <el-form-item label="入学年份:">
-          <el-input style="width: 60%" v-model="user.year" :placeholder="defaultYear"></el-input>
-        </el-form-item>
-      </div>
-      <div v-show="selectStuType === '研究生' && user.institutionID!==''">
-        <el-form-item label="研究生类型:">
-          <el-select v-model="user.gradType">
-            <el-option v-for="val in ['专硕','学硕']"
-                       :value="val"
-                       :label="val"
-                       :key="val">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </div>
-      <div v-show="selectStuType === '博士生' && user.institutionID!==''">
-        <el-form-item label="博士生类型:">
-          <el-select v-model="user.gradType">
-            <el-option v-for="val in ['专博','学博']"
-                       :value="val"
-                       :label="val"
-                       :key="val">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </div>
+<!--      <el-form-item label="注册的学生类型:" v-show="currentInstitution!==''">-->
+<!--        &lt;!&ndash;          <span class="selectTitle"></span>&ndash;&gt;-->
+<!--        <span class="isMust" style="margin-left: -50px">*</span>-->
+<!--        <el-select v-model="selectStuType" clearable>-->
+<!--          <el-option-->
+<!--              v-for="val in stuType"-->
+<!--              :value="val"-->
+<!--              :label="val"-->
+<!--              :key="val">-->
+<!--          </el-option>-->
+<!--        </el-select>-->
+<!--      </el-form-item>-->
+<!--      <div v-show="selectStuType !== null && selectStuType !== '' && selectStuType !== '活动选手'">-->
+<!--        <el-form-item label="学号:">-->
+<!--          <el-input style="width: 60%" v-model="user.studentnumber"></el-input>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="入学年份:">-->
+<!--          <el-input style="width: 60%" v-model="user.year" :placeholder="defaultYear"></el-input>-->
+<!--        </el-form-item>-->
+<!--      </div>-->
+<!--      <div v-show="selectStuType === '研究生' && user.institutionID!==''">-->
+<!--        <el-form-item label="研究生类型:">-->
+<!--          <el-select v-model="user.gradType">-->
+<!--            <el-option v-for="val in ['专硕','学硕']"-->
+<!--                       :value="val"-->
+<!--                       :label="val"-->
+<!--                       :key="val">-->
+<!--            </el-option>-->
+<!--          </el-select>-->
+<!--        </el-form-item>-->
+<!--      </div>-->
+<!--      <div v-show="selectStuType === '博士生' && user.institutionID!==''">-->
+<!--        <el-form-item label="博士生类型:">-->
+<!--          <el-select v-model="user.gradType">-->
+<!--            <el-option v-for="val in ['专博','学博']"-->
+<!--                       :value="val"-->
+<!--                       :label="val"-->
+<!--                       :key="val">-->
+<!--            </el-option>-->
+<!--          </el-select>-->
+<!--        </el-form-item>-->
+<!--      </div>-->
       <el-form-item label="用户名:">
         <el-input style="width: 60%" v-model="user.username" :disabled="usernameAndPwdIsDisabled"></el-input>
       </el-form-item>
@@ -114,7 +112,7 @@ export default {
       checkPwdState: false,
       checkPwdSame: false,
       currentInstitution: '',
-      stuType: ['本科生', '研究生', '博士生', '不是大学生'],
+      stuType: ['本科生', '研究生', '博士生', '活动选手'],
       user: {
         name: '',
         telephone: '',
@@ -192,14 +190,14 @@ export default {
     },
 
     register() {
-      if (this.currentInstitution == '') {
-        this.$message.warning('请输入单位！')
-        return
-      }
-      if ((this.selectStuType == null || this.selectStuType == '') && this.currentInstitution !== '其他') {
-        this.$message.warning('请选择注册的学生身份！')
-        return
-      }
+      // if (this.currentInstitution == '') {
+      //   this.$message.warning('请输入单位！')
+      //   return
+      // }
+      // if ((this.selectStuType == null || this.selectStuType == '') && this.currentInstitution !== '其他') {
+      //   this.$message.warning('请选择注册的学生身份！')
+      //   return
+      // }
       if (this.user.registerQuestion == null || this.user.registerQuestion == '') {
         this.$message.warning('请输入密保问题！')
         return

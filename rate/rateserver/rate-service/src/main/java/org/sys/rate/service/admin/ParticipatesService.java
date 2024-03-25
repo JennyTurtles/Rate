@@ -243,11 +243,11 @@ public class ParticipatesService {
                 else
                 {//默认用户名为编号
                     System.out.println("participants.getCode()" +participants.getCode()+ " 的信息更新成功");
-                    student.setUsername(participants.getCode());
+                    student.setUsername(null);
                 }
 //                BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
                 String encodePass;
-                if(participants.getPassword()!=null)
+                if(participants.getPassword()!=null && !participants.getPassword().isEmpty())
                 {//不为空
                     encodePass = ExpertService.sh1(participants.getPassword());
                 }

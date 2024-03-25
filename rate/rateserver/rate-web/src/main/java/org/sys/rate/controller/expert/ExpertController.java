@@ -229,13 +229,14 @@ public class ExpertController {
                     for (Participates p : participatesL) {
                         if (p.getCode().equals(list.get("编号"))) {
                             pID = p.getID();
+                            break;
                         }
                     }
                     for (ScoreItem s : scoreItemsByE) {
                         if (s.getName().equals(k)) {
                             scoreOne = new Scores();
                             //在处理excel时，没有打分的统一设置为了null,某个选手有某一项分数，其余设置为0
-                            if (list.get(k) != null) {
+                            if (list.get(k) != null && !list.get(k).equals("")) {
                                 //判断某个单元格是否超过该评分项的满分
                                 if (new Double(list.get(k)) > s.getScore()) {
                                     return RespBean.error("fail", "有分数超过满分！");

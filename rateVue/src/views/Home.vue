@@ -18,12 +18,13 @@
                   (user.role == '' || user.role.indexOf('7') !== -1  || user.role.indexOf('11') !== -1 ||
                    user.role.indexOf('10') !== -1)"
               >
-                <el-dropdown @command="registerHandler" v-show="!user.role.includes('17')">
+                <el-dropdown @command="registerHandler">
                   <span>注册为大学生</span>
                   <el-dropdown-menu slot="dropdown" class="el-dropdown-back">
                     <el-dropdown-item command="本科生" v-show="!user.role.includes('10')">本科生</el-dropdown-item>
                     <el-dropdown-item command="硕士研究生" v-show="!role.includes('11')">硕士研究生</el-dropdown-item>
                     <el-dropdown-item command="博士研究生" v-show="!role.includes('17')">博士研究生</el-dropdown-item>
+                    <el-dropdown-item command="活动选手">活动选手</el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               </el-dropdown-item>
@@ -163,6 +164,13 @@
           >
             {{ user.name }}欢迎来到教学辅助系统!
           </div>
+          <div
+              style="color: red; text-align: center"
+              v-if="this.$router.currentRoute.path == '/home' && user.role === ''"
+          >
+            <i class="el-icon-warning"></i>请注意：您尚未注册任何角色，无法进行任何操作。<br>
+            请尽快在右上角的下拉菜单中选择”注册为大学生“，再根据需要进行对应角色的注册
+          </div>
           <router-view class="homeRouterView"/>
         </el-main>
       </el-container>
@@ -200,7 +208,7 @@
         <el-button type="primary" @click="submitPassword">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog @close="registerRoleForm={};selectStuType='';tutorName=''" :title="registerTitle()"
+    <el-dialog @close="registerRoleForm={};selectStuType='';tutorName='';selectActivity='';selectInstitution=''" :title="registerTitle()"
                :visible.sync="registerRoleVisible" width="30%">
       <el-form label-width="auto">
         <!--    <el-form-item label="姓名:">-->
@@ -211,6 +219,17 @@
         </el-form-item>
         <el-form-item label="邮箱:">
           <el-input v-model="registerRoleForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="单位:">
+          <el-autocomplete
+              style="width: 100%"
+              v-model="selectInstitution"
+              :fetch-suggestions="querySearchInstitution"
+              @select="handleSelectInstitution"
+              :trigger-on-focus="false"
+              value-key="company"
+          >
+          </el-autocomplete>
         </el-form-item>
         <el-form-item label="学生类型:">
           <el-input v-model="selectStuType" disabled></el-input>
@@ -225,18 +244,31 @@
         </el-form-item>
         <el-form-item v-show="selectStuType === '硕士研究生' || selectStuType === '博士研究生'" label="指导老师:">
           <el-autocomplete
-              style="width: 90%"
+              style="width: 100%"
               v-model="tutorName"
               :fetch-suggestions="querySearchAsync"
               @select="handleSelectTutor">
           </el-autocomplete>
         </el-form-item>
-        <div>
+        <div v-show="selectStuType !== '活动选手'">
           <el-form-item label="学号:">
             <el-input v-model="registerRoleForm.studentnumber"></el-input>
           </el-form-item>
           <el-form-item label="入学年份:">
             <el-input v-model="registerRoleForm.year"></el-input>
+          </el-form-item>
+        </div>
+        <div v-show="selectStuType === '活动选手'">
+          <el-form-item label="活动名称:">
+            <el-autocomplete
+                style="width: 100%"
+                v-model="selectActivity"
+                :fetch-suggestions="querySearchAct"
+                @select="handleSelectAct">
+            </el-autocomplete>
+          </el-form-item>
+          <el-form-item label="编号:">
+            <el-input v-model="registerRoleForm.studentnumber"></el-input>
           </el-form-item>
         </div>
         <div v-show="selectStuType === '硕士研究生'">
@@ -283,6 +315,9 @@ export default {
       tutorName: '',
       stuType: ['本科生', '硕士研究生', '博士研究生'],
       selectStuType: '',
+      selectActivity: '',
+      selectActivityID: '',
+      selectInstitution: '',
       registerRoleForm: {},
       registerRoleVisible: false,
       routes: [],
@@ -313,14 +348,19 @@ export default {
     window.onresize = function temp() {
       this.clientHeight = `${document.documentElement.clientHeight}`;
     };
+    console.log(this.user)
     //如果是学生不显示待办消息，如果是专家并且角色只有专家（没有研究生导师等等的身份）就不显示待办消息
-    if (this.roleName.indexOf('doctor') < 0 &&
+    if (this.roleName === '')
+      this.isStudentRole = true;
+    else if (this.roleName.indexOf('doctor') < 0 &&
         this.roleName.indexOf('undergraduate') < 0 &&
         this.roleName.indexOf('graduate') < 0 &&
         this.roleName.indexOf('participants') < 0 &&
         this.roleName !== 'expert' && this.roleName !== 'expert;') {
       this.isStudentRole = false;
-    } else this.isStudentRole = true;
+    }
+    else
+      this.isStudentRole = true;
 
     if (!this.isStudentRole) {
       let roleParam = this.roleName.indexOf('admin') >= 0 ? 'admin' : this.roleName.indexOf('teacher') >= 0 ? 'teacher' : '';
@@ -376,47 +416,101 @@ export default {
             cb(results);
           })
     },
+    querySearchAct(queryString, cb) {
+      if (queryString.length < 1) {
+        return cb([]);
+      }
+      this.getRequest('/activities/basic/searchByName?name=' + queryString)
+          .then(response => {
+            let results = response.obj;
+            // 遍历result，把里面的name赋值给value
+            results.forEach(result => {
+              result.value = result.name;
+            });
+            // 调用回调函数返回搜索建议
+            cb(results);
+          })
+    },
+    querySearchInstitution(queryString, callback) {
+      let results = []
+      if (queryString.length == 0) {
+        results.push(this.item);
+        callback(results);
+      }
+      this.getRequest('/institution/basic/searchByName?name=' + queryString)
+          .then((resp) => {
+            if (resp) {
+              results = resp.obj;
+              if (results.length === 0) {
+                this.item.company = '其他';
+                results.push(this.item);
+              }// 调用 callback 返回建议列表的数据
+              callback(results);
+            }
+          })
+    },
+    handleSelectInstitution(item) {
+      this.registerRoleForm.institutionID = item.id;
+      this.selectInstitution = item.company;
+    },
     handleSelectTutor(item) {
       this.registerRoleForm.tutorID = item.id
+    },
+    handleSelectAct(item) {
+      this.selectActivity = item.name;
+      this.selectActivityID = item.id;
     },
     registerRole() {
       this.registerRoleForm.ID = this.user.id
       this.registerRoleForm.name = this.user.name
-      this.registerRoleForm.institutionID = this.user.institutionID
       this.registerRoleForm.role = this.user.role
       this.registerRoleForm.username = this.user.username
+      console.log(this.registerRoleForm)
       if (this.selectStuType === '硕士研究生') {
-        if (this.user.role.indexOf("11") == -1)
-          this.registerRoleForm.role = this.user.role + ";11"
+        //if (this.user.role.indexOf("11") == -1)
+        this.registerRoleForm.role = this.registerRoleForm.role === "" ? this.user.role + "11" : this.user.role + ";11";
         this.postRequest1("/system/student/registerGraduate", this.registerRoleForm).then((res) => {
           if (res) {
             this.$message({
               type: "success",
-              message: "注册成功!",
+              message: "注册成功,请重新登录!",
             });
             this.registerRoleVisible = false
           }
         });
       } else if (this.selectStuType === '本科生') {
-        if (this.user.role.indexOf("10") == -1)
-          this.registerRoleForm.role = this.user.role + ";10"
+        //if (this.user.role.indexOf("10") == -1)
+        this.registerRoleForm.role = this.registerRoleForm.role === "" ? this.user.role + "10" : this.user.role + ";10";
         this.postRequest1("/system/student/registerUndergraduate", this.registerRoleForm).then((res) => {
           if (res) {
             this.$message({
               type: "success",
-              message: "注册成功!",
+              message: "注册成功,请重新登录!",
             });
             this.registerRoleVisible = false
           }
         });
       } else if (this.selectStuType === '博士研究生') {
-        if (this.user.role.indexOf("17") == -1)
-          this.registerRoleForm.role = this.user.role + ";17"
+        //if (this.user.role.indexOf("17") == -1)
+        this.registerRoleForm.role = this.registerRoleForm.role === "" ? this.user.role + "17" : this.user.role + ";17";
         this.postRequest1("/system/student/registerDoctor", this.registerRoleForm).then((res) => {
           if (res) {
             this.$message({
               type: "success",
-              message: "注册成功!",
+              message: "注册成功,请重新登录!",
+            });
+            this.registerRoleVisible = false
+          }
+        });
+      }else if (this.selectStuType === '活动选手') {
+        console.log(this.selectActivityID)
+        if (this.user.role.indexOf("7") == -1)
+          this.registerRoleForm.role = this.registerRoleForm.role === "" ? this.user.role + "7" : this.user.role + ";7";
+        this.postRequest1("/system/student/registerParticipant?activityID=" + this.selectActivityID, this.registerRoleForm).then((res) => {
+          if (res) {
+            this.$message({
+              type: "success",
+              message: "注册成功,请重新登录!",
             });
             this.registerRoleVisible = false
           }

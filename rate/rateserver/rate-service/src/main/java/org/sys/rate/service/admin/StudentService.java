@@ -8,11 +8,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.sys.rate.mapper.InfosMapper;
+import org.sys.rate.mapper.ParticipatesMapper;
 import org.sys.rate.mapper.StudentMapper;
-import org.sys.rate.model.Admin;
-import org.sys.rate.model.RespPageBean;
-import org.sys.rate.model.Student;
-import org.sys.rate.model.UnderGraduate;
+import org.sys.rate.model.*;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -23,6 +22,10 @@ import java.util.List;
 public class StudentService implements UserDetailsService {
     @Autowired
     StudentMapper studentMapper;
+    @Autowired
+    ParticipatesMapper participatesMapper;
+    @Autowired
+    InfosMapper infosMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -147,6 +150,27 @@ public class StudentService implements UserDetailsService {
             studentMapper.update(student);
         }
         return true;
+    }
+    public RespBean registerParticipant(Student student, Integer activityID) {
+        Participates participates = participatesMapper.getByCodeAndAID(activityID, student.getStudentnumber());
+        if(participates == null){ // 活动表无该编号
+            Integer studentID = participatesMapper.checkStudentID(student.getID(),activityID);
+            if(studentID == null) // 活动表无该学生ID
+                participatesMapper.addPar(student.getID(), activityID, student.getStudentnumber());
+            else // 该学生已经是活动选手了，重复注册，但是编号改了。修改活动表的信息。
+                studentMapper.updateUnderGraduate(student);
+        }else if (!participates.getStudentID().equals(student.getID())){ // 查到了，但是studentID不是本人
+            // 检查姓名是否一样，防止填错编号
+            if (!studentMapper.getNameByID(participates.getStudentID()).equals(student.getName())){
+                RespBean.error("请检查编号是否填写正确，若填写正确请联系管理员");
+            }
+            participatesMapper.updateStudentID(student.getID(),participates.getStudentID(),activityID);
+            studentMapper.deleteStudent(participates.getStudentID());
+        }else {
+            RespBean.error("您已经在该活动注册");
+        }
+        studentMapper.update(student);
+        return RespBean.ok("注册成功");
     }
 
     public UnderGraduate getByUndergraduateId(Integer studentID) {

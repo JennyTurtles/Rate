@@ -61,6 +61,7 @@ public class InfoItemService {
                 solo.setShuZuType(s);
             }
             solo.setContent(infosMapper.selectInfosContent(keywords,participantID,solo.getID()));
+            solo.setParticipantID(participantID);
         }
         Long total = infoItemMapper.getTotal(keywords,employee);
         RespPageBean bean = new RespPageBean();

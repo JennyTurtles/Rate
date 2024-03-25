@@ -40,4 +40,11 @@ public class StudentController {
         return res ? RespBean.ok("注册成功") : RespBean.error("请检查学号是否正确！");
     }
 
+    // 注册为选手
+    @Transactional
+    @PostMapping("/registerParticipant")
+    public RespBean registerParticipant(Integer activityID, Student student){
+        RespBean res = studentService.registerParticipant(student, activityID);
+        return res;
+    }
 }

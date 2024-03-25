@@ -67,6 +67,11 @@ export default {
       }
     }
   },
+  computed: {
+    user() {
+      return JSON.parse(localStorage.getItem('user')); //object信息
+    }
+  },
   created() {
   },
   mounted() {
@@ -106,22 +111,28 @@ export default {
     download(data){//下载证明材料
       var fileName = data.content.split('/').reverse()[0]
       console.log(data)
-      var url = data.content
+      var url = '/paper/basic/downloadByUrl?infoItemID=' + data.id + '&participantID=' + this.participantID + '&activityID=' + data.activityID
       axios({
-        url: '/paper/basic/downloadByUrl?url='+url,
-        method: 'GET',
-        responseType: 'blob'
+        url: url,
+        method: 'get',
+        responseType: 'blob',
+        headers: {
+          'token': this.user.token ? this.user.token : ''
+        }
       }).then(response => {
         //根据传来的参数，创建一个指向该参数对象的url
         //生命周期存在于被创建的文档里，指向file文件或blob
-        const url = window.URL.createObjectURL(new Blob([response]));
+        const url = window.URL.createObjectURL(new Blob([response],  { type: 'application/pdf' }));
         const link = document.createElement('a');
+        link.style.display = 'none';
         link.href = url;
         link.setAttribute('download', fileName);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);//释放url对象
+      }).catch((error) => {
+        console.error('下载材料失败:', error);
       });
     },
   }

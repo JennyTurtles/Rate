@@ -97,7 +97,7 @@ public class TeacherService implements UserDetailsService{
         StringBuilder error = null;
         double sumTemp = 0;
         ArrayList arr = new ArrayList();
-        ArrayList fullScoreArr = new ArrayList();
+        List<Scores> fullScoreArr = new ArrayList();
         //对scoresList中对选手id拿出来并去重
         for(Scores s : scoresList){
             if(!arr.contains(s.getParticipantID())){
@@ -188,6 +188,8 @@ public class TeacherService implements UserDetailsService{
         reentrantLock.lock();
         for (int i = 0;i < arr.size();i ++){
             try {//开始算
+                if (fullScoreArr.get(i).getScore() == null)
+                    continue;
                 Integer resp =participatesService.saveAvgscore((Integer) arr.get(i), activitiesID);
                 Integer j = participatesService.saveAvgScores((Integer) arr.get(i), activitiesID);
                 if(resp==0 || j == 0){result.add("平均分保存失败");}

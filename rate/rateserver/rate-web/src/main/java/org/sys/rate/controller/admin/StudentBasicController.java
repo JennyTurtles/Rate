@@ -161,7 +161,7 @@ public class StudentBasicController {
         else
         {
             Student student = studentMapper.getById(id);
-            student.setStuType("不是大学生");
+            student.setStuType("活动选手");
             return RespBean.ok("success",student);
         }
     }

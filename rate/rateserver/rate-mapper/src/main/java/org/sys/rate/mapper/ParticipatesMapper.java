@@ -257,4 +257,13 @@ public interface ParticipatesMapper {
     List<Participates> getPartByGroupID(@Param("groupID") Integer groupID);
 
     void insertParticipates(List<Participates> list);
+
+    @Select("SELECT * FROM participants WHERE activityID = #{activityID} AND code = #{code}")
+    Participates getByCodeAndAID(Integer activityID, String code);
+
+    @Select("select studentID from participants where studentID = #{studentID} and activityID = #{activityID}")
+    Integer checkStudentID(Integer studentID, Integer activityID);
+
+    @Update("UPDATE participants SET studentID = #{newStudentID} WHERE studentID = #{oldStudentID} AND activityID = #{activityID}")
+    void updateStudentID(Integer newStudentID, Integer oldStudentID, Integer activityID);
 }

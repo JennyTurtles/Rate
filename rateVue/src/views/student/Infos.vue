@@ -74,7 +74,7 @@
                            slot="trigger"  size="mini" ref="uploadButton"
                            :disabled="!uploadListElement[index].isShow"
                 >选择文件</el-button>
-                    <span style="color:gray;font-size:11px;margin-left: 5px">只允许{{item.contentType}}类型文件&nbsp;&nbsp;不能超过{{item.sizelimit}}
+                    <span style="color:gray;font-size:11px;margin-left: 5px">只允许{{item.contentType}}类型文件&nbsp;&nbsp;不能超过{{item.sizelimit}}M
                     </span>
                 </div>
 
@@ -159,8 +159,8 @@ export default {
   },
   computed: {
     user() {
-      return this.$store.state.currentHr; //object信息
-    },
+      return JSON.parse(localStorage.getItem('user')); //object信息
+    }
   },
   created() {
   },
@@ -222,21 +222,28 @@ export default {
       })
     },
     downloadFileALink(data){
-      var fileUrl = this.fileDownloadList[data.id][0].fileUrl
-      var fileName = fileUrl.split('/').reverse()[0]
-      var url = fileUrl
+      console.log(data)
+      var fileName = data.content.split('/').reverse()[0]
+      var url = '/paper/basic/downloadByUrl?infoItemID=' + data.id + '&participantID=' + data.participantID + '&activityID=' + data.activityID
       axios({
-        url: '/paper/basic/downloadByUrl?url='+url,
+        url: url,
         method: 'GET',
-        responseType: 'blob'
+        responseType: 'blob',
+        headers: {
+          'token': this.user.token ? this.user.token : ''
+        }
       }).then(response => {
-        const url = window.URL.createObjectURL(new Blob([response]));
+        const url = window.URL.createObjectURL(new Blob([response],  { type: 'application/pdf' }));
         const link = document.createElement('a');
+        link.style.display = 'none';
         link.href = url;
         link.setAttribute('download', fileName);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);//释放url对象
+      }).catch((error) => {
+        console.error('下载材料失败:', error);
       });
     },//通过点击a标签或者图标下载文件
     downloadFile(e){//通过el-upload的on-preview进行下载
@@ -376,13 +383,13 @@ export default {
       this.files=[]
       var attachmentType = data.contentType.split(",")
       var type=file.name.split('.')
-      var sizelim = data.sizelimit.substr(0,data.sizelimit.length-1)
-      if(file.size > sizelim*1024*1024){
-        this.$message.error('上传文件大小不能超过'+ data.sizelimit +'大小!');
-        return false
-      }
+      var sizelim = data.sizelimit
       if(attachmentType.indexOf(type[type.length-1].toLowerCase()) === -1) {
         this.$message.error("不支持上传该类型的附件")
+        return false
+      }
+      if(file.size > sizelim*1024*1024){
+        this.$message.error('上传文件大小不能超过'+ data.sizelimit +'M大小!');
         return false
       }
 
@@ -422,9 +429,20 @@ export default {
                       uploadState:false
                 }
                 idx ++;
+                if (element.content !== null){
+                  this.fileDownloadList[element.id] = []
+                  this.fileDownloadList[element.id].push({
+                    fileUrl:element.content
+                  })
+                  this.renderFileIcon(element.content,element)//渲染图标
+                  this.uploadListElement[index].isShow = false
+                  this.uploadListElement[index].uploadState = false
+                }
             }
-            this.infoTextareaContent.push("")
-            this.infoTextboxContent.push("")
+            if (element.contentType.indexOf('textarea') >= 0)
+              this.infoTextareaContent[index] = element.content
+            if (element.contentType.indexOf('textbox') >= 0)
+              this.infoTextboxContent[index] = element.content
           });
           hrs = resp.data
           this.hrs = hrs

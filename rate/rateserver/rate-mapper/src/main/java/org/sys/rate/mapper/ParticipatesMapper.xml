@@ -502,8 +502,31 @@
         delete from `groups` where activityID = #{activityID}
     </delete>
     <update id="updateGroupID">
-        UPDATE participants set groupID = #{groupID}
-        where activityID = #{activityID} and ISNULL(groupID) and ID in
+        -- 修改groupID的同时修改displaySequence，从1开始依次设置
+        SET @row_num := 0;
+        SET @cur_activity_id := -1;
+
+        UPDATE participants
+        JOIN (
+            SELECT
+                ID,
+                (@row_num := IF(@cur_activity_id = activityID, @row_num + 1, 1)) AS newDisplaySequence,
+                (@cur_activity_id := activityID) AS dummy
+            FROM
+                participants
+            WHERE
+                activityID = #{activityID} AND ISNULL(groupID) AND ID IN
+                <foreach close=")" collection="parID" item="ID" open="(" separator=",">
+                    #{ID}
+                </foreach>
+            ORDER BY
+                ID
+        ) AS ranked ON participants.ID = ranked.ID
+        SET
+        participants.groupID = #{groupID},
+        participants.displaySequence = ranked.newDisplaySequence
+
+        where participants.activityID = #{activityID} and ISNULL(participants.groupID) and participants.ID in
         <foreach close=")" collection="parID" item="ID" open="(" separator=",">
             #{ID}
         </foreach>
