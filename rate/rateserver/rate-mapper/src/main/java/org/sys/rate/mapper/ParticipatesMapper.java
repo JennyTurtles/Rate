@@ -266,4 +266,10 @@ public interface ParticipatesMapper {
 
     @Update("UPDATE participants SET studentID = #{newStudentID} WHERE studentID = #{oldStudentID} AND activityID = #{activityID}")
     void updateStudentID(Integer newStudentID, Integer oldStudentID, Integer activityID);
+
+    @Select("select p.*, s.name, g.name as groupName from participants p, `groups` g, student s where p.activityID = 55 and p.groupID = g.ID and p.studentID = s.ID")
+    List<Participates> getParticipantsGroup(Integer activityID);
+
+    @Select("select * from participants where code = #{code} and activityID = #{activityID}")
+    Participates getParByCode(Integer activityID, String code);
 }

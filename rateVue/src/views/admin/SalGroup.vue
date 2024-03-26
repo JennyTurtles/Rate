@@ -75,7 +75,10 @@
             选手分组
           </el-button>
           <el-button type="danger" icon="el-icon-delete" @click="deleteGroupsOfParticipant"  style="margin-left: 10px">
-            清空分组信息
+            清空分组
+          </el-button>
+          <el-button icon="el-icon-download" type="primary" style="margin-right: 10px" @click="exportGroupsResult">
+            导出分组
           </el-button>
           <el-select
               style="margin-left: 8px;width: 100px;"
@@ -1005,6 +1008,31 @@ export default {
           this.closeDialogGroupOfParticipant()
         }
       })
+    },
+    async exportGroupsResult() {
+      if(this.emps == null || this.emps.length == 0){
+        this.$message.warning('请先导入选手！')
+        return
+      }
+      Message.success("正在导出");
+      let url = '/participants/basic/exportGroupsResult?activityID=' + this.activityID;
+      //window.open(url, '_parent');
+      axios({
+        url: url,
+        method: 'POST',
+        responseType: 'blob',
+        headers: {
+          'token': this.user.token ? this.user.token : ''
+        }
+      }).then((res) => {
+        let url = window.URL.createObjectURL(new Blob([res]))
+        let link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.setAttribute('download', '活动分组结果'  + '.xls')
+        document.body.appendChild(link);
+        link.click();
+      });
     },
     /** 查询角色列表 */
     onError(err, file, fileList) {

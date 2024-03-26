@@ -294,6 +294,13 @@ public class ParticipatesBasicController {
         }
     }
 
+    //导出分组
+    @PostMapping("/exportGroupsResult")
+    public ResponseEntity<byte[]> downloadExample_GroupResult(Integer activityID, HttpServletResponse response) {
+        List<Participates> participates = participatesMapper.getParticipantsGroup(activityID);
+        return POIUtils.activityGroupExcel(participates);
+    }
+
     // 点击添加按钮添加的选手，无信息项和评分项
     @Transactional
     @PostMapping("/addPars")

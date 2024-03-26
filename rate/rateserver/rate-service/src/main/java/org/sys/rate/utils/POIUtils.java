@@ -2208,4 +2208,57 @@ public class POIUtils {
         }
         return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
     }
+    public static ResponseEntity<byte[]> activityGroupExcel(List<Participates> participates) {
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        workbook.createInformationProperties();
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        summInfo.setTitle("activityGroup");
+        summInfo.setAuthor("东华大学");
+        summInfo.setComments("本文档由东华大学计算机学院提供");
+
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        HSSFCellStyle dateCellStyle = workbook.createCellStyle();
+        dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+        HSSFSheet sheet = workbook.createSheet("group");
+
+        for (int i = 0; i < 9; i++) {
+            sheet.setColumnWidth(i, 20 * 256);
+        }
+
+        HSSFRow r0 = sheet.createRow(0);
+        HSSFCell c0 = r0.createCell(0);
+        c0.setCellValue("编号");
+        HSSFCell c1 = r0.createCell(1);
+        c1.setCellValue("姓名");
+        HSSFCell c2 = r0.createCell(2);
+        c2.setCellValue("分组");
+
+        Collections.sort(participates, Comparator.comparing(Participates::getGroupID));
+
+        for (int i = 0; i < participates.size(); i++) {
+            HSSFRow row = sheet.createRow(i + 1);
+            Participates par = participates.get(i);
+            if (par == null) {
+                continue;
+            }
+            row.createCell(0).setCellValue(Optional.ofNullable(par.getCode()).orElse(""));
+            row.createCell(1).setCellValue(Optional.ofNullable(par.getName()).orElse(""));
+            row.createCell(2).setCellValue(Optional.ofNullable(par.getGroupName() + "").orElse(""));
+        }
+
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setContentDispositionFormData("attachment", new String("活动选手分组结果.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
 }

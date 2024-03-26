@@ -191,8 +191,15 @@ public class ParticipatesService {
         last++;
         for (Participates participants : list) {
             participants.setStudentID(participants.getID());
+            Participates participantInTable = participatesMapper.getParByCode(activityid, participants.getCode());
             Boolean flag=false;
             Student student=new Student();
+            if (participantInTable != null){
+                participants.setStudentID(participantInTable.getStudentID());
+                participants.setDisplaySequence(participantInTable.getDisplaySequence());
+                participants.setGroupID(participantInTable.getGroupID());
+                participants.setScore(participantInTable.getScore());
+            }
             student.setName(participants.getName());
             student.setTelephone(participants.getTelephone());
             student.setID(participants.getID());

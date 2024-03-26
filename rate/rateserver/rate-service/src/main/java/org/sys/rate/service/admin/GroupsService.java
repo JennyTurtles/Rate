@@ -237,10 +237,12 @@ public class GroupsService {
             //得到交换后的groups
             List<List<double []>>res = createGroupsByScore(arr,exchangeNums,groupsNums,point,point_participant);
             String name = "";
+            Integer start = groupsMapper.getTotalforactivityCount(activityID) + 1;
             //对每组遍历
             try {
                 for(int residx = 0;residx < res.size();residx ++){
-                    name = "第" + Integer.toString(residx + 1) + "组";
+                    name = "第" + Integer.toString(start) + "组";
+                    start ++;
                     Groups gp = new Groups();
                     gp.setActivityID(activityID);
                     gp.setName(name);
