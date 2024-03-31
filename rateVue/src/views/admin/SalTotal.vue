@@ -9,27 +9,33 @@
         </el-button>
       </div>
     </div>
-    <div><br/>点击选择成绩展示方式：若选择默认方式则展示所有的评分项，若选择定制成绩查看界面则可进行自行定制</div>
-    <div><br/>
-      <el-radio-group v-model="setBySelf" style="padding-top: 5px" center @change="setChange">
-        <el-radio :label=0 border>默认展示方式</el-radio>
-        <el-radio :label=1 border>定制成绩查看界面</el-radio>
-      </el-radio-group>
-    </div>
-    <div v-show="setBySelf === 1"><br/>双击单元格可编辑显示名称与及格分数</div>
-    <div style="margin-top: 10px" v-show="setBySelf === 1">
+<!--    <div><br/>点击选择成绩展示方式：若选择默认方式则展示所有的评分项，若选择定制成绩查看界面则可进行自行定制</div>-->
+<!--    <div><br/>-->
+<!--      <el-radio-group v-model="setBySelf" style="padding-top: 5px" center @change="setChange">-->
+<!--        <el-radio :label=0 border>默认展示方式</el-radio>-->
+<!--        <el-radio :label=1 border>定制成绩查看界面</el-radio>-->
+<!--      </el-radio-group>-->
+<!--    </div>-->
+    <div><br/>鼠标移动到单元格可编辑显示名称与及格分数</div>
+    <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"
           :data="hrs"
           stripe
           border
           v-loading="loading"
-          @cell-dblclick="tabClick"
           :row-class-name="tableRowClassName"
           element-loading-text="正在加载..."
           element-loading-spinner="el-icon-loading"
           element-loading-background="rgba(0, 0, 0, 0.08)"
           style="width: 100%"
+          @cell-mouse-enter="tabClick"
+          @cell-mouse-leave="()=>{
+            if(this.editing === false){
+              this.tabClickIndex = -1;
+              this.tabClickLabel = '';
+            }
+          }"
       >
         <el-table-column
             prop="displaySequence"
@@ -114,9 +120,9 @@
                 v-if="
                   scope.row.index === tabClickIndex && tabClickLabel === '显示名称'
                 "
-                v-focus
                 v-model.trim="scope.row.name"
                 size="mini"
+                @input="editing = true"
                 maxlength="80"
                 @focus="beforehandleEdit(scope.$index,scope.row,'name')"
                 @change="handleEdit(scope.$index,scope.row,'name')"
@@ -140,10 +146,10 @@
                 v-if="
                   scope.row.index === tabClickIndex && tabClickLabel === '及格分数'
                 "
-                v-focus
                 v-model="scope.row.passScore"
                 size="mini"
                 maxlength="80"
+                @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row,'score')"
                 @change="handleEdit(scope.$index,scope.row,'score')"
                 @blur="inputBlur"
@@ -177,7 +183,7 @@
           <el-select v-model="currentActivity" placeholder="请选择" @change="activityChange($event)">
             <el-option
                 v-for="x in subActivities"
-                :key="x.name"
+                :key="x.source"
                 :label="x.name"
                 :value="x.id">
             </el-option>
@@ -187,7 +193,7 @@
           <el-select v-model="currentfirst" placeholder="请选择" @change="firstChange($event)">
             <el-option
                 v-for="x in subFirst"
-                :key="x.sourceName"
+                :key="x.source"
                 :label="x.sourceName"
                 :value="x.source">
             </el-option>
@@ -203,21 +209,22 @@
         <!-- 动态增加项目 -->
         <!-- 不止一个项目，用div包裹起来 -->
         <div v-if="radio===2" v-for="(i, index) in dynamicItem" :key="index">
-          <el-form-item label="选择活动" label-width="80px" center :model="item" v-if="subActivities.length>1" >
+          <span v-if="index > 0" style="font-size: large; font-weight: bold;">+</span>
+          <el-form-item label="选择活动" :label-width="index === 0 ? '85px' : '70px'" center :model="item" v-if="subActivities.length>1" >
             <el-select v-model="dynamicItem[index].activity" placeholder="请选择" @change="dynamicActivity($event,i,index)" style="width: 150px">
               <el-option
                   v-for="x in subActivities"
-                  :key="x.name"
+                  :key="x.id"
                   :label="x.name"
                   :value="x.id">
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="项名" label-width="80px">
+          <el-form-item label="项名" :label-width="index === 0 ? '85px' : '70px'">
             <el-select v-model="dynamicItem[index].source" placeholder="请选择" @change="dynamicName($event,i,index)" style="width: 150px">
               <el-option
                   v-for="x in dynamicItem[index].info"
-                  :key="x.sourceName"
+                  :key="x.source"
                   :label="x.sourceName"
                   :value="x.source">
               </el-option>
@@ -264,12 +271,14 @@ export default {
       keywords: "",
       keywords_name: "",
       loading: false,
+      editing: false,
       labelPosition: "left",
       hrs:[],
       first:[],
       second:[],
       subActivities:[],
       dialogVisible: false,
+      form:{},
       item:{
         id: null,
         activityID: null,
@@ -283,7 +292,7 @@ export default {
         activity:'',
         info:[],
         source:'',
-        times:'',
+        times:1,
       }],
       radio: 1,
       formLabelWidth:'120px',
@@ -446,12 +455,12 @@ export default {
       });
     },
     findSourceID(activityID,source){
-      var id;
-      var single=this.second[activityID];
-      for(var i in single){
-        var value=single[i];
-        if (value.source===source) {
-          id=value.id;
+      let id;
+      let single = this.second[activityID];
+      for(let i in single){
+        let value = single[i];
+        if (value.source === source) {
+          id = value.id;
         }
       }
       return id;
@@ -459,61 +468,43 @@ export default {
     findSource(source){
       var result;
       if (source.includes("displayitem")){
-        var all=source.split(".");
-        var id=all[1];
+        var all = source.split(".");
+        var id = all[1];
         var single = this.second[this.findActivityID(source,'second')];
         for(var i in single){
-          var value=single[i];
-          if (value.id==id) {
-            result=value.source;
+          var value = single[i];
+          if (value.id == id) {
+            result = value.source;
             break;
           }
         }
       }
       else{
-        result=source;
+        result = source;
       }
       return result;
     },
     findActivityID(source,kind){
-      var id;
       if (kind==='first'){
-        for(var i in this.first){
-          var value = this.first[i];
-          for (var j in value){
-            if (source==value[j].source){
-              id=i;
-              break;
-            }
+        for(let i in this.first){
+          let displayitems = this.first[i];
+          for (let j in displayitems){
+            if (source === displayitems[j].source) return displayitems[j].activityID;
           }
         }
       }
-      else if (kind==='second'){
-        if (source.includes("displayitem")){
-          var items=source.split(".");
-          for(var i in this.second){
-            var value = this.second[i];
-            for (var j in value){
-              if (items[1]==value[j].id){
-                id=i;
-                break;
-              }
+      else{
+        for(let i in this.second){
+          let displayitems = this.second[i];
+          for (let j in displayitems){
+            if (source.includes("displayitem")){
+              let items=source.split(".")
+              if (items[1] == displayitems[j].id) return displayitems[j].activityID;
             }
-          }
-        }
-        else {
-          for(var i in this.second){
-            var value = this.second[i];
-            for (var j in value){
-              if (source==value[j].source){
-                id=i;
-                break;
-              }
-            }
+            else if (source === displayitems[j].source) return displayitems[j].activityID;
           }
         }
       }
-      return id;
     },
     findInfos(activityID){
       var value = this.second[activityID];
@@ -525,13 +516,13 @@ export default {
     },
     activityChange(event){
       this.currentActivity=event;
-      var value = this.first[event];
+      let value = this.first[event];
       this.subFirst.splice(0);
-      for (var i in value){
+      for (let i in value){
         this.subFirst.push(value[i]);
       }
       this.currentfirst="";
-      for (var i = 0;i<this.subFirst.length;i++){
+      for (let i = 0;i<this.subFirst.length;i++){
         if (this.subFirst[i].source===this.item.source){
           this.currentfirst=this.item.source;
         }
@@ -558,7 +549,7 @@ export default {
           activity:'',
           info: [],
           source: '',
-          times: '',
+          times: 1,
         })
       }
       else {
@@ -566,7 +557,7 @@ export default {
           activity:this.keywords,
           info: this.findInfos(this.keywords),
           source: '',
-          times: '',
+          times: 1,
         })
       }
     },
@@ -601,14 +592,20 @@ export default {
     showEditView(row){
       this.title = "设置数据来源";
       this.item = row;
-      if (row.source!==null){
+      this.radio = 1;
+      this.currentActivity=this.keywords*1;
+      let value = this.first[this.currentActivity];
+      this.subFirst.splice(0);
+      for (let i in value){
+        this.subFirst.push(value[i]);
+      }
+      if (row.source !== null){
         if (row.source.includes("*")){ //来源于公式计算
-          this.radio=2;
-          var s=row.source;
-          var items=s.split("+"); //根据“+”分割，获得每一项的系数*项名
-          for (let i=0;i<items.length;i++){
-            var all=items[i].split("*"); //分割每一项的系数与项名
-            if (i===0){ //添加到默认有的第一项中
+          let s = row.source;
+          let items=s.split("+"); //根据“+”分割，获得每一项的系数*项名
+          for (let i=0; i < items.length;i++){
+            let all=items[i].split("*"); //分割每一项的系数与项名
+            if (i === 0){ //添加到默认有的第一项中
               this.dynamicItem[0].activity=this.findActivityID(all[1],'second')*1;
               this.dynamicItem[0].info=this.findInfos(this.findActivityID(all[1],'second')*1);
               this.dynamicItem[0].times=all[0];
@@ -622,31 +619,20 @@ export default {
                 times: all[0],
               })
             }
+            console.log(this.dynamicItem)
           }
         }
         else{ //来源于已有数据选择
-          this.radio=1;
           this.currentfirst=row.source;
           this.currentActivity=this.findActivityID(this.currentfirst,'first')*1;
           if (this.subActivities.length===1){
             this.dynamicItem[0].info=this.findInfos(this.keywords);
           }
-          var value = this.first[this.currentActivity];
-          for (var i in value){
-            this.subFirst.push(value[i]);
-          }
         }
       }
       else {
-          this.radio=1;
-          this.currentActivity=this.keywords*1;
-          var value = this.first[this.currentActivity];
-          if (this.subActivities.length===1){
+          if (this.subActivities.length===1)
             this.dynamicItem[0].info=this.findInfos(this.keywords);
-          }
-          for (var i in value){
-            this.subFirst.push(value[i]);
-          }
       }
       this.dialogVisible = true;
     },
@@ -657,15 +643,15 @@ export default {
         }
         else{
           if (this.currentActivity!==null){
-            for(var i in this.subFirst){
-              var value=this.subFirst[i];
+            for(let i in this.subFirst){
+              let value=this.subFirst[i];
               if (value.source===this.currentfirst)
                 this.dispalyname=value.sourceName;
             }
           }
           else{
-            for(var i in this.first){
-              var value=this.first[i];
+            for(let i in this.first){
+              let value=this.first[i];
               if (value.source===this.currentfirst)
                 this.dispalyname=value.sourceName;
             }
@@ -677,36 +663,32 @@ export default {
         }
       }
       else if (this.radio===2){
-        var flag=true; //判断输入是否合法
-        for (let i=0;i<this.dynamicItem.length;i++){
-          if (this.dynamicItem[i].source===''||this.dynamicItem[i].times===''){
+        for (let i = 0;i < this.dynamicItem.length;i++){
+          if (this.dynamicItem[i].source === ''|| this.dynamicItem[i].times === ''){
             Message.warning('输入内容不能为空!')
-            flag=false;
             break;
           }
         }
-        if (flag) {
-          this.item.source=null;
-          for(let i=0; i<this.dynamicItem.length; i++){
-            if (this.dynamicItem[i].source.includes("*")){
-              var name="displayitem."+this.findSourceID(this.dynamicItem[i].activity*1,this.dynamicItem[i].source);
-              if (this.item.source===null)
-                this.item.source=this.dynamicItem[i].times+"*"+name;
-              else
-                this.item.source+="+"+this.dynamicItem[i].times+"*"+name;
-            }
-            else{
-              if (this.item.source===null)
-                this.item.source=this.dynamicItem[i].times+"*"+this.dynamicItem[i].source;
-              else
-                this.item.source+="+"+this.dynamicItem[i].times+"*"+this.dynamicItem[i].source;
-            }
+        this.item.source=null;
+        for(let i=0; i<this.dynamicItem.length; i++){
+          if (this.dynamicItem[i].source.includes("*")){
+            var name="displayitem."+this.findSourceID(this.dynamicItem[i].activity*1,this.dynamicItem[i].source);
+            if (this.item.source===null)
+              this.item.source=this.dynamicItem[i].times+"*"+name;
+            else
+              this.item.source+="+"+this.dynamicItem[i].times+"*"+name;
           }
-          this.item.name="请输入显示名称";
-          this.item.passScore=null;
-          this.UpdateOrNew(this.item);
-          this.quit();
+          else{
+            if (this.item.source===null)
+              this.item.source=this.dynamicItem[i].times+"*"+this.dynamicItem[i].source;
+            else
+              this.item.source+="+"+this.dynamicItem[i].times+"*"+this.dynamicItem[i].source;
+          }
         }
+        this.item.name="请输入显示名称";
+        this.item.passScore=null;
+        this.UpdateOrNew(this.item);
+        this.quit();
       }
     },
     quit(){

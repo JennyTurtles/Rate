@@ -536,4 +536,23 @@
         from participants
         where studentID = #{studentID}
     </select>
+    <select id="getParticipantsGroup" resultType="org.sys.rate.model.Participates">
+        SELECT
+                p.code,
+                s.name,
+                MAX(CASE WHEN it.`name` = '初试总分' THEN i.content END) AS InitialScore,
+                MAX(CASE WHEN it.`name` = '报考专业代码' THEN i.content END) AS majors,
+                p.displaySequence,
+                g.name AS groupName
+        FROM
+            participants p
+                JOIN student s ON p.studentID = s.ID
+                JOIN `groups` g ON p.groupID = g.ID
+                JOIN infos i ON p.ID = i.participantID
+                JOIN infoitem it ON i.infoItemID = it.ID
+        WHERE p.activityID = #{activityID}
+          AND (it.`name` = '初试总分' OR it.`name` = '报考专业代码')
+        GROUP BY p.code, s.name, p.displaySequence, g.name, p.groupID
+        ORDER BY p.groupID, p.displaySequence;
+    </select>
 </mapper>

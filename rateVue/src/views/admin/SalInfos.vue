@@ -12,7 +12,7 @@
       </div>
     </div>
     <div v-if="mode === 'secretary' || mode==='secretarySub'"><br/>单元格内容只可查看不可编辑</div>
-    <div><br/>名称不能为基本信息名，包括：姓名，身份证号，编号，序号，手机号，邮箱，组名</div>
+    <div><br/>名称不能为基本信息名，包括：姓名，编号，序号，手机号，邮箱，组名</div>
     <div style="margin-top: 10px">
       <el-table
           ref="multipleTable"

@@ -13,8 +13,8 @@
     </div>
    </div>
    <el-tabs v-show="!$route.query.flag" v-model="activeName" style="width: 70%" @tab-click="change2Par">
-    <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
-    <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
+     <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
+     <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
    </el-tabs>
     <div style="display: flex; justify-content: left">
 <!--    {{ keywords_name }} <a v-show="flag===0">专家名单</a> <a v-show="flag==1">专家打分</a>-->

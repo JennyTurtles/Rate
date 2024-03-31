@@ -14,8 +14,8 @@
         </div>
       </div>
      <el-tabs v-model="activeName" style="width: 70%" @tab-click="change2Exp">
-      <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
-      <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
+       <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
+       <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
       <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
      </el-tabs>
       <div style="display: flex;justify-content: space-between;">
@@ -271,7 +271,7 @@
 <!--          <br/>模版内的列顺序为点击顺序。-->
 <!--      </div><br/>-->
         <div style="font-size: 17px;">
-            导入模板中必须包含姓名和身份证号，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。
+            导入模板中必须包含姓名和编号，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。
             <br/>
         </div><br/>
       <div style="font-size: 16px;margin-left: 15%">基本信息：<br/>

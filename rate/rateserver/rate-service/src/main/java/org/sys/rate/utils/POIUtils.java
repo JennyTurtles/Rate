@@ -2230,13 +2230,19 @@ public class POIUtils {
 
         HSSFRow r0 = sheet.createRow(0);
         HSSFCell c0 = r0.createCell(0);
-        c0.setCellValue("编号");
+        c0.setCellValue("姓名");
         HSSFCell c1 = r0.createCell(1);
-        c1.setCellValue("姓名");
+        c1.setCellValue("编号");
         HSSFCell c2 = r0.createCell(2);
-        c2.setCellValue("分组");
+        c2.setCellValue("初试总分");
+        HSSFCell c3 = r0.createCell(3);
+        c3.setCellValue("报考专业代码");
+        HSSFCell c4 = r0.createCell(4);
+        c4.setCellValue("组名");
+        HSSFCell c5 = r0.createCell(5);
+        c5.setCellValue("组内序号");
 
-        Collections.sort(participates, Comparator.comparing(Participates::getGroupID));
+        //Collections.sort(participates, Comparator.comparing(Participates::getGroupID));
 
         for (int i = 0; i < participates.size(); i++) {
             HSSFRow row = sheet.createRow(i + 1);
@@ -2244,9 +2250,12 @@ public class POIUtils {
             if (par == null) {
                 continue;
             }
-            row.createCell(0).setCellValue(Optional.ofNullable(par.getCode()).orElse(""));
-            row.createCell(1).setCellValue(Optional.ofNullable(par.getName()).orElse(""));
-            row.createCell(2).setCellValue(Optional.ofNullable(par.getGroupName() + "").orElse(""));
+            row.createCell(0).setCellValue(Optional.ofNullable(par.getName()).orElse(""));
+            row.createCell(1).setCellValue(Optional.ofNullable(par.getCode()).orElse(""));
+            row.createCell(2).setCellValue(Optional.ofNullable(par.getInitialScore()).orElse(""));
+            row.createCell(3).setCellValue(Optional.ofNullable(par.getMajors()).orElse(""));
+            row.createCell(4).setCellValue(Optional.ofNullable(par.getGroupName()).orElse(""));
+            row.createCell(5).setCellValue(Optional.ofNullable(par.getDisplaySequence()).orElse(1));
         }
 
 

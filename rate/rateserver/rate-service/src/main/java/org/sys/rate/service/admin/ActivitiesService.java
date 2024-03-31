@@ -182,9 +182,9 @@ public class ActivitiesService {
         if (!newActivityInfo.isSub()){
             if (activity.getHaveSub() == 1){ // 有子活动则克隆子活动，此处后续使用多线程优化
                 cloneSubActivity(newActID,oldActID);
-                cloneGroupWithSub(newActID,oldActID);
-            }else
-                cloneGroup(newActID,oldActID);
+                //cloneGroupWithSub(newActID,oldActID);
+            }//else
+                //(newActID,oldActID); //分组不克隆，先注释
         }
         return newActID;
     }

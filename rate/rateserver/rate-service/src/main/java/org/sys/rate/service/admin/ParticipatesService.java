@@ -196,8 +196,9 @@ public class ParticipatesService {
             Student student=new Student();
             if (participantInTable != null){
                 participants.setStudentID(participantInTable.getStudentID());
-                participants.setDisplaySequence(participantInTable.getDisplaySequence());
-                participants.setGroupID(participantInTable.getGroupID());
+                //participants.setDisplaySequence(participantInTable.getDisplaySequence());
+                if (participants.getGroupID() != null || participants.getGroupID() != -1)
+                    participants.setGroupID(participantInTable.getGroupID());
                 participants.setScore(participantInTable.getScore());
             }
             student.setName(participants.getName());
@@ -293,7 +294,8 @@ public class ParticipatesService {
                     {
                         last_uniq=0;
                     }
-                    participants.setDisplaySequence(last_uniq+1);
+                    if (participants.getDisplaySequence() == null || participants.getDisplaySequence()==-1)
+                        participants.setDisplaySequence(last_uniq+1);
                 }
                 participants.setActivityID(activityid);
                 Integer pend = participatesMapper.checkByIDandActivityID(participants.getStudentID(), activityid);//返回的是groupid，null有可能是groupid=null也有可能是不存在

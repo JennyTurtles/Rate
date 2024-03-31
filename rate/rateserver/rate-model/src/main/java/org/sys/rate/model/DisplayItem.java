@@ -35,6 +35,12 @@ public class DisplayItem implements Comparable<DisplayItem> { // 列的信息
         this.source = source;
     }
 
+    public DisplayItem(String sourceName, String source, Integer activityID) {
+        this.activityID = activityID;
+        this.sourceName = sourceName;
+        this.source = source;
+    }
+
     public DisplayItem(DisplayItem displayItem) {
         this.ID = displayItem.getID();
         this.activityID = displayItem.getActivityID();

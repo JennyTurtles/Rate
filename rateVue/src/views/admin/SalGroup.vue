@@ -15,8 +15,8 @@
           </div>
         </div>
         <el-tabs v-model="activeName" @tab-click="change2Exp" style="width: 70%">
-          <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
           <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
+          <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
           <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
         </el-tabs>
         <div style="display: flex;justify-content: space-between;">
@@ -443,7 +443,7 @@
 <!--        <br/>模版内的列顺序为点击顺序。-->
 <!--      </div><br/>-->
         <div style="font-size: 17px;">
-            导入模板中必须包含姓名和身份证号，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。
+            导入模板中必须包含姓名和编号，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。
             <br/>
         </div><br/>
       <div style="font-size: 16px;margin-left: 15%">基本信息：<br/>
@@ -458,13 +458,21 @@
 <!--      <el-checkbox label="用户名" v-model="dymatic_list"  style="width: 150px">用户名</el-checkbox>-->
 <!--      <el-checkbox label="密码" v-model="dymatic_list"  style="width: 150px">密码</el-checkbox>-->
       </div><br/>
-      <div style="font-size: 16px;margin-left: 15%">信息项：<br/>
-        <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" v-model="infoitem" style="width: auto">
-        </el-checkbox>
+      <div style="font-size: 16px;margin-left: 15%">信息项：
+        <el-checkbox :indeterminate="isIndeterminate_info" v-model="checkAll_info" @change="handleCheckInfoitemAllChange">全选</el-checkbox><br/>
+        <el-checkbox-group v-model="infoitem" @change="handleCheckedInfoitemChange">
+          <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name"></el-checkbox>
+        </el-checkbox-group>
+<!--        <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" v-model="infoitem" style="width: auto">-->
+<!--        </el-checkbox>-->
       </div><br/>
-      <div style="font-size: 16px;margin-left: 15%" class="formView">评分项：<br/>
-        <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: auto">
-        </el-checkbox>
+      <div style="font-size: 16px;margin-left: 15%" class="formView">评分项：
+        <el-checkbox :indeterminate="isIndeterminate_score" v-model="checkAll_score" @change="handleCheckScoreitemAllChange">全选</el-checkbox><br/>
+        <el-checkbox-group v-model="scoreitem" @change="handleCheckedScoreitemChange">
+          <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name"></el-checkbox>
+        </el-checkbox-group>
+<!--        <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: auto">-->
+<!--        </el-checkbox>-->
       </div>
         <div style="font-size: 16px;margin-left: 15%;margin-top: 15px">模版中的列排列顺序如下：<br/></div>
       <div style="font-size: 16px;margin-left: 15%">{{preview(dymatic_list,scoreitem,infoitem)}}</div>
@@ -648,6 +656,10 @@ export default {
       infoitem:[],
       scoreitem_from_back:[],
       infoitem_from_back:[],
+      isIndeterminate_info: false,
+      checkAll_info: false,
+      isIndeterminate_score: false,
+      checkAll_score: false,
       participants:[],
       currentParticipants:[],
       multipleSelection: [],
@@ -818,6 +830,24 @@ export default {
           }
         });
       }
+    },
+    handleCheckInfoitemAllChange(val){
+      this.infoitem = val ? Object.values(this.infoitem_from_back).map(item => item.name) : [];
+      this.isIndeterminate_info = false;
+    },
+    handleCheckedInfoitemChange(value){
+      let checkedCount = value.length;
+      this.checkAll_info = checkedCount === this.infoitem_from_back.length;
+      this.isIndeterminate_info = checkedCount > 0 && checkedCount < this.infoitem_from_back.length;
+    },
+    handleCheckScoreitemAllChange(val){
+      this.scoreitem = val ? Object.values(this.scoreitem_from_back).map(item => item.name) : [];
+      this.isIndeterminate_score = false;
+    },
+    handleCheckedScoreitemChange(value){
+      let checkedCount = value.length;
+      this.checkAll_score = checkedCount === this.scoreitem_from_back.length;
+      this.isIndeterminate_score = checkedCount > 0 && checkedCount < this.scoreitem_from_back.length;
     },
     search() {
       if (this.searchText === ''){
@@ -1010,6 +1040,7 @@ export default {
       })
     },
     async exportGroupsResult() {
+     console.log(this.activityID)
       if(this.emps == null || this.emps.length == 0){
         this.$message.warning('请先导入选手！')
         return
@@ -1080,7 +1111,11 @@ export default {
                   'token':that.user.token
                 },
               }).then((res) => {
-                this.$message(res.msg);
+                this.$message({
+                  message: res.msg,
+                  type: 'success'
+                });
+                //this.$message(res.msg);
                 this.initEmps()
               })
             }
@@ -1232,7 +1267,7 @@ export default {
                 type: 'success',
                 message: '删除成功!'
               });
-              this.initEmps();
+              this.filterParticipantsByStateMed(this.filterParticipantsByState);
             } else {
               this.$message({
                 type: 'error',
@@ -1240,7 +1275,7 @@ export default {
               });
             }
             this.dialogVisible = false;
-            this.initEmps();
+            this.filterParticipantsByStateMed(this.filterParticipantsByState);
           }
         })
       })
@@ -1473,9 +1508,9 @@ export default {
   /*word-wrap: break-word;*/
   /*word-break: break-all;*/
   margin: auto;
-  width: 520px;
+  width: 100%;
   position: relative;
-  text-align: center;
+  text-align: left;
   margin-top: 17px;
 }
 /* 可以设置不同的进入和离开动画 */

@@ -531,7 +531,7 @@ export default {
         let link = document.createElement('a')
         link.style.display = 'none'
         link.href = url
-        link.setAttribute('download', '_parent'  + '.xls')
+        link.setAttribute('download', 'score'  + '.xls')
         document.body.appendChild(link);
         link.click();
       });
@@ -612,6 +612,7 @@ export default {
       return url;
     },
     isGetPdf() {
+      console.log(this.user)
       if (sessionStorage.getItem("score")) {
         let JSONfinish = JSON.parse(sessionStorage.getItem("score"));
         if (JSONfinish.finished) {
@@ -639,7 +640,8 @@ export default {
             let link = document.createElement('a');
             link.style.display = 'none';
             link.href = blobUrl;
-            link.setAttribute('download', 'response.pdf');
+            let name = this.user.name + '专家评分表.pdf'
+            link.setAttribute('download', name);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);

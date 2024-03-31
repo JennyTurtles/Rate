@@ -23,6 +23,8 @@ public class DisplayItemService {
     ScoreItemMapper scoreItemMapper;
     @Resource
     ActivitiesMapper activitiesMapper;
+    @Resource
+    ParticipatesService participatesService;
 
     // 获得所有第一类展示项，包括：基础信息、信息项目
     public List<DisplayItem> getFirstDisplayItem(Integer activityID, Integer flag) {
@@ -37,16 +39,16 @@ public class DisplayItemService {
         // 获取信息项
         List<InfoItem> infoItems = infoItemMapper.getAll(activityID);
         for (InfoItem infoItem : infoItems)
-            res.add(new DisplayItem(infoItem.getName(), "infoitem." + infoItem.getID()));
+            res.add(new DisplayItem(infoItem.getName(), "infoitem." + infoItem.getID(), activityID));
         // 获取评分项
         List<ScoreItem> scoreItems = scoreItemMapper.getByActivityID(activityID);
         for (ScoreItem scoreItem : scoreItems)
-            res.add(new DisplayItem(scoreItem.getName(), "scoreitem." + scoreItem.getId()));
+            res.add(new DisplayItem(scoreItem.getName(), "scoreitem." + scoreItem.getId(), activityID));
         return res;
     }
 
     // 获取所有成员和他们所有的展示项
-    public List<ParticipantsDisplay> getParticipantsDisplay(Integer activityID, Integer groupID) {
+    public List<ParticipantsDisplay> getParticipantsDisplay(Integer activityID, Integer groupID, String displayMethod) {
         // 获取所有角色以及他们的基础信息
         List<ParticipantsDisplay> pars;
         if (groupID == -1)
@@ -94,11 +96,12 @@ public class DisplayItemService {
             }
         }
         // 展示项：建立map，ID:displayItem
-        List<DisplayItem> displayItems;
-        if (activitiesMapper.getScoreSet(activityID)==1)
-            displayItems = displayItemMapper.getAllDisplayItem(activityID);
-        else
-            displayItems = getOrdinaryDisplayItem(activityID);
+        List<DisplayItem> displayItems = new ArrayList<>();
+        switch (displayMethod){
+            case "选手成绩": displayItems = displayItemMapper.getAllDisplayItem(activityID); break;
+            case "平均成绩": displayItems = getOrdinaryDisplayItem(activityID); break;
+            case "专家打分": displayItems = getExpertDisplayItem(activityID); break;
+        }
         Map<Integer, DisplayItem> displayItemMap = new HashMap<>();
         for (DisplayItem displayItem : displayItems){
             displayItem.setSourceName(getSourceName(displayItem.getSource())); // 解析sourceName
@@ -112,7 +115,7 @@ public class DisplayItemService {
             for (DisplayItem displayItem : displayItems) {
                 if (displayItem.getSource() == null || !displayItem.getSource().contains("*")) {  // 第一类：displayItem的source不包含"*"
                     String displayContent = getDisplayContentPart(displayItem.getSource(), par, tableInfoItem, tableScoreItem, displayItemMap, activityID);
-                    par.getMap().put(displayItem.getName(), formatDouble(displayContent));
+                    par.getMap().put(displayItem.getName(), formatDouble(displayContent, "first"));
                 } else // 第二类，需要计算
                 {
                     String[] split = displayItem.getSource().split("\\+");
@@ -128,7 +131,7 @@ public class DisplayItemService {
                         }
                         score += Double.parseDouble(displayContent);
                     }
-                    par.getMap().put(displayItem.getName(), error == 0 ? formatDouble(score + "") : "error");
+                    par.getMap().put(displayItem.getName(), error == 0 ? formatDouble(score + "", "second") : "error");
                 }
             }
         }
@@ -136,12 +139,13 @@ public class DisplayItemService {
     }
 
 
-    public List<DisplayItem> getDisplayItem(Integer activityID) {
-        List<DisplayItem> res;
-        if (activitiesMapper.getScoreSet(activityID)==1)
-            res = displayItemMapper.getAllDisplayItem(activityID);
-        else
-            res = getOrdinaryDisplayItem(activityID);
+    public List<DisplayItem> getDisplayItem(Integer activityID, String displayMethod) {
+        List<DisplayItem> res = new ArrayList<>();
+        switch (displayMethod){
+            case "选手成绩": res = displayItemMapper.getAllDisplayItem(activityID); break;
+            case "平均成绩": res = getOrdinaryDisplayItem(activityID); break;
+            case "专家打分": res = getExpertDisplayItem(activityID); break;
+        }
         for (DisplayItem displayItem : res)
             displayItem.setSourceName(getSourceName(displayItem.getSource()));
         return res;
@@ -161,8 +165,8 @@ public class DisplayItemService {
                 return split.length == 1 ? par.getCode() : null;
             case "group":
                 return split.length == 1 ? par.getGroupName() : null;
-//            case "scores":
-//                return split.length == 1 ? participatesService.getTotalscorewithdot(activityID, par.getID()) : null;
+            case "scores":
+                return split.length == 1 ? participatesService.getTotalscorewithdot(activityID, par.getID()) : null;
             case "name":
                 return split.length == 1 ? par.getName() : null;
         }
@@ -179,6 +183,8 @@ public class DisplayItemService {
             String content = tableInfoItem.get(par.getID(), ID); // 在已有的分数上继续计算
             if (content.equals(""))
                 return null;
+            if (content.charAt(0) == '0' && split.length == 1) //以0开头的信息项字符串容易被解析为小数，单独考虑
+                return content;
             try {
                 score = Double.parseDouble(content); // content如果不为小数，对于第一类展示项，直接返回，对于第二类展示项，返回null
             } catch (Exception e) { // 解析到了脏东西
@@ -205,7 +211,9 @@ public class DisplayItemService {
     }
 
     // 输入一个字符串，判断是否为小数，如果是则将其保留2位小数并去除末尾的0，然后返回新字符串
-    private String formatDouble(String str) {
+    private String formatDouble(String str, String type) {
+        if (type.equals("first") && str != null && !str.equals("") && str.charAt(0) == '0')
+            return str;
         try {
             double d = Double.parseDouble(str);
             DecimalFormat decimalFormat = new DecimalFormat("###################.##");
@@ -244,9 +252,9 @@ public class DisplayItemService {
             case "group":
                 name = "组名";
                 break;
-//            case "scores":
-//                name = "专家打分";
-//                break;
+            case "scores":
+                name = "专家评分";
+                break;
             case "name":
                 name = "姓名";
                 break;
@@ -263,8 +271,8 @@ public class DisplayItemService {
         } else if (tableName.equals("displayitem")) {
             name = displayItemMapper.getNameByID(ID);
         }else if (tableName.equals("scoreitem")) {
-            if (scoreItemMapper.getNameByID(ID).equals("活动得分")){
-                name = scoreItemMapper.getActivityName(ID) + ".活动得分";
+            if (scoreItemMapper.getNameByID(ID).equals("活动总评分")){
+                name = scoreItemMapper.getActivityName(ID) + ".活动总评分";
             }
             else
                 name = scoreItemMapper.getNameByID(ID);
@@ -368,19 +376,35 @@ public class DisplayItemService {
     //获取默认情况下的展示项
     public List<DisplayItem> getOrdinaryDisplayItem(Integer activityID){
         List<DisplayItem> res = new ArrayList<>();
-        res.add(new DisplayItem(0, "编号", "编号", "code"));
-        res.add(new DisplayItem(1, "姓名", "姓名", "name"));
+        res.add(new DisplayItem(0, "组名", "组名", "group"));
+        res.add(new DisplayItem(1, "编号", "编号", "code"));
+        res.add(new DisplayItem(2, "姓名", "姓名", "name"));
+        Integer majorCodeID = infoItemMapper.getMajorCode(activityID);
+        res.add(new DisplayItem(3, "报考专业代码", "报考专业代码", "infoitem."+ majorCodeID));
         List<ScoreItem> scoreItems = scoreItemMapper.getAllByActicityID(activityID);
         //把活动得分放最后
         ScoreItem score = scoreItems.get(0);
         scoreItems.remove(0);
         scoreItems.add(score);
-        Integer ID = 2;
+        Integer ID = 4;
         for (ScoreItem scoreItem:scoreItems){
             String source = "scoreitem."+ scoreItem.getId();
             res.add(new DisplayItem(ID,scoreItem.getName(),scoreItem.getName(),source));
             ID++;
         }
+        return res;
+    }
+    //获取默认情况下的展示项
+    public List<DisplayItem> getExpertDisplayItem(Integer activityID){
+        List<DisplayItem> res = new ArrayList<>();
+        res.add(new DisplayItem(0, "组名", "组名", "group"));
+        res.add(new DisplayItem(1, "编号", "编号", "code"));
+        res.add(new DisplayItem(2, "姓名", "姓名", "name"));
+        Integer majorCodeID = infoItemMapper.getMajorCode(activityID);
+        res.add(new DisplayItem(3, "报考专业代码", "报考专业代码", "infoitem."+ majorCodeID));
+        res.add(new DisplayItem(4, "专家评分", "专家评分", "scores"));
+        Integer TotalScoreID = scoreItemMapper.selectScoreItemFinal(activityID);
+        res.add(new DisplayItem(5, "平均分", "活动总评分", "scoreitem."+ TotalScoreID));
         return res;
     }
 }

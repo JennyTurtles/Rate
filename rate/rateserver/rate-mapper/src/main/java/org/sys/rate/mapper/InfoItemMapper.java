@@ -81,4 +81,8 @@ public interface InfoItemMapper {
 
     @Select("select ID from infoitem where activityID=#{activityID}")
     List<Integer> getIDByActivityID(Integer newActID);
+
+    //获得报考专业代码
+    @Select("select ID from infoitem where name = '报考专业代码' and activityID=#{activityID}")
+    Integer getMajorCode(Integer activityID);
 }

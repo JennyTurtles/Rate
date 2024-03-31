@@ -121,6 +121,12 @@ public class MenuService {
 //                role = role + ";11";
 //            }
 //        }
+        if (secretaryMapper.isSecretary(id) != 0){
+            // 是秘书
+            if(!role.contains("4")){
+                role = "4;" + role;
+            }
+        }
         if (expertsMapper.isExpert(id) != 0){
             if(!role.contains("3")){
                 role = role + ";3";
@@ -130,12 +136,6 @@ public class MenuService {
             }
             if(!role.contains("9")){
                 role = role + ";9";
-            }
-        }
-        if (secretaryMapper.isSecretary(id) != 0){
-            // 是秘书
-            if(!role.contains("4")){
-                role = role + ";4";
             }
         }
         String[] roles = role.split(";");

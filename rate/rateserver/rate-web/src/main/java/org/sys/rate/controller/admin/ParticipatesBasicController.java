@@ -225,7 +225,7 @@ public class ParticipatesBasicController {
             Timestamp nousedate = new Timestamp(date.getTime());
             log.setLog(nousedate,insititutionID,"选手管理","导入完成，无姓名行已经被忽略");
             logService.addLogs(log);
-            return RespBean.ok("导入完成，无姓名行已经被忽略");
+            return RespBean.ok("导入完成");
         }
         Log log=new Log();
         SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

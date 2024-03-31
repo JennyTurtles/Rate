@@ -77,9 +77,9 @@ public class DisplayItemController {
 
     // 用于"查看选手评分"，获取所有选手的展示项
     @GetMapping("/allPar")
-    public RespBean getAllPar(@RequestParam Integer activityID,@RequestParam(defaultValue = "-1") Integer groupID) {
-        List<ParticipantsDisplay> pars = displayItemService.getParticipantsDisplay(activityID,groupID);
-        List<DisplayItem> displayItems = displayItemService.getDisplayItem(activityID);
+    public RespBean getAllPar(@RequestParam Integer activityID,@RequestParam String displayMethod,@RequestParam(defaultValue = "-1") Integer groupID) {
+        List<ParticipantsDisplay> pars = displayItemService.getParticipantsDisplay(activityID,groupID,displayMethod);
+        List<DisplayItem> displayItems = displayItemService.getDisplayItem(activityID,displayMethod);
         List<Object> res = new ArrayList<>();
         res.add(pars);
         res.add(displayItems);
@@ -101,7 +101,7 @@ public class DisplayItemController {
         HashMap<Integer,HashMap<String,DisplayItem>> map = new LinkedHashMap<>();//<activityID,<displayName,displayItem>>
         for (Activities activities:subActivities){//循环遍历子活动
             List<DisplayItem> displayItems;
-            if(activities.getId()==activityID)
+            if(activities.getId().equals(activityID))
                 displayItems=displayItemService.getFirstDisplayItem(activities.getId(),1);
             else
                 displayItems=displayItemService.getFirstDisplayItem(activities.getId(),0);
@@ -109,11 +109,11 @@ public class DisplayItemController {
             for (DisplayItem item:displayItems){//循环遍历展示项，获得展示项哈希表
                 if (map.get(activities.getId())==null){//未添加当前活动，进行插入
                     HashMap<String,DisplayItem> value = new LinkedHashMap<>();
-                    value.put(item.getSourceName(),item);
+                    value.put(item.getSource(),item);
                     map.put(activities.getId(),value);
                 }
                 else {//已添加当前活动，进行添加
-                    map.get(activities.getId()).put(item.getSourceName(),item);
+                    map.get(activities.getId()).put(item.getSource(),item);
                 }
             }
         }
@@ -125,7 +125,7 @@ public class DisplayItemController {
         return RespBean.ok("success",res);
     }
 
-    @GetMapping("/subSecond") //获取子活动的第一类展示项
+    @GetMapping("/subSecond") //获取子活动的第二类展示项
     public RespBean getSubSecond(@RequestParam Integer activityID){
         List<Activities> subActivities = activitiesMapper.getSubActivities(activityID);
         subActivities.add(0,activitiesMapper.queryById(activityID)); //添加主活动
@@ -142,17 +142,18 @@ public class DisplayItemController {
                 if (displayItem.getSource() != null && displayItem.getSource().contains("*")){
                     DisplayItem displayItem1 = new DisplayItem(displayItem.getName(),displayItem.getSource());
                     displayItem1.setID(displayItem.getID());
+                    displayItem1.setActivityID(activityID);
                     displayItems.add(displayItem1);
                 }
             //Collections.sort(displayItems);//按展示项名称排序
             for (DisplayItem item:displayItems){//循环遍历展示项，获得展示项哈希表
                 if (map.get(activities.getId())==null){//未添加当前活动，进行插入
                     HashMap<String,DisplayItem> value = new LinkedHashMap<>();
-                    value.put(item.getSourceName(),item);
+                    value.put(item.getSource(),item);
                     map.put(activities.getId(),value);
                 }
                 else {//已添加当前活动，进行添加
-                    map.get(activities.getId()).put(item.getSourceName(),item);
+                    map.get(activities.getId()).put(item.getSource(),item);
                 }
             }
         }

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="display: flex; justify-content: left">
-      {{ keywords_name }}活动 {{groupName}} 选手成绩
+      {{ keywords_name }}活动 {{groupName}} {{ displayMethod }}
 
       <div style="margin-left: auto">
         <el-button icon="el-icon-download" type="primary" @click="exportExcel">
@@ -12,7 +12,7 @@
         </el-button>
       </div>
     </div>
-    <div v-show="setBySelf === 1">标红分数：小于该展示项设置的及格分数</div>
+    <div v-show="displayMethod === '选手成绩'">标红分数：小于该展示项设置的及格分数</div>
     <div style="margin-top: 15px">
       <span>请选择筛选依据：  </span>
       <el-select
@@ -69,7 +69,12 @@
               定制成绩查看界面
             </span>
       </router-link>
-    </div>
+    </div><br>
+    <el-tabs v-model="displayMethod" @tab-click="tabClick" style="width: 70%">
+      <el-tab-pane label="选手成绩" name="选手成绩"></el-tab-pane>
+      <el-tab-pane label="平均成绩" name="平均成绩"></el-tab-pane>
+      <el-tab-pane label="专家打分" name="专家打分"></el-tab-pane>
+    </el-tabs>
     <div style="margin-top: 10px">
       <el-table
           ref = "excelTable"
@@ -150,26 +155,17 @@ export default {
       groupInfoNums: {},
       groupSubOfSelectedInfos: [],
       selectedSubGroupInfo: [],
+      displayMethod: '选手成绩',
       flag:0,
       groupName: '',
-      title: '',
-      labelPosition: "left",
-      showAdvanceSearchView: false,
       keywords_name: "",
-      ACNAME:"",
-      datalist:'',
       loading: false,
-      total: 0,
       page: 1,
-      score:[],
-      tmap:[],
-      map:[],
-      emps:[],
       keywords: '', // 活动id
       keyword: '',
       size: 10,
       mode:'',
-      setBySelf: 1,
+      //setBySelf: 1,
       columns: [{ label: "性别", prop: "name", width: 100, show: true },
         { label: "民族", prop: "sex", width: 150, show: true },
         { label: "政治面貌", prop: "age", width: 100, show: true }],
@@ -212,12 +208,12 @@ export default {
     this.flag = this.$route.query.flag;
     this.groupID = this.$route.query.groupID;
     this.initEmps();
-    this.initMethod();
+    //this.initMethod();
   },
   methods: {
     initEmps() {
       this.loading = true;
-      var url = '/displayItem/allPar?activityID=' + this.keywords
+      var url = '/displayItem/allPar?activityID=' + this.keywords + '&displayMethod=' +this.displayMethod
       if (typeof this.groupID !== 'undefined')
         url += '&groupID=' + this.groupID
       else if (typeof this.$route.query.backGroupID !== 'undefined'){
@@ -260,15 +256,15 @@ export default {
         this.groupNums = Array.from(Array(10).keys(),n=>n+1)
         }
     },
-    initMethod(){
-      this.loading = true;
-      this.getRequest(
-          "/displayItem/getSetMethod?activityID=" +
-          this.keywords
-      ).then((resp) => {
-        this.setBySelf = resp;
-      });
-    },
+    // initMethod(){
+    //   this.loading = true;
+    //   this.getRequest(
+    //       "/displayItem/getSetMethod?activityID=" +
+    //       this.keywords
+    //   ).then((resp) => {
+    //     this.setBySelf = resp;
+    //   });
+    // },
     filterPar(){
       var newPar = []
       for (var i in this.displayPars) {
@@ -356,6 +352,9 @@ export default {
       } catch (e) { if (typeof console !== 'undefined') console.log(e, wbout) }
       return wbout
     },
+    tabClick(tab, event){
+      this.initEmps()
+    }
   }
 }
 </script>

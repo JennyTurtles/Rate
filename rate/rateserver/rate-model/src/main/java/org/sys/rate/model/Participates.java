@@ -36,6 +36,8 @@ public class Participates{
     private Student student;
     private Expertactivities expertactivities;
     private String password;
+    private String majors; //报考专业
+    private String InitialScore; //初试总分
     private HashMap<Integer, String> map;
     private HashMap<Integer, String> map_info;
     private Integer institutionid;//from stu

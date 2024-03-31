@@ -235,6 +235,7 @@ import {Message} from 'element-ui'
 import da from "element-ui/src/locale/lang/da";
 import el from "element-ui/src/locale/lang/el";
 import AddActStep from "@/components/AddActStep.vue";
+import axios from "axios";
 
 export default {
   name: "SalTable",
@@ -576,7 +577,23 @@ export default {
       Message.success("导出成功");
       let url = "/participants/basic/exportTG?groupID="+row.id;
       this.loading=false;
-      window.open(url, '_parent');
+      //window.open(url, '_parent');
+      axios({
+        url: url,
+        method: 'get',
+        responseType: 'blob',
+        headers: {
+          'token': this.user.token ? this.user.token : ''
+        }
+      }).then((res) => {
+        let url = window.URL.createObjectURL(new Blob([res]))
+        let link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.setAttribute('download', '专家打分表'  + '.xls')
+        document.body.appendChild(link);
+        link.click();
+      });
     },
     showGroups(data) {
       const _this = this;
@@ -593,41 +610,63 @@ export default {
     },
       assignPE(data) {
           const _this = this;
-          if (this.mode === 'secretary' || this.mode === 'secretarySub'|| this.mode === 'adminSub'){
-            _this.$router.push({
-              path: "/participantsM",
-              query: {
-                activityIDParent: this.$route.query.id,
-                activityID: this.keywords,
-                groupIDParent: this.groupID,
-                smallGroup:true, // 从分组管理进入的，因此是小组
-                groupID: data.id,
-                mode:this.mode,
-                keywords:this.keywords,
-                keyword_name:this.keywords_name,
-                ACNAME:this.keywords_name,
-                groupName:this.$route.query.groupName,
-                backID:this.$route.query.backID,
-                backActName:this.$route.query.backActName,
-                isGroup:this.$route.query.isGroup,
-              }
-            })
-          }else if (this.mode === 'admin'){
-            _this.$router.push({
-              path: "/participantsM",
-              query: {
-                activityID: data.activityID,
-                groupID: data.id,
-                mode:this.mode,
-                keywords:this.keywords,
-                keyword_name:this.keywords_name,
-                actName:this.keywords_name,
-                ACNAME:this.keywords_name,
-                addActive:this.$route.query.addActive,
-                haveSub:this.$route.query.haveSub,
-              }
-            })
+        _this.$router.push({
+          path: '/ActivitM/sobcfg',
+          query:{
+            activityIDParent: this.$route.query.id,
+            groupIDParent: this.groupID,
+            groupID: data.id,
+            actName: this.keywords_name,
+            groupName: this.$route.query.groupName,
+            smallGroup: true,
+            isGroup: this.$route.query.isGroup,
+            haveSub: this.$route.query.haveSub,
+            id: this.$route.query.id,
+            keywords: this.keywords,
+            keyword_name: this.keywords_name,
+            ACNAME: this.keywords_name,
+            mode:this.mode,
+            backActName: this.$route.query.backActName,
+            addActive: this.$route.query.addActive,
+            requireGroup: this.$route.query.requireGroup,
+            forSecretary: this.$route.query.forSecretary,
           }
+        })
+          // if (this.mode === 'secretary' || this.mode === 'secretarySub'|| this.mode === 'adminSub'){
+          //   _this.$router.push({
+          //     path: "/participantsM",
+          //     query: {
+          //       activityIDParent: this.$route.query.id,
+          //       activityID: this.keywords,
+          //       groupIDParent: this.groupID,
+          //       smallGroup:true, // 从分组管理进入的，因此是小组
+          //       groupID: data.id,
+          //       mode:this.mode,
+          //       keywords:this.keywords,
+          //       keyword_name:this.keywords_name,
+          //       ACNAME:this.keywords_name,
+          //       groupName:this.$route.query.groupName,
+          //       backID:this.$route.query.backID,
+          //       backActName:this.$route.query.backActName,
+          //       isGroup:this.$route.query.isGroup,
+          //     }
+          //   })
+          // }else if (this.mode === 'admin'){
+          //   _this.$router.push({
+          //     path: "/participantsM",
+          //     query: {
+          //       activityID: data.activityID,
+          //       groupID: data.id,
+          //       mode:this.mode,
+          //       keywords:this.keywords,
+          //       keyword_name:this.keywords_name,
+          //       actName:this.keywords_name,
+          //       ACNAME:this.keywords_name,
+          //       addActive:this.$route.query.addActive,
+          //       haveSub:this.$route.query.haveSub,
+          //     }
+          //   })
+          // }
 
       },
     showSubActivity(data) {

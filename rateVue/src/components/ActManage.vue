@@ -1241,10 +1241,10 @@ export default {
    console.log(this.currentClone);
    this.currentCloneid = event;
    this.emp.comment = this.currentClone.comment;
-   this.emp.name = this.currentClone.name + "克隆活动";
+   //this.emp.name = this.currentClone.name + "克隆活动";
    this.emp.startDate = this.currentClone.startDate;
-   this.emp.enterDate = this.currentClone.enterDate;
-   this.emp.visibleDate = this.currentClone.visibleDate;
+   //this.emp.enterDate = this.currentClone.enterDate;
+   //this.emp.visibleDate = this.currentClone.visibleDate;
    this.emp_colone = JSON.parse(JSON.stringify(this.emp));
   },
   //活动进行授权给其他的管理员，在后端处理需要添加类字段，所以纯前端处理
@@ -1813,18 +1813,33 @@ export default {
    }
   },
   showInsertmanagement(data) {
+    console.log(data)
    const _this = this;
-   _this.$router.push({
-    path: "/ActivitM/group",
-    query: {
-     keywords: data.id,
-     keyword_name: data.name,
-     groupID: this.groupID,
-     mode: this.mode,
-     backID: this.activityID,
-     haveSub: data.haveSub,
-    },
-   });
+   // _this.$router.push({
+   //  path: "/ActivitM/group",
+   //  query: {
+   //   keywords: data.id,
+   //   keyword_name: data.name,
+   //   groupID: this.groupID,
+   //   mode: this.mode,
+   //   backID: this.activityID,
+   //   haveSub: data.haveSub,
+   //  },
+   // });
+    _this.$router.push({
+      path: "/ActivitM/sobcfg",
+      query: {
+        activityID: data.id,
+        keywords: data.id,
+        keyword_name: data.name,
+        keywords_name:data.name,
+        groupID: this.groupID,
+        backID: this.activityID,
+        mode:this.mode,
+        haveSub: data.haveSub,
+        requireGroup: data.requireGroup,
+      }
+    })
   },
   showSubActivity(data) {
    const _this = this;
@@ -1986,14 +2001,25 @@ export default {
   showParticipants(data) {
    const _this = this;
    _this.$router.push({
-    path: "/participantsM",
-    query: {
-     activityID: data.id,
-     keyword_name: data.name,
-     keywords_name: this.keywords_name,
-     groupID: data.groupID,
-     mode: this.mode,
-     forSecretary: this.$route.query.forSecretary
+    // path: "/participantsM",
+    // query: {
+    //  activityID: data.id,
+    //  keyword_name: data.name,
+    //  keywords_name: this.keywords_name,
+    //  groupID: data.groupID,
+    //  mode: this.mode,
+    //  forSecretary: this.$route.query.forSecretary
+     path: "/ActivitM/sobcfg",
+     query: {
+       activityID: data.id,
+       keywords: data.id,
+       keyword_name: data.name,
+       keywords_name:data.name,
+       groupID: data.groupID,
+       backID: data.id,
+       mode:this.mode,
+       haveSub: data.haveSub,
+       forSecretary: this.$route.query.forSecretary
     }
    })
   },
