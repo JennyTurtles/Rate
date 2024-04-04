@@ -570,7 +570,10 @@ public class ParticipatesService {
             if(scoreItemValue.getScore()!=null)
             {
                 DecimalFormat decimalFormat = new DecimalFormat("###################.###########");
-                totalscorewithdot=totalscorewithdot+decimalFormat.format(scoreItemValue.getScore())+";";
+                if (totalscorewithdot.equals(""))
+                    totalscorewithdot = totalscorewithdot + decimalFormat.format(scoreItemValue.getScore());
+                else
+                    totalscorewithdot = totalscorewithdot + "；" + decimalFormat.format(scoreItemValue.getScore());
             }
         }
         return totalscorewithdot;

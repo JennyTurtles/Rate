@@ -522,13 +522,18 @@ export default {
     },
     handleOpen(subItem) {
       if (
+          JSON.parse(localStorage.getItem("user")) === null ||
           this.role != JSON.parse(localStorage.getItem("user")).role ||
           this.name != JSON.parse(localStorage.getItem("user")).name
       ) {
         var url;
-        Message.warning("无权限！请重新登录");
-        if (this.role == "8" || this.role == "9") url = "/Teacher/Login";
-        else if (this.role == "13" || this.role == "14" || this.role == "15" || this.role == "16") url = "/Admin/Login";
+        console.log(this.role)
+        if (JSON.parse(localStorage.getItem("user")) === null)
+          Message.warning("用户已经退出登录，请重新登陆！");
+        else
+          Message.warning("无权限！请重新登录");
+        if (this.role.includes("13") || this.role.includes("14") || this.role.includes("15") || this.role.includes("16")) url = "/Admin/Login";
+        else if (this.role.includes("8") || this.role.includes("9") || this.role.includes("3") || this.role.includes("4")) url = "/Teacher/Login";
         else url = "/";
         this.$router.replace(url);
       }
@@ -547,6 +552,7 @@ export default {
       this.$refs.homePage.$el.style.height = clientHeight - 20 + "px";
     },
     commandHandler(cmd) {
+      console.log(this.roleName)
       if (cmd == "logout") {
         this.$confirm("此操作将注销登录, 是否继续?", "提示", {
           confirmButtonText: "确定",
@@ -556,14 +562,17 @@ export default {
             .then(() => {
               var url = "/";
               if (
-                  this.role.indexOf("8") >=0 ||
-                  this.role.indexOf("9") >=0 ||
-                  this.role.indexOf("3") >=0 ||
-                  this.role.indexOf("4") >=0
+                  this.roleName.indexOf("expert") >=0 ||
+                  this.roleName.indexOf("teacher_under") >=0 ||
+                  this.roleName.indexOf("teacher_post") >=0 ||
+                  this.roleName.indexOf("secretary") >=0
               )
                 url = "/Teacher/Login";
-              else if (this.role.indexOf("13") >= 0 || this.role.indexOf("14") >= 0 || this.role.indexOf("15") >= 0 || this.role.indexOf("16") >= 0) url = "/Admin/Login";
-              else url = "/";
+              else if (this.roleName.indexOf("admin") >= 0)
+                url = "/Admin/Login";
+              else
+                url = "/";
+              console.log(this.user)
               this.getRequest("/system/config/logout").then(() => {
                 if (localStorage.getItem("user")) {
                   localStorage.removeItem("user");

@@ -256,7 +256,10 @@ VALUES (#{id,jdbcType=INTEGER}, #{expertid,jdbcType=INTEGER}, #{activityid,jdbcT
   </select>
 
   <select id="getActByExpertID" parameterType="java.lang.Integer" resultMap="BaseResultMapA">
-    select activityID,groupID from expertactivities where teacherID=#{expertID} order by activityID,groupID
+    select ea.activityID, ea.groupID
+    from expertactivities ea, activities a
+    where ea.teacherID=#{expertID} and ea.activityID = a.ID and a.deleteFlag = 0 and a.`status` = 'open'
+    order by activityID,groupID;
   </select>
 
 </mapper>

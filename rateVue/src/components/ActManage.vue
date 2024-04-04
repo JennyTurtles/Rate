@@ -1449,7 +1449,11 @@ export default {
    this.loading = true;
    this.text = '正在';
    Message.success("正在导出");
-   let url = '/participants/basic/export?activityID=' + data.id;
+   let url = "";
+   if (this.mode === 'admin' || this.mode === 'adminSub')
+     url = '/participants/basic/export?activityID=' + data.id;
+   else
+     url = "/participants/basic/exportTG?groupID="+ data.groupID;
    axios({
       url: url,
       method: 'get',
@@ -1498,6 +1502,7 @@ export default {
      keyword_name: data.name,
      mode: this.mode,
      backID: this.activityID,
+     groupID: data.groupID
     },
    });
   },

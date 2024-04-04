@@ -4,15 +4,11 @@
       {{ keywords_name }}活动 {{groupName}} {{ displayMethod }}
 
       <div style="margin-left: auto">
-        <el-button icon="el-icon-download" type="primary" @click="exportExcel">
-          导出选手评分
-        </el-button>
         <el-button icon="el-icon-back" type="primary" @click="back">
           返回
         </el-button>
       </div>
     </div>
-    <div v-show="displayMethod === '选手成绩'">标红分数：小于该展示项设置的及格分数</div>
     <div style="margin-top: 15px">
       <span>请选择筛选依据：  </span>
       <el-select
@@ -60,26 +56,35 @@
 <!--              </el-checkbox-group>-->
 <!--            </div>-->
 <!--          </el-popover>-->
-      <router-link :to= "{path: '/ActivitM/total',query: {keywords: keywords,
-                          keyword_name:keywords_name,
-                          backID:keywords,
-                          mode:mode,}}"
-                   style="float: right">
-            <span>
-              定制成绩查看界面
-            </span>
-      </router-link>
     </div><br>
     <el-tabs v-model="displayMethod" @tab-click="tabClick" style="width: 70%">
       <el-tab-pane label="选手成绩" name="选手成绩"></el-tab-pane>
       <el-tab-pane label="平均成绩" name="平均成绩"></el-tab-pane>
       <el-tab-pane label="专家打分" name="专家打分"></el-tab-pane>
     </el-tabs>
+    <div style="display: flex; justify-content: left">
+      <div v-show="displayMethod === '选手成绩'">标红分数：小于该展示项设置的及格分数</div>
+      <div style="margin-left: auto">
+        <router-link :to= "{path: '/ActivitM/total',query: {keywords: keywords,
+                          keyword_name:keywords_name,
+                          backID:keywords,
+                          mode:mode,}}"
+                     style="margin-right: 20px; font-size: 16px"
+                     v-show="displayMethod === '选手成绩' && mode === 'admin'">
+            <span>
+              定制成绩查看界面
+            </span>
+        </router-link>
+        <el-button icon="el-icon-download" type="primary" @click="exportExcel" style="float: right;">
+          导出{{ displayMethod }}
+        </el-button>
+      </div>
+    </div>
     <div style="margin-top: 10px">
       <el-table
           ref = "excelTable"
-          :data="displayPars"
-          :model="displayPars"
+          :data="filterPars"
+          :model="filterPars"
           stripe
           border
           id='outTable'
@@ -100,7 +105,9 @@
             :label="v.name"
             :key="i"
             sortable
-            min-width="10%" align="center"
+            :min-width="displayItem[i].sourceName === '编号' || displayItem[i].sourceName === '专家评分' ? '15%' :
+                       (displayItem[i].sourceName === '组名' || displayItem[i].sourceName === '姓名' ? '8%' : '10%')"
+            align="center"
             :sort-method="(a, b) => {
                       return Number(a.map[v.name])- Number(b.map[v.name])}"
             :sort-orders="['descending', 'ascending']">
@@ -150,6 +157,7 @@ export default {
       },
       displayItem: [],
       displayPars: [],
+      filterPars: [],
       showDialog: false,
       selectedGroupInfo: '',
       groupInfoNums: {},
@@ -191,6 +199,7 @@ export default {
 
             this.groupSubOfSelectedInfos = Object.keys(this.groupInfoNums[val])
           }
+          this.selectedSubGroupInfo = []
         }
       }
     },
@@ -208,7 +217,6 @@ export default {
     this.flag = this.$route.query.flag;
     this.groupID = this.$route.query.groupID;
     this.initEmps();
-    //this.initMethod();
   },
   methods: {
     initEmps() {
@@ -224,6 +232,7 @@ export default {
         if (resp) {
           this.displayPars = resp.obj[0];
           this.displayItem = resp.obj[1];
+          this.filterPars = this.displayPars;
           // console.log(this.displayPars) // 行信息
           // console.log(this.displayItem) // 列信息
           this.initFitler()
@@ -251,20 +260,17 @@ export default {
               this.groupInfoNums[infoItems[i].name][infoItems[i].content] = []
             }
           this.groupInfoNums[infoItems[i].name][infoItems[i].content].push(infoItems[i])
-        }
+      }
+      let sortedGroupInfoNums = {}
+      for (var i = 0; i < this.displayItem.length; i++){  //按展示项排序
+        if (this.displayItem[i].name in this.groupInfoNums)
+          sortedGroupInfoNums[this.displayItem[i].name] = this.groupInfoNums[this.displayItem[i].name]
+      }
+      this.groupInfoNums = sortedGroupInfoNums;
       if(!this.groupNums){
         this.groupNums = Array.from(Array(10).keys(),n=>n+1)
         }
     },
-    // initMethod(){
-    //   this.loading = true;
-    //   this.getRequest(
-    //       "/displayItem/getSetMethod?activityID=" +
-    //       this.keywords
-    //   ).then((resp) => {
-    //     this.setBySelf = resp;
-    //   });
-    // },
     filterPar(){
       var newPar = []
       for (var i in this.displayPars) {
@@ -272,7 +278,7 @@ export default {
             newPar.push(this.displayPars[i])
         }
       }
-        this.displayPars = newPar
+        this.filterPars = newPar
     },
     reset(){
       this.initEmps()
@@ -348,7 +354,8 @@ export default {
       // console.log(wb)
       var wbout = XLSX.write(wb, { bookType: 'xlsx', bookSST: true, type: 'array' })
       try {
-        FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), '选手积分表.xlsx')
+        let name = this.displayMethod + '.xlsx'
+        FileSaver.saveAs(new Blob([wbout], { type: 'application/octet-stream' }), name)
       } catch (e) { if (typeof console !== 'undefined') console.log(e, wbout) }
       return wbout
     },

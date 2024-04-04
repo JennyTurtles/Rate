@@ -18,7 +18,7 @@ public interface SecretaryMapper {
 
     @Select("SELECT a.ID,groupID,a.name,startDate,scoreItemCount,score,groupCount,g.expertCount,g.participantCount,comment,g.name as groupName,a.haveSub,a.haveComment,a.gradeFormType\n" +
             "FROM expertactivities e, activities a, `groups` g\n" +
-            "WHERE e.activityID = a.ID AND e.groupID = g.ID AND teacherID = #{teacherID} AND (role = '秘书' OR role = '组长')")
+            "WHERE e.activityID = a.ID AND e.groupID = g.ID AND teacherID = #{teacherID} AND (role = '秘书' OR role = '组长') and a.deleteFlag = 0 and a.`status` = 'open'")
     List<Activities> getAct(Integer teacherID);
 
     @Select("SELECT s.ID,name,code\n" +

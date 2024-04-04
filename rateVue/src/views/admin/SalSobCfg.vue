@@ -59,7 +59,7 @@
 <!--    <div v-show="flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。-->
 <!--        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。-->
 <!--    </div>-->
-    <div>
+    <div v-show="mode === 'admin'">
       <el-button type="success" @click="showMethod" style="margin-top: 0px" v-if="haveGroup || groupID" v-show="!$route.query.flag ">
         添加专家
       </el-button>
@@ -272,6 +272,7 @@
                 size="mini"
                 icon="el-icon-refresh-right"
                 type="danger"
+                v-show="mode === 'admin'"
                 plain
             >删除
             </el-button>

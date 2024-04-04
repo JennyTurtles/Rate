@@ -64,47 +64,49 @@ public class SendMails {
 
     private void sendMailInternal(String to, String subject, String content, Mail mail, File attachment) throws MessagingException {
 
-//        Properties props = new Properties();
-//        props.setProperty("mail.host", mail.getSMTPHost());
-//        props.setProperty("mail.transport.protocol", "SMTP");
-//        props.setProperty("mail.smtp.auth", "true");
-//        props.setProperty("mail.smtp.ssl.enable", "true");
-//        props.setProperty("mail.smtp.timeout", "25000");
+        Properties props = new Properties();
+        props.setProperty("mail.host", mail.getSMTPHost());
+        props.setProperty("mail.transport.protocol", "SMTP");
+        props.setProperty("mail.smtp.auth", "true");
+        props.setProperty("mail.smtp.ssl.enable", "true");
+        props.setProperty("mail.smtp.timeout", "25000");
 //        props.setProperty("mail.smtp.port", "465");
 //        props.setProperty("mail.smtp.socketFactory.port", "465");
-//        props.setProperty("mail.smtp.socketFactory.fallback", "false");
-//        props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-//
-//        Authenticator authenticator = new Authenticator() {
-//            @Override
-//            public PasswordAuthentication getPasswordAuthentication() {
-//                return new PasswordAuthentication(mail.getEmailAddress(), mail.getIMAPVerifyCode());
-//            }
-//        };
-//
-//        Session session = Session.getInstance(props, authenticator);
-//        MimeMessage message = new MimeMessage(session);
-//
-//        message.setFrom(new InternetAddress(mail.getEmailAddress()));
-//        message.setRecipients(Message.RecipientType.TO, to);
-//        message.setSubject(subject);
-//
-//        Multipart multipart = new MimeMultipart();
-//        MimeBodyPart messageBodyPart = new MimeBodyPart();
-//        messageBodyPart.setContent(content, "text/html;charset=utf-8");
-//        multipart.addBodyPart(messageBodyPart);
-//
-//        if (attachment != null && attachment.exists()) {
-//            MimeBodyPart filePart = new MimeBodyPart();
-//            FileDataSource fileDataSource = new FileDataSource(attachment);
-//            filePart.setDataHandler(new DataHandler(fileDataSource));
-//            filePart.setFileName(attachment.getName());
-//            multipart.addBodyPart(filePart);
-//        }
-//
-//        message.setContent(multipart);
-//
-//        Transport.send(message);
+        props.setProperty("mail.smtp.port", "25");
+        props.setProperty("mail.smtp.socketFactory.port", "25");
+        props.setProperty("mail.smtp.socketFactory.fallback", "false");
+        props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+
+        Authenticator authenticator = new Authenticator() {
+            @Override
+            public PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(mail.getEmailAddress(), mail.getIMAPVerifyCode());
+            }
+        };
+
+        Session session = Session.getInstance(props, authenticator);
+        MimeMessage message = new MimeMessage(session);
+
+        message.setFrom(new InternetAddress(mail.getEmailAddress()));
+        message.setRecipients(Message.RecipientType.TO, to);
+        message.setSubject(subject);
+
+        Multipart multipart = new MimeMultipart();
+        MimeBodyPart messageBodyPart = new MimeBodyPart();
+        messageBodyPart.setContent(content, "text/html;charset=utf-8");
+        multipart.addBodyPart(messageBodyPart);
+
+        if (attachment != null && attachment.exists()) {
+            MimeBodyPart filePart = new MimeBodyPart();
+            FileDataSource fileDataSource = new FileDataSource(attachment);
+            filePart.setDataHandler(new DataHandler(fileDataSource));
+            filePart.setFileName(attachment.getName());
+            multipart.addBodyPart(filePart);
+        }
+
+        message.setContent(multipart);
+
+        Transport.send(message);
 
     }
 

@@ -150,18 +150,18 @@ public interface ParticipatesMapper {
     // 通过活动ID获得ParticipantsDisplay的ID,name,code,score,groupName。连接participants表、groups表、student
     @Select("select p.ID as ID,s.name as name,p.code,p.score,g.name as groupName\n" +
             "from participants p,`groups` g,student s \n" +
-            "where p.activityID = #{activityID} and p.groupID = g.ID and p.studentID = s.ID")
+            "where p.activityID = #{activityID} and p.groupID = g.ID and p.studentID = s.ID order by p.groupID, p.displaySequence")
     List<ParticipantsDisplay> getParticipantsDisplay(Integer activityID);
 
     @Select("select p.ID as ID,s.name as name,p.code,p.score,g.name as groupName\n" +
             "from participants p,`groups` g,student s \n" +
-            "where p.activityID = #{activityID} and p.groupID = #{groupID} and p.groupID = g.ID and p.studentID = s.ID")
+            "where p.activityID = #{activityID} and p.groupID = #{groupID} and p.groupID = g.ID and p.studentID = s.ID order by p.groupID, p.displaySequence")
     List<ParticipantsDisplay> getParticipantsDisplayByGroup(Integer activityID, Integer groupID);
 
     @Insert("INSERT INTO score_average \n" +
             "(SELECT NULL,scores.participantID,si.ID as scoreItemID,AVG(scores.score) as score \n" +
             "from scoreitem si, scores \n" +
-            "WHERE si.ID = scores.scoreItemID AND si.activityID = #{activityID} AND participantID = #{participantID}\n" +
+            "WHERE si.ID = scores.scoreItemID AND si.activityID = #{activityID} AND participantID = #{participantID} AND scores.expertID IS NOT NULL\n" +
             "GROUP BY si.ID)\n" +
             "on duplicate key update score = VALUES(score)")
     Integer saveAvgScores(Integer participantID, Integer activityID);

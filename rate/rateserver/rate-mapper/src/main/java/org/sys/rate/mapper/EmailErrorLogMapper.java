@@ -32,7 +32,7 @@ public interface EmailErrorLogMapper {
     @Select("SELECT id, error_type, error_description, timestamp FROM exception_log WHERE id=#{id}")
     EmailErrorLog getById(Long id);
 
-    @Select("SELECT id, error_type, error_description, timestamp FROM exception_log")
+    @Select("SELECT id, error_type, error_description, timestamp FROM exception_log order by `timestamp` desc")
     List<EmailErrorLog> getAll();
 
     List<EmailErrorLog> filterByDate(Timestamp startTime, Timestamp endTime);

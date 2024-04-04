@@ -30,7 +30,7 @@
           </el-button>
         </div> -->
         <div>
-          <el-button type="success" @click="showMethod">
+          <el-button type="success" @click="showMethod" v-show="mode === 'admin'">
             导入选手信息
           </el-button>
         </div>
@@ -91,7 +91,7 @@
         </el-table-column>
         <el-table-column
             prop="name"
-            align="left"
+            align="center"
             label="姓名"
             min-width="10%">
         </el-table-column>
@@ -102,7 +102,7 @@
             align="center"
             min-width="10%">
         </el-table-column>
-        <el-table-column align="left" label="操作" min-width="30%">
+        <el-table-column align="left" label="操作" min-width="30%" v-if="mode === 'admin'">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"

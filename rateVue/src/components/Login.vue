@@ -9,7 +9,7 @@
              element-loading-background="rgba(0, 0, 0, 0.8)"
              :model="loginForm"
              class="loginContainer">
-      <h3 class="loginTitle">系统登录</h3>
+      <h3 class="loginTitle">{{ titleName }}</h3>
       <el-form-item prop="username">
         <el-input size="normal"
                   type="text"
@@ -73,6 +73,15 @@ export default {
   },
   mounted () {
     this.loginForm = this.inf
+  },
+  computed: {
+    titleName(){
+      switch (this.loginForm.role){
+        case "admin": return "管理员登录";
+        case "teacher": return "教师登录";
+        case "student": return "学生登录";
+      }
+    }
   },
   methods: {
     forgetPassword(){//忘记密码选项

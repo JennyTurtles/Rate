@@ -96,7 +96,7 @@
             fixed
             align="name"
             label="分组名称"
-            width="150px"
+            min-width="100%"
         >
           <!--          原来的change函数，不知道什么意思-->
           <!--          @change="handleEdit(scope.$index,scope.row)"-->
@@ -110,7 +110,7 @@
             label="最高分"
             sortable
             align="center"
-            width="150px"
+            min-width="100%"
         >
           <template slot-scope="scope">
             <span>{{ scope.row.maxscore }}</span>
@@ -121,7 +121,7 @@
             label="最低分"
             sortable
             align="center"
-            width="150px"
+            min-width="100%"
         >
           <template slot-scope="scope">
             <span>{{ scope.row.minscore }}</span>
@@ -132,7 +132,7 @@
             label="平均分"
             sortable
             align="center"
-            width="150px"
+            min-width="100%"
         >
           <template slot-scope="scope">
             <span>{{ scope.row.avescore }}</span>
@@ -143,36 +143,36 @@
             label="方差"
             sortable
             align="center"
-            width="150px"
+            min-width="100%"
         >
           <template slot-scope="scope">
             <span>{{ scope.row.varscore }}</span>
           </template>
         </el-table-column>
-        <el-table-column align="center" min-width="15%" label="操作">
-          <template slot-scope="scope">
-            <el-button
-                @click="showParticipantsM (scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-collection"
-                type="primary"
-                plain
-            >查看小组分数
-            </el-button
-            >
-            <el-button
-                @click="showExpertScore (scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-collection"
-                type="primary"
-                plain
-            >查看专家评分
-            </el-button
-            >
-          </template>
-        </el-table-column>
+<!--        <el-table-column align="center" min-width="15%" label="操作">-->
+<!--          <template slot-scope="scope">-->
+<!--            <el-button-->
+<!--                @click="showParticipantsM (scope.row)"-->
+<!--                style="padding: 4px"-->
+<!--                size="mini"-->
+<!--                icon="el-icon-collection"-->
+<!--                type="primary"-->
+<!--                plain-->
+<!--            >查看小组分数-->
+<!--            </el-button-->
+<!--            >-->
+<!--            <el-button-->
+<!--                @click="showExpertScore (scope.row)"-->
+<!--                style="padding: 4px"-->
+<!--                size="mini"-->
+<!--                icon="el-icon-collection"-->
+<!--                type="primary"-->
+<!--                plain-->
+<!--            >查看专家评分-->
+<!--            </el-button-->
+<!--            >-->
+<!--          </template>-->
+<!--        </el-table-column>-->
       </el-table>
       <div style="margin: 20px 0; display: flex; justify-content: left">
         <!-- <div>
@@ -226,6 +226,7 @@ export default {
       activity:[],
       selectedRoles: [],
       allroles: [],
+      groupID: null
     };
   },
   computed: {
@@ -240,6 +241,7 @@ export default {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
     this.mode = this.$route.query.mode;
+    this.groupID = this.$route.query.groupID;
     this.initHrs();
     this.initActivity();
     // this.initData();
@@ -290,7 +292,10 @@ export default {
           1000
       ).then((resp) => {
         if (resp) {
-          this.hrs = resp.data;
+          if (this.groupID !== undefined && this.groupID !== null)
+            this.hrs.push(resp.data.find(item => item.groupID == this.groupID));
+          else
+            this.hrs = resp.data;
           this.total = resp.total;
         }
       });
