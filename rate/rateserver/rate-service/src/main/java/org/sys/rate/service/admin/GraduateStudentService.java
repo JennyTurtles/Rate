@@ -30,6 +30,8 @@ public class GraduateStudentService {
         List<String> nameTeas = new ArrayList<>(); //记录导师的姓名
         for(int i = 0;i < graduateList.size();i++){
             //工号和姓名都有按照工号来，都没有tutorid为空，只有姓名就按照姓名查找
+            if (graduateList.get(i).getTeachers().getJobnumber().equals(""))
+                graduateList.get(i).getTeachers().setJobnumber(null);
             if(graduateList.get(i).getTeachers().getJobnumber() == null && graduateList.get(i).getTeachers().getName() == null){
                 graduateList.get(i).setTutorID(null);
             }
@@ -41,11 +43,12 @@ public class GraduateStudentService {
             }
         }
         List<Teachers> jobTeachers = new ArrayList<>();
-        jobTeachers = teachersMapper.selectTeasByJobnumber(jobTeas);
-        if(jobTeachers.size() == 0) {
-            return RespBean.error("未找到老师信息！请仔细检查工号");
+        if (jobTeas.size() > 0){
+            jobTeachers = teachersMapper.selectTeasByJobnumber(jobTeas);
+            if(jobTeachers.size() == 0) {
+                return RespBean.error("未找到老师信息！请仔细检查工号");
+            }
         }
-
         //改为根据机构id和学号判断在student表中是否已经存在
         Integer id = null;
         List<Student> updateStus = new ArrayList<>();

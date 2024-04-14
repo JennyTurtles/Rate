@@ -81,7 +81,7 @@ public class MailToStuService {
             default:
                 break;
         }
-        contentBuilder.append("登录<a href=\"http://106.15.36.190:8081/#/Student/Login\" target=\"_blank\">教学系统</a>可以进行详情查看！<br><br>")
+        contentBuilder.append("登录<a href=\"http://106.15.36.190:8081/#/student\" target=\"_blank\">教学系统</a>可以进行详情查看！<br><br>")
                 .append("本邮件由东华大学计算机学院教学系统自动发出，如有疑问，请联系管理员</a>！");
         content = contentBuilder.toString();
 

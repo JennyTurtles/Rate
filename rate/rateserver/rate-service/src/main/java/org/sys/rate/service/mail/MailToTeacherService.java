@@ -144,7 +144,7 @@ public class MailToTeacherService {
         }
         contentBuilder.append("提交时间：").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("<br>");
         contentBuilder.append("证明材料：").append(StringUtil.isEmpty(isFileEmpty) ? "请查看邮件附件" : isFileEmpty).append("<br><br>");
-        contentBuilder.append("<b>您可以登录<a href=\"http://106.15.36.190:8081/#/Teacher/Login\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
+        contentBuilder.append("<b>您可以登录<a href=\"http://106.15.36.190:8081/#/teacher\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
         contentBuilder.append("如果回复本邮件，方式如下：<br>");
         contentBuilder.append("(1) 若审核<b>通过</b>该成果，请在邮件中<span style=\"color:red;\">仅保留</span>以下三行并回复。<br>");
         contentBuilder.append("成果类型：").append(type).append("<br>");
@@ -404,7 +404,7 @@ public class MailToTeacherService {
         contentBuilder.append("作者列表：").append(production.getAuthor()).append("<br>");
         contentBuilder.append("提交时间：").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("<br>");
         contentBuilder.append("证明材料：").append(StringUtil.isEmpty(isFileEmpty) ? "请查看邮件附件" : isFileEmpty).append("<br><br>");
-        contentBuilder.append("<b>您可以登录<a href=\"http://106.15.36.190:8081/#/Teacher/Login\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
+        contentBuilder.append("<b>您可以登录<a href=\"http://106.15.36.190:8081/#/teacher\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
         contentBuilder.append("如果回复本邮件，方式如下：<br>");
         contentBuilder.append("(1) 若审核<b>通过</b>该成果，请在邮件中<span style=\"color:red;\">仅保留</span>以下三行并回复。<br>");
         contentBuilder.append("成果类型：").append(type).append("<br>");

@@ -195,7 +195,12 @@ public class ParticipatesBasicController {
     }
 
     private RespPageBean excel2p(Integer groupid,Integer activityid,MultipartFile file){
-        List<Groups> groups = groupsService.getActivitiesName(activityid);
+        List<Groups> groups = new ArrayList<>();
+        try {
+            groups = groupsService.getActivitiesName(activityid);
+        }catch (Exception e){
+            groups = null;
+        }
         Map<String,Integer>map=new HashMap<>();
         for(Groups g:groups)
         {

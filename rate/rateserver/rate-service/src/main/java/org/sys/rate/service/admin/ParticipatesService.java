@@ -183,12 +183,12 @@ public class ParticipatesService {
     // 建议：将此代码布置为JAVA程序设计课的课后作业，让同学们改BUG，作为反面教材引以为鉴
     public String addParticipatess(Integer groupid,Integer activityid,Integer insititutionID,List<Participates> list) {
         //先获得顺序的总数，order取top，然后循环的时候插入++插入。
-        Integer last=participatesMapper.getlastDisplaySequence(groupid);
-        if(last==null)
-        {
-            last=0;
-        }
-        last++;
+//        Integer last=participatesMapper.getlastDisplaySequence(groupid);
+//        if(last==null)
+//        {
+//            last=0;
+//        }
+//        last++;   //不考虑自动编号
         for (Participates participants : list) {
             participants.setStudentID(participants.getID());
             Participates participantInTable = participatesMapper.getParByCode(activityid, participants.getCode());
@@ -196,14 +196,12 @@ public class ParticipatesService {
             Student student=new Student();
             if (participantInTable != null){
                 participants.setStudentID(participantInTable.getStudentID());
-                //participants.setDisplaySequence(participantInTable.getDisplaySequence());
-                if (participants.getGroupID() != null || participants.getGroupID() != -1)
+                if (participants.getGroupID() == null || participants.getGroupID() == -1)
                     participants.setGroupID(participantInTable.getGroupID());
-                participants.setScore(participantInTable.getScore());
             }
             student.setName(participants.getName());
             student.setTelephone(participants.getTelephone());
-            student.setID(participants.getID());
+            student.setID(participants.getStudentID());
             student.setEmail(participants.getEmail());
             student.setInstitutionid(insititutionID);
 //            student.setRole("7");
@@ -282,20 +280,20 @@ public class ParticipatesService {
                 if(groupid!=0)
                 {//组内选手管理
                     participants.setGroupID(groupid);
-                    if(participants.getDisplaySequence()==null || participants.getDisplaySequence()==-1)
-                        participants.setDisplaySequence(last);
+//                    if(participants.getDisplaySequence()==null || participants.getDisplaySequence()==-1)
+//                        participants.setDisplaySequence(last);
                 }
                 else if(participants.getGroupID()!=null && participants.getGroupID()!=-1)//全活动
                 {//从活动中导入,且不是groupid=null
                     groupid_temp=participants.getGroupID();
-                    Integer last_uniq=participatesMapper.getlastDisplaySequence(groupid_temp);
-                    System.out.println("name->last_uniq"+last_uniq);
-                    if(last_uniq==null)
-                    {
-                        last_uniq=0;
-                    }
-                    if (participants.getDisplaySequence() == null || participants.getDisplaySequence()==-1)
-                        participants.setDisplaySequence(last_uniq+1);
+//                    Integer last_uniq=participatesMapper.getlastDisplaySequence(groupid_temp);
+//                    System.out.println("name->last_uniq"+last_uniq);
+//                    if(last_uniq==null)
+//                    {
+//                        last_uniq=0;
+//                    }
+//                    if (participants.getDisplaySequence() == null || participants.getDisplaySequence()==-1)
+//                        participants.setDisplaySequence(last_uniq+1);
                 }
                 participants.setActivityID(activityid);
                 Integer pend = participatesMapper.checkByIDandActivityID(participants.getStudentID(), activityid);//返回的是groupid，null有可能是groupid=null也有可能是不存在
@@ -315,14 +313,14 @@ public class ParticipatesService {
                         if (participants.getStudentID() == null)
                             participants.setStudentID(student.getID());
                         insert= participatesMapper.insert_relationship(participants);
-                        last++;
+                        //last++;
                     }
                     else
                     {//之前groupID为空或者groupID存在，这里还可以区分，activity是应该update还是insert
                         if(participants.getCode()!=null||participants.getDisplaySequence()!=-1||participants.getGroupID()!=-1)
                         {insert= participatesMapper.update_relationship(participants);}
                         else{insert=1;}
-                        last++;
+                        //last++;
                     }
                     if (insert > 0) {
                         System.out.println("insert->" + participants.getName() + " 的信息插入成功");

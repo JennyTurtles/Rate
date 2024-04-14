@@ -6,7 +6,7 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/Admin/Login', //管理员路由跳转路径
+      path: '/admin', //管理员路由跳转路径
       name: 'Login', //路由名称
       hidden: true,
       component: () => import('./views/admin/Login.vue'),
@@ -745,12 +745,12 @@ export default new Router({
       component: () => import('./views/expert/userInfo.vue'),
       meta: { title: '个人中心' },
     },
+    // {
+    //   path: '/Student',
+    //   redirect: '/',
+    // },
     {
-      path: '/Student',
-      redirect: '/',
-    },
-    {
-      path: '/Student/Login',
+      path: '/student',
       name: '学生登录',
       hidden: true,
       component: () => import('./views/student/Login'),
@@ -780,7 +780,7 @@ export default new Router({
     },
     {
       //教师登录页
-      path: '/Teacher/Login', //路由跳转路径
+      path: '/teacher', //路由跳转路径
       name: '教师登录', //路由名称
       hidden: true,
       component: () => import('./views/teacher/Login'),

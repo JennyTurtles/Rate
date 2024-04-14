@@ -10,14 +10,16 @@ axios.interceptors.response.use(success => {  //
         if (success.data.msg === '该数据有关联数据，操作失败!')
             return
         if (success.data.msg.includes("token验证失败，请重新登录")){
-            Message.error({message: '登录失效，请重新登录！'})
-            var role = success.data.msg.match(/用户角色：(\S*)；用户id：/)[1];
-            //console.log(role)
+            if (success.data.msg.includes('用户角色')) {
+                var role = success.data.msg.match(/用户角色：(\S*)；用户id：/)[1];
+                Message.error({message: '登录失效，请重新登录！'})
+            }
+            console.log("token:" + role)
             switch (role){
-                case "admin": router.replace('/Admin/Login');break;
+                case "admin": router.replace('/admin');break;
                 case "teacher":
-                case "expert":router.replace('/Teacher/Login');break;
-                case "student":router.replace('/Student/Login');break;
+                case "expert":router.replace('/teacher');break;
+                case "student":router.replace('/student');break;
                 default:break;
             }
             return;

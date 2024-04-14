@@ -263,7 +263,7 @@
         </span>
     </el-dialog>
     <!--弹窗-->
-    <el-dialog :title="title" :visible.sync="dialogVisible_checkbox" width="90%" center>
+    <el-dialog :title="title" :visible.sync="dialogVisible_checkbox" width="90%" center @close="checkboxClose">
 <!--      <div style="font-size: 17px;">-->
 <!--        导入模板中必须包含身份证号和姓名，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。-->
 <!--        <br/>-->
@@ -285,13 +285,17 @@
 <!--        <el-checkbox label="用户名" v-model="dymatic_list"  style="width: 150px">用户名</el-checkbox>-->
 <!--        <el-checkbox label="密码" v-model="dymatic_list"  style="width: 150px">密码</el-checkbox>-->
       </div><br/>
-      <div style="font-size: 16px;margin-left: 15%">信息项：<br/>
-        <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" v-model="infoitem" style="width: 450px">
-        </el-checkbox>
+      <div style="font-size: 16px;margin-left: 15%">信息项：
+        <el-checkbox :indeterminate="isIndeterminate_info" v-model="checkAll_info" @change="handleCheckInfoitemAllChange">全选</el-checkbox><br/>
+        <el-checkbox-group v-model="infoitem" @change="handleCheckedInfoitemChange">
+          <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" style="width: 450px"></el-checkbox>
+        </el-checkbox-group>
       </div><br/>
-      <div style="font-size: 16px;margin-left: 15%">评分项：<br/>
-        <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: 450px">
-        </el-checkbox>
+      <div style="font-size: 16px;margin-left: 15%">评分项：
+        <el-checkbox :indeterminate="isIndeterminate_score" v-model="checkAll_score" @change="handleCheckScoreitemAllChange">全选</el-checkbox><br/>
+        <el-checkbox-group v-model="scoreitem" @change="handleCheckedScoreitemChange">
+          <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name"  style="width: 450px"></el-checkbox>
+        </el-checkbox-group>
       </div>
         <div style="font-size: 16px;margin-left: 15%;margin-top: 15px">模版中的列排列顺序如下：<br/></div>
         <div style="font-size: 16px;margin-left: 15%">{{preview(dymatic_list,scoreitem,infoitem)}}</div>
@@ -477,6 +481,10 @@ export default {
       loading: false,
       dialogVisible: false,
       dialogVisible_method:false,
+      isIndeterminate_info: false,
+      checkAll_info: false,
+      isIndeterminate_score: false,
+      checkAll_score: false,
       total: 0,
       page: 1,
       keywords: '',
@@ -605,6 +613,24 @@ export default {
     this.$refs.multipleTable.clearSelection()
     this.allowManualAdd = true
    },
+    handleCheckInfoitemAllChange(val){
+      this.infoitem = val ? Object.values(this.infoitem_from_back).map(item => item.name) : [];
+      this.isIndeterminate_info = false;
+    },
+    handleCheckedInfoitemChange(value){
+      let checkedCount = value.length;
+      this.checkAll_info = checkedCount === this.infoitem_from_back.length;
+      this.isIndeterminate_info = checkedCount > 0 && checkedCount < this.infoitem_from_back.length;
+    },
+    handleCheckScoreitemAllChange(val){
+      this.scoreitem = val ? Object.values(this.scoreitem_from_back).map(item => item.name) : [];
+      this.isIndeterminate_score = false;
+    },
+    handleCheckedScoreitemChange(value){
+      let checkedCount = value.length;
+      this.checkAll_score = checkedCount === this.scoreitem_from_back.length;
+      this.isIndeterminate_score = checkedCount > 0 && checkedCount < this.scoreitem_from_back.length;
+    },
    // getInfoByIDNumber(){
    //  if (this.manualAddFormDisabled === true){
    //   this.manualAddForm = {idnumber: this.manualAddForm.idnumber}
@@ -809,6 +835,14 @@ export default {
         document.body.appendChild(link);
         link.click();
       });
+    },
+    checkboxClose(){
+      this.isIndeterminate_info = false;
+      this.checkAll_info = false;
+      this.isIndeterminate_score = false;
+      this.checkAll_score = false;
+      this.infoitem = [];
+      this.scoreitem = [];
     },
     showEditEmpView(data) {
       this.title = "编辑选手信息";

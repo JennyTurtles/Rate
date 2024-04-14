@@ -435,7 +435,7 @@
         </span>
     </el-dialog>
     <!--弹窗-->
-    <el-dialog :title="title" :visible.sync="dialogVisible_checkbox" width="90%" center>
+    <el-dialog :title="title" :visible.sync="dialogVisible_checkbox" width="90%" center @close="checkboxClose">
 <!--      <div style="font-size: 17px;">-->
 <!--        导入模板中必须包含身份证号和姓名，以下勾选的列将包含在导入模板中。模板中不包含的列，则导入时将保持数据库中已有信息不变。-->
 <!--        <br/>-->
@@ -461,18 +461,14 @@
       <div style="font-size: 16px;margin-left: 15%">信息项：
         <el-checkbox :indeterminate="isIndeterminate_info" v-model="checkAll_info" @change="handleCheckInfoitemAllChange">全选</el-checkbox><br/>
         <el-checkbox-group v-model="infoitem" @change="handleCheckedInfoitemChange">
-          <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name"></el-checkbox>
+          <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" style="width: 450px"></el-checkbox>
         </el-checkbox-group>
-<!--        <el-checkbox v-for="item in infoitem_from_back" :key="item.name" :label="item.name" v-model="infoitem" style="width: auto">-->
-<!--        </el-checkbox>-->
       </div><br/>
-      <div style="font-size: 16px;margin-left: 15%" class="formView">评分项：
+      <div style="font-size: 16px;margin-left: 15%">评分项：
         <el-checkbox :indeterminate="isIndeterminate_score" v-model="checkAll_score" @change="handleCheckScoreitemAllChange">全选</el-checkbox><br/>
         <el-checkbox-group v-model="scoreitem" @change="handleCheckedScoreitemChange">
-          <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name"></el-checkbox>
+          <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name"  style="width: 450px"></el-checkbox>
         </el-checkbox-group>
-<!--        <el-checkbox v-for="item in scoreitem_from_back" :key="item.name" :label="item.name" v-model="scoreitem" style="width: auto">-->
-<!--        </el-checkbox>-->
       </div>
         <div style="font-size: 16px;margin-left: 15%;margin-top: 15px">模版中的列排列顺序如下：<br/></div>
       <div style="font-size: 16px;margin-left: 15%">{{preview(dymatic_list,scoreitem,infoitem)}}</div>
@@ -1245,6 +1241,14 @@ export default {
         document.body.appendChild(link);
         link.click();
       });
+    },
+    checkboxClose(){
+      this.isIndeterminate_info = false;
+      this.checkAll_info = false;
+      this.isIndeterminate_score = false;
+      this.checkAll_score = false;
+      this.infoitem = [];
+      this.scoreitem = [];
     },
     showEditEmpView(data) {
       this.title = "编辑选手信息";

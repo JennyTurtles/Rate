@@ -1241,8 +1241,9 @@ export default {
    console.log(this.currentClone);
    this.currentCloneid = event;
    this.emp.comment = this.currentClone.comment;
+   this.emp.name = this.emp_colone.name;
    //this.emp.name = this.currentClone.name + "克隆活动";
-   this.emp.startDate = this.currentClone.startDate;
+   //this.emp.startDate = this.currentClone.startDate;
    //this.emp.enterDate = this.currentClone.enterDate;
    //this.emp.visibleDate = this.currentClone.visibleDate;
    this.emp_colone = JSON.parse(JSON.stringify(this.emp));

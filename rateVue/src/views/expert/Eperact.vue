@@ -56,7 +56,7 @@ export default {
               this.$store.commit("initRoutes", []); //清空路由
               this.$store.commit("initRoutesAllSameForm", []); //清空路由
             })
-            this.$router.replace("/Teacher/Login");
+            this.$router.replace("/teacher");
           })
           .catch(() => {
             this.$message({

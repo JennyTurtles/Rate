@@ -186,8 +186,8 @@ VueRouter.prototype.replace = function push(location, onResolve, onReject) {
 // var timer
 router.beforeEach((to, from, next) => {
     // console.log(to.path)
-    if (to.path == '/Admin/Login' || to.path == '/Expert/Login' || to.path == '/' ||
-        to.path == '/Student/Login' || to.path == '/Teacher/Login' || to.path == '/Student') {
+    if (to.path == '/admin' || to.path == '/Expert/Login' || to.path == '/' ||
+        to.path == '/student' || to.path == '/teacher' || to.path == '/Student') {
         if (localStorage.getItem('user') || sessionStorage.getItem('initRoutes') || sessionStorage.getItem('initRoutes_AllSameForm')) {
             store.commit('initRoutes', [])
             store.commit('initRoutesAllSameForm', [])
@@ -205,8 +205,8 @@ router.beforeEach((to, from, next) => {
     //除登录外的其他路径
     else {
         if (localStorage.getItem('user')) {
-            if ((from.path == ' /Admin/Login' || from.path == '/Expert/Login' || from.path == '/' ||
-                from.path == '/Student/Login' || from.path == '/Teacher/Login' || from.path == '/Student') && to.path == '/home') {
+            if ((from.path == ' /admin' || from.path == '/Expert/Login' || from.path == '/' ||
+                from.path == '/student' || from.path == '/teacher' || from.path == '/Student') && to.path == '/home') {
                 next()
                 return;
             }

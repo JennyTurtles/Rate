@@ -141,6 +141,9 @@ public class TeachersService implements UserDetailsService {
         if (StrUtil.isBlank(teacherJobNumber) && ids.size()>1) {
             return -1;
         }
+        if (ids.size() == 1 && teacherJobNumber == null) {
+            return ids.get(0);
+        }
         Integer idsBasedOnJobNumber = teachersMapper.checkTeacherExist(teacherJobNumber, teacherName, institutionID);
         return idsBasedOnJobNumber == null ? -2 : idsBasedOnJobNumber;
     }

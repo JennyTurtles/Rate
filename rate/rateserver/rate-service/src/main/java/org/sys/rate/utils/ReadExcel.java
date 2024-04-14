@@ -8,6 +8,7 @@ package org.sys.rate.utils;/**
  * @Version 1.0
  */
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -50,6 +52,12 @@ public class ReadExcel {
 
         try (Workbook workbook = new HSSFWorkbook(file.getInputStream())) {
             Sheet sheet = workbook.getSheetAt(0); // 获取第一个工作表
+            int Cells = sheet.getRow(0).getPhysicalNumberOfCells();
+            HashMap<Integer, String> map = new HashMap<>();
+            for (int m = 0; m < Cells; m++) {
+                if (sheet.getRow(0).getCell(m).getStringCellValue() != null)
+                    map.put(m, sheet.getRow(0).getCell(m).getStringCellValue());
+            }
             for (Row row : sheet) {
                 ++rowIndex;
                 if (rowIndex == 1) {
@@ -61,42 +69,77 @@ public class ReadExcel {
                 }
 
 
-                Cell nameCell = row.getCell(1);
-                Cell idCell = row.getCell(0);
+                Cell nameCell = null;
+                Cell idCell = null;
 
                 Cell gradeCell = null;
                 Cell yearCell = null;
                 Cell majorCell = null;
                 Cell classCell = null;
-                Cell teacherJobNumberCell;
-                Cell teacherNameCell;
+                Cell teacherJobNumberCell = null;
+                Cell teacherNameCell = null;
 
 
-                if ("student".equals(type)) {
-                    gradeCell = row.getCell(2);
-                    yearCell = row.getCell(3);
-                    majorCell = row.getCell(4);
-                    classCell = row.getCell(5);
-                    teacherNameCell = row.getCell(7);
-                    teacherJobNumberCell = row.getCell(6);
-                } else {
-                    teacherJobNumberCell = row.getCell(2);
-                    teacherNameCell = row.getCell(3);
+                for (int k = 0; k < Cells; k++) {
+                    Cell cell = row.getCell(k);
+                    if (cell != null) {
+                        cell.setCellType(CellType.STRING);
+                        switch (map.get(k)) {
+                            case "学号":
+                                idCell = cell;
+                                break;
+                            case "姓名":
+                                nameCell = cell;
+                                break;
+                            case "导师工号":
+                                teacherJobNumberCell = cell;
+                                break;
+                            case "导师姓名":
+                                teacherNameCell = cell;
+                                break;
+                            case "绩点":
+                                gradeCell = cell;
+                                break;
+                            case "入学年份":
+                                yearCell = cell;
+                                break;
+                            case "专业":
+                                majorCell = cell;
+                                break;
+                            case "班级":
+                                classCell = cell;
+                                break;
+                            default:
+                                break;
+                        }
+                        //break;
+                    }
                 }
 
+//                if ("student".equals(type)) {
+//                    gradeCell = row.getCell(2);
+//                    yearCell = row.getCell(3);
+//                    majorCell = row.getCell(4);
+//                    classCell = row.getCell(5);
+//                    teacherNameCell = row.getCell(7);
+//                    teacherJobNumberCell = row.getCell(6);
+//                } else {
+//                    teacherJobNumberCell = row.getCell(2);
+//                    teacherNameCell = row.getCell(3);
+//                }
                 if (idCell == null) {
-                    record.setFailReasonForRowIndex(rowIndex, "第一列学生学号为空");
+                    record.setFailReasonForRowIndex(rowIndex, "学生学号为空");
                     continue;
                 }
                 if (nameCell == null) {
-                    record.setFailReasonForRowIndex(rowIndex, "第二列学生姓名为空");
+                    record.setFailReasonForRowIndex(rowIndex, "学生姓名为空");
                     continue;
                 }
 
 
                 String name = nameCell.getCellType() == CellType.STRING ? nameCell.getStringCellValue() : "";
                 if ("".equals(name)) {
-                    record.setFailReasonForRowIndex(rowIndex, "第二列学生姓名为空");
+                    record.setFailReasonForRowIndex(rowIndex, "学生姓名为空");
                     continue;
                 }
                 String major = majorCell != null ? (majorCell.getCellType() == CellType.STRING ? majorCell.getStringCellValue() : "") : "";
@@ -107,11 +150,11 @@ public class ReadExcel {
                     try {
                         year = yearCell.getCellType() == CellType.NUMERIC ? (int) yearCell.getNumericCellValue() : Integer.parseInt(yearCell.getStringCellValue());
                         if (year < 2000 || year > LocalDateTime.now().getYear()) {
-                            record.setFailReasonForRowIndex(rowIndex, "第四列入学年份不合法");
+                            record.setFailReasonForRowIndex(rowIndex, "入学年份不合法");
                             continue;
                         }
                     } catch (NumberFormatException e) {
-                        record.setFailReasonForRowIndex(rowIndex, "第四列入学年份格式错误");
+                        record.setFailReasonForRowIndex(rowIndex, "入学年份格式错误");
                         continue;
                     }
                 }
@@ -137,7 +180,7 @@ public class ReadExcel {
                         undergraduateId = (Integer) existOrInsertResBean.getObj();
                     }
                 } catch (NumberFormatException e) {
-                    record.setFailReasonForRowIndex(rowIndex, "第一列学生学号单元格式错误");
+                    record.setFailReasonForRowIndex(rowIndex, "学生学号单元格式错误");
                     continue;
                 }
 
@@ -147,7 +190,7 @@ public class ReadExcel {
                     try {
                         grade = gradeCell.getCellType() == CellType.NUMERIC ? gradeCell.getNumericCellValue() : Double.parseDouble(gradeCell.getStringCellValue());
                     } catch (NumberFormatException e) {
-                        record.setFailReasonForRowIndex(rowIndex, "第三列绩点格式错误");
+                        record.setFailReasonForRowIndex(rowIndex, "绩点格式错误");
                         continue;
                     }
                 }

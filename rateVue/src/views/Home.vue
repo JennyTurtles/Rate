@@ -532,8 +532,8 @@ export default {
           Message.warning("用户已经退出登录，请重新登陆！");
         else
           Message.warning("无权限！请重新登录");
-        if (this.role.includes("13") || this.role.includes("14") || this.role.includes("15") || this.role.includes("16")) url = "/Admin/Login";
-        else if (this.role.includes("8") || this.role.includes("9") || this.role.includes("3") || this.role.includes("4")) url = "/Teacher/Login";
+        if (this.role.includes("13") || this.role.includes("14") || this.role.includes("15") || this.role.includes("16")) url = "/admin";
+        else if (this.role.includes("8") || this.role.includes("9") || this.role.includes("3") || this.role.includes("4")) url = "/teacher";
         else url = "/";
         this.$router.replace(url);
       }
@@ -567,9 +567,9 @@ export default {
                   this.roleName.indexOf("teacher_post") >=0 ||
                   this.roleName.indexOf("secretary") >=0
               )
-                url = "/Teacher/Login";
+                url = "/teacher";
               else if (this.roleName.indexOf("admin") >= 0)
-                url = "/Admin/Login";
+                url = "/admin";
               else
                 url = "/";
               console.log(this.user)

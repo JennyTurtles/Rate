@@ -46,3 +46,8 @@ export default {
   },
 }
 </script>
+<style>
+.el-dialog__close {
+  color: red !important;
+}
+</style>

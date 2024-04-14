@@ -118,7 +118,7 @@ export default {
         if(response){
           console.log(response)
           this.$message.success('注册成功！')
-          this.$router.replace('/Teacher/Login')
+          this.$router.replace('/teacher')
         }
       })
     },

@@ -941,7 +941,11 @@ public class POIUtils {
             c3.setCellValue("导师姓名");
             row.createCell(2).setCellValue("10105471");
             row.createCell(3).setCellValue("黄老师");
-            info = "导师工号可以为空，如果导师有重名则重名的导师必须提供工号。上传时请删除本行。";
+            //info = "导师工号可以为空，如果导师有重名则重名的导师必须提供工号。上传时请删除本行。";
+            sheet.createRow(2).createCell(0).setCellValue("注意事项：");
+            sheet.createRow(3).createCell(0).setCellValue("1.导师工号可以为空。");
+            sheet.createRow(4).createCell(0).setCellValue("2.如果导师有重名，则必须提供工号。");
+            sheet.createRow(5).createCell(0).setCellValue("3. 上传前请删除以上注意事项。");
         } else if ("thesis".equals(type)) {
             c2.setCellValue("绩点");
             c3.setCellValue("入学年份");
@@ -960,7 +964,12 @@ public class POIUtils {
             row.createCell(5).setCellValue("软件工程1801");
             row.createCell(6).setCellValue("10105471");
             row.createCell(7).setCellValue("黄老师");
-            info = "入学年份、专业、班级非必填。导师工号可以为空，如果导师有重名则重名的导师必须提供工号。上传时请删除本行。";
+            //info = "入学年份、专业、班级非必填。导师工号可以为空，如果导师有重名则重名的导师必须提供工号。上传时请删除本行。";
+            sheet.createRow(2).createCell(0).setCellValue("注意事项：");
+            sheet.createRow(3).createCell(0).setCellValue("1.导师姓名必须填，工号可以不填。");
+            sheet.createRow(4).createCell(0).setCellValue("2.如果导师有重名，则必须提供工号。");
+            sheet.createRow(5).createCell(0).setCellValue("3.入学年份、专业、班级可以为空。");
+            sheet.createRow(6).createCell(0).setCellValue("4.上传前请删除以上注意事项。");
         } else {
             c2.setCellValue("入学年份");
             c3.setCellValue("专业");
@@ -970,23 +979,26 @@ public class POIUtils {
             row.createCell(3).setCellValue("软件工程");
             row.createCell(4).setCellValue("软件工程1801");
 
-            info = "入学年份、专业、班级非必填。上传时请删除本行。";
+            //info = "入学年份、专业、班级非必填。上传时请删除本行。";
+            sheet.createRow(2).createCell(0).setCellValue("注意事项：");
+            sheet.createRow(3).createCell(0).setCellValue("1.入学年份、专业、班级可以为空。");
+            sheet.createRow(4).createCell(0).setCellValue("2. 上传前请删除以上注意事项。");
         }
 
 
-        Font font = workbook.createFont();
-        font.setColor(IndexedColors.RED.getIndex()); // 红色字体
-
-        // 创建CellStyle并将字体应用于单元格
-        CellStyle cellStyle = workbook.createCellStyle();
-        cellStyle.setFont(font);
+//        Font font = workbook.createFont();
+//        font.setColor(IndexedColors.RED.getIndex()); // 红色字体
+//
+//        // 创建CellStyle并将字体应用于单元格
+//        CellStyle cellStyle = workbook.createCellStyle();
+//        cellStyle.setFont(font);
 
         // 将CellStyle应用于单元格
 
 
-        HSSFCell cell = sheet.createRow(2).createCell(0);
-        cell.setCellValue(info);
-        cell.setCellStyle(cellStyle);
+//        HSSFCell cell = sheet.createRow(2).createCell(0);
+//        cell.setCellValue(info);
+        //cell.setCellStyle(cellStyle);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
@@ -1238,8 +1250,12 @@ public class POIUtils {
         row.createCell(7).setCellValue("专硕/学硕");
         row.createCell(8).setCellValue("软件工程");
         row.createCell(9).setCellValue("软件1901");
+        sheet.createRow(2).createCell(0).setCellValue("注意事项：");
+        sheet.createRow(3).createCell(0).setCellValue("1.导师姓名必须填，工号可以不填。");
+        sheet.createRow(4).createCell(0).setCellValue("2.如果导师有重名，则必须提供工号。");
+        sheet.createRow(5).createCell(0).setCellValue("3.手机、邮箱、专业、班级可以为空。");
+        sheet.createRow(6).createCell(0).setCellValue("4.上传前请删除以上注意事项。");
 
-        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。导师工号和导师姓名如果不填写，则默认没有导师，如果两者都填写，按照导师工号查询。两者可填可不填。手机号和邮箱可为空");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -1336,7 +1352,7 @@ public class POIUtils {
                             }
                         }
                     }
-                    if (stuNumber == null || name == null || specialty == null || studentType == null || class_ == null) { //手机号和邮箱可为空
+                    if (stuNumber == null || name == null || specialty == null) { //手机号和邮箱可为空
                         continue;
                     }
 //                    student.setName(name);

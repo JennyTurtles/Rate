@@ -89,7 +89,7 @@ public interface TeachersMapper {
 
     List<String> getTeaNamesBySelect(String teaName);
 
-    public List<Teachers> selectTeasByJobnumber(List<String> list);
+    List<Teachers> selectTeasByJobnumber(List<String> list);
 
     Teachers selectTeaByJobnumber(String jobnumber);
 
