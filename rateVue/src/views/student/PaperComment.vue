@@ -370,7 +370,7 @@ export default {
       pageMonth: new Date().getMonth(),
       showTimeSelect: true,
       showTimeSelect2: false,
-
+      fillMiss: 0,
 
       emp: {
         id: null,
@@ -569,28 +569,35 @@ export default {
     },
     disabledTime(date) {
       const today = new Date();
-      const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-      switch (this.timeChoose) {
-        case 10:
-        case 13:
-          return false;
-        case 15:
-        case 11:
-          return (
-              date.getTime() <= new Date(this.preDate).getTime() ||
-              date.getTime() < sevenDaysAgo.getTime() ||
-              date.getTime() > today.getTime()
-          );
-        case 12:
-          return date.getTime() >= new Date(this.nextDate).getTime();
-        case 14:
-          return (
-              date.getTime() >= new Date(this.nextDate).getTime() ||
-              date.getTime() <= new Date(this.preDate).getTime()
-          );
-        default:
-          console.log("时间限制出现了其他的问题！请检查");
-          return true;
+      if (this.fillMiss === 0){
+        const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        switch (this.timeChoose) {
+          case 10:
+          case 13:
+            return false;
+          case 15:
+          case 11:
+            return (
+                date.getTime() <= new Date(this.preDate).getTime() ||
+                date.getTime() < sevenDaysAgo.getTime() ||
+                date.getTime() > today.getTime()
+            );
+          case 12:
+            return date.getTime() >= new Date(this.nextDate).getTime();
+          case 14:
+            return (
+                date.getTime() >= new Date(this.nextDate).getTime() ||
+                date.getTime() <= new Date(this.preDate).getTime()
+            );
+          default:
+            console.log("时间限制出现了其他的问题！请检查");
+            return true;
+        }
+      }
+      else{
+        return (
+            date.getTime() > today.getTime()
+        );
       }
     },
     rowClass() {
@@ -757,6 +764,7 @@ export default {
           const resp = await this.getRequest(url);
           this.emps = resp.data;
           this.total = resp.data.length;
+          this.getFillMiss();
         } else {
           this.$message.info("请首先添加毕业论文！")
         }
@@ -766,7 +774,21 @@ export default {
         this.loading = false;
       }
     },
-
+    getFillMiss(){
+      console.log(this.thesisID)
+      const url = '/paperComment/basic/getFillMiss?thesisID=' + this.thesisID;
+      this.getRequest(url)
+          .then((resp) => {
+            if (resp.msg === 'success') {
+              this.fillMiss = resp.obj;
+            } else {
+              this.$message.error(resp.msg);
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+    },
   },
 };
 </script>

@@ -52,5 +52,6 @@ public class Thesis {
 
     private Double grade;
     private Integer startThesisID;
+    private Integer fillMiss;
 
 }

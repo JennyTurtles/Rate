@@ -73,7 +73,27 @@
             }}
           </template>
         </el-table-column>
-
+        <el-table-column align="center" width="150px" label="是否可以补填">
+          <template v-slot:header='scope'>
+            <span>
+              	  <el-tooltip
+                      :aa="scope"
+                      class="item"
+                      effect="dark"
+                      placement="top-start"
+                  >
+               <i class="el-icon-info" style="color: #4b8ffe"> </i>
+               <div style="width: 200px" slot="content">
+                若可以补填，则学生可以对之前的任何日期进行补填
+               </div>
+	                </el-tooltip>
+              {{scope.column.label}}
+	          </span>
+          </template>
+          <template slot-scope="scope">
+            <el-checkbox v-model="scope.row.thesis.fillMiss === 1" @change="fillMissChange(scope.row)"></el-checkbox>
+          </template>
+        </el-table-column>
         <el-table-column align="center" label="操作" width="200px">
           <template slot-scope="scope">
             <el-button
@@ -508,6 +528,7 @@ export default {
             this.loading = false;
             if (resp.status == 200) {
               this.emps = resp.obj;
+              console.log(this.emps)
             } else {
               this.$message.error(resp.msg);
             }
@@ -598,6 +619,20 @@ export default {
         path: `/teacher/stuPaperComment`,
         query: {keyword: id, keyname: sname, studentNumber: studentnumber, startThesisID: selectThesis},
       });
+    },
+    fillMissChange(record){
+      console.log(record)
+      record.thesis.fillMiss = 1 - record.thesis.fillMiss;
+      this.postRequest('/paperComment/basic/fillMissChange?thesisID=' + record.thesis.id + '&fillMiss=' + record.thesis.fillMiss)
+          .then((resp) => {
+            if (resp) {
+              this.initEmps();
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            this.loading = false;
+          });
     },
 
   },

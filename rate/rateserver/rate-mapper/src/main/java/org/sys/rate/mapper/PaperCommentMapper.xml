@@ -12,6 +12,7 @@
         <result column="comment_pass" jdbcType="INTEGER" property="comment_pass"/>
         <result column="comment_deny" jdbcType="INTEGER" property="comment_deny"/>
         <result column="comment_total" jdbcType="INTEGER" property="comment_total"/>
+        <result column="fillMiss" jdbcType="INTEGER" property="fillMiss"/>
 
     </resultMap>
 
@@ -63,6 +64,7 @@
             u.stuNumber,
             s.NAME,
             t.NAME AS tName,
+            t.fillMiss,
             SUM(CASE WHEN p.isPass = 'tea_pass' THEN 1 ELSE 0 END) AS comment_pass,
             SUM(CASE WHEN p.isPass = 'tea_deny' THEN 1 ELSE 0 END) AS comment_deny,
             SUM(CASE WHEN p.isPass IN ('tea_pass', 'tea_deny', '') THEN 1 ELSE 0 END) AS comment_total

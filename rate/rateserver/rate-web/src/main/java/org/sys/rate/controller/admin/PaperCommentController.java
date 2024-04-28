@@ -7,10 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
-import org.sys.rate.model.EmailErrorLog;
-import org.sys.rate.model.PaperComment;
-import org.sys.rate.model.RespBean;
-import org.sys.rate.model.Student;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.PaperCommentService;
 import org.sys.rate.service.admin.ThesisService;
 import org.sys.rate.service.mail.EmailErrorLogService;
@@ -167,5 +164,14 @@ public class PaperCommentController {
         }
     }
 
+    @PostMapping("/fillMissChange")
+    public JsonResult fillMissChange(Integer thesisID, Integer fillMiss) throws MessagingException {
+        return new JsonResult(paperCommentService.fillMissChange(thesisID, fillMiss));
+    }
 
+    @GetMapping("/getFillMiss")
+    public RespBean getFillMiss(Integer thesisID) {
+        Integer data = paperCommentService.getFillMiss(thesisID);
+        return RespBean.ok("success",data);
+    }
 }

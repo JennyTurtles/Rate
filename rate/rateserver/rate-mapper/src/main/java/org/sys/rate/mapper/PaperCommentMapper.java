@@ -9,7 +9,7 @@ import java.util.List;
 
 @Mapper
 public interface PaperCommentMapper {
-    @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment  where #{thesisID} = thesisID ORDER BY isPass, num")
+    @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment  where #{thesisID} = thesisID ORDER BY isPass, dateStu")
     List<PaperComment> selectCommentList(Integer thesisID);
 
 
@@ -44,7 +44,7 @@ public interface PaperCommentMapper {
 
     List<Student> getStuThesisWithDate(Integer tutorId, Integer startThesisID);
 
-    @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment where #{thesisID} = thesisID ORDER BY num")
+    @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment where #{thesisID} = thesisID ORDER BY dateStu")
     List<PaperComment> selectCommentListStuOrderByNum(Integer thesisID);
 
     @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment  where #{thesisID} = thesisID ORDER BY num desc")
@@ -59,5 +59,9 @@ public interface PaperCommentMapper {
             "WHERE t.ID = #{thesisID} AND t.studentID = u.ID AND t.tutorID = tea.ID")
     int checkSign(Integer thesisID);
 
+    @Update("update thesis set fillMiss = #{fillMiss} where ID = #{thesisID}")
+    int fillMissChange(Integer thesisID, Integer fillMiss);
 
+    @Select("SELECT fillMiss FROM thesis WHERE ID = #{thesisID}")
+    Integer getFillMiss(Integer thesisID);
 }

@@ -78,4 +78,12 @@ public class PaperCommentService {
     public int checkSign(Integer thesisID) {
         return paperCommentMapper.checkSign(thesisID);
     }
+
+    public int fillMissChange(Integer thesisID, Integer fillMiss) {
+        return paperCommentMapper.fillMissChange(thesisID, fillMiss);
+    }
+
+    public int getFillMiss(Integer thesisID) {
+        return paperCommentMapper.getFillMiss(thesisID);
+    }
 }
