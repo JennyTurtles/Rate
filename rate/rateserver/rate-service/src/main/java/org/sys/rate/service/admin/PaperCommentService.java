@@ -2,6 +2,7 @@ package org.sys.rate.service.admin;
 
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.PaperCommentMapper;
+import org.sys.rate.model.DisplayItem;
 import org.sys.rate.model.PaperComment;
 import org.sys.rate.model.Student;
 import org.sys.rate.model.Thesis;
@@ -25,7 +26,9 @@ public class PaperCommentService {
     }
 
     // 插入一条评论记录
-    public Integer insertComment(PaperComment paperComment) {
+    public Integer insertComment(Integer total, PaperComment paperComment) {
+        if (paperComment.getNum() < total)
+            paperCommentMapper.addNum(paperComment.getThesisID(),paperComment.getNum(),total);
         return paperCommentMapper.insertComment(paperComment);
     }
 
@@ -38,6 +41,13 @@ public class PaperCommentService {
     }
 
     public int updateStuComment(PaperComment paperComment) {
+        PaperComment old = paperCommentMapper.selectByID(paperComment.getID());
+        Integer oldNum = old.getNum();
+        Integer newNum = paperComment.getNum();
+        if (newNum < oldNum)
+            paperCommentMapper.addNum(paperComment.getThesisID(), newNum, oldNum);
+        else if (newNum > oldNum)
+            paperCommentMapper.subNum(paperComment.getThesisID(), oldNum, newNum);
         return paperCommentMapper.updateStuComment(paperComment);
     }
 

@@ -2,9 +2,7 @@ package org.sys.rate.utils;
 
 
 import com.github.pagehelper.util.StringUtil;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 import com.itextpdf.text.Image;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +58,7 @@ public class ExportPDF {
         this.uploadPath = new File("files").getAbsolutePath() + "\\template\\";
         this.DEST = uploadPath + "exportFiles\\";
         this.FONT_PATH_Song = uploadPath + "song.ttf";
-        this.TEMPLATE_PATH10 = uploadPath + "template_10.pdf";
+        this.TEMPLATE_PATH10 = uploadPath + "template_11.pdf";
         this.TEMPLATE_PATH20 = uploadPath + "template_20.pdf";
     }
 
@@ -138,6 +136,7 @@ public class ExportPDF {
         data.put("stuNameFirst", student.getName());
         data.put("stuName", student.getName());
         data.put("stuID", thesis.getStudentNumber());
+        data.put("specialty", student.getSpecialty());
         if (StringUtil.isNotEmpty(thesis.getName())) {
             data.put("thesisName1", thesis.getName().length() <= 15 ? thesis.getName() : thesis.getName().substring(0, 15));
             data.put("thesisName2", thesis.getName().length() <= 15 ? "" : " " + thesis.getName().substring(15));
@@ -150,6 +149,7 @@ public class ExportPDF {
 
         for (int i = 0; i < paperComments.size(); i++) {
             data.put("num" + (i + 1), paperComments.get(i).getNum());
+            data.put("page" + (i + 1), i + 1);
             data.put("preSum" + (i + 1), adaptRows(paperComments.get(i).getPreSum(), PRESUMROWS));
             data.put("nextPlan" + (i + 1), adaptRows(paperComments.get(i).getNextPlan(), NEXTPLANROWS));
             data.put("tutorComment" + (i + 1), paperComments.get(i).getTutorComment() == null || paperComments.get(i).getTutorComment().isEmpty() ? " " : paperComments.get(i).getTutorComment());
@@ -166,14 +166,17 @@ public class ExportPDF {
     private void fillPDFTemplateFields(PdfStamper ps, AcroFields form, BaseFont FontSong, Map<String, Object> data) throws IOException, DocumentException {
         for (String key : data.keySet()) {
             form.setFieldProperty(key, "textfont", FontSong, null);
-            if (key.equals("stuName") || key.equals("num")) {
+            if (key.equals("stuName") || key.startsWith("num") || key.startsWith("preSum") || key.startsWith("nextPlan") || key.startsWith("tutorComment")) {
                 form.setFieldProperty(key, "textsize", 12f, null);
-            } else if (key.equals("stuNameFirst") || key.equals("stuID") || key.equals("tutorName") || key.equals("year") || key.equals("month") || key.equals("day") || key.equals("thesisName1") || key.equals("thesisName2")) {
+            } else if (key.equals("stuNameFirst") || key.equals("stuID") || key.equals("tutorName") || key.equals("year") || key.equals("month") || key.equals("day") || key.equals("thesisName1") || key.equals("thesisName2") || key.equals("specialty")) {
                 form.setFieldProperty(key, "textsize", 16f, null);
             } else {
                 form.setFieldProperty(key, "textsize", 10.5f, null);
             }
-            form.setField(key, data.get(key) != null ? data.get(key) + "" : "");
+            if (key.startsWith("tutorComment"))
+                addTextToPdfCenter(form, ps, data.get(key) != null ? data.get(key) + "" : "",key, FontSong);
+            else
+                form.setField(key, data.get(key) != null ? data.get(key) + "" : "");
         }
 
         File stuSign = new File((String) data.get("stuSign"));
@@ -335,4 +338,21 @@ public class ExportPDF {
         return rows <= ROWSLIMIT ? origin : origin.replace("\n", "");
     }
 
+    private static void addTextToPdfCenter(AcroFields form, PdfStamper stamper, String text,String fieldName,BaseFont baseFont){
+        // 通过模板表单单元格名获取所在页和坐标，左下角为起点
+        int pageNo = form.getFieldPositions(fieldName).get(0).page;
+        Rectangle signRect = form.getFieldPositions(fieldName).get(0).position;
+        PdfContentByte contentByte = stamper.getOverContent(pageNo);
+        PdfPTable table = new PdfPTable(1);
+        float totalWidth = signRect.getRight() - signRect.getLeft() - 1;
+        table.setTotalWidth(totalWidth);
+        Font font = new Font(baseFont);
+        PdfPCell cell = new PdfPCell(new Phrase(text,font));
+        cell.setFixedHeight(signRect.getTop()-signRect.getBottom()-1);
+        cell.setBorderWidth(0);
+        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        table.addCell(cell);
+        table.writeSelectedRows(0, -1, signRect.getLeft(), signRect.getTop(), contentByte);
+    }
 }

@@ -84,7 +84,7 @@
                   >
                <i class="el-icon-info" style="color: #4b8ffe"> </i>
                <div style="width: 200px" slot="content">
-                若可以补填，则学生可以对之前的任何日期进行补填
+                若可以补填，则学生可以填写任何日期的毕设记录，否则只能填写最近八天的毕设记录
                </div>
 	                </el-tooltip>
               {{scope.column.label}}
@@ -583,6 +583,7 @@ export default {
 
       const downloadPDF = async () => {
         let url = `/paperComment/basic/exportPDF?thesisID=${encodeURIComponent(data.thesis.id)}`;
+        console.log(url)
         try {
           const response = await fetch(url);
           const blob = await response.blob();

@@ -28,7 +28,7 @@ public interface PaperCommentMapper {
     @Select("SELECT t.ID FROM thesis t, student s, undergraduate u WHERE s.ID = #{stuID} and s.ID = u.studentID and u.ID = t.studentID ORDER BY t.year DESC, t.month DESC LIMIT 1;")
     Integer getThesisID(int stuID);
 
-    @Update("update papercomment set dateStu = #{dateStu}, preSum = #{preSum}, nextPlan = #{nextPlan},dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass} where thesisID = #{thesisID} and num = #{num}")
+    @Update("update papercomment set dateStu = #{dateStu}, preSum = #{preSum}, nextPlan = #{nextPlan},dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass}, num = #{num} where thesisID = #{thesisID} and ID = #{ID}")
     int updateStuComment(PaperComment paperComment);
 
     @Select("SELECT t.id, t.studentid, t.NAME, t.url, t.YEAR, t.MONTH, t.tutorid, t.grade, t.start_thesis_id FROM thesis t, student s, undergraduate u WHERE u.studentID = #{stuID} and t.studentID = u.ID and u.studentID = s.ID and t.start_thesis_id = #{startThesisID}")
@@ -64,4 +64,15 @@ public interface PaperCommentMapper {
 
     @Select("SELECT fillMiss FROM thesis WHERE ID = #{thesisID}")
     Integer getFillMiss(Integer thesisID);
+
+    @Update("UPDATE papercomment set num = num + 1 " +
+            "where thesisID=#{thesisID} and num >= #{num} and num < #{total}")
+    Integer addNum(@Param("thesisID") Integer thesisID, @Param("num") Integer num,@Param("total") Integer total);
+
+    @Update("UPDATE papercomment set num = num - 1 " +
+            "where thesisID=#{thesisID} and num > #{oldNum} and num <= #{newNum}")
+    Integer subNum(@Param("thesisID") Integer thesisID, @Param("oldNum") Integer oldNum,@Param("newNum") Integer newNum);
+
+    @Select("select * from papercomment where ID = #{ID}")
+    PaperComment selectByID(Integer ID);
 }

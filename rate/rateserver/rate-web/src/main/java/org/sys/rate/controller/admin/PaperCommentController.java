@@ -78,8 +78,8 @@ public class PaperCommentController {
      * 新增保存评论
      */
     @PostMapping("/add")
-    public JsonResult addSave(PaperComment paperComment) throws MessagingException {
-        Integer res = paperCommentService.insertComment(paperComment);
+    public JsonResult addSave(int total, PaperComment paperComment) throws MessagingException {
+        Integer res = paperCommentService.insertComment(total, paperComment);
         return new JsonResult(res);
 
     }

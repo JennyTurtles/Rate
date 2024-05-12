@@ -84,7 +84,7 @@
                     margin-left: 10px;
                   "
                 >
-                  {{ scope.row.num }}
+                  {{ scope.$index + 1 }}
                 </span>
               </div>
               <div style="margin-bottom: 10px">
@@ -127,7 +127,7 @@
               </div>
               <div style="display: flex; justify-content: center">
                 <el-button
-                    @click="showEditEmpView(scope.row)"
+                    @click="showEditEmpView(scope.$index + 1, scope.row)"
                     style="padding: 4px; margin-right: 10px"
                     size="mini"
                     icon="el-icon-edit"
@@ -222,7 +222,7 @@
         >
           <!-- <span class="isMust">*</span> -->
           <span>
-            {{ emp.num }}
+            {{ curIndex }}
           </span>
         </el-form-item>
 
@@ -241,6 +241,7 @@
                 type="date"
                 placeholder="请选择指导时间"
                 :picker-options="pickerOptions"
+                @change="dateChange(emp.dateStu,emp.num)"
                 v-if="showTimeSelect2"
             ></el-date-picker>
             <span v-if="showTimeSelect">{{ emp.dateStu }}</span>
@@ -371,6 +372,7 @@ export default {
       showTimeSelect: true,
       showTimeSelect2: false,
       fillMiss: 0,
+      isEdit: false,
 
       emp: {
         id: null,
@@ -445,6 +447,8 @@ export default {
   mounted() {
     this.initEmps();
     this.user = JSON.parse(localStorage.getItem('user'))
+    console.log(this.user.token)
+
   },
   filters: {},
   methods: {
@@ -603,6 +607,43 @@ export default {
     rowClass() {
       return "background:#b3d8ff;color:black;font-size:13px;text-align:center";
     },
+    binarySearchForPosition(newDate) {
+      let low = 0;
+      let emps = this.emps;
+      let high = emps.length - 1;
+      newDate.setHours(0,0,0,0);
+      while (low <= high) {
+        const mid = Math.floor((low + high) / 2);
+        const midDate = new Date(emps[mid].dateStu);
+        midDate.setHours(0,0,0,0);
+        if (midDate < newDate) {
+          low = mid + 1;
+        } else if (midDate > newDate) {
+          high = mid - 1;
+        } else {
+          this.curIndex = mid + 1;
+          return;
+        }
+      }
+      this.curIndex = low + 1;
+    },
+    dateChange(date,oldnum){
+      const parts = date.split("-");
+      const newDate = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      this.binarySearchForPosition(newDate);
+      if (this.curIndex > oldnum && this.isEdit === true)
+        this.curIndex --;
+      if (this.curIndex > 1){
+        this.prePlan = this.emps[this.curIndex - 2].nextPlan;
+        this.preDate = this.emps[this.curIndex - 2].dateStu;
+        if (this.curIndex < this.total)
+          this.nextDate = this.emps[this.curIndex].dateStu;
+      }
+      else{
+        this.showTooltip = false;
+        this.prePlan = "";
+      }
+    },
     emptyEmp() {
       this.emp = {
         dateStu: new Date(),
@@ -616,26 +657,27 @@ export default {
     },
 
     //编辑按钮
-    showEditEmpView(data) {
+    showEditEmpView(index, data) {
       this.title = "编辑记录信息";
 
       this.emp = data;
-      this.emp.id = 1;
+      this.isEdit = true;
+      this.curIndex = index;
       // 修改编辑时日期的显示状态
       this.showTimeSelect = this.emp.isPass !== "tea_pass" ? false : true;
       this.showTimeSelect2 = this.emp.isPass !== "tea_pass" ? true : false;
 
-      if (data.num > 1) {
+      if (index > 1) {
         this.showTooltip = true;
-        this.prePlan = this.emps[data.num - 2].nextPlan;
+        this.prePlan = this.emps[index - 2].nextPlan;
         // 不是第一条记录
-        if (data.num < this.total) {
+        if (index < this.total) {
           this.timeChoose = 14;
-          this.preDate = this.emps[data.num - 2].dateStu;
-          this.nextDate = this.emps[data.num].dateStu;
-        } else if ((data.num = this.total)) {
+          this.preDate = this.emps[index - 2].dateStu;
+          this.nextDate = this.emps[index].dateStu;
+        } else if ((index = this.total)) {
           this.timeChoose = 15;
-          this.preDate = this.emps[data.num - 2].dateStu;
+          this.preDate = this.emps[index - 2].dateStu;
         }
       } else {
         this.showTooltip = false;
@@ -643,7 +685,7 @@ export default {
         // 是第一条记录
         if (this.total > 1) {
           this.timeChoose = 12;
-          this.nextDate = this.emps[data.num].dateStu;
+          this.nextDate = this.emps[index].dateStu;
         } else if (this.total == 1) {
           this.timeChoose = 13;
         }
@@ -664,12 +706,14 @@ export default {
       }
     },
     doAddEmp() {
-      if (this.emp.id == 1) {
+      if (this.isEdit) {
         var empdata = this.emp;
+        console.log(this.emp)
         this.emptyEmp();
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
-            this.emp.num = empdata.num;
+            this.emp.ID = empdata.id;
+            this.emp.num = this.curIndex;
             this.emp.preSum = empdata.preSum;
             this.emp.nextPlan = empdata.nextPlan;
             this.emp.dateStu = empdata.dateStu;
@@ -693,7 +737,7 @@ export default {
         var empdata = this.emp;
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
-            this.emp.num = this.total + 1;
+            this.emp.num = this.curIndex;
             this.emp.preSum = empdata.preSum;
             this.emp.nextPlan = empdata.nextPlan;
             this.emp.dateStu = empdata.dateStu;
@@ -703,17 +747,17 @@ export default {
 
             const _this = this;
 
-            if (this.total > 0) {
-              let date1 = Date.parse(this.emps[this.total - 1].dateStu);
-              let date2 = Date.parse(this.emp.dateStu);
+            // if (this.total > 0) {
+            //   let date1 = Date.parse(this.emps[this.total - 1].dateStu);
+            //   let date2 = Date.parse(this.emp.dateStu);
+            //
+            //   if (date1 + 86400000 > date2) {
+            //     this.$message.error({message: "请选择合适的指导时间！"});
+            //     return;
+            //   }
+            // }
 
-              if (date1 + 86400000 > date2) {
-                this.$message.error({message: "请选择合适的指导时间！"});
-                return;
-              }
-            }
-
-            this.postRequest1("/paperComment/basic/add", _this.emp).then((resp) => {
+            this.postRequest1("/paperComment/basic/add?total=" + this.total + 1, _this.emp).then((resp) => {
               if (resp) {
                 this.dialogVisible = false;
                 this.initEmps();
@@ -729,6 +773,7 @@ export default {
       this.options = [];
       this.emptyEmp();
       this.title = "添加记录";
+      this.isEdit = false;
       this.dialogVisible = true; //440
       this.curIndex = this.total + 1;
       this.showTimeSelect = false;
@@ -763,6 +808,9 @@ export default {
           this.isShowAddButton = true;
           const resp = await this.getRequest(url);
           this.emps = resp.data;
+          // for (let i = 0; i < this.emps.length; i++) {
+          //   this.emps[i].num = i + 1;
+          // }
           this.total = resp.data.length;
           this.getFillMiss();
         } else {
