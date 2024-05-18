@@ -2,7 +2,6 @@ package org.sys.rate.service.admin;
 
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.PaperCommentMapper;
-import org.sys.rate.model.DisplayItem;
 import org.sys.rate.model.PaperComment;
 import org.sys.rate.model.Student;
 import org.sys.rate.model.Thesis;

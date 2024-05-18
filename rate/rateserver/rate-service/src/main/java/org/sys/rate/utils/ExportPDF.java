@@ -59,7 +59,7 @@ public class ExportPDF {
         this.DEST = uploadPath + "exportFiles\\";
         this.FONT_PATH_Song = uploadPath + "song.ttf";
         this.TEMPLATE_PATH10 = uploadPath + "template_11.pdf";
-        this.TEMPLATE_PATH20 = uploadPath + "template_20.pdf";
+        this.TEMPLATE_PATH20 = uploadPath + "template_21.pdf";
     }
 
 
@@ -99,11 +99,12 @@ public class ExportPDF {
 
             Map<String, Object> model = generatePDFTemplateData(thesis, student, teacher, paperComments);
             fillPDFTemplateFields(ps, form, FontSong, model);
-            ps.setFormFlattening(true);
+            //ps.setFormFlattening(true);
         } catch (Exception e) {
             handlePDFExportError(e, fileName);
             return false;
         } finally {
+            ps.setFormFlattening(true);
             ps.close();
             reader.close();
             os.close();
@@ -351,7 +352,7 @@ public class ExportPDF {
         cell.setFixedHeight(signRect.getTop()-signRect.getBottom()-1);
         cell.setBorderWidth(0);
         cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
         table.addCell(cell);
         table.writeSelectedRows(0, -1, signRect.getLeft(), signRect.getTop(), contentByte);
     }
