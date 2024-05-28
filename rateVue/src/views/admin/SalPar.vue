@@ -30,7 +30,7 @@
           </el-button>
         </div> -->
         <div>
-          <el-button type="success" @click="showMethod" v-show="mode === 'admin'">
+          <el-button type="success" @click="showMethod" v-show="mode === 'admin' || (mode === 'secretarySub' && isGroup !== 'false')">
             导入选手信息
           </el-button>
         </div>
@@ -492,6 +492,7 @@ export default {
       activityID: '',
       groupID: '',
       mode:'',
+      isGroup: true,
       size: 10,
       positions: [],
       participants: [],
@@ -552,6 +553,7 @@ export default {
     this.ACNAME=this.$route.query.keywords_name;
     this.activityIDParent=this.$route.query.activityIDParent;
     this.groupIDParent=this.$route.query.groupIDParent;
+    this.isGroup = this.$route.query.isGroup;
     if (!this.groupID){
      this.getRequest("/groups/basic/parsForUniqueGroupSubActivity?activityID="+this.activityID+"&groupIDParent="+this.groupIDParent).then(res => {
       if (res){

@@ -153,7 +153,7 @@ export default {
        transform: (value) => Number(value),
       },
      ],
-     comment: [{required: true, message: "请输入备注", trigger: "blur"}],
+     //comment: [{required: true, message: "请输入备注", trigger: "blur"}],
     },
    }
   },

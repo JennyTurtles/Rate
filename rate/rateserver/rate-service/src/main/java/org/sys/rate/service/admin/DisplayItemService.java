@@ -376,17 +376,21 @@ public class DisplayItemService {
     //获取默认情况下的展示项
     public List<DisplayItem> getOrdinaryDisplayItem(Integer activityID){
         List<DisplayItem> res = new ArrayList<>();
+        int num = 3;
         res.add(new DisplayItem(0, "组名", "组名", "group"));
         res.add(new DisplayItem(1, "编号", "编号", "code"));
         res.add(new DisplayItem(2, "姓名", "姓名", "name"));
         Integer majorCodeID = infoItemMapper.getMajorCode(activityID);
-        res.add(new DisplayItem(3, "报考专业代码", "报考专业代码", "infoitem."+ majorCodeID));
+        if (majorCodeID != null){
+            num++;
+            res.add(new DisplayItem(3, "报考专业代码", "报考专业代码", "infoitem."+ majorCodeID));
+        }
         List<ScoreItem> scoreItems = scoreItemMapper.getAllByActicityID(activityID);
         //把活动得分放最后
         ScoreItem score = scoreItems.get(0);
         scoreItems.remove(0);
         scoreItems.add(score);
-        Integer ID = 4;
+        Integer ID = num;
         for (ScoreItem scoreItem:scoreItems){
             String source = "scoreitem."+ scoreItem.getId();
             res.add(new DisplayItem(ID,scoreItem.getName(),scoreItem.getName(),source));
@@ -397,14 +401,18 @@ public class DisplayItemService {
     //获取默认情况下的展示项
     public List<DisplayItem> getExpertDisplayItem(Integer activityID){
         List<DisplayItem> res = new ArrayList<>();
-        res.add(new DisplayItem(0, "组名", "组名", "group"));
-        res.add(new DisplayItem(1, "编号", "编号", "code"));
-        res.add(new DisplayItem(2, "姓名", "姓名", "name"));
+        int num = 0;
+        res.add(new DisplayItem(num++, "组名", "组名", "group"));
+        res.add(new DisplayItem(num++, "编号", "编号", "code"));
+        res.add(new DisplayItem(num++, "姓名", "姓名", "name"));
         Integer majorCodeID = infoItemMapper.getMajorCode(activityID);
-        res.add(new DisplayItem(3, "报考专业代码", "报考专业代码", "infoitem."+ majorCodeID));
-        res.add(new DisplayItem(4, "专家评分", "专家评分", "scores"));
+        if (majorCodeID != null){
+            num++;
+            res.add(new DisplayItem(num++, "报考专业代码", "报考专业代码", "infoitem."+ majorCodeID));
+        }
+        res.add(new DisplayItem(num++, "专家评分", "专家评分", "scores"));
         Integer TotalScoreID = scoreItemMapper.selectScoreItemFinal(activityID);
-        res.add(new DisplayItem(5, "平均分", "活动总评分", "scoreitem."+ TotalScoreID));
+        res.add(new DisplayItem(num, "平均分", "活动总评分", "scoreitem."+ TotalScoreID));
         return res;
     }
 }

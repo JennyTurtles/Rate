@@ -59,7 +59,7 @@
 <!--    <div v-show="flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。-->
 <!--        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。-->
 <!--    </div>-->
-    <div v-show="mode === 'admin'">
+    <div v-show="mode === 'admin' || (mode === 'secretarySub' && isGroup !== 'false')">
       <el-button type="success" @click="showMethod" style="margin-top: 0px" v-if="haveGroup || groupID" v-show="!$route.query.flag ">
         添加专家
       </el-button>
@@ -726,6 +726,7 @@ export default {
       err_title: '',
       err_msg: '',
       mode:"",
+      isGroup: true,
     };
   },
   computed: {
@@ -744,6 +745,8 @@ export default {
     this.groupIDParent = this.$route.query.groupIDParent;
     this.ACNAME = this.$route.query.keywords_name;
     this.mode = this.$route.query.mode;
+    this.isGroup = this.$route.query.isGroup;
+    console.log(this.isGroup)
     this.haveSub = this.$route.query.haveSub;
     this.flag = this.$route.query.flag == 1 ? 1 : 0;
     this.initHrs();
@@ -947,8 +950,11 @@ export default {
     initHrs(checkFlag,oldLen,checkGroupID) {
       this.loading = true;
       if (typeof this.activityID == "undefined" || this.mode === 'secretary') { // 此时是从分组管理进入的
+        var groupID = this.groupID
+        if (this.mode === 'secretarySub' && this.isGroup === 'false')
+          groupID = this.groupIDParent;
           this.getRequest(
-              "/systemM/Experts/?keywords=" + this.groupID +
+              "/systemM/Experts/?keywords=" + groupID +
               "&page=" + 1 +
               "&size=" + 1000 // 避免分页
           ).then((resp) => {

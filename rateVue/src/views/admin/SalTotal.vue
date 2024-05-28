@@ -489,7 +489,7 @@ export default {
         for(let i in this.first){
           let displayitems = this.first[i];
           for (let j in displayitems){
-            if (source === displayitems[j].source) return displayitems[j].activityID;
+            if (source === j) return displayitems[j].activityID;
           }
         }
       }
@@ -628,6 +628,12 @@ export default {
           if (this.subActivities.length===1){
             this.dynamicItem[0].info=this.findInfos(this.keywords);
           }
+          let value = this.first[this.currentActivity];
+          this.subFirst.splice(0);
+          for (let i in value){
+            this.subFirst.push(value[i]);
+          }
+          console.log(this.dynamicItem)
         }
       }
       else {

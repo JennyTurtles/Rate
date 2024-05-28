@@ -1344,7 +1344,7 @@ export default {
      // groupID: this.$route.query.groupID ? this.$route.query.groupID : this.groupID,
      actName: this.$route.query.actName,
      groupName: this.$route.query.groupName,
-     isGroup: this.$route.query.isGroup,
+     isGroup: data.requireGroup,
      haveSub: this.$route.query.haveSub,
      id: this.$route.query.id,
      smallGroup: false, // 从活动管理进入的，因此不是小组
@@ -1797,6 +1797,7 @@ export default {
       groupID: this.groupID,
       mode: this.mode,
       backID: this.activityID,
+      isGroup: data.requireGroup,
      },
     });
    } else if (this.mode === "secretarySub") {
@@ -1813,7 +1814,7 @@ export default {
       mode: this.mode,
       backID: this.activityID,
       backActName: this.actName,
-      isGroup: this.$route.query.isGroup,
+       isGroup: data.requireGroup,
      },
     });
    }

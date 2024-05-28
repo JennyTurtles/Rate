@@ -294,7 +294,7 @@
               placeholder="请输入上期总结"
               :show-word-limit="true"
               :rows="8"
-              :maxlength="400"
+              :maxlength="350"
           ></el-input>
         </el-form-item>
 
@@ -314,7 +314,7 @@
               placeholder="请输入下期安排"
               :show-word-limit="true"
               :rows="8"
-              :maxlength="400"
+              :maxlength="350"
           ></el-input>
         </el-form-item>
       </el-form>

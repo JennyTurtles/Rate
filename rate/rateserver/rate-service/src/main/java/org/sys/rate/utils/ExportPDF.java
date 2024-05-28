@@ -155,7 +155,7 @@ public class ExportPDF {
             data.put("nextPlan" + (i + 1), adaptRows(paperComments.get(i).getNextPlan(), NEXTPLANROWS));
             data.put("tutorComment" + (i + 1), paperComments.get(i).getTutorComment() == null || paperComments.get(i).getTutorComment().isEmpty() ? " " : paperComments.get(i).getTutorComment());
             data.put("DateStu" + (i + 1), paperComments.get(i).getDateStu());
-            data.put("DateTea" + (i + 1), paperComments.get(i).getDateTea() == null || paperComments.get(i).getDateTea().isEmpty() ? "" : paperComments.get(i).getDateTea());
+            //data.put("DateTea" + (i + 1), paperComments.get(i).getDateTea() == null || paperComments.get(i).getDateTea().isEmpty() ? "" : paperComments.get(i).getDateTea());
         }
         data.put("year", LocalDateTime.now().getYear() + "");
         data.put("month", LocalDateTime.now().getMonthValue() + "");
