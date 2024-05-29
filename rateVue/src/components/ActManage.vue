@@ -1380,7 +1380,10 @@ export default {
     } else {
      axios({
       url: "/system/Experts/exportGradeForm", method: 'post', data: gradeFormConverted,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        'token':this.user.token
+      },
       responseType: 'blob'
      }).then(res => {
       console.log(res)

@@ -46,6 +46,7 @@
                   scope.row.index === tabClickIndex && tabClickLabel === '名称'
                 "
                 v-model.trim="scope.row.name"
+                :placeholder="scope.row.name ? '' : '请输入评分项名称'"
                 size="mini"
                 maxlength="500"
                 @input="editing = true"
@@ -507,6 +508,10 @@ export default {
       this.currentfocusdata = ""
     },
     UpdateOrNew(scoreItem) {
+      if (scoreItem.name === ''){
+        Message.warning("请输入信息项名称！");
+        return;
+      }
       const _this = this;
       _this
           .postRequest("/scoreItem/basic/UpdateOrNew?institutionID="+this.user.institutionID, scoreItem)
@@ -544,7 +549,8 @@ export default {
       let obj = {};
       obj.activityid = this.keywords;
       obj.score = 100;
-      obj.name = '请输入评分项名称';
+      //obj.name = '请输入评分项名称';
+      obj.name = '';
       obj.coef = 1;
       obj.byexpert = 1;
       this.hrs.push(obj);

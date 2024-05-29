@@ -49,6 +49,7 @@
                 v-model.trim="scope.row.name"
                 size="mini"
                 maxlength="80"
+                :placeholder="scope.row.name ? '' : '请输入信息项名称'"
                 @input="editing = true"
                 @focus="beforehandleEdit(scope.$index,scope.row,'name')"
                 @change="handleEdit(scope.$index,scope.row,'name')"
@@ -593,6 +594,10 @@ export default {
       });
     },
     UpdateOrNew(infoItem) {
+      if (infoItem.name === ''){
+        Message.warning("请输入信息项名称！");
+        return;
+      }
       const _this = this;
       _this
           .postRequest("/infoItem/basic/UpdateOrNew?institutionID="+this.user.institutionID, infoItem)
@@ -649,8 +654,9 @@ export default {
       let obj = {};
       obj.activityID = this.keywords;
       obj.contentType = 'label';
-      obj.shuZuType = ['label']
-      obj.name = '请输入信息项名称';
+      obj.shuZuType = ['label'];
+      //obj.name = '请输入信息项名称';
+      obj.name = '';
       obj.sizelimit='';
       obj.display = true;
       obj.byParticipant = false;
