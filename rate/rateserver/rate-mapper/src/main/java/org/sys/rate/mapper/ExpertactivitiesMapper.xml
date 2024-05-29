@@ -170,6 +170,13 @@ VALUES (#{id,jdbcType=INTEGER}, #{expertid,jdbcType=INTEGER}, #{activityid,jdbcT
       </if>
     </trim>
   </insert>
+  <insert id="insertExperts">
+    INSERT INTO expertactivities (teacherID, activityID, groupID, finished, role)
+    VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.teacherID}, #{item.activityid}, #{item.groupid},#{item.finished},#{item.role})
+    </foreach>
+  </insert>
 
   <update id="updateByExampleSelective" parameterType="map">
     update expertactivities

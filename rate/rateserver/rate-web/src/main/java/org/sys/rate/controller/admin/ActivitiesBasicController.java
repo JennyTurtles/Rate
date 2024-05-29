@@ -82,6 +82,10 @@ public class ActivitiesBasicController {
 
     @PostMapping("/changeRequireGroup")
     public RespBean changeRequireGroup(@RequestParam Integer activityID, @RequestParam Integer requireGroup) {
+        if (requireGroup == 0){
+            Activities activities = activitiesMapper.queryById(activityID);
+            activitiesService.CreateGroupForSubWithoutGroup(activities);
+        }
         int res = activitiesMapper.changeRequireGroup(activityID, requireGroup);
         if (res == 1) {
             return RespBean.ok("success");

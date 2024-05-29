@@ -378,7 +378,7 @@
     >
      <template slot-scope="scope">
       <el-checkbox v-model="scope.row.requireGroup"
-                   @change="changeCheckGroup(scope.row)"></el-checkbox>
+                   @change="checkHaveGroup(scope.row)"></el-checkbox>
      </template>
     </el-table-column>
    </el-table>
@@ -480,6 +480,9 @@
     </el-form-item>
     <el-form-item label="包含子活动: " v-show="mode === 'admin'">
      <el-checkbox @change="checkHaveSub" v-model="haveSub"></el-checkbox>
+    </el-form-item>
+    <el-form-item label="是否分组: " v-show="mode === 'adminSub'">
+      <el-checkbox @change="checkHaveGroup(emp_edit)" v-model="requireGroup"></el-checkbox>
     </el-form-item>
     <el-form-item label="是否写评语: ">
      <el-checkbox v-model="haveComment"></el-checkbox>
@@ -935,6 +938,7 @@ export default {
    allDeps: [],
    emps: [],
    emp_edit: {},
+   checkGroupResult: true,
    gradeFormOrderList: [
     '指导教师评语',
     '评阅教师评语',
@@ -1014,7 +1018,7 @@ export default {
       transform: (value) => Number(value),
      },
     ],
-    comment: [{required: true, message: "请输入备注", trigger: "blur"}],
+    //comment: [{required: true, message: "请输入备注", trigger: "blur"}],
    },
   };
  },
@@ -1404,6 +1408,27 @@ export default {
    })
 
   },
+  checkHaveGroup(data){
+    this.checkGroupResult = true;
+    let requireGroup = this.dialogVisible ? this.requireGroup : data.requireGroup;
+    if (this.dialogVisible)
+      data.requireGroup = this.requireGroup
+    if (requireGroup === false && data.id !== null) {
+      this.getRequest('/groups/basic/getAllByActivityID?activityID=' + data.id).then(res => {
+        if (res.obj.length > 0) {
+          this.$message.warning('取消分组失败，当前子活动存在分组，请手动删除所有分组后再试');
+          data.requireGroup = true;
+          if (this.dialogVisible)
+            this.requireGroup = true;
+          this.checkGroupResult = false;
+        }
+        else
+          this.changeCheckGroup(data);
+      })
+    }
+    else
+      this.changeCheckGroup(data);
+  },
   changeCheckGroup(row) {
    this.postRequest("/activities/basic/changeRequireGroup?activityID=" + row.id + "&requireGroup=" + (row.requireGroup ? 1 : 0)).then(res => {
     if (res.status === 200) {
@@ -1411,6 +1436,7 @@ export default {
       type: 'success',
       message: '修改成功!'
      });
+     this.initEmps();
     } else {
      this.$message({
       type: 'error',

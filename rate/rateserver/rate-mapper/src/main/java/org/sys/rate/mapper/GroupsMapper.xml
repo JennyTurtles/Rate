@@ -98,11 +98,16 @@
 
     <update id="delete" parameterType="org.sys.rate.model.Groups">
         DELETE
+        FROM participants
+        WHERE groupID = #{ID,jdbcType=INTEGER};
+
+        DELETE
+        FROM expertactivities
+        WHERE groupID = #{ID,jdbcType=INTEGER};
+
+        DELETE
         FROM `groups`
         WHERE ID = #{ID,jdbcType=INTEGER};
-        UPDATE activities
-        SET groupCount = groupCount - 1
-        WHERE ID = #{activityID,jdbcType=INTEGER}
     </update>
 
     <update id="update" parameterType="org.sys.rate.model.Groups">

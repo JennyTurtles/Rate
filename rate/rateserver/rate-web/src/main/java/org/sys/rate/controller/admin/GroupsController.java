@@ -61,7 +61,7 @@ public class GroupsController {
 
     @PostMapping("/delete")
     public String deleteInstitution(@RequestBody Groups company, @RequestParam Integer institutionID) throws ParseException {
-        if (groupsService.deleteActivities(company) == 1) {
+        if (groupsService.deleteActivities(company) >= 0) {
             Log log = new Log();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             Date date = sdf.parse(sdf.format(System.currentTimeMillis()));

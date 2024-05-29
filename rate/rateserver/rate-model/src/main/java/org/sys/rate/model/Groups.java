@@ -80,4 +80,11 @@ public class Groups {
         this.name = name;
         this.parentID = parentID;
     }
+    public Groups(Integer participantCount, Integer expertCount, Integer activityID, Integer parentID, String name) {
+        this.participantCount = participantCount;
+        this.expertCount = expertCount;
+        this.activityID = activityID;
+        this.name = name;
+        this.parentID = parentID;
+    }
 }

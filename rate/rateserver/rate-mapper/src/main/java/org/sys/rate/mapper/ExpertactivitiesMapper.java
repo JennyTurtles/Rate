@@ -2,13 +2,11 @@ package org.sys.rate.mapper;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.sys.rate.model.Expertactivities;
 import org.sys.rate.model.Experts;
+import org.sys.rate.model.Participates;
 
 @Mapper
 public interface ExpertactivitiesMapper {
@@ -67,4 +65,9 @@ public interface ExpertactivitiesMapper {
 
     @Delete("DELETE FROM expertactivities WHERE activityID = #{activityID}")
     void deleteByActivityid(Integer activityID);
+
+    @Select("SELECT * FROM expertactivities where groupID = #{groupIDParent}")
+    List<Expertactivities> getExpertsByGroupID(@Param("groupIDParent") Integer groupIDParent);
+
+    void insertExperts(List<Expertactivities> list);
 }

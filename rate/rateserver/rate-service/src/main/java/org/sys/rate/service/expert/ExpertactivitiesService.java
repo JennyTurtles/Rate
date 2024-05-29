@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.ExpertactivitiesMapper;
 import org.sys.rate.model.Expertactivities;
 import org.sys.rate.model.Experts;
+import org.sys.rate.model.Participates;
 
 import java.util.List;
 
@@ -39,6 +40,18 @@ public class ExpertactivitiesService {
     public List<Expertactivities> selectActByExpertID(Integer expertID){
         List<Expertactivities> ExActivities=expertactivitiesMapper.getActByExpertID(expertID);
         return ExActivities;
+    }
+
+    // 将专家从主活动复制到子活动，适用于无需分组的子活动
+    public void copyExperts(Integer groupIDParent, Integer activityIDSon, Integer groupIDSon){
+        List<Expertactivities> ExpertInParent = expertactivitiesMapper.getExpertsByGroupID(groupIDParent);
+        if (ExpertInParent == null || ExpertInParent.isEmpty())
+            return;
+        for (Expertactivities expertactivitie : ExpertInParent){
+            expertactivitie.setActivityid(activityIDSon);
+            expertactivitie.setGroupid(groupIDSon);
+        }
+        expertactivitiesMapper.insertExperts(ExpertInParent);
     }
 
 }
