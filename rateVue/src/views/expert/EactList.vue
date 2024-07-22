@@ -196,6 +196,7 @@ export default {
           newTemp.push(temp[j])
         }
       }
+      console.log(newTemp)
       return newTemp;
     },
     //表头样式
@@ -203,11 +204,13 @@ export default {
       return "background:#b3d8ff;color:black;font-size:10px;text-align:center";
     },
     showEnterView(data, index) {
+      console.log(data)
       sessionStorage.removeItem('score')
       this.$router.push({
         path: "/Expert/peract/score",
         query: {
           keywords: data.activityID,
+          groupID: data.groupId,
         },
       });
     },

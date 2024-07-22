@@ -505,6 +505,24 @@ export default {
     async exportPDF() {
       this.loading = true;
 
+      if (this.emps.length > 30) {
+        try {
+          const confirm = await this.$confirm('您的毕业论文指导记录超过30条，是否确认导出？若确认导出，则导出前30条记录，否则自行删除部分记录。', '', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          });
+
+          if (!confirm) {
+            this.loading = false;
+            return;
+          }
+        } catch (error) {
+          this.loading = false;
+          return;
+        }
+      }
+
       if (this.thesisID !== null) {
         const res = await this.getRequest("/paperComment/basic/checkSign?thesisID=" + this.thesisID);
         let message = '';

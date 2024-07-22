@@ -1,6 +1,7 @@
 package org.sys.rate.service.expert;
 
 import cn.hutool.core.lang.Pair;
+import cn.hutool.core.util.StrUtil;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.ExpertActivitiesService;
+import org.sys.rate.service.admin.TeachersService;
 import org.sys.rate.utils.PasswordUtils;
 
 import javax.annotation.Resource;
@@ -45,6 +47,10 @@ public class ExpertService implements UserDetailsService {
     CommentMapper commentMapper;
     @Resource
     ExpertActivitiesService expertActivitiesService;
+    @Resource
+    TeachersService teachersService;
+    @Resource
+    TeachersMapper teachersMapper;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -775,5 +781,45 @@ public class ExpertService implements UserDetailsService {
         if (haveLeader)
             return "";
         return defenseComment.get(0).getTeacherName();
+    }
+
+    public RespBean importExpertName(Integer institutionID, RespPageBean bean, Integer activityID){
+        List<Experts> list = (List<Experts>) bean.getData();
+        List<Expertactivities> res = new ArrayList<>();
+        int index = 1;
+        for (Experts expert: list){
+            index ++;
+            Integer groupID = groupsMapper.selectIDByActivityIdAndGroupName(activityID, expert.getGroupName());
+            Expertactivities expertactivities = new Expertactivities();
+            if (groupID == null)
+                return RespBean.error("本活动中不存在第" + index +"行中的组别，请重新检查导入数据！");
+            expertactivities.setGroupid(groupID);
+            expertactivities.setActivityid(activityID);
+            expertactivities.setRole(expert.getRole());
+            expertactivities.setFinished(false);
+            List<Experts> experts = teachersMapper.getExpertsByName(expert.getName(), institutionID);
+            if(experts.size()==0){
+                continue;
+            }
+            if (StrUtil.isBlank(expert.getJobNumber()) && experts.size()>1) {
+                return RespBean.error("第" + index +"行存在同名的专家且未填工号，请重新检查导入数据！");
+            }
+            if (experts.size() == 1 && expert.getJobNumber() == null) {
+                expertactivities.setTeacherID(experts.get(0).getID());
+                res.add(expertactivities);
+                continue;
+            }
+            Experts expertBasedOnJobNumber = teachersMapper.getTeacherExist(expert.getJobNumber(), expert.getName(), institutionID);
+            if (expertBasedOnJobNumber == null)
+                return RespBean.error("第" + index +"行专家姓名与工号不匹配，请重新检查导入数据！");
+            expertactivities.setTeacherID(experts.get(0).getID());
+            res.add(expertactivities);
+        }
+        expertactivitiesMapper.insertExperts(res);
+        List<Groups> AllGroups = groupsMapper.getGroupByActID(activityID);
+        for (Groups group: AllGroups){
+            groupsMapper.updateExpertCount(activityID, group.getID());
+        }
+        return RespBean.ok("success");
     }
 }

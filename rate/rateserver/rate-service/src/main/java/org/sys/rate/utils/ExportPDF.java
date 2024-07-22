@@ -53,6 +53,7 @@ public class ExportPDF {
     private String FONT_PATH_Song;
     private String TEMPLATE_PATH10;
     private String TEMPLATE_PATH20;
+    private String TEMPLATE_PATH30;
 
     public ExportPDF() {
         this.uploadPath = new File("files").getAbsolutePath() + "\\template\\";
@@ -60,6 +61,7 @@ public class ExportPDF {
         this.FONT_PATH_Song = uploadPath + "song.ttf";
         this.TEMPLATE_PATH10 = uploadPath + "template_11.pdf";
         this.TEMPLATE_PATH20 = uploadPath + "template_21.pdf";
+        this.TEMPLATE_PATH30 = uploadPath + "template_31.pdf";
     }
 
 
@@ -77,12 +79,16 @@ public class ExportPDF {
             student = studentService.getByUndergraduateId(thesis.getStudentID());
             teacher = teachersService.getById(thesis.getTutorID());
             paperComments = paperCommentService.selectCommentListStuOrderByNum(thesisID);
+            if (paperComments.size() > 30) {
+                paperComments = paperComments.subList(0, 30);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
 
-        String templatePath = paperComments.size() <= 10 ? TEMPLATE_PATH10 : TEMPLATE_PATH20;
+        String templatePath = paperComments.size() > 20 ? TEMPLATE_PATH30 :
+                (paperComments.size() <= 10 ? TEMPLATE_PATH10 : TEMPLATE_PATH20);
         String fileName = student.getName() + "-" + UUID.randomUUID() + ".pdf";
 
         OutputStream os = null;
@@ -108,7 +114,7 @@ public class ExportPDF {
             ps.close();
             reader.close();
             os.close();
-            if (paperComments.size() != 10 && paperComments.size() != 20) {
+            if (paperComments.size() != 10 && paperComments.size() != 20 && paperComments.size() != 30) {
                 String fileNewName = student.getName() + "-" + UUID.randomUUID().toString() + ".pdf";
                 removePageFromPDF(DEST + fileName, DEST + fileNewName, paperComments.size() + 1);
                 getDownload(response, DEST + fileNewName, false);
@@ -180,9 +186,11 @@ public class ExportPDF {
                 form.setField(key, data.get(key) != null ? data.get(key) + "" : "");
         }
 
-        File stuSign = new File((String) data.get("stuSign"));
+        File stuSign = null;
+        if (data.get("stuSign") != null)
+            stuSign = new File((String) data.get("stuSign"));
         form.setField("stuSign", "");
-        if (stuSign.exists()) {
+        if (stuSign != null) {
             // 读图片
             List<AcroFields.FieldPosition> positions = form.getFieldPositions("stuSign");
             for (AcroFields.FieldPosition position : positions) {
@@ -200,9 +208,12 @@ public class ExportPDF {
             }
         }
 
-        File teaSign = new File((String) data.get("teaSign"));
+        File teaSign = null;
+        if (data.get("teaSign") != null)
+            teaSign = new File((String) data.get("teaSign"));
+        //File teaSign = new File((String) data.get("teaSign"));
         form.setField("teaSign", "");
-        if (teaSign.exists()) {
+        if (teaSign != null) {
             // 读图片
             List<AcroFields.FieldPosition> positions = form.getFieldPositions("teaSign");
             for (AcroFields.FieldPosition position : positions) {

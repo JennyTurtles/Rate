@@ -1,7 +1,21 @@
 <template>
  <div>
   <div>
-   <div
+    <div style="text-align: center;" v-show="mode === 'secretarySub'">
+      <span style="font-size: 20px;">{{ $route.query.groupName }} 组内管理</span>
+      <el-dropdown @command='goAnotherGroupForSub'>
+    <span style="margin-left: 20px" class="el-dropdown-link" v-show="!this.$route.query.forSecretary">
+      切换分组<i class="el-icon-arrow-down el-icon--right"></i>
+    </span>
+        <el-dropdown-menu slot="dropdown">
+          <el-dropdown-item :disabled="$route.query.groupID == item.id" :command="item.id" v-for="item in groupList">
+            {{item.name}}
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+    </div>
+
+    <div
        style="display: flex; justify-content: space-between; margin: 5px 0">
     <div>
      <el-input
@@ -41,18 +55,6 @@
                 v-show="mode === 'admin'">
       克隆活动
      </el-button>
-<!--     <div style="text-align:center">-->
-     <span v-show="mode === 'secretarySub'">{{ $route.query.groupName }} 组内管理</span>
-     <el-dropdown @command='goAnotherGroupForSub'>
-     <span style="margin-left: 20px" class="el-dropdown-link" v-show="mode === 'secretarySub' && !this.$route.query.forSecretary">
-     切换分组<i class="el-icon-arrow-down el-icon--right"></i>
-     </span>
-      <el-dropdown-menu  slot="dropdown">
-       <el-dropdown-item :disabled="$route.query.groupID == item.id" :command="item.id" v-for="item in groupList"
-       >{{item.name}}</el-dropdown-item>
-      </el-dropdown-menu>
-     </el-dropdown>
-<!--     </div>-->
     </div>
     <div style="margin-left: auto;margin-bottom: 10px">
      <el-button
@@ -378,7 +380,7 @@
     >
      <template slot-scope="scope">
       <el-checkbox v-model="scope.row.requireGroup"
-                   @change="checkHaveGroup(scope.row)"></el-checkbox>
+                   @change="changeCheckGroup(scope.row)"></el-checkbox>
      </template>
     </el-table-column>
    </el-table>
@@ -482,7 +484,7 @@
      <el-checkbox @change="checkHaveSub" v-model="haveSub"></el-checkbox>
     </el-form-item>
     <el-form-item label="是否分组: " v-show="mode === 'adminSub'">
-      <el-checkbox @change="checkHaveGroup(emp_edit)" v-model="requireGroup"></el-checkbox>
+      <el-checkbox @change="changeCheckGroup(emp_edit)" v-model="requireGroup"></el-checkbox>
     </el-form-item>
     <el-form-item label="是否写评语: ">
      <el-checkbox v-model="haveComment"></el-checkbox>
@@ -1408,42 +1410,58 @@ export default {
    })
 
   },
-  checkHaveGroup(data){
-    this.checkGroupResult = true;
-    let requireGroup = this.dialogVisible ? this.requireGroup : data.requireGroup;
-    if (this.dialogVisible)
-      data.requireGroup = this.requireGroup
-    if (requireGroup === false && data.id !== null) {
-      this.getRequest('/groups/basic/getAllByActivityID?activityID=' + data.id).then(res => {
-        if (res.obj.length > 0) {
-          this.$message.warning('取消分组失败，当前子活动存在分组，请手动删除所有分组后再试');
-          data.requireGroup = true;
-          if (this.dialogVisible)
-            this.requireGroup = true;
-          this.checkGroupResult = false;
-        }
-        else
-          this.changeCheckGroup(data);
-      })
-    }
-    else
-      this.changeCheckGroup(data);
-  },
+  // checkHaveGroup(data){
+  //   this.checkGroupResult = true;
+  //   let requireGroup = this.dialogVisible ? this.requireGroup : data.requireGroup;
+  //   if (this.dialogVisible)
+  //     data.requireGroup = this.requireGroup
+  //   if (requireGroup === false && data.id !== null) {
+  //     this.getRequest('/groups/basic/getAllByActivityID?activityID=' + data.id).then(res => {
+  //       if (res.obj.length > 0) {
+  //         console.log(res)
+  //         this.$message.warning('取消分组失败，当前子活动存在分组，请手动删除所有分组后再试');
+  //         data.requireGroup = true;
+  //         if (this.dialogVisible)
+  //           this.requireGroup = true;
+  //         this.checkGroupResult = false;
+  //       }
+  //       else
+  //         this.changeCheckGroup(data);
+  //     })
+  //   }
+  //   else
+  //     this.changeCheckGroup(data);
+  // },
   changeCheckGroup(row) {
+    const previousRequireGroup = row.requireGroup;
    this.postRequest("/activities/basic/changeRequireGroup?activityID=" + row.id + "&requireGroup=" + (row.requireGroup ? 1 : 0)).then(res => {
-    if (res.status === 200) {
+    if (res.msg === "修改成功！") {
      this.$message({
       type: 'success',
       message: '修改成功!'
      });
      this.initEmps();
     } else {
-     this.$message({
-      type: 'error',
-      message: '修改失败!'
-     });
+      this.$nextTick(() => {
+        row.requireGroup = true;
+      });
+      if (this.dialogVisible) {
+        this.requireGroup = true;
+      }
+      this.$confirm(res.msg, '错误', {
+        confirmButtonText: '确定',
+        type: 'warning'
+      })
     }
-   })
+   }).catch(error => {
+     // 恢复到操作前的状态
+     this.$nextTick(() => {
+       row.requireGroup = !previousRequireGroup;
+     });
+     if (this.dialogVisible) {
+       this.requireGroup = previousRequireGroup;
+     }
+   });
   },
   rowClass() {
    return 'background:#b3d8ff;color:black;font-size:13px;text-align:center'
@@ -1539,46 +1557,37 @@ export default {
   deleteEmp(data) {
    data.requireGroup = null
    data.institutionID = this.user.institutionID;
-   this.getRequest("/activities/basic/check?id=" + data.id).then(res => {
-    if (res == true) {
-     this.$confirm(
-         "此操作将永久删除【" + data.name + "】, 是否继续?",
-         "提示",
-         {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
+    this.$confirm(
+        "是否选择彻底删除【" + data.name + "】活动，或选择将其放入回收站",
+        "提示",
+        {
+          confirmButtonText: "彻底删除",
+          cancelButtonText: "放入回收站",
           type: "warning",
-         }
-     ).then(() => {
-      this.postRequest("/activities/basic/predelete", data).then((resp) => {
-       if (resp) {
-        this.dialogVisible = false;
-        this.$message({type: 'success', message: '删除成功!'});
-        this.initEmps();
-       }
+          distinguishCancelAndClose: true, // 区分取消和关闭
+        }
+    ).then(() => {
+      // 选择彻底删除
+      this.postRequest("/activities/basic/deleteCompletely", data).then((resp) => {
+        if (resp) {
+          this.dialogVisible = false;
+          this.$message({ type: 'success', message: '删除成功!' });
+          this.initEmps();
+        }
       });
-     });
-    } else {
-     this.$confirm(
-         "尚存在与活动" + data.name + "相关的信息，所以放入回收站，如要永久删除，请先删除分组和评分项等相关信息，是否放入回收站?",
-         "提示",
-         {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning",
-         }
-     ).then(() => {
-      data.requireGroup = data.requireGroup ? 1 : 0
-      this.postRequest("/activities/basic/predelete", data).then((resp) => {
-       if (resp.status === 200) {
-        this.$message({type: 'success', message: '删除成功!'});
-        this.dialogVisible = false;
-        this.initEmps();
-       }
-      });
-     });
-    }
-   })
+    }).catch((action) => {
+      if (action === 'cancel') {
+        // 选择放入回收站
+        data.requireGroup = data.requireGroup ? 1 : 0;
+        this.postRequest("/activities/basic/predelete", data).then((resp) => {
+          if (resp.status === 200) {
+            this.$message({ type: 'success', message: '已放入回收站!' });
+            this.dialogVisible = false;
+            this.initEmps();
+          }
+        });
+      }
+    });
   },
   endEmp(data) {
    data.requireGroup = data.requireGroup ? 1 : 0
@@ -1751,6 +1760,7 @@ export default {
         this.$set(item, 'isShowPermissionBtn', false)
        } else this.$set(item, 'isShowPermissionBtn', true)
       })
+       console.log(this.emps)
      }
     });
    } else if (this.mode === "secretary") { // 秘书活动管理
@@ -1839,7 +1849,7 @@ export default {
       keywords: id,
       keyword_name: data.name,
       groupID: this.$route.query.groupID, // 用于读取主活动的组内的选手
-      groupName: this.groupName,
+      groupName: this.$route.query.groupName,
       mode: this.mode,
       backID: this.activityID,
       backActName: this.actName,

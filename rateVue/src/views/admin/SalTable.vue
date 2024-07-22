@@ -1,7 +1,7 @@
 <template>
   <div>
    <AddActStep ref="addActStep" v-show="typeof $route.query.addActive !== 'undefined'" :active="parseInt($route.query.addActive)" :actID="keywords" :act-name="keywords_name" :groupNum="hrs.length"></AddActStep>
-   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2PeopleManage" v-show="$route.query.addActive == 5 && $route.query.mode === 'admin' ">
+   <el-button icon="el-icon-s-custom" style="float: right;margin-top: 12px" type="primary" @click="change2PeopleManage" v-show="$route.query.addActive == 4 && $route.query.mode === 'admin' ">
     活动人员管理
    </el-button>
     <div style="display: flex; justify-content: left">
@@ -105,7 +105,7 @@
             </el-button
             >
               <el-button
-                      v-show="typeof $route.query.addActive === 'undefined' || $route.query.addActive == 5"
+                      v-show="typeof $route.query.addActive === 'undefined' || $route.query.addActive == 4"
                       @click="assignPE(scope.row)"
                       style="padding: 4px"
                       size="mini"
@@ -210,7 +210,7 @@
               @click="handleAddDetails()"
               type="primary"
               icon="el-icon-plus"
-              v-if="!$route.query.addActive || $route.query.addActive != 5"
+              v-if="!$route.query.addActive || $route.query.addActive != 4"
           >新增
           </el-button
           >
@@ -329,6 +329,7 @@ export default {
     this.groupID = this.$route.query.groupID;
     this.mode = this.$route.query.mode;
     this.haveSub = this.$route.query.haveSub;
+    console.log(this.$route.query.backID)
     this.initHrs();
     //this.initAd();
   },
@@ -359,17 +360,11 @@ export default {
       })
           .then(() => {
             this.postRequest("/groups/basic/delete?institutionID="+this.user.institutionID, si).then((resp) => {
-              if (resp) {
-                if(resp==='删除成功!')
-                {Message.success(resp)}
-                else
-                {
-                  Message.error(resp)
-                }
-                this.initHrs();
-              }else {
-                Message.warning("请先确保组内无选手和专家")
-              }
+              if(resp.msg === '删除成功!')
+                Message.success(resp.msg)
+              else
+                Message.error(resp.msg)
+              this.initHrs();
             });
           })
     },
@@ -533,6 +528,7 @@ export default {
             groupName: this.$route.query.groupName,
             groupID: this.$route.query.groupID,
             isGroup:this.$route.query.isGroup,
+            backID: this.$route.query.backID,
           }
         });
       }
@@ -630,6 +626,7 @@ export default {
             addActive: this.$route.query.addActive,
             requireGroup: this.$route.query.requireGroup,
             forSecretary: this.$route.query.forSecretary,
+            backID: this.$route.query.backID,
           }
         })
           // if (this.mode === 'secretary' || this.mode === 'secretarySub'|| this.mode === 'adminSub'){

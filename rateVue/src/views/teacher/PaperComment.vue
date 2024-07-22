@@ -113,7 +113,7 @@
                 icon="el-icon-tickets"
                 type="primary"
                 plain="plain"
-            >编辑
+            >编辑题目
             </el-button>
 
             <el-button
@@ -123,7 +123,16 @@
                 icon="el-icon-tickets"
                 type="primary"
                 plain="plain"
-            >导出PDF
+            >导出
+            </el-button>
+            <el-button
+                size="mini"
+                type="primary"
+                plain="plain"
+                icon="el-icon-tickets"
+                @click="resetPasswordShow(scope.row)"
+                style="padding: 4px">
+              重置密码
             </el-button>
           </template>
         </el-table-column>
@@ -223,6 +232,20 @@
         </div>
       </template>
     </el-dialog>
+    <el-dialog title="重置密码" :visible.sync="dialogResetPassword" center width="400px" @close="closeDialogReset">
+      <el-form>
+        <el-form-item label="请输入新密码:">
+          <el-input style="width: 60%" v-model="newPassword"></el-input>
+        </el-form-item>
+        <!--        <el-form-item label="请确认新密码:">-->
+        <!--          <el-input style="width: 60%" v-model="conNewPassword"></el-input>-->
+        <!--        </el-form-item>-->
+        <div class="footer">
+          <el-button @click="resetPassword" type="primary">确认</el-button>
+          <el-button @click="closeDialogReset" type="primary">取消</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -319,6 +342,9 @@ export default {
         children: "children",
         label: "name",
       },
+      currentUnderStudentOfEdit:null,
+      dialogResetPassword: false,
+      newPassword: 'dhucst',//重置密码中的新密码
     };
   },
   watch: {
@@ -544,6 +570,23 @@ export default {
         return;
       }
 
+      if (data.thesis.comment_total > 30) {
+        try {
+          const confirm = await this.$confirm('该生的毕业论文指导记录超过30条，是否确认导出？若确认导出，则导出前30条记录，否则自行删除部分记录。', '', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          });
+
+          if (!confirm) {
+            this.loading = false;
+            return;
+          }
+        } catch (error) {
+          this.loading = false;
+          return;
+        }
+      }
       this.loading = true;
 
       const checkSign = async () => {
@@ -635,7 +678,37 @@ export default {
             this.loading = false;
           });
     },
-
+    resetPasswordShow(data) {//重制密码
+      console.log(data)
+      this.currentUnderStudentOfEdit = data
+      this.dialogResetPassword = true
+    },
+    closeDialogReset() {
+      this.dialogResetPassword = false
+    },
+    resetPassword() {//重制密码
+      if (this.newPassword == '' || this.newPassword == null) {
+        this.$message.warning('请输入密码！')
+        return
+      }
+      this.currentUnderStudentOfEdit.password = this.newPassword
+      const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[^a-zA-Z\d])[\S]{8,20}$/;
+      if (this.newPassword!="dhucst" && !passwordRegex.test(this.newPassword)) {
+        this.$message.error('密码必须是8-20位，包含至少一个英文字符，一个数字和一个特殊字符(@$!%*?&)');
+        return
+      }
+      this.currentUnderStudentOfEdit.studentID = this.currentUnderStudentOfEdit.id
+      this.postRequest('/undergraduateM/basic/resetUnderPassword', this.currentUnderStudentOfEdit).then((response) => {
+        if (response) {
+          if (response.status == 200) {
+            this.$message.success("重置成功，密码重置为"+this.newPassword);
+            this.closeDialogReset()
+          } else {
+            this.$message.fail("重置失败")
+          }
+        }
+      })
+    },
   },
 };
 </script>

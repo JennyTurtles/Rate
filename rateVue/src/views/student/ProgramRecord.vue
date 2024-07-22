@@ -282,7 +282,7 @@
         </el-form-item>
 
         <el-form-item
-            label="上期总结:"
+            label="阶段小结:"
             prop="preSum"
             label-width="80px"
             style="margin-left: 20px"
@@ -294,32 +294,32 @@
               style="width: 80%"
               prefix-icon="el-icon-edit"
               v-model="emp.preSum"
-              placeholder="请输入上期总结"
+              placeholder="请输入阶段小结："
               :show-word-limit="true"
               :rows="8"
               :maxlength="400"
           ></el-input>
         </el-form-item>
 
-        <el-form-item
-            label="下期计划:"
-            prop="nextPlan"
-            label-width="80px"
-            style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-input
-              type="textarea"
-              size="medium"
-              style="width: 80%"
-              prefix-icon="el-icon-edit"
-              v-model="emp.nextPlan"
-              placeholder="请输入下期安排"
-              :show-word-limit="true"
-              :rows="8"
-              :maxlength="400"
-          ></el-input>
-        </el-form-item>
+<!--        <el-form-item-->
+<!--            label="下期计划:"-->
+<!--            prop="nextPlan"-->
+<!--            label-width="80px"-->
+<!--            style="margin-left: 20px"-->
+<!--        >-->
+<!--          <span class="isMust">*</span>-->
+<!--          <el-input-->
+<!--              type="textarea"-->
+<!--              size="medium"-->
+<!--              style="width: 80%"-->
+<!--              prefix-icon="el-icon-edit"-->
+<!--              v-model="emp.nextPlan"-->
+<!--              placeholder="请输入下期安排"-->
+<!--              :show-word-limit="true"-->
+<!--              :rows="8"-->
+<!--              :maxlength="400"-->
+<!--          ></el-input>-->
+<!--        </el-form-item>-->
       </el-form>
 
       <span slot="footer" class="dialog-footer">

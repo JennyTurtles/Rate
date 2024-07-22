@@ -38,8 +38,13 @@ public interface ActivitiesMapper {
 
     List<Activities> getActivitiesByPageHelper(Integer institutionID,Integer ID);
 
+    List<Activities> getRecycleActivitiesByPage(Integer institutionID,Integer ID);
+
     @Select("SELECT * FROM activities WHERE parentID = #{activityID} AND deleteFlag = 0")
     List<Activities> getSubActivities(Integer activityID);
+
+    @Select("SELECT * FROM activities WHERE parentID = #{activityID}")
+    List<Activities> getAllSubActivities(Integer activityID);
 
     @Select("SELECT ID FROM activities WHERE parentID = #{activityID}")
     List<Integer> getSubActivitiesID(Integer activityID);
@@ -151,4 +156,13 @@ public interface ActivitiesMapper {
             "FROM expertactivities e, activities a\n" +
             "WHERE e.activityID = a.ID AND teacherID = #{teacherID} AND deleteFlag = 0 AND finished = 0 AND gradeFormType != 0 ")
     List<Activities> getWithGradeForm(Integer teacherID);
+
+    @Select("SELECT parentID FROM activities\n" +
+            "WHERE ID = #{activityID}")
+    Integer getParentID(Integer activityID);
+
+    @Update("update activities set deleteFlag = 0 where ID = #{activityID}")
+    void recoverActivity(Integer activityID);
+
+    void deleteActivityCompletely(Integer activityID);
 }

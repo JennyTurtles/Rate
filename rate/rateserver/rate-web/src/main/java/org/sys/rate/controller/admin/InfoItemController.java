@@ -4,10 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
-import org.sys.rate.mapper.InfoItemMapper;
-import org.sys.rate.mapper.InfosMapper;
-import org.sys.rate.mapper.ParticipatesMapper;
-import org.sys.rate.mapper.ScoresMapper;
+import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.*;
 
@@ -37,6 +34,8 @@ public class InfoItemController {
     ParticipatesMapper participatesMapper;
     @Resource
     TotalItemService totalItemService;
+    @Resource
+    ActivitiesMapper activitiesMapper;
 
     @GetMapping("/")
     public RespPageBean getActivitiesByPage(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, InfoItem employee) {
@@ -205,5 +204,19 @@ public class InfoItemController {
         hashFianlScore.setMap(newHash);
         all.setTotal(Long.valueOf((Integer)newHash.size()));
         return all;
+    }
+
+    @PostMapping("/copyFromParent")
+    public RespBean copyFromParent(@RequestParam Integer activityID){
+        Integer parentID = activitiesMapper.getParentID(activityID);
+        List<InfoItem> infoItemsFromParent = infoItemService.getAll(parentID);
+        infoItemMapper.deleteAll(activityID);
+        if (infoItemsFromParent == null || infoItemsFromParent.isEmpty())
+            return RespBean.ok("success");
+        for (InfoItem infoItem : infoItemsFromParent){
+            infoItem.setActivityID(activityID);
+        }
+        infoItemMapper.insertInfoItems(infoItemsFromParent);
+        return RespBean.ok("success");
     }
 }

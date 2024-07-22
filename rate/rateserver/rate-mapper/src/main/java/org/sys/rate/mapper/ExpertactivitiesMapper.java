@@ -66,8 +66,8 @@ public interface ExpertactivitiesMapper {
     @Delete("DELETE FROM expertactivities WHERE activityID = #{activityID}")
     void deleteByActivityid(Integer activityID);
 
-    @Select("SELECT * FROM expertactivities where groupID = #{groupIDParent}")
-    List<Expertactivities> getExpertsByGroupID(@Param("groupIDParent") Integer groupIDParent);
+    @Select("SELECT * FROM expertactivities where groupID = #{groupID}")
+    List<Expertactivities> getExpertsByGroupID(@Param("groupID") Integer groupID);
 
     void insertExperts(List<Expertactivities> list);
 }

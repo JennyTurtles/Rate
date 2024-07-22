@@ -23,7 +23,7 @@ public class Activities {
     private Integer expertCount;
     private Integer participantCount;
     private String comment;
-    //private Boolean deleteFlag;
+    private Boolean deleteFlag;
     private String status;
     private Institution institution;
     private Integer groupID;

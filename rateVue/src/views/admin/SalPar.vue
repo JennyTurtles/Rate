@@ -13,12 +13,18 @@
           </el-button>
         </div>
       </div>
+
+      <div style="margin: 20px 0; display: flex; justify-content: center; align-items: center;" v-show="mode === 'secretarySub'">
+        <span style="margin-right: 10px;">本子活动的专家与选手和大活动的专家与选手可能不同步，如需同步，请单击</span>
+        <el-button type="success" icon="el-icon-refresh-right" @click="syncPerson">人员同步</el-button>
+      </div>
+
      <el-tabs v-model="activeName" style="width: 70%" @tab-click="change2Exp">
        <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
        <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
       <div v-show="mode === 'secretary'">{{ keywords_name }}活动 选手名单<br/><br/></div>
      </el-tabs>
-      <div style="display: flex;justify-content: space-between;">
+      <div style="display: flex;justify-content: flex-start;">
         <!-- <div>
           <el-input placeholder="请输入单位名进行搜索，可以直接回车搜索..." prefix-icon="el-icon-search"
                     clearable
@@ -30,18 +36,23 @@
           </el-button>
         </div> -->
         <div>
-          <el-button type="success" @click="showMethod" v-show="mode === 'admin' || (mode === 'secretarySub' && isGroup !== 'false')">
+          <el-button type="success" @click="showMethod" v-show="mode === 'admin' || mode === 'secretarySub'" style="margin-right: 10px">
             导入选手信息
           </el-button>
         </div>
         <div>
-          <el-button v-show="!$route.query.addActive" type="primary" @click="exportTG" icon="el-icon-download">
+          <el-button v-show="!$route.query.addActive" type="primary" @click="exportTG" icon="el-icon-download" style="margin-right: 10px">
             导出专家打分
           </el-button>
 <!--          <el-button-->
 <!--              icon="el-icon-refresh"-->
 <!--              type="primary"-->
 <!--              @click="refreshact()">刷新</el-button>-->
+        </div>
+        <div>
+          <el-button type="danger" icon="el-icon-delete" @click="deleteAll" v-show="mode === 'admin' || mode === 'secretarySub'" style="margin-right: 10px">
+            清空所有选手
+          </el-button>
         </div>
       </div>
     </div>
@@ -102,7 +113,7 @@
             align="center"
             min-width="10%">
         </el-table-column>
-        <el-table-column align="left" label="操作" min-width="30%" v-if="mode === 'admin'">
+        <el-table-column align="left" label="操作" min-width="30%" v-if="mode === 'admin' || mode === 'secretarySub'">
           <template slot-scope="scope">
             <el-button
                 @click="showEditEmpView(scope.row)"
@@ -306,35 +317,8 @@
     </el-dialog>
 
     <el-dialog :title="title" ref="dia" :visible.sync="dialogVisible_method" width="55%" center @close="handleClose">
-      <el-tabs type="border-card">
-        <el-tab-pane label="手动添加">
-         <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
-<!--          <el-form-item label="身份证号:" prop="idnumber" >-->
-<!--           <el-input style="width: 60%"  v-model="manualAddForm.idnumber" @blur="getInfoByIDNumber()"></el-input>-->
-<!--          </el-form-item>-->
-          <el-form-item label="编号:" prop="code" >
-           <el-input style="width: 60%" v-model="manualAddForm.code" @blur="getInfoByCode"></el-input>
-          </el-form-item>
-          <el-form-item label="姓名:" prop="name" >
-           <el-input style="width: 60%" v-model="manualAddForm.name" :disabled="manualAddFormDisabled"></el-input>
-          </el-form-item>
-          <el-form-item label="电话:" prop="telephone">
-           <el-input style="width: 60%" v-model="manualAddForm.telephone" :disabled="manualAddFormDisabled"></el-input>
-          </el-form-item>
-          <el-form-item label="邮箱:" prop="email">
-           <el-input style="width: 60%" v-model="manualAddForm.email" :disabled="manualAddFormDisabled"></el-input>
-          </el-form-item>
-         </el-form>
-         <el-button type="primary" @click="manualAdd" v-if="allowManualAdd">添加</el-button>
-         <el-tooltip class="item" effect="dark" content="该选手已经在活动内了，无法重复添加" placement="top-start" v-else :disabled='false'>
-      <span>
-      <el-button type="primary" style="margin-top: 15px" :disabled="true">
-       添加
-      </el-button>
-      </span>
-         </el-tooltip>
-        </el-tab-pane>
-        <el-tab-pane label="从本单位添加">
+      <el-tabs type="border-card" v-model="activeTab">
+        <el-tab-pane label="从本单位添加" name="institution">
          <el-input
              v-model="searchText"
              placeholder="请输入学号或姓名进行搜索"
@@ -385,7 +369,7 @@
             </el-button>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="批量导入">
+        <el-tab-pane label="批量导入" name="import">
           <a>
             选手第一次导入时，可先不分组。此时可以将导入表格中的“分组名称”留空，进行导入操作。待分组后，再导入一次，从而实现分组。
             选手的信息项以及评分项，也可在选手第一次导入时留空，待第二次、第三次（或之后）导入时填入那些信息。<br/><br/>
@@ -404,13 +388,41 @@
               :disabled="importDataDisabled"
               style="display: inline-flex;margin-right: 8px"
               action="#"
+              accept=".xls"
               :http-request="handleChange">
             <el-button :disabled="importDataDisabled" type="primary" :icon="importDataBtnIcon">
               {{importDataBtnText}}
             </el-button>
           </el-upload>
         </el-tab-pane>
-        <el-tab-pane label="从大组添加" v-if="mode==='secretarySub'">
+        <el-tab-pane label="手动添加" name="manual">
+          <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
+            <!--          <el-form-item label="身份证号:" prop="idnumber" >-->
+            <!--           <el-input style="width: 60%"  v-model="manualAddForm.idnumber" @blur="getInfoByIDNumber()"></el-input>-->
+            <!--          </el-form-item>-->
+            <el-form-item label="编号:" prop="code" >
+              <el-input style="width: 60%" v-model="manualAddForm.code" @blur="getInfoByCode"></el-input>
+            </el-form-item>
+            <el-form-item label="姓名:" prop="name" >
+              <el-input style="width: 60%" v-model="manualAddForm.name" :disabled="manualAddFormDisabled"></el-input>
+            </el-form-item>
+            <el-form-item label="电话:" prop="telephone">
+              <el-input style="width: 60%" v-model="manualAddForm.telephone" :disabled="manualAddFormDisabled"></el-input>
+            </el-form-item>
+            <el-form-item label="邮箱:" prop="email">
+              <el-input style="width: 60%" v-model="manualAddForm.email" :disabled="manualAddFormDisabled"></el-input>
+            </el-form-item>
+          </el-form>
+          <el-button type="primary" @click="manualAdd" v-if="allowManualAdd">添加</el-button>
+          <el-tooltip class="item" effect="dark" content="该选手已经在活动内了，无法重复添加" placement="top-start" v-else :disabled='false'>
+      <span>
+      <el-button type="primary" style="margin-top: 15px" :disabled="true">
+       添加
+      </el-button>
+      </span>
+          </el-tooltip>
+        </el-tab-pane>
+        <el-tab-pane label="从大组添加" name="parentGroup" v-if="mode==='secretarySub'">
           <el-table
               ref="multipleTable"
               :data="parentGroup"
@@ -534,7 +546,9 @@ export default {
       },
       manualAddRules:{
        code: [{required: true, message: '请输入选手编号', trigger: 'blur'}],
-      }
+      },
+      activeTab: 'institution',
+      deletePars: [],
     }
   },
   computed: {
@@ -867,6 +881,24 @@ export default {
         })
       })
     },
+    deleteAll(){
+      this.$confirm('是否删除本组全部选手？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.postRequest("/participants/basic/deleteAllByGroupID?groupID="+this.groupID).then(resp => {
+          if (resp) {
+            if (resp.msg === '删除成功！'){
+              Message.success(resp.msg);
+              this.initEmps();
+            }
+            else
+              Message.error(resp.msg);
+          }
+        })
+      })
+    },
     sizeChange(currentSize) {
       this.size = currentSize;
       this.getCurrentParticipants();
@@ -1064,6 +1096,7 @@ export default {
     },
     showMethod(){
       this.title = "导入选手信息";
+      this.activeTab = this.mode === 'secretarySub' ? 'parentGroup' : 'institution';
       this.dialogVisible_method=true;
       this.getCurrentParticipants();
     },
@@ -1098,7 +1131,7 @@ export default {
           });
         }
       });
-    }
+    },
     // searchEmps() {
     //   this.loading = true;
     //   console.log(this.keyword);
@@ -1113,6 +1146,22 @@ export default {
     //   });
 
     // }
+    syncPerson(){
+      this.postRequest("/groups/basic/syncPerson?activityID="+ this.activityID).then((resp) => {
+        if (resp) {
+          this.getRequest("/groups/basic/parsForUniqueGroupSubActivity?activityID="+this.activityID+"&groupIDParent="+this.groupIDParent).then(res => {
+            if (res){
+              this.groupID = res.obj
+              this.initEmps();
+              this.$message({
+                type: 'success',
+                message: '同步成功!'
+              });
+            }
+          })
+        }
+      });
+    }
   }
 }
 </script>

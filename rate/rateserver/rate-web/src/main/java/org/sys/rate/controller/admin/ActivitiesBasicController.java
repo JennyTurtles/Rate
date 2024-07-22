@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.ActivitiesMapper;
 import org.sys.rate.mapper.GroupsMapper;
+import org.sys.rate.mapper.ScoreItemMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.service.admin.ActivitiesService;
 import org.sys.rate.service.admin.LogService;
@@ -44,6 +45,9 @@ public class ActivitiesBasicController {
     @Autowired
     GroupsMapper groupsMapper;
 
+    @Autowired
+    ScoreItemMapper scoreItemMapper;
+
     @GetMapping("/")
     public RespPageBean getActivitiesByPage(@RequestParam(defaultValue = "1") Integer page,
                                             @RequestParam(defaultValue = "10") Integer size,
@@ -51,6 +55,20 @@ public class ActivitiesBasicController {
                                             @RequestParam Integer adminID) {
         Page p = PageHelper.startPage(page,size);
         List<Activities> res = activitiesService.getActivitiesPage(institutionID,adminID);
+        PageInfo info = new PageInfo<>(p.getResult());
+        RespPageBean bean = new RespPageBean();
+        bean.setData(res);
+        bean.setTotal(info.getTotal());
+        return bean;
+    }
+
+    @GetMapping("/getRecycle")
+    public RespPageBean getRecycleActivitiesByPage(@RequestParam(defaultValue = "1") Integer page,
+                                            @RequestParam(defaultValue = "10") Integer size,
+                                            @RequestParam(defaultValue = "1") Integer institutionID,
+                                            @RequestParam Integer adminID) {
+        Page p = PageHelper.startPage(page,size);
+        List<Activities> res = activitiesService.getRecycleActivitiesByPage(institutionID,adminID);
         PageInfo info = new PageInfo<>(p.getResult());
         RespPageBean bean = new RespPageBean();
         bean.setData(res);
@@ -82,7 +100,23 @@ public class ActivitiesBasicController {
 
     @PostMapping("/changeRequireGroup")
     public RespBean changeRequireGroup(@RequestParam Integer activityID, @RequestParam Integer requireGroup) {
+        List<Groups> groupsSub = groupsMapper.getAllGroupsByActivityID(activityID);
+        List<Groups> groupsParent = groupsMapper.getAllGroupsByActivityID(activitiesMapper.getParentID(activityID));
+
+        // 检查每个 groupsParent 是否有且仅有一个名字为 "不分组" 的 groupsSub
+        for (Groups parent : groupsParent) {
+            long count = groupsSub.stream()
+                    .filter(sub -> sub.getParentID().equals(parent.getID()) && "不分组".equals(sub.getName()))
+                    .count();
+            if (count != 1) {
+                return RespBean.ok("取消分组失败，当前子活动存在非默认分组，请手动删除所有分组后再试");
+            }
+        }
+
         if (requireGroup == 0){
+            if (groupsSub.size() > 0) {
+                groupsMapper.deleteAllByActivityID(activityID);
+            }
             Activities activities = activitiesMapper.queryById(activityID);
             activitiesService.CreateGroupForSubWithoutGroup(activities);
         }
@@ -90,7 +124,7 @@ public class ActivitiesBasicController {
         if (res == 1) {
             return RespBean.ok("success");
         }
-        return RespBean.error("error");
+        return RespBean.error("修改失败");
     }
 
 
@@ -272,6 +306,36 @@ public class ActivitiesBasicController {
     public RespBean getWithGradeForm(@RequestParam Integer teacherID) {
         List<Activities> activities = activitiesMapper.getWithGradeForm(teacherID);
         return RespBean.ok("success", activities);
+    }
+
+    @PostMapping("/recover")
+    public RespBean recoverActivity(@RequestParam Integer activityID) {
+        try {
+            activitiesMapper.recoverActivity(activityID);
+            return RespBean.ok("恢复成功！");
+        }catch (Exception e){
+            return RespBean.error("恢复失败！");
+        }
+    }
+
+    @PostMapping("/deleteCompletely")
+    public RespBean deleteCompletely(@RequestBody Activities activity) {
+        if (activity.getHaveSub() == 1){
+            List<Activities> SubActivities = activitiesMapper.getAllSubActivities(activity.getId());
+            for (Activities activities: SubActivities){
+                try {
+                    activitiesService.deleteCompletely(activities);
+                }catch (Exception e) {
+                    return RespBean.error("删除失败！");
+                }
+            }
+        }
+        try {
+            activitiesService.deleteCompletely(activity);
+        }catch (Exception e){
+            return RespBean.error("删除失败！");
+        }
+        return RespBean.ok("删除成功！");
     }
 }
 

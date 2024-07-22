@@ -12,6 +12,12 @@
      </el-button>
     </div>
    </div>
+
+    <div style="margin: 20px 0; display: flex; justify-content: center; align-items: center;" v-show="mode === 'secretarySub'">
+      <span style="margin-right: 10px;">本子活动的专家与选手和大活动的专家与选手可能不同步，如需同步，请单击</span>
+      <el-button type="success" icon="el-icon-refresh-right" @click="syncPerson">人员同步</el-button>
+    </div>
+
    <el-tabs v-show="!$route.query.flag" v-model="activeName" style="width: 70%" @tab-click="change2Par">
      <el-tab-pane label="专家管理" name="expert"></el-tab-pane>
      <el-tab-pane label="选手管理" name="participant"></el-tab-pane>
@@ -59,7 +65,7 @@
 <!--    <div v-show="flag == 0"><br/>如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。-->
 <!--        <br/>如果数据库中已有该专家的记录，则将根据填写信息进行更新，用户名和密码不更新。-->
 <!--    </div>-->
-    <div v-show="mode === 'admin' || (mode === 'secretarySub' && isGroup !== 'false')">
+    <div v-show="mode === 'admin' || mode === 'secretarySub'">
       <el-button type="success" @click="showMethod" style="margin-top: 0px" v-if="haveGroup || groupID" v-show="!$route.query.flag ">
         添加专家
       </el-button>
@@ -197,7 +203,7 @@
           </template>
         </el-table-column>
         <el-table-column
-            v-if="mode === 'admin' || mode==='adminSub' && flag == 0"
+            v-if="mode === 'admin' || mode==='adminSub' || mode === 'secretarySub' && flag == 0"
             prop="role"
             label="角色设置"
             align="center"
@@ -272,7 +278,7 @@
                 size="mini"
                 icon="el-icon-refresh-right"
                 type="danger"
-                v-show="mode === 'admin'"
+                v-show="mode === 'admin' || mode === 'secretarySub'"
                 plain
             >删除
             </el-button>
@@ -410,47 +416,45 @@
         </span>
       </el-dialog>
       <el-dialog :title="title" :visible.sync="dialogVisible_method" width="55%" center @close="handleClose">
-        <el-tabs type="border-card">
-          <el-tab-pane label="手动添加">
-           <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
-             <el-form-item label="组别:" prop="groupID" v-show="!groupID">
-               <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px">
-                 <el-option
-                     v-for="x in groups"
-                     :key="x.name"
-                     :label="x.name"
-                     :value="x.id">
-                 </el-option>
-               </el-select>
-             </el-form-item>
-            <el-form-item label="身份证号:" prop="idnumber">
-             <el-input style="width: 60%"  v-model="manualAddForm.idnumber" @blur="getInfoByIDNumber();fillPassword()"></el-input>
-            </el-form-item>
-            <el-form-item label="姓名:" prop="name">
-             <el-input style="width: 60%" v-model="manualAddForm.name" :disabled="manualAddFormDisabled"></el-input>
-            </el-form-item>
-            <el-form-item label="工号:" prop="jobNumber" >
-             <el-input style="width: 60%" v-model="manualAddForm.jobNumber" :disabled="manualAddFormDisabled" @blur="fillUserName"></el-input>
-            </el-form-item>
-            <el-form-item label="电话:" prop="phone">
-             <el-input style="width: 60%" v-model="manualAddForm.phone" :disabled="manualAddFormDisabled"></el-input>
-            </el-form-item>
-            <el-form-item label="邮箱:" prop="email">
-             <el-input style="width: 60%" v-model="manualAddForm.email" :disabled="manualAddFormDisabled"></el-input>
-            </el-form-item>
-            <el-form-item label="性别:" prop="sex">
-             <el-input style="width: 60%" v-model="manualAddForm.sex" :disabled="manualAddFormDisabled"></el-input>
-            </el-form-item>
-            <el-form-item label="用户名:" prop="username" >
-             <el-input style="width: 60%" v-model="manualAddForm.username" @input="$forceUpdate()" :disabled="manualAddFormDisabled"></el-input>
-            </el-form-item>
-            <el-form-item label="密码:" prop="password">
-             <el-input style="width: 60%" v-model="manualAddForm.password" @input="$forceUpdate()" :disabled="manualAddFormDisabled"></el-input>
-            </el-form-item>
-           </el-form>
-           <el-button type="primary" @click="manualAdd">添加</el-button>
-          </el-tab-pane>
-          <el-tab-pane label="从本单位添加">
+        <el-tabs type="border-card" v-model="activeTab">
+          <el-tab-pane label="从本单位添加" name="institution">
+            <div style="display: flex; justify-content: left;margin-bottom:10px">
+              <div>
+                <div>模版包含专家的工号、姓名、组别、角色，如果专家在本单位无重名，工号可不填，否则必须填工号；如果导入的专家不是本单位的，则忽略。
+                </div><br/>
+                <span  style="font-weight:600;">导入新数据</span> <a>第一步：</a>
+                <el-button
+                    type="primary"
+                    @click="exportExpertName"
+                    icon="el-icon-upload"
+                    style="margin-right: 8px"
+                >
+                  下载模板
+                </el-button>
+                <a >第二步：</a>
+                <el-upload
+                    :show-file-list="false"
+                    :before-upload="beforeUpload"
+                    :on-success="onSuccessExpertName"
+                    :on-error="onError"
+                    :disabled="importDataDisabled"
+                    :headers="{
+                      'token': user.token
+                    }"
+                    style="display: inline-flex; margin-right: 8px"
+                    accept=".xls"
+                    :action="UploadUrlExpertName()"
+                >
+                  <el-button
+                      :disabled="importDataDisabled"
+                      type="primary"
+                      :icon="importDataBtnIcon"
+                  >
+                    {{ importDataBtnText }}
+                  </el-button>
+                </el-upload>
+              </div>
+            </div>
            <div style="display: flex; justify-content: left">
              <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-right: 10px" v-show="!groupID">
                <el-option
@@ -510,7 +514,7 @@
               </el-button>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="批量导入">
+          <el-tab-pane label="批量导入" name="import">
             <div style="display: flex; justify-content: left;margin-top:10px">
               <div v-if="flag==0">
                 <div v-show="flag == 0">如果专家是本单位的，工号必须填，用户名和密码将被忽略；如果专家不为本单位的，工号不填，用户名和密码必须填。
@@ -535,6 +539,7 @@
                     :headers="{
                       'token': user.token
                     }"
+                    accept=".xls"
                     style="display: inline-flex; margin-right: 8px"
                     :action="UploadUrl()"
                 >
@@ -549,7 +554,46 @@
               </div>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="从大组添加" v-if="mode==='secretarySub'">
+          <el-tab-pane label="手动添加" name="manual">
+            <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
+              <el-form-item label="组别:" prop="groupID" v-show="!groupID">
+                <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px">
+                  <el-option
+                      v-for="x in groups"
+                      :key="x.name"
+                      :label="x.name"
+                      :value="x.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="身份证号:" prop="idnumber">
+                <el-input style="width: 60%"  v-model="manualAddForm.idnumber" @blur="getInfoByIDNumber();fillPassword()"></el-input>
+              </el-form-item>
+              <el-form-item label="姓名:" prop="name">
+                <el-input style="width: 60%" v-model="manualAddForm.name" :disabled="manualAddFormDisabled"></el-input>
+              </el-form-item>
+              <el-form-item label="工号:" prop="jobNumber" >
+                <el-input style="width: 60%" v-model="manualAddForm.jobNumber" :disabled="manualAddFormDisabled" @blur="fillUserName"></el-input>
+              </el-form-item>
+              <el-form-item label="电话:" prop="phone">
+                <el-input style="width: 60%" v-model="manualAddForm.phone" :disabled="manualAddFormDisabled"></el-input>
+              </el-form-item>
+              <el-form-item label="邮箱:" prop="email">
+                <el-input style="width: 60%" v-model="manualAddForm.email" :disabled="manualAddFormDisabled"></el-input>
+              </el-form-item>
+              <el-form-item label="性别:" prop="sex">
+                <el-input style="width: 60%" v-model="manualAddForm.sex" :disabled="manualAddFormDisabled"></el-input>
+              </el-form-item>
+              <el-form-item label="用户名:" prop="username" >
+                <el-input style="width: 60%" v-model="manualAddForm.username" @input="$forceUpdate()" :disabled="manualAddFormDisabled"></el-input>
+              </el-form-item>
+              <el-form-item label="密码:" prop="password">
+                <el-input style="width: 60%" v-model="manualAddForm.password" @input="$forceUpdate()" :disabled="manualAddFormDisabled"></el-input>
+              </el-form-item>
+            </el-form>
+            <el-button type="primary" @click="manualAdd">添加</el-button>
+          </el-tab-pane>
+          <el-tab-pane label="从大组添加" name="parentGroup" v-if="mode==='secretarySub'">
             <el-table
                 ref="multipleTable"
                 :data="parentGroup"
@@ -727,6 +771,7 @@ export default {
       err_msg: '',
       mode:"",
       isGroup: true,
+      activeTab: 'institution',
     };
   },
   computed: {
@@ -746,7 +791,6 @@ export default {
     this.ACNAME = this.$route.query.keywords_name;
     this.mode = this.$route.query.mode;
     this.isGroup = this.$route.query.isGroup;
-    console.log(this.isGroup)
     this.haveSub = this.$route.query.haveSub;
     this.flag = this.$route.query.flag == 1 ? 1 : 0;
     this.initHrs();
@@ -950,11 +994,11 @@ export default {
     initHrs(checkFlag,oldLen,checkGroupID) {
       this.loading = true;
       if (typeof this.activityID == "undefined" || this.mode === 'secretary') { // 此时是从分组管理进入的
-        var groupID = this.groupID
-        if (this.mode === 'secretarySub' && this.isGroup === 'false')
-          groupID = this.groupIDParent;
+        // var groupID = this.groupID
+        // if (this.mode === 'secretarySub' && this.isGroup === 'false')
+        //   groupID = this.groupIDParent;
           this.getRequest(
-              "/systemM/Experts/?keywords=" + groupID +
+              "/systemM/Experts/?keywords=" + this.groupID +
               "&page=" + 1 +
               "&size=" + 1000 // 避免分页
           ).then((resp) => {
@@ -1398,6 +1442,25 @@ export default {
         return "/systemM/Experts/import?groupid=" + this.groupID + "&activityid=" + this.keywords+"&insititutionID="+this.user.institutionID;
       }
     },
+    onSuccessExpertName(res) {
+      this.loading = false
+      if (res.msg === 'success'){
+        Message.success('数据导入成功！')
+        this.dialogVisible_method = false;
+        this.initHrs();
+      }
+      else{
+        this.err_dialogVisible_edit = true;
+        this.err_msg = res.obj;
+        Message.error("上传失败！",res.msg)
+      }
+      this.importDataBtnText = "导入数据";
+      this.importDataBtnIcon = "el-icon-plus";
+      this.importDataDisabled = false;
+    },
+    UploadUrlExpertName() {
+        return "/systemM/Experts/importWithExpertName?institutionID=" + this.user.institutionID + "&activityID=" + this.keywords;
+    },
     exportMo() {
       Message.success("正在下载模板");
       let url =''
@@ -1421,6 +1484,26 @@ export default {
         link.style.display = 'none'
         link.href = url
         link.setAttribute('download', 'expert'  + '.xls')
+        document.body.appendChild(link);
+        link.click();
+      });
+    },
+    exportExpertName() {
+      Message.success("正在下载模板");
+      let url ='/systemM/Experts/exportExpertName'
+      axios({
+        url: url,
+        method: 'get',
+        responseType: 'blob',
+        headers: {
+          'token': this.user.token ? this.user.token : ''
+        }
+      }).then((res) => {
+        let url = window.URL.createObjectURL(new Blob([res]))
+        let link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.setAttribute('download', '工号_姓名模版'  + '.xls')
         document.body.appendChild(link);
         link.click();
       });
@@ -1460,7 +1543,7 @@ export default {
             keyword_name: typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
             ACNAME:typeof this.keyword_name === 'undefined' ? this.$route.query.keyword_name : this.keyword_name,
             mode:this.mode,
-            backID:this.$route.query.groupID,
+            backID:this.$route.query.backID,
             backActName:this.$route.query.backActName,
             smallGroup:this.$route.query.smallGroup,
             addActive:this.$route.query.addActive,
@@ -1485,6 +1568,7 @@ export default {
     },
     showMethod(){
       this.title='添加专家';
+      this.activeTab = this.mode === 'secretarySub' ? 'parentGroup' : 'institution';
       this.dialogVisible_method=true;
       this.getCurrentExperts();
     },
@@ -1569,6 +1653,22 @@ export default {
           }
         })
     },
+    syncPerson(){
+      this.postRequest("/groups/basic/syncPerson?activityID="+ this.keywords).then((resp) => {
+        if (resp) {
+          this.getRequest("/groups/basic/parsForUniqueGroupSubActivity?activityID="+this.keywords+"&groupIDParent="+this.groupIDParent).then(res => {
+            if (res){
+              this.groupID = res.obj
+              this.initHrs();
+              this.$message({
+                type: 'success',
+                message: '同步成功!'
+              });
+            }
+          })
+        }
+      });
+    }
   },
 };
 </script>

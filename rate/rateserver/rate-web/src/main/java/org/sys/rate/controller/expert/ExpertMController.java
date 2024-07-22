@@ -1,6 +1,7 @@
 package org.sys.rate.controller.expert;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.sys.rate.utils.POIUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -348,5 +350,16 @@ public class ExpertMController {
         else {
             return RespBean.ok("");
         }
+    }
+
+    @GetMapping("/exportExpertName")
+    public ResponseEntity<byte[]> exportExpertName(HttpServletResponse response) {
+        return POIUtils.writeMoOnlyWithName();
+    }
+
+    @PostMapping("/importWithExpertName")
+    public RespBean importWithExpertName(@RequestParam Integer institutionID,@RequestParam Integer activityID,MultipartFile file) throws IOException, ParseException {
+        RespPageBean bean= POIUtils.readExcel_expertName(file);
+        return expertService.importExpertName(institutionID,bean,activityID);
     }
 }

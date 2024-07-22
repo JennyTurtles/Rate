@@ -6,8 +6,10 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
+import org.sys.rate.service.expert.ExpertactivitiesService;
 
 import javax.annotation.Resource;
 import java.sql.SQLException;
@@ -37,6 +39,14 @@ public class ActivitiesService {
     GroupsMapper groupsMapper;
     @Resource
     ExpertsMapper expertsMapper;
+    @Resource
+    ExpertactivitiesMapper expertactivitiesMapper;
+    @Resource
+    ParticipatesMapper participatesMapper;
+    @Resource
+    ParticipatesService participatesService;
+    @Resource
+    ExpertactivitiesService expertactivitiesService;
 
     public final static Logger logger = LoggerFactory.getLogger(ActivitiesService.class);
     SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
@@ -53,6 +63,13 @@ public class ActivitiesService {
 //        RespPageBean bean = new RespPageBean();
 //        bean.setData(data);
 //        bean.setTotal(total);
+        return data;
+    }
+
+    public List<Activities> getRecycleActivitiesByPage(Integer institutionID,Integer ID) {
+
+        List<Activities> data = activitiesMapper.getRecycleActivitiesByPage(institutionID,ID);
+
         return data;
     }
 
@@ -73,11 +90,14 @@ public class ActivitiesService {
             if (result){
                 employee.setScoreItemCount(0);
                 employee.setScore(0.0);
-                insertID = activitiesMapper.insert(employee);
+                activitiesMapper.insert(employee);
                 activitiesMapper.insertScoreItem(employee);//原本是合并写的，改成分开写
                 activitiesMapper.insertDisplayItem(employee);
                 if(employee.getParentID() == null)
                    activitiesMapper.insert_update(employee);
+                else if (employee.getRequireGroup() == 0){
+                    CreateGroupForSubWithoutGroup(employee);
+                }
                 //在管理员_活动表中添加记录
                 activityGrantMapper.insertRecordOfAddActivity(employee.getAdminID(),employee.getId());
             }
@@ -87,6 +107,19 @@ public class ActivitiesService {
         }
         if(!result) return RespBean.error("活动达到上限",null);
         return RespBean.ok("添加成功",employee);
+    }
+
+    public void CreateGroupForSubWithoutGroup(Activities activity){
+        int parentID = activity.getParentID();
+        int activityID = activity.getId();
+        List<Groups> groupParents = groupsMapper.getGroupByActID(parentID);
+        for (Groups group : groupParents){
+            int groupIDParent = group.getID();
+            Groups newGroup = new Groups(group.getParticipantCount(), group.getExpertCount(), activityID,groupIDParent,"不分组");
+            groupsMapper.insertGroup(newGroup); // 插入并返回ID
+            participatesService.copyParticipates(groupIDParent,activityID,newGroup.getID());
+            expertactivitiesService.copyExperts(groupIDParent,activityID,newGroup.getID());
+        }
     }
 
     public Integer predeleteActivities(Activities activities) {
@@ -327,5 +360,13 @@ public class ActivitiesService {
             Integer newDisplayItemID = item.getID();
             displayItemMap.put(oldDisplayItemID,newDisplayItemID);
         }
+    }
+
+    public void deleteCompletely(Activities activity) {
+        List<ScoreItem> scoreItems = scoreItemMapper.getAllByActicityID(activity.getId());
+        for (ScoreItem scoreItem : scoreItems){
+            scoreItemMapper.deleteByScoreItemID(scoreItem.getId());
+        }
+        activitiesMapper.deleteActivityCompletely(activity.getId());
     }
 }

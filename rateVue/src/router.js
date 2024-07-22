@@ -173,6 +173,11 @@ export default new Router({
           component: () => import('./views/admin/ActManage.vue'),
           meta: { title: 'ActManage' },
         },{//管理员下的
+          path: '/ActivitM/recycle',
+          name: 'ActRecycle',
+          component: () => import('./views/admin/ActRecycle.vue'),
+          meta: { title: 'ActRecycle' },
+        },{//管理员下的
           path: '/ActivitM/situation',
           name: 'SalSituation',
           component: () => import('./views/admin/SalSituation'),

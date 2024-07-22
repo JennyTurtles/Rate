@@ -265,7 +265,7 @@ VALUES (#{id,jdbcType=INTEGER}, #{expertid,jdbcType=INTEGER}, #{activityid,jdbcT
   <select id="getActByExpertID" parameterType="java.lang.Integer" resultMap="BaseResultMapA">
     select ea.activityID, ea.groupID
     from expertactivities ea, activities a
-    where ea.teacherID=#{expertID} and ea.activityID = a.ID and a.deleteFlag = 0 and a.`status` = 'open'
+    where ea.teacherID=#{expertID} and ea.activityID = a.ID and a.deleteFlag = 0 and a.`status` = 'open' and a.startDate > DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
     order by activityID,groupID;
   </select>
 

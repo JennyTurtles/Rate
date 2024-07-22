@@ -117,4 +117,6 @@ public interface GroupsMapper {
 
     @Select("SELECT * FROM `groups` WHERE activityID = #{activityID}")
     List<Groups> getAllGroupsByActivityID(Integer activityID);
+
+    void deleteAllByActivityID(Integer activityID);
 }

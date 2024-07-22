@@ -1,9 +1,11 @@
 package org.sys.rate.service.admin;
 
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.sys.rate.mapper.ExpertactivitiesMapper;
 import org.sys.rate.mapper.GroupsMapper;
 import org.sys.rate.mapper.InfosMapper;
 import org.sys.rate.mapper.ParticipatesMapper;
@@ -27,6 +29,8 @@ public class GroupsService {
     InfosMapper infosMapper;
     @Autowired
     ParticipatesService participatesService;
+    @Autowired
+    ExpertactivitiesMapper expertactivitiesMapper;
     public final static Logger logger = LoggerFactory.getLogger(GroupsService.class);
 
     public RespPageBean getActivitiesPage(Integer keywords, Integer page, Integer size, Groups employee) {
@@ -75,8 +79,14 @@ public class GroupsService {
         return 1;
     }
 
-    public Integer deleteActivities(Groups company) {
-        return groupsMapper.delete(company);
+    public RespBean deleteActivities(Groups company) {
+        Integer groupID = company.getID();
+        List<Participates> participates = participatesMapper.getPartByGroupID(groupID);
+        List<Expertactivities> expertactivities = expertactivitiesMapper.getExpertsByGroupID(groupID);
+        if (participates.size() > 0 || expertactivities.size() > 0)
+            return RespBean.error("请先确保组内无选手和专家");
+        groupsMapper.delete(company);
+        return RespBean.ok("删除成功！");
     }
 
     public Integer updateActivities(List<Groups> company) {

@@ -202,4 +202,61 @@
     <select id="getFullScore" resultType="java.lang.Double">
         select score from activities where ID=#{activityID}
     </select>
+    <select id="getRecycleActivitiesByPage" resultMap="BaseResultMap">
+        select e.id,e.name as ACname,e.startDate,e.scoreItemCount,e.score,e.groupCount,e.expertCount,e.participantCount,e.deleteFlag,e.comment,e.institutionID,e.status,e.haveSub,aa.adminID,aa.activityID,aa.ID,e.haveComment,e.creatorID,e.enterDate,e.visibleDate,e.gradeFormType
+        from activities e,activitygrant aa
+        where e.deleteFlag = 1
+          and e.institutionID = #{institutionID}
+          and aa.activityID = e.id
+          and aa.adminID = #{ID}
+    </select>
+    <delete id="deleteActivityCompletely">
+        DELETE
+        FROM activitygrant
+        WHERE activityID = #{activityID};
+
+        DELETE
+        FROM comment
+        WHERE activityID = #{activityID};
+
+        DELETE
+        FROM scores
+        WHERE activityID = #{activityID};
+
+        DELETE
+        FROM scoreitem
+        WHERE activityID = #{activityID};
+
+        DELETE
+        FROM infos
+        WHERE activityID = #{activityID};
+
+        DELETE
+        FROM infoitem
+        WHERE activityID = #{activityID};
+
+        DELETE
+        FROM participants
+        WHERE activityID = #{activityID};
+
+        DELETE
+        FROM expertactivities
+        WHERE activityID = #{activityID};
+
+        DELETE
+        FROM `groups`
+        WHERE activityID = #{activityID};
+
+        DELETE
+        FROM grade_form
+        WHERE activityID = #{activityID};
+
+        DELETE
+        FROM displayitem
+        WHERE activityID = #{activityID};
+
+        DELETE
+        FROM activities
+        WHERE ID = #{activityID};
+    </delete>
 </mapper>

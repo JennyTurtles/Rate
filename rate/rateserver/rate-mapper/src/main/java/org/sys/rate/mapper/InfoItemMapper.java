@@ -1,8 +1,10 @@
 package org.sys.rate.mapper;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.sys.rate.model.Expertactivities;
 import org.sys.rate.model.InfoItem;
 import org.sys.rate.model.InfoItemValue;
 import org.sys.rate.model.ScoreItemValue;
@@ -85,4 +87,9 @@ public interface InfoItemMapper {
     //获得报考专业代码
     @Select("select ID from infoitem where name = '报考专业代码' and activityID=#{activityID}")
     Integer getMajorCode(Integer activityID);
+
+    @Delete("delete from infoitem where activityID=#{activityID}")
+    Integer deleteAll(Integer activityID);
+
+    void insertInfoItems(List<InfoItem> list);
 }

@@ -158,9 +158,9 @@ public class POIUtils {
             HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
             //2. 获取 workbook 中表单的数量
             int numberOfSheets = workbook.getNumberOfSheets();
-            for (int i = 0; i < numberOfSheets; i++) {
+            //for (int i = 0; i < numberOfSheets; i++) {
                 //3. 获取表单
-                HSSFSheet sheet = workbook.getSheetAt(i);
+                HSSFSheet sheet = workbook.getSheetAt(0);
                 //4. 获取表单中的行数
                 int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
                 int Cells = sheet.getRow(0).getPhysicalNumberOfCells();
@@ -329,7 +329,7 @@ public class POIUtils {
                     p.setInfoItemMap(map_info);
                     list.add(p);
                 }
-            }
+            //}
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -702,6 +702,69 @@ public class POIUtils {
         HttpHeaders headers = new HttpHeaders();
         try {
             headers.setContentDispositionFormData("attachment", new String("experts模板.xls".getBytes("UTF-8"), "ISO-8859-1"));
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            workbook.write(baos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<byte[]>(baos.toByteArray(), headers, HttpStatus.CREATED);
+    }
+
+    public static ResponseEntity<byte[]> writeMoOnlyWithName() {
+        //1. 创建一个 Excel 文档
+        HSSFWorkbook workbook = new HSSFWorkbook();
+        //2. 创建文档摘要
+        workbook.createInformationProperties();
+        //3. 获取并配置文档信息
+        DocumentSummaryInformation docInfo = workbook.getDocumentSummaryInformation();
+        //4. 获取文档摘要信息
+        SummaryInformation summInfo = workbook.getSummaryInformation();
+        //文档标题
+        summInfo.setTitle("工号_姓名模版");
+        //文档作者
+        summInfo.setAuthor("东华大学");
+        // 文档备注
+        summInfo.setComments("本文档由东华大学计算机学院提供");
+        //5. 创建样式
+        //创建标题行的样式
+        HSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.YELLOW.index);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        HSSFCellStyle dateCellStyle = workbook.createCellStyle();
+        dateCellStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("m/d/yy"));
+        HSSFSheet sheet = workbook.createSheet("工号_姓名模版");
+        //设置列的宽度
+        sheet.setColumnWidth(0, 15 * 256);
+        sheet.setColumnWidth(1, 10 * 256);
+        sheet.setColumnWidth(2, 10 * 256);
+        sheet.setColumnWidth(3, 10 * 256);
+        //6. 创建标题行
+        HSSFRow r0 = sheet.createRow(0);
+        HSSFCell c0 = r0.createCell(0);
+        c0.setCellValue("工号");
+        HSSFCell c1 = r0.createCell(1);
+        c1.setCellValue("姓名");
+        HSSFCell c2 = r0.createCell(2);
+        c2.setCellValue("组别");
+        HSSFCell c3 = r0.createCell(3);
+        c3.setCellValue("角色");
+
+        HSSFRow row = sheet.createRow(1);
+        row.createCell(0).setCellValue("20131000");
+        row.createCell(1).setCellValue("张三");
+        row.createCell(2).setCellValue("第1组");
+        row.createCell(3).setCellValue("专家");
+
+        sheet.createRow(2).createCell(0).setCellValue("注意事项：");
+        sheet.createRow(3).createCell(0).setCellValue("1.专家姓名必填，如果专家在本单位无重名，工号可不填，否则工号必填");
+        sheet.createRow(4).createCell(0).setCellValue("2.如果专家不属于本单位，则忽略。");
+        sheet.createRow(5).createCell(0).setCellValue("3.可以交换列顺序但不可以改变列标题。");
+        sheet.createRow(6).createCell(0).setCellValue("4.导入前请删除模板中的提示信息。");
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        HttpHeaders headers = new HttpHeaders();
+        try {
+            headers.setContentDispositionFormData("attachment", new String("工号_姓名模版.xls".getBytes("UTF-8"), "ISO-8859-1"));
             headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
             workbook.write(baos);
         } catch (IOException e) {
@@ -1806,17 +1869,15 @@ public class POIUtils {
         return bean;
     }
 
-    public static List<String> check(MultipartFile file) {
-        List<String> error = new ArrayList<>();
-        try {
-            //1. 创建一个 workbook 对象
+    public static RespPageBean readExcel_expertName(MultipartFile file) {
+        List<Experts> list = new ArrayList<>();
+        Experts expert = new Experts();
+        try {//1. 创建一个 workbook 对象
             HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
             //2. 获取 workbook 中表单的数量
             int numberOfSheets = workbook.getNumberOfSheets();
-            for (int i = 0; i < numberOfSheets; i++) {
-                //3. 获取表单
-                HSSFSheet sheet = workbook.getSheetAt(i);
-                //4. 获取表单中的行数
+            for (int i = 0; i < numberOfSheets; i++) {//3. 获取表单
+                HSSFSheet sheet = workbook.getSheetAt(i);//4. 获取表单中的行数
                 int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
                 int Cells = sheet.getRow(0).getPhysicalNumberOfCells();
                 HashMap<Integer, String> map = new HashMap<>();
@@ -1824,38 +1885,163 @@ public class POIUtils {
                     if (sheet.getRow(0).getCell(m).getStringCellValue() != null)
                         map.put(m, sheet.getRow(0).getCell(m).getStringCellValue());
                 }
-                //行
-                for (int j = 0; j < physicalNumberOfRows; j++) {
-                    //5. 跳过标题行
+                for (int j = 0; j < physicalNumberOfRows; j++) {//5. 跳过标题行
                     if (j == 0) {
                         continue;//跳过标题行//获得表头，为后续对应位置
-                    }
-                    //6. 获取行
+                    }//6. 获取行
                     HSSFRow row = sheet.getRow(j);
                     if (row == null) {
                         continue;//防止数据中间有空行
-                    }
-                    //7. 获取列数
-                    int rowNullNums = 0;
+                    }//7. 获取列数
+                    int physicalNumberOfCells = row.getPhysicalNumberOfCells();
+                    expert = new Experts();
+                    String jobNumber = null;//工号
+                    String name = null;//姓名
+                    String groupName = null;//组别
+                    String role = null;//角色
+
                     for (int k = 0; k < Cells; k++) {
                         HSSFCell cell = row.getCell(k);
                         //cell.setCellType(CellType.STRING);
-                        if (cell == null) {//如果列中cell为空
-                            rowNullNums++;
-//                            String tips="【"+map.get(k)+"】列中第【"+j+"】行";
-//                            error.add(tips);
-                        } else {
+                        if (cell != null) {
                             cell.setCellType(CellType.STRING);
+                            //case STRING:
                             String cellValue = cell.getStringCellValue();
-                            if (cellValue.equals("")) {//如果列中cell为空
-                                rowNullNums++;
+                            switch (map.get(k)) {
+                                case "姓名":
+                                    name = cellValue;
+                                    break;
+                                case "工号":
+                                    jobNumber = cellValue;
+                                    break;
+                                case "组别":
+                                    groupName = cellValue;
+                                    break;
+                                case "角色":
+                                    role = cellValue;
+                                    break;
+                                default:
+                                    break;
                             }
                         }
                     }
-                    if (rowNullNums != Cells && rowNullNums != 0) {
-                        String tips = "第【" + j + "】行有空数据，";
-                        error.add(tips);
+                    if (name == null || groupName == null || role == null) {
+                        continue;
                     }
+                    expert.setName(name);
+                    expert.setJobNumber(jobNumber);
+                    expert.setRole(role);
+                    expert.setGroupName(groupName);
+
+                    list.add(expert);
+                }
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        RespPageBean bean = new RespPageBean();
+        bean.setData(list);
+        bean.setTotal((long) list.size());
+        return bean;
+    }
+
+    public static List<String> check(MultipartFile file) {
+        List<String> error = new ArrayList<>();
+        try {
+            //1. 创建一个 workbook 对象
+            HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
+            //2. 获取 workbook 中表单的数量
+            int numberOfSheets = workbook.getNumberOfSheets();
+            //3. 获取表单 只读第一个
+            HSSFSheet sheet = workbook.getSheetAt(0);
+            String sheetName = sheet.getSheetName();
+            //4. 获取表单中的行数
+            int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
+            int Cells = sheet.getRow(0).getPhysicalNumberOfCells();
+            HashMap<Integer, String> map = new HashMap<>();
+            boolean hasNameColumn = false;
+            boolean hasNumberColumn = false;
+
+            for (int m = 0; m < Cells; m++) {
+                if (sheet.getRow(0).getCell(m).getStringCellValue() != null){
+                    String columnName = sheet.getRow(0).getCell(m).getStringCellValue();
+                    map.put(m, columnName);
+                    if ("姓名".equals(columnName)) {
+                        hasNameColumn = true;
+                    }
+                    if ("编号".equals(columnName)) {
+                        hasNumberColumn = true;
+                    }
+                }
+            }
+
+            if (!hasNameColumn) {
+                error.add("导入的" + sheetName + "缺少姓名列，请检查！");
+                return error;
+            }
+            if (!hasNumberColumn) {
+                error.add("导入的" + sheetName + "缺少编号列，请检查！");
+                return error;
+            }
+
+            //行
+            for (int j = 0; j < physicalNumberOfRows; j++) {
+                //5. 跳过标题行
+                if (j == 0) {
+                    continue;//跳过标题行//获得表头，为后续对应位置
+                }
+                //6. 获取行
+                HSSFRow row = sheet.getRow(j);
+                if (row == null) {
+                    continue;//防止数据中间有空行
+                }
+                //7. 获取列数
+                int rowNullNums = 0;
+
+                // 检查"姓名"和"编号"列是否为空
+                boolean isNameEmpty = true;
+                boolean isNumberEmpty = true;
+
+                for (int k = 0; k < Cells; k++) {
+                    HSSFCell cell = row.getCell(k);
+                    String columnName = map.get(k);
+                    //cell.setCellType(CellType.STRING);
+//                       if (cell == null) {//如果列中cell为空
+//                              rowNullNums++;
+////                            String tips="【"+map.get(k)+"】列中第【"+j+"】行";
+////                            error.add(tips);
+//                        } else {
+//                            cell.setCellType(CellType.STRING);
+//                            String cellValue = cell.getStringCellValue();
+//                            if (cellValue.equals("")) {//如果列中cell为空
+//                                rowNullNums++;
+//                            }
+//                        }
+                    if (cell != null) {
+                        cell.setCellType(CellType.STRING);
+                        String cellValue = cell.getStringCellValue();
+                        if ("姓名".equals(columnName) && !cellValue.equals("")) {
+                            isNameEmpty = false;
+                        }
+                        if ("编号".equals(columnName) && !cellValue.equals("")) {
+                            isNumberEmpty = false;
+                        }
+                    }
+                }
+                if (isNumberEmpty && isNameEmpty)
+                    continue;
+//                    if (rowNullNums != Cells && rowNullNums != 0) {
+//                        String tips = "第【" + j + "】行有空数据，";
+//                        error.add(tips);
+//                    }
+                if (isNameEmpty){
+                    String tips = "第【" + (j + 1) + "】行的姓名为空，请确认";
+                    error.add(tips);
+                }
+                if (isNumberEmpty){
+                    String tips = "第【" + (j + 1) + "】行的编号为空，请确认";
+                    error.add(tips);
                 }
             }
         } catch (IOException e) {

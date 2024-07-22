@@ -888,10 +888,12 @@ export default {
       this.Tname = this.user.name;
       this.Adata.Auserid = this.user.id;
       let actID = this.$route.query.keywords;
+      let groupID = this.$route.query.groupID;
+      console.log(groupID)
       let listActivityTemp = this.list.activitiesList;
       let num = 0;
       for (let i = 0; i < listActivityTemp.length; i++) {
-        if (listActivityTemp[i].activityID == actID) {
+        if (listActivityTemp[i].activityID == actID && listActivityTemp[i].groupId == groupID) {
           num = i;
           break;
         }
@@ -903,6 +905,7 @@ export default {
       this.groupName = listActivityTemp[num].groupName;
       this.groupId = listActivityTemp[num].groupId;
       this.comment = listActivityTemp[num].activityLists[0].comment;
+      console.log(listActivityTemp)
     },
     async initAct() {
       if (this.list.count != 0) {

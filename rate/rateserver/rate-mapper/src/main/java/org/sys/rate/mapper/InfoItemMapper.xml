@@ -116,6 +116,13 @@
             #{contentType,jdbcType=VARCHAR}, #{sizelimit,jdbcType=VARCHAR}, #{byParticipant,jdbcType=BOOLEAN}, #{display,jdbcType=BOOLEAN}
            )
   </insert>
+  <insert id="insertInfoItems">
+    INSERT INTO infoitem (activityID, name, contentType, sizelimit, byParticipant,display)
+    VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.activityID}, #{item.name},#{item.contentType},#{item.sizelimit},#{item.byParticipant},#{item.display})
+    </foreach>
+  </insert>
 
   <select id="getActivitiesByPage" resultMap="BaseResultMap">
     select e.ID,e.activityID,e.name,e.sizelimit,e.contentType,e.byParticipant,e.display from infoitem e

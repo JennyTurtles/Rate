@@ -1,5 +1,6 @@
 package org.sys.rate.mapper;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -101,4 +102,7 @@ public interface ScoreItemMapper {
 
     @Select("select ID from scoreitem where activityID = #{activityID}")
     List<Integer> getIDByActivityID(Integer ID);
+
+    @Delete("delete from score_average where scoreItemID = #{scoreItemID}")
+    void deleteByScoreItemID(Integer scoreItemID);
 }

@@ -271,4 +271,8 @@ public interface ParticipatesMapper {
 
     @Select("select * from participants where code = #{code} and activityID = #{activityID}")
     Participates getParByCode(Integer activityID, String code);
+
+    @Delete("DELETE FROM participants WHERE groupID = #{groupID};" +
+            "UPDATE `groups` SET participantCount = 0 WHERE ID = #{groupID}")
+    void deleteAllByGroupID(Integer groupID);
 }

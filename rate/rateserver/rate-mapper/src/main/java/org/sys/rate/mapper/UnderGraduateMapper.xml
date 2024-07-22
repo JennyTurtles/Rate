@@ -144,15 +144,16 @@
         </where>
     </select>
     <select id="getUnderStudentsBySelect" resultMap="BaseResultMap">
-        select u.*,s.name,s.telephone,s.email,s.IDNumber,s.username,t.name as tname,t.jobnumber as tjobnumber
+        select u.*,s.name,s.telephone,s.email,s.username
+--              ,t.name as tname,t.jobnumber as tjobnumber
         from undergraduate u
-        left join teacher t
-        on u.tutorID=t.ID
+--         left join teacher t
+--         on u.tutorID=t.ID
         left join student s
         on u.studentID=s.ID
         <where>
             <if test="year != null and year != 0">and u.year = #{year}</if>
-            <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>
+<!--            <if test="teaName != null and teaName != ''">and t.name LIKE CONCAT('%', #{teaName}, '%')</if>-->
         </where>
     </select>
     <select id="checkHaveStudentOfstudenID" resultType="java.lang.Integer">

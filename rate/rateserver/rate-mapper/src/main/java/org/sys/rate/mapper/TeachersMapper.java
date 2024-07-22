@@ -119,4 +119,13 @@ public interface TeachersMapper {
     Teachers getById(Integer tutorID);
 
     int deleteById(Teachers record);
+
+    @Select("select * from teacher where name=#{teacherName} and institutionID=#{institutionID}")
+    List<Experts> getExpertsByName(String teacherName, Integer institutionID);
+
+    @Select("SELECT * " +
+            "FROM teacher t " +
+            "WHERE t.jobnumber = #{teacherJobNumber} AND t.institutionID = #{institutionID} and t.name = #{teacherName}")
+    Experts getTeacherExist(String teacherJobNumber, String teacherName, Integer institutionID);
+
 }

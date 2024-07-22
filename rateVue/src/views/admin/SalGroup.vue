@@ -316,16 +316,16 @@
               placeholder="请输入选手姓名"
           ></el-input>
         </el-form-item>
-        <el-form-item label="证件号码:" prop="idnumber">
-          <el-input
-              size="mini"
-              style="width: 200px"
-              prefix-icon="el-icon-edit"
-              v-model="emp.idnumber"
-              disabled
-              placeholder="证件号码"
-          ></el-input>
-        </el-form-item>
+<!--        <el-form-item label="证件号码:" prop="idnumber">-->
+<!--          <el-input-->
+<!--              size="mini"-->
+<!--              style="width: 200px"-->
+<!--              prefix-icon="el-icon-edit"-->
+<!--              v-model="emp.idnumber"-->
+<!--              disabled-->
+<!--              placeholder="证件号码"-->
+<!--          ></el-input>-->
+<!--        </el-form-item>-->
         <el-form-item
             v-for="(value,idx) in emp.scoremap"
             :key="idx"
@@ -346,7 +346,7 @@
             width="180px"
         >
           <el-input
-              placeholder="请打分"
+              placeholder="请输入"
               v-model.trim="value.content"
               clearable
           >
@@ -479,40 +479,6 @@
     </el-dialog>
     <el-dialog :title="title" ref="dia" :visible.sync="dialogVisible_method" width="55%" center @close="handleClose">
       <el-tabs type="border-card">
-        <el-tab-pane label="手动添加">
-          <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
-            <el-form-item label="组别:" prop="groupID" v-show="!groupID">
-              <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px">
-                <el-option
-                    v-for="x in groups"
-                    :key="x.name"
-                    :label="x.name"
-                    :value="x.id">
-                </el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="编号:" prop="code" >
-              <el-input style="width: 60%" v-model="manualAddForm.code" @blur="getInfoByCode"></el-input>
-            </el-form-item>
-            <el-form-item label="姓名:" prop="name" >
-              <el-input style="width: 60%" v-model="manualAddForm.name" :disabled="manualAddFormDisabled"></el-input>
-            </el-form-item>
-            <el-form-item label="电话:" prop="telephone">
-              <el-input style="width: 60%" v-model="manualAddForm.telephone" :disabled="manualAddFormDisabled"></el-input>
-            </el-form-item>
-            <el-form-item label="邮箱:" prop="email">
-              <el-input style="width: 60%" v-model="manualAddForm.email" :disabled="manualAddFormDisabled"></el-input>
-            </el-form-item>
-          </el-form>
-          <el-button type="primary" @click="manualAdd" v-if="allowManualAdd">添加</el-button>
-         <el-tooltip class="item" effect="dark" content="该选手已经在活动内了，无法重复添加" placement="top-start" v-else :disabled='false'>
-      <span>
-      <el-button type="primary" style="margin-top: 15px" :disabled="true">
-       添加
-      </el-button>
-      </span>
-         </el-tooltip>
-        </el-tab-pane>
         <el-tab-pane label="从本单位添加">
           <div style="display: flex; justify-content: left">
           <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-right: 10px">
@@ -593,11 +559,46 @@
               :disabled="importDataDisabled"
               style="display: inline-flex;"
               action="#"
+              accept=".xls"
               :http-request="handleChange">
             <el-button :disabled="importDataDisabled" type="primary" :icon="importDataBtnIcon">
               {{importDataBtnText}}
             </el-button>
           </el-upload>
+        </el-tab-pane>
+        <el-tab-pane label="手动添加">
+          <el-form class="registerContainer" ref="manualAddForm" :rules="manualAddRules" :model="manualAddForm">
+            <el-form-item label="组别:" prop="groupID" v-show="!groupID">
+              <el-select v-model="currentAddGroup" placeholder="请选择添加的组别"  @change="chooseGroup($event)" style="padding-left: 10px">
+                <el-option
+                    v-for="x in groups"
+                    :key="x.name"
+                    :label="x.name"
+                    :value="x.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
+            <el-form-item label="编号:" prop="code" >
+              <el-input style="width: 60%" v-model="manualAddForm.code" @blur="getInfoByCode"></el-input>
+            </el-form-item>
+            <el-form-item label="姓名:" prop="name" >
+              <el-input style="width: 60%" v-model="manualAddForm.name" :disabled="manualAddFormDisabled"></el-input>
+            </el-form-item>
+            <el-form-item label="电话:" prop="telephone">
+              <el-input style="width: 60%" v-model="manualAddForm.telephone" :disabled="manualAddFormDisabled"></el-input>
+            </el-form-item>
+            <el-form-item label="邮箱:" prop="email">
+              <el-input style="width: 60%" v-model="manualAddForm.email" :disabled="manualAddFormDisabled"></el-input>
+            </el-form-item>
+          </el-form>
+          <el-button type="primary" @click="manualAdd" v-if="allowManualAdd">添加</el-button>
+          <el-tooltip class="item" effect="dark" content="该选手已经在活动内了，无法重复添加" placement="top-start" v-else :disabled='false'>
+      <span>
+      <el-button type="primary" style="margin-top: 15px" :disabled="true">
+       添加
+      </el-button>
+      </span>
+          </el-tooltip>
         </el-tab-pane>
       </el-tabs>
     </el-dialog>

@@ -192,6 +192,16 @@
           </el-button
           >
         </div>
+        <div style="margin-left: 8px">
+          <el-button
+              @click="copyFromParent()"
+              v-show="mode === 'adminSub' && $route.query.addActive !== 'undefined'"
+              type="primary"
+              icon="el-icon-plus"
+          >从主活动复制
+          </el-button
+          >
+        </div>
         <!--        <div style="margin-left: 8px">-->
         <!--          <el-button @click="save()" type="primary" icon="el-icon-collection"-->
         <!--          >保存-->
@@ -450,6 +460,20 @@ export default {
           this.total = resp.total;
         }
       });
+    },
+    copyFromParent(){
+      this.$confirm("是否从主活动复制全部的信息项", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+          .then(() => {
+            this.postRequest("/infoItem/basic/copyFromParent?activityID="+this.keywords).then((resp) => {
+              if (resp) {
+                this.initHrs();
+              }
+            });
+          })
     },
     sizeChange(currentSize) {
       this.size = currentSize;

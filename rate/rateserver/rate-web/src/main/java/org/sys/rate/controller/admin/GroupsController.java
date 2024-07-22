@@ -4,12 +4,11 @@ import cn.hutool.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.sys.rate.mapper.ActivitiesMapper;
+import org.sys.rate.mapper.ActivityGrantMapper;
 import org.sys.rate.mapper.GroupsMapper;
 import org.sys.rate.model.*;
-import org.sys.rate.service.admin.GroupsService;
-import org.sys.rate.service.admin.InfosService;
-import org.sys.rate.service.admin.LogService;
-import org.sys.rate.service.admin.ParticipatesService;
+import org.sys.rate.service.admin.*;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
@@ -31,6 +30,10 @@ public class GroupsController {
     GroupsMapper groupsMapper;
     @Resource
     ParticipatesService participatesService;
+    @Resource
+    ActivitiesService activitiesService;
+    @Resource
+    ActivitiesMapper activitiesMapper;
 
     @GetMapping("/")
     public RespPageBean getGroupsByPage(@RequestParam Integer keywords, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size, Groups employee) {
@@ -60,23 +63,8 @@ public class GroupsController {
     }
 
     @PostMapping("/delete")
-    public String deleteInstitution(@RequestBody Groups company, @RequestParam Integer institutionID) throws ParseException {
-        if (groupsService.deleteActivities(company) >= 0) {
-            Log log = new Log();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
-            Timestamp nousedate = new Timestamp(date.getTime());
-            log.setLog(nousedate, institutionID, "分组", "删除成功");
-            logService.addLogs(log);
-            return "删除成功!";
-        }
-        Log log = new Log();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = sdf.parse(sdf.format(System.currentTimeMillis()));
-        Timestamp nousedate = new Timestamp(date.getTime());
-        log.setLog(nousedate, institutionID, "分组", "删除失败");
-        logService.addLogs(log);
-        return "删除失败!";
+    public RespBean deleteInstitution(@RequestBody Groups company, @RequestParam Integer institutionID) throws ParseException {
+        return groupsService.deleteActivities(company);
     }
 
 
@@ -212,5 +200,17 @@ public class GroupsController {
     @GetMapping("/getAllByActivityID")
     public RespBean getAllGroupsByActivityID(@RequestParam Integer activityID) {
         return RespBean.ok("success", groupsMapper.getAllGroupsByActivityID(activityID));
+    }
+
+    @PostMapping("/syncPerson")
+    public RespBean syncPerson(@RequestParam Integer activityID) {
+        try {
+            groupsMapper.deleteAllByActivityID(activityID);
+            Activities activities = activitiesMapper.queryById(activityID);
+            activitiesService.CreateGroupForSubWithoutGroup(activities);
+        }catch (Exception e){
+            return RespBean.error("同步失败！");
+        }
+        return RespBean.ok("同步成功！");
     }
 }

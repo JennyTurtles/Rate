@@ -318,6 +318,7 @@ export default {
     this.keywords = this.$route.query.keywords;
     this.keywords_name = this.$route.query.keyword_name;
     this.mode = this.$route.query.mode;
+    console.log(this.$route.query.keywords,this.$route.query.keyword_name,this.mode)
     this.initMethod();
     this.initHrs();
   },

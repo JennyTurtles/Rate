@@ -270,7 +270,7 @@ public class UnderGraduateService {
             thesisMapper.delete(under);
             return RespBean.ok("");
         } catch (Exception e) {
-            return RespBean.error("");
+            return RespBean.error("删除失败！");
         }
     }
 

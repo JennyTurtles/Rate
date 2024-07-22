@@ -10,11 +10,11 @@
     <el-step title="基本信息"></el-step>
     <el-step title="信息项"></el-step>
     <el-step title="评分项"></el-step>
-    <el-step title="成绩查看设置"></el-step>
+    <el-step title="成绩查看设置" v-if="mode === 'adminSub'"></el-step>
     <el-step title="分组管理" v-if="mode !== 'adminSub'"></el-step>
     <el-step title="人员管理" v-if="mode !== 'adminSub'"></el-step>
    </el-steps>
-   <el-button style="margin-top: 12px;margin-bottom: 10px; float: right" type="success" @click="goAct" v-if="active===5 || active === 3 && mode === 'adminSub' ">完成</el-button>
+   <el-button style="margin-top: 12px;margin-bottom: 10px; float: right" type="success" @click="goAct" v-if="active===4 || active === 3 && mode === 'adminSub' ">完成</el-button>
    <el-button style="margin-top: 12px;margin-bottom: 10px; float: right" type="success" @click="next" v-else>下一步</el-button>
    <el-button style="margin-top: 12px;margin-bottom: 10px;float: right;margin-right: 10px" type="primary" @click="back" v-if="active == '0'">返回</el-button>
    <el-button style="margin-top: 12px;margin-bottom: 10px;float: right;margin-right: 10px" type="primary" @click="back" v-else>上一步</el-button>
@@ -38,6 +38,7 @@ export default {
  },
  methods: {
    async next() {
+     console.log(this.active)
     switch (this.active){
      case 0:
       var act = null;
@@ -57,18 +58,21 @@ export default {
      case 1:
        this.goScoreItem(this.actID,this.actName,true)
        break
+     // case 2:
+     //   this.goDisplayItem(this.actID,this.actName,true)
+     //   break
      case 2:
-       this.goDisplayItem(this.actID,this.actName,true)
+       // if (this.$route.query.requireGroup && this.$route.query.requireGroup === '0' && this.mode === 'adminSub'){
+       //  this.active += 1
+       //  this.goPeople(this.actID,this.actName,true)
+       // }
+       // else
+        if (this.mode === 'admin')
+          this.goGroup(this.actID,this.actName,true)
+        else
+          this.goDisplayItem(this.actID,this.actName,true)
        break
      case 3:
-       if (this.$route.query.requireGroup && this.$route.query.requireGroup === '0' && this.mode === 'adminSub'){
-        this.active += 1
-        this.goPeople(this.actID,this.actName,true)
-       }
-       else
-        this.goGroup(this.actID,this.actName,true)
-       break
-     case 4:
       if (this.groupNum === 0){
        this.goPeople(this.actID,this.actName,true)
       }else
@@ -100,15 +104,16 @@ export default {
      this.goScoreItem(this.actID,this.actName,false)
      break
     case 4:
-     this.goDisplayItem(this.actID,this.actName,false)
+     //this.goDisplayItem(this.actID,this.actName,false)
+     this.goGroup(this.actID,this.actName,false)
      break
-    case 5:
-     if (this.$route.query.requireGroup && this.$route.query.requireGroup === '0' && this.mode === 'adminSub'){
-      this.active -= 1
-      this.goDisplayItem(this.actID,this.actName,false)
-     }else
-      this.goGroup(this.actID,this.actName,false)
-     break
+    // case 5:
+    //  if (this.$route.query.requireGroup && this.$route.query.requireGroup === '0' && this.mode === 'adminSub'){
+    //   this.active -= 1
+    //   this.goDisplayItem(this.actID,this.actName,false)
+    //  }else
+    //   this.goGroup(this.actID,this.actName,false)
+    //  break
    }
   },
   getQuery(actID,actName){
@@ -119,6 +124,7 @@ export default {
     addActive:this.active+1, // 标记步骤
     haveSub: this.active !== 0 ? this.$route.query.haveSub : this.haveSub,
     parentID:this.$route.query.parentID,
+    parentName: this.$route.query.parentName,
     requireGroup: this.active !== 0 ? this.$route.query.requireGroup : this.requireGroup,
     groupNums: this.groupNum,
     subActNo: this.$route.query.subActNo
@@ -132,13 +138,15 @@ export default {
     addActive:this.active-1, // 标记步骤
     haveSub: typeof this.$route.query.haveSub !== 'undefined' ? this.$route.query.haveSub : this.haveSub,
     parentID:this.$route.query.parentID,
+    parentName: this.$route.query.parentName,
     requireGroup: this.$route.query.requireGroup,
     subActNo: this.$route.query.subActNo
    }
   },
-  getQuerySub(actID){
+  getQuerySub(actID, actName){
    return {
     parentID: this.$route.query.mode === 'adminSub' ? this.$route.query.parentID : actID, // 从子活动到子活动和从主活动到子活动
+    parentName: this.$route.query.mode === 'adminSub' ? this.$route.query.parentName : actName,
     mode:'adminSub',
     addActive:0,
     subActNo: this.$route.query.subActNo ? parseInt(this.$route.query.subActNo) + 1: 1,
@@ -154,12 +162,31 @@ export default {
     }).then(() => {
      _this.$router.push({
       path: "/Admin/addAct",
-      query: this.getQuerySub(_this.actID)
+      query: this.getQuerySub(_this.actID, _this.actName)
      });
     }).catch(() => {
-     _this.$router.push({
-      path: "/ActivitM/search",
-     });
+      _this.$confirm('是否要进行主活动的成绩查看设置？', '提示', {
+        confirmButtonText: '是',
+        cancelButtonText: '否',
+        type: 'warning'
+      }).then(() => {
+        _this.$router.push({
+          path: "/ActivitM/total",
+          query: {
+            keywords: this.$route.query.mode === 'adminSub' ? this.$route.query.parentID : _this.actID,
+            keyword_name: this.$route.query.mode === 'adminSub' ? this.$route.query.parentName : _this.actName,
+            backID: this.$route.query.mode === 'adminSub' ? this.$route.query.parentID : _this.actID,
+            mode: 'admin',
+          }
+        }).then(() => {
+          // 使用 location.reload 完全重新加载页面
+          location.reload();
+        });
+      }).catch(() => {
+        _this.$router.push({
+          path: "/ActivitM/search",
+        });
+      });
     });
    }else if (this.$route.query.mode === 'adminSub'){ // 在子活动里面添加返回子活动管理界面
     this.$router.push({
@@ -170,9 +197,27 @@ export default {
     })
    }
    else {
-    _this.$router.push({
-     path: "/ActivitM/search",
-    });
+     console.log(this.actID,this.actName)
+     _this.$confirm('是否要进行成绩查看设置？' , '提示', {
+       confirmButtonText: '是',
+       cancelButtonText: '否',
+       type: 'warning'
+     }).then(() => {
+       const _this = this;
+       _this.$router.push({
+         path: "/ActivitM/total",
+         query: {
+           keywords: this.actID,
+           keyword_name: this.actName,
+           backID: this.actID,
+           mode: 'admin',
+         }
+       });
+     }).catch(() => {
+       _this.$router.push({
+         path: "/ActivitM/search",
+       });
+     });
    }
 
   },

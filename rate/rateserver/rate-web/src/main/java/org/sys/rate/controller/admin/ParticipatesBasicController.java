@@ -401,6 +401,13 @@ public class ParticipatesBasicController {
             return RespBean.error("添加失败，你未被管理员加入此活动。请检查活动编号和活动名称。");
     }
 
-
-
+    @PostMapping("/deleteAllByGroupID")
+    public RespBean deleteAllByGroupID(@RequestParam Integer groupID) throws ParseException {
+        try {
+            participatesMapper.deleteAllByGroupID(groupID);
+            return RespBean.ok("删除成功！");
+        }catch (Exception e){
+            return RespBean.error("删除失败！");
+        }
+    }
 }
