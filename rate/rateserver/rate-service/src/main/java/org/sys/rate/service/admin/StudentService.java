@@ -76,6 +76,9 @@ public class StudentService implements UserDetailsService {
     //   如果查到了，核对姓名，然后更新那条记录的studentID，然后去学生表把老的studentID删掉
     public boolean registerGraduate(Student student) {
         Student studentInTable = studentMapper.getGraduateByStudentNumber(student.getStudentnumber());
+        Student info = studentMapper.getById(student.getID());
+        student.setEmail(info.getEmail());
+        student.setTelephone(info.getTelephone());
         if(studentInTable == null){ // 研究生表无该学号
             Integer studentID = studentMapper.checkIDInGraduate(student.getID());
             if(studentID == null) // 研究生表无该学生ID
@@ -102,6 +105,9 @@ public class StudentService implements UserDetailsService {
 
     public boolean registerDoctor(Student student) {
         Student studentInTable = studentMapper.getDoctorByStudentNumber(student.getStudentnumber());
+        Student info = studentMapper.getById(student.getID());
+        student.setEmail(info.getEmail());
+        student.setTelephone(info.getTelephone());
         if(studentInTable == null){ // 博士生表无该学号
             Integer studentID = studentMapper.checkIDInDoctor(student.getID());
             if(studentID == null) // 博士生表无该学生ID
@@ -128,6 +134,9 @@ public class StudentService implements UserDetailsService {
 
     public boolean registerUndergraduate(Student student) {
         Student studentInTable = studentMapper.getUndergraduateByStudentNumber(student.getStudentnumber());
+        Student info = studentMapper.getById(student.getID());
+        student.setEmail(info.getEmail());
+        student.setTelephone(info.getTelephone());
         if(studentInTable == null){ // 本科生表无该学号
             Integer studentID = studentMapper.checkIDInUndergraduate(student.getID());
             if(studentID == null) // 本科生表无该学生ID
@@ -153,6 +162,9 @@ public class StudentService implements UserDetailsService {
     }
     public RespBean registerParticipant(Student student, Integer activityID) {
         Participates participates = participatesMapper.getByCodeAndAID(activityID, student.getStudentnumber());
+        Student info = studentMapper.getById(student.getID());
+        student.setEmail(info.getEmail());
+        student.setTelephone(info.getTelephone());
         if(participates == null){ // 活动表无该编号
             Integer studentID = participatesMapper.checkStudentID(student.getID(),activityID);
             if(studentID == null) // 活动表无该学生ID

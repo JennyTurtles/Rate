@@ -1,5 +1,6 @@
 package org.sys.rate;
 
+import net.unicon.cas.client.configuration.EnableCasClient;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
@@ -21,6 +22,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @SpringBootApplication
 @EnableCaching
+@EnableCasClient
 @MapperScan(basePackages = "org.sys.rate.mapper")
 @EnableScheduling
 @EnableTransactionManagement(proxyTargetClass = true)
@@ -41,8 +43,8 @@ public class RateApplication {
 //application.properties配置：
 // === tomcat (https)START ===
 //  server.port= 443
-//  server.ssl.key-store=classpath:dhu.jks
-//  server.ssl.key-store-password=DhuXxb@06272023
+//  server.ssl.key-store=classpath:server_alias.jks
+//  server.ssl.key-store-password=DhuXxb@06272024
 //  server.ssl.key-store-type=JKS
 //  server.ssl.enabled-protocols=TLSv1,TLSv1.1,TLSv1.2
 //  server.ssl.ciphers=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_RC4_128_SHA,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA,SSL_RSA_WITH_RC4_128_SHA

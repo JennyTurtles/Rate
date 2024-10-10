@@ -13,6 +13,17 @@ public interface LoginMapper {
     @Select("select * from student where username = #{username}")
     public Student loginStudent(LoginInf loginInf);
 
+    @Select("select s.* from student s, graduatestudent g\n" +
+            "where g.stuNumber= #{number} and g.studentID = s.ID")
+    public Student loginGraduateByCas(String number);
+
+    @Select("select s.* from student s, undergraduate u\n" +
+            "where u.stuNumber= #{number} and u.studentID = s.ID")
+    public Student loginUnderGraduateByCas(String number);
+
+    @Select("select * from teacher where jobnumber = #{number}")
+    public Teacher loginTeacherByCas(String number);
+
     @Select("select * from teacher where username = #{username}")
     public Teacher loginTeacher(LoginInf loginInf);
 

@@ -19,7 +19,7 @@
                    user.role.indexOf('10') !== -1)"
               >
                 <el-dropdown @command="registerHandler">
-                  <span>注册为大学生</span>
+                  <span>角色注册</span>
                   <el-dropdown-menu slot="dropdown" class="el-dropdown-back">
                     <el-dropdown-item command="本科生" v-show="!user.role.includes('10')">本科生</el-dropdown-item>
                     <el-dropdown-item command="硕士研究生" v-show="!role.includes('11')">硕士研究生</el-dropdown-item>
@@ -169,7 +169,7 @@
               v-if="this.$router.currentRoute.path == '/home' && user.role === ''"
           >
             <i class="el-icon-warning"></i>请注意：您尚未注册任何角色，无法进行任何操作。<br>
-            请尽快在右上角的下拉菜单中选择”注册为大学生“，再根据需要进行对应角色的注册
+            请尽快在右上角的下拉菜单中选择“角色注册”，再根据需要进行对应角色的注册
           </div>
           <router-view class="homeRouterView"/>
         </el-main>
@@ -214,12 +214,12 @@
         <!--    <el-form-item label="姓名:">-->
         <!--     <el-input v-model="registerRoleForm.name"></el-input>-->
         <!--    </el-form-item>-->
-        <el-form-item label="电话:">
-          <el-input v-model="registerRoleForm.telephone"></el-input>
-        </el-form-item>
-        <el-form-item label="邮箱:">
-          <el-input v-model="registerRoleForm.email"></el-input>
-        </el-form-item>
+<!--        <el-form-item label="电话:">-->
+<!--          <el-input v-model="registerRoleForm.telephone"></el-input>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="邮箱:">-->
+<!--          <el-input v-model="registerRoleForm.email"></el-input>-->
+<!--        </el-form-item>-->
         <el-form-item label="单位:">
           <el-autocomplete
               style="width: 100%"
@@ -551,6 +551,33 @@ export default {
       //动态修改样式
       this.$refs.homePage.$el.style.height = clientHeight - 20 + "px";
     },
+    clearCookies() {
+      var cookies = document.cookie.split(";");
+
+      for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        var eqPos = cookie.indexOf("=");
+        var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+      }
+    },
+    casLogout(url) {
+      // 清除浏览器中的所有Cookies
+      this.clearCookies()
+
+      if (localStorage.getItem("user")) {
+        localStorage.removeItem("user");
+      }
+      if (sessionStorage.removeItem("score")) {
+        sessionStorage.removeItem("score");
+      }
+      sessionStorage.removeItem("initRoutes");
+      sessionStorage.removeItem("initRoutes_AllSameForm");
+      this.$store.commit("initRoutes", []); //清空路由
+      this.$store.commit("initRoutesAllSameForm", []); //清空路由
+      //this.$router.replace(url);
+      window.location.href = "https://cas.dhu.edu.cn/authserver/logout?service=http://up.dhu.edu.cn" + url;
+    },
     commandHandler(cmd) {
       console.log(this.roleName)
       if (cmd == "logout") {
@@ -573,6 +600,9 @@ export default {
               else
                 url = "/";
               console.log(this.user)
+              if (this.user.isCasLogin ===  true){
+                this.casLogout(url);
+              }
               this.getRequest("/system/config/logout").then(() => {
                 if (localStorage.getItem("user")) {
                   localStorage.removeItem("user");

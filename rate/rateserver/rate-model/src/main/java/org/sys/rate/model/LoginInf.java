@@ -16,4 +16,5 @@ public class LoginInf {
     private String roleName;
     private String token;
     private String name;
+    private Boolean isCasLogin;
 }

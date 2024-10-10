@@ -69,14 +69,16 @@ public class JwtInterceptor implements HandlerInterceptor {
         }
         //用户密码加签验证token
         JWTVerifier jwtVerifier = null;
-        if(admin != null){
-            jwtVerifier = JWT.require(Algorithm.HMAC256(admin.getPassword())).build();
-        }
-        else if(teacher != null){
-            jwtVerifier = JWT.require(Algorithm.HMAC256(teacher.getPassword())).build();
-        }
-        else if(student != null){
-            jwtVerifier = JWT.require(Algorithm.HMAC256(student.getPassword())).build();
+        String defaultKey = "defaultKey";  // 设置一个默认密钥
+        if (admin != null) {
+            String password = admin.getPassword();
+            jwtVerifier = JWT.require(Algorithm.HMAC256(password != null && !password.isEmpty() ? password : defaultKey)).build();
+        } else if (teacher != null) {
+            String password = teacher.getPassword();
+            jwtVerifier = JWT.require(Algorithm.HMAC256(password != null && !password.isEmpty() ? password : defaultKey)).build();
+        } else if (student != null) {
+            String password = student.getPassword();
+            jwtVerifier = JWT.require(Algorithm.HMAC256(password != null && !password.isEmpty() ? password : defaultKey)).build();
         }
 
         try {
