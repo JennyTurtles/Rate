@@ -35,7 +35,7 @@ public class AdminController {
     MailService mailService;
 
     @GetMapping("/")
-    public RespPageBean getAllAds(@RequestParam String keywords, @RequestParam Integer ID, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
+    public RespPageBean getAllAds(@RequestParam Integer keywords, @RequestParam Integer ID, @RequestParam(defaultValue = "1") Integer page, @RequestParam(defaultValue = "10") Integer size) {
         return adminService.getAllHrs(keywords, ID, page, size);
     }
 

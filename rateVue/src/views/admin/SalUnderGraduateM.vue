@@ -107,35 +107,35 @@
     <el-dialog title="编辑信息" :visible.sync="dialogEdit" center width="500px" @close="closeDialogEdit">
       <template>
         <el-form :model="currentUnderStudentOfEdit" :label-width="labelWidth">
-          <el-form-item label="导师">
-            <div class="select_div_input" style="width: 70%">
-              <input
-                  autocomplete="off"
-                  style="width:95%;line-height:28px;
-                              border:1px solid lightgrey;padding:0 10px 1px 15px;
-                              border-radius:4px;color:gray"
-                  placeholder="请输入老师姓名"
-                  v-model="currentUnderStudentOfEdit.teachers.name"
-                  @focus="inputSelectTeacerNameFocus"
-                  @blur="isSelectShow = isSelectFlag"/>
-              <div class="select_div"
-                   v-show="isSelectShow && currentUnderStudentOfEdit.teachers.name ? true:false"
-                   :style="'height:${menuHeight}'"
-                   @mouseover="isSelectFlag = true"
-                   @mouseleave="isSelectFlag = false"
-              >
-                <div
-                    class="select_div_div"
-                    v-for="val in selectTeaNameAndJobnumber"
-                    :key="val"
-                    :value="val"
-                    @click="filterEditTeacher(val)"
-                >
-                  {{ val }}
-                </div>
-              </div>
-            </div>
-          </el-form-item>
+<!--          <el-form-item label="导师">-->
+<!--            <div class="select_div_input" style="width: 70%">-->
+<!--              <input-->
+<!--                  autocomplete="off"-->
+<!--                  style="width:95%;line-height:28px;-->
+<!--                              border:1px solid lightgrey;padding:0 10px 1px 15px;-->
+<!--                              border-radius:4px;color:gray"-->
+<!--                  placeholder="请输入老师姓名"-->
+<!--                  v-model="currentUnderStudentOfEdit.teachers.name"-->
+<!--                  @focus="inputSelectTeacerNameFocus"-->
+<!--                  @blur="isSelectShow = isSelectFlag"/>-->
+<!--              <div class="select_div"-->
+<!--                   v-show="isSelectShow && currentUnderStudentOfEdit.teachers.name ? true:false"-->
+<!--                   :style="'height:${menuHeight}'"-->
+<!--                   @mouseover="isSelectFlag = true"-->
+<!--                   @mouseleave="isSelectFlag = false"-->
+<!--              >-->
+<!--                <div-->
+<!--                    class="select_div_div"-->
+<!--                    v-for="val in selectTeaNameAndJobnumber"-->
+<!--                    :key="val"-->
+<!--                    :value="val"-->
+<!--                    @click="filterEditTeacher(val)"-->
+<!--                >-->
+<!--                  {{ val }}-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </el-form-item>-->
           <el-form-item label="学生姓名">
             <el-input style="width: 50%" v-model="currentUnderStudentOfEdit.name"></el-input>
           </el-form-item>
@@ -458,7 +458,7 @@ export default {
     initUnderGraduateStudents(curr, pagesize) {//初始化本科生
       //因为很多不同情况下都要初始化数据，所以不能只依靠data中都两个参数
       // console.log(curr, pagesize)
-      this.getRequest('/undergraduateM/basic/getUnderGraduateStudents?pageNum=' + curr + '&pageSize=' + pagesize).then((response) => {
+      this.getRequest('/undergraduateM/basic/getUnderGraduateStudents?institutionID=' + this.user.institutionID + '&pageNum=' + curr + '&pageSize=' + pagesize).then((response) => {
         if (response.code == 200) {
           this.undergraduateStudents = response.extend.res[0]
           console.log(response);

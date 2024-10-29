@@ -75,10 +75,10 @@ public class UnderGraduateService {
         return RespBean.ok("ok");
     }
 
-    public List<UnderGraduate> getUnderStudent() {
+    public List<UnderGraduate> getUnderStudent(Integer institutionID) {
         List<UnderGraduate> res = new ArrayList<>();
         try {
-            res = underGraduateMapper.getUnderStudent();
+            res = underGraduateMapper.getUnderStudent(institutionID);
         } catch (Exception e) {
         }
         return res;
@@ -271,6 +271,15 @@ public class UnderGraduateService {
             return RespBean.ok("");
         } catch (Exception e) {
             return RespBean.error("删除失败！");
+        }
+    }
+
+    public RespBean clearGroups(Integer startThesisID) {
+        try {
+            thesisMapper.clearGroups(startThesisID);
+            return RespBean.ok("");
+        } catch (Exception e) {
+            return RespBean.error("清除失败！");
         }
     }
 

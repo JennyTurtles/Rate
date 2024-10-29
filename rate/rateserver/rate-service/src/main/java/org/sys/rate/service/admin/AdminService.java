@@ -35,11 +35,11 @@ public class AdminService implements UserDetailsService {
         return admin;
     }
 
-    public RespPageBean getAllHrs(String keywords, Integer ID,Integer page, Integer size) {
+    public RespPageBean getAllHrs(Integer keywords, Integer ID,Integer page, Integer size) {
         if (page != null && size != null) {
             page = (page - 1) * size;
         }
-        List<Admin> data = adminMapper.getAllHrs(ID,keywords,page, size);
+        List<Admin> data = adminMapper.getAllHrs(keywords,page, size);
         Long total = adminMapper.getTotal(keywords);
         RespPageBean bean = new RespPageBean();
         bean.setData(data);

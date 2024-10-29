@@ -80,4 +80,7 @@ public interface ThesisMapper {
             "set t.tutorID = #{tutorID} " +
             "where s.ID = #{studentID} and t.start_thesis_id = #{startThesisID} and s.ID = u.studentID and u.ID = t.studentID")
     void updateWithStuID(Thesis thesis);
+
+    @Update("update thesis set `group` = null where start_thesis_id = #{startThesisID}")
+    void clearGroups(Integer startThesisID);
 }

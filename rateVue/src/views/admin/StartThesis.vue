@@ -2,7 +2,7 @@
   <div>
     <div>
       <label>开启毕业设计：</label>
-      <el-input-number v-model="startYear" :min="1999" :max="new Date().getFullYear()"
+      <el-input-number v-model="startYear" :min="new Date().getFullYear() - 10" :max="new Date().getFullYear() + 10"
                        style="width: 120px"
                        @change="handleSelectSemesterChange"></el-input-number>
       <span style="margin-left: 10px">学期：</span>

@@ -22,6 +22,9 @@
       <el-button icon="el-icon-download" type="primary" style="margin-right: 10px" @click="exportGroupsResult">导出分组
       </el-button>
 
+      <el-button icon="el-icon-delete" type="danger" style="margin-right: 10px" @click="ClearGroups">清除分组信息
+      </el-button>
+
       <el-button icon="el-icon-plus" type="success" style="margin-right: 10px" @click="importTeachers">导入指导教师
       </el-button>
 
@@ -315,6 +318,9 @@
               <el-select
                   style="margin-right: 20px;width: 150px;"
                   v-model="selectedGroupNums"
+                  filterable
+                  allow-create
+                  default-first-option
               >
                 <el-option
                     v-for="item in groupNums"
@@ -526,7 +532,7 @@ export default {
       pageSizes: [10, 20, 50, 100],
       totalCount: 0,
       currentPage: 1,
-      pageSize: 20,
+      pageSize: 10,
       isSelectYearFlag: false,
       isSelectYearShow: false,
       selectYearsList: [],
@@ -1356,14 +1362,14 @@ export default {
         this.$message.warning('请先分组学生！')
         return
       }
-      const url = '/undergraduateM/basic/exportGroupsResult';
-      console.log(this.undergraduateStudents);
+      const url = '/undergraduateM/basic/exportGroupsResult?startThesisID=' + this.selectThesis + "&institutionID=" + this.user.institutionID;
+      //console.log(this.undergraduateStudents);
       fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(this.undergraduateStudents),
+        //body: JSON.stringify(this.undergraduateStudents),
       })
           .then(response => response.blob())
           .then(blob => {
@@ -1376,6 +1382,24 @@ export default {
             document.body.removeChild(a);
           })
           .catch(error => console.error('Error:', error));
+    },
+    ClearGroups(){
+      console.log(this.selectThesis)
+      this.$confirm('确定清除所有分组信息吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        const url = `/undergraduateM/basic/clearGroups?startThesisID=` + this.selectThesis;
+        this.postRequest(url).then(async (resp) => {
+          if (resp.status === 200) {
+            this.$message.success('清除成功');
+            await this.initUnderGraduateStudents(this.currentPage, this.pageSize);
+          } else {
+            this.$message.warning('清除失败！');
+          }
+        });
+      });
     },
     groupsForStudent() {
       if (this.undergraduateStudents == null || this.undergraduateStudents.length == 0) {

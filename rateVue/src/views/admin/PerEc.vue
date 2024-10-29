@@ -269,7 +269,7 @@
               style="width: 80%"
               prefix-icon="el-icon-edit"
               v-model="hr_info_new.username"
-              placeholder="请输入登录username"
+              placeholder="请输入登录用户名"
           ></el-input>
         </el-form-item>
         <el-form-item label="登录密码:" prop="password">
@@ -278,7 +278,7 @@
               style="width: 50%"
               prefix-icon="el-icon-edit"
               v-model="hr_info_new.password"
-              placeholder="请输入登录password"
+              placeholder="请输入登录密码"
           ></el-input>
         </el-form-item>
         <el-form-item label=" 添加权限:">
@@ -457,12 +457,12 @@ export default {
         id: null,
         compnayName: null,
         institutionID: null,
-        name: "javaboy",
-        phone: "18568128889",
-        email: "123@126.com",
+        name: null,
+        phone: null,
+        email: null,
         enabled: 1,
-        username: "test123",
-        password: "123",
+        username: null,
+        password: null,
         role: -1,
         comment: null,
         menuPermission:[]
@@ -580,7 +580,7 @@ export default {
     initHrs() {
       this.getRequest(
           "/system/admin/?keywords=" +
-          this.keywords +
+          this.keywords_id +
           "&ID=" +
           JSON.parse(localStorage.getItem("user")).id +
           "&page=" +
@@ -591,6 +591,7 @@ export default {
         if (resp) {
           this.hrs = resp.data;
           this.total = resp.total;
+          console.log(this.hrs)
         }
       });
     },
@@ -638,6 +639,8 @@ export default {
       }
     },
     doAddHr() {
+      if(this.menuPermissionSelected != null)
+        this.changeAdminPermissionsList = this.menuPermissionSelected;
       if(this.changeAdminPermissionsList.length == 0){
         this.$message.warning('请至少选择一个权限')
         return
@@ -664,6 +667,7 @@ export default {
       } else {
         this.$refs["adminForm"].validate((valid) => {
           // const _this = this;
+          console.log(this.changeAdminPermissionsList)
           this.hr_info_new.institutionID=this.keywords_id;
           this.hr_info_new.role = this.changeAdminPermissionsList.join(';')//设置菜单权限
           if (valid) {

@@ -59,9 +59,9 @@ public class UnderGraduateMController {
     }
 
     @GetMapping("/getUnderGraduateStudents")
-    public Msg getUnderStudent(@RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
+    public Msg getUnderStudent(@RequestParam("institutionID") Integer institutionID, @RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
         Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
-        List<UnderGraduate> t = underGraduateService.getUnderStudent();
+        List<UnderGraduate> t = underGraduateService.getUnderStudent(institutionID);
         PageInfo info = new PageInfo<>(page.getResult());
         Object[] res = {t, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
@@ -224,7 +224,10 @@ public class UnderGraduateMController {
     }
 
     @PostMapping("/exportGroupsResult")
-    public ResponseEntity<byte[]> downloadExample_UnderGraduateStudents(@RequestBody List<UnderGraduate> underGraduates, HttpServletResponse response) {
+    public ResponseEntity<byte[]> downloadExample_UnderGraduateStudents(Integer startThesisID, Integer institutionID, HttpServletResponse response) {
+        List<UnderGraduate> underGraduates = underGraduateMapper.getStudent(institutionID, startThesisID);
+        underGraduates.sort(Comparator.comparing(UnderGraduate::getGroup)
+                .thenComparing(UnderGraduate::getSpecialty));
         return POIUtils.groupExcel(underGraduates);
     }
 
@@ -309,5 +312,10 @@ public class UnderGraduateMController {
         HashMap<String, List<Integer>> arrSub = (HashMap<String, List<Integer>>) data.get("arrSub");
         HashMap<String, HashMap<String,List<Integer>>> orderNums = (HashMap<String, HashMap<String,List<Integer>>>) data.get("orderNums");
         return underGraduateService.createGroup_judge(startThesisID, arr, exchangeNums, groupsNums, groupWay, selectInfo, arrSub, orderNums);
+    }
+
+    @PostMapping("/clearGroups")
+    public RespBean clearGroups(@RequestParam("startThesisID") Integer startThesisID) {
+        return underGraduateService.clearGroups(startThesisID);
     }
 }

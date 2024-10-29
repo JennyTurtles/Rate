@@ -95,6 +95,7 @@
         from undergraduate u
         left join student s
         on u.studentID=s.ID
+        where u.institutionID = #{institutionID}
 --         where s.ID = u.studentID and u.tutorID = t.ID
     </select>
     <delete id="deleteUnderStudent" parameterType="org.sys.rate.model.UnderGraduate">

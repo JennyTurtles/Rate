@@ -34,11 +34,11 @@ public interface AdminMapper {
 
     List<Role> getAdminRolesById(Integer id);
 
-    List<Admin> getAllHrs(@Param("hrid") Integer hrid, @Param("keywords") String keywords,@Param("page") Integer page, @Param("size") Integer size);
+    List<Admin> getAllHrs(@Param("keywords") Integer keywords,@Param("page") Integer page, @Param("size") Integer size);
 
     List<Admin> getAllAdsByAdvancedMethod(@Param("keywords") String keywords,@Param("keywords_name") String keywords_name,@Param("page") Integer page, @Param("size") Integer size);
 
-    Long getTotal(@Param("keywords") String key);
+    Long getTotal(@Param("keywords") Integer key);
 
     Long getTotalByAdvancedMethod(@Param("keywords") String key,@Param("keywords_name") String key_name);
 

@@ -21,6 +21,7 @@ public class UnderGraduate extends Student{
     private String tutorName;
     private String tutorJobNumber;
     private String group;
+    private Double grade;
     private Thesis thesis;
 
     private String sign;

@@ -2378,7 +2378,9 @@ public class POIUtils {
         HSSFCell c6 = r0.createCell(6);
         c6.setCellValue("导师姓名");
         HSSFCell c7 = r0.createCell(7);
-        c7.setCellValue("分组");
+        c7.setCellValue("绩点");
+        HSSFCell c8 = r0.createCell(8);
+        c8.setCellValue("分组");
 
         Collections.sort(underGraduateList, Comparator.comparing(UnderGraduate::getGroup));
 
@@ -2395,7 +2397,8 @@ public class POIUtils {
             row.createCell(4).setCellValue(Optional.ofNullable(underGraduate.getClassName()).orElse(""));
             row.createCell(5).setCellValue(Optional.ofNullable(underGraduate.getTutorJobNumber()).orElse(""));
             row.createCell(6).setCellValue(Optional.ofNullable(underGraduate.getTutorName()).orElse(""));
-            row.createCell(7).setCellValue(Optional.ofNullable(underGraduate.getGroup()).orElse(""));
+            row.createCell(7).setCellValue(Optional.ofNullable(underGraduate.getGrade()).orElse(0.0));
+            row.createCell(8).setCellValue(Optional.ofNullable(underGraduate.getGroup()).orElse(""));
         }
 
 
