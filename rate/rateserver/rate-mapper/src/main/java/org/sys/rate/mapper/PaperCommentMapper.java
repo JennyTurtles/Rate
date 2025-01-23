@@ -25,7 +25,7 @@ public interface PaperCommentMapper {
     Integer deleteCommentById(int num, int thesisID);
 
 
-    @Select("SELECT t.ID FROM thesis t, student s, undergraduate u WHERE s.ID = #{stuID} and s.ID = u.studentID and u.ID = t.studentID ORDER BY t.year DESC, t.month DESC LIMIT 1;")
+    @Select("SELECT t.ID FROM thesis t, student s, undergraduate u WHERE s.ID = #{stuID} and s.ID = u.studentID and u.ID = t.studentID ORDER BY t.start_thesis_id DESC LIMIT 1;")
     Integer getThesisID(int stuID);
 
     @Update("update papercomment set dateStu = #{dateStu}, preSum = #{preSum}, nextPlan = #{nextPlan},dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass}, num = #{num} where thesisID = #{thesisID} and ID = #{ID}")
