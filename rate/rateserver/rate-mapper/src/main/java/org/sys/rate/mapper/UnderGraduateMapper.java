@@ -99,4 +99,7 @@ public interface UnderGraduateMapper {
 
     @Select("select sign from undergraduate where studentID = #{studentID}")
     String getSignUrl(String studentId);
+
+    @Delete("DELETE FROM startThesis WHERE id = #{startThesisID}")
+    void deleteStartThesis(Integer startThesisID);
 }
