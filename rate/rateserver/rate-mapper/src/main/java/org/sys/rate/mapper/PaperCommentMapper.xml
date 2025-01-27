@@ -12,6 +12,9 @@
         <result column="comment_pass" jdbcType="INTEGER" property="comment_pass"/>
         <result column="comment_deny" jdbcType="INTEGER" property="comment_deny"/>
         <result column="comment_total" jdbcType="INTEGER" property="comment_total"/>
+        <result column="stid" jdbcType="INTEGER" property="startThesisID"/>
+        <result column="year" jdbcType="INTEGER" property="year"/>
+        <result column="month" jdbcType="INTEGER" property="month"/>
         <result column="fillMiss" jdbcType="INTEGER" property="fillMiss"/>
 
     </resultMap>
@@ -65,6 +68,12 @@
             s.NAME,
             t.NAME AS tName,
             t.fillMiss,
+            st.id AS stid,
+            st.year,
+            CASE
+                WHEN semester = '春季' THEN 3
+                WHEN semester = '秋季' THEN 9
+            END AS month,
             SUM(CASE WHEN p.isPass = 'tea_pass' THEN 1 ELSE 0 END) AS comment_pass,
             SUM(CASE WHEN p.isPass = 'tea_deny' THEN 1 ELSE 0 END) AS comment_deny,
             SUM(CASE WHEN p.isPass IN ('tea_pass', 'tea_deny', '') THEN 1 ELSE 0 END) AS comment_total
@@ -72,10 +81,45 @@
             undergraduate u
                 INNER JOIN student s ON u.studentID = s.ID
                 INNER JOIN thesis t ON t.studentID = u.ID
+                INNER JOIN startthesis st ON st.id = t.start_thesis_id
                 LEFT JOIN papercomment p ON p.thesisID = t.ID
         WHERE
             t.start_thesis_id = #{startThesisID}
           AND t.tutorID = #{tutorId}
+        GROUP BY
+            t.ID
+        ORDER BY
+            t.ID ASC;
+
+
+    </select>
+
+    <select id="getStuThesisWithNoDate" resultMap="PaperCommentResult">
+        SELECT
+            s.ID,
+            t.ID AS tID,
+            u.ID as uID,
+            u.stuNumber,
+            s.NAME,
+            t.NAME AS tName,
+            t.fillMiss,
+            st.id AS stid,
+            st.year,
+            CASE
+                WHEN semester = '春季' THEN 3
+                WHEN semester = '秋季' THEN 9
+            END AS month,
+            SUM(CASE WHEN p.isPass = 'tea_pass' THEN 1 ELSE 0 END) AS comment_pass,
+            SUM(CASE WHEN p.isPass = 'tea_deny' THEN 1 ELSE 0 END) AS comment_deny,
+            SUM(CASE WHEN p.isPass IN ('tea_pass', 'tea_deny', '') THEN 1 ELSE 0 END) AS comment_total
+        FROM
+            undergraduate u
+                INNER JOIN student s ON u.studentID = s.ID
+                INNER JOIN thesis t ON t.studentID = u.ID
+                INNER JOIN startthesis st ON st.id = t.start_thesis_id
+                LEFT JOIN papercomment p ON p.thesisID = t.ID
+        WHERE
+            t.tutorID = #{tutorId}
         GROUP BY
             t.ID
         ORDER BY

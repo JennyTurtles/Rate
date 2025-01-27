@@ -80,6 +80,10 @@ public class PaperCommentService {
         return paperCommentMapper.getStuThesisWithDate(tutorId, startThesisID);
     }
 
+    public List<Student> getStuAllThesesByTutor(Integer tutorId) {
+        return paperCommentMapper.getStuThesisWithNoDate(tutorId);
+    }
+
     public List<PaperComment> selectCommentListStuOrderByNum(Integer thesisID) {
         return paperCommentMapper.selectCommentListStuOrderByNum(thesisID);
     }

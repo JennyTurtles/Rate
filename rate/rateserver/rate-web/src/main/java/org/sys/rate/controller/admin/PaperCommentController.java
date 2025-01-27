@@ -117,11 +117,19 @@ public class PaperCommentController {
      */
     @GetMapping("/getStuThesis")
     public RespBean getStuThesis(@RequestParam("tutorId") Integer tutorId,
-                                 @RequestParam("startThesisID") Integer startThesisID) {
+                                 @RequestParam(value = "startThesisID", required = false) Integer startThesisID) {
         try {
-            List<Student> stuThesis = paperCommentService.getStuThesis(tutorId, startThesisID);
-            return RespBean.ok("", stuThesis);
+            if (startThesisID == null) {
+                // 返回所有学期的数据
+                List<Student> allTheses = paperCommentService.getStuAllThesesByTutor(tutorId);
+                return RespBean.ok("", allTheses);
+            } else {
+                // 返回特定学期的数据
+                List<Student> stuThesis = paperCommentService.getStuThesis(tutorId, startThesisID);
+                return RespBean.ok("", stuThesis);
+            }
         } catch (Exception e) {
+            e.printStackTrace();
             return RespBean.error("获取毕业设计信息错误！");
         }
     }

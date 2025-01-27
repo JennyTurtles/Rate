@@ -33,7 +33,17 @@
           style="width: 100%"
           v-loading.fullscreen.lock="loading"
       >
-        <el-table-column label="" type="index" width="50"></el-table-column>
+        <el-table-column align="center" label="" type="index" width="50"></el-table-column>
+        <el-table-column
+            align="center"
+            label="学期"
+            width="100px"
+            :show-overflow-tooltip="true"
+        >
+            <template slot-scope="scope">
+              {{ scope.row.thesis.year }}年{{ getSeason(scope.row.thesis.month) }}季
+            </template>
+        </el-table-column>
         <el-table-column
             prop="studentnumber"
             align="center"
@@ -435,6 +445,8 @@ export default {
         const response = await this.getRequest(url);
         if (response.status === 200) {
           this.options = this.transformOptions(response.obj);
+          this.options.unshift({ value: 'all', label: '全部' });
+          //默认选择全部
           this.selectDate = this.options[0].value;
           this.handleSelectSemesterChange();
         } else {
@@ -445,21 +457,47 @@ export default {
       }
     },
     transformOptions(options) {
+      if (!Array.isArray(options)) {
+        console.error('Invalid options format:', options);
+        return [];
+      }
+
       return options.map(option => {
         let message = option.split('.')[1];
-        let year = message.substring(0, 4);
+        let year = parseInt(message.substring(0, 4), 10);
         let season = message.slice(-2) === '春季' ? 3 : 9;
         let optionID = option.split('.')[0];
-        let optionValue = optionID + '.' + year + season
+        let optionValue = optionID + '.' + year + season;
 
-        return {value: optionValue, label: message};
-      });
+        return {
+          value: optionValue,
+          label: message,
+          year: year,
+          season: season
+        };
+      }).sort((a, b) => {
+        // 按年份降序排列，如果年份相同则按季节降序排列
+        if (a.year !== b.year) {
+          return b.year - a.year;
+        } else {
+          return b.season - a.season;
+        }
+      }).map(option => ({
+        value: option.value,
+        label: option.label
+      }));
     },
     handleSelectSemesterChange() {
-      let message = this.selectDate.split('.')[1];
-      this.startYear = parseInt(message.substring(0, 4));
-      this.selectSemester = parseInt(message.charAt(4));
-      this.selectThesis = parseInt(this.selectDate.split('.')[0]);
+      if (this.selectDate === 'all') {
+        this.selectSemester = null;
+        this.selectThesis = null;
+      } else {
+        let message = this.selectDate.split('.')[1];
+        this.startYear = parseInt(message.substring(0, 4));
+        this.selectSemester = parseInt(message.charAt(4));
+        this.selectThesis = parseInt(this.selectDate.split('.')[0]);
+        console.log("thesis",this.selectThesis);
+      }
       this.initEmps();
     },
     onSuccess(res) {
@@ -500,6 +538,15 @@ export default {
     },
     importStudents() {
       this.dialogStudentVisible = true;
+    },
+    getSeason(month) {
+    if (month === 3) {
+      return '春';
+    } else if (month === 9) {
+      return '秋';
+    } else {
+      return ''; // 或者返回其他默认值
+    }
     },
     openEditDialog(row) {
       // 当点击编辑按钮时，设置要编辑的论文题目并显示对话框
@@ -542,19 +589,19 @@ export default {
 
     initEmps() {
       // console.log(this.selectThesis);
-      if (this.selectThesis == null) {
-        return;
-      }
+      //获取全部
+      if (this.selectDate === 'all') {
+        // 获取所有学期的数据
+        this.loading = true;
+        const url = `/paperComment/basic/getStuThesis?tutorId=${this.user.id}`;
 
-      this.loading = true;
-      const url = `/paperComment/basic/getStuThesis?tutorId=${this.user.id}&startThesisID=${this.selectThesis}`;
-
-      this.getRequest(url)
+        this.getRequest(url)
           .then((resp) => {
             this.loading = false;
             if (resp.status == 200) {
               this.emps = resp.obj;
-              console.log(this.emps)
+              this.sortEmps(); //重新按照时间排序
+              // console.log(this.emps);
             } else {
               this.$message.error(resp.msg);
             }
@@ -563,6 +610,41 @@ export default {
             console.error(error);
             this.loading = false;
           });
+      } else {
+        //获取特定学期
+        if (this.selectThesis == null) {
+          return;
+        }
+
+        this.loading = true;
+        const url = `/paperComment/basic/getStuThesis?tutorId=${this.user.id}&startThesisID=${this.selectThesis}`;
+
+        this.getRequest(url)
+            .then((resp) => {
+              this.loading = false;
+              if (resp.status == 200) {
+                this.emps = resp.obj;
+                this.sortEmps(); 
+                console.log(this.emps)
+              } else {
+                this.$message.error(resp.msg);
+              }
+            })
+            .catch((error) => {
+              console.error(error);
+              this.loading = false;
+            });
+      }
+    },
+    sortEmps() {
+      this.emps.sort((a, b) => {
+        // 按年份降序排列，如果年份相同则按季节降序排列
+        if (a.thesis.year !== b.thesis.year) {
+          return b.thesis.year - a.thesis.year;
+        } else {
+          return b.thesis.month - a.thesis.month;
+        }
+      });
     },
     async exportPDF(data) {
       if (data.thesis.comment_total < 1) {
@@ -657,8 +739,8 @@ export default {
         return;
       }
       const {id, sname, studentnumber} = data;
-      const {selectThesis} = this;
-
+      const selectThesis = data.thesis.startThesisID;
+      // console.log("thesis", data)
       this.$router.push({
         path: `/teacher/stuPaperComment`,
         query: {keyword: id, keyname: sname, studentNumber: studentnumber, startThesisID: selectThesis},
