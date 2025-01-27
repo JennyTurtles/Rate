@@ -2,12 +2,27 @@
   <div>
     <div>
       <label>选择毕业设计：</label>
-      <el-select v-model="selectDate" placeholder="请选择" @change="handleSelectSemesterChange">
+      <el-select
+          v-model="selectDate"
+          placeholder="请选择"
+          @change="handleSelectSemesterChange"
+      >
         <el-option
-            v-for="item in options"
+            v-for="(item, index) in options"
             :key="item.value"
             :label="item.label"
-            :value="item.value">
+            :value="item.value"
+        >
+          <div
+              style="display: flex; align-items: center; justify-content: space-between; width: 100%;"
+          >
+            <span>{{ item.label }}</span>
+            <i
+                class="el-icon-close"
+                style="cursor: pointer;"
+                @click.stop="handleDeleteOption(index)"
+            ></i>
+          </div>
         </el-option>
       </el-select>
     </div>
@@ -30,6 +45,9 @@
 
       <el-button icon="el-icon-search" type="info" style="margin-right: 10px" @click="search"
                  :disabled="selectDate === ''">高级查询
+      </el-button>
+
+      <el-button icon="el-icon-delete" type="danger" style="margin-right: 10px" @click="ClearAll">清空所有学生
       </el-button>
 
     </div>
@@ -983,7 +1001,46 @@ export default {
       }
     },
 
+    handleDeleteOption(index) {
+      this.$confirm("确定要删除" + this.options[index].label + "选项吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+          .then(() => {
+            let value = this.options[index].value
+            let optionID = value.split('.')[0]
+            this.postRequest('/undergraduateM/basic/deleteStartThesis?startThesisID=' + optionID).then((response) => {
+              if (response) {
+                if (response.status == 200) {
+                  this.$message.success("删除成功！")
+                  this.options.splice(index, 1)
+                  this.selectDate = this.options[0].value
+                  this.handleSelectSemesterChange()
+                }
+              }
+            })
+          })
+    },
 
+    ClearAll(){
+      this.$confirm("确定要清空所有学生吗？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+          .then(() => {
+            this.postRequest('/undergraduateM/basic/deleteThesisByStartThesis?startThesisID=' + this.selectThesis).then((response) => {
+              if (response) {
+                console.log(response)
+                if (response.status == 200) {
+                  this.$message.success("清空成功！")
+                  this.initUnderGraduateStudents(this.currentPage, this.pageSize)
+                }
+              }
+            })
+          })
+    },
     async initUnderGraduateStudents(pageNum, pageSize) {
       try {
         this.query.pageNum = pageNum;

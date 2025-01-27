@@ -664,7 +664,7 @@ export default {
     },
     emptyEmp() {
       this.emp = {
-        dateStu: new Date(),
+        dateStu: new Date().toLocaleDateString('en-CA'), //转换成yyyy-mm-dd格式
         id: null,
         num: this.total + 1,
         preSum: "",

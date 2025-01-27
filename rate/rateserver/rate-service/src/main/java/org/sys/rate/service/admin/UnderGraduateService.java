@@ -378,4 +378,22 @@ public class UnderGraduateService {
     public List<UnderGraduate> getStudentByConditions(StudentCondition studentCondition) {
         return underGraduateMapper.getStudentByConditions(studentCondition);
     }
+
+    public RespBean deleteStartThesis(Integer startThesisID) {
+        try {
+            underGraduateMapper.deleteStartThesis(startThesisID);
+        } catch (Exception e) {
+            return RespBean.error("请先手动删除改毕业设计下的学生！");
+        }
+        return RespBean.ok("");
+    }
+
+    public RespBean deleteThesisByStartThesis(Integer startThesisID) {
+        try {
+            thesisMapper.deleteThesisByStartThesis(startThesisID);
+        } catch (Exception e) {
+            return RespBean.error("删除失败，学生已经填写记录！");
+        }
+        return RespBean.ok("");
+    }
 }
