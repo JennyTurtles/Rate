@@ -816,7 +816,8 @@ export default {
   },
   mounted() {
     this.initTutor(this.user);
-    this.initEmps();
+    this.initEmps(); 
+    this.showAddEmpView();
   },
   methods: {
     previewMethod(type) {
