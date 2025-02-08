@@ -301,7 +301,7 @@
 	        </span>
             &nbsp;&nbsp;&nbsp;&nbsp;
             <span style="color: gray; font-size: 11px"
-              >只允许doc docx pdf jpg png jpe rar zip类型文件
+              >只允许doc docx pdf jpg png jpeg rar zip类型文件
               &nbsp;&nbsp;大小不能超过10MB
             </span>
           </el-upload>
