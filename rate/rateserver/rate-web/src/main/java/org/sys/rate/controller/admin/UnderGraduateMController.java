@@ -263,6 +263,16 @@ public class UnderGraduateMController {
         return underGraduateService.getThesisExistDate(institutionID, adminID);
     }
 
+    @PostMapping("/deleteStartThesis")
+    public RespBean deleteStartThesis(@RequestParam("startThesisID") Integer startThesisID) {
+        return underGraduateService.deleteStartThesis(startThesisID);
+    }
+
+    @PostMapping("/deleteThesisByStartThesis")
+    public RespBean deleteThesisByStartThesis(@RequestParam("startThesisID") Integer startThesisID) {
+        return underGraduateService.deleteThesisByStartThesis(startThesisID);
+    }
+
     @PostMapping("/startThesis")
     public RespBean startThesis(@RequestParam("institutionID") @NotNull Integer institutionID,
                                 @RequestParam("adminID") @NotNull Integer adminID,

@@ -83,4 +83,7 @@ public interface ThesisMapper {
 
     @Update("update thesis set `group` = null where start_thesis_id = #{startThesisID}")
     void clearGroups(Integer startThesisID);
+
+    @Delete("DELETE FROM thesis WHERE start_thesis_id = #{startThesisID}")
+    void deleteThesisByStartThesis(Integer startThesisID);
 }
