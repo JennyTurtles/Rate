@@ -440,42 +440,56 @@ export default {
       return isJPGorPNG && isLt100KB;
     },
     async fetchThesisExistDate() {
+      // 获取当前老师的学生论文数据
+      try {
+        const userThesesUrl = `/paperComment/basic/getStuThesis?tutorId=${this.user.id}`;
+        const userThesesResponse = await this.getRequest(userThesesUrl);
+        if (userThesesResponse.status === 200) {
+          this.userTheses = userThesesResponse.obj;
+        } else {
+          throw new Error("获取用户论文数据失败!");
+        }
+      } catch (error) {
+        console.error("请求出现异常!", error);
+      }
       try {
         const url = `/undergraduateM/basic/getThesisExistDate?institutionID=${this.user.institutionID}&adminID=${-1}`;
         const response = await this.getRequest(url);
         if (response.status === 200) {
-          this.options = this.transformOptions(response.obj);
+          this.options = this.transformOptions(response.obj, this.userTheses); // 传递 userTheses 参数
           this.options.unshift({ value: 'all', label: '全部' });
-          //默认选择全部
+          // 默认选择全部
           this.selectDate = this.options[0].value;
           this.handleSelectSemesterChange();
         } else {
           throw new Error("请求失败!");
         }
       } catch (error) {
-        throw new Error("请求出现异常!");
+        console.error("请求出现异常!", error);
       }
+      
     },
     transformOptions(options) {
       if (!Array.isArray(options)) {
         console.error('Invalid options format:', options);
         return [];
       }
-
+      // 创建一个包含年月组合的集合
+      const userThesisYearSeasons = new Set(this.userTheses.map(thesis => `${thesis.thesis.year}${thesis.thesis.month}`));
       return options.map(option => {
         let message = option.split('.')[1];
         let year = parseInt(message.substring(0, 4), 10);
         let season = message.slice(-2) === '春季' ? 3 : 9;
         let optionID = option.split('.')[0];
         let optionValue = optionID + '.' + year + season;
-
         return {
           value: optionValue,
           label: message,
           year: year,
           season: season
         };
-      }).sort((a, b) => {
+      }).filter(option => userThesisYearSeasons.has(`${option.year}${option.season}`))
+      .sort((a, b) => {
         // 按年份降序排列，如果年份相同则按季节降序排列
         if (a.year !== b.year) {
           return b.year - a.year;
