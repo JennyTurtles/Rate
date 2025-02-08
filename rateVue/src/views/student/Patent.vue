@@ -434,6 +434,7 @@ export default {
   mounted() {
     this.currentPatentCopy = JSON.parse(JSON.stringify(this.currentPatent));
     this.initEmps();
+    this.showAddEmpView()
   },
   methods: {
     previewMethod(type) {
@@ -619,6 +620,7 @@ export default {
       this.addButtonState = true;
     },
     showInfo(data){
+
       this.title_show = "显示详情";
       this.currentPatent = data
       this.dialogVisible_showInfo = true

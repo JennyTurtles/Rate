@@ -129,7 +129,7 @@
         </el-table-column>
       </el-table>
     </div>
-    <!-- 添加科研科研项目对话框 -->
+    <!-- 添加纵向科研项目对话框 -->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
       <el-form
           :hide-required-asterisk="true"
@@ -419,6 +419,7 @@ export default {
   mounted() {
     this.currentProjectCopy = JSON.parse(JSON.stringify(this.currentProject));
     this.initProjectsList();
+    this.addProjectDialog()
   },
   methods: {
     previewMethod(type) {

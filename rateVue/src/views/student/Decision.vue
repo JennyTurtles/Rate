@@ -391,7 +391,7 @@ export default {
         time: null
       },
       currentDecisionCopy: {},
-      currentDecision: {
+      currentDecision : {
         id: null,
         name: null,
         author:"",
@@ -427,6 +427,7 @@ export default {
   mounted() {
     this.currentDecisionCopy = JSON.parse(JSON.stringify(this.currentDecision));
     this.initDecisionsList();
+    this.showAddEmpView()
   },
   methods: {
     previewMethod(type) {

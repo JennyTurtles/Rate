@@ -442,6 +442,7 @@ export default {
   mounted() {
     this.currentCompetitionCopy = JSON.parse(JSON.stringify(this.currentCompetition));
     this.initCompetitionsList();
+    this.addCompetitionDialog()
   },
   methods: {
     previewMethod(type) {

@@ -26,7 +26,7 @@ public interface PatentMapper
      * @return
      */
     @Select("select * from i_patent where ID = #{ID}")
-    Patent getById(Integer ID);
+    Patent getById(Long ID);
 
     /**
      * 查询专利成果

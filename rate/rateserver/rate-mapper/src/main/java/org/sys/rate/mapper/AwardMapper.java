@@ -80,7 +80,6 @@ public interface AwardMapper
     @Update("UPDATE graduatestudent SET point = point + #{score} WHERE ID = #{stuID}")
     public int updateScore(Long stuID,Long score);
 
-    @Select("SELECT * FROM i_patent WHERE  ID = #{ID}")
     public Award selectByID(Long ID);
 
     public List<Award> searchAwardByConditions(String studentName, String state, String awardName, String pointFront, String pointBack);

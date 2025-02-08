@@ -4,10 +4,9 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.CompetitionMapper;
 import org.sys.rate.mapper.CompetitionTypeMapper;
 import org.sys.rate.mapper.OperationMapper;
-import org.sys.rate.model.Competition;
-import org.sys.rate.model.CompetitionType;
-import org.sys.rate.model.Operation;
+import org.sys.rate.model.*;
 import org.sys.rate.service.mail.MailToStuService;
+import org.sys.rate.utils.ProjectTypeEnums;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -25,7 +24,23 @@ public class CompetitionService {
     private OperationMapper operationMapper;
     @Resource
     private MailToStuService mailToStuService;
+    @Resource
+    private XinProjectService xinProjectService;
 
+
+    private void dealXinProject(Competition dto, int type){
+        XinProject xinProject = new XinProject(dto.getName(), dto.getPoint(), dto.getAuthor(),
+                dto.getState(), dto.getRemark(), dto.getId(), ProjectTypeEnums.ACADEMIC_COMPETITION.getDisplayName());
+        if(type ==1) {
+            xinProjectService.insertXinProject(xinProject);
+        }else if(type == 2){
+            xinProjectService.updateXinProject(xinProject);
+        }else if(type == 3){
+            xinProjectService.updateXinProject(xinProject.getMid(), xinProject.getType(), xinProject.getState());
+        }else if(type == 4){
+            xinProjectService.deleteXinProject(xinProject.getMid(), xinProject.getType());
+        }
+    }
     public List<Competition> selectCompetitionListById(Integer studentID) {
         List<Competition> list = competitionMapper.selectCompetitionListById(studentID);
         return list;
@@ -38,10 +53,13 @@ public class CompetitionService {
      * @return 结果
      */
     public int insertCompetition(Competition competition) {
-        return competitionMapper.insertCompetition(competition);
+        int rlt = competitionMapper.insertCompetition(competition);
+        dealXinProject(competition, 1);
+        return rlt;
     }
 
     public int updateCompetition(Competition competition) {
+        dealXinProject(competition, 2);
         return competitionMapper.updateCompetition(competition);
     }
 
@@ -52,6 +70,9 @@ public class CompetitionService {
      * @return 结果
      */
     public int deleteCompetitionById(Long ID) {
+        Competition competition = new Competition();
+        competition.setId(ID.intValue());
+        dealXinProject(competition, 4);
         return competitionMapper.deleteCompetitionById(ID);
     }
 
@@ -107,6 +128,9 @@ public class CompetitionService {
     public int editState(String state, Long ID) throws MessagingException {
         Competition competition = competitionMapper.getById(Math.toIntExact(ID));
         mailToStuService.sendStuMail(state, competition, null, "学科竞赛");
+
+        competition.setState(state);
+        dealXinProject(competition, 3);
         return competitionMapper.editState(state, ID);
     }
 

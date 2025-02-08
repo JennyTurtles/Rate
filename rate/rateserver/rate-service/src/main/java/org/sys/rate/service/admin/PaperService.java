@@ -1,5 +1,6 @@
 package org.sys.rate.service.admin;
 
+import com.microsoft.schemas.office.visio.x2012.main.ShapeSheetType;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.OperationMapper;
@@ -7,12 +8,16 @@ import org.sys.rate.mapper.PaperMapper;
 import org.sys.rate.model.Monograph;
 import org.sys.rate.model.Operation;
 import org.sys.rate.model.Paper;
+import org.sys.rate.model.XinProject;
 import org.sys.rate.service.mail.MailToStuService;
+import org.sys.rate.utils.ProjectTypeEnums;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PaperService {
@@ -23,6 +28,23 @@ public class PaperService {
     private OperationMapper operationMapper;
     @Resource
     MailToStuService mailToStuService;
+
+    @Resource
+    private XinProjectService xinProjectService;
+
+    private void dealXinProject(Paper dto, int type){
+        XinProject xinProject = new XinProject(dto.getName(), dto.getPoint() == null ? null : Math.toIntExact(dto.getPoint()), dto.getAuthor(),
+                dto.getState(), dto.getRemark(), Math.toIntExact(dto.getID()), ProjectTypeEnums.ACADEMIC_PAPER.getDisplayName());
+        if(type ==1) {
+            xinProjectService.insertXinProject(xinProject);
+        }else if(type == 2){
+            xinProjectService.updateXinProject(xinProject);
+        }else if(type == 3){
+            xinProjectService.updateXinProject(xinProject.getMid(), xinProject.getType(), xinProject.getState());
+        }else if(type == 4){
+            xinProjectService.deleteXinProject(xinProject.getMid(), xinProject.getType());
+        }
+    }
 
     public Paper selectPaperById(Long ID) {
         return paperMapper.selectPaperById(ID);
@@ -71,8 +93,12 @@ public class PaperService {
      * @param paper 论文成果
      * @return 结果
      */
+
     public int insertPaper(Paper paper) {
-        return paperMapper.insertPaper(paper);
+
+        int rlt = paperMapper.insertPaper(paper);
+        dealXinProject(paper, 1);
+        return rlt;
     }
 
     /**
@@ -82,6 +108,7 @@ public class PaperService {
      * @return 结果
      */
     public int updatePaper(Paper paper) {
+        dealXinProject(paper, 2);
         return paperMapper.updatePaper(paper);
     }
 
@@ -92,6 +119,9 @@ public class PaperService {
      * @return 结果
      */
     public int deletePaperById(Long ID) {
+        Paper paper = new Paper();
+        paper.setID(ID);
+        dealXinProject(paper, 4);
         return paperMapper.deletePaperById(ID);
     }
 
@@ -117,6 +147,9 @@ public class PaperService {
                 }
             }
             paperMapper.editState2(state, ID, 1); // 不为2分的论文的have_score直接设置为1
+
+            paper.setState(state);
+            dealXinProject(paper, 3);
             paperMapper.updateScore(stuID, score);
         }
         int res = paperMapper.editState(state, ID);

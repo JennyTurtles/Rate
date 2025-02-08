@@ -62,7 +62,7 @@
         </where>
     </select>
 
-<!--    学生奖励页面初始化-->
+    <!--    学生奖励页面初始化-->
     <select id="selectAwardListById" resultMap="AwardResult" parameterType="Integer">
         SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, i.name as iname, i.score,i.rankN, i.id as indicatorid, s.name as sname
         FROM i_award a
@@ -94,9 +94,17 @@
             <if test="`rank` != null ">and `rank` = #{rank}</if>
             <if test="total != null ">and total = #{total}</if>
             <if test="point != null ">and point = #{point}</if>
-            <if test=" != null ">and  = #{}</if>
+            <if test=" != null ">and = #{}</if>
             <if test="url != null ">and url = #{url}</if>
         </where>
+    </select>
+
+
+    <select id="selectByID" parameterType="Long" resultMap="AwardResult">
+        select i.*,type.name tname,type.year year,type.level level,type.id award_type_id
+        from i_award i
+        left join i_award_type type on i.award_type_id = type.id
+        where i.id = #{ID}
     </select>
 
     <select id="selectAwardById" parameterType="Long" resultMap="AwardResult">
@@ -195,7 +203,9 @@
             <if test="awardName != null and awardName != ''">and book.name like concat('%', #{awardName}, '%')</if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
             <if test="state != null and state != ''">and book.state = #{state}</if>
-            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point
+                between #{pointFront} and #{pointBack}
+            </if>
         </where>
         ORDER BY book.id DESC
     </select>

@@ -424,6 +424,7 @@ export default {
   mounted() {
     this.currentMonographCopy = JSON.parse(JSON.stringify(this.currentMonograph));
     this.initMonographsList();
+    this.showAddEmpView()
   },
   methods: {
     previewMethod(type) {

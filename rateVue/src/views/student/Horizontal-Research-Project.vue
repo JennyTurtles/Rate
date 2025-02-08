@@ -405,6 +405,7 @@ export default {
   mounted() {
     this.currentProjectCopy = JSON.parse(JSON.stringify(this.currentProject));
     this.initEmps();
+    this.showAddEmpView()
     // this.initTutor(this.user);
   },
   methods: {

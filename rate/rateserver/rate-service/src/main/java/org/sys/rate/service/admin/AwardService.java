@@ -10,6 +10,7 @@ import org.sys.rate.mapper.AwardTypeMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.model.Award;
 import org.sys.rate.service.mail.MailToStuService;
+import org.sys.rate.utils.ProjectTypeEnums;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -25,6 +26,8 @@ public class AwardService {
     private AwardTypeMapper awardTypeMapper;
     @Resource
     private MailToStuService mailToStuService;
+    @Resource
+    private XinProjectService xinProjectService;
 
     public List<Award> selectAwardListById(@Param("studentID") Integer studentID) {
         List<Award> list = awardMapper.selectAwardListById(studentID);
@@ -38,10 +41,27 @@ public class AwardService {
      * @return 结果
      */
     public int insertAward(Award award) {
-        return awardMapper.insertAward(award);
+        int rlt = awardMapper.insertAward(award);
+        dealXinProject(award, 1);
+        return rlt;
+    }
+
+    private void dealXinProject(Award dto, int type){
+        XinProject xinProject = new XinProject(dto.getName(), dto.getPoint(), dto.getAuthor(),
+                dto.getState(), dto.getRemark(), dto.getId(), ProjectTypeEnums.RESEARCH_AWARD.getDisplayName());
+        if(type ==1) {
+            xinProjectService.insertXinProject(xinProject);
+        }else if(type == 2){
+            xinProjectService.updateXinProject(xinProject);
+        }else if(type == 3){
+            xinProjectService.updateXinProject(xinProject.getMid(), xinProject.getType(), xinProject.getState());
+        }else if(type == 4){
+            xinProjectService.deleteXinProject(xinProject.getMid(), xinProject.getType());
+        }
     }
 
     public int updateAward(Award award) {
+        dealXinProject(award, 2);
         return awardMapper.updateAward(award);
     }
 
@@ -52,6 +72,9 @@ public class AwardService {
      * @return 结果
      */
     public int deleteAwardById(Long ID) {
+        Award award = new Award();
+        award.setId(ID.intValue());
+        dealXinProject(award, 4);
         return awardMapper.deleteAwardById(ID);
     }
 
@@ -107,6 +130,8 @@ public class AwardService {
     public int editState(String state, Long ID) throws MessagingException {
         Award award = awardMapper.getById(Math.toIntExact(ID));
         mailToStuService.sendStuMail(state, award, null, "科研获奖");
+        award.setState(state);
+        dealXinProject(award, 3);
         return awardMapper.editState(state, ID);
     }
 

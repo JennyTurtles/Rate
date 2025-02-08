@@ -392,6 +392,7 @@ export default {
   mounted() {
     this.currentProductCopy = JSON.parse(JSON.stringify(this.currentProduct));
     this.initEmps();
+    this.showAddEmpView()
   },
   methods: {
     previewMethod(type) {

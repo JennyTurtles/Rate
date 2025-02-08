@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 专利成果Controller
@@ -55,7 +56,24 @@ public class DecisionController {
     @GetMapping("/studentID")//无页码要求
     public JsonResult<List> getById(Integer studentID) {
         List<Decision> list = decisionService.selectDecisionListById(studentID);
-        return new JsonResult<>(list);
+        return
+                new JsonResult<>(list);
+    }
+    @GetMapping("/studentIDInfo")
+    public JsonResult<Decision> getStudentInfo(Integer studentID, Integer id) {
+        List<Decision> list = decisionService.selectDecisionListById(studentID);
+        List<Decision> collect = list.stream().filter(paper -> paper.getId() == id.longValue()).collect(Collectors.toList());
+        Decision decision = collect.get(0);
+        String url = decision.getUrl();
+        String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
+        decision.setUrl(replace);
+        return new JsonResult<>(collect.get(0));
+    }
+
+    @GetMapping("/getDtaById")
+    public JsonResult<Decision> getDtaById(Long id){
+        Decision decision = decisionMapper.selectByID(id);
+        return new JsonResult<>(decision);
     }
 
     //    修改专利状态

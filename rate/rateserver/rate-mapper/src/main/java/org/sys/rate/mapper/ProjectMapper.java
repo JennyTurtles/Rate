@@ -79,8 +79,7 @@ public interface ProjectMapper
     @Update("UPDATE graduatestudent SET point = point + #{score} WHERE ID = #{stuID}")
     public int updateScore(Long stuID,Long score);
 
-    @Select("SELECT * FROM i_project WHERE  ID = #{ID}")
-    public Project selectByID(Long ID);
+    public Project selectByID(@Param("ID") Long ID);
 
     public List<Project> searchProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
     public List<Project> searchHorizontalProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);

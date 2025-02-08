@@ -389,6 +389,7 @@ export default {
   mounted() {
     this.currentStandardCopy = JSON.parse(JSON.stringify(this.currentStandard));
     this.initEmps();
+    this.showAddEmpView()
     // this.initTutor(this.user);
   },
   methods: {

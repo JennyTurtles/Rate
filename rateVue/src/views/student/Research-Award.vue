@@ -465,6 +465,7 @@ export default {
   mounted() {
     this.currentAwardCopy = JSON.parse(JSON.stringify(this.currentAward));
     this.initAwardsList();
+    this.showAddEmpView()
   },
   watch: {
     selectedIndicator: {
@@ -675,6 +676,7 @@ export default {
       this.loading = true;
       this.title_show = "显示详情";
       this.currentAward = data
+      console.log(this.currentAward.awardType.name )
       this.dialogVisible_showInfo = true
       this.isPdf = this.isImage = false; //初始化
       this.previewUrl = '';

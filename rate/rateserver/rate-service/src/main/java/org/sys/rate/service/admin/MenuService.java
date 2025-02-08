@@ -45,11 +45,12 @@ public class MenuService {
 //        List<Integer> childMenuId = new ArrayList<Integer>();
         for (Menu menu : rootMenu){
             //遍历所有的一级菜单和全部菜单，全部菜单id和一级菜单比较
-            if (menu.getParentId() != 1){
-                if (menu.getParentId()==id){
+            if (menu.getParentId() != 1) {
+                if (menu.getParentId() == id) {
                     childList.add(menu);
-//                    childMenuId.add(menu.getId());
                 }
+
+//                    childMenuId.add(menu.getId());
             }
         }
 //        for (Menu menu : rootMenu){

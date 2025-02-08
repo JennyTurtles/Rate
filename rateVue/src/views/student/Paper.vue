@@ -653,6 +653,7 @@ export default {
   mounted() {
     this.initTutor(this.user);
     this.initEmps();
+    this.showAddEmpView()
   },
   methods: {
     previewMethod(type) {
@@ -1098,7 +1099,7 @@ export default {
       this.disabledInput = false;
       this.urlFile = this.currentEmp.url;
       this.dialogVisible = true;
-      this.publicationName = this.currentEmp.pubName
+      this.publicationName = this.currentEmp.pubName;
       this.isInitEditDialog = true;
       this.isAuthorIncludeSelf = true;
       this.publicationId = data.publication.id;
@@ -1328,7 +1329,7 @@ export default {
 }
 
 #selectItem {
-  display: 'none';
+
   border: 1px solid #eee;
   width: 200px;
   /* height:100px; */
@@ -1392,4 +1393,5 @@ div::-webkit-scrollbar-thumb {
   border: 3px solid rgba(255, 255, 255, .4);
   background-color: rgba(0, 0, 0, .5);
 }
+
 </style>

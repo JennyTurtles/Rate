@@ -26,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 专著成果Controller
@@ -56,6 +57,29 @@ public class ProjectController {
         return new JsonResult<>(list);
     }
 
+    @GetMapping("/getDtaById")
+    public JsonResult<Project> getDtaById(Long id) {
+        Project project = projectMapper.selectByID(id);
+        return new JsonResult<>(project);
+    }
+
+    @GetMapping("/studentIDInfo")
+    public JsonResult<Project> getStudentInfo(Integer studentID, Integer id, Integer type) {
+        List<Project> list = null;
+        if (0 == type) {
+            list = projectService.selectProjectListById(studentID);
+        } else {
+            list = projectService.selectHorizontalProjectListById(studentID);
+        }
+        List<Project> collect = list.stream().filter(paper -> paper.getId() == id.longValue()).collect(Collectors.toList());
+        Project project = collect.get(0);
+        String url = project.getUrl();
+        String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
+        project.setUrl(replace);
+        return new JsonResult<>(collect.get(0));
+    }
+
+
     @GetMapping("/studentID/horizontal")//无页码要求
     public JsonResult<List> getHorizontalProjectById(Integer studentID) {
         List<Project> list = projectService.selectHorizontalProjectListById(studentID);
@@ -85,7 +109,7 @@ public class ProjectController {
     @ResponseBody
     public JsonResult addSave(Project project) throws FileNotFoundException {
         Integer res = projectService.insertProject(project);
-        mailToTeacherService.sendTeaCheckMail(project, project.getProjectTypeId() == null ? "横向科研项目" : "纵向科研项目","添加");
+        mailToTeacherService.sendTeaCheckMail(project, project.getProjectTypeId() == null ? "横向科研项目" : "纵向科研项目", "添加");
         return new JsonResult(project.getId());
     }
 
@@ -97,7 +121,7 @@ public class ProjectController {
     public JsonResult editSave(Project project) throws FileNotFoundException {
         int res = projectService.updateProject(project);
         if (res > 0) {
-            mailToTeacherService.sendTeaCheckMail(project, project.getProjectTypeId() == null ? "横向科研项目" : "纵向科研项目","修改");
+            mailToTeacherService.sendTeaCheckMail(project, project.getProjectTypeId() == null ? "横向科研项目" : "纵向科研项目", "修改");
         }
         return new JsonResult(res);
     }
@@ -184,6 +208,7 @@ public class ProjectController {
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
     }
+
     //管理员修改该学生论文积分
     @PostMapping("/editPoint/{ID}")
     public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Project project) {

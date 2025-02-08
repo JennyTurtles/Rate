@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.StandardMapper;
 import org.sys.rate.mapper.StandardMapper;
 import org.sys.rate.model.Standard;
+import org.sys.rate.model.XinProject;
 import org.sys.rate.service.mail.MailToStuService;
+import org.sys.rate.utils.ProjectTypeEnums;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
@@ -17,6 +19,22 @@ public class StandardService {
     private StandardMapper standardMapper;
     @Resource
     private MailToStuService mailToStuService;
+    @Resource
+    private XinProjectService xinProjectService;
+
+    private void dealXinProject(Standard dto, int type){
+        XinProject xinProject = new XinProject(dto.getName(), dto.getPoint(), dto.getAuthor(),
+                dto.getState(), dto.getRemark(), dto.getId(), ProjectTypeEnums.STANDARD_DEVELOPMENT.getDisplayName());
+        if(type ==1) {
+            xinProjectService.insertXinProject(xinProject);
+        }else if(type == 2){
+            xinProjectService.updateXinProject(xinProject);
+        }else if(type == 3){
+            xinProjectService.updateXinProject(xinProject.getMid(), xinProject.getType(), xinProject.getState());
+        }else if(type == 4){
+            xinProjectService.deleteXinProject(xinProject.getMid(), xinProject.getType());
+        }
+    }
 
     public Standard selectStandardById(Long ID){
         return standardMapper.selectStandardById(ID);
@@ -64,17 +82,21 @@ public class StandardService {
      * @return 结果
      */
     public int insertStandard(Standard standard){
-        return standardMapper.insertStandard(standard);
+
+        int rlt = standardMapper.insertStandard(standard);
+        dealXinProject(standard, 1);
+        return rlt;
     }
 
     /**
      * 修改论文成果
      *
-     * @param paper 论文成果
+     * @param standard 论文成果
      * @return 结果
      */
-    public int updateStandard(Standard paper){
-        return standardMapper.updateStandard(paper);
+    public int updateStandard(Standard standard){
+        dealXinProject(standard, 2);
+        return standardMapper.updateStandard(standard);
     }
 
     /**
@@ -84,6 +106,9 @@ public class StandardService {
      * @return 结果
      */
     public int deleteStandardById(Long ID){
+        Standard standard = new Standard();
+        standard.setId(Math.toIntExact(ID));
+        dealXinProject(standard, 4);
         return standardMapper.deleteStandardById(ID);
     }
 
@@ -97,6 +122,8 @@ public class StandardService {
     public int editState(String state, Long ID) throws MessagingException {
         Standard standard = standardMapper.getById(Math.toIntExact(ID));
         mailToStuService.sendStuMail(state, standard, null, "制定标准");
+        standard.setState(state);
+        dealXinProject(standard, 3);
         return standardMapper.editState(state,ID);
     }
     public List<Standard> searchStandardByConditions(String studentName, String state, String projectName, String pointFront, String pointBack) {

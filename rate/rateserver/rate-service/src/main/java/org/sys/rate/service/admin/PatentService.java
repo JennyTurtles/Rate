@@ -6,6 +6,7 @@ import org.sys.rate.mapper.PatentMapper;
 import org.sys.rate.model.Operation;
 import org.sys.rate.model.Patent;
 import org.sys.rate.model.Project;
+import org.sys.rate.model.XinProject;
 import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
@@ -20,9 +21,11 @@ public class PatentService {
     private PatentMapper patentMapper;
     @Resource
     private MailToStuService mailToStuService;
+    @Resource
+    private XinProjectService xinProjectService;
 
     public Patent selectPatentById(Long ID){
-        return patentMapper.selectPatentById(ID);
+        return patentMapper.getById(ID);
     }
 
     /**
@@ -30,7 +33,7 @@ public class PatentService {
      * @param ID
      * @return paper
      */
-    public Patent getById(Integer ID){
+    public Patent getById(Long ID){
         Patent paper = patentMapper.getById(ID);
         if(paper != null){
             return paper;
@@ -67,17 +70,25 @@ public class PatentService {
      * @return 结果
      */
     public int insertPatent(Patent patent){
-        return patentMapper.insertPatent(patent);
+        int rlt = patentMapper.insertPatent(patent);
+
+        XinProject xinProject = new XinProject(patent.getName(), patent.getPoint(), patent.getAuthor(),
+                patent.getState(), patent.getRemark(), patent.getId(), "授权专利");
+        xinProjectService.insertXinProject(xinProject);
+        return rlt;
     }
 
     /**
      * 修改论文成果
      *
-     * @param paper 论文成果
+     * @param patent 论文成果
      * @return 结果
      */
-    public int updatePatent(Patent paper){
-        return patentMapper.updatePatent(paper);
+    public int updatePatent(Patent patent){
+        XinProject xinProject = new XinProject(patent.getName(), patent.getPoint(), patent.getAuthor(),
+                patent.getState(), patent.getRemark(), patent.getId(), "授权专利");
+        xinProjectService.updateXinProject(xinProject);
+        return patentMapper.updatePatent(patent);
     }
 
     /**
@@ -87,6 +98,7 @@ public class PatentService {
      * @return 结果
      */
     public int deletePatentById(Long ID){
+        xinProjectService.deleteXinProject(ID.intValue(), "授权专利");
         return patentMapper.deletePatentById(ID);
     }
 
@@ -98,8 +110,10 @@ public class PatentService {
 
     //    修改论文状态
     public int editState(String state, Long ID) throws MessagingException {
-        Patent patent = patentMapper.getById(Math.toIntExact(ID));
+        Patent patent = patentMapper.getById(ID);
         mailToStuService.sendStuMail(state, patent, null, "授权专利");
+
+        xinProjectService.updateXinProject(Integer.parseInt(ID+""), "授权专利", state);
         return patentMapper.editState(state,ID);
     }
     public List<Patent> searchPatentByConditions(String studentName, String state, String projectName, String pointFront, String pointBack) {
