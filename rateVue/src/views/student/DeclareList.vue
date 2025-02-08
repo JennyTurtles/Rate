@@ -12,11 +12,21 @@
 
     <!-- 选项组 -->
     <el-row type="flex" justify="center">
-      <el-radio-group v-model="selectedOption" style="display: flex; flex-wrap: wrap; justify-content: center;">
-        <el-radio v-for="(path, key) in urlMap" :key="key" :label="key" style="margin: 10px;">
-          {{ key }}
-        </el-radio>
-      </el-radio-group>
+      <el-col :span="20">
+        <el-radio-group
+            v-model="selectedOption"
+            class="custom-radio-group"
+        >
+          <el-radio
+              v-for="(path, key) in urlMap"
+              :key="key"
+              :label="key"
+              class="custom-radio"
+          >
+            {{ key }}
+          </el-radio>
+        </el-radio-group>
+      </el-col>
     </el-row>
 
     <!-- 操作按钮 -->
@@ -83,46 +93,49 @@ export default {
 </script>
 
 <style scoped>
-.button-container {
-  max-width: 960px;
-  margin: 20px auto;
-  padding: 0 15px; /* 确保在小屏幕上也有适当的内边距 */
-}
-
-/* 标题和提示的样式 */
-h2 {
-  font-size: 2em;
-  margin-bottom: 10px;
-}
-
-p {
-  font-size: 1.2em;
-  color: #666;
-}
-
-/* 选项组样式 */
-.el-radio {
-  display: block;
+/* 新增自定义单选组样式 */
+.custom-radio-group {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
   width: 100%;
-  text-align: center;
 }
 
-@media (min-width: 768px) {
-  .el-radio {
-    display: inline-block;
-    width: auto;
-  }
+.custom-radio {
+  display: flex !important;
+  align-items: center;
+  padding: 12px 15px;
+  border: 1px solid #DCDFE6;
+  border-radius: 4px;
+  transition: all 0.3s;
 }
 
-/* 操作按钮的样式 */
-.el-button {
-  width: 100%;
-  margin: 0 5px;
+/* 调整单选按钮位置 */
+.custom-radio::v-deep .el-radio__input {
+  margin-right: 8px !important;
 }
 
-@media (min-width: 768px) {
-  .el-button {
-    width: auto;
+.custom-radio::v-deep .el-radio__label {
+  flex: 1;
+  text-align: left !important;
+  padding-left: 0 !important;
+}
+
+/* 鼠标悬停效果 */
+.custom-radio:hover {
+  border-color: #409EFF;
+  background-color: #f5f7fa;
+}
+
+/* 选中状态 */
+.custom-radio.is-checked {
+  border-color: #409EFF;
+  background-color: #ecf5ff;
+}
+
+@media (max-width: 768px) {
+  .custom-radio-group {
+    grid-template-columns: 1fr;
   }
 }
 </style>
