@@ -242,8 +242,8 @@
                     bottom: 0px;
                     left: 0;
                     right: 0;
-                    height: 2px;
-                    background-color: #303133;
+                    height: 1px;
+                    background-color: #409eff;
                     top: 28px;
                     transform: translateY(-1px);
                   "
@@ -298,6 +298,25 @@
               :show-word-limit="true"
               :rows="8"
               :maxlength="400"
+          ></el-input>
+        </el-form-item>
+        <el-form-item
+            label="下期计划:"
+            prop="nextPlan"
+            label-width="80px"
+            style="margin-left: 20px"
+        >
+          <span class="isMust">*</span>
+          <el-input
+              type="textarea"
+              size="medium"
+              style="width: 80%"
+              prefix-icon="el-icon-edit"
+              v-model="emp.nextPlan"
+              placeholder="请输入下期安排："
+              :show-word-limit="true"
+              :rows="8"
+              :maxlength="200"
           ></el-input>
         </el-form-item>
 
@@ -497,52 +516,62 @@ export default {
         return true;
 
       // 上次填写的结束日期的后一天设置为可以填写
-      const lastEnd = new Date(this.emps[this.total - 1].endDateStu);
-      const nextDay = lastEnd.getTime() + (24 * 60 * 60 * 1000);
-      const nextDayDate = new Date(nextDay);
-      nextDayDate.setHours(0,0,0,0)
-      // if (this.formatDate(currentTime) === this.formatDate(nextDayDate) && nextDayDate <= today)
-      //   return false;
+      let lastEnd;
+      if (this.emps.length > 0 && this.total > 0) {
+        lastEnd = new Date(this.emps[this.total - 1].endDateStu);
+      } else {
+        lastEnd = null;
+      }
+      if (lastEnd) {
+        const nextDay = lastEnd.getTime() + (24 * 60 * 60 * 1000);
+        const nextDayDate = new Date(nextDay);
+        nextDayDate.setHours(0,0,0,0)
+        // if (this.formatDate(currentTime) === this.formatDate(nextDayDate) && nextDayDate <= today)
+        //   return false;
 
-      // 上次填写的结束日期之前的日期不可以填写
-      const lastEndTime = lastEnd.setHours(0,0,0,0);
-      if (currentTime <= lastEndTime)
-        return true;
-
-      // 禁止选择已经选过的工作区间
-      const pickedRangesTimestamp = this.emps.map(item => {
-        const startTimestamp = new Date(item.startDateStu);
-        const endTimestamp = new Date(item.endDateStu);
-        return [startTimestamp, endTimestamp];
-      });
-      for (const [start, end] of pickedRangesTimestamp) {
-        start.setHours(0, 0, 0, 0);
-        end.setHours(0, 0, 0, 0);
-        if (currentTime >= start && currentTime <= end) {
+        // 上次填写的结束日期之前的日期不可以填写
+        const lastEndTime = lastEnd.setHours(0,0,0,0);
+        if (currentTime <= lastEndTime)
           return true;
+
+        // 禁止选择已经选过的工作区间
+        const pickedRangesTimestamp = this.emps.map(item => {
+          const startTimestamp = new Date(item.startDateStu);
+          const endTimestamp = new Date(item.endDateStu);
+          return [startTimestamp, endTimestamp];
+        });
+        for (const [start, end] of pickedRangesTimestamp) {
+          start.setHours(0, 0, 0, 0);
+          end.setHours(0, 0, 0, 0);
+          if (currentTime >= start && currentTime <= end) {
+            return true;
+          }
         }
-      }
 
-      // 根据是否可以补填补充规则
-      if (this.fillMiss === 1){
-        const day = currentTime.getDay();
-        if (this.formatDate(currentTime) === this.formatDate(nextDayDate) && nextDayDate <= today)
-          return false;
-        return day !== 1;
-      }
-      else {
-        // 获取当前周的第一天（即本周的星期一）
-        const currentWeekFirstDay = today;
-        currentWeekFirstDay.setDate(today.getDate() - (today.getDay() === 0 ? 7 : today.getDay()) + 1);
-        // 获取上一周的第一天（即上周的星期一）
-        const lastWeekFirstDay = new Date(currentWeekFirstDay);
-        lastWeekFirstDay.setDate(currentWeekFirstDay.getDate() - 7);
+        // 根据是否可以补填补充规则
+        if (this.fillMiss === 1){
+          const day = currentTime.getDay();
+          if (this.formatDate(currentTime) === this.formatDate(nextDayDate) && nextDayDate <= today)
+            return false;
+          return day !== 1;
+        }
+        else {
+          // 获取当前周的第一天（即本周的星期一）
+          const currentWeekFirstDay = today;
+          currentWeekFirstDay.setDate(today.getDate() - (today.getDay() === 0 ? 7 : today.getDay()) + 1);
+          // 获取上一周的第一天（即上周的星期一）
+          const lastWeekFirstDay = new Date(currentWeekFirstDay);
+          lastWeekFirstDay.setDate(currentWeekFirstDay.getDate() - 7);
 
-        //console.log(currentWeekFirstDay,lastWeekFirstDay)
-        if (currentTime.getTime() === nextDayDate.getTime() && nextDayDate <= today && nextDayDate >= lastWeekFirstDay)
-          return false;
-        // 只允许选择当前周和上一周的星期一
-        return !(currentTime.getTime() === currentWeekFirstDay.getTime() || currentTime.getTime() === lastWeekFirstDay.getTime());
+          //console.log(currentWeekFirstDay,lastWeekFirstDay)
+          if (currentTime.getTime() === nextDayDate.getTime() && nextDayDate <= today && nextDayDate >= lastWeekFirstDay)
+            return false;
+          // 只允许选择当前周和上一周的星期一
+          return !(currentTime.getTime() === currentWeekFirstDay.getTime() || currentTime.getTime() === lastWeekFirstDay.getTime());
+        }
+      } else {
+        // 如果 emps 数组为空，则不做任何限制
+        return false;
       }
     },
     rowClass() {
@@ -571,7 +600,6 @@ export default {
     //编辑按钮
     showEditEmpView(data) {
       this.title = "编辑记录信息";
-
       this.emp = data;
       this.isEdit = true;
       // 修改编辑时日期的显示状态
@@ -600,6 +628,7 @@ export default {
       }
     },
     doAddEmp() {
+      
       if (this.emp.workHours > this.maxHours){
         this.$message({
           message: '工作时长平均每天不超过10小时，请重新输入！',
@@ -623,7 +652,7 @@ export default {
             this.emp.preSum = empdata.preSum;
             this.emp.nextPlan = empdata.nextPlan;
             this.emp.startDateStu = empdata.startDateStu;
-            this.emp.endDateStu = this.formatDate(empdata.endDateStu);
+            this.emp.endDateStu = empdata.endDateStu;
             this.emp.workHours = empdata.workHours;
             this.emp.studentID = this.user.id;
             this.emp.dateTea = null;
@@ -631,8 +660,6 @@ export default {
             this.emp.tutorComment = "";
 
             const _this = this;
-
-            console.log(this.emp)
             this.postRequest1("/programRecord/basic/edit", _this.emp).then((resp) => {
               if (resp) {
                 this.dialogVisible = false;
@@ -722,7 +749,6 @@ export default {
         const url = "/programRecord/basic/getAllRecordStu?studentID=" + studentID;
         const resp = await this.getRequest(url,{headers});
         this.emps = resp.data;
-        console.log(this.emps)
         this.total = resp.data.length;
       } catch (err) {
         console.error(err);

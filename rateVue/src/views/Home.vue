@@ -348,7 +348,6 @@ export default {
     window.onresize = function temp() {
       this.clientHeight = `${document.documentElement.clientHeight}`;
     };
-    console.log(this.user)
     //如果是学生不显示待办消息，如果是专家并且角色只有专家（没有研究生导师等等的身份）就不显示待办消息
     if (this.roleName === '')
       this.isStudentRole = true;
@@ -366,7 +365,6 @@ export default {
       let roleParam = this.roleName.indexOf('admin') >= 0 ? 'admin' : this.roleName.indexOf('teacher') >= 0 ? 'teacher' : '';
       this.$store.dispatch('changePendingMessageange', roleParam); //不是学生才会发送请求
     }
-    console.log(this.roleName)
   },
   watch: {
     // 如果 `clientHeight` 发生改变，这个函数就会运行
