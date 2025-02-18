@@ -651,13 +651,12 @@ export default {
             this.emp.preSum = empdata.preSum;
             this.emp.nextPlan = empdata.nextPlan;
             this.emp.startDateStu = empdata.startDateStu;
-            this.emp.endDateStu = empdata.endDateStu;
+            this.emp.endDateStu = this.formatDate(empdata.endDateStu);
             this.emp.workHours = empdata.workHours;
             this.emp.studentID = this.user.id;
             this.emp.dateTea = null;
             this.emp.isPass = null;
             this.emp.tutorComment = "";
-
             const _this = this;
             this.postRequest1("/programRecord/basic/edit", _this.emp).then((resp) => {
               if (resp) {
