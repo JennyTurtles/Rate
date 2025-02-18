@@ -529,11 +529,6 @@ export default {
         // if (this.formatDate(currentTime) === this.formatDate(nextDayDate) && nextDayDate <= today)
         //   return false;
 
-        // 上次填写的结束日期之前的日期不可以填写
-        const lastEndTime = lastEnd.setHours(0,0,0,0);
-        if (currentTime <= lastEndTime)
-          return true;
-
         // 禁止选择已经选过的工作区间
         const pickedRangesTimestamp = this.emps.map(item => {
           const startTimestamp = new Date(item.startDateStu);
@@ -556,6 +551,10 @@ export default {
           return day !== 1;
         }
         else {
+          // 上次填写的结束日期之前的日期不可以填写
+          const lastEndTime = lastEnd.setHours(0,0,0,0);
+          if (currentTime <= lastEndTime)
+          return true;
           // 获取当前周的第一天（即本周的星期一）
           const currentWeekFirstDay = today;
           currentWeekFirstDay.setDate(today.getDate() - (today.getDay() === 0 ? 7 : today.getDay()) + 1);

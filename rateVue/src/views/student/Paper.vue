@@ -237,8 +237,8 @@
             @blur="judgeWriter()"
             placeholder="请输入作者,如有多个用分号分隔"
           ></el-input>
-          <span style="color: #6f7175; font-size: 10px"
-              >&nbsp;&nbsp;&nbsp;&nbsp;如有多个作者用分号分隔
+          <span style="color: #6f7175;margin-left: 10px; font-size: 10px; text-decoration: underline;"
+              >如有多个作者用分号分隔
           </span>
         </el-form-item>
 
@@ -300,7 +300,7 @@
 	          </el-tooltip>
 	        </span>
             &nbsp;&nbsp;&nbsp;&nbsp;
-            <span style="color: gray; font-size: 11px"
+            <span style="color: gray; font-size: 10px; text-decoration: underline;"
               >只允许doc docx pdf jpg png jpeg rar zip类型文件
               &nbsp;&nbsp;大小不能超过10MB
             </span>
@@ -468,7 +468,7 @@
     </el-dialog>
 
     <!-- 添加或修改期刊对话框  -->
-    <el-dialog
+    <!-- <el-dialog
       :title="title_publication"
       :visible.sync="dialogVisible_publication"
       @close="cannotAddPublish = true"
@@ -620,7 +620,7 @@
           >提 交</el-button
         >
       </span>
-    </el-dialog>
+    </el-dialog> -->
 
     <el-dialog
       :visible.sync="dialogPreviewPdfFile"
@@ -870,11 +870,12 @@ export default {
     },
     // 和添加期刊相关的代码
     openAddDialog() {
-      this.emptyPublish();
-      this.inputDisabled = false;
-      this.title_publication = "添加期刊";
-      this.dialogVisible = false;
-      this.dialogVisible_publication = true;
+      // this.emptyPublish();
+      // this.inputDisabled = false;
+      // this.title_publication = "添加期刊";
+      // this.dialogVisible = false;
+      // this.dialogVisible_publication = true;
+      this.$router.push({ path: "/student/AddPublication" });
     },
     openUpdateDialog() {
       if (this.inputDisabled) {
@@ -1113,17 +1114,32 @@ export default {
         val
       )}/${encodeURIComponent(this.currentEmp.year)}`;
       this.getRequest(url).then((resp) => {
-        this.loading = false;
-        this.loadingPublicationSearch = false;
         if (resp) {
           this.select_pubName = [];
-          if (resp.obj) {
+          if (resp.obj.length!=0) {
+            this.loading = false;
+            this.loadingPublicationSearch = false;
             resp.obj.map((val) => {
               this.select_pubName.push(val);
             });
+          }else{
+            let url = `/publication/basic/listByAbbrYear/${encodeURIComponent(
+              val
+            )}/${encodeURIComponent(this.currentEmp.year)}`;
+            this.getRequest(url).then((resp) => {
+              this.loading = false;
+              this.loadingPublicationSearch = false;
+              if (resp) {
+                if (resp.obj) {
+                  resp.obj.map((val) => {
+                    this.select_pubName.push(val);
+                  });
+                }
+              }
+            })
           }
-        }
-      });
+      }
+    });
     },
     filterPublication(val) {
       //选择下拉框的某个期刊 得到选择的期刊的id score等信息
@@ -1168,6 +1184,7 @@ export default {
             this.publishToDatabase.check_duplicates.year = years;
             this.inputDisabled = true;
           } else {
+          
             this.$message.warning(
               this.publicationName +
                 "在" +
