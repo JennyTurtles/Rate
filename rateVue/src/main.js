@@ -234,7 +234,8 @@ router.beforeEach((to, from, next) => {
                     next()
                 }
             })
-            if (sessionStorage.getItem('initRoutes_AllSameForm').indexOf(to.path) >= 0) {
+            let roleName = JSON.parse(localStorage.getItem("user")).roleName;
+            if (sessionStorage.getItem('initRoutes_AllSameForm').indexOf(to.path) >= 0 || roleName.indexOf('admin') >= 0) {
                 next()
             } else {
                 Message.warning('无权限！请重新登录')

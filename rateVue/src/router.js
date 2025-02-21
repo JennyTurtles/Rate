@@ -4,6 +4,7 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 export default new Router({
+
     routes: [
         {
             path: '/admin', //管理员路由跳转路径
@@ -12,6 +13,7 @@ export default new Router({
             component: () => import('./views/admin/Login.vue'),
             meta: {title: 'Login'},
         },
+
         // {
         //   path: '/home',
         //   name: 'Home',
@@ -888,4 +890,6 @@ export default new Router({
             meta: {title: '分配专家(主活动)'},
         },
     ],
+
 })
+

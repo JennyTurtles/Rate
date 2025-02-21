@@ -3,17 +3,18 @@
     <div>
       导入学生第一步：<el-button icon="el-icon-upload" type="primary" @click="downloadExcel">下载模版</el-button>
       第二步：<el-upload
-          :show-file-list="false"
-          :headers="{
+        :show-file-list="false"
+        :headers="{
         'token': user.token
       }"
-          :before-upload="beforeUpload"
-          :on-success="onSuccess"
-          style="display: inline-flex; margin-left: 8px"
-          :action="UploadUrl()"
-      >
-        <el-button icon="el-icon-plus" type="success">导入学生</el-button>
-      </el-upload>
+        :before-upload="beforeUpload"
+        :on-success="onSuccess"
+        style="display: inline-flex; margin-left: 8px"
+        :action="UploadUrl()"
+        :http-request="handleChange"
+    >
+      <el-button icon="el-icon-plus" type="success">导入学生</el-button>
+    </el-upload>
     </div>
     <div style="margin-top: 10px">
       <span>
@@ -141,7 +142,7 @@
 
 <script>
 import {debounce} from "@/utils/debounce";
-
+import axios from "axios";
 export default {
   name: "SalGraduateM",
   data(){
@@ -194,6 +195,7 @@ export default {
     this.initGraduateStudents(this.currentPage,this.pageSize)
   },
   methods:{
+
     showDetailInfo(data) { //点击查看详情按钮
       this.currentGraduateStudent = data;
       let url = this.$router.resolve({
@@ -335,8 +337,10 @@ export default {
     onSuccess(res){
       if(res.status == 200){
         this.$message.success("导入成功")
+        console.log("step 2==========")
         this.initGraduateStudents(1,this.pageSize)
       }else {
+        console.log("step 3==========")
         this.$message.error(res.msg)
       }
     },
@@ -346,6 +350,77 @@ export default {
     UploadUrl(){
       let url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID
       return url;
+    },
+    handleChange(file) {
+      this.show = true;
+      var that = this
+      let fd = new FormData();
+      let fileName = file.file.name + new Date().getTime();
+      fd.append("file", file.file);
+      fd.append("key", fileName);
+      let url = "/participants/basic/checkGraduate?groupid=0";
+      this.postRequest(url, fd, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          'token':this.user.token
+        },
+      })
+          .then((res1) => {
+            if(res1.length===0) // 数据完整，没有空数据
+            {
+              url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID;
+              axios.post(url, fd, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                  'token':that.user.token
+                },
+              }).then((res) => {
+                this.$message({
+                  message: res.msg,
+                  type: 'success'
+                });
+                //this.$message(res.msg);
+                this.initGraduateStudents(1,this.pageSize)
+                this.$message("导入成功");
+              })
+            }
+            else{
+              let newD=[],h=this.$createElement;
+              // newD.push(h('p',null,'确认导入数据？'));
+              // newD.push(h('p',null,'导入数据中'));
+              var count = 0
+              for(const i in res1)
+              {
+                count++
+                newD.push(h('p',null,res1[i]))
+                if (count === 15) // 最多显示15行
+                  break
+              }
+              newD.push(h('p',null,'是否确认继续?'));
+              this.$confirm(h('div',null,newD), '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                that.loading = true
+                url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID;
+                axios.post(url, fd, {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                    'token':that.user.token
+                  },
+                }).then((res) => {
+                  that.loading = false
+                  this.initGraduateStudents(1,this.pageSize)
+                  // this.$message("导入成功");
+                })
+              })
+            }
+          })
+          .catch((err) => {
+            // console.log(err);
+          });
+
     },
     downloadExcel(){
       let url = '/graduatestudentM/basic/exportGraduate'

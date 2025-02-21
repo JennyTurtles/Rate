@@ -43,9 +43,13 @@ public class GraduateStudentMController {
 
     @PostMapping("/importGraduate")
     public RespBean importUnderGraduate(Integer institutionID, MultipartFile file) throws ParseException {
+//        List<String> checkResult = POIUtils.check(file);
+//        if (checkResult.size() > 0) {
+//            return RespBean.error("导入数据存在问题", checkResult);
+//        }
         Map<String, List> mm = POIUtils.readExcel_graduatestudent(institutionID, file);
         List<GraduateStudent> graduate = mm.get("graduatelist");
-        List<Student> stu = mm.get("studentlist");
+
         if (graduate.size() == 0) { //先将excel中读取到的数据行拿出来，student和graduate列表是同样的数量才对
             return RespBean.error("未读取到有效导入数据");
         }

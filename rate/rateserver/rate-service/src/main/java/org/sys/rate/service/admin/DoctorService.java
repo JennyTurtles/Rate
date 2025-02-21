@@ -1,14 +1,20 @@
 package org.sys.rate.service.admin;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.CellType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 
 import javax.annotation.Resource;
 import javax.print.Doc;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 public class DoctorService {
@@ -26,11 +32,285 @@ public class DoctorService {
     UnderGraduateMapper underGraduateMapper;
     @Resource
     GraduateStudentMapper graduateStudentMapper;
+    public List<String> checkGraduateStudent(MultipartFile file) {
+        List<String> error = new ArrayList<>();
+        try {
+            //1. 创建一个 workbook 对象
+            HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
+            //2. 获取 workbook 中表单的数量
+            int numberOfSheets = workbook.getNumberOfSheets();
+            //3. 获取表单 只读第一个
+            HSSFSheet sheet = workbook.getSheetAt(0);
+            String sheetName = sheet.getSheetName();
+            //4. 获取表单中的行数
+            int physicalNumberOfRows = sheet.getPhysicalNumberOfRows();
+            int Cells = sheet.getRow(0).getPhysicalNumberOfCells();
+            HashMap<Integer, String> map = new HashMap<>();
+            boolean hasNameColumn = false;
+            boolean hasNumberColumn = false;
+            boolean hasMobileColumn = false;
+            boolean hasEmailColumn = false;
+            boolean hasTuturNoColumn = false;
+            boolean hasTuturNameColumn = false;
+            boolean hasYearColumn = false;
+            boolean hasTypeColumn = false;
+            boolean hasMajorColumn = false;
+            boolean hasClassColumn = false;
 
+//            姓名	学号	手机号	邮箱	导师工号	导师姓名	入学年份	学生类别	专业	班级
+
+            for (int m = 0; m < Cells; m++) {
+                if (sheet.getRow(0).getCell(m).getStringCellValue() != null){
+                    String columnName = sheet.getRow(0).getCell(m).getStringCellValue();
+                    map.put(m, columnName);
+                    if ("学生类别".equals(columnName)) {
+                        hasTypeColumn = true;
+                    }
+                    if ("专业".equals(columnName)) {
+                        hasMajorColumn = true;
+                    }
+                    if ("班级".equals(columnName)) {
+                        hasClassColumn = true;
+                    }
+                    if ("入学年份".equals(columnName)) {
+                        hasYearColumn = true;
+                    }
+                    if ("导师姓名".equals(columnName)) {
+                        hasTuturNameColumn = true;
+                    }
+                    if ("导师工号".equals(columnName)) {
+                        hasTuturNoColumn = true;
+                    }
+                    if ("邮箱".equals(columnName)) {
+                        hasEmailColumn = true;
+                    }
+                    if ("姓名".equals(columnName)) {
+                        hasNameColumn = true;
+                    }
+                    if ("学号".equals(columnName)) {
+                        hasNumberColumn = true;
+                    }
+                    if ("手机号".equals(columnName)) {
+                        hasMobileColumn = true;
+                    }
+                }
+            }
+
+            if (!hasNameColumn) {
+                error.add("导入的" + sheetName + "缺少姓名列，请检查！");
+                return error;
+            }
+            if (!hasNumberColumn) {
+                error.add("导入的" + sheetName + "缺少学号列，请检查！");
+                return error;
+            }
+            if (!hasMobileColumn) {
+                error.add("导入的" + sheetName + "缺少手机号列，请检查！");
+                return error;
+            }
+            if (!hasEmailColumn) {
+                error.add("导入的" + sheetName + "缺少邮箱列，请检查！");
+                return error;
+            }
+            if (!hasTuturNoColumn) {
+                error.add("导入的" + sheetName + "缺少导师工号列，请检查！");
+                return error;
+            }
+            if (!hasTuturNameColumn) {
+                error.add("导入的" + sheetName + "缺少导师姓名列，请检查！");
+                return error;
+            }
+            if (!hasYearColumn) {
+                error.add("导入的" + sheetName + "缺少入学年份列，请检查！");
+                return error;
+            }
+            if (!hasTypeColumn) {
+                error.add("导入的" + sheetName + "缺少学生类别列，请检查！");
+                return error;
+            }
+            if (!hasMajorColumn) {
+                error.add("导入的" + sheetName + "缺少专业列，请检查！");
+                return error;
+            }
+            if (!hasClassColumn) {
+                error.add("导入的" + sheetName + "缺少班级列，请检查！");
+                return error;
+            }
+
+            //行
+            for (int j = 0; j < physicalNumberOfRows; j++) {
+                //5. 跳过标题行
+                if (j == 0) {
+                    continue;//跳过标题行//获得表头，为后续对应位置
+                }
+                //6. 获取行
+                HSSFRow row = sheet.getRow(j);
+                if (row == null) {
+                    continue;//防止数据中间有空行
+                }
+                //7. 获取列数
+                int rowNullNums = 0;
+
+                // 检查"姓名"和"编号"列是否为空
+                boolean isNameEmpty = true;
+                boolean isNumberEmpty = true;
+                boolean isTuturNoEmpty = true;
+                boolean isTuturNameEmpty = true;
+                boolean isYearEmpty = true;
+                boolean isTypeEmpty = true;
+
+                List<UnderGraduate> dataArr = new LinkedList<>();
+                for (int k = 0; k < Cells; k++) {
+                    HSSFCell cell = row.getCell(k);
+                    String columnName = map.get(k);
+
+                    if (cell != null) {
+                        cell.setCellType(CellType.STRING);
+                        String cellValue = cell.getStringCellValue();
+                        UnderGraduate underGraduate = new UnderGraduate();
+                        if ("姓名".equals(columnName) && !cellValue.equals("")) {
+                            isNameEmpty = false;
+                        }
+                        if ("学号".equals(columnName) && !cellValue.equals("")) {
+                            isNumberEmpty = false;
+                        }
+
+                        if ("导师工号".equals(columnName) && !cellValue.equals("")) {
+                            isTuturNoEmpty = false;
+                            underGraduate.setTutorJobNumber(cellValue);
+                        }
+                        if ("导师姓名".equals(columnName) && !cellValue.equals("")) {
+                            isTuturNameEmpty = false;
+                            underGraduate.setTutorName(cellValue);
+                        }
+                        if ("入学年份".equals(columnName) && !cellValue.equals("")) {
+                            isYearEmpty = false;
+                        }
+                        if ("学生类别".equals(columnName) && !cellValue.equals("")) {
+                            isTypeEmpty = false;
+                        }
+                        if(!isTuturNameEmpty || !isTuturNoEmpty ){
+                            dataArr.add(underGraduate);
+                        }
+                    }
+                }
+                if (isNumberEmpty && isNameEmpty && isTuturNoEmpty && isTuturNameEmpty
+                        && isYearEmpty && isTypeEmpty
+                ) {
+                    continue;
+                }
+//                    if (rowNullNums != Cells && rowNullNums != 0) {
+//                        String tips = "第【" + j + "】行有空数据，";
+//                        error.add(tips);
+//                    }
+                if (isNameEmpty){
+                    String tips = "第【" + (j + 1) + "】行的姓名为空，请确认";
+                    error.add(tips);
+                }
+                if (isNumberEmpty){
+                    String tips = "第【" + (j + 1) + "】行的编号为空，请确认";
+                    error.add(tips);
+                }
+                if (isYearEmpty) {
+                    String tips = "第【" + (j + 1) + "】行的入学年份为空，请确认";
+                    error.add(tips);
+                }
+                if (isTypeEmpty) {
+                    String tips = "第【" + (j + 1) + "】行的学生类别为空，请确认";
+                    error.add(tips);
+                }
+                if(!dataArr.isEmpty()){
+                    List<String> tmpDataArr = checkGraduateStudent(dataArr);
+                    if(tmpDataArr != null && !tmpDataArr.isEmpty()){
+                        error.addAll(tmpDataArr);
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return error;
+    }
+    public List<String> checkGraduateStudent(List<UnderGraduate> underList) {
+        List<String> jobTeas = new ArrayList<>(); // 记录导师的工号
+        List<String> nameTeas = new ArrayList<>(); // 记录导师的姓名
+        List<String> errors = new LinkedList<>();
+        for(int i = 0; i < underList.size(); i++) {
+            UnderGraduate underGraduatenderGraduate = underList.get(i);
+            String jobNumber = underGraduatenderGraduate.getTutorJobNumber();
+            String name = underGraduatenderGraduate.getTutorName();
+
+            // ------------------------- 新增校验逻辑 -------------------------
+            if (jobNumber != null && !jobNumber.isEmpty()) {
+                // 情况1：有工号，以工号为准
+                Teachers dbTeacher = teachersMapper.selectTeaByJobnumber(jobNumber);
+                if (dbTeacher == null) {
+                    errors.add("工号 " + jobNumber + " 对应的导师不存在");
+                }
+                // 如果同时有姓名，需验证是否匹配
+                if (name != null && !name.isEmpty() && !name.equals(dbTeacher.getName())) {
+                    errors.add("工号 " + jobNumber + " 与姓名 " + name + " 不匹配");
+                }
+                underGraduatenderGraduate.setTeachers(dbTeacher);
+                underGraduatenderGraduate.setTutorID(dbTeacher.getID());
+            } else if (name != null && !name.isEmpty()) {
+                // 情况2：只有姓名，检查是否唯一
+                List<Teachers> teachers = teachersMapper.selectTeasByName(Collections.singletonList(name));
+                if (teachers.isEmpty()) {
+                    errors.add("未找到姓名为 " + name + " 的导师");
+                } else if (teachers.size() > 1) {
+                    errors.add("姓名为 " + name + " 的导师存在重复");
+                }
+                underGraduatenderGraduate.setTeachers(teachers.get(0));
+                underGraduatenderGraduate.setTutorID(teachers.get(0).getID());
+            } else {
+                // 情况3：工号和姓名都为空
+                underGraduatenderGraduate.setTutorID(null);
+            }
+            // ------------------------- 结束新增逻辑 -------------------------
+        }
+
+        return errors;
+    }
     //管理员导入博士生
     public RespBean addDoctor(List<Doctor> doctorList) {
         List<String> jobTeas = new ArrayList<>(); //记录导师的工号
         List<String> nameTeas = new ArrayList<>(); //记录导师的姓名
+        for(int i = 0; i < doctorList.size(); i++) {
+            Doctor doctor = doctorList.get(i);
+            Teachers teacher = doctor.getTeachers();
+            String jobNumber = teacher.getJobnumber();
+            String name = teacher.getName();
+
+            // ------------------------- 新增校验逻辑 -------------------------
+            if (jobNumber != null && !jobNumber.isEmpty()) {
+                // 情况1：有工号，以工号为准
+                Teachers dbTeacher = teachersMapper.selectTeaByJobnumber(jobNumber);
+                if (dbTeacher == null) {
+                    return RespBean.error("工号 " + jobNumber + " 对应的导师不存在");
+                }
+                // 如果同时有姓名，需验证是否匹配
+                if (name != null && !name.isEmpty() && !name.equals(dbTeacher.getName())) {
+                    return RespBean.error("工号 " + jobNumber + " 与姓名 " + name + " 不匹配");
+                }
+                doctor.setTeachers(dbTeacher);
+                doctor.setTutorID(dbTeacher.getID());
+            } else if (name != null && !name.isEmpty()) {
+                // 情况2：只有姓名，检查是否唯一
+                List<Teachers> teachers = teachersMapper.selectTeasByName(Collections.singletonList(name));
+                if (teachers.isEmpty()) {
+                    return RespBean.error("未找到姓名为 " + name + " 的导师");
+                } else if (teachers.size() > 1) {
+                    return RespBean.error("姓名为 " + name + " 的导师存在重复");
+                }
+                doctor.setTeachers(teachers.get(0));
+                doctor.setTutorID(teachers.get(0).getID());
+            } else {
+                // 情况3：工号和姓名都为空
+                doctor.setTutorID(null);
+            }
+            // ------------------------- 结束新增逻辑 -------------------------
+        }
         for(int i = 0;i < doctorList.size();i++){
             //工号和姓名都有按照工号来，都没有tutorid为空，只有姓名就按照姓名查找
             if(doctorList.get(i).getTeachers().getJobnumber() == null && doctorList.get(i).getTeachers().getName() == null){

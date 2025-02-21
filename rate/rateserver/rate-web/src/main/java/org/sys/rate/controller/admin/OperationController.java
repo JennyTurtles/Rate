@@ -46,7 +46,6 @@ public class OperationController {
     public RespBean addOper(Operation oper) {
         try {
             oper.setTime((Timestamp) oper.getTime());
-
             operMapper.insertOper(oper);
         }catch (Exception e) {
             return RespBean.error("error", null);
@@ -74,9 +73,8 @@ public class OperationController {
     @PostMapping("/deleteOperationList")
     public RespBean deleteOperationList(@RequestBody Operation operation) {
         Integer res = operationService.deleteOperationList(operation);
-//        if(res > 0) return RespBean.ok("success", res);
-//        return RespBean.error("error", null);
-        return RespBean.ok("success", res);
+        if(res > 0) return RespBean.ok("success", res);
+        return RespBean.error("error", null);
     }
 
     @GetMapping("/getAllTypePendingMessageNumber") //获取所有类别的导师通过状态的成果

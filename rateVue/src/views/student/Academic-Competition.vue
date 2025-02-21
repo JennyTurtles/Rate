@@ -1,120 +1,6 @@
 <template>
   <div>
-    <div>
-      <div
-          style="display: flex; justify-content: space-between; margin: 15px 0"
-      >
-        <div>
-          <el-button type="primary" icon="el-icon-plus" @click="addCompetitionDialog">
-            添加学科竞赛
-          </el-button>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top: 10px;">
-      <el-table
-          :data="competitionsList"
-          stripe
-          border
-          v-loading="loading"
-          :header-cell-style="rowClass"
-          element-loading-text="正在加载..."
-          element-loading-spinner="el-icon-loading"
-          element-loading-background="rgba(0, 0, 0, 0.12)"
-          style="width: 100%;"
-      >
-        <el-table-column
-            fixed
-            prop="name"
-            align="center"
-            label="学科竞赛名称"
-            min-width="15%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="state"
-            label="状态"
-            min-width="10%"
-            align="center"
-        >
-          <template slot-scope="scope">
-            <span
-                style="padding: 4px"
-                :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
-                size="mini"
-            >
-              {{scope.row.state=="commit"
-                ? "已提交"
-                :scope.row.state=="tea_pass"
-                    ? "导师通过"
-                    :scope.row.state=="tea_reject"
-                        ? "导师驳回"
-                        :scope.row.state=="adm_pass"
-                            ? "管理员通过"
-                            :"管理员驳回"}}
-              </span>
-          </template>
-        </el-table-column>
-        <el-table-column
-            prop="author"
-            align="center"
-            label="获奖人"
-            min-width="15%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="date"
-            min-width="10%"
-            align="center"
-            label="获奖年月"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="point"
-            label="积分"
-            align="center"
-            min-width="8%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="operationList[0].remark"
-            min-width="20%"
-            align="center"
-            label="备注"
-        >
-        </el-table-column>
-        <el-table-column align="center" width="280px" label="操 作" min-width="20%">
-          <template slot-scope="scope">
-            <el-button
-                @click="showEditEmpView(scope.row, scope.$index)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-edit"
-                type="primary"
-                plain
-                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject' || scope.row.state == 'adm_reject'? true : false"
-            >编辑</el-button
-            >
-            <el-button
-                @click="showInfo(scope.row)"
-                style="padding: 4px"
-                size="mini"
-            >查看详情</el-button
-            >
-            <el-button
-                @click="deleteCompetition(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                type="danger"
-                icon="el-icon-delete"
-                plain
-                v-show="scope.row.state == 'tea_reject' || scope.row.state == 'commit'? true:false"
-            >删除</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
+
     <!-- 添加科研学科竞赛对话框 -->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
       <el-form
@@ -347,6 +233,12 @@ import {debounce} from "@/utils/debounce";
 import { throttle } from "@/utils/throttle";
 export default {
   name: "Academic-Competition",
+  props: {
+    dialogVisible: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       isImage: false,
@@ -515,6 +407,7 @@ export default {
     },
     cancelAdd() {
       this.dialogVisible = false;
+      this.$emit('update:dialogVisible', false);
     },
     handleDelete() {//删除选择的文件
       var file={filepath:this.urlFile}
@@ -698,6 +591,14 @@ export default {
       });
     },
     addCompetition() {//学科竞赛提交确认
+      this.$refs['currentCompetitionCopy'].validate(async (valid) => {
+        if (valid) {
+          // 提交论文的逻辑
+          // 假设添加论文成功
+          this.$emit('add');
+          this.$emit('update:dialogVisible', false);
+        }
+      });
       const params = {};
       params.name = this.currentCompetitionCopy.name;
       params.url = this.urlFile;

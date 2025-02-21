@@ -280,6 +280,25 @@ public class ParticipatesBasicController {
         return POIUtils.check(file);
     }
 
+    @Resource
+    private GraduateStudentService graduateStudentService;
+
+    @PostMapping("/checkGraduate")
+    public List<String> checkGraduate(@RequestParam Integer groupid,MultipartFile file){
+        return graduateStudentService.checkGraduateStudent(file);
+    }
+    @Resource
+    private DoctorService  doctorservice;
+    @PostMapping("/checkDoctor")
+    public List<String> checkDoctor(@RequestParam Integer groupid,MultipartFile file){
+        return doctorservice.checkGraduateStudent(file);
+    }
+    @Resource
+    private UnderGraduateService  underservice;
+    @PostMapping("/checkunder")
+    public List<String> checkunder(@RequestParam Integer groupid,MultipartFile file){
+        return underservice.checkGraduateStudent(file);
+    }
     @GetMapping("/getParticipantIDByIdNumber")
     @ResponseBody
     public Msg getParticipantIDByIdNumber(@RequestParam Integer activityID,@RequestParam Integer participantID){
