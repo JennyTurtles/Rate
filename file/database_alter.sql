@@ -42,6 +42,34 @@ CREATE TABLE `xin_project` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3;
 
+
+
+
 ALTER TABLE programrecord MODIFY COLUMN ID INT AUTO_INCREMENT;
+
+
+
+
+
+UPDATE menu
+SET path = '/student/DeclareList',
+    component = 'DeclareList',
+    name = '成果申报'
+WHERE id = 70;
+
+UPDATE menu
+SET path = '/student/Project',
+    component = 'Project',
+    name = '成果列表'
+WHERE id = 137;
+
+UPDATE menu_role SET mid = 137 WHERE id = 403;
+UPDATE menu_role SET mid = 70 WHERE id = 404;
+
+
+
+ALTER TABLE i_publication
+MODIFY name VARCHAR(200);
+
 
 
