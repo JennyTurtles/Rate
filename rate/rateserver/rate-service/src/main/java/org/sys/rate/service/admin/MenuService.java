@@ -1,6 +1,8 @@
 package org.sys.rate.service.admin;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.util.StringUtil;
+import org.springframework.util.CollectionUtils;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -151,7 +150,20 @@ public class MenuService {
                 }
             }
         }
-        return res;
+        //整合数据
+        if(CollectionUtils.isEmpty(res)){
+            return res;
+        }
+        LinkedHashMap<Integer, Menu> resMap = new LinkedHashMap<>();
+        res.forEach(x->{
+            if(resMap.containsKey(x.getId())){
+                resMap.get(x.getId()).getChildren().addAll(x.getChildren());
+            }else{
+                resMap.put(x.getId(), x);
+            }
+        });
+        List<Menu> result = new LinkedList<>(resMap.values());
+        return result;
     }
 
 

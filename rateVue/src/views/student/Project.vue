@@ -2189,6 +2189,8 @@
         // 项目列表数据
         emps: [],
         data: [],
+        projects: [], // 用于存储项目数据
+
         selectedIndicator: {},
         oper: {
           operatorRole: "student",
@@ -2201,6 +2203,7 @@
           prodId: null,
           time: null
         },
+
         showTree: false, // 控制树形组件的显示与隐藏
         publish: {
           id: '',
@@ -2610,7 +2613,35 @@
       this.initEmps();
       this.showAddEmpView()
     },
+    created() {
+      this.fetchProjects(); // 在组件创建时获取数据
+    },
     methods: {
+      fetchProjects() {
+        this.loading = true;
+        const url = '/project/data/basic/studentID?studentID=' + this.user.id;
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.projects = resp.data;
+          }
+        }).catch(() => {
+          this.loading = false;
+          this.$message.error('获取项目数据失败');
+        });
+      },
+      getRequest(url) {
+        // 假设这是一个获取数据的方法
+        return axios.get(url, {
+          headers: {
+            token: this.user ? this.user.token : '',
+          },
+        });
+      },
+      dateFormatFunc(date) {
+        // 假设这是一个日期格式化的方法
+        return date.toISOString().split('T')[0];
+      },
       // 学术论文
       deletePaperEmpMethod(data) {
         return new Promise((resolve, reject) => {

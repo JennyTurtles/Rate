@@ -16,6 +16,7 @@
         <el-radio-group
             v-model="selectedOption"
             class="custom-radio-group"
+            @change="resetDialogs"
         >
           <el-radio
               v-for="(path, key) in urlMap"
@@ -42,12 +43,53 @@
         </el-button>
       </el-col>
     </el-row>
+    <!-- 添加论文对话框 -->
+    <Paper v-if="showAddPaperDialog" :dialogVisible.sync="showAddPaperDialog"@add="addPaper" />
+    <!-- 添加专利对话框 -->
+    <Patent v-if="showAddPatentDialog" :dialogVisible.sync="showAddPatentDialog"@add="addPatent"/>
+    <ResearchAward v-if="showAddResearchAwardDialog" :dialogVisible.sync="showAddResearchAwardDialog" @add="addResearchAward"/>
+    <AcademicMonograph v-if="showAddAcademicMonographDialog" :dialogVisible.sync="showAddAcademicMonographDialog" @add="addAcademicMonograph"/>
+    <ResearchProject v-if="showAddResearchProjectDialog" :dialogVisible.sync="showAddResearchProjectDialog" @add="addResearchProject"/>
+    <Standard v-if="showAddStandardDialog" :dialogVisible.sync="showAddStandardDialog"@close="handleDialogClose"@add="addStandard" />
+    <AcademicCompetition v-if="showAddAcademicCompetitionDialog" :dialogVisible.sync="showAddAcademicCompetitionDialog"@add="addAcademicCompetition" />
+    <Decision v-if="showAddDecisionDialog" :dialogVisible.sync="showAddDecisionDialog" @add="addDecision"/>
+    <Product v-if="showAddProductDialog" :dialogVisible.sync="showAddProductDialog"@add="addProduct" />
+    <HorizontalResearchProject v-if="showAddHorizontalResearchProjectDialog" :dialogVisible.sync="showAddHorizontalResearchProjectDialog" @add="addHorizontalProject"/>
   </div>
 </template>
 
 <script>
+import Paper from '@/views/student/Paper.vue';
+import Patent from '@/views/student/Patent.vue';
+import ResearchAward from '@/views/student/Research-Award.vue';
+import AcademicMonograph from "@/views/student/Academic-Monograph";
+import Decision from "./Decision";
+import Product from "./Product";
+import HorizontalResearchProject from "./Horizontal-Research-Project";
+import Standard from "./Standard";
+import ResearchProject from "./Research-Project";
+import AcademicCompetition from "./Academic-Competition";
 export default {
   name: "DeclareList",
+  components: {
+    AcademicCompetition,
+    Paper,
+    Patent,
+    ResearchAward,
+    AcademicMonograph,
+    Decision,
+    Product,
+    HorizontalResearchProject,
+    Standard,
+    ResearchProject,
+  },
+  created() {
+    // 初始化逻辑可以在这里定义
+  },
+  mounted() {
+    // 组件挂载后执行的逻辑可以在这里定义
+  },
+
   data() {
     return {
       urlMap: {
@@ -62,36 +104,145 @@ export default {
         '产品应用': '/student/Product',
         '制定标准': '/student/Standard'
       },
-      selectedOption: '学术论文' // 默认选中第一个选项
+      selectedOption: '学术论文', // 默认选中第一个选项
+      showAddPaperDialog: false, // 控制添加论文对话框显示
+      showAddPatentDialog: false, // 控制添加专利对话框显示
+      showAddResearchAwardDialog: false,
+      showAddAcademicMonographDialog: false,
+      showAddAcademicCompetitionDialog: false,
+      showAddDecisionDialog: false,
+      showAddProductDialog: false,
+      showAddStandardDialog: false,
+      showAddResearchProjectDialog: false,
+      showAddHorizontalResearchProjectDialog: false
     };
   },
   methods: {
-    navigateTo(name, url) {
-      this.$confirm('是否跳转到' + name + '页面', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.$router.push(url);
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消'
-        });
-      });
-    },
     submitDeclaration() {
-      if (this.urlMap[this.selectedOption]) {
-        this.navigateTo(this.selectedOption, this.urlMap[this.selectedOption]);
+      this.close();
+
+      switch (this.selectedOption) {
+        case '学术论文':
+          this.showAddPaperDialog = true;
+          break;
+        case '授权专利':
+          this.showAddPatentDialog = true;
+          break;
+        case '科研获奖':
+          this.showAddResearchAwardDialog = true;
+          break;
+        case '学术专著和教材':
+          this.showAddAcademicMonographDialog = true;
+          break;
+        case '纵向科研项目':
+          this.showAddResearchProjectDialog = true;
+          break;
+        case '横向科研项目':
+          this.showAddHorizontalResearchProjectDialog = true;
+          break;
+        case '学科竞赛':
+          this.showAddAcademicCompetitionDialog = true;
+          break;
+        case '决策咨询':
+          this.showAddDecisionDialog = true;
+          break;
+        case '产品应用':
+          this.showAddProductDialog = true;
+          break;
+        case '制定标准':
+          this.showAddStandardDialog = true;
+          break;
+        default:
+          this.$message.error("未选择有效选项");
       }
+
     },
     close() {
-      // 关闭操作逻辑可以在这里定义
+      this.showAddPaperDialog = false;
+      this.showAddPatentDialog = false;
+      this.showAddResearchAwardDialog = false;
+      this.showAddAcademicMonographDialog = false;
+      this.showAddAcademicCompetitionDialog = false;
+      this.showAddDecisionDialog = false;
+      this.showAddProductDialog = false;
+      this.showAddStandardDialog = false;
+      this.showAddResearchProjectDialog = false;
+      this.showAddHorizontalResearchProjectDialog = false;
+    },
+    resetDialogs() {
+      this.close(); // 重置所有对话框状态
+    },
+    handleDialogClose() {
+      // 关闭所有对话框
+      this.close();
+      // 重置 selectedOption 为默认值
+      this.selectedOption = '学术论文';
+    },
+    addPaper() {
+      // 添加论文的逻辑
+      // 假设添加论文成功
+      this.$router.push('/student/Project');
+      this.close();
+    },
+    addPatent() {
+      // 添加专利的逻辑
+      // 假设添加专利成功
+      this.$router.push('/student/Project');
+      this.close();
+    },
+    addResearchAward() {
+      // 添加科研获奖的逻辑
+      // 假设添加科研获奖成功
+      this.$router.push('/student/Project');
+      this.close();
+    },
+    addAcademicMonograph() {
+      // 添加学术专著和教材的逻辑
+      // 假设添加学术专著和教材成功
+      this.$router.push('/student/Project');
+      this.close();
+    },
+    addResearchProject() {
+      // 添加纵向科研项目的逻辑
+      // 假设添加纵向科研项目成功
+      this.$router.push('/student/Project');
+      this.close();
+    },
+    addHorizontalProject() {
+      // 添加横向科研项目的逻辑
+      // 假设添加横向科研项目成功
+      this.$router.push('/student/Project');
+      this.close();
+    },
+    addAcademicCompetition() {
+      // 添加学科竞赛的逻辑
+      // 假设添加学科竞赛成功
+      this.$router.push('/student/Project');
+      this.close();
+    },
+    addDecision() {
+      // 添加决策咨询的逻辑
+      // 假设添加决策咨询成功
+      this.$router.push('/student/Project');
+      this.close();
+    },
+    addProduct() {
+      // 添加产品应用的逻辑
+      // 假设添加产品应用成功
+      this.$router.push('/student/Project');
+      this.close();
+    },
+    addStandard() {
+      // 添加制定标准的逻辑
+      // 假设添加制定标准成功
+      this.$router.push('/student/Project');
+      this.close();
     }
-  }
-}
-</script>
+  },
 
+};
+
+</script>
 <style scoped>
 /* 新增自定义单选组样式 */
 .custom-radio-group {

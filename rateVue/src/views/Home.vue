@@ -93,6 +93,10 @@
                         class="submenu"
                         @click="handleOpen(subItem)"
                     >
+                      <i
+                          style="color: #409eff; margin-right: 5px"
+                          :class="subItem.iconCls"
+                      ></i>
                       {{ subItem.name }}
                     </el-menu-item>
                     <template v-else-if="subItem.enabled && subItem.children">
@@ -395,6 +399,7 @@ export default {
       }
 
     },
+
     pendingMessageRoute() { //点击待办消息导航
       this.$router.push('/pending/message');
     },
@@ -521,6 +526,11 @@ export default {
       return "注册为" + this.selectStuType;
     },
     handleOpen(subItem) {
+      if (subItem.path === '/Admin/ExceptionLog') {
+        // 允许访问异常信息查看页面，不进行权限验证
+        this.$router.push(subItem.path);
+        return;
+      }
       if (
           JSON.parse(localStorage.getItem("user")) === null ||
           this.role != JSON.parse(localStorage.getItem("user")).role ||
@@ -579,6 +589,7 @@ export default {
       window.location.href = "https://cas.dhu.edu.cn/authserver/logout?service=http://up.dhu.edu.cn" + url;
     },
     commandHandler(cmd) {
+
       console.log(this.roleName)
       if (cmd == "logout") {
         this.$confirm("此操作将注销登录, 是否继续?", "提示", {

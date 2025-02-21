@@ -393,6 +393,50 @@ import {Message} from "element-ui";
 
 export default {
   name: "PerEc",
+  watch: {
+    dialogVisible(newVal) {
+      if (!newVal) {
+        // 重置表单数据
+        this.hr_info_new = {
+          id: null,
+          compnayName: null,
+          institutionID: null,
+          name: null,
+          phone: null,
+          email: null,
+          enabled: 1,
+          username: null,
+          password: null,
+          role: -1,
+          comment: null,
+          menuPermission: []
+        };
+        // 重置表单验证状态
+        this.$refs["adminForm"].resetFields();
+      }
+    },
+    dialogVisible_edit(newVal) {
+      if (!newVal) {
+        // 重置表单数据
+        this.hr_info = {
+          id: null,
+          compnayName: null,
+          institutionID: null,
+          name: null,
+          phone: null,
+          email: null,
+          enabled: 1,
+          username: null,
+          password: null,
+          role: -1,
+          comment: null,
+          menuPermission: []
+        };
+        // 重置表单验证状态
+        this.$refs["adminForm"].resetFields();
+      }
+    }
+  },
   data() {
     return {
       dialogShowChangeAdminPermission:false,
@@ -557,7 +601,22 @@ export default {
       this.title = "添加管理员";
       this.menuPermissionSelected = []//数据清空
       this.dialogVisible = true;
-      this.initPermissionMenuList()//初始化权限菜单，主要是id
+      this.initPermissionMenuList()//初始化权限菜单，主要是id'
+      // 重置表单数据
+      this.hr_info_new = {
+        id: null,
+        compnayName: null,
+        institutionID: null,
+        name: null,
+        phone: null,
+        email: null,
+        enabled: 1,
+        username: null,
+        password: null,
+        role: -1,
+        comment: null,
+        menuPermission: []
+      };
     },
     initPermissionMenuList(){
       if(this.menuPermissionList[0].id == -1){//如果菜单的id是初始值，说明没有做查询和赋值
@@ -624,64 +683,82 @@ export default {
       this.page = currentPage;
       this.initHrs("advanced");
     },
-    showEditEmpView(data) {//点击编辑按钮
-      this.initPermissionMenuList()
+    showEditEmpView(data) { // 点击编辑按钮
+      this.initPermissionMenuList();
       this.title = "编辑管理员信息";
       this.hr_info = data;
-      this.changeAdminPermissionsList = []
+      this.changeAdminPermissionsList = [];
       this.inputDepName = data.company;
       this.dialogVisible_edit = true;
-      if (data.role != '' && data.role != null){
-        let temp = data.role.split(';')
+
+      if (data.role != '' && data.role != null) {
+        let temp = data.role.split(';');
         temp.map(item => {
-          if(item != '') this.changeAdminPermissionsList.push(parseInt(item))
-        })
+          if (item != '') this.changeAdminPermissionsList.push(parseInt(item));
+        });
       }
     },
     doAddHr() {
-      if(this.menuPermissionSelected != null)
-        this.changeAdminPermissionsList = this.menuPermissionSelected;
-      if(this.changeAdminPermissionsList.length == 0){
-        this.$message.warning('请至少选择一个权限')
-        return
+      // 检查是否是编辑管理员
+      const isEdit = !!this.hr_info.id;
+
+      // 如果是编辑管理员，且没有修改权限，则跳过权限检查
+      if (isEdit && this.changeAdminPermissionsList.length === 0) {
+        // 从 hr_info.role 中解析权限
+        if (this.hr_info.role) {
+          this.changeAdminPermissionsList = this.hr_info.role.split(';').map(Number);
+        } else {
+          this.changeAdminPermissionsList = [];
+        }
       }
-      if (this.hr_info.id) {//编辑管理员
+
+      // 如果是添加管理员，检查权限是否为空
+      if (!isEdit && this.changeAdminPermissionsList.length === 0) {
+        this.$message.warning('请至少选择一个权限');
+        return;
+      }
+
+      if (this.hr_info.id) { // 编辑管理员
         const _this = this;
         this.$refs["adminForm"].validate((valid) => {
           if (valid) {
-            this.hr_info.role = this.changeAdminPermissionsList.join(';')
+            this.hr_info.role = this.changeAdminPermissionsList.join(';');
             this.postRequest("/system/admin/update", _this.hr_info).then(
                 (resp) => {
                   if (resp) {
                     this.dialogVisible_edit = false;
                     this.initHrs();
-                    if(resp.msg==='更新成功!')
-                    {Message.success(resp.msg)}
-                    else
-                    {Message.error(resp.msg)}
+                    if (resp.msg === '更新成功!') {
+                      Message.success(resp.msg);
+                    } else {
+                      Message.error(resp.msg);
+                    }
+                    // 重置表单验证状态
+                    _this.$refs["adminForm"].resetFields();
                   }
                 }
             );
           }
         });
-      } else {
+      } else { // 添加管理员
         this.$refs["adminForm"].validate((valid) => {
-          // const _this = this;
-          console.log(this.changeAdminPermissionsList)
-          this.hr_info_new.institutionID=this.keywords_id;
-          this.hr_info_new.role = this.changeAdminPermissionsList.join(';')//设置菜单权限
           if (valid) {
+            this.hr_info_new.institutionID = this.keywords_id;
+            this.hr_info_new.role = this.changeAdminPermissionsList.join(';'); // 设置菜单权限
             const _this = this;
             this.putRequest("/system/admin/insert", _this.hr_info_new).then((resp) => {
-                  if (resp) {
-                    if(resp.status == 200){
-                      this.dialogVisible = false;
-                      this.initHrs();
-                      this.$message.success(resp.msg)
-                    } else this.$message.error(resp.msg)
-                  }
+              if (resp) {
+                if (resp.status == 200) {
+                  this.dialogVisible = false;
+                  this.initHrs();
+                  this.$message.success(resp.msg);
+                  // 重置表单验证状态
+                  _this.$refs["adminForm"].resetFields();
+                } else {
+                  this.$message.error(resp.msg);
                 }
-            );
+              }
+            });
           }
         });
       }
