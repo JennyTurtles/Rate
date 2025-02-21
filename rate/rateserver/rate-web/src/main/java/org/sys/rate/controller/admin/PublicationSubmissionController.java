@@ -142,6 +142,10 @@ public class PublicationSubmissionController {
         String fPath = new File("upload").getAbsolutePath() + "/" + filename;
         try {
             File newFile = new File(fPath);
+            File parentDir = newFile.getParentFile();
+            if (!parentDir.exists()) {
+                parentDir.mkdirs(); // 创建多级目录
+            }
             file.transferTo(newFile);
 
             //返回文件存储路径

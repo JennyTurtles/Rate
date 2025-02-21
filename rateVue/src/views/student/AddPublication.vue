@@ -21,8 +21,8 @@
           :rules="rulesPublication"
           ref="publicationForm"
       >
-      <el-form-item label="期刊全称:" prop="publicationName" label-width="90px" style="margin-left: 20px;">
-        <span class="isMust">*</span>
+      <el-form-item label="期刊全称:" prop="publicationName" label-width="130px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -140px;">*</span>
         <el-input
             size="mini"
             style="width:40%"
@@ -33,8 +33,8 @@
             placeholder="请输入期刊全称"
         ></el-input>
       </el-form-item>
-      <el-form-item label="刊物简称:" prop="publicationAbbr" label-width="90px" style="margin-left: 20px;">
-        <span class="isMust">*</span>
+      <el-form-item label="刊物简称:" prop="publicationAbbr" label-width="130px" style="margin-left: 20px;">
+        <!-- <span class="isMust">*</span> -->
         <el-input
             size="mini"
             style="width:40%"
@@ -44,8 +44,8 @@
             placeholder="请输入刊物简称"
         ></el-input>
       </el-form-item>
-      <el-form-item label="出版社:" prop="publisherName" label-width="90px" style="margin-left: 20px;">
-        <span class="isMust">*</span>
+      <el-form-item label="出版社:" prop="publisherName" label-width="130px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -140px;">*</span>
         <el-input
             size="mini"
             style="width:40%"
@@ -55,8 +55,8 @@
             placeholder="请输入出版社"
         ></el-input>
       </el-form-item>
-      <el-form-item label="网址:" prop="publicationUrl" label-width="90px" style="margin-left: 20px;">
-        <span class="isMust">*</span>
+      <el-form-item label="网址:" prop="publicationUrl" label-width="130px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -140px;">*</span>
         <el-input
             size="mini"
             style="width:40%"
@@ -66,22 +66,25 @@
             placeholder="请输入网址"
         ></el-input>
       </el-form-item>
-      <el-form-item label="录入年份:" prop="year" label-width="90px" style="margin-left: 20px;">
-        <span class="isMust">*</span>
+      <el-form-item label="指标点分类:" prop="indicatorName" label-width="90px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -100px;">*</span>
+        <el-button  style="margin-left: 40px;" ref="selectBtn" size="mini" type="text" @click="showTreeDialog">{{ buttonText }}</el-button>
+      </el-form-item>
+      <el-form-item label="进入该分类的年份:" prop="year" label-width="130px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -140px;">*</span>
         <el-input
             size="mini"
-            style="width:40%"
+            style="width:21%"
             prefix-icon="el-icon-edit"
             v-model="publish.year"
             @blur="checkYear"
-            placeholder="请输入录入年份"
-        ></el-input>
-      </el-form-item>
-      <el-form-item label="指标点分类:" prop="indicatorName" label-width="90px" style="margin-left: 20px;">
-        <span class="isMust">*</span>
-        <el-button ref="selectBtn" size="mini" type="text" @click="showTreeDialog">{{ buttonText }}</el-button>
+            placeholder="请输入索引或分类列表发布的年份"
+        ></el-input>&nbsp;&nbsp;&nbsp;&nbsp;
+        <span style="color:gray;font-size:11px;text-decoration: underline;">证明材料中需包含该信息
+        </span>
       </el-form-item>
       <el-form-item label="证明材料:" prop="publicationProofUrl" label-width="90px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -100px;">*</span>
         <el-upload
             :file-list="filesPublication"
             action="#"
@@ -93,16 +96,27 @@
             :on-exceed="handleExceed"
         >
           <el-button type="primary" icon="el-icon-upload2"
-                     slot="trigger"
+                     slot="trigger" style="margin-left: 41px;"
           >选择文件
-          </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-          <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
+          </el-button>&nbsp;
+          <span>
+            <el-tooltip
+                        effect="dark"
+                        placement="top-start"
+              >
+              <i class="el-icon-info" style="color: #4b8ffe"> </i>
+              <div style="width: 200px" slot="content">
+                  证明材料指:
+              </div>
+	          </el-tooltip>
+	        </span> &nbsp;&nbsp;&nbsp;&nbsp;
+          <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpeg rar zip类型文件
                   &nbsp;&nbsp;大小不能超过10MB
                 </span>
         </el-upload>
       </el-form-item>
     </el-form>
-    <span slot="footer" class="dialog-footer">
+    <span slot="footer" class="dialog-footer" style="margin-left: 19px;">
         <el-button @click="dialogVisible_publication = false;dialogVisible=true">取 消</el-button>
         <el-button type="primary" @click="doAddPublish" :disabled="cannotAddPublish">提 交</el-button>
     </span>
@@ -253,7 +267,7 @@ export default {
           {required: true, message: '请输入期刊全称', trigger: 'blur'}
         ],
         publicationAbbr: [
-          {required: true, message: '请输入刊物简称', trigger: 'blur'}
+          {required: false, message: '请输入刊物简称', trigger: 'blur'}
         ],
         publisherName: [
           {required: true, message: '请输入出版社', trigger: 'blur'}
@@ -262,7 +276,7 @@ export default {
           {required: true, message: '请输入网址', trigger: 'blur'}
         ],
         year: [
-          {required: true, message: '请输入录入年份', trigger: 'blur'},
+          {required: true, message: '请输入年份', trigger: 'blur'},
         ],
       }
     };
@@ -402,6 +416,7 @@ export default {
             this.cannotAddPublish = false
             //获取文件路径
             this.publish.publicationProofUrl = response.data
+            console.log( this.publish.publicationProofUrl)
           }, () => {
           }
       )
@@ -455,7 +470,9 @@ export default {
         if (this.publish.publicationName) {
           var url = `/publication/getInf/${encodeURIComponent(this.publish.publicationName)}`;
           this.getRequest(url).then((resp) => {
-            if (resp && resp.obj) {
+            if (resp && resp.obj && resp.obj.length > 0) {
+              console.log(resp)
+              console.log(resp.obj=='')
               this.publish.publicationAbbr = resp.obj[0].abbr;
               this.publish.publicationName = resp.obj[0].name;
               this.publish.publisherName = resp.obj[0].publisher;

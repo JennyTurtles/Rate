@@ -841,7 +841,6 @@ export default {
       }
     },
     getFillMiss(){
-      console.log(this.thesisID)
       const url = '/paperComment/basic/getFillMiss?thesisID=' + this.thesisID;
       this.getRequest(url)
           .then((resp) => {

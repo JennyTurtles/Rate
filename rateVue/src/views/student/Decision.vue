@@ -207,6 +207,7 @@
             :highlight-current="true"
             node-key="id"
             :default-expanded-keys="defaultExpandedKeys"
+            default-expand-all	
         ></el-tree>
       </span>
     </el-dialog>

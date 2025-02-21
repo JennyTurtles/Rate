@@ -398,7 +398,7 @@ export default new Router({
                 //   }
                 // },
                 {
-                    path: '/student/addPublication',
+                    path: '/student/AddPublication',
                     name: '添加期刊',
                     hidden: true,
                     component: () => import('./views/student/AddPublication'),
