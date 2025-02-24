@@ -479,6 +479,15 @@ export default new Router({
                     },
                 },
                 {
+                    path: '/teacher/Project',
+                    name: '成果列表',
+                    hidden: true,
+                    component: () => import('./views/teacher/Project'),
+                    meta: {
+                        title: '成果列表',
+                    },
+                },
+                {
                     path: '/teacher/tResearchProject',
                     name: '纵向科研项目',
                     hidden: true,
@@ -580,6 +589,15 @@ export default new Router({
                     component: () => import('./views/admin/Paper'),
                     meta: {
                         title: '论文',
+                    },
+                },
+                {
+                    path: '/admin/Project',
+                    name: '学生成果列表',
+                    hidden: true,
+                    component: () => import('./views/admin/Project'),
+                    meta: {
+                        title: '学生成果列表',
                     },
                 },
                 {

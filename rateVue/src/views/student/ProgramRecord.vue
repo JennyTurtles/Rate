@@ -491,15 +491,31 @@ export default {
       start.setHours(0,0,0,0)
       const currentTime = new Date();
       currentTime.setHours(0,0,0,0);
+      let endDate;
 
-      if (new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000) > currentTime)  // 结束日期不超过当天
-        this.emp.endDateStu = currentTime
-      else{
-        if (start.getDay() !== 1)   // 开始日期不是周一，则结束日期为下周的周日
-          this.emp.endDateStu = new Date(start.getTime() + (14 - start.getDay()) * 24 * 60 * 60 * 1000)
-        else // 开始日期为周一，结束日期为当周的周日
-          this.emp.endDateStu = new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000)
+      if (new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000) > currentTime) { // 结束日期不超过当天
+        endDate = currentTime;
+      } else {
+        if (start.getDay() !== 1) { // 开始日期不是周一，则结束日期为下周的周日
+          endDate = new Date(start.getTime() + (14 - start.getDay()) * 24 * 60 * 60 * 1000);
+        } else { // 开始日期为周一，结束日期为当周的周日
+          endDate = new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000);
+        }
       }
+
+      // 获取所有记录的开始日期
+      const existingStartDates = this.emps.map(emp => new Date(emp.startDateStu).setHours(0, 0, 0, 0));
+
+      // 检查新结束日期是否超过任何记录的开始日期，并且当前开始日期在该记录的开始日期之前
+      for (const existingStartDate of existingStartDates) {
+        if (endDate > existingStartDate && start < existingStartDate) {
+          // 将结束日期设置为被超过的开始日期的前一天
+          endDate = new Date(existingStartDate - 24 * 60 * 60 * 1000);
+          break;
+        }
+      }
+
+      this.emp.endDateStu = endDate;
       //this.emp.endDateStu = new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000) > new Date() ? new Date() : new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000);
       const difference = Math.abs(this.emp.endDateStu.getTime() - start.getTime());
       const differenceInDays = Math.ceil(difference / (1000 * 60 * 60 * 24)) + 1;

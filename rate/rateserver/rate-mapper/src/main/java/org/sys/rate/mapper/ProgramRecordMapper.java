@@ -10,7 +10,7 @@ import java.util.List;
 @Mapper
 public interface ProgramRecordMapper {
 
-    @Select("select * from programrecord pr, graduatestudent g where #{studentID} = g.studentID and pr.studentID = g.ID ORDER BY num")
+    @Select("select * from programrecord pr, graduatestudent g where #{studentID} = g.studentID and pr.studentID = g.ID ORDER BY startDateStu")
     List<ProgramRecord> selectRecordListStu(Integer studentID);
 
     @Insert("insert into programrecord (studentID, startDateStu, endDateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass, workHours) values(#{studentID},#{startDateStu},#{endDateStu},#{dateTea},#{preSum},#{nextPlan},#{tutorComment},#{num},#{isPass},#{workHours})")
