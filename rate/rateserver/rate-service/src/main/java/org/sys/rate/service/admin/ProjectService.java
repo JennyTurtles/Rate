@@ -31,7 +31,7 @@ public class ProjectService {
     private void dealXinProject(Project dto, int type){
         String projectType = dto.getProjectTypeId() == null ? "横向科研项目" : "纵向科研项目";
         XinProject xinProject = new XinProject(dto.getName(), dto.getPoint(), dto.getAuthor(),
-                dto.getState(), dto.getRemark(), dto.getId(), projectType);
+                dto.getState(), dto.getRemark(), dto.getId(), projectType, dto.getStudentId());
         if(type ==1) {
             xinProjectService.insertXinProject(xinProject);
         }else if(type == 2){

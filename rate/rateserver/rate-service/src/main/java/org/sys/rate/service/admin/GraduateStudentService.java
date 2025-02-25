@@ -32,7 +32,7 @@ public class GraduateStudentService {
 
 
 
-    public List<String> checkGraduateStudent(MultipartFile file) {
+    public List<String> checkGraduateStudent(MultipartFile file, int rowIndex) {
         List<String> error = new ArrayList<>();
         try {
             //1. 创建一个 workbook 对象
@@ -208,7 +208,7 @@ public class GraduateStudentService {
                     error.add(tips);
                 }
                 if (isNumberEmpty){
-                    String tips = "第【" + (j + 1) + "】行的编号为空，请确认";
+                    String tips = "第【" + (j + 1) + "】行的学号为空，请确认";
                     error.add(tips);
                 }
                 if (isYearEmpty) {
@@ -220,7 +220,7 @@ public class GraduateStudentService {
                     error.add(tips);
                 }
                 if(!dataArr.isEmpty()){
-                    List<String> tmpDataArr = checkGraduateStudent(dataArr);
+                    List<String> tmpDataArr = checkGraduateStudent(dataArr,j+1);
                     if(tmpDataArr != null && !tmpDataArr.isEmpty()){
                         error.addAll(tmpDataArr);
                     }
@@ -231,7 +231,7 @@ public class GraduateStudentService {
         }
         return error;
     }
-    public List<String> checkGraduateStudent(List<UnderGraduate> underList) {
+    public List<String> checkGraduateStudent(List<UnderGraduate> underList, int rowIndex) {
         List<String> jobTeas = new ArrayList<>(); // 记录导师的工号
         List<String> nameTeas = new ArrayList<>(); // 记录导师的姓名
         List<String> errors = new LinkedList<>();
@@ -259,10 +259,11 @@ public class GraduateStudentService {
                 if (teachers.isEmpty()) {
                     errors.add("未找到姓名为 " + name + " 的导师");
                 } else if (teachers.size() > 1) {
-                    errors.add("姓名为 " + name + " 的导师存在重复");
+                    errors.add("第【" + rowIndex + "】行的导师姓名\"" + name + "\"存在重名情况，请填写工号信息");
                 }
+                if(!teachers.isEmpty()){
                 underGraduatenderGraduate.setTeachers(teachers.get(0));
-                underGraduatenderGraduate.setTutorID(teachers.get(0).getID());
+                underGraduatenderGraduate.setTutorID(teachers.get(0).getID());}
             } else {
                 // 情况3：工号和姓名都为空
                 underGraduatenderGraduate.setTutorID(null);
@@ -272,6 +273,7 @@ public class GraduateStudentService {
 
         return errors;
     }
+
 
     //管理员导入研究生，只添加，即使已经存在了该条数据也不更新
     public RespBean addGraduate(List<GraduateStudent> graduateList) {

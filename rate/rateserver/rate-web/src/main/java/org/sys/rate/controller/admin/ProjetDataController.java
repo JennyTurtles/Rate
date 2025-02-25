@@ -1,9 +1,9 @@
 package org.sys.rate.controller.admin;
 
+import cn.hutool.core.date.DateUtil;
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.OperationMapper;
 import org.sys.rate.model.*;
@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/project/data/basic")
@@ -39,8 +40,64 @@ public class ProjetDataController {
     private ProductService productService;
     @Resource
     private StandardService standardService;
+    @Resource
+    private XinProjectService xinProjectService;
 
     @GetMapping("/studentID")//无页码要求
+    public JsonResult<List> getXinPorjectList(Integer studentID) {
+        List<ProjectData> list = new ArrayList<>();
+        List<XinProject> xinProjects = xinProjectService.selectListByIds(studentID);
+        if(xinProjects != null && !xinProjects.isEmpty()){
+
+            xinProjects.forEach(x -> {
+                ProjectData projectData = new ProjectData();
+                projectData.setId(x.getMid());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String formattedDate = sdf.format(x.getDate());
+                projectData.setApplyTime(formattedDate);
+                projectData.setName(x.getName());
+                projectData.setCategory(x.getType());
+                projectData.setParticipants(x.getSname());
+                projectData.setStatus(x.getState());
+                projectData.setRemark(x.getRemark());
+                projectData.setPoint(Long.parseLong(x.getPoint()+""));
+
+                list.add(projectData);
+            });
+        }
+        return new JsonResult<>(list);
+    }
+
+
+    @PostMapping("/teacherOrAdmin")//无页码要求
+    public JsonResult<List> teacherOrAdmin(@RequestBody XinProjectVo xinProjectVo) {
+        List<ProjectData> list = new ArrayList<>();
+        List<XinProject> xinProjects = xinProjectService.selectList(xinProjectVo);
+
+
+        if(xinProjects != null && !xinProjects.isEmpty()){
+
+            xinProjects.forEach(x -> {
+                ProjectData projectData = new ProjectData();
+                projectData.setId(x.getMid());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                String formattedDate = sdf.format(x.getDate());
+                projectData.setApplyTime(formattedDate);
+                projectData.setName(x.getName());
+                projectData.setCategory(x.getType());
+                projectData.setParticipants(x.getSname());
+                projectData.setStatus(x.getState());
+                projectData.setRemark(x.getRemark());
+                projectData.setPoint(Long.parseLong(x.getPoint()+""));
+
+                list.add(projectData);
+            });
+        }
+        return new JsonResult<>(list);
+    }
+
+
+    @GetMapping("/studentID_old")//无页码要求
     public JsonResult<List> getById(Integer studentID) {
         List<ProjectData> list = new ArrayList<>();
 

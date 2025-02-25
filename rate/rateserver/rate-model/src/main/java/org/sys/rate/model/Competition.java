@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -15,4 +16,9 @@ public class Competition extends Production{
     private String remark;
     private CompetitionType competitionType;
     private String competitionTypeName;
+
+    Date createtime;
+
+
+
 }

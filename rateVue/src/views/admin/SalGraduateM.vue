@@ -353,7 +353,7 @@ export default {
     },
     handleChange(file) {
       this.show = true;
-      var that = this
+      var that = this;
       let fd = new FormData();
       let fileName = file.file.name + new Date().getTime();
       fd.append("file", file.file);
@@ -362,66 +362,73 @@ export default {
       this.postRequest(url, fd, {
         headers: {
           "Content-Type": "multipart/form-data",
-          'token':this.user.token
+          'token': this.user.token
         },
       })
           .then((res1) => {
-            if(res1.length===0) // 数据完整，没有空数据
-            {
+            if (res1.length === 0) { // 数据完整，没有空数据
               url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID;
               axios.post(url, fd, {
                 headers: {
                   "Content-Type": "multipart/form-data",
-                  'token':that.user.token
+                  'token': that.user.token
                 },
               }).then((res) => {
-                this.$message({
-                  message: res.msg,
-                  type: 'success'
-                });
-                //this.$message(res.msg);
-                this.initGraduateStudents(1,this.pageSize)
-                this.$message("导入成功");
-              })
-            }
-            else{
-              let newD=[],h=this.$createElement;
-              // newD.push(h('p',null,'确认导入数据？'));
-              // newD.push(h('p',null,'导入数据中'));
-              var count = 0
-              for(const i in res1)
-              {
-                count++
-                newD.push(h('p',null,res1[i]))
+                if (res.status === 200) {
+                  this.$message({
+                    message: "导入成功",
+                    type: 'success'
+                  });
+                  this.initGraduateStudents(1, this.pageSize);
+                } else {
+                  this.$message.error(res.msg || "导入失败");
+                }
+              }).catch((err) => {
+                this.$message.error(err.response ? err.response.data.msg : "导入失败");
+              });
+            } else {
+              let newD = [], h = this.$createElement;
+              var count = 0;
+              for (const i in res1) {
+                count++;
+                newD.push(h('p', null, res1[i]));
                 if (count === 15) // 最多显示15行
-                  break
+                  break;
               }
-              newD.push(h('p',null,'是否确认继续?'));
-              this.$confirm(h('div',null,newD), '提示', {
+
+              this.$confirm(h('div', null, newD), '提示', {
                 confirmButtonText: '确定',
-                cancelButtonText: '取消',
+                showCancelButton: false, // 隐藏取消按钮
                 type: 'warning'
               }).then(() => {
-                that.loading = true
+                that.loading = true;
                 url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID;
                 axios.post(url, fd, {
                   headers: {
                     "Content-Type": "multipart/form-data",
-                    'token':that.user.token
+                    'token': that.user.token
                   },
                 }).then((res) => {
-                  that.loading = false
-                  this.initGraduateStudents(1,this.pageSize)
-                  // this.$message("导入成功");
-                })
-              })
+                  that.loading = false;
+                  if (res.status === 200) {
+                    this.initGraduateStudents(1, this.pageSize);
+                    // 这里不显示“导入成功”，因为已经显示了提示框
+                  } else {
+                    this.$message.error(res.msg || "导入失败");
+                  }
+                }).catch((err) => {
+                  that.loading = false;
+                  this.$message.error(err.response ? err.response.data.msg : "导入失败");
+                });
+              });
             }
           })
           .catch((err) => {
-            // console.log(err);
+            this.$message.error(err.response ? err.response.data.msg : "导入失败");
           });
-
     },
+
+
     downloadExcel(){
       let url = '/graduatestudentM/basic/exportGraduate'
       this.$message.success('正在下载')

@@ -32,7 +32,7 @@ public class DoctorService {
     UnderGraduateMapper underGraduateMapper;
     @Resource
     GraduateStudentMapper graduateStudentMapper;
-    public List<String> checkGraduateStudent(MultipartFile file) {
+    public List<String> checkGraduateStudent(MultipartFile file,int index) {
         List<String> error = new ArrayList<>();
         try {
             //1. 创建一个 workbook 对象
@@ -220,7 +220,7 @@ public class DoctorService {
                     error.add(tips);
                 }
                 if(!dataArr.isEmpty()){
-                    List<String> tmpDataArr = checkGraduateStudent(dataArr);
+                    List<String> tmpDataArr = checkGraduateStudent(dataArr,j+1);
                     if(tmpDataArr != null && !tmpDataArr.isEmpty()){
                         error.addAll(tmpDataArr);
                     }
@@ -231,7 +231,7 @@ public class DoctorService {
         }
         return error;
     }
-    public List<String> checkGraduateStudent(List<UnderGraduate> underList) {
+    public List<String> checkGraduateStudent(List<UnderGraduate> underList,int index) {
         List<String> jobTeas = new ArrayList<>(); // 记录导师的工号
         List<String> nameTeas = new ArrayList<>(); // 记录导师的姓名
         List<String> errors = new LinkedList<>();
@@ -259,7 +259,7 @@ public class DoctorService {
                 if (teachers.isEmpty()) {
                     errors.add("未找到姓名为 " + name + " 的导师");
                 } else if (teachers.size() > 1) {
-                    errors.add("姓名为 " + name + " 的导师存在重复");
+                    errors.add("第【" + index + "】行的导师姓名\"" + name + "\"存在重名情况，请填写工号信息");
                 }
                 underGraduatenderGraduate.setTeachers(teachers.get(0));
                 underGraduatenderGraduate.setTutorID(teachers.get(0).getID());
@@ -269,7 +269,6 @@ public class DoctorService {
             }
             // ------------------------- 结束新增逻辑 -------------------------
         }
-
         return errors;
     }
     //管理员导入博士生

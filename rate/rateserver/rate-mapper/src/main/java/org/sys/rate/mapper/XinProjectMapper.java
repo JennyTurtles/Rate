@@ -1,9 +1,13 @@
 package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.sys.rate.model.ProjectBase;
 import org.sys.rate.model.XinProject;
+import org.sys.rate.model.XinProjectVo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * xin_project Mapper接口
@@ -23,5 +27,15 @@ public interface XinProjectMapper
 
     public int deleteXinProject(Integer mid, String type);
 
+    public List<XinProject> selectByStudentId(XinProject xinProject);
 
+
+    List<ProjectBase> searchPaperByConditions(@Param(value = "studentName") String studentName,
+                                              @Param(value = "name")  String name,
+                                              @Param(value = "state")  String state,
+                                              @Param(value = "pointFront")  String pointFront,
+                                              @Param(value = "pointBack")   String pointBack);
+
+
+    List<XinProject> selectXinProjectList(XinProjectVo xinProjectVo);
 }

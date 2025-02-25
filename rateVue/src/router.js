@@ -64,6 +64,14 @@ export default new Router({
                     },
                 },
                 {
+                    path: '/teacher/Project',
+                    name: '成果列表',
+                    component: () => import('./views/teacher/Project'),
+                    meta: {
+                        title: '成果列表',
+                    },
+                },
+                {
                     path: '/student/DeclareList',
                     name: '成果申报',
                     component: () => import('./views/student/DeclareList'),
@@ -479,10 +487,10 @@ export default new Router({
                     },
                 },
                 {
-                    path: '/teacher/Project',
+                    path: '/teacher/tProject1',
                     name: '成果列表',
                     hidden: true,
-                    component: () => import('./views/teacher/Project'),
+                    component: () => import('./views/teacher/Examine'),
                     meta: {
                         title: '成果列表',
                     },
@@ -591,15 +599,15 @@ export default new Router({
                         title: '论文',
                     },
                 },
-                {
-                    path: '/admin/Project',
-                    name: '学生成果列表',
-                    hidden: true,
-                    component: () => import('./views/admin/Project'),
-                    meta: {
-                        title: '学生成果列表',
-                    },
-                },
+                // {
+                //     path: '/admin/Project',
+                //     name: '学生成果列表',
+                //     hidden: true,
+                //     component: () => import('./views/admin/Project'),
+                //     meta: {
+                //         title: '学生成果列表',
+                //     },
+                // },
                 {
                     path: '/admin/Check',
                     name: '审核期刊',

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -53,6 +54,10 @@ public class Production {
     Integer total;
 
     Integer point;
+
+    Date createtime;
+
+
 
     @DateTimeFormat(pattern = "yyyy-MM")
     @JsonFormat(pattern = "yyyy-MM", timezone = "GMT+8")

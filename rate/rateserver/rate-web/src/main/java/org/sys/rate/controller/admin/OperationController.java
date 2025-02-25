@@ -45,7 +45,8 @@ public class OperationController {
     @PostMapping("/add")
     public RespBean addOper(Operation oper) {
         try {
-            oper.setTime((Timestamp) oper.getTime());
+//            oper.setTime((Timestamp) oper.getTime());
+            oper.setTime(new Timestamp(System.currentTimeMillis()));
             operMapper.insertOper(oper);
         }catch (Exception e) {
             return RespBean.error("error", null);

@@ -2612,6 +2612,7 @@
       //this.currentProjectSummaryCopy = JSON.parse(JSON.stringify(this.currentProduct));
       this.initEmps();
       this.showAddEmpView()
+      this.getData();
     },
     created() {
       this.fetchProjects(); // 在组件创建时获取数据
@@ -2630,6 +2631,7 @@
           this.$message.error('获取项目数据失败');
         });
       },
+
       getRequest(url) {
         // 假设这是一个获取数据的方法
         return axios.get(url, {
@@ -2640,7 +2642,7 @@
       },
       dateFormatFunc(date) {
         // 假设这是一个日期格式化的方法
-        return date.toISOString().split('T')[0];
+        return date.toISOString().replace('T', ' ').slice(0, 23) + isoString.slice(19);
       },
       // 学术论文
       deletePaperEmpMethod(data) {
@@ -2662,7 +2664,23 @@
           })
         })
       },
+      addData() {
+        // 假设这里是添加数据的请求
+        // 模拟一个异步请求
+        this.loading = true;
+        setTimeout(() => {
+          // 模拟添加数据成功
+          // 这里应该是实际的添加数据请求成功后的回调
+          this.loading = false;
+          // 添加成功后，调用获取数据列表的方法
+          this.getData();
+        }, 1000);
+      },
+      // 获取数据列表的方法
+      getData() {
+        this.loading = true;
 
+      },
       // 授权专利
       deletePatentEmpMethod(data) {
         return new Promise((resolve, reject) => {

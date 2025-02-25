@@ -14,6 +14,7 @@
         <result property="point" column="point"/>
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
+        <result property="createtime" column="createtime"/>
         <result property="competitionLevel" column="competition_level"/>
         <result property="indicatorId" column="indicator_id"/>
         <result property="have_score" column="have_score"/>

@@ -24,7 +24,7 @@ public class StandardService {
 
     private void dealXinProject(Standard dto, int type){
         XinProject xinProject = new XinProject(dto.getName(), dto.getPoint(), dto.getAuthor(),
-                dto.getState(), dto.getRemark(), dto.getId(), ProjectTypeEnums.STANDARD_DEVELOPMENT.getDisplayName());
+                dto.getState(), dto.getRemark(), dto.getId(), ProjectTypeEnums.STANDARD_DEVELOPMENT.getDisplayName(), dto.getStudentId());
         if(type ==1) {
             xinProjectService.insertXinProject(xinProject);
         }else if(type == 2){

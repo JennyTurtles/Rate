@@ -8,9 +8,11 @@
         <result property="studentId" column="student_id" jdbcType="INTEGER"/>
         <result property="name" column="name"/>
         <result property="startDate" column="start_date"/>
+        <result property="createtime" column="createtime"/>
         <result property="endDate" column="end_date"/>
         <result property="author" column="author"/>
         <result property="url" column="url"/>
+        <result property="createtime" column="createtime"/>
         <result property="state" column="state"/>
         <result property="point" column="point"/>
         <result property="rank" column="rank"/>

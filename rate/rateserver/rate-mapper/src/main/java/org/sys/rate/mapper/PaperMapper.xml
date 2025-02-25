@@ -9,6 +9,7 @@
         <result property="studentID" column="studentID"/>
         <result property="name" column="name"/>
         <result property="year" column="year"/>
+        <result property="createtime" column="createtime"/>
         <result property="month" column="month"/>
         <result property="author" column="author"/>
         <result property="rank" column="rank"/>

@@ -4,20 +4,20 @@
       <template #template></template>
       <template>
         <div>
-          <div style="padding-left: 40px">共有{{ $store.state.pendingMessageTotal }}条待办消息！</div>
-          <ul>
-            <li v-for="(key, value) in list" @click="goLink(key, value)" style="margin-top: 8px">
-              <a href="#" style="text-decoration: none; color: #303133">
-                【 {{ typeMap[value].name }} 】有
-                <span :style="key > 0 ? {'color' : 'red'} : {'color' : '#303133'}">
-                  {{ key }}
-                </span>
-                <span>
-                  条待办消息
-                </span>
-              </a>
-            </li>
-          </ul>
+          <div style="padding-left: 40px" @click="goTeacherMain()">共有{{ $store.state.pendingMessageTotal }}条待办消息！ </div>
+<!--          <ul>-->
+<!--            <li v-for="(key, value) in list" @click="goLink(key, value)" style="margin-top: 8px">-->
+<!--              <a href="#" style="text-decoration: none; color: #303133">-->
+<!--                【 {{ typeMap[value].name }} 】有-->
+<!--                <span :style="key > 0 ? {'color' : 'red'} : {'color' : '#303133'}">-->
+<!--                  {{ key }}-->
+<!--                </span>-->
+<!--                <span>-->
+<!--                  条待办消息-->
+<!--                </span>-->
+<!--              </a>-->
+<!--            </li>-->
+<!--          </ul>-->
         </div>
       </template>
     </el-skeleton>
@@ -30,6 +30,10 @@ export default {
   data() {
     return {
       typeMap: {
+        'MAIN': {
+          name: '授权专利',
+          path: '/teacher/tProject1'
+        },
         'paper': {
           name: '学术论文',
           path: '/teacher/tPaper'
@@ -92,6 +96,10 @@ export default {
     goLink(key, value) {
       this.$router.push({
         path: this.typeMap[value].path})
+    },
+    goTeacherMain() {
+      this.$router.push({
+        path:this.typeMap["MAIN"].path})
     }
   }
 }

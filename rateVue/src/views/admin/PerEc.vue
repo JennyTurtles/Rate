@@ -523,6 +523,9 @@ export default {
           message: "请输入单位编号",
           trigger: "blur",
         },
+        menuPermissionSelected: [
+          { required: true, message: '请至少选择一个权限', type: 'array', min: 1 }
+        ],
         name: { required: true, message: "请输入用户名", trigger: "blur" },
         phone: { required: true, message: "请输入电话", trigger: "blur" },
         role: { required: true, message: "请输入角色", trigger: "blur" },
@@ -699,6 +702,7 @@ export default {
       }
     },
     doAddHr() {
+
       // 检查是否是编辑管理员
       const isEdit = !!this.hr_info.id;
 
@@ -713,10 +717,7 @@ export default {
       }
 
       // 如果是添加管理员，检查权限是否为空
-      if (!isEdit && this.changeAdminPermissionsList.length === 0) {
-        this.$message.warning('请至少选择一个权限');
-        return;
-      }
+
 
       if (this.hr_info.id) { // 编辑管理员
         const _this = this;

@@ -73,7 +73,7 @@ public class PatentService {
         int rlt = patentMapper.insertPatent(patent);
 
         XinProject xinProject = new XinProject(patent.getName(), patent.getPoint(), patent.getAuthor(),
-                patent.getState(), patent.getRemark(), patent.getId(), "授权专利");
+                patent.getState(), patent.getRemark(), patent.getId(), "授权专利", patent.getStudentId());
         xinProjectService.insertXinProject(xinProject);
         return rlt;
     }
@@ -86,7 +86,7 @@ public class PatentService {
      */
     public int updatePatent(Patent patent){
         XinProject xinProject = new XinProject(patent.getName(), patent.getPoint(), patent.getAuthor(),
-                patent.getState(), patent.getRemark(), patent.getId(), "授权专利");
+                patent.getState(), patent.getRemark(), patent.getId(), "授权专利", patent.getStudentId());
         xinProjectService.updateXinProject(xinProject);
         return patentMapper.updatePatent(patent);
     }

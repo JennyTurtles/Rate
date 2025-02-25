@@ -5,7 +5,7 @@
 <mapper namespace="org.sys.rate.mapper.XinProjectMapper">
 
     <resultMap type="org.sys.rate.model.XinProject" id="XinProjectResult">
-        <id property="id" column="id" />
+        <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="point" column="point"/>
         <result property="state" column="state"/>
@@ -14,11 +14,12 @@
         <result property="remark" column="remark"/>
         <result property="mid" column="mid"/>
         <result property="type" column="type"/>
+        <result property="sid" column="sid"/>
     </resultMap>
     <!-- 插入操作 -->
     <insert id="insertXinProject" parameterType="org.sys.rate.model.XinProject">
-        INSERT INTO xin_project (name, point, date, sname, state, remark, mid, type)
-        VALUES (#{name}, #{point}, now(), #{sname}, #{state}, #{remark}, #{mid}, #{type});
+        INSERT INTO xin_project (name, point, date, sname, state, remark, mid, type, sid)
+        VALUES (#{name}, #{point}, now(), #{sname}, #{state}, #{remark}, #{mid}, #{type}, #{sid});
     </insert>
 
     <!-- 修改操作：通过 mid 和 type 更新记录 -->
@@ -30,14 +31,74 @@
             date = now(),
             sname = #{sname},
             state = #{state},
-            remark = #{remark}
+            remark = #{remark},
+            sid = #{sid}
         WHERE mid = #{mid} AND type = #{type};
     </update>
     <!-- 查询数据：通过 mid 和 type 更新记录 -->
-    <select id="selectXinProject" parameterType="org.sys.rate.model.XinProject" resultType="org.sys.rate.model.XinProject">
+    <select id="selectXinProject" parameterType="org.sys.rate.model.XinProject"
+            resultType="org.sys.rate.model.XinProject">
         SELECT * FROM xin_project
         WHERE mid = #{mid} AND type = #{type};
     </select>
+    <select id="selectByStudentId" parameterType="org.sys.rate.model.XinProject"
+            resultType="org.sys.rate.model.XinProject">
+        SELECT * FROM xin_project
+        WHERE sid=#{sid}
+        order by date desc
+    </select>
+    <select id="searchPaperByConditions" resultType="org.sys.rate.model.ProjectBase">
+
+select
+ id ,
+  sname  AS studentName,
+  name,
+  state,remark ,date, type,
+point
+
+ from xin_project
+<where>
+<if test="studentName!= null and studentName != '' ">
+    sname = #{studentName}
+</if>
+    <if test="name != null and name != '' ">
+        name = #{name}
+    </if>
+    <if test="state!= null and state != '' ">
+        state = #{state}
+    </if>
+    <if test="studentName!= null and studentName != '' ">
+        sname = #{studentName}
+    </if>
+
+</where>
+order by date DESC
+    </select>
+    <select id="selectXinProjectList" resultType="org.sys.rate.model.XinProject"
+            parameterType="org.sys.rate.model.XinProjectVo">
+        select
+       *
+        from xin_project
+        <where>
+            <if test="studentName!= null and studentName != '' ">
+                sname = #{studentName}
+            </if>
+            <if test="name != null and name != '' ">
+                name = #{name}
+            </if>
+            <if test="state!= null and state != '' ">
+                state = #{state}
+            </if>
+
+
+        </where>
+        order by date DESC
+
+
+
+
+    </select>
+
 
     <!-- 删除操作：通过 mid 和 type 删除记录 -->
     <delete id="deleteXinProject" parameterType="org.sys.rate.model.XinProject">

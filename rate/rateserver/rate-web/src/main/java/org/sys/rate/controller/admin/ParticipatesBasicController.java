@@ -285,13 +285,15 @@ public class ParticipatesBasicController {
 
     @PostMapping("/checkGraduate")
     public List<String> checkGraduate(@RequestParam Integer groupid,MultipartFile file){
-        return graduateStudentService.checkGraduateStudent(file);
+        int index=1;
+        return graduateStudentService.checkGraduateStudent(file,index);
     }
     @Resource
     private DoctorService  doctorservice;
     @PostMapping("/checkDoctor")
     public List<String> checkDoctor(@RequestParam Integer groupid,MultipartFile file){
-        return doctorservice.checkGraduateStudent(file);
+      int index=1;
+        return doctorservice.checkGraduateStudent(file,index);
     }
     @Resource
     private UnderGraduateService  underservice;

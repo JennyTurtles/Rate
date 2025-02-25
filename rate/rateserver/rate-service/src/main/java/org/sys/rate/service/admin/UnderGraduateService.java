@@ -213,7 +213,7 @@ public class UnderGraduateService {
                     error.add(tips);
                 }
                 if (isNumberEmpty){
-                    String tips = "第【" + (j + 1) + "】行的编号为空，请确认";
+                    String tips = "第【" + (j + 1) + "】行的学号为空，请确认";
                     error.add(tips);
                 }
                 if (isYearEmpty) {

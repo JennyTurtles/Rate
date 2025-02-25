@@ -13,6 +13,7 @@
         <result property="state" column="state"/>
         <result property="point" column="point"/>
         <result property="rank" column="rank"/>
+        <result property="createtime" column="createtime"/>
         <result property="total" column="total"/>
         <result property="awardLevel" column="award_level"/>
         <result property="awardTypeId" column="award_type_id"/>

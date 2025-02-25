@@ -154,7 +154,7 @@
         <el-table-column
           prop="name"
           align="center"
-          label="论文名称"
+          label="名称"
           width="230"
         >
         </el-table-column>
@@ -183,12 +183,12 @@
           </template>
         </el-table-column>
 <!--        需要修改！！！-->
-        <el-table-column
-          prop="publication.name"
-          label="发表刊物"
-          align="center"
-          width="240"
-        >
+<!--        <el-table-column-->
+<!--          prop="publication.name"-->
+<!--          label="发表刊物"-->
+<!--          align="center"-->
+<!--          width="240"-->
+<!--        >-->
         </el-table-column>
         <el-table-column
           prop="point"
@@ -601,6 +601,8 @@ export default {
       this.title_show = "显示详情";
       this.emp = data;
       this.dialogVisible_show = true;
+      // if ()
+
       this.getRequest("/paperoper/basic/List?ID="+data.id).then((resp) => {
         this.loading = false;
         if (resp) {

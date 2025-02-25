@@ -14,6 +14,7 @@
         <result property="point" column="point"/>
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
+        <result property="createtime" column="createtime"/>
         <result property="decisionTypeId" column="decision_type_id"/>
         <result property="have_score" column="have_score"/>
         <association property="student" javaType="org.sys.rate.model.Student">

@@ -139,7 +139,7 @@ public class MenuService {
             }
         }
         String[] roles = role.split(";");
-        List<Menu> res=new ArrayList<>();
+            List<Menu> res=new ArrayList<>();
         for (int i = 0;i < roles.length;i++){
             //获取每个角色的菜单
             if(!roles[i].equals("")){

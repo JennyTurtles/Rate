@@ -3,6 +3,7 @@ package org.sys.rate.model;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -50,6 +51,7 @@ public class Paper{
      * 总人数
      */
     private Long total;
+    private Date createtime;
 
     /**
      * 积分

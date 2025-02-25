@@ -48,7 +48,7 @@ public class DoctorController {
         return RespBean.error("更新失败!");
     }
     @GetMapping("/getDoctorStudents")
-    public Msg getGraduateStudents(@RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
+    public Msg getDoctorStudents(@RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
         Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
         List<Doctor> t = doctorMapper.getDoctorStudents();
         PageInfo info = new PageInfo<>(page.getResult());
@@ -72,7 +72,7 @@ public class DoctorController {
         return RespBean.ok("ok", res);
     }
     @PostMapping("/importDoctors")
-    public RespBean importUnderGraduate(Integer institutionID, MultipartFile file) throws ParseException {
+    public RespBean importDoctors(Integer institutionID, MultipartFile file) throws ParseException {
         Map<String, List> mm = POIUtils.readExcel_doctrstudent(institutionID, file);
         List<Doctor> doctors = mm.get("doctorlist");
         if (doctors.size() == 0) { //先将excel中读取到的数据行拿出来，student和graduate列表是同样的数量才对

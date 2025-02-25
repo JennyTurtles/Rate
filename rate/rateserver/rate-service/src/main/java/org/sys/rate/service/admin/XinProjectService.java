@@ -1,10 +1,18 @@
 package org.sys.rate.service.admin;
 
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.XinProjectMapper;
+import org.sys.rate.model.Paper;
+import org.sys.rate.model.ProjectBase;
 import org.sys.rate.model.XinProject;
+import org.sys.rate.model.XinProjectVo;
+
+import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -14,6 +22,11 @@ public class XinProjectService {
     private XinProjectMapper xinProjectMapper;
 
 
+    public List<XinProject> selectListByIds(Integer studentID) {
+        XinProject xinProject = new XinProject();
+        xinProject.setSid(studentID);
+        return xinProjectMapper.selectByStudentId(xinProject);
+    }
     public int insertXinProject(XinProject xinProject) {
         return xinProjectMapper.insertXinProject(xinProject);
     }
@@ -37,5 +50,41 @@ public class XinProjectService {
 
     public int deleteXinProject(Integer mid, String type) {
         return xinProjectMapper.deleteXinProject(mid, type);
+    }
+
+    public List<ProjectBase> searchPaperByConditions(Map<String, String> params) {
+        String studentName ="";
+        String name ="";
+        String state ="";
+        String pointFront ="";
+        String pointBack ="";
+
+
+
+        if (!StringUtils.isEmpty(params.get("studentName"))){
+            studentName=params.get("studentName");
+        };
+        if (!StringUtils.isEmpty(params.get("name"))){
+            name=params.get("name");
+        };
+        if (!StringUtils.isEmpty(params.get("state"))){
+            state=params.get("state");
+        };
+        if (!StringUtils.isEmpty(params.get("pointFront"))){
+            pointFront=params.get("pointFront");
+        };
+        if (!StringUtils.isEmpty(params.get("pointBack"))){
+            pointBack=params.get("pointBack");
+        };
+
+        return xinProjectMapper.searchPaperByConditions(studentName,
+                name,
+                state,
+                pointFront,
+                pointBack);
+    }
+
+    public List<XinProject> selectList(XinProjectVo xinProjectVo) {
+        return     xinProjectMapper.selectXinProjectList(xinProjectVo);
     }
 }

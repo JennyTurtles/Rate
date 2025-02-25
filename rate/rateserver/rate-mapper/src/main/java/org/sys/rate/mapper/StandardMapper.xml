@@ -8,6 +8,7 @@
         <result property="studentId" column="student_id"/>
         <result property="name" column="name"/>
         <result property="date" column="date"/>
+        <result property="createtime" column="createtime"/>
         <result property="author" column="author"/>
         <result property="url" column="url"/>
         <result property="state" column="state"/>

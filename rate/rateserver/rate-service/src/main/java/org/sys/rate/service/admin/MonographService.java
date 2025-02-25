@@ -31,7 +31,9 @@ public class MonographService {
 
     private void dealXinProject(Monograph dto, int type){
         XinProject xinProject = new XinProject(dto.getName(), dto.getPoint(), dto.getAuthor(),
-                dto.getState(), dto.getRemark(), dto.getId(), ProjectTypeEnums.ACADEMIC_MONOGRAPH_AND_TEXTBOOK.getDisplayName());
+                dto.getState(), dto.getRemark(), dto.getId(),
+                ProjectTypeEnums.ACADEMIC_MONOGRAPH_AND_TEXTBOOK.getDisplayName(),
+                dto.getStudentId());
         if(type ==1) {
             xinProjectService.insertXinProject(xinProject);
         }else if(type == 2){

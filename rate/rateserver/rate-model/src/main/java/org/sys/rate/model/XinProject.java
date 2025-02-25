@@ -29,10 +29,12 @@ public class XinProject {
 
     private String type; // 类别
 
+    private Integer sid;//学生ID
+
     public XinProject(String name, Integer point,
                       String sname,
                       String state, String remark,
-                      Integer mid, String type) {
+                      Integer mid, String type, Integer sid) {
         this.name = name;
         this.point = point;
         this.sname = sname;
@@ -40,5 +42,6 @@ public class XinProject {
         this.remark = remark;
         this.mid = mid;
         this.type = type;
+        this.sid = sid;
     }
 }

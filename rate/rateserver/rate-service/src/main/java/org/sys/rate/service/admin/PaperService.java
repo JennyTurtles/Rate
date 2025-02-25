@@ -34,7 +34,7 @@ public class PaperService {
 
     private void dealXinProject(Paper dto, int type){
         XinProject xinProject = new XinProject(dto.getName(), dto.getPoint() == null ? null : Math.toIntExact(dto.getPoint()), dto.getAuthor(),
-                dto.getState(), dto.getRemark(), Math.toIntExact(dto.getID()), ProjectTypeEnums.ACADEMIC_PAPER.getDisplayName());
+                dto.getState(), dto.getRemark(), Math.toIntExact(dto.getID()), ProjectTypeEnums.ACADEMIC_PAPER.getDisplayName(), Math.toIntExact(dto.getStudentID()));
         if(type ==1) {
             xinProjectService.insertXinProject(xinProject);
         }else if(type == 2){
