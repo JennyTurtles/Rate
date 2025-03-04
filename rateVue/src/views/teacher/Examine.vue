@@ -22,22 +22,22 @@
                v-model="searchPatentName"
                id="select_paperName">
 
-        <label style="margin-left:20px;">状态：</label>
-        <el-select
-                v-model="searchPatentState"
-                style="margin-left:3px;width:120px"
-                prefix-icon="el-icon-edit"
-                clearable
-                filterable
-                placeholder="状态筛选"
-        >
-          <el-option
-                  v-for="val in option"
-                  :key="val"
-                  :value="val"
-          >
-          </el-option>
-        </el-select>
+<!--        <label style="margin-left:20px;">状态：</label>-->
+<!--        <el-select-->
+<!--                v-model="searchPatentState"-->
+<!--                style="margin-left:3px;width:120px"-->
+<!--                prefix-icon="el-icon-edit"-->
+<!--                clearable-->
+<!--                filterable-->
+<!--                placeholder="状态筛选"-->
+<!--        >-->
+<!--          <el-option-->
+<!--                  v-for="val in option"-->
+<!--                  :key="val"-->
+<!--                  :value="val"-->
+<!--          >-->
+<!--          </el-option>-->
+<!--        </el-select>-->
         <label style="margin-left:16px">积分范围：</label>
         <el-select
                 v-model="pointFront"
@@ -106,6 +106,15 @@
                 min-width="15%"
         >
         </el-table-column>
+          <el-table-column
+                  prop="createtime"
+                  align="center"
+                  label="申报时间"
+                  min-width="15%"
+          >
+          </el-table-column>
+
+
         <el-table-column
                 prop="name"
                 align="center"

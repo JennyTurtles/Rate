@@ -231,6 +231,9 @@ export default {
         },
       })
           .then((res1) => {
+            // 检查返回值是否包含 code: 500
+
+
             if (res1.length === 0) { // 数据完整，没有空数据
               url = '/doctorM/basic/importDoctors?institutionID=' + this.user.institutionID;
               axios.post(url, fd, {
@@ -248,20 +251,8 @@ export default {
                 this.$message.error(err.response ? err.response.data.msg : "导入失败");
               });
             } else {
-              let newD = [], h = this.$createElement;
-              var count = 0;
-              for (const i in res1) {
-                count++;
-                newD.push(h('p', null, res1[i]));
-                if (count === 15) // 最多显示15行
-                  break;
-              }
-
-              this.$confirm(h('div', null, newD), '提示', {
-                confirmButtonText: '确定',
-                showCancelButton: false, // 隐藏取消按钮
-                type: 'warning'
-              }).then(() => {
+              if (res1.code === 200) {
+                // 如果 code 为 200，不显示弹窗，直接执行导入逻辑
                 that.loading = true;
                 url = '/doctorM/basic/importDoctors?institutionID=' + this.user.institutionID;
                 axios.post(url, fd, {
@@ -284,11 +275,48 @@ export default {
                   that.loading = false;
                   this.$message.error(err.response ? err.response.data.msg : "导入失败");
                 });
-              });
+              } else {
+                // 如果 code 不为 200，显示包含错误信息的弹窗
+                let h = this.$createElement;
+                const msg = res1.msg; // 提取 msg 信息
+                this.$confirm(h('div', null, [h('p', null, msg)]), '提示', {
+                  confirmButtonText: '确定',
+                  showCancelButton: false,
+                  type: 'warning'
+                }).then(() => {
+                  if (res1.code === 500) {
+                    // 如果 code 是 500，抛出自定义错误
+                    throw new Error(res1.msg);
+                  }
+                  that.loading = true;
+                  url = '/doctorM/basic/importDoctors?institutionID=' + this.user.institutionID;
+                  axios.post(url, fd, {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                      'token': that.user.token
+                    },
+                  }).then((res) => {
+                    that.loading = false;
+                    if (res.status === 200) {
+                      this.initDoctorStudents(this.currentPage, this.pageSize); // 导入成功后重新加载数据
+                      this.$message({
+                        message: '导入成功',
+                        type: 'success' // 确保消息框是绿色的
+                      });
+                    } else {
+                      this.$message.error(res.msg || "导入失败");
+                    }
+                  }).catch((err) => {
+                    that.loading = false;
+                    this.$message.error(err.response ? err.response.data.msg : "导入失败");
+                  });
+                });
+              }
             }
+
           })
           .catch((err) => {
-            this.$message.error(err.response ? err.response.data.msg : "导入失败");
+            this.$message.error(err.message.msg);
           });
     },
 

@@ -185,15 +185,15 @@
                 plain
             >编辑</el-button
             >
-<!--            <el-button-->
-<!--                @click="initAdminListofPermission(scope.row)"-->
-<!--                style="padding: 4px"-->
-<!--                size="mini"-->
-<!--                type="primary"-->
-<!--                icon="el-icon-edit"-->
-<!--                plain-->
-<!--            >菜单授权</el-button-->
-<!--            >-->
+            <!--            <el-button-->
+            <!--                @click="initAdminListofPermission(scope.row)"-->
+            <!--                style="padding: 4px"-->
+            <!--                size="mini"-->
+            <!--                type="primary"-->
+            <!--                icon="el-icon-edit"-->
+            <!--                plain-->
+            <!--            >菜单授权</el-button-->
+            <!--            >-->
             <el-button
                 @click="deleteHr(scope.row)"
                 style="padding: 4px"
@@ -303,16 +303,16 @@
         <el-button type="primary" @click="doAddHr">确 定</el-button>
       </span>
     </el-dialog>
-<!--    <el-dialog title="菜单授权" :visible.sync="dialogShowChangeAdminPermission" width="40%" center @close="closeDialogOfChangePermission">-->
-<!--      <el-checkbox-group v-model="changeAdminPermissionsList" @change="changeCheckBox">-->
-<!--        <el-checkbox v-for="item in menuPermissionList" :key="item.id" :label="item.id">{{item.name}}</el-checkbox>-->
-<!--      </el-checkbox-group>-->
-<!--      <span slot="footer">-->
-<!--        <el-button @click="doChangeAdminPermission" type="primary">确定</el-button>-->
-<!--        <el-button @click="closeDialogOfChangePermission">取消</el-button>-->
-<!--      </span>-->
-<!--    </el-dialog>-->
-<!--    编辑框-->
+    <!--    <el-dialog title="菜单授权" :visible.sync="dialogShowChangeAdminPermission" width="40%" center @close="closeDialogOfChangePermission">-->
+    <!--      <el-checkbox-group v-model="changeAdminPermissionsList" @change="changeCheckBox">-->
+    <!--        <el-checkbox v-for="item in menuPermissionList" :key="item.id" :label="item.id">{{item.name}}</el-checkbox>-->
+    <!--      </el-checkbox-group>-->
+    <!--      <span slot="footer">-->
+    <!--        <el-button @click="doChangeAdminPermission" type="primary">确定</el-button>-->
+    <!--        <el-button @click="closeDialogOfChangePermission">取消</el-button>-->
+    <!--      </span>-->
+    <!--    </el-dialog>-->
+    <!--    编辑框-->
     <el-dialog
         :title="title"
         :visible.sync="dialogVisible_edit"
@@ -412,7 +412,11 @@ export default {
           menuPermission: []
         };
         // 重置表单验证状态
-        this.$refs["adminForm"].resetFields();
+        if (this.$refs["adminForm"]) {
+          this.$refs["adminForm"].resetFields();
+        }
+        // 重置权限选择
+        this.menuPermissionSelected = [];
       }
     },
     dialogVisible_edit(newVal) {
@@ -433,7 +437,11 @@ export default {
           menuPermission: []
         };
         // 重置表单验证状态
-        this.$refs["adminForm"].resetFields();
+        if (this.$refs["adminForm"]) {
+          this.$refs["adminForm"].resetFields();
+        }
+        // 重置权限选择
+        this.changeAdminPermissionsList = [];
       }
     }
   },
@@ -561,12 +569,12 @@ export default {
         cancelButtonText: "取消",
         type: "warning",
       }).then(() => {
-            this.postRequest("/system/admin/delete", hr).then((resp) => {
-              if (resp) {
-                this.initHrs();
-              }
-            });
-          })
+        this.postRequest("/system/admin/delete", hr).then((resp) => {
+          if (resp) {
+            this.initHrs();
+          }
+        });
+      })
           .catch(() => {
             this.$message({
               type: "info",
@@ -602,9 +610,9 @@ export default {
     },
     showAddEmpView() {
       this.title = "添加管理员";
-      this.menuPermissionSelected = []//数据清空
+      this.menuPermissionSelected = []; // 数据清空
       this.dialogVisible = true;
-      this.initPermissionMenuList()//初始化权限菜单，主要是id'
+      this.initPermissionMenuList(); // 初始化权限菜单，主要是 id
       // 重置表单数据
       this.hr_info_new = {
         id: null,
@@ -620,24 +628,10 @@ export default {
         comment: null,
         menuPermission: []
       };
-    },
-    initPermissionMenuList(){
-      if(this.menuPermissionList[0].id == -1){//如果菜单的id是初始值，说明没有做查询和赋值
-        this.getRequest('/system/config/getEspecialMenusOfAdmin').then((resp) => {
-          if(resp){
-            if(resp.status == 200){
-              resp.obj.map(item => {
-                //id进行赋值
-                if(item.nameZh == '本科生管理') this.menuPermissionList[0].id = item.id
-                else if(item.nameZh == '研究生管理') this.menuPermissionList[1].id = item.id
-                else if(item.nameZh == '教师管理') this.menuPermissionList[2].id = item.id
-                else if(item.nameZh == '活动管理') this.menuPermissionList[3].id = item.id
-              })
-            }
-          }
-        })
+      // 重置表单验证状态
+      if (this.$refs["adminForm"]) {
+        this.$refs["adminForm"].resetFields();
       }
-
     },
     initHrs() {
       this.getRequest(
@@ -687,7 +681,7 @@ export default {
       this.initHrs("advanced");
     },
     showEditEmpView(data) { // 点击编辑按钮
-      this.initPermissionMenuList();
+      // this.initPermissionMenuList();
       this.title = "编辑管理员信息";
       this.hr_info = data;
       this.changeAdminPermissionsList = [];
@@ -702,68 +696,67 @@ export default {
       }
     },
     doAddHr() {
-
-      // 检查是否是编辑管理员
-      const isEdit = !!this.hr_info.id;
-
-      // 如果是编辑管理员，且没有修改权限，则跳过权限检查
-      if (isEdit && this.changeAdminPermissionsList.length === 0) {
-        // 从 hr_info.role 中解析权限
-        if (this.hr_info.role) {
-          this.changeAdminPermissionsList = this.hr_info.role.split(';').map(Number);
-        } else {
-          this.changeAdminPermissionsList = [];
-        }
-      }
-
-      // 如果是添加管理员，检查权限是否为空
-
-
-      if (this.hr_info.id) { // 编辑管理员
-        const _this = this;
-        this.$refs["adminForm"].validate((valid) => {
-          if (valid) {
-            this.hr_info.role = this.changeAdminPermissionsList.join(';');
-            this.postRequest("/system/admin/update", _this.hr_info).then(
-                (resp) => {
-                  if (resp) {
-                    this.dialogVisible_edit = false;
-                    this.initHrs();
-                    if (resp.msg === '更新成功!') {
-                      Message.success(resp.msg);
-                    } else {
-                      Message.error(resp.msg);
-                    }
-                    // 重置表单验证状态
-                    _this.$refs["adminForm"].resetFields();
-                  }
-                }
-            );
-          }
-        });
-      } else { // 添加管理员
+      if (!this.hr_info.id) { // 添加管理员
         this.$refs["adminForm"].validate((valid) => {
           if (valid) {
             this.hr_info_new.institutionID = this.keywords_id;
-            this.hr_info_new.role = this.changeAdminPermissionsList.join(';'); // 设置菜单权限
+            this.hr_info_new.role = this.menuPermissionSelected.join(';'); // 使用 menuPermissionSelected
+            console.log("添加管理员请求参数:", this.hr_info_new); // 添加调试信息
             const _this = this;
             this.putRequest("/system/admin/insert", _this.hr_info_new).then((resp) => {
-              if (resp) {
-                if (resp.status == 200) {
-                  this.dialogVisible = false;
-                  this.initHrs();
-                  this.$message.success(resp.msg);
-                  // 重置表单验证状态
-                  _this.$refs["adminForm"].resetFields();
-                } else {
-                  this.$message.error(resp.msg);
-                }
+              if (resp && resp.status === 200) {
+                _this.$message.success(resp.msg);
+                _this.initHrs(); // 刷新列表
+
+                // 关闭对话框
+                _this.dialogVisible = false;
+
+                // 重置表单数据
+                _this.hr_info_new = {
+                  id: null,
+                  compnayName: null,
+                  institutionID: null,
+                  name: null,
+                  phone: null,
+                  email: null,
+                  enabled: 1,
+                  username: null,
+                  password: null,
+                  role: -1,
+                  comment: null,
+                  menuPermission: []
+                };
+
+                // 重置表单验证状态
+                _this.$refs["adminForm"].resetFields();
+
+                // 重置权限选择
+                _this.menuPermissionSelected = [];
+              } else {
+                _this.$message.error(resp.msg);
               }
+            }).catch(err => {
+              console.error("添加管理员失败:", err);
+              _this.$message.error("添加管理员失败: " + (err.response.data.msg || "请求错误"));
             });
+          }
+        });
+      } else { // 编辑管理员
+        this.hr_info.role = this.changeAdminPermissionsList.join(';');
+        this.postRequest("/system/admin/update", this.hr_info).then((resp) => {
+          if (resp) {
+            this.dialogVisible_edit = false;
+            this.initHrs();
+            this.$message.success(resp.msg);
+          } else {
+            this.$message.error(resp.msg);
           }
         });
       }
     },
+
+
+
     back() {
       const _this = this;
       _this.$router.push({

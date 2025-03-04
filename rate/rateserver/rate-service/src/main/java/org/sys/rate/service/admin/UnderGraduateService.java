@@ -37,8 +37,11 @@ public class UnderGraduateService {
     GroupsService groupsService;
     @Resource
     private ThesisService thesisService;
-    public List<String> checkGraduateStudent(MultipartFile file) {
+    public Msg checkGraduateStudent(MultipartFile file) {
         List<String> error = new ArrayList<>();
+        Msg msg = new Msg();
+        msg.setCode(200);
+        msg.setMsg("校验成功");
         try {
             //1. 创建一个 workbook 对象
             HSSFWorkbook workbook = new HSSFWorkbook(file.getInputStream());
@@ -103,43 +106,63 @@ public class UnderGraduateService {
 
             if (!hasNameColumn) {
                 error.add("导入的" + sheetName + "缺少姓名列，请检查！");
-                return error;
+                msg.setCode(500);
+                msg.setMsg("导入的" + sheetName + "缺少姓名列，请检查！");
+                return msg;
             }
             if (!hasNumberColumn) {
                 error.add("导入的" + sheetName + "缺少学号列，请检查！");
-                return error;
+                msg.setCode(500);
+                msg.setMsg("导入的" + sheetName + "缺少学号列，请检查！");
+                return msg;
             }
             if (!hasMobileColumn) {
                 error.add("导入的" + sheetName + "缺少手机号列，请检查！");
-                return error;
+                msg.setCode(500);
+                msg.setMsg("导入的" + sheetName + "缺少手机号列，请检查！");
+                return msg;
             }
             if (!hasEmailColumn) {
                 error.add("导入的" + sheetName + "缺少邮箱列，请检查！");
-                return error;
+                msg.setCode(500);
+                msg.setMsg("导入的" + sheetName + "缺少邮箱列，请检查！");
+                return msg;
             }
             if (!hasTuturNoColumn) {
                 error.add("导入的" + sheetName + "缺少导师工号列，请检查！");
-                return error;
+                msg.setCode(500);
+                msg.setMsg("导入的" + sheetName + "缺少导师工号列，请检查！");
+                return msg;
             }
             if (!hasTuturNameColumn) {
                 error.add("导入的" + sheetName + "缺少导师姓名列，请检查！");
-                return error;
+                msg.setCode(500);
+                msg.setMsg("导入的" + sheetName + "缺少导师姓名列，请检查！");
+                return msg;
             }
             if (!hasYearColumn) {
                 error.add("导入的" + sheetName + "缺少入学年份列，请检查！");
-                return error;
+                msg.setCode(500);
+                msg.setMsg("导入的" + sheetName + "缺少入学年份列，请检查！");
+                return msg;
             }
             if (!hasTypeColumn) {
                 error.add("导入的" + sheetName + "缺少学生类别列，请检查！");
-                return error;
+                msg.setCode(500);
+                msg.setMsg("导入的" + sheetName + "缺少学生类别列，请检查！");
+                return msg;
             }
             if (!hasMajorColumn) {
                 error.add("导入的" + sheetName + "缺少专业列，请检查！");
-                return error;
+                msg.setCode(500);
+                msg.setMsg("导入的" + sheetName + "缺少专业列，请检查！");
+                return msg;
             }
             if (!hasClassColumn) {
                 error.add("导入的" + sheetName + "缺少班级列，请检查！");
-                return error;
+                msg.setCode(500);
+                msg.setMsg("导入的" + sheetName + "缺少班级列，请检查！");
+                return msg;
             }
 
             //行
@@ -211,30 +234,52 @@ public class UnderGraduateService {
                 if (isNameEmpty){
                     String tips = "第【" + (j + 1) + "】行的姓名为空，请确认";
                     error.add(tips);
+                    msg.setCode(500);
+                    msg.setMsg("第【" + (j + 1) + "】行的姓名为空，请确认");
+                    return msg;
                 }
                 if (isNumberEmpty){
                     String tips = "第【" + (j + 1) + "】行的学号为空，请确认";
                     error.add(tips);
+                    msg.setCode(500);
+                    msg.setMsg("第【" + (j + 1) + "】行的编号为空，请确认");
+                    return msg;
                 }
                 if (isYearEmpty) {
                     String tips = "第【" + (j + 1) + "】行的入学年份为空，请确认";
                     error.add(tips);
+                    msg.setCode(500);
+                    msg.setMsg("第【" + (j + 1) + "】行的入学年份为空，请确认");
+                    return msg;
                 }
                 if (isTypeEmpty) {
                     String tips = "第【" + (j + 1) + "】行的学生类别为空，请确认";
-                    error.add(tips);
+                    msg.setCode(500);
+                    msg.setMsg("第【" + (j + 1) +"】行的学生类别存在问题，请确认");
+                    return msg;
+                }
+                if (isTuturNoEmpty) {
+                    String tips = "第【" + (j + 1) + "】行的导师工号为空，请确认";
+//                    msg.setCode(200);
+//                    msg.setMsg("第【" + (j + 1) + "】行的导师工号为空，请确认");
+//                    return msg;
                 }
                 if(!dataArr.isEmpty()){
                     List<String> tmpDataArr = checkGraduateStudent(dataArr);
                     if(tmpDataArr != null && !tmpDataArr.isEmpty()){
+                        String s = tmpDataArr.toString();
+                        String result = s.substring(1, s.length() - 1);
                         error.addAll(tmpDataArr);
+                        msg.setCode(500);
+                        msg.setMsg(result);
+                        return msg;
                     }
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return error;
+        return msg;
     }
     public List<String> checkGraduateStudent(List<UnderGraduate> underList) {
         List<String> jobTeas = new ArrayList<>(); // 记录导师的工号

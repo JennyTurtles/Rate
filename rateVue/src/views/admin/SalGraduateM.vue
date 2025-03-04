@@ -358,7 +358,7 @@ export default {
       let fileName = file.file.name + new Date().getTime();
       fd.append("file", file.file);
       fd.append("key", fileName);
-      let url = "/participants/basic/checkGraduate?groupid=0";
+      let url = "/participants/basic/checkGraduate?groupid=1";
       this.postRequest(url, fd, {
         headers: {
           "Content-Type": "multipart/form-data",

@@ -699,6 +699,24 @@ export default new Router({
                     },
                 },
                 {
+                    path: '/admin/Examine',
+                    name: '待审核列表2',
+                    hidden: true,
+                    component: () => import('./views/admin/Examine'),
+                    meta: {
+                        title: '待审核列表',
+                    },
+                },
+                {
+                    path: '/admin/Project',
+                    name: '待审核列表2',
+                    hidden: true,
+                    component: () => import('./views/admin/Project'),
+                    meta: {
+                        title: '待审核列表',
+                    },
+                },
+                {
                     path: '/admin/SalAchievements',
                     name: '所有成果',
                     hidden: true,
