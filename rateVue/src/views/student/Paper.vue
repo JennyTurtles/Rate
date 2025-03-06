@@ -334,7 +334,7 @@
     </el-dialog>
 
     <!-- 添加或修改期刊对话框  -->
-    <!-- <el-dialog
+    <el-dialog
       :title="title_publication"
       :visible.sync="dialogVisible_publication"
       @close="cannotAddPublish = true"
@@ -349,109 +349,71 @@
         :rules="rulesPublication"
         ref="publicationForm"
       >
-        <el-form-item
-          label="期刊全称:"
-          prop="publicationName"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-input
+      <el-form-item label="期刊全称:" prop="publicationName" label-width="130px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -140px;">*</span>
+        <el-input
             size="mini"
-            style="width: 80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.publicationName"
             @blur="queryPublication"
             :disabled="inputDisabled"
             placeholder="请输入期刊全称"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="刊物简称:"
-          prop="publicationAbbr"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-input
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="刊物简称:" prop="publicationAbbr" label-width="130px" style="margin-left: 20px;">
+        <!-- <span class="isMust">*</span> -->
+        <el-input
             size="mini"
-            style="width: 80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.publicationAbbr"
             :disabled="inputDisabled"
             placeholder="请输入刊物简称"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="出版社:"
-          prop="publisherName"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-input
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="出版社:" prop="publisherName" label-width="130px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -140px;">*</span>
+        <el-input
             size="mini"
-            style="width: 80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.publisherName"
             :disabled="inputDisabled"
             placeholder="请输入出版社"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="网址:"
-          prop="publicationUrl"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-input
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="网址:" prop="publicationUrl" label-width="130px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -140px;">*</span>
+        <el-input
             size="mini"
-            style="width: 80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.publicationUrl"
             :disabled="inputDisabled"
             placeholder="请输入网址"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="录入年份:"
-          prop="year"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-input
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="指标点分类:" prop="indicatorName" label-width="90px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -100px;">*</span>
+        <el-button  style="margin-left: 40px;" ref="selectBtn" size="mini" type="text" @click="showTreeDialog">{{ buttonText }}</el-button>
+      </el-form-item>
+      <el-form-item label="进入该分类的年份:" prop="year" label-width="130px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -140px;">*</span>
+        <el-input
             size="mini"
-            style="width: 80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.year"
             @blur="checkYear"
-            placeholder="请输入录入年份"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="指标点分类:"
-          prop="indicatorName"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-button
-            ref="selectBtn"
-            size="mini"
-            type="text"
-            @click="showTreeDialog"
-            >{{ buttonText }}</el-button
-          >
-        </el-form-item>
-        <el-form-item
-          label="证明材料:"
-          prop="publicationProofUrl"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <el-upload
+            placeholder="请输入索引或分类列表发布的年份"
+        ></el-input>&nbsp;&nbsp;&nbsp;&nbsp;
+        <span style="color:gray;font-size:11px;text-decoration: underline;">证明材料中需包含该信息
+        </span>
+      </el-form-item>
+      <el-form-item label="证明材料:" prop="publicationProofUrl" label-width="90px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -100px;">*</span>
+        <el-upload
             :file-list="filesPublication"
             action="#"
             :limit="1"
@@ -460,16 +422,27 @@
             :auto-upload="false"
             :on-change="handleChangeFilesPublication"
             :on-exceed="handleExceed"
-          >
-            <el-button type="primary" icon="el-icon-upload2" slot="trigger"
-              >选择文件 </el-button
-            >&nbsp;&nbsp;&nbsp;&nbsp;
-            <span style="color: gray; font-size: 11px"
-              >只允许doc docx pdf jpg png jpe rar zip类型文件
-              &nbsp;&nbsp;大小不能超过10MB
-            </span>
-          </el-upload>
-        </el-form-item>
+        >
+          <el-button type="primary" icon="el-icon-upload2"
+                     slot="trigger" style="margin-left: 41px;"
+          >选择文件
+          </el-button>&nbsp;
+          <span>
+            <el-tooltip
+                        effect="dark"
+                        placement="top-start"
+              >
+              <i class="el-icon-info" style="color: #4b8ffe"> </i>
+              <div style="width: 200px" slot="content">
+                  证明材料指:
+              </div>
+	          </el-tooltip>
+	        </span> &nbsp;&nbsp;&nbsp;&nbsp;
+          <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpeg rar zip类型文件
+                  &nbsp;&nbsp;大小不能超过10MB
+                </span>
+        </el-upload>
+      </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button
@@ -486,7 +459,7 @@
           >提 交</el-button
         >
       </span>
-    </el-dialog> -->
+    </el-dialog>
 
     <el-dialog
       :visible.sync="dialogPreviewPdfFile"
@@ -645,7 +618,7 @@ export default {
           { required: true, message: "请输入期刊全称", trigger: "blur" },
         ],
         publicationAbbr: [
-          { required: true, message: "请输入刊物简称", trigger: "blur" },
+          { required: false, message: "请输入刊物简称", trigger: "blur" },
         ],
         publisherName: [
           { required: true, message: "请输入出版社", trigger: "blur" },
@@ -736,12 +709,12 @@ export default {
     },
     // 和添加期刊相关的代码
     openAddDialog() {
-      // this.emptyPublish();
-      // this.inputDisabled = false;
-      // this.title_publication = "添加期刊";
-      // this.dialogVisible = false;
-      // this.dialogVisible_publication = true;
-      this.$router.push({ path: "/student/AddPublication" });
+      this.emptyPublish();
+      this.inputDisabled = false;
+      this.title_publication = "添加期刊";
+      this.dialogVisible = false;
+      this.dialogVisible_publication = true;
+      // this.$router.push({ path: "/student/AddPublication" });
     },
     openUpdateDialog() {
       if (this.inputDisabled) {

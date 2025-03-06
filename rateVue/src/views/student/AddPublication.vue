@@ -12,14 +12,20 @@
         ></el-tree>
       </span>
     </el-dialog>
-
+    <el-dialog
+      :title="title_publication"
+      :visible.sync="dialogVisible_publication"
+      @close="cannotAddPublish = true"
+      width="50%"
+      center
+    >
       <el-form
-          :hide-required-asterisk="true"
-          :label-position="labelPosition"
-          label-width="180px"
-          :model="publish"
-          :rules="rulesPublication"
-          ref="publicationForm"
+        :hide-required-asterisk="true"
+        :label-position="labelPosition"
+        label-width="180px"
+        :model="publish"
+        :rules="rulesPublication"
+        ref="publicationForm"
       >
       <el-form-item label="期刊全称:" prop="publicationName" label-width="130px" style="margin-left: 20px;">
         <span class="isMust" style="left: -140px;">*</span>
@@ -74,7 +80,7 @@
         <span class="isMust" style="left: -140px;">*</span>
         <el-input
             size="mini"
-            style="width:21%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.year"
             @blur="checkYear"
@@ -115,11 +121,22 @@
                 </span>
         </el-upload>
       </el-form-item>
-    </el-form>
-    <span slot="footer" class="dialog-footer" style="margin-left: 19px;">
-        <el-button @click="dialogVisible_publication = false;dialogVisible=true">取 消</el-button>
-        <el-button type="primary" @click="doAddPublish" :disabled="cannotAddPublish">提 交</el-button>
-    </span>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button
+          @click="
+            dialogVisible_publication = false;
+          "
+          >取 消</el-button
+        >
+        <el-button
+          type="primary"
+          @click="doAddPublish"
+          :disabled="cannotAddPublish"
+          >提 交</el-button
+        >
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -131,6 +148,7 @@ export default {
   data() {
     return {
       // 和开启tree相关的
+      title_publication:"添加期刊",
       buttonText: '点击选择指标点分类',
       data: [],
       defaultProps: {
@@ -549,6 +567,7 @@ export default {
           }
         });
       }
+      this.dialogVisible_publication = false;
     },
     handleExceed() {//超过限制数量
       this.$message.error(`只允许上传1个文件`);

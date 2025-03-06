@@ -88,7 +88,18 @@
           >
             <el-button type="primary" icon="el-icon-upload2"
                        slot="trigger"
-            >选择文件</el-button>&nbsp;&nbsp;&nbsp;&nbsp;
+            >选择文件</el-button>&nbsp;
+            <span>
+              <el-tooltip
+                          effect="dark"
+                          placement="top-start"
+                >
+                <i class="el-icon-info" style="color: #4b8ffe"> </i>
+                <div style="width: 200px" slot="content">
+                    证明材料指:
+                </div>
+              </el-tooltip>
+            </span>&nbsp;&nbsp;&nbsp;&nbsp;
             <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
                   &nbsp;&nbsp;大小不能超过10MB
                 </span>
