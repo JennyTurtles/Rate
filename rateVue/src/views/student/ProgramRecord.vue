@@ -517,7 +517,7 @@ export default {
 
       this.emp.endDateStu = endDate;
       //this.emp.endDateStu = new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000) > new Date() ? new Date() : new Date(start.getTime() + 6 * 24 * 60 * 60 * 1000);
-      const difference = Math.abs(this.emp.endDateStu.getTime() - start.getTime());
+      const difference = Math.abs(endDate.getTime() - start.getTime());
       const differenceInDays = Math.ceil(difference / (1000 * 60 * 60 * 24)) + 1;
       this.maxHours = differenceInDays * 10;
 

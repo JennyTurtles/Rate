@@ -68,8 +68,99 @@ UPDATE menu_role SET mid = 70 WHERE id = 404;
 
 
 
+
+
 ALTER TABLE i_publication
 MODIFY name VARCHAR(200);
 
 
+UPDATE menu SET enabled = 0 WHERE id = 130;
+UPDATE menu SET parentId = 43 WHERE id = 131;
+UPDATE menu SET enabled = 0 WHERE id = 56;
+UPDATE menu SET enabled = 0 WHERE id = 57;
+UPDATE menu SET enabled = 0 WHERE id = 58;
+UPDATE menu SET enabled = 0 WHERE id = 60;
+UPDATE menu SET enabled = 0 WHERE id = 111;
+UPDATE menu SET enabled = 0 WHERE id = 112;
+UPDATE menu SET enabled = 0 WHERE id = 118;
+UPDATE menu SET enabled = 0 WHERE id = 120;
+UPDATE menu SET enabled = 0 WHERE id = 122;
+UPDATE menu SET enabled = 0 WHERE id = 126;
+UPDATE menu SET parentId = 43 WHERE id = 63;
+UPDATE menu SET parentId = 43 WHERE id = 65;
+UPDATE menu SET parentId = 43 WHERE id = 98;
+UPDATE menu SET parentId = 43 WHERE id = 101;
+UPDATE menu SET parentId = 43 WHERE id = 105;
+UPDATE menu SET parentId = 107 WHERE id = 108;
+UPDATE menu SET parentId = 43 WHERE id = 109;
+UPDATE menu SET parentId = 43 WHERE id = 109;
+UPDATE menu SET name = '指标点审核进度' WHERE id = 109;
+UPDATE menu SET parentId = 43 WHERE id = 124;
+UPDATE menu SET parentId = 43 WHERE id = 129;
+UPDATE menu SET parentId = 43 WHERE id = 131;
+UPDATE menu SET parentId = 43 WHERE id = 133;
+UPDATE menu SET parentId = 43 WHERE id = 134;
+
+DELETE FROM menu_role WHERE id IN (313, 315, 348, 352, 358, 368, 367, 392, 397, 399, 401);
+DELETE FROM menu_role WHERE id IN (357,359,360,361,387,386,371,363,385,390,384);
+UPDATE menu_role SET rid = 11 WHERE id IN (403, 404);
+
+INSERT INTO menu (id,url, path, component, name, requireAuth, parentId, enabled)
+VALUES (138,'/salary/search/**', '/teacher/Project', 'Project', '学生成果列表', 1, 43, 1);
+INSERT INTO menu (id,url, path, component, name, requireAuth, parentId, enabled)
+VALUES (139,'/salary/search/**', '/admin/Project', 'Project', '学生成果列表', 1, 43, 1);
+
+INSERT INTO menu_role (mid,rid)
+VALUES (138,9);
+INSERT INTO menu_role (mid,rid)
+VALUES (139,14);
+INSERT INTO menu_role (mid,rid)
+VALUES (108,11);
+
+
+
+
+
+
+ALTER TABLE xin_project
+ADD COLUMN sid INT
+
+ALTER TABLE i_application
+ADD COLUMN createtime DATETIME
+
+ALTER TABLE i_award
+ADD COLUMN createtime DATETIME
+
+ALTER TABLE i_book
+ADD COLUMN createtime DATETIME
+
+ALTER TABLE i_competition
+ADD COLUMN createtime DATETIME
+
+ALTER TABLE i_decision
+ADD COLUMN createtime DATETIME
+
+ALTER TABLE i_patent
+ADD COLUMN createtime DATETIME
+
+ALTER TABLE i_project
+ADD COLUMN createtime DATETIME
+
+ALTER TABLE i_standard
+ADD COLUMN createtime DATETIME
+
+ALTER TABLE paper
+ADD COLUMN createtime DATETIME
+
+ALTER TABLE i_project
+ADD COLUMN date DATETIME
+
+ALTER TABLE i_project
+ADD COLUMN have_score INT
+
+
+
+
+ALTER TABLE i_competition
+MODIFY date TIMESTAMP;
 
