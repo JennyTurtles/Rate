@@ -32,28 +32,31 @@
 
     <!-- 操作按钮 -->
     <el-row type="flex" justify="center" style="margin-top: 20px;">
-      <el-col :span="12" :lg="6" style="max-width: 200px;">
-        <el-button type="primary" @click="submitDeclaration" style="width: 100%;">
+      <el-col :span="12" :lg="6" style="max-width: 250px;">
+        <el-button type="primary" @click="submitDeclaration" style="width: 100%;font-size: 16px;">
           进入申报
-        </el-button>
-      </el-col>
-      <el-col :span="12" :lg="6" style="max-width: 200px;">
-        <el-button @click="close" style="width: 100%;">
-          关闭
         </el-button>
       </el-col>
     </el-row>
     <!-- 添加论文对话框 -->
-    <Paper v-if="showAddPaperDialog" :dialogVisible.sync="showAddPaperDialog"@add="addPaper" />
+    <Paper v-if="showAddPaperDialog" :dialogVisible.sync="showAddPaperDialog" @add="addPaper" />
     <!-- 添加专利对话框 -->
-    <Patent v-if="showAddPatentDialog" :dialogVisible.sync="showAddPatentDialog"@add="addPatent"/>
+    <Patent v-if="showAddPatentDialog" :dialogVisible.sync="showAddPatentDialog" @add="addPatent"/>
+    <!-- 添加获奖对话框 -->
     <ResearchAward v-if="showAddResearchAwardDialog" :dialogVisible.sync="showAddResearchAwardDialog" @add="addResearchAward"/>
+    <!-- 添加著作对话框 -->
     <AcademicMonograph v-if="showAddAcademicMonographDialog" :dialogVisible.sync="showAddAcademicMonographDialog" @add="addAcademicMonograph"/>
+    <!-- 添加标准对话框 -->
     <ResearchProject v-if="showAddResearchProjectDialog" :dialogVisible.sync="showAddResearchProjectDialog" @add="addResearchProject"/>
-    <Standard v-if="showAddStandardDialog" :dialogVisible.sync="showAddStandardDialog"@close="handleDialogClose"@add="addStandard" />
-    <AcademicCompetition v-if="showAddAcademicCompetitionDialog" :dialogVisible.sync="showAddAcademicCompetitionDialog"@add="addAcademicCompetition" />
+    <!-- 添加标准对话框 -->
+    <Standard v-if="showAddStandardDialog" :dialogVisible.sync="showAddStandardDialog" @close="handleDialogClose" @add="addStandard" />
+    <!-- 添加横向科研项目对话框 -->
+    <AcademicCompetition v-if="showAddAcademicCompetitionDialog" :dialogVisible.sync="showAddAcademicCompetitionDialog" @add="addAcademicCompetition" />
+    <!-- 添加决策咨询对话框 -->
     <Decision v-if="showAddDecisionDialog" :dialogVisible.sync="showAddDecisionDialog" @add="addDecision"/>
-    <Product v-if="showAddProductDialog" :dialogVisible.sync="showAddProductDialog"@add="addProduct" />
+    <!-- 添加产品对话框 -->
+    <Product v-if="showAddProductDialog" :dialogVisible.sync="showAddProductDialog" @add="addProduct" />
+    <!-- 添加产品对话框 -->
     <HorizontalResearchProject v-if="showAddHorizontalResearchProjectDialog" :dialogVisible.sync="showAddHorizontalResearchProjectDialog" @add="addHorizontalProject"/>
   </div>
 </template>
