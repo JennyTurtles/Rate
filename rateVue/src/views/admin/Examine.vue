@@ -121,31 +121,31 @@
         >
         </el-table-column>
         <!-- width="200" -->
-        <el-table-column
-                prop="state"
-                label="状态"
-                min-width="10%"
-                align="center"
-        >
-          <template slot-scope="scope">
-            <span
-                    style="padding: 4px"
-                    size="mini"
-                    :model="emp.state"
-                    :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
-            >
-              {{scope.row.state=="commit"
-                ? "学生提交"
-                :scope.row.state=="tea_pass"
-                    ? "导师通过"
-                    :scope.row.state=="tea_reject"
-                        ? "导师驳回"
-                        :scope.row.state=="adm_pass"
-                            ? "管理员通过"
-                            :"管理员驳回"}}
-              </span>
-          </template>
-        </el-table-column>
+<!--        <el-table-column-->
+<!--                prop="state"-->
+<!--                label="状态"-->
+<!--                min-width="10%"-->
+<!--                align="center"-->
+<!--        >-->
+<!--          <template slot-scope="scope">-->
+<!--            <span-->
+<!--                    style="padding: 4px"-->
+<!--                    size="mini"-->
+<!--                    :model="emp.state"-->
+<!--                    :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"-->
+<!--            >-->
+<!--              {{scope.row.state=="commit"-->
+<!--                ? "学生提交"-->
+<!--                :scope.row.state=="tea_pass"-->
+<!--                    ? "导师通过"-->
+<!--                    :scope.row.state=="tea_reject"-->
+<!--                        ? "导师驳回"-->
+<!--                        :scope.row.state=="adm_pass"-->
+<!--                            ? "管理员通过"-->
+<!--                            :"管理员驳回"}}-->
+<!--              </span>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
         <el-table-column
                 prop="point"
                 label="积分"

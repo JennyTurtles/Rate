@@ -74,8 +74,9 @@ public class OperationController {
     @PostMapping("/deleteOperationList")
     public RespBean deleteOperationList(@RequestBody Operation operation) {
         Integer res = operationService.deleteOperationList(operation);
-        if(res > 0) return RespBean.ok("success", res);
-        return RespBean.error("error", null);
+//        if(res > 0)
+        return RespBean.ok("success", res);
+//        return RespBean.error("error", null);
     }
 
     @GetMapping("/getAllTypePendingMessageNumber") //获取所有类别的导师通过状态的成果

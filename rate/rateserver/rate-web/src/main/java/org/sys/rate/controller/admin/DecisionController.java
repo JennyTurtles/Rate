@@ -220,7 +220,7 @@ public class DecisionController {
             return RespBean.ok("删除成功！");
         } catch (Exception e) {
             return RespBean.error("删除失败！");
-        }
+       }
     }
 
     @PostMapping("/decisionType/import")

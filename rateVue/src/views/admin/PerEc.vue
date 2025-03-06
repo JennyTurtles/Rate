@@ -227,7 +227,7 @@
         </div>
       </div>
     </div>
-    <el-dialog :title="title" :visible.sync="dialogVisible" width="40%" center>
+    <el-dialog :title="title" :visible.sync="dialogVisible" width="35%" center>
       <el-form
           :label-position="labelPosition"
           label-width="100px"
@@ -281,8 +281,8 @@
               placeholder="请输入登录密码"
           ></el-input>
         </el-form-item>
-        <el-form-item label=" 添加权限:">
-          <el-checkbox-group v-model="menuPermissionSelected">
+        <el-form-item label="添加权限">
+          <el-checkbox-group v-model="changeAdminPermissionsList" @change="changeCheckBox">
             <el-checkbox v-for="item in menuPermissionList" :key="item.id" :label="item.id">{{item.name}}</el-checkbox>
           </el-checkbox-group>
         </el-form-item>
