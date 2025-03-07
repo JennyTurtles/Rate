@@ -701,7 +701,7 @@ export default {
             this.getRequest("/programRecord/basic/getBeforeAfterRecordStu", _this.emp)
                 .then((resp) => {
                   if (resp.data!='') {
-                    if (confirm("此次添加记录会影响" + resp.data[0] + "条记录的下期计划与" + resp.data[1] + "条记录的上期安排是否继续?")){
+                    if (confirm("此次添加记录会影响【第" + resp.data[0] + "条记录的下期计划与第" + resp.data[1] + "条记录的上期安排】，是否继续?")){
                       this.postRequest1("/programRecord/basic/add", _this.emp).then((resp) => {
                         if (resp) {
                           this.dialogVisible = false;
