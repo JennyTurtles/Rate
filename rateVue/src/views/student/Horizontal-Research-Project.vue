@@ -551,6 +551,7 @@ export default {
       params.indicatorId = this.currentProjectCopy.indicatorId;
       params.author = this.currentProjectCopy.author;
       params.startDate = this.currentProjectCopy.startDate;
+      params.endDate = this.currentProjectCopy.endDate;
       params.point = this.projectPoint;
       params.state = "commit";
       params.studentId = this.user.id;

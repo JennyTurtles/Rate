@@ -12,7 +12,10 @@ import org.sys.rate.service.admin.ProgramRecordService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/programRecord/basic")
@@ -27,7 +30,58 @@ public class ProgramRecordController {
     @GetMapping("/getAllRecordStu")
     public JsonResult<List> getAllRecordStu(Integer studentID) {
         List<ProgramRecord> data = programRecordMapper.selectRecordListStu(studentID);
-        return new JsonResult(data);
+        for (int i = 0; i < data.size(); i++) {
+            data.get(i).setIndex(i+1);
+        }
+        List<ProgramRecord> list3 = data.stream().filter(s -> Objects.equals(s.getIsPass(), "tea_deny")).collect(Collectors.toList());
+        List<ProgramRecord> list2 = data.stream().filter(s -> !(Objects.equals(s.getIsPass(), "tea_deny"))).collect(Collectors.toList());
+
+        List<ProgramRecord> combinedList = new ArrayList<>();
+        combinedList.addAll(list3);
+        combinedList.addAll(list2);
+
+        return new JsonResult(combinedList);
+    }
+
+    @GetMapping("/getBeforeAfterRecordStu")
+    public JsonResult<List> getBeforeAfterRecordStu(ProgramRecord programRecord) {
+        List<ProgramRecord> data = programRecordMapper.selectRecordListStu(programRecord.getStudentID());
+        // 如果没有现有记录，直接返回空列表
+        if (data.isEmpty()) {
+            return new JsonResult(new ArrayList<>());
+        }
+        // 获取第一条和最后一条记录
+        ProgramRecord firstRecord = data.get(0);
+        ProgramRecord lastRecord = data.get(data.size() - 1);
+        // 检查时间范围
+        if (programRecord.getStartDateStu().compareTo(lastRecord.getEndDateStu()) > 0 ||
+                programRecord.getEndDateStu().compareTo(firstRecord.getStartDateStu()) < 0) {
+            return new JsonResult(new ArrayList<>());
+        }
+        List<Integer> combinedList = new ArrayList<>();
+        // 初始化索引
+        int minEndIndex = -1;
+        int maxStartIndex = -1;
+
+        // 查找符合条件的记录
+        for (int i = 0; i < data.size(); i++) {
+            ProgramRecord record = data.get(i);
+            if (record.getEndDateStu().compareTo(programRecord.getStartDateStu()) > 0) {
+                break;
+            }
+            minEndIndex =i;
+        }
+        for (int i = data.size()-1; i >=0 ; i--) {
+            ProgramRecord record = data.get(i);
+            if (record.getStartDateStu().compareTo(programRecord.getEndDateStu()) < 0) {
+                break;
+            }
+            maxStartIndex = i;
+
+        }
+        combinedList.add(minEndIndex+1);
+        combinedList.add(maxStartIndex+1);
+        return new JsonResult(combinedList);
     }
 
     @GetMapping("/getStuByTea")
@@ -82,7 +136,18 @@ public class ProgramRecordController {
     @GetMapping("/getAllRecordTea")
     public JsonResult<List> getAllRecordTea(Integer studentID) {
         List<ProgramRecord> data = programRecordMapper.selectRecordListTea(studentID);
-        return new JsonResult(data);
+        for (int i = 0; i < data.size(); i++) {
+            data.get(i).setIndex(i+1);
+        }
+        List<ProgramRecord> list3 = data.stream().filter(s -> Objects.equals(s.getIsPass(), "tea_pass")).collect(Collectors.toList());
+        List<ProgramRecord> list2 = data.stream().filter(s -> Objects.equals(s.getIsPass(), "tea_deny")).collect(Collectors.toList());
+        List<ProgramRecord> list1 = data.stream().filter(s -> Objects.equals(s.getIsPass(), "")).collect(Collectors.toList());
+        List<ProgramRecord> combinedList = new ArrayList<>();
+        combinedList.addAll(list1);
+        combinedList.addAll(list2);
+        combinedList.addAll(list3);
+
+        return new JsonResult(combinedList);
     }
 
     @PostMapping("/updateTea")

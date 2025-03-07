@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="display: flex; justify-content: flex-start; margin: 15px 0; font-weight: bold;">
-      <div>{{ stuName }}({{ studentNumber }})</div>
+      <div>学生姓名：{{ stuName }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学生学号：{{ studentNumber }}</div>
       <div style="margin-left: auto">
         <el-button icon="el-icon-back" type="primary" @click="back">
           返回
@@ -27,7 +27,7 @@
                 style="text-align: left; height: 300px; display: flex; flex-direction: column; justify-content: center;">
               <div style="margin-bottom: 10px;">指导期次:
                 <span style="color: black;display: inline-block; text-align: left; margin-left: 10px;">
-                  第{{ scope.row.num }}次</span>
+                  第{{ scope.row.index }}次</span>
               </div>
               <div style="margin-bottom: 10px;">
                 工作时长:
@@ -81,7 +81,7 @@
           <template slot-scope="scope">
             <div class="table-cell">
               <p>
-                <strong style="display: inline-block; min-width: 0px; text-align: left;">上期总结：</strong>
+                <strong style="display: inline-block; min-width: 0px; text-align: left;">本期总结：</strong>
                 {{ scope.row.preSum }}</p>
 
               <p>
@@ -249,7 +249,7 @@ export default {
       showAdvanceSearchView: false,
       allDeps: [],
       emps: [],
-
+      empsSorted: [], // 排序后的数组
       loading: false,
       dialogVisible: false,
       dialogVisible_show: false,
@@ -420,7 +420,7 @@ export default {
       // this.emps.num = data.num; console.log(this.emps);  也就是这个可以获取当前表格中的所有数据
       //this.curIndex = data.num
 
-      if (data.num > 1) {
+      if (data.index > 1) {
         this.showTooltip = true;
         this.prePlan = this
             .sortedEmps[data.num - 2]
@@ -489,6 +489,7 @@ export default {
         const RecordResponse = await this.getRequest(`/programRecord/basic/getAllRecordTea?studentID=${this.stuID}`);
         if (RecordResponse) {
           this.emps = RecordResponse.data;
+          this.empsSorted = this.emps.slice().sort((a, b) => a.index - b.index); //按照时间升序的数组
           //console.log(this.emps)
           this.total = RecordResponse.data.length;
         }

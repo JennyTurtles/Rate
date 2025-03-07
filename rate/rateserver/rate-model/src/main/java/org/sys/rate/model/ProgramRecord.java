@@ -10,6 +10,7 @@ import java.util.Date;
 public class ProgramRecord {
 
     private Integer ID;
+    private Integer Index;
     private Integer studentID;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(pattern="yyyy-MM-dd", timezone = "GMT+8")

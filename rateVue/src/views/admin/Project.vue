@@ -2272,7 +2272,7 @@
         emps: [],
         data: [],
         projects: [], // 用于存储项目数据
-
+        showAdvanceSearchView: false, // 初始化为 false 或其他适当的值
         name:'',
         pointBack: '',
         state: '',

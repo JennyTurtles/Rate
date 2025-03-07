@@ -13,13 +13,14 @@ public interface ProgramRecordMapper {
     @Select("select * from programrecord pr, graduatestudent g where #{studentID} = g.studentID and pr.studentID = g.ID ORDER BY startDateStu")
     List<ProgramRecord> selectRecordListStu(Integer studentID);
 
+
     @Insert("insert into programrecord (studentID, startDateStu, endDateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass, workHours) values(#{studentID},#{startDateStu},#{endDateStu},#{dateTea},#{preSum},#{nextPlan},#{tutorComment},#{num},#{isPass},#{workHours})")
     Integer add(ProgramRecord programRecord);
 
     @Delete("delete from programrecord where num = #{num} and studentID = #{studentID}")
     Integer deleteRecordById(int num, int studentID);
 
-    @Update("update programrecord set startDateStu = #{startDateStu}, endDateStu = #{endDateStu}, preSum = #{preSum}, nextPlan = #{nextPlan},dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass}, workHours = #{workHours} where studentID = #{studentID} and num = #{num}")
+    @Update("update programrecord set  preSum = #{preSum}, nextPlan = #{nextPlan},dateTea = #{dateTea}, tutorComment = #{tutorComment},isPass = ''  where studentID = #{studentID} and num = #{num}")
     int updateStuRecord(ProgramRecord programRecord);
 
     @Update("update graduatestudent set fillMiss = #{fillMiss} where ID = #{studentID}")
@@ -35,7 +36,7 @@ public interface ProgramRecordMapper {
     @Select("SELECT fillMiss FROM graduatestudent WHERE studentID = #{studentID}")
     Integer getFillMiss(Integer studentID);
 
-    @Select("select * from programrecord where studentID = #{studentID} ORDER BY isPass, num")
+    @Select("select * from programrecord where studentID = #{studentID} ORDER BY startDateStu")
     List<ProgramRecord> selectRecordListTea(Integer studentID);
 
     @Update("update programrecord set dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass} where ID = #{ID}")
