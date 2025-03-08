@@ -136,7 +136,7 @@
           label-width="80px"
           style="margin-left: 20px"
         >
-          
+
           <el-upload
             :file-list="files"
             action="#"
@@ -655,7 +655,7 @@ export default {
   },
   mounted() {
     this.initTutor(this.user);
-    this.initEmps(); 
+    this.initEmps();
     this.showAddEmpView();
   },
   methods: {
@@ -1023,7 +1023,7 @@ export default {
             this.publishToDatabase.check_duplicates.year = years;
             this.inputDisabled = true;
           } else {
-          
+
             this.$message.warning(
               this.publicationName +
                 "在" +
@@ -1333,14 +1333,18 @@ export default {
         //emptyEmp中没有将id设置为空 所以可以判断
         this.editPaper(params);
       } else {
-        this.$refs["currentEmp"].validate(async (valid) => {
+        this.$refs["currentEmp"].validate( (valid) => {
           if (valid) {
-            this.postRequest1("/paper/basic/add", params).then((resp) => {
-              if (resp) {
-                this.dialogVisible = false;
-                this.doAddOper("commit", resp.data);
-              }
-            });
+            params.studentId = this.user.id
+            this.postRequest1("/paper/basic/add", params).then(
+                    (resp) => {
+                      if (resp) {
+                        this.$message.success('添加成功！')
+                        this.dialogVisible = false;
+                        this.doAddOper("commit", resp.data);
+                        this.$router.push('/student/Project');
+                      }
+                    });
           }
         });
       }
@@ -1352,7 +1356,7 @@ export default {
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper);
       await this.initEmps();
-      this.$message.success("操作成功");
+      // this.$message.success("操作成功");
     },
     showAddEmpView() {
       //点击添加论文按钮

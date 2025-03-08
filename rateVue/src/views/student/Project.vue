@@ -148,8 +148,18 @@
             ><br/>
           </el-form-item>
           <el-form-item label="论文状态:">
-            <span>{{ emp.state }}</span
-            ><br/>
+              <span>{{
+                emp.state == "commit"
+                    ? "已提交"
+                    : emp.state == "tea_pass"
+                        ? "导师通过"
+                        : emp.state == "tea_reject"
+                            ? "导师驳回"
+                            : emp.state == "adm_pass"
+                                ? "管理员通过"
+                                : "管理员驳回"
+              }}</span
+              ><br/>
           </el-form-item>
           <el-form-item label="作者人数:">
             <span>{{ emp.total }}</span
@@ -282,7 +292,7 @@
           <div v-show="currentPatent.url == '' || currentPatent.url == null ? false : true" style="margin-left: 80px">
             <div>
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
+              <el-button @click="previewMethod('3')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -385,7 +395,7 @@
           <div v-show="currentAward.url == '' || currentAward.url == null ? false : true" style="margin-left: 80px">
             <div>
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
+              <el-button @click="previewMethod('4')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -475,7 +485,7 @@
                style="margin-left: 80px">
             <div>
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
+              <el-button @click="previewMethod('5')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -560,7 +570,7 @@
           <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
             <div>
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
+              <el-button @click="previewMethod('6')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -660,7 +670,7 @@
           <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
             <div>
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
+              <el-button @click="previewMethod('6')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -755,7 +765,7 @@
                style="margin-left: 80px">
             <div>
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
+              <el-button @click="previewMethod('7')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -847,7 +857,7 @@
           <div v-show="currentDecision.url == '' || currentDecision.url == null ? false : true">
             <div>
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
+              <el-button @click="previewMethod('8')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -939,7 +949,7 @@
           <div v-show="currentProduct.url == '' || currentProduct.url == null ? false : true" style="margin-left: 80px">
             <div>
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
+              <el-button @click="previewMethod('9')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -1034,7 +1044,7 @@
           <div v-show="currentStandard.url == '' || currentStandard.url == null ? false : true" style="margin-left: 80px">
             <div>
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
+              <el-button @click="previewMethod('10')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -1190,7 +1200,7 @@
         </div>
         <span slot="footer" class="dialog-footer">
           <el-button @click="dialogVisible_publication_Paper = false">取 消</el-button>
-          <el-button type="primary" @click="doAddEmp()">提 交</el-button>
+          <el-button type="primary" @click="doAddEmp">提 交</el-button>
         </span>
       </el-dialog>
       <!--添加专利对话框-->
@@ -2723,7 +2733,7 @@
         })
       },
 
-      // 专著教材
+      // 学术专著和教材
       deleteMonographEmpMethod(data) {
         return new Promise((resolve, reject) => {
               this.deleteRequest("/monograph/basic/remove/" + data.id).then((resp) => {
@@ -2736,7 +2746,7 @@
       deleteMonographOperationList(data) {
         const params = {}
         params.prodId = data.id;
-        params.prodType = '专著教材'
+        params.prodType = '学术专著和教材'
         return new Promise((resolve, reject) => {
           this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
             resolve('success');
@@ -3180,6 +3190,7 @@
                     this.dialogVisible_publication_AcademicCompetition = false;
                     this.$message.success('编辑成功！')
                     this.doAddOper("commit", this.currentCompetitionCopy.id);
+                    this.initEmps();
                   }
                 }
             );
@@ -3274,7 +3285,9 @@
             this.postRequest1("/paper/basic/edit", params).then((resp) => {
               if (resp) {
                 this.dialogVisible_publication_Paper = false;
-                this.doAddOper("commit", this.currentEmp.id)
+                this.doAddOper("commit", this.currentEmp.id);
+                this.initEmps();
+
               }
             });
           }
@@ -3330,7 +3343,7 @@
         if (this.currentEmp.id) {//emptyEmp中没有将id设置为空 所以可以判断
           this.editPaper(params);
         } else {
-          this.$refs["currentEmp"].validate(async (valid) => {
+          this.$refs["currentEmp"].validate( (valid) => {
             if (valid) {
               this.postRequest1("/paper/basic/add", params).then(
                   (resp) => {
@@ -3391,6 +3404,7 @@
                     this.dialogVisible_publication_Patent = false;
                     this.doAddOper("commit", this.currentPatentCopy.id);
                     this.$message.success('编辑成功！')
+                    this.initEmps();
                   }
                 }
             );
@@ -3515,6 +3529,7 @@
                     this.dialogVisible_publication_AcademicMonograph = false;
                     this.$message.success('编辑成功！')
                     this.doAddOper("commit", this.currentMonographCopy.id);
+                    this.initEmps();
                   }
                 }
             );
@@ -3669,7 +3684,7 @@
           '学术论文': 'dialogVisible_showInfo_Paper',
           '授权专利': 'dialogVisible_showInfo_Patent',
           '科研获奖': 'dialogVisible_showInfo_ResearchAward',
-          '专著教材': 'dialogVisible_showInfo_AcademicMonograph',
+          '学术专著和教材': 'dialogVisible_showInfo_AcademicMonograph',
           '纵向科研项目': 'dialogVisible_showInfo_ResearchProject',
           '横向科研项目': 'dialogVisible_showInfo_HorizontalResearchProject',
           '学科竞赛': 'dialogVisible_showInfo_AcademicCompetition',
@@ -3681,7 +3696,7 @@
           '学术论文': 'emp',
           '授权专利': 'currentPatent',
           '科研获奖': 'currentAward',
-          '专著教材': 'currentMonograph',
+          '学术专著和教材': 'currentMonograph',
           '纵向科研项目': 'currentProject',
           '横向科研项目': 'currentProject',
           '学科竞赛': 'currentCompetition',
@@ -3693,7 +3708,7 @@
           '学术论文': '/paper',
           '授权专利': '/patent',
           '科研获奖': '/award',
-          '专著教材': '/monograph',
+          '学术专著和教材': '/monograph',
           '纵向科研项目': '/project',
           '横向科研项目': '/project',
           '学科竞赛': '/competition',
@@ -3785,9 +3800,38 @@
               this.dialogPreviewPdfFile = true;
             }
           });
-        } else {
+        } else if (type == '2'){//学术论文
           this.downloadFileMethod(this.emp);
+
+        }else if (type == '3'){//授权专利
+          this.downloadFileMethod(this.currentPatent);
+        } else if (type == '4'){//科研获奖
+          this.downloadFileMethod(this.currentAward);
         }
+        else if (type == '5'){//学术专著和教材
+          this.downloadFileMethod(this.currentMonograph);
+        }
+        else if (type == '6'){//横向-纵向
+          this.downloadFileMethod(this.currentProject);
+        }
+        else if (type == '7'){//学科竞赛
+          this.downloadFileMethod(this.currentCompetition);
+        }
+        else if (type == '8'){//决策咨询
+          this.downloadFileMethod(this.currentDecision);
+        }
+        else if (type == '9'){//产品应用
+          this.downloadFileMethod(this.currentProduct);
+        }
+        else if (type == '10'){//指定标准
+          this.downloadFileMethod(this.currentStandard);
+        }
+
+
+
+        // else {
+        //   this.downloadFileMethod(this.emp);
+        // }
       },
       cancelAdd() {
         this.dialogVisible_publication_ResearchAward = false;
@@ -3871,7 +3915,7 @@
               this.urlFile = this.currentAwardCopy.url;
             }
           });
-        } else if (data.category === '专著教材') {
+        } else if (data.category === '学术专著和教材') {
           this.dialogVisible_publication_AcademicMonograph = true;
           this.title = "编辑专著或教材信息";
           this.getRequest("/monograph/basic/studentIDInfo?studentID=" + this.user.id + "&id=" + data.id).then((resp) => {
@@ -4035,6 +4079,7 @@
                     this.dialogVisible_publication_Decision = false;
                     this.$message.success('编辑成功！')
                     this.doAddOper("commit", this.currentDecisionCopy.id);
+                    this.initEmps();
                   }
                 }
             );
@@ -4102,6 +4147,7 @@
                     this.dialogVisible_publication_Product = false;
                     this.doAddOper("commit", this.currentProductCopy.id);
                     this.$message.success('编辑成功！')
+                    this.initEmps();
                   }
                 }
             );
@@ -4176,6 +4222,7 @@
                     this.dialogVisible_publication_ResearchProject = false;
                     this.$message.success('编辑成功！')
                     this.doAddOper("commit", this.currentProjectCopy.id);
+                    this.initEmps();
                   }
                 }
             );
@@ -4239,6 +4286,7 @@
                     this.dialogVisible_publication_Standard = false;
                     this.doAddOper("commit", this.currentStandardCopy.id);
                     this.$message.success('编辑成功！')
+                    this.initEmps();
                   }
                 }
             );
@@ -4255,6 +4303,8 @@
                     this.dialogVisible_publication_HorizontalResearchProject = false;
                     this.doAddOper("commit", this.currentProjectCopy.id);
                     this.$message.success('编辑成功！')
+                    this.initEmps();
+
                   }
                 }
             );
@@ -4337,7 +4387,7 @@
               this.$message.error('删除失败!');
             })
           })
-        } else if (data.category === '专著教材') {
+        } else if (data.category === '学术专著和教材') {
           this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?").then(() => {
             Promise.all([this.deleteMonographEmpMethod(data), this.deleteMonographOperationList(data)]).then(res => {
               this.$message.success('删除成功!');
@@ -4369,7 +4419,8 @@
           this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?").then(() => {
             Promise.all([this.deleteCompetitionEmpMethod(data), this.deleteCompetitionOperationList(data)]).then(res => {
               this.$message.success('删除成功!');
-              this.initCompetitionsList();
+              // this.initCompetitionsList();
+              this.initEmps();
             }).catch(() => {
               this.$message.error('删除失败!');
             })
@@ -4378,7 +4429,8 @@
           this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?",).then(() => {
             Promise.all([this.deleteDecisionEmpMethod(data), this.deleteDecisionOperationList(data)]).then(res => {
               this.$message.success('删除成功!');
-              this.initDecisionsList();
+              // this.initDecisionsList();
+              this.initEmps();
             }).catch(() => {
               this.$message.error('删除失败!');
             })

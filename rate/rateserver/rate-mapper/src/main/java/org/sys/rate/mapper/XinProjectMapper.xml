@@ -98,6 +98,9 @@ order by date DESC
 
 
     </select>
+    <select id="selectById" resultType="org.sys.rate.model.XinProject" parameterType="java.lang.Integer">
+        select * from xin_project where id = #{operatorId}
+    </select>
 
 
     <!-- 删除操作：通过 mid 和 type 删除记录 -->

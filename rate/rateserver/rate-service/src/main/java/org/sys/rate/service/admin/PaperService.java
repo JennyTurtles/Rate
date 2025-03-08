@@ -1,5 +1,6 @@
 package org.sys.rate.service.admin;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.microsoft.schemas.office.visio.x2012.main.ShapeSheetType;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
@@ -121,8 +122,12 @@ public class PaperService {
      * @return 结果
      */
     public int deletePaperById(Long ID) {
-        Paper paper = new Paper();
-        paper.setID(ID);
+//        Paper paper = new Paper();
+//        paper.setID(ID);
+        Paper paper = paperMapper.selectByID(ID);
+        if (ObjectUtil.isEmpty(paper)) {
+            throw new RuntimeException("该数据不存在");
+        }
         dealXinProject(paper, 4);
         return paperMapper.deletePaperById(ID);
     }

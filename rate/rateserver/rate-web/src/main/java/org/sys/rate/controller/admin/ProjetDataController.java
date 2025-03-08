@@ -47,7 +47,7 @@ public class ProjetDataController {
     public JsonResult<List> getXinPorjectList(Integer studentID) {
         List<ProjectData> list = new ArrayList<>();
         List<XinProject> xinProjects = xinProjectService.selectListByIds(studentID);
-        if(xinProjects != null && !xinProjects.isEmpty()){
+        if (xinProjects != null && !xinProjects.isEmpty()) {
 
             xinProjects.forEach(x -> {
                 ProjectData projectData = new ProjectData();
@@ -60,7 +60,7 @@ public class ProjetDataController {
                 projectData.setParticipants(x.getSname());
                 projectData.setStatus(x.getState());
                 projectData.setRemark(x.getRemark());
-                projectData.setPoint(Long.parseLong(x.getPoint()+""));
+                projectData.setPoint(Long.parseLong(x.getPoint() + ""));
 
                 list.add(projectData);
             });
@@ -74,25 +74,100 @@ public class ProjetDataController {
         List<ProjectData> list = new ArrayList<>();
         List<XinProject> xinProjects = xinProjectService.selectList(xinProjectVo);
 
+        String pointFrontStr = xinProjectVo.getPointFront();
+        String pointBackStr = xinProjectVo.getPointBack();
 
-        if(xinProjects != null && !xinProjects.isEmpty()){
+        Integer pointFront =( pointFrontStr != null && !"".equals(pointFrontStr) )? Integer.parseInt(pointFrontStr) : null;
+        Integer pointBack =( pointBackStr != null && !"".equals(pointBackStr) )? Integer.parseInt(pointBackStr) : null;
 
-            xinProjects.forEach(x -> {
-                ProjectData projectData = new ProjectData();
-                projectData.setId(x.getMid());
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String formattedDate = sdf.format(x.getDate());
-                projectData.setApplyTime(formattedDate);
-                projectData.setName(x.getName());
-                projectData.setCategory(x.getType());
-                projectData.setParticipants(x.getSname());
-                projectData.setStatus(x.getState());
-                projectData.setRemark(x.getRemark());
-                projectData.setPoint(Long.parseLong(x.getPoint()+""));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (xinProjects != null && !xinProjects.isEmpty()) {
+            for (XinProject x : xinProjects) {
+                Integer point = x.getPoint();
+                String state = x.getState();
 
-                list.add(projectData);
-            });
+                // 情况 1: pointFront 和 pointBack 都有值
+                if (pointFront != null && pointBack != null) {
+                    if (("adm_pass".equals(state)) && point != null && point >= pointFront && point <= pointBack) {
+                        ProjectData projectData = new ProjectData();
+                        projectData.setId(x.getMid());
+                        String formattedDate = sdf.format(x.getDate());
+                        projectData.setApplyTime(formattedDate);
+                        projectData.setName(x.getName());
+                        projectData.setCategory(x.getType());
+                        projectData.setParticipants(x.getSname());
+                        projectData.setStatus(x.getState());
+                        projectData.setRemark(x.getRemark());
+                        projectData.setPoint(Long.parseLong(x.getPoint() + ""));
+                        list.add(projectData);
+                    }
+                }// 情况 2: pointFront 有值，pointBack 没有值
+                else if (pointFront != null && pointBack == null) {
+                    if (("adm_pass".equals(state) ) && point != null && point >= pointFront) {
+                        ProjectData projectData = new ProjectData();
+                        projectData.setId(x.getMid());
+                        String formattedDate = sdf.format(x.getDate());
+                        projectData.setApplyTime(formattedDate);
+                        projectData.setName(x.getName());
+                        projectData.setCategory(x.getType());
+                        projectData.setParticipants(x.getSname());
+                        projectData.setStatus(x.getState());
+                        projectData.setRemark(x.getRemark());
+                        projectData.setPoint(Long.parseLong(x.getPoint() + ""));
+                        list.add(projectData);
+                    }
+                } // 情况 3: pointFront 没有值，pointBack 有值
+                else if (pointFront == null && pointBack != null) {
+                    if (("adm_pass".equals(state) ) && point != null && point <= pointBack) {
+                        ProjectData projectData = new ProjectData();
+                        projectData.setId(x.getMid());
+                        String formattedDate = sdf.format(x.getDate());
+                        projectData.setApplyTime(formattedDate);
+                        projectData.setName(x.getName());
+                        projectData.setCategory(x.getType());
+                        projectData.setParticipants(x.getSname());
+                        projectData.setStatus(x.getState());
+                        projectData.setRemark(x.getRemark());
+                        projectData.setPoint(Long.parseLong(x.getPoint() + ""));
+                        list.add(projectData);
+                    }
+                } // 情况 4: pointFront 和 pointBack 都没有值，但 state 是通过
+                else if (pointFront == null && pointBack == null) {
+                    ProjectData projectData = new ProjectData();
+                    projectData.setId(x.getMid());
+                    String formattedDate = sdf.format(x.getDate());
+                    projectData.setApplyTime(formattedDate);
+                    projectData.setName(x.getName());
+                    projectData.setCategory(x.getType());
+                    projectData.setParticipants(x.getSname());
+                    projectData.setStatus(x.getState());
+                    projectData.setRemark(x.getRemark());
+                    projectData.setPoint(Long.parseLong(x.getPoint() + ""));
+                    list.add(projectData);
+                }
+            }
+
         }
+
+
+//        if(xinProjects != null && !xinProjects.isEmpty()){
+//
+//            xinProjects.forEach(x -> {
+//                ProjectData projectData = new ProjectData();
+//                projectData.setId(x.getMid());
+////                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                String formattedDate = sdf.format(x.getDate());
+//                projectData.setApplyTime(formattedDate);
+//                projectData.setName(x.getName());
+//                projectData.setCategory(x.getType());
+//                projectData.setParticipants(x.getSname());
+//                projectData.setStatus(x.getState());
+//                projectData.setRemark(x.getRemark());
+//                projectData.setPoint(Long.parseLong(x.getPoint()+""));
+//
+//                list.add(projectData);
+//            });
+//        }
         return new JsonResult<>(list);
     }
 
@@ -296,6 +371,7 @@ public class ProjetDataController {
 
         return list;
     }
+
     private List<ProjectData> competitionToProjectDataList(List<Competition> paramsList) {
         if (CollectionUtils.isEmpty(paramsList)) {
             return Collections.EMPTY_LIST;
@@ -334,7 +410,7 @@ public class ProjetDataController {
 
             ProjectData projectData = new ProjectData();
             projectData.setId(decision.getId());
-            if(operation !=null){
+            if (operation != null) {
                 projectData.setApplyTime(dateFormat.format(operation.getTime()));
             }
             projectData.setName(decision.getName());

@@ -38,4 +38,6 @@ public interface XinProjectMapper
 
 
     List<XinProject> selectXinProjectList(XinProjectVo xinProjectVo);
+
+    XinProject selectById(@Param(value = "operatorId")Integer operatorId);
 }

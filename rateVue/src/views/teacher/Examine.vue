@@ -38,40 +38,40 @@
 <!--          >-->
 <!--          </el-option>-->
 <!--        </el-select>-->
-        <label style="margin-left:16px">积分范围：</label>
-        <el-select
-                v-model="pointFront"
-                style="margin-left:3px;width:60px"
-                prefix-icon="el-icon-edit"
-                clearable
-                filterable
-                placeholder="1"
-        >
-          <el-option
-                  style=""
-                  v-for="val in select_point"
-                  :key="val"
-                  :value="val"
-          >
-          </el-option>
-        </el-select>
-        <label >&nbsp; - &nbsp;</label>
-        <el-select
-                v-model="pointBack"
-                style="margin-left:3px;width:60px"
-                prefix-icon="el-icon-edit"
-                clearable
-                filterable
-                placeholder="12"
-        >
-          <el-option
-                  style=""
-                  v-for="val in select_point"
-                  :key="val"
-                  :value="val"
-          >
-          </el-option>
-        </el-select>
+<!--        <label style="margin-left:16px">积分范围：</label>-->
+<!--        <el-select-->
+<!--                v-model="pointFront"-->
+<!--                style="margin-left:3px;width:60px"-->
+<!--                prefix-icon="el-icon-edit"-->
+<!--                clearable-->
+<!--                filterable-->
+<!--                placeholder="0"-->
+<!--        >-->
+<!--          <el-option-->
+<!--                  style=""-->
+<!--                  v-for="val in select_point"-->
+<!--                  :key="val"-->
+<!--                  :value="val"-->
+<!--          >-->
+<!--          </el-option>-->
+<!--        </el-select>-->
+<!--        <label >&nbsp; - &nbsp;</label>-->
+<!--        <el-select-->
+<!--                v-model="pointBack"-->
+<!--                style="margin-left:3px;width:60px"-->
+<!--                prefix-icon="el-icon-edit"-->
+<!--                clearable-->
+<!--                filterable-->
+<!--                placeholder="12"-->
+<!--        >-->
+<!--          <el-option-->
+<!--                  style=""-->
+<!--                  v-for="val in select_point"-->
+<!--                  :key="val"-->
+<!--                  :value="val"-->
+<!--          >-->
+<!--          </el-option>-->
+<!--        </el-select>-->
         <el-button
                 icon="el-icon-search"
                 type="primary"
@@ -276,7 +276,17 @@
             ><br/>
         </el-form-item>
         <el-form-item label="论文状态:">
-            <span>{{ emp.state }}</span
+            <span>{{
+                emp.state == "commit"
+                    ? "已提交"
+                    : emp.state == "tea_pass"
+                        ? "导师通过"
+                        : emp.state == "tea_reject"
+                            ? "导师驳回"
+                            : emp.state == "adm_pass"
+                                ? "管理员通过"
+                                : "管理员驳回"
+              }}</span
             ><br/>
         </el-form-item>
         <el-form-item label="作者人数:">
@@ -450,7 +460,7 @@
         <div v-show="currentPatent.url == '' || currentPatent.url == null ? false : true" style="margin-left: 80px">
           <div>
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-            <el-button @click="previewMethod('2')">下载</el-button>
+            <el-button @click="previewMethod('3')">下载</el-button>
           </div>
           <div style="margin-top: 5px">
             <el-image
@@ -594,7 +604,7 @@
         <div v-show="currentAward.url == '' || currentAward.url == null ? false : true" style="margin-left: 80px">
           <div>
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-            <el-button @click="previewMethod('2')">下载</el-button>
+            <el-button @click="previewMethod('4')">下载</el-button>
           </div>
           <div style="margin-top: 5px">
             <el-image
@@ -725,7 +735,7 @@
              style="margin-left: 80px">
           <div>
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-            <el-button @click="previewMethod('2')">下载</el-button>
+            <el-button @click="previewMethod('5')">下载</el-button>
           </div>
           <div style="margin-top: 5px">
             <el-image
@@ -851,7 +861,7 @@
               <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
                   <div>
                       <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('2')">下载</el-button>
+                      <el-button @click="previewMethod('6')">下载</el-button>
                   </div>
                   <div style="margin-top: 5px">
                       <el-image
@@ -976,7 +986,7 @@
               <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
                   <div>
                       <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('2')">下载</el-button>
+                      <el-button @click="previewMethod('6')">下载</el-button>
                   </div>
                   <div style="margin-top: 5px">
                       <el-image
@@ -1118,7 +1128,7 @@
               <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
                   <div>
                       <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('2')">下载</el-button>
+                      <el-button @click="previewMethod('6')">下载</el-button>
                   </div>
                   <div style="margin-top: 5px">
                       <el-image
@@ -1256,7 +1266,7 @@
                    style="margin-left: 80px">
                   <div>
                       <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('2')">下载</el-button>
+                      <el-button @click="previewMethod('7')">下载</el-button>
                   </div>
                   <div style="margin-top: 5px">
                       <el-image
@@ -1390,7 +1400,7 @@
               <div v-show="currentDecision.url == '' || currentDecision.url == null ? false : true">
                   <div>
                       <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('2')">下载</el-button>
+                      <el-button @click="previewMethod('8')">下载</el-button>
                   </div>
                   <div style="margin-top: 5px">
                       <el-image
@@ -1524,7 +1534,7 @@
               <div v-show="currentProduct.url == '' || currentProduct.url == null ? false : true" style="margin-left: 80px">
                   <div>
                       <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('2')">下载</el-button>
+                      <el-button @click="previewMethod('9')">下载</el-button>
                   </div>
                   <div style="margin-top: 5px">
                       <el-image
@@ -1662,7 +1672,7 @@
               <div v-show="currentStandard.url == '' || currentStandard.url == null ? false : true" style="margin-left: 80px">
                   <div>
                       <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('2')">下载</el-button>
+                      <el-button @click="previewMethod('10')">下载</el-button>
                   </div>
                   <div style="margin-top: 5px">
                       <el-image
@@ -1774,7 +1784,7 @@
         isShowInfo:false,
         select_stuName:["全部"],//筛选框
         select_paperName:["全部"],
-        select_point:['全部',1,3,4,6,9,12,15],
+        select_point:['全部',0,1,3,4,6,9,12,15],
         select_pubName:[],
         option:["全部","学生提交","导师通过","管理员通过","导师驳回","管理员驳回"],
         labelPosition: "left",
@@ -1984,7 +1994,7 @@
           operatorRole: "",
           operatorId: JSON.parse(localStorage.getItem('user')).id,
           operatorName: JSON.parse(localStorage.getItem('user')).name,
-          prodType: '授权专利',
+          prodType: '',
           operationName:"",
           state:"",
           remark:"",
@@ -2046,10 +2056,33 @@
               this.dialogPreviewPdfFile = true;
             }
           });
-        } else {
+        } else if (type == '2'){//学术论文
+            this.downloadFileMethod(this.emp);
 
-          this.downloadFileMethod(this.emp);
+        }else if (type == '3'){//授权专利
+            this.downloadFileMethod(this.currentPatent);
+        } else if (type == '4'){//科研获奖
+            this.downloadFileMethod(this.currentAward);
         }
+        else if (type == '5'){//学术专著和教材
+            this.downloadFileMethod(this.currentMonograph);
+        }
+        else if (type == '6'){//横向-纵向
+            this.downloadFileMethod(this.currentProject);
+        }
+        else if (type == '7'){//学科竞赛
+            this.downloadFileMethod(this.currentCompetition);
+        }
+        else if (type == '8'){//决策咨询
+            this.downloadFileMethod(this.currentDecision);
+        }
+        else if (type == '9'){//产品应用
+            this.downloadFileMethod(this.currentProduct);
+        }
+        else if (type == '10'){//指定标准
+            this.downloadFileMethod(this.currentStandard);
+        }
+
       },
       changePointMethod(data) { //修改积分按钮
         var have_score = data.have_score
@@ -2143,7 +2176,7 @@
             }
             else if ("横向科研项目" == this.emp.type) {
               // 直接调用 rolePass
-              this.rolePass3(state);
+              this.rolePass20(state);
             }
             else if ("决策咨询" == this.emp.type) {
               // 直接调用 rolePass
@@ -2182,7 +2215,7 @@
         }
         else if ("横向科研项目" == this.currentType) {
           // 直接调用 rolePass
-          this.rolePass3(state);
+          this.rolePass20(state);
         }
         else if ("决策咨询" == this.currentType) {
           // 直接调用 rolePass
@@ -2209,23 +2242,24 @@
             this.dialogVisible_showInfo_Standard = false;
         },
       rolePass(state) {
-        let url = "/patent/basic/edit_state?state=" + state + "&ID="+this.emp.id;
+        let url = "/patent/basic/edit_state?state=" + state + "&ID="+this.currentPatent.id;
         this.dialogVisible_show=false
 
         if(state.indexOf('reject') >= 0){
-          this.emp.operationList[0].remark = this.reason;
+          this.currentPatent.operationList[0].remark = this.reason;
         }
         this.getRequest(url).then((resp) => {
           this.loading = false;
           if (resp) {
-            this.emp.state = state
+            this.currentPatent.state = state
             this.$message({
               type: 'success',
               message: '操作成功',
                 isApproved :true
             })
+              this.prodType =this.currentPatent.type;
               this.isApproved = true;
-            this.doAddOper(state, this.reason, this.emp.id);
+            this.doAddOper(state, this.reason, this.currentPatent.id,'授权专利');
             let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
             this.$store.dispatch('changePendingMessageange', roleParam);
           }
@@ -2245,7 +2279,7 @@
               type: 'success',
               message: '操作成功'
             })
-              this.doAddOper(state, this.reason, this.emp.id);
+              this.doAddOper(state, this.reason, this.emp.id,'学术论文');
               let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
               this.$store.dispatch('changePendingMessageange', roleParam);
           }
@@ -2267,7 +2301,7 @@
               type: 'success',
               message: '操作成功'
             })
-            this.doAddOper(state, this.reason, this.currentAward.id);
+            this.doAddOper(state, this.reason, this.currentAward.id,'科研获奖');
             let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
             this.$store.dispatch('changePendingMessageange', roleParam);
           }
@@ -2287,7 +2321,27 @@
                         type: 'success',
                         message: '操作成功'
                     })
-                    this.doAddOper(state, this.reason, this.currentProject.id);
+                    this.doAddOper(state, this.reason, this.currentProject.id,'纵向科研项目');
+                    let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+                    this.$store.dispatch('changePendingMessageange', roleParam);
+                }
+            })
+        },
+        rolePass20(state) {
+            let url = "/project/basic/edit_state?state=" + state + "&ID="+this.currentProject.id;
+            this.dialogVisible_show=false
+            if(state.indexOf('reject') >= 0){
+                this.currentProject.operationList[0].remark = this.reason;
+            }
+            this.getRequest(url).then((resp) => {
+                this.loading = false;
+                if (resp) {
+                    this.currentProject.state = state
+                    this.$message({
+                        type: 'success',
+                        message: '操作成功'
+                    })
+                    this.doAddOper(state, this.reason, this.currentProject.id,'横向科研项目');
                     let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
                     this.$store.dispatch('changePendingMessageange', roleParam);
                 }
@@ -2307,7 +2361,7 @@
                         type: 'success',
                         message: '操作成功'
                     })
-                    this.doAddOper(state, this.reason, this.currentCompetition.id);
+                    this.doAddOper(state, this.reason, this.currentCompetition.id,'学科竞赛');
                     let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
                     this.$store.dispatch('changePendingMessageange', roleParam);
                 }
@@ -2327,7 +2381,7 @@
                         type: 'success',
                         message: '操作成功'
                     })
-                    this.doAddOper(state, this.reason, this.currentProduct.id);
+                    this.doAddOper(state, this.reason, this.currentProduct.id,'产品应用');
                     let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
                     this.$store.dispatch('changePendingMessageange', roleParam);
                 }
@@ -2347,7 +2401,7 @@
                         type: 'success',
                         message: '操作成功'
                     })
-                    this.doAddOper(state, this.reason, this.currentMonograph.id);
+                    this.doAddOper(state, this.reason, this.currentMonograph.id,'学术专著和教材');
                     let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
                     this.$store.dispatch('changePendingMessageange', roleParam);
                 }
@@ -2367,7 +2421,7 @@
                         type: 'success',
                         message: '操作成功'
                     })
-                    this.doAddOper(state, this.reason, this.currentDecision.id);
+                    this.doAddOper(state, this.reason, this.currentDecision.id,'决策咨询');
                     let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
                     this.$store.dispatch('changePendingMessageange', roleParam);
                 }
@@ -2387,17 +2441,18 @@
                         type: 'success',
                         message: '操作成功'
                     })
-                    this.doAddOper(state, this.reason, this.currentStandard.id);
+                    this.doAddOper(state, this.reason, this.currentStandard.id,'制定标准');
                     let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
                     this.$store.dispatch('changePendingMessageange', roleParam);
                 }
             })
         },
 
-      async doAddOper(state,remark,patentID) {
+      async doAddOper(state,remark,patentID,type) {
         this.oper.state = state;
         this.oper.remark = remark;
         this.oper.prodId = patentID;
+        this.oper.prodType = type;
         this.oper.time = this.dateFormatFunc(new Date());
         this.oper.operatorRole = this.role;
         if(this.oper.state == "tea_pass" || this.oper.state == 'adm_pass'){

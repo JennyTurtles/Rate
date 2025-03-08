@@ -6,6 +6,7 @@ import org.sys.rate.mapper.*;
 import org.sys.rate.model.Msg;
 import org.sys.rate.model.Operation;
 import org.sys.rate.model.RespBean;
+import org.sys.rate.model.XinProject;
 import org.sys.rate.service.admin.OperationService;
 
 import javax.annotation.Resource;
@@ -41,6 +42,8 @@ public class OperationController {
     private ProductMapper productMapper;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private XinProjectMapper xinProjectMapper;
 
     @PostMapping("/add")
     public RespBean addOper(Operation oper) {
@@ -48,7 +51,7 @@ public class OperationController {
 //            oper.setTime((Timestamp) oper.getTime());
             oper.setTime(new Timestamp(System.currentTimeMillis()));
             operMapper.insertOper(oper);
-        }catch (Exception e) {
+        } catch (Exception e) {
             return RespBean.error("error", null);
         }
         return RespBean.ok("success", null);

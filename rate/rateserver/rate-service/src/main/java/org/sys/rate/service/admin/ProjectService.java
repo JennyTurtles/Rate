@@ -66,6 +66,8 @@ public class ProjectService {
     }
 
     public int updateProject(Project project) {
+        Project project1 = projectMapper.selectByID(Long.valueOf(project.getId()));
+        project.setProjectTypeId(project1.getProjectTypeId());
         dealXinProject(project, 2);
         return projectMapper.updateProject(project);
     }
@@ -77,8 +79,12 @@ public class ProjectService {
      * @return 结果
      */
     public int deleteProjectById(Long ID) {
-        Project project = new Project();
-        project.setId(Math.toIntExact(ID));
+//        Project project = new Project();
+//        project.setId(Math.toIntExact(ID));
+        Project project = projectMapper.selectByID(ID);
+        if (project == null) {
+            throw new RuntimeException("该数据不存在");
+        }
         dealXinProject(project, 4);
 
         return projectMapper.deleteProjectById(ID);
