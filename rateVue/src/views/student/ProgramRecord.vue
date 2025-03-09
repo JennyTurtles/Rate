@@ -620,6 +620,7 @@ export default {
     },
     deleteEmp(data) {
       let confirmationMessage = "";
+      let alertMessage = "";
       console.log("Data passed to deleteEmp:", data.index); 
       if(data.index === 1 || data.index === this.total){
 
@@ -629,6 +630,7 @@ export default {
         const before = data.index -1;
         const after = data.index +1;
         confirmationMessage = "删除第" + data.index + "条记录将会影响【第" + before + "条记录的下期计划与第" + after + "条记录的上期安排】是否继续?";
+        alertMessage = "请注意！本次删除操作影响了起始日期为" +this.empsSorted[before-1].endDateStu + "与" + this.empsSorted[after-1].startDateStu + "的两条记录的工作安排！";
       }
 
       if (confirm(confirmationMessage)) {
@@ -636,6 +638,7 @@ export default {
             .then((resp) => {
               if (resp) {
                 this.dialogVisible = false;
+                alert(alertMessage);
                 this.initEmps();
               }
             });
@@ -701,11 +704,13 @@ export default {
             this.getRequest("/programRecord/basic/getBeforeAfterRecordStu", _this.emp)
                 .then((resp) => {
                   if (resp.data!='') {
+                    let alertMessage = "请注意！本次删除操作影响了起始日期为" +_this.empsSorted[resp.data[0]-1].startDateStu + "与" + _this.empsSorted[resp.data[1]-1].startDateStu + "的两条记录的工作安排！";
                     if (confirm("此次添加记录会影响【第" + resp.data[0] + "条记录的下期计划与第" + resp.data[1] + "条记录的上期安排】，是否继续?")){
                       this.postRequest1("/programRecord/basic/add", _this.emp).then((resp) => {
                         if (resp) {
                           this.dialogVisible = false;
                           this.initEmps();
+                          alert(alertMessage);
                         }
                       });
                     }
