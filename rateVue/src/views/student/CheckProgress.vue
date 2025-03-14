@@ -55,7 +55,7 @@
       <el-table-column
           align="center"
           width="100px"
-          label="出版年"
+          label="年份"
           prop="year"
       ></el-table-column>
       <el-table-column
@@ -155,7 +155,7 @@
           <span>{{ emp.publicationUrl }}</span
           ><br/>
         </el-form-item>
-        <el-form-item label="出版年:" prop="year">
+        <el-form-item label="年份:" prop="year">
           <span>{{ emp.year }}</span
           ><br/>
         </el-form-item>

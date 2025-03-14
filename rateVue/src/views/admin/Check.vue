@@ -63,7 +63,7 @@
       <el-table-column
           align="center"
           width="100px"
-          label="出版年"
+          label="进入该分类的年份"
           prop="year"
       ></el-table-column>
       <el-table-column
@@ -119,14 +119,14 @@
         class="showInfo_dialog"
         :title="title_show"
         :visible.sync="dialogVisible_show"
-        width="520px"
+        width="700px"
         center
     >
       <el-form
           :label-position="labelPosition"
-          label-width="80px"
+          label-width="140px"
           :model="emp"
-          style="margin-left: 20px"
+          style="margin-left:20px"
       >
         <el-form-item label="学生姓名:" prop="studentName">
           <span>{{ emp.studentName }}</span
@@ -149,7 +149,7 @@
           <span>{{ emp.publicationUrl }}</span
           ><br/>
         </el-form-item>
-        <el-form-item label="出版年:" prop="year">
+        <el-form-item label="进入该分类的年份:" prop="year">
           <span>{{ emp.year }}</span
           ><br/>
         </el-form-item>

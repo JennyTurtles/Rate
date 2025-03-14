@@ -97,7 +97,7 @@
           <span class="isMust">*</span>
           <el-input
             size="mini"
-            style="width: 80%"
+            style="width: 500%"
             prefix-icon="el-icon-edit"
             v-model="currentEmp.author"
             @blur="judgeWriter()"

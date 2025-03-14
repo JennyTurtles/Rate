@@ -255,12 +255,8 @@
             <span>{{ emp.rank }}</span
             ><br/>
           </el-form-item>
-          <el-form-item label="发表年份:">
-            <span>{{ emp.year }}</span
-            ><br/>
-          </el-form-item>
-          <el-form-item label="发表月份:">
-            <span>{{ emp.month }}</span
+          <el-form-item label="发表年月:">
+            <span>{{ emp.year }}-{{ emp.month }}</span
             ><br/>
           </el-form-item>
           <el-form-item label="证明材料:" prop="url">
