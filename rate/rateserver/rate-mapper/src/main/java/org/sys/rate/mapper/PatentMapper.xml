@@ -42,7 +42,7 @@
     </resultMap>
 
     <sql id="selectPaperVo">
-        select id,student_id,name,date,author,url,grantedStatus,indicatorId,state
+        select *
         from i_patent
     </sql>
 

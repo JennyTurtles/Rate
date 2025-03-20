@@ -433,7 +433,7 @@ export default {
         operatorRole: "",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '专著教材',
+        prodType: '学术专著和教材',
         operationName:"",
         state:"",
         remark:"",
@@ -636,7 +636,7 @@ export default {
     },
     //获取改专著的操作列表
     getOperationListOfMonograph(data) {
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=专著教材').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=学术专著和教材').then((resp) => {
         this.loading = false;
         if (resp) {
           this.isShowInfo = false;

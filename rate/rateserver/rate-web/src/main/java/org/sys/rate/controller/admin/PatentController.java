@@ -67,7 +67,8 @@ public class PatentController {
         Patent patent = collect.get(0);
         String url = patent.getUrl();
         String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
-        patent.setUrl(replace);
+//        patent.setUrl(replace);
+        collect.get(0).setFileName(replace.substring(replace.lastIndexOf('/')+1));
         return new JsonResult<>(collect.get(0));
     }
 

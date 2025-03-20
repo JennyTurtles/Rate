@@ -64,7 +64,7 @@ public class MonographController {
 
     @GetMapping("/getDtaById")
     public JsonResult<Monograph> getDtaById(Long id){
-        Monograph monograph = monographMapper.selectByID(id);
+        Monograph monograph = monographMapper.selectMonographById(id);
         return new JsonResult<>(monograph);
     }
     @GetMapping("/studentIDInfo")
@@ -74,7 +74,8 @@ public class MonographController {
         Monograph monograph = collect.get(0);
         String url = monograph.getUrl();
         String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
-        monograph.setUrl(replace);
+//        monograph.setUrl(replace);
+        collect.get(0).setFileName(replace.substring(replace.lastIndexOf('/')+1));
         return new JsonResult<>(collect.get(0));
     }
     //    修改专著状态

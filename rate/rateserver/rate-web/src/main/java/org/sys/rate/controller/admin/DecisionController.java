@@ -66,7 +66,8 @@ public class DecisionController {
         Decision decision = collect.get(0);
         String url = decision.getUrl();
         String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
-        decision.setUrl(replace);
+//        decision.setUrl(replace);
+        collect.get(0).setFileName(replace.substring(replace.lastIndexOf('/')+1));
         return new JsonResult<>(collect.get(0));
     }
 

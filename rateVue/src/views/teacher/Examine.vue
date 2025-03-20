@@ -301,14 +301,11 @@
             <span>{{ emp.rank }}</span
             ><br/>
         </el-form-item>
-        <el-form-item label="发表年份:">
-            <span>{{ emp.year }}</span
+        <el-form-item label="发表年月:">
+            <span>{{ emp.year }}-{{ emp.month }}</span
             ><br/>
         </el-form-item>
-        <el-form-item label="发表月份:">
-            <span>{{ emp.month }}</span
-            ><br/>
-        </el-form-item>
+
         <el-form-item label="证明材料:" prop="url">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true:false">无证明材料</span>
@@ -2311,6 +2308,7 @@
             let url = "/project/basic/edit_state?state=" + state + "&ID="+this.currentProject.id;
             this.dialogVisible_show=false
             if(state.indexOf('reject') >= 0){
+                console.log("==========="+  this.currentProject.operationList[0])
                 this.currentProject.operationList[0].remark = this.reason;
             }
             this.getRequest(url).then((resp) => {
@@ -2509,7 +2507,7 @@
           '学术论文': 'dialogVisible_showInfo_Paper',
           '授权专利': 'dialogVisible_showInfo_Patent',
           '科研获奖': 'dialogVisible_showInfo_ResearchAward',
-          '专著教材': 'dialogVisible_showInfo_AcademicMonograph',
+          '学术专著和教材': 'dialogVisible_showInfo_AcademicMonograph',
           '纵向科研项目': 'dialogVisible_showInfo_ResearchProject',
           '横向科研项目': 'dialogVisible_showInfo_HorizontalResearchProject',
           '学科竞赛': 'dialogVisible_showInfo_AcademicCompetition',
@@ -2521,7 +2519,7 @@
           '学术论文': 'emp',
           '授权专利': 'currentPatent',
           '科研获奖': 'currentAward',
-          '专著教材': 'currentMonograph',
+          '学术专著和教材': 'currentMonograph',
           '纵向科研项目': 'currentProject',
           '横向科研项目': 'currentProject',
           '学科竞赛': 'currentCompetition',
@@ -2533,7 +2531,7 @@
           '学术论文': '/paper',
           '授权专利': '/patent',
           '科研获奖': '/award',
-          '专著教材': '/monograph',
+          '学术专著和教材': '/monograph',
           '纵向科研项目': '/project',
           '横向科研项目': '/project',
           '学科竞赛': '/competition',

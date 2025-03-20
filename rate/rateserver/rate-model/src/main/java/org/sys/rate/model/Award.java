@@ -11,4 +11,5 @@ public class Award extends Production{
     private String remark;
     private AwardType awardType;
     private String awardTypeName;
+    private String fileName;
 }

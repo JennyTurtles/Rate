@@ -274,7 +274,7 @@ export default {
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '专著教材',
+        prodType: '学术专著和教材',
         operationName: '',
         state: '',
         remark: '',
@@ -502,7 +502,7 @@ export default {
       } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
         this.isImage = true;
       }
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=专著教材').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=学术专著和教材').then((resp) => {
         this.loading = false;
         if (resp) {
           this.operList = resp.obj
@@ -531,7 +531,7 @@ export default {
     deleteOperationList(data) {
       const params = {}
       params.prodId = data.id;
-      params.prodType = '专著教材'
+      params.prodType = '学术专著和教材'
       return new Promise((resolve, reject) => {
         this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
           resolve('success');

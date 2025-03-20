@@ -43,7 +43,7 @@ public class PaperService {
         }else if(type == 2){
             xinProjectService.updateXinProject(xinProject);
         }else if(type == 3){
-            xinProjectService.updateXinProject(xinProject.getMid(), xinProject.getType(), xinProject.getState());
+            xinProjectService.updateXinProject(xinProject.getMid(), xinProject.getType(), dto.getState());
         }else if(type == 4){
             xinProjectService.deleteXinProject(xinProject.getMid(), xinProject.getType());
         }
@@ -141,6 +141,8 @@ public class PaperService {
     public int editState(String state, Long ID) throws MessagingException {
         Paper paper = paperMapper.selectByID(ID);
         // 管理员通过的时候需要处理2分论文的情况，还要计算student的活动总分
+        paper.setState(state);
+        dealXinProject(paper, 3);
         if (state.equals("adm_pass")) {
             Long stuID = paper.getStudentID();
             Long score = paper.getPoint();
@@ -160,6 +162,7 @@ public class PaperService {
             paperMapper.updateScore(stuID, score);
         }
         int res = paperMapper.editState(state, ID);
+
         mailToStuService.sendStuMail(state, null, paper, "学术论文");
         return res;
     }

@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -76,8 +78,11 @@ public class PaperController {
         Paper paper = collect.get(0);
         String url = paper.getUrl();
         String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
-        paper.setUrl(replace);
-        return new JsonResult<>(collect.get(0));
+//        paper.setUrl(replace);
+        Paper paper1 = collect.get(0);
+        paper1.setFileName(replace.substring(replace.lastIndexOf('/')+1));
+        paper1.setDate(paper1.getYear()+"-"+paper1.getMonth());
+        return new JsonResult<>(paper1);
     }
 
     @GetMapping("/getDtaById")

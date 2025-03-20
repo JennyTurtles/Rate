@@ -238,14 +238,11 @@
           <span>{{ emp.rank }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="发表年份:">
-          <span>{{ emp.year }}</span
+        <el-form-item label="发表年月:">
+          <span>{{ emp.year }}-{{ emp.month }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="发表月份:">
-          <span>{{ emp.month }}</span
-          ><br />
-        </el-form-item>
+
         <el-form-item label="证明材料:" prop="url">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true : false"

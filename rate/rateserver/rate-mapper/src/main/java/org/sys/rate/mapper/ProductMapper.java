@@ -34,6 +34,7 @@ public interface ProductMapper
      * @return 专利成果
      */
     public Product selectProductById(Long ID);
+    public Product selectPaperById(Long ID);
 
     /**
      * 查询专利成果列表

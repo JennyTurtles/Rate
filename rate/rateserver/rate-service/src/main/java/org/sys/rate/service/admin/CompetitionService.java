@@ -47,9 +47,9 @@ public class CompetitionService {
     }
 
     /**
-     * 新增科研专著教材成果
+     * 新增科研学术专著和教材成果
      *
-     * @param competition 科研专著教材成果
+     * @param competition 科研学术专著和教材成果
      * @return 结果
      */
     public int insertCompetition(Competition competition) {
@@ -64,9 +64,9 @@ public class CompetitionService {
     }
 
     /**
-     * 删除科研专著教材成果
+     * 删除科研学术专著和教材成果
      *
-     * @param ID 科研专著教材成果ID
+     * @param ID 科研学术专著和教材成果ID
      * @return 结果
      */
     public int deleteCompetitionById(Long ID) {
@@ -124,7 +124,7 @@ public class CompetitionService {
         return list;
     }
 
-    //    修改科研专著教材状态
+    //    修改科研学术专著和教材状态
     public int editState(String state, Long ID) throws MessagingException {
         Competition competition = competitionMapper.getById(Math.toIntExact(ID));
         mailToStuService.sendStuMail(state, competition, null, "学科竞赛");

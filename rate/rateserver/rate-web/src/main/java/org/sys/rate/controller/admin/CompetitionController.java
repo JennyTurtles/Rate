@@ -63,7 +63,8 @@ public class CompetitionController {
         Competition competition = collect.get(0);
         String url = competition.getUrl();
         String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
-        competition.setUrl(replace);
+//        competition.setUrl(replace);
+        collect.get(0).setFileName(replace.substring(replace.lastIndexOf('/')+1));
         return new JsonResult<>(collect.get(0));
     }
 

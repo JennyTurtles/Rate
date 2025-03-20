@@ -50,9 +50,9 @@ public class MonographService {
     }
 
     /**
-     * 新增科研专著教材成果
+     * 新增科研学术专著和教材成果
      *
-     * @param monograph 科研专著教材成果
+     * @param monograph 科研学术专著和教材成果
      * @return 结果
      */
     public int insertMonograph(Monograph monograph) {
@@ -67,9 +67,9 @@ public class MonographService {
     }
 
     /**
-     * 删除科研专著教材成果
+     * 删除科研学术专著和教材成果
      *
-     * @param ID 科研专著教材成果ID
+     * @param ID 科研学术专著和教材成果ID
      * @return 结果
      */
     public int deleteMonographById(Long ID) {
@@ -85,7 +85,7 @@ public class MonographService {
         return list;
     }
 
-    //    修改科研专著教材状态
+    //    修改科研学术专著和教材状态
     public int editState(String state, Long ID) throws MessagingException {
         Monograph monograph = monographMapper.getById(Math.toIntExact(ID));
         mailToStuService.sendStuMail(state, monograph, null, "学术专著和教材");

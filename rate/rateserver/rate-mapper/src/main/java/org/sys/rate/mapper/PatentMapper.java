@@ -35,6 +35,7 @@ public interface PatentMapper
      * @return 专利成果
      */
     public Patent selectPatentById(Long ID);
+    public Patent selectPaperById(Long ID);
 
     /**
      * 查询专利成果列表

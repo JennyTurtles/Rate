@@ -303,14 +303,14 @@ public class ProjetDataController {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         List<ProjectData> list = new ArrayList<>();
         for (Monograph monograph : paramsList) {
-            Operation operation = operMapper.selectMinDataList(monograph.getId(), "专著教材");
-            List<Operation> operationList = operMapper.selectList(monograph.getId(), "专著教材");
+            Operation operation = operMapper.selectMinDataList(monograph.getId(), "学术专著和教材");
+            List<Operation> operationList = operMapper.selectList(monograph.getId(), "学术专著和教材");
 
             ProjectData projectData = new ProjectData();
             projectData.setId(monograph.getId());
             projectData.setApplyTime(dateFormat.format(operation.getTime()));
             projectData.setName(monograph.getName());
-            projectData.setCategory("专著教材");
+            projectData.setCategory("学术专著和教材");
             projectData.setParticipants(monograph.getAuthor());
             projectData.setStatus(monograph.getState());
             projectData.setRemark(CollectionUtils.isEmpty(operationList) ? "" : operationList.get(0).getRemark());

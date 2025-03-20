@@ -22,4 +22,6 @@ public class Project extends Production{
     private String remark;
     ProjectType projectType;
     String projectTypeName;
+    String fileName;
+
 }

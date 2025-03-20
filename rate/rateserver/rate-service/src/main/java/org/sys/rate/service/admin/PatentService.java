@@ -25,7 +25,7 @@ public class PatentService {
     private XinProjectService xinProjectService;
 
     public Patent selectPatentById(Long ID){
-        return patentMapper.getById(ID);
+        return patentMapper.selectPaperById(ID);
     }
 
     /**

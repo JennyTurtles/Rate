@@ -58,7 +58,7 @@ public class StandardController {
 
     @GetMapping("/getDtaById")
     public JsonResult<Standard> getDtaById(Long id) {
-        Standard standard = standardMapper.selectByID(id);
+        Standard standard = standardMapper.selectPaperById(id);
         return new JsonResult<>(standard);
     }
     @GetMapping("/studentIDInfo")
@@ -68,7 +68,8 @@ public class StandardController {
         Standard standard = collect.get(0);
         String url = standard.getUrl();
         String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
-        standard.setUrl(replace);
+//        standard.setUrl(replace);
+        collect.get(0).setFileName(replace.substring(replace.lastIndexOf('/')+1));
         return new JsonResult<>(collect.get(0));
     }
     //    修改专利状态

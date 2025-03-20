@@ -71,7 +71,8 @@ public class AwardController {
         Award award = collect.get(0);
         String url = award.getUrl();
         String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
-        award.setUrl(replace);
+//        award.setUrl(replace);
+        collect.get(0).setFileName(replace.substring(replace.lastIndexOf('/')+1));
         return new JsonResult<>(collect.get(0));
     }
 

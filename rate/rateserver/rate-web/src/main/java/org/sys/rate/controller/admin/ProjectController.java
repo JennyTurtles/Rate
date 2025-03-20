@@ -75,7 +75,8 @@ public class ProjectController {
         Project project = collect.get(0);
         String url = project.getUrl();
         String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
-        project.setUrl(replace);
+        project.setFileName(replace.substring(replace.lastIndexOf('/')+1));
+
         return new JsonResult<>(collect.get(0));
     }
 

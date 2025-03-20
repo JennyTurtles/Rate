@@ -254,7 +254,7 @@ export default {
         {label: '学术论文', name: 'paper'},
         {label: "授权专利", name: "patent"},
         {label: "科研获奖", name: "award"},
-        {label: "专著教材", name: "monograph"},
+        {label: "学术专著和教材", name: "monograph"},
         {label: "学科竞赛", name: "competition"},
         {label: "纵向科研项目", name: "project"},
         {label: "横向科研项目", name: "horizontalProject"},

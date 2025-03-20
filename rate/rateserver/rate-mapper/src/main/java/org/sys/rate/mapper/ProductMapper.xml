@@ -40,7 +40,7 @@
     </resultMap>
 
     <sql id="selectPaperVo">
-        select id,student_id,name,date,author,url,indicatorId,state
+        select  id,student_id,name,date,author,url,indicator_id,state,point,total
         from i_application
     </sql>
 
@@ -100,7 +100,8 @@
     </select>
 
     <select id="selectPaperById" parameterType="Long" resultMap="ProductResult">
-        <include refid="selectPaperVo"/>
+         select  *
+        from i_application
         where ID = #{ID}
     </select>
 

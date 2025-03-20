@@ -331,25 +331,26 @@ export default {
       }
     },
     download(data) {
-      var fileName = data.publicationProofUrl.split("/").reverse()[0];
-      // console.log(fileName);
-      var url = encodeURIComponent(data.publicationProofUrl);
-      axios({
-        url: "/paper/basic/downloadByUrl?url=" + url,
-        method: "GET",
-        headers: {'Content-Type': 'application/json'},
-        responseType: "blob",
-      }).then((response) => {
-        // console.log(response);
-        const url = window.URL.createObjectURL(new Blob([response]));
-
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
+      this.downloadFileMethod1(data);
+      // var fileName = data.publicationProofUrl.split("/").reverse()[0];
+      // // console.log(fileName);
+      // var url = encodeURIComponent(data.publicationProofUrl);
+      // axios({
+      //   url: "/paper/basic/downloadByUrl?url=" + url,
+      //   method: "GET",
+      //   headers: {'Content-Type': 'application/json'},
+      //   responseType: "blob",
+      // }).then((response) => {
+      //   // console.log(response);
+      //   const url = window.URL.createObjectURL(new Blob([response]));
+      //
+      //   const link = document.createElement("a");
+      //   link.href = url;
+      //   link.setAttribute("download", fileName);
+      //   document.body.appendChild(link);
+      //   link.click();
+      //   document.body.removeChild(link);
+      // });
     },
 
     emptyEmp() {

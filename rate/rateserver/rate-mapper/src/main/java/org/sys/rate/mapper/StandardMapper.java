@@ -35,6 +35,8 @@ public interface StandardMapper
      */
     public Standard selectStandardById(Long ID);
 
+    public Standard selectPaperById(Long ID);
+
     /**
      * 查询专利成果列表
      *

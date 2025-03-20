@@ -58,7 +58,7 @@ public class ProductController {
 
     @GetMapping("/getDtaById")
     public JsonResult<Product> getDtaById(Long id){
-        Product product = productMapper.selectByID(id);
+        Product product = productMapper.selectPaperById(id);
         return new JsonResult<>(product);
     }
     @GetMapping("/studentIDInfo")
@@ -68,7 +68,8 @@ public class ProductController {
         Product product = collect.get(0);
         String url = product.getUrl();
         String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
-        product.setUrl(replace);
+//        product.setUrl(replace);
+        collect.get(0).setFileName(replace.substring(replace.lastIndexOf('/')+1));
         return new JsonResult<>(collect.get(0));
     }
 

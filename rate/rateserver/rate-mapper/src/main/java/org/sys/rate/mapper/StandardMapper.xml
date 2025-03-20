@@ -40,7 +40,7 @@
     </resultMap>
 
     <sql id="selectPaperVo">
-        select id,student_id,name,date,author,url,indicatorId,state
+        select *
         from i_standard
     </sql>
 

@@ -319,14 +319,11 @@
                           :"管理员驳回"}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="发表年份:">
-          <span>{{emp.year}}</span
+        <el-form-item label="发表年月:">
+          <span>{{emp.year}}-{{ emp.month }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="发表月份:">
-          <span>{{emp.month}}</span
-          ><br />
-        </el-form-item>
+
         <el-form-item label="证明材料:">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <div v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</div>
