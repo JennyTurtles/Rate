@@ -2,7 +2,6 @@ package org.sys.rate.mapper;
 
 import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.GraduateStudent;
-import org.sys.rate.model.PaperComment;
 import org.sys.rate.model.ProgramRecord;
 
 import java.util.List;
@@ -17,8 +16,8 @@ public interface ProgramRecordMapper {
     @Insert("insert into programrecord (studentID, startDateStu, endDateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass, workHours) values(#{studentID},#{startDateStu},#{endDateStu},#{dateTea},#{preSum},#{nextPlan},#{tutorComment},#{num},#{isPass},#{workHours})")
     Integer add(ProgramRecord programRecord);
 
-    @Delete("delete from programrecord where num = #{num} and studentID = #{studentID}")
-    Integer deleteRecordById(int num, int studentID);
+    @Delete("delete from programrecord where ID = #{ID} and studentID = #{studentID}")
+    Integer deleteRecordById(int ID, int studentID);
 
     @Update("update programrecord set  preSum = #{preSum}, nextPlan = #{nextPlan},dateTea = #{dateTea}, tutorComment = #{tutorComment},isPass = ''  where studentID = #{studentID} and num = #{num}")
     int updateStuRecord(ProgramRecord programRecord);

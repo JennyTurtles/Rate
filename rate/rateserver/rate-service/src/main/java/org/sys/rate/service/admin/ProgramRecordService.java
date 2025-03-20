@@ -23,8 +23,8 @@ public class ProgramRecordService {
     }
 
     //删除记录
-    public Integer deleteRecordById(int num, int studentID) {
-        return programRecordMapper.deleteRecordById(num, studentID);
+    public Integer deleteRecordById(int ID, int studentID) {
+        return programRecordMapper.deleteRecordById(ID, studentID);
     }
 
     public int updateStuRecord(ProgramRecord programRecord) {

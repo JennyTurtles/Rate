@@ -8,7 +8,11 @@
           <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
             添加记录
           </el-button>
+          
         </div>
+      </div>
+      <div style="font-weight: 600; font-size: 14px;">
+        总工作时长: {{ totalWorkHours }}小时
       </div>
     </div>
 
@@ -353,6 +357,7 @@ export default {
       labelPosition: "left",
       title: "",
       title_show: "",
+      totalWorkHours:0,
       isEdit: false,
       isEditable: true, // 新增标志位，控制日期和工作时长是否可编辑
       total: 0, // 现在显示的数据个数
@@ -621,27 +626,40 @@ export default {
     deleteEmp(data) {
       let confirmationMessage = "";
       let alertMessage = "";
-      console.log("Data passed to deleteEmp:", data.index); 
       if(data.index === 1 || data.index === this.total){
-
         confirmationMessage = "此操作将永久删除【第" + data.index + "条记录】, 是否继续?";
       }
       else{
         const before = data.index -1;
         const after = data.index +1;
         confirmationMessage = "删除第" + data.index + "条记录将会影响【第" + before + "条记录的下期计划与第" + after + "条记录的上期安排】是否继续?";
-        alertMessage = "请注意！本次删除操作影响了起始日期为" +this.empsSorted[before-1].endDateStu + "与" + this.empsSorted[after-1].startDateStu + "的两条记录的工作安排！";
+        alertMessage = "提示:请检查是否需要修改起始日期为" +this.empsSorted[before-1].startDateStu + "与" + this.empsSorted[after-1].startDateStu + "的两条记录的工作安排！";
       }
 
       if (confirm(confirmationMessage)) {
-        this.deleteRequest("/programRecord/basic/remove/" + data.num + "/" + data.studentID)
+        if(data.index === 1 || data.index === this.total){
+          this.deleteRequest("/programRecord/basic/remove/" + data.id + "/" + data.studentID)
             .then((resp) => {
               if (resp) {
                 this.dialogVisible = false;
-                alert(alertMessage);
                 this.initEmps();
               }
+            }).catch((error) => {
+              console.error('Error deleting record:', error);
             });
+        }else{
+          this.deleteRequest("/programRecord/basic/remove/" + data.id + "/" + data.studentID)
+              .then((resp) => {
+                if (resp) {
+                  this.dialogVisible = false;
+                  this.initEmps();
+                  alert(alertMessage);
+                }
+              }).catch((error) => {
+                console.error('Error deleting record:', error);
+              });
+        }
+        
       }
     },
     doAddEmp() {
@@ -704,7 +722,7 @@ export default {
             this.getRequest("/programRecord/basic/getBeforeAfterRecordStu", _this.emp)
                 .then((resp) => {
                   if (resp.data!='') {
-                    let alertMessage = "请注意！本次删除操作影响了起始日期为" +_this.empsSorted[resp.data[0]-1].startDateStu + "与" + _this.empsSorted[resp.data[1]-1].startDateStu + "的两条记录的工作安排！";
+                    let alertMessage = "提示：请检查是否需要修改起始日期为" +_this.empsSorted[resp.data[0]-1].startDateStu + "与" + _this.empsSorted[resp.data[1]-1].startDateStu + "的两条记录的工作安排！";
                     if (confirm("此次添加记录会影响【第" + resp.data[0] + "条记录的下期计划与第" + resp.data[1] + "条记录的上期安排】，是否继续?")){
                       this.postRequest1("/programRecord/basic/add", _this.emp).then((resp) => {
                         if (resp) {
@@ -726,8 +744,6 @@ export default {
                 .catch((error) => {
                   console.error(error);
                 });
-
-           
           }
           else {
             alert('请确保所有必填项已填写!');
@@ -788,6 +804,8 @@ export default {
         this.emps = resp.data;
         this.empsSorted = this.emps.slice().sort((a, b) => a.index - b.index); //按照时间升序的数组
         this.total = resp.data.length;
+        // 计算 totalWorkHours
+        this.totalWorkHours = this.emps.reduce((total, emp) => total + emp.workHours, 0);
       } catch (err) {
         console.error(err);
       } finally {

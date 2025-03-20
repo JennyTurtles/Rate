@@ -97,9 +97,9 @@ public class ProgramRecordController {
     }
 
 
-    @DeleteMapping("/remove/{num}/{studentID}")
-    public JsonResult deleteRecordById(@PathVariable("num") int num, @PathVariable("studentID") int studentID) {
-        Integer res = programRecordService.deleteRecordById(num, studentID);
+    @DeleteMapping("/remove/{ID}/{studentID}")
+    public JsonResult deleteRecordById(@PathVariable("ID") int ID, @PathVariable("studentID") int studentID) {
+        Integer res = programRecordService.deleteRecordById(ID, studentID);
         return new JsonResult(res);
     }
 
