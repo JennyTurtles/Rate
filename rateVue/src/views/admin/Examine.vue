@@ -175,7 +175,7 @@
                     @click="showInfo(scope.row)"
                     style="padding: 4px"
                     size="mini"
-            >查看详情</el-button
+            >审核</el-button
             >
             <el-button v-show="scope.row.state == 'adm_pass' ? true : false" @click="changePointMethod(scope.row)" style="padding: 4px"
                        size="mini">
@@ -305,25 +305,22 @@
         </el-form-item>
 
         <el-form-item label="证明材料:" prop="url">
-          <span v-if="emp.url == '' || emp.url == null ? true:false">无证明材料</span>
-          <div v-else>{{ emp.url | fileNameFilter }}</div>
-          <br/>
-        </el-form-item>
-        <div v-show="emp.url == '' || emp.url == null ? false : true" style="margin-left: 80px">
-          <div>
+          <span v-if="emp.url == '' || emp.url == null ? true : false">无证明材料</span>
+          <div v-else>
+            {{ emp.url | fileNameFilter }}
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-            <el-button @click="previewMethod('2')">下载</el-button>
+            <el-button @click="previewMethod('9')">下载</el-button>
           </div>
           <div style="margin-top: 5px">
             <el-image
-                    v-show="false"
-                    ref="previewImage"
-                    style="width: 100px; height: 100px"
-                    :src="previewUrl"
-                    :preview-src-list="previewImageSrcList">
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
             </el-image>
           </div>
-        </div>
+        </el-form-item>
         <br/>
         <div>
           <span>历史操作:</span>
@@ -447,25 +444,22 @@
             ><br/>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
-          <span v-if="currentPatent.url == '' || currentPatent.url == null ? true:false">无证明材料</span>
-          <div v-else>{{ currentPatent.url | fileNameFilter }}</div>
-          <br/>
-        </el-form-item>
-        <div v-show="currentPatent.url == '' || currentPatent.url == null ? false : true" style="margin-left: 80px">
-          <div>
+          <span v-if="currentPatent.url == '' || currentPatent.url == null ? true : false">无证明材料</span>
+          <div v-else>
+            {{ currentPatent.url | fileNameFilter }}
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-            <el-button @click="previewMethod('3')">下载</el-button>
+            <el-button @click="previewMethod('9')">下载</el-button>
           </div>
           <div style="margin-top: 5px">
             <el-image
-                    v-show="false"
-                    ref="previewImage"
-                    style="width: 100px; height: 100px"
-                    :src="previewUrl"
-                    :preview-src-list="previewImageSrcList">
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
             </el-image>
           </div>
-        </div>
+        </el-form-item>
         <br/>
         <div>
           <span>历史操作:</span>
@@ -592,24 +586,22 @@
             ><br/>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url">
-          <span v-if="currentAward.url == '' || currentAward.url == null ? true:false">无证明材料</span>
-          <div v-else>{{ currentAward.url | fileNameFilter }}</div>
-        </el-form-item>
-        <div v-show="currentAward.url == '' || currentAward.url == null ? false : true" style="margin-left: 80px">
-          <div>
+          <span v-if="currentAward.url == '' || currentAward.url == null ? true : false">无证明材料</span>
+          <div v-else>
+            {{ currentAward.url | fileNameFilter }}
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-            <el-button @click="previewMethod('4')">下载</el-button>
+            <el-button @click="previewMethod('9')">下载</el-button>
           </div>
           <div style="margin-top: 5px">
             <el-image
-                    v-show="false"
-                    ref="previewImage"
-                    style="width: 100px; height: 100px"
-                    :src="previewUrl"
-                    :preview-src-list="previewImageSrcList">
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
             </el-image>
           </div>
-        </div>
+        </el-form-item>
         <br/>
         <div>
           <span>历史操作:</span>
@@ -721,26 +713,23 @@
             <span>{{ currentMonograph.point }}</span
             >
         </el-form-item>
-        <el-form-item label="证明材料:">
-          <span v-if="currentMonograph.url == '' || currentMonograph.url == null ? true:false">无证明材料</span>
-          <div v-else>{{ currentMonograph.url | fileNameFilter }}</div>
-        </el-form-item>
-        <div v-show="currentMonograph.url == '' || currentMonograph.url == null ? false : true"
-             style="margin-left: 80px">
-          <div>
+        <el-form-item label="证明材料:" prop="url">
+          <span v-if="currentMonograph.url == '' || currentMonograph.url == null ? true : false">无证明材料</span>
+          <div v-else>
+            {{ currentMonograph.url | fileNameFilter }}
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-            <el-button @click="previewMethod('5')">下载</el-button>
+            <el-button @click="previewMethod('9')">下载</el-button>
           </div>
           <div style="margin-top: 5px">
             <el-image
-                    v-show="false"
-                    ref="previewImage"
-                    style="width: 100px; height: 100px"
-                    :src="previewUrl"
-                    :preview-src-list="previewImageSrcList">
+                v-show="false"
+                ref="previewImage"
+                style="width: 100px; height: 100px"
+                :src="previewUrl"
+                :preview-src-list="previewImageSrcList">
             </el-image>
           </div>
-        </div>
+        </el-form-item>
         <br/>
         <div>
           <span>历史操作:</span>
@@ -848,25 +837,23 @@
             <span>{{ currentProject.rank }}</span
             >
               </el-form-item>
-              <el-form-item label="证明材料:" prop="url">
-                  <span v-if="currentProject.url == '' || currentProject.url == null ? true:false">无证明材料</span>
-                  <div v-else>{{ currentProject.url | fileNameFilter }}</div>
-              </el-form-item>
-              <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
-                  <div>
-                      <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('6')">下载</el-button>
-                  </div>
-                  <div style="margin-top: 5px">
-                      <el-image
-                              v-show="false"
-                              ref="previewImage"
-                              style="width: 100px; height: 100px"
-                              :src="previewUrl"
-                              :preview-src-list="previewImageSrcList">
-                      </el-image>
-                  </div>
+            <el-form-item label="证明材料:" prop="url">
+              <span v-if="currentProject.url == '' || currentProject.url == null ? true : false">无证明材料</span>
+              <div v-else>
+                {{ currentProject.url | fileNameFilter }}
+                <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+                <el-button @click="previewMethod('9')">下载</el-button>
               </div>
+              <div style="margin-top: 5px">
+                <el-image
+                    v-show="false"
+                    ref="previewImage"
+                    style="width: 100px; height: 100px"
+                    :src="previewUrl"
+                    :preview-src-list="previewImageSrcList">
+                </el-image>
+              </div>
+            </el-form-item>
               <br/>
               <div>
                   <span>历史操作:</span>
@@ -973,25 +960,23 @@
             <span>{{ currentProject.rank }}</span
             >
               </el-form-item>
-              <el-form-item label="证明材料:" prop="url">
-                  <span v-if="currentProject.url == '' || currentProject.url == null ? true:false">无证明材料</span>
-                  <div v-else>{{ currentProject.url | fileNameFilter }}</div>
-              </el-form-item>
-              <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
-                  <div>
-                      <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('6')">下载</el-button>
-                  </div>
-                  <div style="margin-top: 5px">
-                      <el-image
-                              v-show="false"
-                              ref="previewImage"
-                              style="width: 100px; height: 100px"
-                              :src="previewUrl"
-                              :preview-src-list="previewImageSrcList">
-                      </el-image>
-                  </div>
+            <el-form-item label="证明材料:" prop="url">
+              <span v-if="currentProject.url == '' || currentProject.url == null ? true : false">无证明材料</span>
+              <div v-else>
+                {{ currentProject.url | fileNameFilter }}
+                <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+                <el-button @click="previewMethod('9')">下载</el-button>
               </div>
+              <div style="margin-top: 5px">
+                <el-image
+                    v-show="false"
+                    ref="previewImage"
+                    style="width: 100px; height: 100px"
+                    :src="previewUrl"
+                    :preview-src-list="previewImageSrcList">
+                </el-image>
+              </div>
+            </el-form-item>
               <br/>
               <div>
                   <span>历史操作:</span>
@@ -1115,25 +1100,23 @@
               }}</span
             ><br/>
               </el-form-item>
-              <el-form-item label="证明材料:" prop="url">
-                  <span v-if="currentProject.url == '' || currentProject.url == null ? true:false">无证明材料</span>
-                  <div v-else>{{ currentProject.url | fileNameFilter }}</div>
-              </el-form-item>
-              <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
-                  <div>
-                      <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('6')">下载</el-button>
-                  </div>
-                  <div style="margin-top: 5px">
-                      <el-image
-                              v-show="false"
-                              ref="previewImage"
-                              style="width: 100px; height: 100px"
-                              :src="previewUrl"
-                              :preview-src-list="previewImageSrcList">
-                      </el-image>
-                  </div>
+            <el-form-item label="证明材料:" prop="url">
+              <span v-if="currentProject.url == '' || currentProject.url == null ? true : false">无证明材料</span>
+              <div v-else>
+                {{ currentProject.url | fileNameFilter }}
+                <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+                <el-button @click="previewMethod('9')">下载</el-button>
               </div>
+              <div style="margin-top: 5px">
+                <el-image
+                    v-show="false"
+                    ref="previewImage"
+                    style="width: 100px; height: 100px"
+                    :src="previewUrl"
+                    :preview-src-list="previewImageSrcList">
+                </el-image>
+              </div>
+            </el-form-item>
               <br/>
               <div>
                   <span>历史操作:</span>
@@ -1252,26 +1235,23 @@
               }}</span
             ><br/>
               </el-form-item>
-              <el-form-item label="证明材料:" prop="url">
-                  <span v-if="currentCompetition.url == '' || currentCompetition.url == null ? true:false">无证明材料</span>
-                  <div v-else>{{ currentCompetition.url | fileNameFilter }}</div>
-              </el-form-item>
-              <div v-show="currentCompetition.url == '' || currentCompetition.url == null ? false : true"
-                   style="margin-left: 80px">
-                  <div>
-                      <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('7')">下载</el-button>
-                  </div>
-                  <div style="margin-top: 5px">
-                      <el-image
-                              v-show="false"
-                              ref="previewImage"
-                              style="width: 100px; height: 100px"
-                              :src="previewUrl"
-                              :preview-src-list="previewImageSrcList">
-                      </el-image>
-                  </div>
+            <el-form-item label="证明材料:" prop="url">
+              <span v-if="currentProject.url == '' || currentProject.url == null ? true : false">无证明材料</span>
+              <div v-else>
+                {{ currentProject.url | fileNameFilter }}
+                <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+                <el-button @click="previewMethod('9')">下载</el-button>
               </div>
+              <div style="margin-top: 5px">
+                <el-image
+                    v-show="false"
+                    ref="previewImage"
+                    style="width: 100px; height: 100px"
+                    :src="previewUrl"
+                    :preview-src-list="previewImageSrcList">
+                </el-image>
+              </div>
+            </el-form-item>
               <br/>
               <div>
                   <span>历史操作:</span>
@@ -1387,25 +1367,23 @@
               <el-form-item label="备  注:">
                   <span>{{ currentDecision.remark }}</span>
               </el-form-item>
-              <el-form-item label="证明材料:" prop="url">
-                  <span v-if="currentDecision.url == '' || currentDecision.url == null ? true:false" >无证明材料</span>
-                  <div v-else>{{ currentDecision.url | fileNameFilter }}</div>
-              </el-form-item>
-              <div v-show="currentDecision.url == '' || currentDecision.url == null ? false : true">
-                  <div>
-                      <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('8')">下载</el-button>
-                  </div>
-                  <div style="margin-top: 5px">
-                      <el-image
-                              v-show="false"
-                              ref="previewImage"
-                              style="width: 100px; height: 100px"
-                              :src="previewUrl"
-                              :preview-src-list="previewImageSrcList">
-                      </el-image>
-                  </div>
+            <el-form-item label="证明材料:" prop="url">
+              <span v-if="currentDecision.url == '' || currentDecision.url == null ? true : false">无证明材料</span>
+              <div v-else>
+                {{ currentDecision.url | fileNameFilter }}
+                <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+                <el-button @click="previewMethod('9')">下载</el-button>
               </div>
+              <div style="margin-top: 5px">
+                <el-image
+                    v-show="false"
+                    ref="previewImage"
+                    style="width: 100px; height: 100px"
+                    :src="previewUrl"
+                    :preview-src-list="previewImageSrcList">
+                </el-image>
+              </div>
+            </el-form-item>
               <br />
               <div >
                   <span>历史操作:</span>
@@ -1521,25 +1499,23 @@
               }}</span
             ><br/>
               </el-form-item>
-              <el-form-item label="证明材料:" prop="url">
-                  <span v-if="currentProduct.url == '' || currentProduct.url == null ? true:false">无证明材料</span>
-                  <div v-else>{{ currentProduct.url | fileNameFilter }}</div>
-              </el-form-item>
-              <div v-show="currentProduct.url == '' || currentProduct.url == null ? false : true" style="margin-left: 80px">
-                  <div>
-                      <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('9')">下载</el-button>
-                  </div>
-                  <div style="margin-top: 5px">
-                      <el-image
-                              v-show="false"
-                              ref="previewImage"
-                              style="width: 100px; height: 100px"
-                              :src="previewUrl"
-                              :preview-src-list="previewImageSrcList">
-                      </el-image>
-                  </div>
+            <el-form-item label="证明材料:" prop="url">
+              <span v-if="currentProduct.url == '' || currentProduct.url == null ? true : false">无证明材料</span>
+              <div v-else>
+                {{ currentProduct.url | fileNameFilter }}
+                <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+                <el-button @click="previewMethod('9')">下载</el-button>
               </div>
+              <div style="margin-top: 5px">
+                <el-image
+                    v-show="false"
+                    ref="previewImage"
+                    style="width: 100px; height: 100px"
+                    :src="previewUrl"
+                    :preview-src-list="previewImageSrcList">
+                </el-image>
+              </div>
+            </el-form-item>
               <br/>
               <div>
                   <span>历史操作:</span>
@@ -1659,25 +1635,23 @@
               }}</span
             ><br/>
               </el-form-item>
-              <el-form-item label="证明材料:" prop="url">
-                  <span v-if="currentStandard.url == '' || currentStandard.url == null ? true:false">无证明材料</span>
-                  <div v-else>{{ currentStandard.url | fileNameFilter }}</div>
-              </el-form-item>
-              <div v-show="currentStandard.url == '' || currentStandard.url == null ? false : true" style="margin-left: 80px">
-                  <div>
-                      <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                      <el-button @click="previewMethod('10')">下载</el-button>
-                  </div>
-                  <div style="margin-top: 5px">
-                      <el-image
-                              v-show="false"
-                              ref="previewImage"
-                              style="width: 100px; height: 100px"
-                              :src="previewUrl"
-                              :preview-src-list="previewImageSrcList">
-                      </el-image>
-                  </div>
+            <el-form-item label="证明材料:" prop="url">
+              <span v-if="currentStandard.url == '' || currentStandard.url == null ? true : false">无证明材料</span>
+              <div v-else>
+                {{ currentStandard.url | fileNameFilter }}
+                <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
+                <el-button @click="previewMethod('9')">下载</el-button>
               </div>
+              <div style="margin-top: 5px">
+                <el-image
+                    v-show="false"
+                    ref="previewImage"
+                    style="width: 100px; height: 100px"
+                    :src="previewUrl"
+                    :preview-src-list="previewImageSrcList">
+                </el-image>
+              </div>
+            </el-form-item>
               <br/>
               <div>
                   <span>历史操作:</span>
@@ -1954,7 +1928,7 @@
           indicatorId: ''
         },
         // 对话框显示状态
-        dialogVisible: false,
+
         dialogVisible_showInfo: false,
         // 学术论文查看详情按钮
         dialogVisible_showInfo_Paper: false,

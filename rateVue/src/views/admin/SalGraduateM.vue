@@ -15,6 +15,7 @@
     >
       <el-button icon="el-icon-plus" type="success">导入学生</el-button>
     </el-upload>
+
     </div>
     <div style="margin-top: 10px">
       <span>
@@ -53,6 +54,7 @@
         </el-select>
       </div>
       <el-button @click="filterBtn" style="margin-left: 30px;" type="primary">筛选</el-button>
+      <el-button icon="el-icon-download" type="primary" @click="exportExcel">导出数据</el-button>
     </div>
     <div style="margin-top: 10px">
       <el-table
@@ -60,13 +62,13 @@
         <el-table-column prop="stuNumber" label="学号" align="center"></el-table-column>
         <el-table-column prop="name" label="姓名" align="center" width="80px"></el-table-column>
         <el-table-column prop="username" label="用户名" align="center"></el-table-column>
-        <el-table-column prop="telephone" label="电话" align="center" width="80px"></el-table-column>
-        <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
+
         <el-table-column prop="year" label="入学年份" align="center" width="70px"></el-table-column>
         <el-table-column prop="studentType" label="学生类别" align="center"></el-table-column>
         <el-table-column prop="point" label="积分" align="center" width="60px"></el-table-column>
+        <el-table-column prop="point1" label="达标" align="center" width="70px"></el-table-column>
         <el-table-column prop="teachers.name" label="导师姓名" align="center" width="80px"></el-table-column>
-        <el-table-column  label="操作" align="center" width="180px">
+        <el-table-column  label="操作" align="center" width="240px">
           <template slot-scope="scope">
             <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary" style="padding: 4px">编辑</el-button>
             <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)" style="padding: 4px">删除</el-button>
@@ -176,7 +178,8 @@ export default {
         telephone:'',
         email:'',
         studentType:'',
-        point:''
+        point:'',
+        point1:''
       },
     }
   },
@@ -206,6 +209,48 @@ export default {
       })
       window.open(url.href, '_blank')
     },
+    postRequest(url, data) {
+      return axios.post(url, data, {
+        headers: {
+          'token': this.user.token
+        },
+        // responseType: 'blob' // 确保响应类型为 Blob
+      });
+    },
+
+
+    exportExcel() {
+      // 获取当前页面的数据
+      const data = this.graduateStudents;
+      if (data.length === 0) {
+        this.$message.warning('没有数据可以导出');
+        return;
+      }
+
+      // 调用后端导出接口
+      this.postRequest('/graduatestudentM/basic/exportGraduateData', data).then((response) => {
+        if (response) {
+          // 创建一个 Blob 对象并生成下载链接
+          const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          const link = document.createElement('a');
+          link.href = window.URL.createObjectURL(blob);
+          link.download = 'graduate_students.xlsx';
+          link.click();
+          window.URL.revokeObjectURL(link.href);
+        } else {
+          this.$message.error('导出失败，未收到文件数据');
+        }
+      }).catch((error) => {
+        console.error(error);
+        this.$message.error('导出失败');
+      });
+    },
+
+
+
+
+
+
     searchTeaNameMethod(val) {
       if(val) {
         if(this.dialogEdit){

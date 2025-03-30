@@ -12,6 +12,7 @@
         <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
         <result column="studentType" property="studentType" jdbcType="VARCHAR"/>
         <result column="point" property="point" jdbcType="VARCHAR"/>
+        <result column="point1" property="point1" jdbcType="VARCHAR"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
         <result property="email" column="email" jdbcType="VARCHAR"/>
         <result property="role" column="role" jdbcType="VARCHAR"/>
@@ -109,6 +110,18 @@
                                  class=#{className,jdbcType=VARCHAR}
         where studentID=#{studentID,jdbcType=INTEGER};
     </update>
+    <update id="updatePoint1">
+    UPDATE graduatestudent
+    SET point1 = CASE
+    WHEN studentType = '专硕' AND point &lt; 6 THEN 6 - point
+    WHEN studentType = '专硕' AND point &gt;= 6 THEN 0
+    WHEN studentType = '学硕' AND point &lt; 4 THEN 4 - point
+    WHEN studentType = '学硕' AND point &gt;= 4 THEN 0
+    ELSE point1
+    END
+    WHERE studentID = #{studentID}
+   </update>
+
     <select id="getTeaNamesBySelect" resultType="org.sys.rate.model.Teachers">
         select t.*
         from teacher t

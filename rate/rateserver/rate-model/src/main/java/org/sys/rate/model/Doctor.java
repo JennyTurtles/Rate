@@ -12,6 +12,9 @@ public class Doctor extends Student{
     private Integer tutorID;
     private String studentType;
     private String point;
+    private String point1;
+
+
     private String specialty;
     private String className;
 

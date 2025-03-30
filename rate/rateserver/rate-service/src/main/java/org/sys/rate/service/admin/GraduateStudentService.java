@@ -231,6 +231,18 @@ public class GraduateStudentService {
         }
         return error;
     }
+    public RespBean updatePoint1(Integer studentID) {
+        try {
+            int res = graduateStudentMapper.updatePoint1(studentID);
+            if (res > 0) {
+                return RespBean.ok("更新成功");
+            } else {
+                return RespBean.error("更新失败");
+            }
+        } catch (Exception e) {
+            return RespBean.error("更新失败");
+        }
+    }
     public List<String> checkGraduateStudent(List<UnderGraduate> underList, int rowIndex) {
         List<String> jobTeas = new ArrayList<>(); // 记录导师的工号
         List<String> nameTeas = new ArrayList<>(); // 记录导师的姓名

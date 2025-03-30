@@ -86,7 +86,7 @@ public class MonographService {
     }
 
     //    修改科研学术专著和教材状态
-    public int editState(String state, Long ID) throws MessagingException {
+    public int editState(String state, Long ID)  {
         Monograph monograph = monographMapper.getById(Math.toIntExact(ID));
         mailToStuService.sendStuMail(state, monograph, null, "学术专著和教材");
         monograph.setState(state);

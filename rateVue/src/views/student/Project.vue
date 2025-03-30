@@ -62,7 +62,7 @@
               >
                 {{
                   scope.row.status == "commit"
-                      ? "已提交"
+                      ? "学生提交"
                       : scope.row.status == "tea_pass"
                           ? "导师通过"
                           : scope.row.status == "tea_reject"
@@ -150,7 +150,7 @@
         <el-form-item label="论文状态:">
               <span>{{
                   emp.state == "commit"
-                      ? "已提交"
+                      ? "学生提交"
                       : emp.state == "tea_pass"
                           ? "导师通过"
                           : emp.state == "tea_reject"
@@ -293,7 +293,7 @@
         <el-form-item label="成果状态:" prop="state">
             <span>{{
                 currentPatent.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : currentPatent.state == "tea_pass"
                         ? "导师通过"
                         : currentPatent.state == "tea_reject"
@@ -394,7 +394,7 @@
         <el-form-item label="成果状态:">
             <span>{{
                 currentAward.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : currentAward.state == "tea_pass"
                         ? "导师通过"
                         : currentAward.state == "tea_reject"
@@ -662,7 +662,7 @@
         <el-form-item label="成果状态:" prop="state">
             <span>{{
                 currentProject.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : currentProject.state == "tea_pass"
                         ? "导师通过"
                         : currentProject.state == "tea_reject"
@@ -754,7 +754,7 @@
         <el-form-item label="成果状态:">
             <span>{{
                 currentCompetition.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : currentCompetition.state == "tea_pass"
                         ? "导师通过"
                         : currentCompetition.state == "tea_reject"
@@ -842,7 +842,7 @@
         </el-form-item>
         <el-form-item label="成果状态:">
             <span>{{currentDecision.state=="commit"
-                ? "已提交"
+                ? "学生提交"
                 :currentDecision.state=="tea_pass"
                     ? "导师通过"
                     :currentDecision.state=="tea_reject"
@@ -934,7 +934,7 @@
         <el-form-item label="成果状态:" prop="state">
             <span>{{
                 currentProduct.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : currentProduct.state == "tea_pass"
                         ? "导师通过"
                         : currentProduct.state == "tea_reject"
@@ -1027,7 +1027,7 @@
         <el-form-item label="成果状态:" prop="state">
             <span>{{
                 currentStandard.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : currentStandard.state == "tea_pass"
                         ? "导师通过"
                         : currentStandard.state == "tea_reject"
@@ -1132,6 +1132,7 @@
               style="width:80%"
               prefix-icon="el-icon-edit"
               v-model="currentEmp.author"
+              @blur="judgeWriter()"
               placeholder="请输入作者,如有多个用分号分隔"
           ></el-input>
         </el-form-item>
@@ -1263,6 +1264,7 @@
               style="width:80%"
               prefix-icon="el-icon-edit"
               v-model="currentPatentCopy.author"
+              @blur="judgePatentee()"
               placeholder="请输入参与人,如有多个用分号按顺位分隔"
           ></el-input>
         </el-form-item>
@@ -1374,6 +1376,7 @@
               style="width: 80%"
               prefix-icon="el-icon-edit"
               v-model="currentAwardCopy.author"
+              @blur="judgeMember()"
               placeholder="请输入获奖人,如有多个用分号分隔"
           ></el-input>
         </el-form-item>
@@ -1446,6 +1449,7 @@
               style="width: 80%"
               prefix-icon="el-icon-edit"
               v-model="currentMonographCopy.author"
+              @blur="judgeMonograph()"
               placeholder="请输入完成人,如有多个用分号分隔"
           ></el-input>
         </el-form-item>
@@ -1555,6 +1559,7 @@
               style="width: 80%"
               prefix-icon="el-icon-edit"
               v-model="currentProjectCopy.author"
+              @blur="judgeResearch()"
               placeholder="请输入参与人,如有多个用分号分隔"
           ></el-input>
         </el-form-item>
@@ -1666,6 +1671,7 @@
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
+              @blur="judgeProjectee()"
               v-model="currentProjectCopy.author"
               placeholder="请输入完成人,如有多个用分号按顺位分隔"
           ></el-input>
@@ -1772,6 +1778,7 @@
               size="mini"
               style="width: 80%"
               prefix-icon="el-icon-edit"
+              @blur="judgeAcademic()"
               v-model="currentCompetitionCopy.author"
               placeholder="请输入获奖人,如有多个用分号分隔"
           ></el-input>
@@ -1881,6 +1888,7 @@
               style="width: 80%"
               prefix-icon="el-icon-edit"
               v-model="currentDecisionCopy.author"
+              @blur="judgeDecision()"
               placeholder="请输入制定人,如有多个用分号分隔"
           ></el-input>
         </el-form-item>
@@ -1951,6 +1959,7 @@
               style="width:80%"
               prefix-icon="el-icon-edit"
               v-model="currentProductCopy.author"
+              @blur ="judgeProductee()"
               placeholder="请输入完成人,如有多个用分号按顺位分隔"
           ></el-input>
         </el-form-item>
@@ -2025,6 +2034,7 @@
               style="width:80%"
               prefix-icon="el-icon-edit"
               v-model="currentStandardCopy.author"
+              @blur="judgeStandardee()"
               placeholder="请输入制定人,如有多个用分号按顺位分隔"
           ></el-input>
         </el-form-item>
@@ -2665,7 +2675,7 @@ export default {
     },
     dateFormatFunc(date) {
       // 假设这是一个日期格式化的方法
-      return date.toISOString().replace('T', ' ').slice(0, 23) + isoString.slice(19);
+        return date.toISOString().replace('T', ' ').slice(0, 19);
     },
     // 学术论文
     deletePaperEmpMethod(data) {
@@ -3202,7 +3212,8 @@ export default {
                 if (resp) {
                   this.dialogVisible_publication_AcademicCompetition = false;
                   this.$message.success('编辑成功！')
-                  this.doAddOper("commit", this.currentCompetitionCopy.id);
+                  // this.doAddOper("commit", this.currentCompetitionCopy.id);
+                  this.doAddOperType("commit", this.currentCompetitionCopy.id,"学科竞赛");
                   this.initEmps();
                 }
               }
@@ -3291,16 +3302,470 @@ export default {
         this.disabledSelectDecisionType = true;
       }
     },
+      judgePatentee(){//输入作者框 失去焦点触发事件
+          var author = this.currentPatentCopy.author;
+          if(!author || author === '') {
+              this.isAuthorIncludeSelf = false;
+              return;
+          }
+          //或许可以去掉
+          var isalph = false//判断输入中是否有英文字母
+          for(var i in author){
+              var asc = author.charCodeAt(i)
+              if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
+                  isalph = true
+                  break
+              }
+          }
+          var pateneeList = null
+          var info = this.user;
+          pateneeList = author.split(/[;；]/)
+          pateneeList = pateneeList.map(item => {
+              return item && item.replace(/\s*/g,"");
+          }).filter(v => {
+              return v
+          })
+          // 判断自己在不在其中
+          if(pateneeList.indexOf(info.name) == -1){//不在
+              this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+              this.isAuthorIncludeSelf = false;
+              this.zeroPointReason = '参与人未包含自己'
+              this.patentPoint = 0;
+          } else { //自己在里面
+              if(this.currentSelectedIndicator) {
+                  this.patentPoint = this.currentSelectedIndicator.score;
+                  this.zeroPointReason = ''
+              }else {
+                  this.patentPoint = '';
+                  this.zeroPointReason = '';
+              }
+              this.isAuthorIncludeSelf = true;
+          }
+          this.currentPatentCopy.total = pateneeList.length;
+          this.currentPatentCopy.rank = pateneeList.indexOf(info.name) + 1;
+      },
+      judgeProductee(){//输入作者框 失去焦点触发事件
+          var val = this.currentProductCopy.author;
+          if(!val || val === '') {
+              this.isAuthorIncludeSelf = false;
+              return;
+          }
+          var isalph = false//判断输入中是否有英文字母
+          for(var i in val){
+              var asc = val.charCodeAt(i)
+              if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
+                  isalph = true
+                  break
+              }
+          }
+          var memberList = null
+          var info = this.user;
+          memberList = val.split(/[;；]/)
+          memberList = memberList.map(item => {
+              return item && item.replace(/\s*/g,"");
+          }).filter(v => {
+              return v
+          })
+          //不止一个作者 判断自己在不在其中
+          if(memberList.indexOf(info.name) == -1){//不在 并且没有英文单词
+              this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+              this.isAuthorIncludeSelf = false;
+              this.zeroPointReason = '参与人未包含自己'
+              this.productPoint = 0;
+          } else { //自己在里面
+              if(this.currentSelectedIndicator) {
+                  this.productPoint = this.currentSelectedIndicator.score;
+                  this.zeroPointReason = '';
+              }else {
+                  this.productPoint = '';
+                  this.zeroPointReason = '';
+              }
+              this.isAuthorIncludeSelf = true;
+          }
+          this.currentProductCopy.total = memberList.length;
+          this.currentProductCopy.rank = memberList.indexOf(info.name) + 1;
+      },
+      judgeStandardee(){//输入作者框 失去焦点触发事件
+          var val = this.currentStandardCopy.author;
+          if(!val || val === '') {
+              this.isAuthorIncludeSelf = false;
+              return;
+          }
+          var isalph = false//判断输入中是否有英文字母
+          for(var i in val){
+              var asc = val.charCodeAt(i)
+              if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
+                  isalph = true
+                  break
+              }
+          }
+          var memberList = null
+          var info = this.user;
+          memberList = val.split(/[;；]/)
+          memberList = memberList.map(item => {
+              return item && item.replace(/\s*/g,"");
+          }).filter(v => {
+              return v
+          })
+          //不止一个作者 判断自己在不在其中
+          if(memberList.indexOf(info.name) == -1){//不在 并且没有英文单词
+              this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+              this.isAuthorIncludeSelf = false;
+              this.zeroPointReason = '参与人未包含自己'
+              this.standardPoint = 0;
+          } else { //自己在里面
+              if(this.currentSelectedIndicator) {
+                  this.standardPoint = this.currentSelectedIndicator.score;
+                  this.zeroPointReason = '';
+              }else {
+                  this.standardPoint = '';
+                  this.zeroPointReason = '';
+              }
+              this.isAuthorIncludeSelf = true;
+          }
+          this.currentStandardCopy.total = memberList.length;
+          this.currentStandardCopy.rank = memberList.indexOf(info.name) + 1;
+      },
+
+      judgeDecision(){//输入作者框 失去焦点触发事件
+          var val = this.currentDecisionCopy.author;
+          if(!val || val === '') {
+              this.isAuthorIncludeSelf = false;
+              return;
+          }
+          var isalph = false//判断输入中是否有英文字母
+          for(var i in val){
+              var asc = val.charCodeAt(i)
+              if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
+                  isalph=true
+                  break
+              }
+          }
+          var num = null
+          var info = this.user;
+          num = val.split(/[;；]/)
+          num = num.map(item => {
+              return item && item.replace(/\s*/g,"");
+          }).filter(v => {
+              return v
+          })
+          //判断自己在不在其中
+          if(num.indexOf(info.name) == -1){//不在 并且没有英文单词
+              this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+              this.isAuthorIncludeSelf = false;
+              this.zeroPointReason = '参与人未包含自己'
+              this.decisionPoint = 0;
+          } else {
+              if(JSON.stringify(this.currentIndicator) == '{}') { //未选择指标点
+                  this.decisionPoint = 0;
+                  this.zeroPointReason = '请选择指标点';
+              }else {
+                  this.decisionPoint = this.currentIndicator.score;
+                  this.zeroPointReason = '';
+              }
+              this.isAuthorIncludeSelf = true;
+          }
+          this.currentDecisionCopy.total = num.length
+          this.currentDecisionCopy.rank = num.indexOf(info.name) + 1
+      },
+      judgeAcademic(){//输入作者框 失去焦点触发事件
+          var author = this.currentCompetitionCopy.author;
+          if(!author || author === '') {
+              this.isAuthorIncludeSelf = false;
+              return;
+          }
+          var isalph = false//判断输入中是否有英文字母
+          for(var i in author){
+              var asc = author.charCodeAt(i)
+              if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
+                  isalph = true
+                  break
+              }
+          }
+          var num = null
+          var info = this.user;
+          num = author.split(/[;；]/)
+          num = num.map(item => {
+              return item && item.replace(/\s*/g,"");
+          }).filter(v => {
+              return v
+          })
+          //不止一个作者 判断自己在不在其中
+          if(num.indexOf(info.name) == -1){//不在 并且没有英文单词
+              this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+              this.isAuthorIncludeSelf = false;
+              this.zeroPointReason = '参与人未包含自己'
+              this.competitionPoint = 0;
+          }else { //自己在里面
+              this.judgeRankScore(num.indexOf(info.name) + 1);
+              this.isAuthorIncludeSelf = true;
+          }
+          this.currentCompetitionCopy.total = num.length;
+          this.currentCompetitionCopy.rank = num.indexOf(info.name) + 1;
+      },
+      judgeRankScore(rank) {
+          if(JSON.stringify(this.selectedIndicator) === '{}') {
+              this.competitionPoint = 0; //输入作者，但未选择指标点
+              this.zeroPointReason = '请选择指标点'
+          }
+          else { //指标点已选择，再次修改作者列表
+              const indicatorRankN = this.selectedIndicator.rankN;
+              if(rank > indicatorRankN && indicatorRankN > 0) {
+                  this.competitionPoint = 0;
+                  this.zeroPointReason = `获奖排名需在前${this.selectedIndicator.rankN}名以内`
+              }
+              else {
+                  this.competitionPoint = this.selectedIndicator.score;
+                  this.zeroPointReason = ''
+              }
+          }
+      },
+      judgeProjectee(){//输入作者框 失去焦点触发事件
+          var val = this.currentProjectCopy.author;
+          if(!val || val === '') {
+              this.isAuthorIncludeSelf = false;
+              return;
+          }
+          var isalph = false//判断输入中是否有英文字母
+          for(var i in val){
+              var asc = val.charCodeAt(i)
+              if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
+                  isalph = true
+                  break
+              }
+          }
+          var memberList = null
+          var info = this.user;
+          memberList = val.split(/[;；]/)
+          memberList = memberList.map(item => {
+              return item && item.replace(/\s*/g,"");
+          }).filter(v => {
+              return v
+          })
+          //不止一个作者 判断自己在不在其中
+          if(memberList.indexOf(info.name) == -1){//不在 并且没有英文单词
+              this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+              this.isAuthorIncludeSelf = false;
+              this.zeroPointReason = '参与人未包含自己'
+              this.projectPoint = 0;
+          } else { //自己在里面
+              if(this.currentSelectedIndicator) {
+                  this.projectPoint = this.currentSelectedIndicator.score;
+                  this.zeroPointReason = '';
+              }else {
+                  this.projectPoint = '';
+                  this.zeroPointReason = '';
+              }
+              this.isAuthorIncludeSelf = true;
+          }
+          this.currentProjectCopy.total = memberList.length;
+          this.currentProjectCopy.rank = memberList.indexOf(info.name) + 1;
+      },
+      judgeResearch(){//输入作者框 失去焦点触发事件
+          var val = this.currentProjectCopy.author;
+          if(!val || val === '') {
+              this.isAuthorIncludeSelf = false;
+              return;
+          }
+          var isalph = false//判断输入中是否有英文字母
+          for(var i in val){
+              var asc = val.charCodeAt(i)
+              if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
+                  isalph = true
+                  break
+              }
+          }
+          var num = null
+          var info = this.user;
+          num = val.split(/[;；]/)
+          num = num.map(item => {
+              return item && item.replace(/\s*/g,"");
+          }).filter(v => {
+              return v
+          })
+          //不止一个作者 判断自己在不在其中
+          if(num.indexOf(info.name) == -1){//不在 并且没有英文单词
+              this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+              this.isAuthorIncludeSelf = false;
+              this.zeroPointReason = '参与人未包含自己'
+              this.projectPoint = 0;
+          } else { //自己在里面
+              if(JSON.stringify(this.currentIndicator) == '{}') { //项目类别是空白
+                  this.projectPoint = 0;
+                  this.zeroPointReason = '请输入项目类别';
+              }else { //选择了项目类别
+                  this.projectPoint = this.currentIndicator.score;
+                  this.zeroPointReason = '';
+              }
+              this.isAuthorIncludeSelf = true;
+          }
+          this.currentProjectCopy.total = num.length;
+          this.currentProjectCopy.rank = num.indexOf(info.name) + 1;
+      },
+      judgeMonograph(){//输入作者框 失去焦点触发事件
+          var author = this.currentMonographCopy.author;
+          if(!author || author === '') {
+              this.isAuthorIncludeSelf = false;
+              return;
+          }
+          var isalph = false//判断输入中是否有英文字母
+          for(var i in author){
+              var asc = author.charCodeAt(i)
+              if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
+                  isalph=true
+                  break
+              }
+          }
+          var num = null
+          var info = this.user;
+          num = author.split(/[;；]/)
+          num = num.map(item => {
+              return item && item.replace(/\s*/g,"");
+          }).filter(v => {
+              return v
+          })
+          //判断自己在不在其中
+          if(num.indexOf(info.name) == -1){//不在 并且没有英文单词
+              this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+              this.isAuthorIncludeSelf = false;
+              this.zeroPointReason = '参与人未包含自己'
+              this.monographPoint = 0;
+          } else {
+              //作者列表的rank大于规定的rankN，积分为0
+              this.judgeRankScore(num.indexOf(info.name) + 1)
+              this.isAuthorIncludeSelf = true;
+          }
+          this.currentMonographCopy.total = num.length
+          this.currentMonographCopy.rank = num.indexOf(info.name) + 1
+      },
+      judgeMember(){//输入作者框 失去焦点触发事件
+          var author = this.currentAwardCopy.author;
+          if(!author || author === '') {
+              this.isAuthorIncludeSelf = false;
+              return;
+          }
+          var isalph = false//判断输入中是否有英文字母
+          for(var i in author){
+              var asc = author.charCodeAt(i)
+              if(asc >= 65 && asc <= 90 || asc >= 97 && asc <= 122){
+                  isalph=true
+                  break
+              }
+          }
+          var memberList = null
+          var info = this.user;
+          memberList = author.split(/[;；]/)
+          memberList = memberList.map(item => {
+              return item && item.replace(/\s*/g,"");
+          }).filter(v => {
+              return v
+          })
+          //判断自己在不在其中
+          if(memberList.indexOf(info.name) == -1){//不在 并且没有英文单词
+              this.$message.error("您的姓名【 " + info.name + " 】不在列表中！请确认作者列表中您的姓名为【"  + info.name + " 】，注意拼写要完全正确。多个人员之间用分号分割");
+              this.isAuthorIncludeSelf = false;
+              this.zeroPointReason = '参与人未包含自己'
+              this.awardPoint = 0;
+          }else {
+              //作者列表的rank大于规定的rankN，积分为0
+              this.judgeRankScore(memberList.indexOf(info.name) + 1);
+              this.isAuthorIncludeSelf = true;
+          }
+          this.currentAwardCopy.total = memberList.length
+          this.currentAwardCopy.rank = memberList.indexOf(info.name) + 1
+      },
+
+      judgeWriter() {
+          //输入作者框 失去焦点触发事件
+          var val = this.currentEmp.author;
+          if (val == "" || val == null) {
+              // 作者列表为空
+              this.isAuthorIncludeSelf = false;
+              this.paperPoint = 0; // 确保设置为0
+              return;
+          }
+          var isalph = false; //判断输入中是否有英文字母
+          for (var i in val) {
+              var asc = val.charCodeAt(i);
+              if ((asc >= 65 && asc <= 90) || (asc >= 97 && asc <= 122)) {
+                  isalph = true;
+                  break;
+              }
+          }
+          var num = null;
+          var info = this.user;
+          num = val.split(/[;；]/);
+          num = num
+              .map((item) => {
+                  return item && item.replace(/\s*/g, "");
+              })
+              .filter((v) => {
+                  return v;
+              });
+          //判断自己在不在其中
+          if (num.indexOf(info.name) == -1) {
+              //不在
+              this.$message.error(
+                  "您的姓名【 " +
+                  info.name +
+                  " 】不在列表中！请确认作者列表中您的姓名为【" +
+                  info.name +
+                  " 】，注意拼写要完全正确。多个人员之间用分号分割"
+              );
+              this.isAuthorIncludeSelf = false;
+              this.paperPoint = 0;
+          } else {
+              //自己在里面 自己是一作不用做任何判断 导师无所谓
+              if (num.indexOf(info.name) > 0) {
+                  //自己不是一作
+                  if (
+                      num.indexOf(info.teacherName) > 0 ||
+                      num.indexOf(info.teacherName) == -1
+                  ) {
+                      //导师在作者列表中且老师不是一作, 或者老师不在列表中
+                      this.$confirm(
+                          "第一作者不是导师【 " + info.teacherName + " 】！积分将为【0】分",
+                          "提示",
+                          {
+                              confirmButtonText: "关闭",
+                              type: "warning",
+                              showCancelButton: false,
+                          }
+                      ).then();
+                      this.paperPoint = 0;
+                  } else if (
+                      num.indexOf(info.teacherName) == 0 &&
+                      num.indexOf(info.name) == 1
+                  ) {
+                      //导师是一作，自己是二作
+                      this.paperPoint = this.selectedPublicationScore;
+                  } else {
+                      this.paperPoint = 0;
+                  }
+              } else if (num.indexOf(info.name) == 0) {
+                  this.paperPoint = this.selectedPublicationScore;
+              }
+              this.isAuthorIncludeSelf = true;
+          }
+          this.currentEmp.total = num.length;
+          if (num.indexOf(info.teacherName) > -1) {
+              //去掉导师的排名
+              num.splice(num.indexOf(info.teacherName), 1);
+          }
+          this.currentEmp.rank = num.indexOf(info.name) + 1;
+      },
     editPaper(params) {
       this.$refs["currentEmp"].validate(async (valid) => {
         if (valid) {
+            //TODO
             console.log("======"+params)
             console.log("======3123133"+this.currentEmp)
           params.ID = this.currentEmp.id;
           this.postRequest1("/paper/basic/edit", params).then((resp) => {
             if (resp) {
               this.dialogVisible_publication_Paper = false;
-              this.doAddOper("commit", this.currentEmp.id);
+              // this.doAddOper("commit", this.currentEmp.id);
+              this.doAddOperType("commit", this.currentEmp.id,"学术论文","论文");
               this.initEmps();
 
             }
@@ -3317,6 +3782,17 @@ export default {
       await this.initEmps();
       this.$message.success('操作成功');
     },
+
+      async doAddOperType(state, paperID,type,name) {
+          this.oper.state = state
+          this.oper.prodId = paperID
+          this.oper.operationName = "修改"+name
+          this.oper.prodType = type
+          this.oper.time = this.dateFormatFunc(new Date());
+          await this.postRequest1("/oper/basic/add", this.oper)
+          await this.initEmps();
+          this.$message.success('操作成功');
+      },
     doAddEmp() {//确定添加论文
       const params = {};
       params.name = this.currentEmp.name;
@@ -3420,7 +3896,8 @@ export default {
               (resp) => {
                 if (resp) {
                   this.dialogVisible_publication_Patent = false;
-                  this.doAddOper("commit", this.currentPatentCopy.id);
+                  // this.doAddOper("commit", this.currentPatentCopy.id);
+                  this.doAddOperType("commit", this.currentPatentCopy.id,"授权专利","专利");
                   this.$message.success('编辑成功！')
                   this.initEmps();
                 }
@@ -3485,7 +3962,8 @@ export default {
                 if (resp) {
                   this.dialogVisible_publication_ResearchAward = false;
                   this.$message.success('编辑成功！')
-                  this.doAddOper("commit", this.currentAwardCopy.id);
+                  // this.doAddOper("commit", this.currentAwardCopy.id);
+                  this.doAddOperType("commit", this.currentAwardCopy.id,"科研获奖","科研获奖");
                 }
               }
           );
@@ -3546,7 +4024,8 @@ export default {
                 if (resp) {
                   this.dialogVisible_publication_AcademicMonograph = false;
                   this.$message.success('编辑成功！')
-                  this.doAddOper("commit", this.currentMonographCopy.id);
+                  // this.doAddOper("commit", this.currentMonographCopy.id);
+                  this.doAddOperType("commit", this.currentMonographCopy.id,"学术专著和教材","学术专著和教材");
                   this.initEmps();
                 }
               }
@@ -4108,7 +4587,8 @@ export default {
                 if (resp) {
                   this.dialogVisible_publication_Decision = false;
                   this.$message.success('编辑成功！')
-                  this.doAddOper("commit", this.currentDecisionCopy.id);
+                  // this.doAddOper("commit", this.currentDecisionCopy.id);
+                  this.doAddOperType("commit", this.currentDecisionCopy.id,"决策咨询","决策咨询");
                   this.initEmps();
                 }
               }
@@ -4175,7 +4655,8 @@ export default {
               (resp) => {
                 if (resp) {
                   this.dialogVisible_publication_Product = false;
-                  this.doAddOper("commit", this.currentProductCopy.id);
+                  // this.doAddOper("commit", this.currentProductCopy.id);
+                  this.doAddOperType("commit", this.currentProductCopy.id,"产品应用","产品应用");
                   this.$message.success('编辑成功！')
                   this.initEmps();
                 }
@@ -4251,7 +4732,8 @@ export default {
                 if (resp) {
                   this.dialogVisible_publication_ResearchProject = false;
                   this.$message.success('编辑成功！')
-                  this.doAddOper("commit", this.currentProjectCopy.id);
+                  // this.doAddOper("commit", this.currentProjectCopy.id);
+                  this.doAddOperType("commit", this.currentProjectCopy.id,"纵向科研项目","纵向科研项目");
                   this.initEmps();
                 }
               }
@@ -4315,6 +4797,7 @@ export default {
                 if (resp) {
                   this.dialogVisible_publication_Standard = false;
                   this.doAddOper("commit", this.currentStandardCopy.id);
+                  this.doAddOperType("commit", this.currentStandardCopy.id,"制定标准","制定标准");
                   this.$message.success('编辑成功！')
                   this.initEmps();
                 }
@@ -4331,7 +4814,8 @@ export default {
               (resp) => {
                 if (resp) {
                   this.dialogVisible_publication_HorizontalResearchProject = false;
-                  this.doAddOper("commit", this.currentProjectCopy.id);
+                  // this.doAddOper("commit", this.currentProjectCopy.id);
+                  this.doAddOperType("commit", this.currentProjectCopy.id,"横向科研项目","横向科研项目");
                   this.$message.success('编辑成功！')
                   this.initEmps();
 

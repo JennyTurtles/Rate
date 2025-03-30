@@ -42,8 +42,19 @@ public interface DoctorMapper {
     @Update("UPDATE doctor SET point = point + #{score} WHERE studentID = #{stuID}")
     public int updateScore(Long stuID,Long score);
 
+
     @Update("UPDATE doctor SET point = point - #{score} WHERE studentID = #{stuID}")
     public int updateScoreSub(Long stuID,Long score);
 
+    @Update("UPDATE doctor SET point1 = CASE " +
+            "WHEN studentType = '专硕' AND point < 15 THEN 15 - point " +
+            "WHEN studentType = '专硕' AND point >= 15 THEN 0 " +
+            "WHEN studentType = '学硕' AND point < 15 THEN 15 - point " +
+            "WHEN studentType = '学硕' AND point >= 15 THEN 0 " +
+            "ELSE point1 END " +
+            "WHERE studentID = #{studentID}")
+
     Doctor checkStuNumber(@Param("stuNumber") String record, @Param("institutionID") Integer institutionID);
+
+    int updatePoint1(Integer studentID);
 }

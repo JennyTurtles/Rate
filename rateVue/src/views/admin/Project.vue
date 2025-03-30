@@ -38,7 +38,7 @@
           >
           </el-option>
         </el-select>
-        <label style="margin-left:16px">积分范围：</label>
+        <label style="margin-left:16px">：</label>
         <el-select
                 v-model="pointFront"
                 style="margin-left:3px;width:60px"
@@ -144,7 +144,7 @@
               >
                 {{
                   scope.row.status == "commit"
-                      ? "已提交"
+                      ? "学生提交"
                       : scope.row.status == "tea_pass"
                           ? "导师通过"
                           : scope.row.status == "tea_reject"
@@ -185,13 +185,31 @@
 <!--              >编辑-->
 <!--              </el-button-->
 <!--              >-->
+<!--              <el-button-->
+<!--                  @click="showInfo(scope.row)"-->
+<!--                  style="padding: 4px"-->
+<!--                  size="mini"-->
+<!--              >查看详情-->
+<!--              </el-button-->
+<!--              >-->
+
               <el-button
-                  @click="showInfo(scope.row)"
-                  style="padding: 4px"
-                  size="mini"
+                      v-if="scope.row.status === 'commit' ||scope.row.status === 'tea_pass'"
+                      @click="showInfo(scope.row)"
+                      style="padding: 4px"
+                      size="mini"
+              >审核
+              </el-button>
+
+              <!-- 如果 status 不是 "commit"，显示查看详情按钮 -->
+              <el-button
+                      v-else
+                      @click="showInfo(scope.row)"
+                      style="padding: 4px"
+                      size="mini"
               >查看详情
-              </el-button
-              >
+              </el-button>
+
 <!--              <el-button-->
 <!--                  @click="deleteEmp(scope.row)"-->
 <!--                  style="padding: 4px"-->
@@ -232,7 +250,7 @@
           <el-form-item label="论文状态:">
             <span>{{
                 emp.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : emp.state == "tea_pass"
                         ? "导师通过"
                         : emp.state == "tea_reject"
@@ -260,15 +278,11 @@
             ><br/>
           </el-form-item>
           <el-form-item label="证明材料:" prop="url">
-            &nbsp;&nbsp;&nbsp;&nbsp;
-            <span v-if="emp.url == '' || emp.url == null ? true:false">无证明材料</span>
-            <div v-else>{{ emp.url | fileNameFilter }}</div>
-            <br/>
-          </el-form-item>
-          <div v-show="emp.url == '' || emp.url == null ? false : true" style="margin-left: 80px">
-            <div>
+            <span v-if="emp.url == '' || emp.url == null ? true : false">无证明材料</span>
+            <div v-else>
+              {{ emp.url | fileNameFilter }}
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('2')">下载</el-button>
+              <el-button @click="previewMethod('9')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -279,7 +293,7 @@
                   :preview-src-list="previewImageSrcList">
               </el-image>
             </div>
-          </div>
+          </el-form-item>
           <br/>
           <div>
             <span>历史操作:</span>
@@ -298,12 +312,49 @@
           </div>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button
-              id="but_reject"
-              @click="dialogVisible_showInfo_Paper= false"
-              type="primary"
-          >关闭</el-button>
+         <el-button
+                 id="but_pass"
+                 v-show="(emp.state == 'commit' || (emp.state == 'tea_pass' && role == 'admin')) ? true : false"
+                 @click="(()=>{
+                   auditing_commit('adm_pass')
+                }) "
+                 type="primary"
+         >审核通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(emp.state == 'commit' || (emp.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    @click="rejectDialog"
+                    type="primary"
+            >审核不通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(emp.state=='tea_reject' || emp.state=='adm_reject' || emp.state == 'adm_pass' || (emp.state=='tea_pass' && role == 8))? true:false"
+                    @click="dialogVisible_show = false"
+                    type="primary"
+            >关闭</el-button>
         </span>
+      </el-dialog>
+      <el-dialog v-model="emp" :visible.sync="isShowInfo">
+        <el-input
+                type="textarea"
+                :rows="4"
+                v-model="reason"
+                placeholder="请输入驳回理由"
+        >
+        </el-input>
+        <span slot="footer">
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
+          <el-button @click="isShowInfo = false">取消</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+        <template v-if="isPdf">
+          <vue-office-pdf
+                  :src="previewUrl"
+                  style="height: 100vh;"
+          />
+        </template>
+
       </el-dialog>
 
       <!-- 授权专利查看详情按钮 -->
@@ -351,7 +402,7 @@
           <el-form-item label="成果状态:" prop="state">
             <span>{{
                 currentPatent.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : currentPatent.state == "tea_pass"
                         ? "导师通过"
                         : currentPatent.state == "tea_reject"
@@ -363,14 +414,11 @@
             ><br/>
           </el-form-item>
           <el-form-item label="证明材料:" prop="url">
-            <span v-if="currentPatent.url == '' || currentPatent.url == null ? true:false">无证明材料</span>
-            <div v-else>{{ currentPatent.url | fileNameFilter }}</div>
-            <br/>
-          </el-form-item>
-          <div v-show="currentPatent.url == '' || currentPatent.url == null ? false : true" style="margin-left: 80px">
-            <div>
+            <span v-if="currentPatent.url == '' || currentPatent.url == null ? true : false">无证明材料</span>
+            <div v-else>
+              {{ currentPatent.url | fileNameFilter }}
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('3')">下载</el-button>
+              <el-button @click="previewMethod('9')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -381,7 +429,7 @@
                   :preview-src-list="previewImageSrcList">
               </el-image>
             </div>
-          </div>
+          </el-form-item>
           <br/>
           <div>
             <span>历史操作:</span>
@@ -400,12 +448,50 @@
           </div>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogVisible_showInfo_Patent = false"
-          >关 闭</el-button
-          >
+          <el-button
+                  id="but_pass"
+                  v-show="(currentPatent.state == 'commit' || (currentPatent.state == 'tea_pass' && role == 'admin')) ? true : false"
+                  @click="(()=>{
+                   auditing_commit('adm_pass')
+                }) "
+                  type="primary"
+          >审核通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentPatent.state == 'commit' || (currentPatent.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    @click="rejectDialog"
+                    type="primary"
+            >审核不通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentPatent.state=='tea_reject' || currentPatent.state=='adm_reject' || currentPatent.state == 'adm_pass' || (currentPatent.state=='tea_pass' && role == 8))? true:false"
+                    @click="dialogVisible_show = false"
+                    type="primary"
+            >关闭</el-button>
         </span>
       </el-dialog>
+      <el-dialog v-model="currentPatent" :visible.sync="isShowInfo">
+        <el-input
+                type="textarea"
+                :rows="4"
+                v-model="reason"
+                placeholder="请输入驳回理由"
+        >
+        </el-input>
+        <span slot="footer">
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
+          <el-button @click="isShowInfo = false">取消</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+        <template v-if="isPdf">
+          <vue-office-pdf
+                  :src="previewUrl"
+                  style="height: 100vh;"
+          />
+        </template>
 
+      </el-dialog>
 
       <!-- 科研获奖查看详情-->
       <el-dialog
@@ -455,7 +541,7 @@
           <el-form-item label="成果状态:">
             <span>{{
                 currentAward.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : currentAward.state == "tea_pass"
                         ? "导师通过"
                         : currentAward.state == "tea_reject"
@@ -467,13 +553,11 @@
             ><br/>
           </el-form-item>
           <el-form-item label="证明材料:" prop="url">
-            <span v-if="currentAward.url == '' || currentAward.url == null ? true:false">无证明材料</span>
-            <div v-else>{{ currentAward.url | fileNameFilter }}</div>
-          </el-form-item>
-          <div v-show="currentAward.url == '' || currentAward.url == null ? false : true" style="margin-left: 80px">
-            <div>
+            <span v-if="currentAward.url == '' || currentAward.url == null ? true : false">无证明材料</span>
+            <div v-else>
+              {{ currentAward.url | fileNameFilter }}
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('4')">下载</el-button>
+              <el-button @click="previewMethod('9')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -484,7 +568,7 @@
                   :preview-src-list="previewImageSrcList">
               </el-image>
             </div>
-          </div>
+          </el-form-item>
           <br/>
           <div>
             <span>历史操作:</span>
@@ -504,12 +588,50 @@
         </el-form>
 
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogVisible_showInfo_ResearchAward = false"
-          >关 闭</el-button
-          >
+          <el-button
+                  id="but_pass"
+                  v-show="(currentAward.state == 'commit' || (currentAward.state == 'tea_pass' && role == 'admin')) ? true : false"
+                  @click="(()=>{
+                   auditing_commit('adm_pass')
+                }) "
+                  type="primary"
+          >审核通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentAward.state == 'commit' || (currentAward.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    @click="rejectDialog"
+                    type="primary"
+            >审核不通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentAward.state=='tea_reject' || currentAward.state=='adm_reject' || currentAward.state == 'adm_pass' || (currentAward.state=='tea_pass' && role == 8))? true:false"
+                    @click="dialogVisible_show = false"
+                    type="primary"
+            >关闭</el-button>
         </span>
       </el-dialog>
+      <el-dialog v-model="currentAward" :visible.sync="isShowInfo">
+        <el-input
+                type="textarea"
+                :rows="4"
+                v-model="reason"
+                placeholder="请输入驳回理由"
+        >
+        </el-input>
+        <span slot="footer">
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
+          <el-button @click="isShowInfo = false">取消</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+        <template v-if="isPdf">
+          <vue-office-pdf
+                  :src="previewUrl"
+                  style="height: 100vh;"
+          />
+        </template>
 
+      </el-dialog>
       <!--学术专著和教材查看详情-->
       <el-dialog
           class="showInfo_dialog"
@@ -555,15 +677,12 @@
             <span>{{ currentMonograph.point }}</span
             >
           </el-form-item>
-          <el-form-item label="证明材料:">
-            <span v-if="currentMonograph.url == '' || currentMonograph.url == null ? true:false">无证明材料</span>
-            <div v-else>{{ currentMonograph.url | fileNameFilter }}</div>
-          </el-form-item>
-          <div v-show="currentMonograph.url == '' || currentMonograph.url == null ? false : true"
-               style="margin-left: 80px">
-            <div>
+          <el-form-item label="证明材料:" prop="url">
+            <span v-if="currentMonograph.url == '' || currentMonograph.url == null ? true : false">无证明材料</span>
+            <div v-else>
+              {{ currentMonograph.url | fileNameFilter }}
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('5')">下载</el-button>
+              <el-button @click="previewMethod('9')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -574,7 +693,7 @@
                   :preview-src-list="previewImageSrcList">
               </el-image>
             </div>
-          </div>
+          </el-form-item>
           <br/>
           <div>
             <span>历史操作:</span>
@@ -594,12 +713,50 @@
         </el-form>
 
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogVisible_showInfo_AcademicMonograph = false"
-          >关 闭</el-button
-          >
+          <el-button
+                  id="but_pass"
+                  v-show="(currentMonograph.state == 'commit' || (currentMonograph.state == 'tea_pass' && role == 'admin')) ? true : false"
+                  @click="(()=>{
+                   auditing_commit('adm_pass')
+                }) "
+                  type="primary"
+          >审核通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentMonograph.state == 'commit' || (currentMonograph.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    @click="rejectDialog"
+                    type="primary"
+            >审核不通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentMonograph.state=='tea_reject' || currentMonograph.state=='adm_reject' || currentMonograph.state == 'adm_pass' || (currentMonograph.state=='tea_pass' && role == 8))? true:false"
+                    @click="dialogVisible_show = false"
+                    type="primary"
+            >关闭</el-button>
         </span>
       </el-dialog>
+      <el-dialog v-model="currentMonograph" :visible.sync="isShowInfo">
+        <el-input
+                type="textarea"
+                :rows="4"
+                v-model="reason"
+                placeholder="请输入驳回理由"
+        >
+        </el-input>
+        <span slot="footer">
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
+          <el-button @click="isShowInfo = false">取消</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+        <template v-if="isPdf">
+          <vue-office-pdf
+                  :src="previewUrl"
+                  style="height: 100vh;"
+          />
+        </template>
 
+      </el-dialog>
       <!--纵向科研项目查看详情-->
       <el-dialog
           class="showInfo_dialog"
@@ -642,13 +799,11 @@
             >
           </el-form-item>
           <el-form-item label="证明材料:" prop="url">
-            <span v-if="currentProject.url == '' || currentProject.url == null ? true:false">无证明材料</span>
-            <div v-else>{{ currentProject.url | fileNameFilter }}</div>
-          </el-form-item>
-          <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
-            <div>
+            <span v-if="currentProject.url == '' || currentProject.url == null ? true : false">无证明材料</span>
+            <div v-else>
+              {{ currentProject.url | fileNameFilter }}
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('6')">下载</el-button>
+              <el-button @click="previewMethod('9')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -659,7 +814,7 @@
                   :preview-src-list="previewImageSrcList">
               </el-image>
             </div>
-          </div>
+          </el-form-item>
           <br/>
           <div>
             <span>历史操作:</span>
@@ -679,10 +834,49 @@
         </el-form>
 
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogVisible_showInfo_ResearchProject = false"
-          >关 闭</el-button
-          >
+          <el-button
+                  id="but_pass"
+                  v-show="(currentProject.state == 'commit' || (currentProject.state == 'tea_pass' && role == 'admin')) ? true : false"
+                  @click="(()=>{
+                   auditing_commit('adm_pass')
+                }) "
+                  type="primary"
+          >审核通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentProject.state == 'commit' || (currentProject.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    @click="rejectDialog"
+                    type="primary"
+            >审核不通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentProject.state=='tea_reject' || currentProject.state=='adm_reject' || currentProject.state == 'adm_pass' || (currentProject.state=='tea_pass' && role == 8))? true:false"
+                    @click="dialogVisible_show = false"
+                    type="primary"
+            >关闭</el-button>
         </span>
+      </el-dialog>
+      <el-dialog v-model="currentProject" :visible.sync="isShowInfo">
+        <el-input
+                type="textarea"
+                :rows="4"
+                v-model="reason"
+                placeholder="请输入驳回理由"
+        >
+        </el-input>
+        <span slot="footer">
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
+          <el-button @click="isShowInfo = false">取消</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+        <tcurrentProjectlate v-if="isPdf">
+          <vue-office-pdf
+                  :src="previewUrl"
+                  style="height: 100vh;"
+          />
+        </tcurrentProjectlate>
+
       </el-dialog>
 
       <!--横向科研项目查看详情-->
@@ -730,7 +924,7 @@
           <el-form-item label="成果状态:" prop="state">
             <span>{{
                 currentProject.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : currentProject.state == "tea_pass"
                         ? "导师通过"
                         : currentProject.state == "tea_reject"
@@ -742,13 +936,11 @@
             ><br/>
           </el-form-item>
           <el-form-item label="证明材料:" prop="url">
-            <span v-if="currentProject.url == '' || currentProject.url == null ? true:false">无证明材料</span>
-            <div v-else>{{ currentProject.url | fileNameFilter }}</div>
-          </el-form-item>
-          <div v-show="currentProject.url == '' || currentProject.url == null ? false : true" style="margin-left: 80px">
-            <div>
+            <span v-if="currentProject.url == '' || currentProject.url == null ? true : false">无证明材料</span>
+            <div v-else>
+              {{ currentProject.url | fileNameFilter }}
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('6')">下载</el-button>
+              <el-button @click="previewMethod('9')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -759,7 +951,7 @@
                   :preview-src-list="previewImageSrcList">
               </el-image>
             </div>
-          </div>
+          </el-form-item>
           <br/>
           <div>
             <span>历史操作:</span>
@@ -778,10 +970,49 @@
           </div>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogVisible_showInfo_HorizontalResearchProject = false"
-          >关 闭</el-button
-          >
+          <el-button
+                  id="but_pass"
+                  v-show="(currentProject.state == 'commit' || (currentProject.state == 'tea_pass' && role == 'admin')) ? true : false"
+                  @click="(()=>{
+                   auditing_commit('adm_pass')
+                }) "
+                  type="primary"
+          >审核通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentProject.state == 'commit' || (currentProject.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    @click="rejectDialog"
+                    type="primary"
+            >审核不通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentProject.state=='tea_reject' || currentProject.state=='adm_reject' || currentProject.state == 'adm_pass' || (currentProject.state=='tea_pass' && role == 8))? true:false"
+                    @click="dialogVisible_show = false"
+                    type="primary"
+            >关闭</el-button>
         </span>
+      </el-dialog>
+      <el-dialog v-model="currentProject" :visible.sync="isShowInfo">
+        <el-input
+                type="textarea"
+                :rows="4"
+                v-model="reason"
+                placeholder="请输入驳回理由"
+        >
+        </el-input>
+        <span slot="footer">
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
+          <el-button @click="isShowInfo = false">取消</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+        <tcurrentProjectlate v-if="isPdf">
+          <vue-office-pdf
+                  :src="previewUrl"
+                  style="height: 100vh;"
+          />
+        </tcurrentProjectlate>
+
       </el-dialog>
 
       <!--学科竞赛查看详情-->
@@ -824,7 +1055,7 @@
           <el-form-item label="成果状态:">
             <span>{{
                 currentCompetition.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : currentCompetition.state == "tea_pass"
                         ? "导师通过"
                         : currentCompetition.state == "tea_reject"
@@ -836,14 +1067,11 @@
             ><br/>
           </el-form-item>
           <el-form-item label="证明材料:" prop="url">
-            <span v-if="currentCompetition.url == '' || currentCompetition.url == null ? true:false">无证明材料</span>
-            <div v-else>{{ currentCompetition.url | fileNameFilter }}</div>
-          </el-form-item>
-          <div v-show="currentCompetition.url == '' || currentCompetition.url == null ? false : true"
-               style="margin-left: 80px">
-            <div>
+            <span v-if="currentProject.url == '' || currentProject.url == null ? true : false">无证明材料</span>
+            <div v-else>
+              {{ currentProject.url | fileNameFilter }}
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('7')">下载</el-button>
+              <el-button @click="previewMethod('9')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -854,7 +1082,7 @@
                   :preview-src-list="previewImageSrcList">
               </el-image>
             </div>
-          </div>
+          </el-form-item>
           <br/>
           <div>
             <span>历史操作:</span>
@@ -874,10 +1102,49 @@
         </el-form>
 
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogVisible_showInfo_AcademicCompetition = false"
-          >关 闭</el-button
-          >
+          <el-button
+                  id="but_pass"
+                  v-show="(currentCompetition.state == 'commit' || (currentCompetition.state == 'tea_pass' && role == 'admin')) ? true : false"
+                  @click="(()=>{
+                   auditing_commit('adm_pass')
+                }) "
+                  type="primary"
+          >审核通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentCompetition.state == 'commit' || (currentCompetition.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    @click="rejectDialog"
+                    type="primary"
+            >审核不通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentCompetition.state=='tea_reject' || currentCompetition.state=='adm_reject' || currentCompetition.state == 'adm_pass' || (currentCompetition.state=='tea_pass' && role == 8))? true:false"
+                    @click="dialogVisible_show = false"
+                    type="primary"
+            >关闭</el-button>
         </span>
+      </el-dialog>
+      <el-dialog v-model="currentCompetition" :visible.sync="isShowInfo">
+        <el-input
+                type="textarea"
+                :rows="4"
+                v-model="reason"
+                placeholder="请输入驳回理由"
+        >
+        </el-input>
+        <span slot="footer">
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
+          <el-button @click="isShowInfo = false">取消</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+        <tcurrentCompetitionlate v-if="isPdf">
+          <vue-office-pdf
+                  :src="previewUrl"
+                  style="height: 100vh;"
+          />
+        </tcurrentCompetitionlate>
+
       </el-dialog>
 
       <!--决策咨询查看详情-->
@@ -915,7 +1182,7 @@
           </el-form-item>
           <el-form-item label="成果状态:">
             <span>{{currentDecision.state=="commit"
-                ? "已提交"
+                ? "学生提交"
                 :currentDecision.state=="tea_pass"
                     ? "导师通过"
                     :currentDecision.state=="tea_reject"
@@ -929,13 +1196,11 @@
             <span>{{ currentDecision.remark }}</span>
           </el-form-item>
           <el-form-item label="证明材料:" prop="url">
-            <span v-if="currentDecision.url == '' || currentDecision.url == null ? true:false" >无证明材料</span>
-            <div v-else>{{ currentDecision.url | fileNameFilter }}</div>
-          </el-form-item>
-          <div v-show="currentDecision.url == '' || currentDecision.url == null ? false : true">
-            <div>
+            <span v-if="currentDecision.url == '' || currentDecision.url == null ? true : false">无证明材料</span>
+            <div v-else>
+              {{ currentDecision.url | fileNameFilter }}
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('8')">下载</el-button>
+              <el-button @click="previewMethod('9')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -946,7 +1211,7 @@
                   :preview-src-list="previewImageSrcList">
               </el-image>
             </div>
-          </div>
+          </el-form-item>
           <br />
           <div >
             <span>历史操作:</span>
@@ -962,10 +1227,49 @@
         </el-form>
 
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogVisible_showInfo_Decision = false"
-          >关 闭</el-button
-          >
+         <el-button
+                 id="but_pass"
+                 v-show="(currentDecision.state == 'commit' || (currentDecision.state == 'tea_pass' && role == 'admin')) ? true : false"
+                 @click="(()=>{
+                   auditing_commit('adm_pass')
+                }) "
+                 type="primary"
+         >审核通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentDecision.state == 'commit' || (currentDecision.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    @click="rejectDialog"
+                    type="primary"
+            >审核不通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentDecision.state=='tea_reject' || currentDecision.state=='adm_reject' || currentDecision.state == 'adm_pass' || (currentDecision.state=='tea_pass' && role == 8))? true:false"
+                    @click="dialogVisible_show = false"
+                    type="primary"
+            >关闭</el-button>
         </span>
+      </el-dialog>
+      <el-dialog v-model="currentDecision" :visible.sync="isShowInfo">
+        <el-input
+                type="textarea"
+                :rows="4"
+                v-model="reason"
+                placeholder="请输入驳回理由"
+        >
+        </el-input>
+        <span slot="footer">
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
+          <el-button @click="isShowInfo = false">取消</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+        <tcurrentDecisionlate v-if="isPdf">
+          <vue-office-pdf
+                  :src="previewUrl"
+                  style="height: 100vh;"
+          />
+        </tcurrentDecisionlate>
+
       </el-dialog>
 
       <!--产品应用查看详情-->
@@ -1009,7 +1313,7 @@
           <el-form-item label="成果状态:" prop="state">
             <span>{{
                 currentProduct.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : currentProduct.state == "tea_pass"
                         ? "导师通过"
                         : currentProduct.state == "tea_reject"
@@ -1021,11 +1325,9 @@
             ><br/>
           </el-form-item>
           <el-form-item label="证明材料:" prop="url">
-            <span v-if="currentProduct.url == '' || currentProduct.url == null ? true:false">无证明材料</span>
-            <div v-else>{{ currentProduct.url | fileNameFilter }}</div>
-          </el-form-item>
-          <div v-show="currentProduct.url == '' || currentProduct.url == null ? false : true" style="margin-left: 80px">
-            <div>
+            <span v-if="currentProduct.url == '' || currentProduct.url == null ? true : false">无证明材料</span>
+            <div v-else>
+              {{ currentProduct.url | fileNameFilter }}
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
               <el-button @click="previewMethod('9')">下载</el-button>
             </div>
@@ -1038,7 +1340,7 @@
                   :preview-src-list="previewImageSrcList">
               </el-image>
             </div>
-          </div>
+          </el-form-item>
           <br/>
           <div>
             <span>历史操作:</span>
@@ -1057,12 +1359,50 @@
           </div>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogVisible_showInfo_Product = false"
-          >关 闭</el-button
-          >
+          <el-button
+                  id="but_pass"
+                  v-show="(currentProduct.state == 'commit' || (currentProduct.state == 'tea_pass' && role == 'admin')) ? true : false"
+                  @click="(()=>{
+                   auditing_commit('adm_pass')
+                }) "
+                  type="primary"
+          >审核通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentProduct.state == 'commit' || (currentProduct.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    @click="rejectDialog"
+                    type="primary"
+            >审核不通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentProduct.state=='tea_reject' || currentProduct.state=='adm_reject' || currentProduct.state == 'adm_pass' || (currentProduct.state=='tea_pass' && role == 8))? true:false"
+                    @click="dialogVisible_show = false"
+                    type="primary"
+            >关闭</el-button>
         </span>
       </el-dialog>
+      <el-dialog v-model="currentProduct" :visible.sync="isShowInfo">
+        <el-input
+                type="textarea"
+                :rows="4"
+                v-model="reason"
+                placeholder="请输入驳回理由"
+        >
+        </el-input>
+        <span slot="footer">
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
+          <el-button @click="isShowInfo = false">取消</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+        <tcurrentProductlate v-if="isPdf">
+          <vue-office-pdf
+                  :src="previewUrl"
+                  style="height: 100vh;"
+          />
+        </tcurrentProductlate>
 
+      </el-dialog>
       <!--制定标准查看详情-->
       <el-dialog
           class="showInfo_dialog"
@@ -1104,7 +1444,7 @@
           <el-form-item label="成果状态:" prop="state">
             <span>{{
                 currentStandard.state == "commit"
-                    ? "已提交"
+                    ? "学生提交"
                     : currentStandard.state == "tea_pass"
                         ? "导师通过"
                         : currentStandard.state == "tea_reject"
@@ -1116,13 +1456,11 @@
             ><br/>
           </el-form-item>
           <el-form-item label="证明材料:" prop="url">
-            <span v-if="currentStandard.url == '' || currentStandard.url == null ? true:false">无证明材料</span>
-            <div v-else>{{ currentStandard.url | fileNameFilter }}</div>
-          </el-form-item>
-          <div v-show="currentStandard.url == '' || currentStandard.url == null ? false : true" style="margin-left: 80px">
-            <div>
+            <span v-if="currentStandard.url == '' || currentStandard.url == null ? true : false">无证明材料</span>
+            <div v-else>
+              {{ currentStandard.url | fileNameFilter }}
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-              <el-button @click="previewMethod('10')">下载</el-button>
+              <el-button @click="previewMethod('9')">下载</el-button>
             </div>
             <div style="margin-top: 5px">
               <el-image
@@ -1133,7 +1471,7 @@
                   :preview-src-list="previewImageSrcList">
               </el-image>
             </div>
-          </div>
+          </el-form-item>
           <br/>
           <div>
             <span>历史操作:</span>
@@ -1152,10 +1490,49 @@
           </div>
         </el-form>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogVisible_showInfo_Standard = false"
-          >关 闭</el-button
-          >
+          <el-button
+                  id="but_pass"
+                  v-show="(currentStandard.state == 'commit' || (currentStandard.state == 'tea_pass' && role == 'admin')) ? true : false"
+                  @click="(()=>{
+                   auditing_commit('adm_pass')
+                }) "
+                  type="primary"
+          >审核通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentStandard.state == 'commit' || (currentStandard.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    @click="rejectDialog"
+                    type="primary"
+            >审核不通过</el-button>
+            <el-button
+                    id="but_reject"
+                    v-show="(currentStandard.state=='tea_reject' || currentStandard.state=='adm_reject' || currentStandard.state == 'adm_pass' || (currentStandard.state=='tea_pass' && role == 8))? true:false"
+                    @click="dialogVisible_show = false"
+                    type="primary"
+            >关闭</el-button>
         </span>
+      </el-dialog>
+      <el-dialog v-model="currentStandard" :visible.sync="isShowInfo">
+        <el-input
+                type="textarea"
+                :rows="4"
+                v-model="reason"
+                placeholder="请输入驳回理由"
+        >
+        </el-input>
+        <span slot="footer">
+          <el-button @click="rejectDialogConfirm()" type="primary">确定</el-button>
+          <el-button @click="isShowInfo = false">取消</el-button>
+        </span>
+      </el-dialog>
+      <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
+        <tcurrentStandardlate v-if="isPdf">
+          <vue-office-pdf
+                  :src="previewUrl"
+                  style="height: 100vh;"
+          />
+        </tcurrentStandardlate>
+
       </el-dialog>
 
       <!-- 学术论文添加或修改对话框  -->
@@ -2277,6 +2654,10 @@
         // 项目列表数据
         emps: [],
         data: [],
+        reason:"",
+        isShowInfo:false,
+        role:"admin",
+        currentType: '',
         projects: [], // 用于存储项目数据
         showAdvanceSearchView: false, // 初始化为 false 或其他适当的值
         name:'',
@@ -2715,10 +3096,341 @@
       this.fetchProjects(); // 在组件创建时获取数据
     },
     methods: {
+      rejectDialogConfirm(){
+        if (this.role == 'teacher')
+          this.auditing_commit('tea_reject')
+        else if (this.role == 'admin')
+          this.auditing_commit('adm_reject')
+        this.isShowInfo = false
+      },
+      rejectDialog() {
+        if(this.role == 'admin' && this.emp.state == 'commit') { //管理员驳回 有提示
+          this.$confirm('目前导师尚未审核，是否确认审核驳回？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.isShowInfo = true;
+          }).catch(() => {});
+        }else this.isShowInfo = true;
+      },
+      //点击对话框中的确定按钮 触发事件
+      auditing_commit(state){
+        this.loading = true;
+        if(this.role == 'admin' && (state.indexOf('pass') >= 0 || state.indexOf('reject') >= 0) && this.emp.state == 'commit') { //管理员通过 有提示
+          this.$confirm('目前导师尚未审核，是否确认审核该成果？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            // type: 'warning'
+          }).then(() => {
+            if ("学术论文" == this.emp.type) {
+              // 直接调用 rolePass
+              this.rolePass1(state);
+            }else if ("科研获奖" ==this.emp.type ) {
+              // 直接调用 rolePass
+              this.rolePass2(state);
+            } else if ("纵向科研项目" == this.emp.type) {
+              // 直接调用 rolePass
+              this.rolePass3(state);
+            }else if ("学科竞赛" == this.emp.type) {
+              // 直接调用 rolePass
+              this.rolePass4(state);
+            }
+            else if ("产品应用" == this.emp.type) {
+              // 直接调用 rolePass
+              this.rolePass5(state);
+            }
+            else if ("授权专利" == this.emp.type) {
+              // 直接调用 rolePass
+              this.rolePass(state);
+            }
+            else if ("学术专著和教材" == this.emp.type) {
+              // 直接调用 rolePass
+              this.rolePass6(state);
+            }
+            else if ("横向科研项目" == this.emp.type) {
+              // 直接调用 rolePass
+              this.rolePass20(state);
+            }
+            else if ("决策咨询" == this.emp.type) {
+              // 直接调用 rolePass
+              this.rolePass8(state);
+            }else if ("制定标准" == this.emp.type) {
+              // 直接调用 rolePass
+              this.rolePass9(state);
+            }
+          }).catch(() => {
+            this.loading = false;
+          });
+        }else if ("学术论文" == this.currentType) {
+          // 直接调用 rolePass
+          this.rolePass1(state);
+        }else if ("科研获奖" ==this.currentType ) {
+          // 直接调用 rolePass
+          this.rolePass2(state);
+        } else if ("纵向科研项目" == this.currentType) {
+          // 直接调用 rolePass
+          this.rolePass3(state);
+        }else if ("学科竞赛" == this.currentType) {
+          // 直接调用 rolePass
+          this.rolePass4(state);
+        }
+        else if ("产品应用" == this.currentType) {
+          // 直接调用 rolePass
+          this.rolePass5(state);
+        }
+        else if ("授权专利" == this.currentType) {
+          // 直接调用 rolePass
+          this.rolePass(state);
+        }
+        else if ("学术专著和教材" == this.currentType) {
+          // 直接调用 rolePass
+          this.rolePass6(state);
+        }
+        else if ("横向科研项目" == this.currentType) {
+          // 直接调用 rolePass
+          this.rolePass20(state);
+        }
+        else if ("决策咨询" == this.currentType) {
+          // 直接调用 rolePass
+          this.rolePass8(state);
+        }else if ("制定标准" == this.currentType) {
+          // 直接调用 rolePass
+          this.rolePass9(state);
+        }
+// 关闭所有弹窗
+        this.closeAllDialogs();
+        // 重新加载数据
+        this.initEmps();
+
+      },
+      closeAllDialogs() {
+        this.dialogVisible_showInfo_Paper = false;
+        this.dialogVisible_showInfo_Patent = false;
+        this.dialogVisible_showInfo_ResearchAward = false;
+        this.dialogVisible_showInfo_AcademicMonograph = false;
+        this.dialogVisible_showInfo_ResearchProject = false;
+        this.dialogVisible_showInfo_HorizontalResearchProject = false;
+        this.dialogVisible_showInfo_AcademicCompetition = false;
+        this.dialogVisible_showInfo_Decision = false;
+        this.dialogVisible_showInfo_Product = false;
+        this.dialogVisible_showInfo_Standard = false;
+      },
+
+      rolePass(state) {
+        let url = "/patent/basic/edit_state?state=" + state + "&ID="+this.currentPatent.id;
+        this.dialogVisible_show=false
+
+        if(state.indexOf('reject') >= 0){
+          this.currentPatent.operationList[0].remark = this.reason;
+        }
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.currentPatent.state = state
+            this.$message({
+              type: 'success',
+              message: '操作成功',
+              isApproved :true
+            })
+            this.prodType =this.currentPatent.type;
+            this.isApproved = true;
+            this.doAddOper(state, this.reason, this.currentPatent.id,'授权专利');
+            let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+            this.$store.dispatch('changePendingMessageange', roleParam);
+          }
+        })
+      },
+      rolePass1(state) {
+        let url = "/paper/basic/edit_state?state=" + state + "&ID="+this.emp.id;
+        this.dialogVisible_show=false// 关闭弹窗
+        if(state.indexOf('reject') >= 0){
+          this.emp.operationList[0].remark = this.reason;
+        }
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.emp.state = state
+            this.$message({
+              type: 'success',
+              message: '操作成功'
+            })
+            this.doAddOper(state, this.reason, this.emp.id,'学术论文');
+            let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+            this.$store.dispatch('changePendingMessageange', roleParam);
+          }
+
+        })
+
+      },
+      rolePass2(state) {
+        let url = "/award/basic/edit_state?state=" + state + "&ID="+this.currentAward.id;
+        this.dialogVisible_show=false
+        if(state.indexOf('reject') >= 0){
+          this.currentAward.operationList[0].remark = this.reason;
+        }
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.currentAward.state = state
+            this.$message({
+              type: 'success',
+              message: '操作成功'
+            })
+            this.doAddOper(state, this.reason, this.currentAward.id,'科研获奖');
+            let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+            this.$store.dispatch('changePendingMessageange', roleParam);
+          }
+        })
+      },
+      rolePass3(state) {
+        let url = "/project/basic/edit_state?state=" + state + "&ID="+this.currentProject.id;
+        this.dialogVisible_show=false
+        if(state.indexOf('reject') >= 0){
+          console.log("==========="+  this.currentProject.operationList[0])
+          this.currentProject.operationList[0].remark = this.reason;
+        }
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.currentProject.state = state
+            this.$message({
+              type: 'success',
+              message: '操作成功'
+            })
+            this.doAddOper(state, this.reason, this.currentProject.id,'纵向科研项目');
+            let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+            this.$store.dispatch('changePendingMessageange', roleParam);
+          }
+        })
+      },
+      rolePass20(state) {
+        let url = "/project/basic/edit_state?state=" + state + "&ID="+this.currentProject.id;
+        this.dialogVisible_show=false
+        if(state.indexOf('reject') >= 0){
+          this.currentProject.operationList[0].remark = this.reason;
+        }
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.currentProject.state = state
+            this.$message({
+              type: 'success',
+              message: '操作成功'
+            })
+            this.doAddOper(state, this.reason, this.currentProject.id,'横向科研项目');
+            let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+            this.$store.dispatch('changePendingMessageange', roleParam);
+          }
+        })
+      },
+      rolePass4(state) {
+        let url = "/competition/basic/edit_state?state=" + state + "&ID="+this.currentCompetition.id;
+        this.dialogVisible_show=false
+        if(state.indexOf('reject') >= 0){
+          this.currentCompetition.operationList[0].remark = this.reason;
+        }
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.currentCompetition.state = state
+            this.$message({
+              type: 'success',
+              message: '操作成功'
+            })
+            this.doAddOper(state, this.reason, this.currentCompetition.id,'学科竞赛');
+            let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+            this.$store.dispatch('changePendingMessageange', roleParam);
+          }
+        })
+      },
+      rolePass5(state) {
+        let url = "/product/basic/edit_state?state=" + state + "&ID="+this.currentProduct.id;
+        this.dialogVisible_show=false
+        if(state.indexOf('reject') >= 0){
+          this.currentProduct.operationList[0].remark = this.reason;
+        }
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.currentProduct.state = state
+            this.$message({
+              type: 'success',
+              message: '操作成功'
+            })
+            this.doAddOper(state, this.reason, this.currentProduct.id,'产品应用');
+            let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+            this.$store.dispatch('changePendingMessageange', roleParam);
+          }
+        })
+      },
+      rolePass6(state) {
+        let url = "/monograph/basic/edit_state?state=" + state + "&ID="+this.currentMonograph.id;
+        this.dialogVisible_show=false
+        if(state.indexOf('reject') >= 0){
+          this.currentMonograph.operationList[0].remark = this.reason;
+        }
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.currentMonograph.state = state
+            this.$message({
+              type: 'success',
+              message: '操作成功'
+            })
+            this.doAddOper(state, this.reason,this.currentMonograph.id,'学术专著和教材');
+            let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+            this.$store.dispatch('changePendingMessageange', roleParam);
+
+          }
+        })
+      },
+      rolePass8(state) {
+        let url = "/decision/basic/edit_state?state=" + state + "&ID="+this.currentDecision.id;
+        this.dialogVisible_show=false
+        if(state.indexOf('reject') >= 0){
+          this.currentDecision.operationList[0].remark = this.reason;
+        }
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.currentDecision.state = state
+            this.$message({
+              type: 'success',
+              message: '操作成功'
+            })
+            this.doAddOper(state, this.reason, this.currentDecision.id,'决策咨询');
+            let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+            this.$store.dispatch('changePendingMessageange', roleParam);
+          }
+        })
+      },
+      rolePass9(state) {
+        let url = "/standard/basic/edit_state?state=" + state + "&ID="+this.currentStandard.id;
+        this.dialogVisible_show=false
+        if(state.indexOf('reject') >= 0){
+          this.currentStandard.operationList[0].remark = this.reason;
+        }
+        this.getRequest(url).then((resp) => {
+          this.loading = false;
+          if (resp) {
+            this.currentStandard.state = state
+            this.$message({
+              type: 'success',
+              message: '操作成功'
+            })
+            this.doAddOper(state, this.reason, this.currentStandard.id,'制定标准');
+            let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+            this.$store.dispatch('changePendingMessageange', roleParam);
+          }
+        })
+      },
+
+
       fetchProjects() {
         this.loading = true;
 
-
+        const params = {}; // 定义 params 变量
         this.postRequest('/project/data/basic/teacherOrAdmin',params).then((resp) => {
           this.loading = false;
           if (resp) {
@@ -3426,14 +4138,22 @@
           }
         });
       },
-      async doAddOper(state, paperID) {
-        this.oper.state = state
-        this.oper.prodId = paperID
-        this.oper.operationName = "提交论文"
+      async doAddOper(state,remark,patentID,type) {
+        this.oper.state = state;
+        this.oper.remark = remark;
+        this.oper.prodId = patentID;
+        this.oper.prodType = type;
         this.oper.time = this.dateFormatFunc(new Date());
-        await this.postRequest1("/oper/basic/add", this.oper)
+        this.oper.operatorRole = "admin";
+        if(this.oper.state == "tea_pass" || this.oper.state == 'adm_pass'){
+          this.oper.operationName = "审核通过"
+        } else if (this.oper.state =="tea_reject" || this.oper.state == 'adm_reject'){
+          this.oper.operationName = "审核驳回"
+        }
+        await this.postRequest1("/oper/basic/add", this.oper);
+        // await this.searchPatentListByCondicitions(this.currentPage, this.pageSize)
+        // 重新加载数据
         await this.initEmps();
-        this.$message.success('操作成功');
       },
       doAddEmp() {//确定添加论文
         const params = {};
@@ -3916,6 +4636,7 @@
       },
       // 显示项目详情对话框
       showInfo(data) {
+        this.currentType = data.category;
         this.handleShowInfo(data);
       },
       // 文件下载

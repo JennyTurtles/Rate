@@ -12,6 +12,7 @@
         <result column="tutorID" property="tutorID" jdbcType="INTEGER"/>
         <result column="studentType" property="studentType" jdbcType="VARCHAR"/>
         <result column="point" property="point" jdbcType="VARCHAR"/>
+        <result column="point1" property="point1" jdbcType="VARCHAR"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
         <result property="email" column="email" jdbcType="VARCHAR"/>
         <result property="role" column="role" jdbcType="VARCHAR"/>
@@ -61,6 +62,17 @@
                  #{year,jdbcType=VARCHAR}, #{tutorID,jdbcType=INTEGER},
                  #{studentType,jdbcType=VARCHAR},#{point,jdbcType=VARCHAR})
     </insert>
+    <update id="updatePoint1">
+    UPDATE doctor
+    SET point1 = CASE
+    WHEN studentType = '专硕' AND point &lt; 15 THEN 15 - point
+    WHEN studentType = '专硕' AND point &gt;= 15 THEN 0
+    WHEN studentType = '学硕' AND point &lt; 15 THEN 15 - point
+    WHEN studentType = '学硕' AND point &gt;= 15 THEN 0
+    ELSE point1
+    END
+    WHERE studentID = #{studentID}
+   </update>
     <update id="updateFROMImport" parameterType="org.sys.rate.model.Doctor">
         <foreach collection="list" item="item" open="" close="" separator=";">
             update doctor

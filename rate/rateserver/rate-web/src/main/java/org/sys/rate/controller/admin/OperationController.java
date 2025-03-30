@@ -52,6 +52,7 @@ public class OperationController {
             oper.setTime(new Timestamp(System.currentTimeMillis()));
             operMapper.insertOper(oper);
         } catch (Exception e) {
+            e.printStackTrace();
             return RespBean.error("error", null);
         }
         return RespBean.ok("success", null);

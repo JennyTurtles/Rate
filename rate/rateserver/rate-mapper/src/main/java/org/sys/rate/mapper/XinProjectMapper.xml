@@ -84,10 +84,10 @@ order by date DESC
                 sname = #{studentName}
             </if>
             <if test="name != null and name != '' ">
-                name = #{name}
+                and name = #{name}
             </if>
             <if test="state!= null and state != '' ">
-                state = #{state}
+                and state = #{state}
             </if>
 
 
