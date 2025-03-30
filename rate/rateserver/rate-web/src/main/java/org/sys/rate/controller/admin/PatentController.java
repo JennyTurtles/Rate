@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.PatentMapper;
-import org.sys.rate.model.Msg;
-import org.sys.rate.model.Paper;
-import org.sys.rate.model.Patent;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.PatentService;
 import org.sys.rate.service.admin.PublicationService;
@@ -30,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 专利成果Controller
@@ -59,6 +57,25 @@ public class PatentController {
     public JsonResult<List> getById(Integer studentID) {
         List<Patent> list = patentService.selectListByIds(studentID);
         return new JsonResult<>(list);
+    }
+
+    @GetMapping("/studentIDInfo")
+    public JsonResult<Patent> getStudentInfo(Integer studentID, Integer id) {
+        List<Patent> list = patentService.selectListByIds(studentID);
+        //paper.getId().longValue() == id.longValue() 要注意一下,如果是Integer类型的就要转成Long类型进行比较
+        List<Patent> collect = list.stream().filter(paper -> paper.getId().longValue() == id.longValue()).collect(Collectors.toList());
+        Patent patent = collect.get(0);
+        String url = patent.getUrl();
+        String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
+//        patent.setUrl(replace);
+        collect.get(0).setFileName(replace.substring(replace.lastIndexOf('/')+1));
+        return new JsonResult<>(collect.get(0));
+    }
+
+    @GetMapping("/getDtaById")
+    public JsonResult<Patent> getDtaById(Long id) {
+        Patent patent = patentService.selectPatentById(id);
+        return new JsonResult<>(patent);
     }
 
     //    修改专利状态
@@ -180,6 +197,7 @@ public class PatentController {
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
     }
+
     //管理员修改该学生论文积分
     @PostMapping("/editPoint/{ID}")
     public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Patent patent) {

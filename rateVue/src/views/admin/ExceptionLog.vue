@@ -140,20 +140,35 @@ export default {
       return (this.currentPage - 1) * this.pageSize + index + 1;
     },
     fetchData(pageNum, pageSize) {
+
       this.loading = true;
+
       axios.get(`/exception/getAll?page=${pageNum}&size=${pageSize}`,{
+
         headers:{
+
           'token': localStorage.getItem('user') ? this.user.token : ''
+
         }
+
       }).then((response) => {
-            this.loading = false;
-            this.tableData = response.obj[0];
-            this.totalCount = response.obj[1];
-          })
+
+        this.loading = false;
+
+        this.tableData = response.obj[0];
+
+        this.totalCount = response.obj[1];
+
+      })
+
           .catch((error) => {
+
             this.$message.error(error);
+
           });
+
     },
+
     init() {
       this.fetchData(this.currentPage,this.pageSize)
     },

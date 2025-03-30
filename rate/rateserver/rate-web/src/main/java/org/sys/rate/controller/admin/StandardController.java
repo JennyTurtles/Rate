@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.StandardMapper;
-import org.sys.rate.model.Msg;
-import org.sys.rate.model.Patent;
-import org.sys.rate.model.RespBean;
-import org.sys.rate.model.Standard;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.StandardService;
 import org.sys.rate.service.mail.MailToTeacherService;
@@ -29,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 专利成果Controller
@@ -58,6 +56,22 @@ public class StandardController {
         return new JsonResult<>(list);
     }
 
+    @GetMapping("/getDtaById")
+    public JsonResult<Standard> getDtaById(Long id) {
+        Standard standard = standardMapper.selectPaperById(id);
+        return new JsonResult<>(standard);
+    }
+    @GetMapping("/studentIDInfo")
+    public JsonResult<Standard> getStudentInfo(Integer studentID, Integer id) {
+        List<Standard> list = standardService.selectListByIds(studentID);
+        List<Standard> collect = list.stream().filter(paper -> paper.getId() == id.longValue()).collect(Collectors.toList());
+        Standard standard = collect.get(0);
+        String url = standard.getUrl();
+        String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
+//        standard.setUrl(replace);
+        collect.get(0).setFileName(replace.substring(replace.lastIndexOf('/')+1));
+        return new JsonResult<>(collect.get(0));
+    }
     //    修改专利状态
     @GetMapping("/edit_state")
     public JsonResult getById(String state, Long ID) throws MessagingException {
@@ -92,7 +106,7 @@ public class StandardController {
     @ResponseBody
     public JsonResult addSave(Standard standard) throws FileNotFoundException {
         Integer res = standardService.insertStandard(standard);
-        mailToTeacherService.sendTeaCheckMail(standard, "制定标准","添加");
+        mailToTeacherService.sendTeaCheckMail(standard, "制定标准", "添加");
         return new JsonResult(standard.getId());
     }
 
@@ -104,7 +118,7 @@ public class StandardController {
     public JsonResult editSave(Standard standard) throws FileNotFoundException {
         int res = standardService.updateStandard(standard);
         if (res > 0) {
-            mailToTeacherService.sendTeaCheckMail(standard, "制定标准","修改");
+            mailToTeacherService.sendTeaCheckMail(standard, "制定标准", "修改");
         }
         return new JsonResult(res);
     }
@@ -171,6 +185,7 @@ public class StandardController {
         Object[] res = {list, info.getTotal()}; // res是分页后的数据，info.getTotal()是总条数
         return Msg.success().add("res", res);
     }
+
     //管理员修改该学生论文积分
     @PostMapping("/editPoint/{ID}")
     public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Standard standard) {

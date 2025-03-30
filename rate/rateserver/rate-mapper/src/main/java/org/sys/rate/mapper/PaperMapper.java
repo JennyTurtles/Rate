@@ -86,7 +86,7 @@ public interface PaperMapper
     @Update("UPDATE paper SET state = #{state},have_score = #{valid} WHERE ID = #{ID}")
     public Integer editState2(String state, Long ID, Integer valid);
 
-    @Update("UPDATE graduatestudent SET point = point + #{score} WHERE ID = #{stuID}")
+    @Update("UPDATE graduatestudent SET point = point + #{score} WHERE studentID = #{stuID}")
     public int updateScore(Long stuID,Long score);
 
     @Select("SELECT * FROM paper WHERE  ID = #{ID}")

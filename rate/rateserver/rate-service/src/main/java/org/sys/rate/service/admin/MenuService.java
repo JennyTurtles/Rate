@@ -1,6 +1,8 @@
 package org.sys.rate.service.admin;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.util.StringUtil;
+import org.springframework.util.CollectionUtils;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -45,11 +44,12 @@ public class MenuService {
 //        List<Integer> childMenuId = new ArrayList<Integer>();
         for (Menu menu : rootMenu){
             //遍历所有的一级菜单和全部菜单，全部菜单id和一级菜单比较
-            if (menu.getParentId() != 1){
-                if (menu.getParentId()==id){
+            if (menu.getParentId() != 1) {
+                if (menu.getParentId() == id) {
                     childList.add(menu);
-//                    childMenuId.add(menu.getId());
                 }
+
+//                    childMenuId.add(menu.getId());
             }
         }
 //        for (Menu menu : rootMenu){
@@ -139,7 +139,7 @@ public class MenuService {
             }
         }
         String[] roles = role.split(";");
-        List<Menu> res=new ArrayList<>();
+            List<Menu> res=new ArrayList<>();
         for (int i = 0;i < roles.length;i++){
             //获取每个角色的菜单
             if(!roles[i].equals("")){
@@ -150,7 +150,20 @@ public class MenuService {
                 }
             }
         }
-        return res;
+        //整合数据
+        if(CollectionUtils.isEmpty(res)){
+            return res;
+        }
+        LinkedHashMap<Integer, Menu> resMap = new LinkedHashMap<>();
+        res.forEach(x->{
+            if(resMap.containsKey(x.getId())){
+                resMap.get(x.getId()).getChildren().addAll(x.getChildren());
+            }else{
+                resMap.put(x.getId(), x);
+            }
+        });
+        List<Menu> result = new LinkedList<>(resMap.values());
+        return result;
     }
 
 

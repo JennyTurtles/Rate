@@ -59,7 +59,7 @@ public class EditHaveScoreAspect {
         }
 
         // 其他的成果，have_score设置为1，更新研究生表的积分
-        productionMapper.editHaveScore(table, state,ID, 1);
+//        productionMapper.editHaveScore(table, state,ID, 1);
         graduateStudentMapper.updateScore(Long.valueOf(studentID), point.longValue());
     }
 

@@ -879,7 +879,7 @@ export default {
         // data.append(node.parent.data.label)
         data["p2"] = node.parent.data.label;
         data["p1"] = node.parent.parent.data.label;
-        if (data.type == "授权专利" || data.type == "制定标准" || data.type == "学术专著和教材" || data.type == "制造或设计的产品") {
+        if (data.type == "授权专利" || data.type == "制定标准" || data.type == "学术专著和教材" || data.type == "制造或设计的产品" || data.type == "产品应用" || data.type == "横向科研项目") {
           this.$message.warning(data.type + "类别无需设置！")
           return
         }

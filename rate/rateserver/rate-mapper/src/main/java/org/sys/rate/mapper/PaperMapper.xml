@@ -9,6 +9,7 @@
         <result property="studentID" column="studentID"/>
         <result property="name" column="name"/>
         <result property="year" column="year"/>
+        <result property="createtime" column="createtime"/>
         <result property="month" column="month"/>
         <result property="author" column="author"/>
         <result property="rank" column="rank"/>
@@ -30,6 +31,17 @@
             <result property="name" column="pname"/>
         </association>
         <collection property="paperoperList" ofType="org.sys.rate.model.Operation">
+            <result property="operatorRole" column="operator_role"/>
+            <result property="operatorId" column="operator_id"/>
+            <result property="operatorName" column="operator_name"/>
+            <result property="prodType" column="prod_type"/>
+            <result property="prodId" column="prod_id"/>
+            <result property="time" column="date"/>
+            <result property="operationName" column="operation_name"/>
+            <result property="state" column="state"/>
+            <result property="remark" column="remark"/>
+        </collection>
+        <collection property="operationList" ofType="org.sys.rate.model.Operation">
             <result property="operatorRole" column="operator_role"/>
             <result property="operatorId" column="operator_id"/>
             <result property="operatorName" column="operator_name"/>
@@ -79,7 +91,8 @@
 
     <select id="selectListByIds" resultMap="PaperResult" parameterType="Integer">
 -- 学生初始化
-        SELECT p.*,i.max_date,j.remark,ip.`name` as pubName, ip.id as publicationid,s.name as sname
+        SELECT p.*,i.max_date,j.remark,ip.`name` as pubName, ip.id as publicationid,s.name as sname,
+        ip.url url
         FROM paper p
                  JOIN (
             SELECT prod_id,MAX(date) max_date

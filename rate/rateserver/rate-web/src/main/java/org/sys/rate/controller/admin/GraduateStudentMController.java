@@ -18,9 +18,20 @@ import org.sys.rate.utils.POIUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.text.ParseException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/graduatestudentM/basic")
@@ -40,16 +51,72 @@ public class GraduateStudentMController {
     public ResponseEntity<byte[]> downloadExample_Participants_exportMoPar_Group(HttpServletResponse response){
         return POIUtils.writeGraduateStudent();
     }
+//    @PostMapping("/exportGraduateData")
+//    public ResponseEntity<byte[]> exportGraduateData(@RequestBody List<GraduateStudent> graduateStudents) {
+//        Workbook workbook = new XSSFWorkbook();
+//        Sheet sheet = workbook.createSheet("Graduate Students");
+//
+//        // 创建表头
+//        Row headerRow = sheet.createRow(0);
+//        String[] headers = {"学号", "姓名", "用户名", "电话", "邮箱", "入学年份", "学生类别", "积分", "差的积分", "导师姓名"};
+//        for (int i = 0; i < headers.length; i++) {
+//            Cell cell = headerRow.createCell(i);
+//            cell.setCellValue(headers[i]);
+//        }
+//
+//        // 填充数据
+//        int rowNum = 1;
+//        for (GraduateStudent student : graduateStudents) {
+//            Row row = sheet.createRow(rowNum++);
+//            row.createCell(0).setCellValue(student.getStuNumber());
+//            row.createCell(1).setCellValue(student.getName());
+//            row.createCell(2).setCellValue(student.getUsername());
+//            row.createCell(3).setCellValue(student.getTelephone());
+//            row.createCell(4).setCellValue(student.getEmail());
+//            row.createCell(5).setCellValue(student.getYear());
+//            row.createCell(6).setCellValue(student.getStudentType());
+//            row.createCell(7).setCellValue(student.getPoint());
+//            row.createCell(8).setCellValue(student.getPoint1());
+//            row.createCell(9).setCellValue(student.getTeachers().getName());
+//        }
+//
+//        // 自动调整列宽
+//        for (int i = 0; i < headers.length; i++) {
+//            sheet.autoSizeColumn(i);
+//        }
+//
+//        // 将工作簿写入字节数组输出流
+//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//        try {
+//            workbook.write(byteArrayOutputStream);
+//            workbook.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//        // 设置响应头
+//        HttpHeaders responseHeaders = new HttpHeaders();
+//        responseHeaders.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+//        responseHeaders.setContentDispositionFormData("attachment", "graduate_students.xlsx");
+//
+//        return new ResponseEntity<>(byteArrayOutputStream.toByteArray(), responseHeaders, HttpStatus.OK);
+//    }
+
 
     @PostMapping("/importGraduate")
     public RespBean importUnderGraduate(Integer institutionID, MultipartFile file) throws ParseException {
+//        List<String> checkResult = POIUtils.check(file);
+//        if (checkResult.size() > 0) {
+//            return RespBean.error("导入数据存在问题", checkResult);
+//        }
         Map<String, List> mm = POIUtils.readExcel_graduatestudent(institutionID, file);
         List<GraduateStudent> graduate = mm.get("graduatelist");
-        List<Student> stu = mm.get("studentlist");
+
         if (graduate.size() == 0) { //先将excel中读取到的数据行拿出来，student和graduate列表是同样的数量才对
             return RespBean.error("未读取到有效导入数据");
         }
         RespBean res = graduateStudentService.addGraduate(graduate);
+
         return res;
     }
 
@@ -112,13 +179,75 @@ public class GraduateStudentMController {
     @PostMapping("/updateScore") //加法
     public RespBean updateScoreAdd(@RequestBody GraduateStudent record) {
         Integer res = graduateStudentMapper.updateScore(Long.valueOf(record.getStudentID().intValue()),Long.parseLong(record.getPoint()));
-        return RespBean.ok("ok", res);
+        if (res > 0) {
+            graduateStudentService.updatePoint1(record.getStudentID());
+            return RespBean.ok("ok", res);
+        }
+
+        return RespBean.error("error");
     }
     @PostMapping("/updateScoreSub") //减法
     public RespBean updateScoreSub(@RequestBody GraduateStudent record) {
         Integer res = graduateStudentMapper.updateScoreSub(Long.valueOf(record.getStudentID().intValue()),Long.parseLong(record.getPoint()));
-        return RespBean.ok("ok", res);
+        if (res > 0) {
+            graduateStudentService.updatePoint1(record.getStudentID());
+            return RespBean.ok("ok", res);
+        }
+
+        return RespBean.error("error");
     }
+    @PostMapping("/exportGraduateData")
+    public ResponseEntity<byte[]> exportGraduateData(@RequestBody List<GraduateStudent> graduateStudents) {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Graduate Students");
+
+        // 创建表头
+        Row headerRow = sheet.createRow(0);
+        String[] headers = {"学号", "姓名", "用户名", "电话", "邮箱", "入学年份", "学生类别", "积分", "达标", "导师姓名"};
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+        }
+
+        // 填充数据
+        int rowNum = 1;
+        for (GraduateStudent student : graduateStudents) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(student.getStuNumber());
+            row.createCell(1).setCellValue(student.getName());
+            row.createCell(2).setCellValue(student.getUsername());
+            row.createCell(3).setCellValue(student.getTelephone());
+            row.createCell(4).setCellValue(student.getEmail());
+            row.createCell(5).setCellValue(student.getYear());
+            row.createCell(6).setCellValue(student.getStudentType());
+            row.createCell(7).setCellValue(student.getPoint());
+            row.createCell(8).setCellValue(student.getPoint1());
+            row.createCell(9).setCellValue(student.getTeachers().getName());
+        }
+
+        // 自动调整列宽
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // 将工作簿写入字节数组输出流
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try {
+            workbook.write(byteArrayOutputStream);
+            workbook.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 设置响应头
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        responseHeaders.setContentDispositionFormData("attachment", "graduate_students.xlsx");
+
+        // 后端返回 Base64
+        return new ResponseEntity<>(byteArrayOutputStream.toByteArray(), responseHeaders, HttpStatus.OK);
+    }
+
 
     @PostMapping("/update")
     public RespBean updateStudent(@RequestBody GraduateStudent record) {

@@ -1,140 +1,6 @@
 <template>
   <div>
-    <div>
-      <div
-        style="display: flex; justify-content: space-between; margin: 15px 0"
-      >
-        <div>
-          <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
-            添加论文
-          </el-button>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top: 10px">
-      <el-table
-        :data="emps"
-        stripe
-        border
-        v-loading="loading"
-        :header-cell-style="rowClass"
-        element-loading-text="正在加载..."
-        element-loading-spinner="el-icon-loading"
-        element-loading-background="rgba(0, 0, 0, 0.12)"
-        style="width: 100%"
-      >
-        <el-table-column
-          fixed
-          prop="name"
-          align="center"
-          label="论文名称"
-          min-width="20%"
-        >
-        </el-table-column>
-        <el-table-column
-          prop="state"
-          label="状态"
-          min-width="10%"
-          align="center"
-        >
-          <template slot-scope="scope">
-            <span
-              style="padding: 4px"
-              :style="
-                scope.row.state == 'tea_reject' ||
-                scope.row.state == 'adm_reject'
-                  ? { color: 'red' }
-                  : { color: 'gray' }
-              "
-              size="mini"
-            >
-              {{
-                scope.row.state == "commit"
-                  ? "已提交"
-                  : scope.row.state == "tea_pass"
-                  ? "导师通过"
-                  : scope.row.state == "tea_reject"
-                  ? "导师驳回"
-                  : scope.row.state == "adm_pass"
-                  ? "管理员通过"
-                  : "管理员驳回"
-              }}
-            </span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="pubName"
-          label="发表刊物"
-          align="center"
-          min-width="15%"
-        >
-        </el-table-column>
-        <el-table-column
-          prop="paperoperList[0].remark"
-          label="备注"
-          :formatter="checkScoreComent"
-          align="center"
-          style="width: 220px"
-          min-width="20%"
-        >
-        </el-table-column>
-        <el-table-column
-          prop="point"
-          label="积分"
-          align="center"
-          min-width="8%"
-          :formatter="formatPoint"
-        >
-        </el-table-column>
-        <el-table-column
-          align="center"
-          width="280px"
-          label="操作"
-          min-width="20%"
-        >
-          <template slot-scope="scope">
-            <el-button
-              @click="showEditEmpView(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              icon="el-icon-edit"
-              type="primary"
-              plain
-              v-show="
-                scope.row.state == 'commit' ||
-                scope.row.state == 'tea_reject' ||
-                scope.row.state == 'adm_reject'
-                  ? true
-                  : false
-              "
-              >编辑
-            </el-button>
-            <el-button
-              @click="deleteEmp(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              type="danger"
-              icon="el-icon-delete"
-              plain
-              v-show="
-                scope.row.state == 'tea_reject' ||
-                scope.row.state == 'commit' ||
-                scope.row.state == 'adm_reject'
-                  ? true
-                  : false
-              "
-              >删除
-            </el-button>
-            <el-button
-              @click="showInfo(scope.row)"
-              style="padding: 4px"
-              size="mini"
-              >查看详情
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
+
 
     <!-- 添加论文对话框 -->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
@@ -231,12 +97,15 @@
           <span class="isMust">*</span>
           <el-input
             size="mini"
-            style="width: 80%"
+            style="width: 50%"
             prefix-icon="el-icon-edit"
             v-model="currentEmp.author"
             @blur="judgeWriter()"
             placeholder="请输入作者,如有多个用分号分隔"
           ></el-input>
+          <span style="color: #6f7175;margin-left: 10px; font-size: 10px; text-decoration: underline;"
+              >如有多个作者用分号分隔
+          </span>
         </el-form-item>
 
         <el-form-item
@@ -267,6 +136,7 @@
           label-width="80px"
           style="margin-left: 20px"
         >
+
           <el-upload
             :file-list="files"
             action="#"
@@ -283,12 +153,21 @@
               slot="trigger"
               size="small"
               >选择文件 </el-button
-            >&nbsp;&nbsp;&nbsp;&nbsp;
-            <!-- <span style="color: #6f7175; font-size: 13px"
-              >证明材料指....... &nbsp;&nbsp;&nbsp;&nbsp;
-            </span> -->
-            <span style="color: gray; font-size: 11px"
-              >只允许doc docx pdf jpg png jpe rar zip类型文件
+            >&nbsp;
+            <span>
+            <el-tooltip
+                        effect="dark"
+                        placement="top-start"
+              >
+              <i class="el-icon-info" style="color: #4b8ffe"> </i>
+              <div style="width: 200px" slot="content">
+                  证明材料指:
+              </div>
+	          </el-tooltip>
+	        </span>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <span style="color: gray; font-size: 10px; text-decoration: underline;"
+              >只允许doc docx pdf jpg png jpeg rar zip类型文件
               &nbsp;&nbsp;大小不能超过10MB
             </span>
           </el-upload>
@@ -359,14 +238,11 @@
           <span>{{ emp.rank }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="发表年份:">
-          <span>{{ emp.year }}</span
+        <el-form-item label="发表年月:">
+          <span>{{ emp.year }}-{{ emp.month }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="发表月份:">
-          <span>{{ emp.month }}</span
-          ><br />
-        </el-form-item>
+
         <el-form-item label="证明材料:" prop="url">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <span v-if="emp.url == '' || emp.url == null ? true : false"
@@ -470,109 +346,71 @@
         :rules="rulesPublication"
         ref="publicationForm"
       >
-        <el-form-item
-          label="期刊全称:"
-          prop="publicationName"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-input
+      <el-form-item label="期刊全称:" prop="publicationName" label-width="130px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -140px;">*</span>
+        <el-input
             size="mini"
-            style="width: 80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.publicationName"
             @blur="queryPublication"
             :disabled="inputDisabled"
             placeholder="请输入期刊全称"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="刊物简称:"
-          prop="publicationAbbr"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-input
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="刊物简称:" prop="publicationAbbr" label-width="130px" style="margin-left: 20px;">
+        <!-- <span class="isMust">*</span> -->
+        <el-input
             size="mini"
-            style="width: 80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.publicationAbbr"
             :disabled="inputDisabled"
             placeholder="请输入刊物简称"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="出版社:"
-          prop="publisherName"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-input
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="出版社:" prop="publisherName" label-width="130px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -140px;">*</span>
+        <el-input
             size="mini"
-            style="width: 80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.publisherName"
             :disabled="inputDisabled"
             placeholder="请输入出版社"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="网址:"
-          prop="publicationUrl"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-input
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="网址:" prop="publicationUrl" label-width="130px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -140px;">*</span>
+        <el-input
             size="mini"
-            style="width: 80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.publicationUrl"
             :disabled="inputDisabled"
             placeholder="请输入网址"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="录入年份:"
-          prop="year"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-input
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="指标点分类:" prop="indicatorName" label-width="90px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -100px;">*</span>
+        <el-button  style="margin-left: 40px;" ref="selectBtn" size="mini" type="text" @click="showTreeDialog">{{ buttonText }}</el-button>
+      </el-form-item>
+      <el-form-item label="进入该分类的年份:" prop="year" label-width="130px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -140px;">*</span>
+        <el-input
             size="mini"
-            style="width: 80%"
+            style="width:40%"
             prefix-icon="el-icon-edit"
             v-model="publish.year"
             @blur="checkYear"
-            placeholder="请输入录入年份"
-          ></el-input>
-        </el-form-item>
-        <el-form-item
-          label="指标点分类:"
-          prop="indicatorName"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <span class="isMust">*</span>
-          <el-button
-            ref="selectBtn"
-            size="mini"
-            type="text"
-            @click="showTreeDialog"
-            >{{ buttonText }}</el-button
-          >
-        </el-form-item>
-        <el-form-item
-          label="证明材料:"
-          prop="publicationProofUrl"
-          label-width="90px"
-          style="margin-left: 20px"
-        >
-          <el-upload
+            placeholder="请输入索引或分类列表发布的年份"
+        ></el-input>&nbsp;&nbsp;&nbsp;&nbsp;
+        <span style="color:gray;font-size:11px;text-decoration: underline;">证明材料中需包含该信息
+        </span>
+      </el-form-item>
+      <el-form-item label="证明材料:" prop="publicationProofUrl" label-width="90px" style="margin-left: 20px;">
+        <span class="isMust" style="left: -100px;">*</span>
+        <el-upload
             :file-list="filesPublication"
             action="#"
             :limit="1"
@@ -581,16 +419,27 @@
             :auto-upload="false"
             :on-change="handleChangeFilesPublication"
             :on-exceed="handleExceed"
-          >
-            <el-button type="primary" icon="el-icon-upload2" slot="trigger"
-              >选择文件 </el-button
-            >&nbsp;&nbsp;&nbsp;&nbsp;
-            <span style="color: gray; font-size: 11px"
-              >只允许doc docx pdf jpg png jpe rar zip类型文件
-              &nbsp;&nbsp;大小不能超过10MB
-            </span>
-          </el-upload>
-        </el-form-item>
+        >
+          <el-button type="primary" icon="el-icon-upload2"
+                     slot="trigger" style="margin-left: 41px;"
+          >选择文件
+          </el-button>&nbsp;
+          <span>
+            <el-tooltip
+                        effect="dark"
+                        placement="top-start"
+              >
+              <i class="el-icon-info" style="color: #4b8ffe"> </i>
+              <div style="width: 200px" slot="content">
+                  证明材料指:
+              </div>
+	          </el-tooltip>
+	        </span> &nbsp;&nbsp;&nbsp;&nbsp;
+          <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpeg rar zip类型文件
+                  &nbsp;&nbsp;大小不能超过10MB
+                </span>
+        </el-upload>
+      </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button
@@ -766,7 +615,7 @@ export default {
           { required: true, message: "请输入期刊全称", trigger: "blur" },
         ],
         publicationAbbr: [
-          { required: true, message: "请输入刊物简称", trigger: "blur" },
+          { required: false, message: "请输入刊物简称", trigger: "blur" },
         ],
         publisherName: [
           { required: true, message: "请输入出版社", trigger: "blur" },
@@ -804,6 +653,7 @@ export default {
   mounted() {
     this.initTutor(this.user);
     this.initEmps();
+    this.showAddEmpView();
   },
   methods: {
     previewMethod(type) {
@@ -861,6 +711,7 @@ export default {
       this.title_publication = "添加期刊";
       this.dialogVisible = false;
       this.dialogVisible_publication = true;
+      // this.$router.push({ path: "/student/AddPublication" });
     },
     openUpdateDialog() {
       if (this.inputDisabled) {
@@ -1099,17 +950,32 @@ export default {
         val
       )}/${encodeURIComponent(this.currentEmp.year)}`;
       this.getRequest(url).then((resp) => {
-        this.loading = false;
-        this.loadingPublicationSearch = false;
         if (resp) {
           this.select_pubName = [];
-          if (resp.obj) {
+          if (resp.obj.length!=0) {
+            this.loading = false;
+            this.loadingPublicationSearch = false;
             resp.obj.map((val) => {
               this.select_pubName.push(val);
             });
+          }else{
+            let url = `/publication/basic/listByAbbrYear/${encodeURIComponent(
+              val
+            )}/${encodeURIComponent(this.currentEmp.year)}`;
+            this.getRequest(url).then((resp) => {
+              this.loading = false;
+              this.loadingPublicationSearch = false;
+              if (resp) {
+                if (resp.obj) {
+                  resp.obj.map((val) => {
+                    this.select_pubName.push(val);
+                  });
+                }
+              }
+            })
           }
-        }
-      });
+      }
+    });
     },
     filterPublication(val) {
       //选择下拉框的某个期刊 得到选择的期刊的id score等信息
@@ -1154,6 +1020,7 @@ export default {
             this.publishToDatabase.check_duplicates.year = years;
             this.inputDisabled = true;
           } else {
+
             this.$message.warning(
               this.publicationName +
                 "在" +
@@ -1463,14 +1330,18 @@ export default {
         //emptyEmp中没有将id设置为空 所以可以判断
         this.editPaper(params);
       } else {
-        this.$refs["currentEmp"].validate(async (valid) => {
+        this.$refs["currentEmp"].validate( (valid) => {
           if (valid) {
-            this.postRequest1("/paper/basic/add", params).then((resp) => {
-              if (resp) {
-                this.dialogVisible = false;
-                this.doAddOper("commit", resp.data);
-              }
-            });
+            params.studentId = this.user.id
+            this.postRequest1("/paper/basic/add", params).then(
+                    (resp) => {
+                      if (resp) {
+                        this.$message.success('添加成功！')
+                        this.dialogVisible = false;
+                        this.doAddOper("commit", resp.data);
+                        this.$router.push('/student/Project');
+                      }
+                    });
           }
         });
       }
@@ -1482,7 +1353,7 @@ export default {
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper);
       await this.initEmps();
-      this.$message.success("操作成功");
+      // this.$message.success("操作成功");
     },
     showAddEmpView() {
       //点击添加论文按钮
@@ -1613,7 +1484,7 @@ export default {
 }
 
 #selectItem {
-  display: "none";
+
   border: 1px solid #eee;
   width: 200px;
   /* height:100px; */

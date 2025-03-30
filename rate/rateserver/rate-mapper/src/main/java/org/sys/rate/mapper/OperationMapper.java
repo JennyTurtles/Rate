@@ -26,4 +26,6 @@ public interface OperationMapper {
 
     List<Operation> selectTypeAllOperationList(String type);
     Integer deleteOperationList(Operation operation);
+
+    Operation selectMinDataList(Integer prodId, String prodType);
 }

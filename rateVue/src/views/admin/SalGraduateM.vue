@@ -3,17 +3,19 @@
     <div>
       导入学生第一步：<el-button icon="el-icon-upload" type="primary" @click="downloadExcel">下载模版</el-button>
       第二步：<el-upload
-          :show-file-list="false"
-          :headers="{
+        :show-file-list="false"
+        :headers="{
         'token': user.token
       }"
-          :before-upload="beforeUpload"
-          :on-success="onSuccess"
-          style="display: inline-flex; margin-left: 8px"
-          :action="UploadUrl()"
-      >
-        <el-button icon="el-icon-plus" type="success">导入学生</el-button>
-      </el-upload>
+        :before-upload="beforeUpload"
+        :on-success="onSuccess"
+        style="display: inline-flex; margin-left: 8px"
+        :action="UploadUrl()"
+        :http-request="handleChange"
+    >
+      <el-button icon="el-icon-plus" type="success">导入学生</el-button>
+    </el-upload>
+
     </div>
     <div style="margin-top: 10px">
       <span>
@@ -52,6 +54,7 @@
         </el-select>
       </div>
       <el-button @click="filterBtn" style="margin-left: 30px;" type="primary">筛选</el-button>
+      <el-button icon="el-icon-download" type="primary" @click="exportExcel">导出数据</el-button>
     </div>
     <div style="margin-top: 10px">
       <el-table
@@ -59,13 +62,13 @@
         <el-table-column prop="stuNumber" label="学号" align="center"></el-table-column>
         <el-table-column prop="name" label="姓名" align="center" width="80px"></el-table-column>
         <el-table-column prop="username" label="用户名" align="center"></el-table-column>
-        <el-table-column prop="telephone" label="电话" align="center" width="80px"></el-table-column>
-        <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
+
         <el-table-column prop="year" label="入学年份" align="center" width="70px"></el-table-column>
         <el-table-column prop="studentType" label="学生类别" align="center"></el-table-column>
         <el-table-column prop="point" label="积分" align="center" width="60px"></el-table-column>
+        <el-table-column prop="point1" label="达标" align="center" width="70px"></el-table-column>
         <el-table-column prop="teachers.name" label="导师姓名" align="center" width="80px"></el-table-column>
-        <el-table-column  label="操作" align="center" width="180px">
+        <el-table-column  label="操作" align="center" width="240px">
           <template slot-scope="scope">
             <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary" style="padding: 4px">编辑</el-button>
             <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)" style="padding: 4px">删除</el-button>
@@ -141,7 +144,7 @@
 
 <script>
 import {debounce} from "@/utils/debounce";
-
+import axios from "axios";
 export default {
   name: "SalGraduateM",
   data(){
@@ -175,7 +178,8 @@ export default {
         telephone:'',
         email:'',
         studentType:'',
-        point:''
+        point:'',
+        point1:''
       },
     }
   },
@@ -194,6 +198,7 @@ export default {
     this.initGraduateStudents(this.currentPage,this.pageSize)
   },
   methods:{
+
     showDetailInfo(data) { //点击查看详情按钮
       this.currentGraduateStudent = data;
       let url = this.$router.resolve({
@@ -204,6 +209,48 @@ export default {
       })
       window.open(url.href, '_blank')
     },
+    postRequest(url, data) {
+      return axios.post(url, data, {
+        headers: {
+          'token': this.user.token
+        },
+        // responseType: 'blob' // 确保响应类型为 Blob
+      });
+    },
+
+
+    exportExcel() {
+      // 获取当前页面的数据
+      const data = this.graduateStudents;
+      if (data.length === 0) {
+        this.$message.warning('没有数据可以导出');
+        return;
+      }
+
+      // 调用后端导出接口
+      this.postRequest('/graduatestudentM/basic/exportGraduateData', data).then((response) => {
+        if (response) {
+          // 创建一个 Blob 对象并生成下载链接
+          const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          const link = document.createElement('a');
+          link.href = window.URL.createObjectURL(blob);
+          link.download = 'graduate_students.xlsx';
+          link.click();
+          window.URL.revokeObjectURL(link.href);
+        } else {
+          this.$message.error('导出失败，未收到文件数据');
+        }
+      }).catch((error) => {
+        console.error(error);
+        this.$message.error('导出失败');
+      });
+    },
+
+
+
+
+
+
     searchTeaNameMethod(val) {
       if(val) {
         if(this.dialogEdit){
@@ -335,8 +382,10 @@ export default {
     onSuccess(res){
       if(res.status == 200){
         this.$message.success("导入成功")
+        console.log("step 2==========")
         this.initGraduateStudents(1,this.pageSize)
       }else {
+        console.log("step 3==========")
         this.$message.error(res.msg)
       }
     },
@@ -347,6 +396,84 @@ export default {
       let url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID
       return url;
     },
+    handleChange(file) {
+      this.show = true;
+      var that = this;
+      let fd = new FormData();
+      let fileName = file.file.name + new Date().getTime();
+      fd.append("file", file.file);
+      fd.append("key", fileName);
+      let url = "/participants/basic/checkGraduate?groupid=1";
+      this.postRequest(url, fd, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          'token': this.user.token
+        },
+      })
+          .then((res1) => {
+            if (res1.length === 0) { // 数据完整，没有空数据
+              url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID;
+              axios.post(url, fd, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                  'token': that.user.token
+                },
+              }).then((res) => {
+                if (res.status === 200) {
+                  this.$message({
+                    message: "导入成功",
+                    type: 'success'
+                  });
+                  this.initGraduateStudents(1, this.pageSize);
+                } else {
+                  this.$message.error(res.msg || "导入失败");
+                }
+              }).catch((err) => {
+                this.$message.error(err.response ? err.response.data.msg : "导入失败");
+              });
+            } else {
+              let newD = [], h = this.$createElement;
+              var count = 0;
+              for (const i in res1) {
+                count++;
+                newD.push(h('p', null, res1[i]));
+                if (count === 15) // 最多显示15行
+                  break;
+              }
+
+              this.$confirm(h('div', null, newD), '提示', {
+                confirmButtonText: '确定',
+                showCancelButton: false, // 隐藏取消按钮
+                type: 'warning'
+              }).then(() => {
+                that.loading = true;
+                url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID;
+                axios.post(url, fd, {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                    'token': that.user.token
+                  },
+                }).then((res) => {
+                  that.loading = false;
+                  if (res.status === 200) {
+                    this.initGraduateStudents(1, this.pageSize);
+                    // 这里不显示“导入成功”，因为已经显示了提示框
+                  } else {
+                    this.$message.error(res.msg || "导入失败");
+                  }
+                }).catch((err) => {
+                  that.loading = false;
+                  this.$message.error(err.response ? err.response.data.msg : "导入失败");
+                });
+              });
+            }
+          })
+          .catch((err) => {
+            this.$message.error(err.response ? err.response.data.msg : "导入失败");
+          });
+    },
+
+
     downloadExcel(){
       let url = '/graduatestudentM/basic/exportGraduate'
       this.$message.success('正在下载')

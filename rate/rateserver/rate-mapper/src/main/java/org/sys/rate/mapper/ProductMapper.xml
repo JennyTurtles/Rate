@@ -8,6 +8,7 @@
         <result property="studentId" column="student_id"/>
         <result property="name" column="name"/>
         <result property="date" column="date"/>
+        <result property="createtime" column="createtime"/>
         <result property="author" column="author"/>
         <result property="url" column="url"/>
         <result property="state" column="state"/>
@@ -39,7 +40,7 @@
     </resultMap>
 
     <sql id="selectPaperVo">
-        select id,student_id,name,date,author,url,indicatorId,state
+        select  id,student_id,name,date,author,url,indicator_id,state,point,total
         from i_application
     </sql>
 
@@ -99,7 +100,8 @@
     </select>
 
     <select id="selectPaperById" parameterType="Long" resultMap="ProductResult">
-        <include refid="selectPaperVo"/>
+         select  *
+        from i_application
         where ID = #{ID}
     </select>
 

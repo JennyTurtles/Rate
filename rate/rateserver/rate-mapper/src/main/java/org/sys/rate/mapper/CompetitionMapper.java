@@ -78,8 +78,7 @@ public interface CompetitionMapper
     @Update("UPDATE graduatestudent SET point = point + #{score} WHERE ID = #{stuID}")
     public int updateScore(Long stuID,Long score);
 
-    @Select("SELECT * FROM i_competition WHERE  ID = #{ID}")
-    public Competition selectByID(Long ID);
+    public Competition selectByID(@Param("ID") Long ID);
 
     public List<Competition> searchCompetitionByConditions(String studentName, String state, String competitionName, String pointFront, String pointBack);
     public Integer selectCompetitionNumberOfPendingMessing(String state);

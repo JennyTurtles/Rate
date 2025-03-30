@@ -234,7 +234,8 @@ router.beforeEach((to, from, next) => {
                     next()
                 }
             })
-            if (sessionStorage.getItem('initRoutes_AllSameForm').indexOf(to.path) >= 0) {
+            let roleName = JSON.parse(localStorage.getItem("user")).roleName;
+            if (sessionStorage.getItem('initRoutes_AllSameForm').indexOf(to.path) >= 0 || roleName.indexOf('admin') >= 0) {
                 next()
             } else {
                 Message.warning('无权限！请重新登录')
@@ -318,8 +319,11 @@ Vue.prototype.previewFileMethod = function (data){ //预览证明材料
         return url;
     });
 };
-Vue.prototype.downloadFileMethod = function (data){ //预览证明材料
+Vue.prototype.downloadFileMethod = function (data){ //下载证明材料
     var fileName = data.url.split('/').reverse()[0]
+    const lastIndex = fileName.lastIndexOf('%');
+    const result = fileName.substring(lastIndex + 1);
+    console.log(result);
     axios({
         url: '/achievements/basic/downloadByUrl',
         method: 'post',
@@ -329,13 +333,42 @@ Vue.prototype.downloadFileMethod = function (data){ //预览证明材料
             'token': JSON.parse(localStorage.getItem('user')).token ? JSON.parse(localStorage.getItem('user')).token : ''
         }
     }).then(response => {
+
         let url = window.URL.createObjectURL(new Blob([response]));
         const link = document.createElement('a');
         if (url.startsWith('http:')) {
             url = url.replace('http:', 'https:');
         }
         link.href = url;
-        link.setAttribute('download', fileName);
+        link.setAttribute('download', result);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+};
+
+Vue.prototype.downloadFileMethod1 = function (data){ //下载证明材料
+    var fileName = data.publicationProofUrl.split('/').reverse()[0]
+    const lastIndex = fileName.lastIndexOf('%');
+    const result = fileName.substring(lastIndex + 1);
+    console.log(result);
+    axios({
+        url: '/achievements/basic/downloadByUrl',
+        method: 'post',
+        responseType: 'blob',
+        data: qs.stringify({url: data.publicationProofUrl}),
+        headers: {
+            'token': JSON.parse(localStorage.getItem('user')).token ? JSON.parse(localStorage.getItem('user')).token : ''
+        }
+    }).then(response => {
+
+        let url = window.URL.createObjectURL(new Blob([response]));
+        const link = document.createElement('a');
+        if (url.startsWith('http:')) {
+            url = url.replace('http:', 'https:');
+        }
+        link.href = url;
+        link.setAttribute('download', result);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

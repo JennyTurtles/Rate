@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.InfosMapper;
 import org.sys.rate.mapper.PaperMapper;
+import org.sys.rate.model.Monograph;
 import org.sys.rate.model.Msg;
 import org.sys.rate.model.Paper;
 import org.sys.rate.model.RespBean;
@@ -28,8 +29,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -64,6 +69,26 @@ public class PaperController {
     public JsonResult<List> getById(Integer studentID) {
         List<Paper> list = paperService.selectListByIds(studentID);
         return new JsonResult<>(list);
+    }
+
+    @GetMapping("/studentIDInfo")
+    public JsonResult<Paper> getStudentInfo(Integer studentID, Integer id) {
+        List<Paper> list = paperService.selectListByIds(studentID);
+        List<Paper> collect = list.stream().filter(paper -> paper.getID() == id.longValue()).collect(Collectors.toList());
+        Paper paper = collect.get(0);
+        String url = paper.getUrl();
+        String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
+//        paper.setUrl(replace);
+        Paper paper1 = collect.get(0);
+        paper1.setFileName(replace.substring(replace.lastIndexOf('/')+1));
+        paper1.setDate(paper1.getYear()+"-"+paper1.getMonth());
+        return new JsonResult<>(paper1);
+    }
+
+    @GetMapping("/getDtaById")
+    public JsonResult<Paper> getDtaById(Long id) {
+        Paper paper = paperService.selectPaperById(id);
+        return new JsonResult<>(paper);
     }
 
     //    修改论文状态
@@ -105,7 +130,8 @@ public class PaperController {
     @ResponseBody
     public JsonResult addSave(Paper paper) {
         paperService.insertPaper(paper);
-        mailToTeacherService.sendTeaCheckMail(paper, "学术论文","添加");
+        mailToTeacherService.sendTeaCheckMail(paper, "学术论文", "添加");
+//        xinProjectService.insertPaper(paper);
         return new JsonResult(paper.getID());
     }
 
@@ -160,7 +186,7 @@ public class PaperController {
     @GetMapping("/downloadByUrl")
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(Integer infoItemID, Integer participantID, Integer activityID) throws IOException {
-        String url = infosMapper.selectInfosContent(activityID,participantID,infoItemID);
+        String url = infosMapper.selectInfosContent(activityID, participantID, infoItemID);
         File file = new File(url);
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
 

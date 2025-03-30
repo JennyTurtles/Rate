@@ -4,25 +4,18 @@
       <template #template></template>
       <template>
         <div>
-          <div style="padding-left: 40px">共有{{ $store.state.pendingMessageTotal }}条待办消息！</div>
-          <ul>
-            <li v-for="(key, value) in list" @click="goLink(key, value)" style="margin-top: 8px">
-              <a href="#" style="text-decoration: none; color: #303133">
-                【 {{ typeMap[value].name }} 】有
-                <span :style="key > 0 ? {'color' : 'red'} : {'color' : '#303133'}">
-                  {{ key }}
-                </span>
-                <span>
-                  条待办消息
-                </span>
-              </a>
-            </li>
-          </ul>
+          <div
+              style="padding-left: 40px; cursor: pointer; text-decoration: underline;"
+              @click="goTeacherMain()"
+          >
+            共有{{ $store.state.pendingMessageTotal }}条待办消息！
+          </div>
         </div>
       </template>
     </el-skeleton>
   </el-card>
 </template>
+
 
 <script>
 export default {
@@ -30,6 +23,14 @@ export default {
   data() {
     return {
       typeMap: {
+        'MAIN': {
+          name: '授权专利',
+          path: '/teacher/tProject1'
+        },
+        'adminMain': {
+          name: '授权专利',
+          path: '/admin/Examine'
+        },
         'paper': {
           name: '学术论文',
           path: '/teacher/tPaper'
@@ -81,6 +82,12 @@ export default {
         }
       }
       return this.$store.state.pendingMessageTypeObject;
+    },
+    // 添加计算属性获取当前角色
+    currentRole() {
+       // const user = JSON.parse(localStorage.getItem("user"));
+      const user = JSON.parse(localStorage.getItem('user'));
+      return user;
     }
   },
   mounted() {
@@ -92,6 +99,18 @@ export default {
     goLink(key, value) {
       this.$router.push({
         path: this.typeMap[value].path})
+    },
+    goTeacherMain() {
+   const user =  this.currentRole;
+      const roleName =  user.roleName ;
+      if (roleName.indexOf('admin') < 0 ){
+        this.$router.push({
+          path:this.typeMap["MAIN"].path})
+      }else {
+        this.$router.push({
+          path:this.typeMap["adminMain"].path})
+      }
+
     }
   }
 }

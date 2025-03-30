@@ -12,7 +12,11 @@ import org.sys.rate.service.admin.ProgramRecordService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/programRecord/basic")
@@ -26,8 +30,15 @@ public class ProgramRecordController {
 
     @GetMapping("/getAllRecordStu")
     public JsonResult<List> getAllRecordStu(Integer studentID) {
-        List<ProgramRecord> data = programRecordMapper.selectRecordListStu(studentID);
-        return new JsonResult(data);
+        List<ProgramRecord> combinedList = programRecordService.getAllRecordStu(studentID);
+        return new JsonResult(combinedList);
+    }
+
+    //插入在中间的记录返回前后两条记录
+    @GetMapping("/getBeforeAfterRecordStu")
+    public JsonResult<List> getBeforeAfterRecordStu(ProgramRecord programRecord) {
+        List<ProgramRecord> combinedList = programRecordService.getBeforeAfterRecordStu(programRecord);
+        return new JsonResult(combinedList);
     }
 
     @GetMapping("/getStuByTea")
@@ -43,9 +54,9 @@ public class ProgramRecordController {
     }
 
 
-    @DeleteMapping("/remove/{num}/{studentID}")
-    public JsonResult deleteRecordById(@PathVariable("num") int num, @PathVariable("studentID") int studentID) {
-        Integer res = programRecordService.deleteRecordById(num, studentID);
+    @DeleteMapping("/remove/{ID}/{studentID}")
+    public JsonResult deleteRecordById(@PathVariable("ID") int ID, @PathVariable("studentID") int studentID) {
+        Integer res = programRecordService.deleteRecordById(ID, studentID);
         return new JsonResult(res);
     }
 
@@ -81,8 +92,8 @@ public class ProgramRecordController {
 
     @GetMapping("/getAllRecordTea")
     public JsonResult<List> getAllRecordTea(Integer studentID) {
-        List<ProgramRecord> data = programRecordMapper.selectRecordListTea(studentID);
-        return new JsonResult(data);
+        List<ProgramRecord> allRecordTea = programRecordService.getAllRecordTea(studentID);
+        return new JsonResult(allRecordTea);
     }
 
     @PostMapping("/updateTea")

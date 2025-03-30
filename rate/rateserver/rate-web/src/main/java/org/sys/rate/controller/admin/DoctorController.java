@@ -48,7 +48,7 @@ public class DoctorController {
         return RespBean.error("更新失败!");
     }
     @GetMapping("/getDoctorStudents")
-    public Msg getGraduateStudents(@RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
+    public Msg getDoctorStudents(@RequestParam("pageNum") Integer pageNum, @RequestParam("pageSize") Integer pageSize) {
         Page page = PageHelper.startPage(pageNum, pageSize); // 设置当前所在页和每页显示的条数
         List<Doctor> t = doctorMapper.getDoctorStudents();
         PageInfo info = new PageInfo<>(page.getResult());
@@ -72,7 +72,7 @@ public class DoctorController {
         return RespBean.ok("ok", res);
     }
     @PostMapping("/importDoctors")
-    public RespBean importUnderGraduate(Integer institutionID, MultipartFile file) throws ParseException {
+    public RespBean importDoctors(Integer institutionID, MultipartFile file) throws ParseException {
         Map<String, List> mm = POIUtils.readExcel_doctrstudent(institutionID, file);
         List<Doctor> doctors = mm.get("doctorlist");
         if (doctors.size() == 0) { //先将excel中读取到的数据行拿出来，student和graduate列表是同样的数量才对
@@ -93,12 +93,22 @@ public class DoctorController {
     @PostMapping("/updateScore") //加法
     public RespBean updateScoreAdd(@RequestBody Doctor record) {
         Integer res = doctorMapper.updateScore(Long.valueOf(record.getStudentID().intValue()),Long.parseLong(record.getPoint()));
-        return RespBean.ok("ok", res);
+        if (res > 0) {
+            doctorService.updatePoint1(record.getStudentID());
+            return RespBean.ok("ok", res);
+        }
+
+        return RespBean.error("error");
     }
     @PostMapping("/updateScoreSub") //减法
     public RespBean updateScoreSub(@RequestBody Doctor record) {
         Integer res = doctorMapper.updateScoreSub(Long.valueOf(record.getStudentID().intValue()),Long.parseLong(record.getPoint()));
-        return RespBean.ok("ok", res);
+        if (res > 0) {
+            doctorService.updatePoint1(record.getStudentID());
+            return RespBean.ok("ok", res);
+        }
+
+        return RespBean.error("error");
     }
     @PostMapping("/resetUnderPassword")
     public RespBean resetUnderPassword(@RequestBody Doctor doctor){

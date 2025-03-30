@@ -8,9 +8,11 @@
         <result property="studentId" column="student_id" jdbcType="INTEGER"/>
         <result property="name" column="name"/>
         <result property="startDate" column="start_date"/>
+        <result property="createtime" column="createtime"/>
         <result property="endDate" column="end_date"/>
         <result property="author" column="author"/>
         <result property="url" column="url"/>
+        <result property="createtime" column="createtime"/>
         <result property="state" column="state"/>
         <result property="point" column="point"/>
         <result property="rank" column="rank"/>
@@ -81,7 +83,14 @@
         </where>
     </select>
 
-<!--    学生纵向科研项目页面初始化-->
+
+    <select id="selectByID" resultMap="ProjectResult">
+        SELECT i.*, type.`name` as tname, type.id as projectTypeId, type.year FROM i_project i
+        left join i_project_type type ON type.id = i.project_type_id
+        WHERE i.id = #{ID}
+    </select>
+
+    <!--    学生纵向科研项目页面初始化-->
     <select id="selectProjectListById" resultMap="ProjectResult">
         SELECT a.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, i.id as indicatorid, i.score, i.name as iname, s.name as sname
         FROM i_project a
@@ -199,7 +208,8 @@
         </foreach>
     </delete>
     <select id="searchProjectByConditions" resultMap="ProjectResult">
-        SELECT book.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, s.name as sname
+        SELECT book.*,i.max_date,j.remark,ip.`name` as tname, ip.id as projectTypeId, ip.year, ip.indicator_id, s.name
+        as sname
         FROM i_project book
         JOIN (
         SELECT prod_id,MAX(i_oper.date) max_date
@@ -215,10 +225,13 @@
         JOIN i_project_type ip ON book.project_type_id = ip.id
         JOIN student s ON s.ID = book.student_id
         <where>
-            <if test="projectName != null and projectName != ''">and book.name like concat('%', #{projectName}, '%')</if>
+            <if test="projectName != null and projectName != ''">and book.name like concat('%', #{projectName}, '%')
+            </if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
             <if test="state != null and state != ''">and book.state = #{state}</if>
-            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point
+                between #{pointFront} and #{pointBack}
+            </if>
         </where>
         ORDER BY book.id DESC
     </select>
@@ -239,10 +252,13 @@
         JOIN indicator i ON book.indicator_id = i.id
         JOIN student s ON s.ID = book.student_id
         <where>
-            <if test="projectName != null and projectName != ''">and book.name like concat('%', #{projectName}, '%')</if>
+            <if test="projectName != null and projectName != ''">and book.name like concat('%', #{projectName}, '%')
+            </if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
             <if test="state != null and state != ''">and book.state = #{state}</if>
-            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point
+                between #{pointFront} and #{pointBack}
+            </if>
         </where>
         ORDER BY book.id DESC
     </select>

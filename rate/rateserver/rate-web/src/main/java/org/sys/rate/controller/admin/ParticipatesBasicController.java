@@ -12,6 +12,7 @@ import com.csvreader.CsvWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.CSVReader;
@@ -280,6 +281,33 @@ public class ParticipatesBasicController {
         return POIUtils.check(file);
     }
 
+    @Resource
+    private GraduateStudentService graduateStudentService;
+
+    @PostMapping("/checkGraduate")
+    public List<String> checkGraduate(@RequestParam Integer groupid,MultipartFile file){
+        int index=1;
+        return graduateStudentService.checkGraduateStudent(file,index);
+    }
+    @Resource
+    private DoctorService  doctorservice;
+    @PostMapping("/checkDoctor")
+    public Msg checkDoctor(@RequestParam Integer groupid,MultipartFile file){
+      int index=1;
+        Msg msg = doctorservice.checkGraduateStudent(file, index,groupid);
+        return msg;
+//        Msg msg = new Msg();
+//        msg.setCode(500);
+//        msg.setMsg(strings.toString());
+//        return   msg;
+//        return Msg.fail().add("500",strings);
+    }
+    @Resource
+    private UnderGraduateService  underservice;
+    @PostMapping("/checkunder")
+    public Msg checkunder(@RequestParam Integer groupid,MultipartFile file){
+        return underservice.checkGraduateStudent(file);
+    }
     @GetMapping("/getParticipantIDByIdNumber")
     @ResponseBody
     public Msg getParticipantIDByIdNumber(@RequestParam Integer activityID,@RequestParam Integer participantID){

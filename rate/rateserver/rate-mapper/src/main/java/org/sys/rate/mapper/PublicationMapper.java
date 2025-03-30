@@ -60,6 +60,16 @@ public interface PublicationMapper {
     List<String> getPublicationNamesByNameYear(String name);
 
     /**
+     * 根据name和year模糊查询，返回相关的刊物全称
+     *
+     * @param Abbr:
+     * @Return List<String>
+     */
+    @Select("SELECT DISTINCT `name` FROM i_publication p, indicator_publication ip \n" +
+            "WHERE p.id = ip.publication_id AND abbr LIKE CONCAT('%',#{Abbr},'%')")
+    List<String> getPublicationNamesByAbbrYear(String Abbr);
+
+    /**
      * 根据name模糊查询，返回相关的刊物全称
      *
      * @param name:

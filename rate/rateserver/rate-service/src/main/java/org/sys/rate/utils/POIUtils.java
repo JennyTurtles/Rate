@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
+import org.sys.rate.mapper.TeachersMapper;
 import org.sys.rate.model.*;
 
 import java.io.ByteArrayOutputStream;
@@ -1029,8 +1030,8 @@ public class POIUtils {
             row.createCell(7).setCellValue("黄老师");
             //info = "入学年份、专业、班级非必填。导师工号可以为空，如果导师有重名则重名的导师必须提供工号。上传时请删除本行。";
             sheet.createRow(2).createCell(0).setCellValue("注意事项：");
-            sheet.createRow(3).createCell(0).setCellValue("1.导师姓名必须填，工号可以不填。");
-            sheet.createRow(4).createCell(0).setCellValue("2.如果导师有重名，则必须提供工号。");
+            sheet.createRow(3).createCell(0).setCellValue("1.导师姓名和工号可以都填，也可以只填写其中一个。如果都未填写，则不导入导师信息。");
+            sheet.createRow(4).createCell(0).setCellValue("2.如果单位内部导师有重名，则该导师必须提供工号，不能仅填写姓名。");
             sheet.createRow(5).createCell(0).setCellValue("3.入学年份、专业、班级可以为空。");
             sheet.createRow(6).createCell(0).setCellValue("4.上传前请删除以上注意事项。");
         } else {
@@ -1113,6 +1114,8 @@ public class POIUtils {
                     String year = null;
                     String specialty = null;
                     String className = null;
+                    String tutorJobNumber = null;
+                    String tutorName = null;
                     for (int k = 0; k < Cells; k++) {
                         HSSFCell cell = row.getCell(k);
                         if (cell != null) {
@@ -1133,6 +1136,12 @@ public class POIUtils {
                                     break;
                                 case "班级":
                                     className = cellValue;
+                                    break;
+                                case "导师工号":
+                                    tutorJobNumber = cellValue;
+                                    break;
+                                case "导师姓名":
+                                    tutorName = cellValue;
                                     break;
                                 default:
                                     break;
@@ -1158,6 +1167,8 @@ public class POIUtils {
                     underGraduate.setSpecialty(specialty);
                     studentList.add(student);
                     underList.add(underGraduate);
+                    underGraduate.setTutorJobNumber(tutorJobNumber);
+                    underGraduate.setTutorName(tutorName);
                 }
             }
 
@@ -1235,7 +1246,12 @@ public class POIUtils {
         row.createCell(8).setCellValue("软件工程");
         row.createCell(9).setCellValue("软件1901");
 
-        sheet.createRow(2).createCell(0).setCellValue("请删除提示行。导师工号和导师姓名如果不填写，则默认没有导师，如果两者都填写，按照导师工号查询。两者可填可不填。手机号和邮箱可为空");
+        sheet.createRow(2).createCell(0).setCellValue("注意事项：");
+        sheet.createRow(3).createCell(0).setCellValue("1.导师姓名和工号可以都填，也可以只填写其中一个。如果都未填写，则不导入导师信息。");
+        sheet.createRow(4).createCell(0).setCellValue("2.如果单位内部导师有重名，则该导师必须提供工号，不能仅填写姓名。");
+        sheet.createRow(5).createCell(0).setCellValue("3.手机、邮箱、专业、班级可以为空。");
+        sheet.createRow(6).createCell(0).setCellValue("4.学生类别为专硕或学硕");
+        sheet.createRow(7).createCell(0).setCellValue("5.上传前请删除以上注意事项。");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
@@ -1314,10 +1330,11 @@ public class POIUtils {
         row.createCell(8).setCellValue("软件工程");
         row.createCell(9).setCellValue("软件1901");
         sheet.createRow(2).createCell(0).setCellValue("注意事项：");
-        sheet.createRow(3).createCell(0).setCellValue("1.导师姓名必须填，工号可以不填。");
-        sheet.createRow(4).createCell(0).setCellValue("2.如果导师有重名，则必须提供工号。");
+        sheet.createRow(3).createCell(0).setCellValue("1.导师姓名和工号可以都填，也可以只填写其中一个。如果都未填写，则不导入导师信息。");
+        sheet.createRow(4).createCell(0).setCellValue("2.如果单位内部导师有重名，则该导师必须提供工号，不能仅填写姓名。");
         sheet.createRow(5).createCell(0).setCellValue("3.手机、邮箱、专业、班级可以为空。");
-        sheet.createRow(6).createCell(0).setCellValue("4.上传前请删除以上注意事项。");
+        sheet.createRow(6).createCell(0).setCellValue("4.学生类别为专硕或学硕");
+        sheet.createRow(7).createCell(0).setCellValue("5.上传前请删除以上注意事项。");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
@@ -1447,6 +1464,9 @@ public class POIUtils {
         mm.put("graduatelist", graduateList);
         return mm;
     }
+
+
+
 
     //管理员上传博士生模版excel
     public static Map<String, List> readExcel_doctrstudent(Integer institutionID, MultipartFile file) {

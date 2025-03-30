@@ -39,4 +39,6 @@ public class Operation {
 
     private Integer point;
 
+    private String name;
+
 }

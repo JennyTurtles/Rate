@@ -60,6 +60,18 @@ public class PublicationController {
     }
 
     /**
+     * 模糊查询简称相关期刊，返回期刊的全称
+     *
+     * @param Abbr:
+     * @Return RespBean
+     */
+    @GetMapping("/publication/basic/listByAbbrYear/{Abbr}/{year}")
+    public RespBean listByAbbr(@PathVariable String Abbr, @PathVariable Integer year) {
+        List<String> list = publicationService.selectPublicationListByAbbr(Abbr, year);
+        return RespBean.ok("模糊查询相关期刊", list);
+    }
+
+    /**
      * 新增保存刊物
      */
     @PostMapping("/publication/basic/add")

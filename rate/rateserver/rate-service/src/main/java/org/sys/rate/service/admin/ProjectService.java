@@ -1,8 +1,5 @@
 package org.sys.rate.service.admin;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.OperationMapper;
 import org.sys.rate.mapper.ProjectMapper;
@@ -10,11 +7,11 @@ import org.sys.rate.mapper.ProjectTypeMapper;
 import org.sys.rate.model.*;
 import org.sys.rate.model.Project;
 import org.sys.rate.service.mail.MailToStuService;
+import org.sys.rate.utils.ProjectTypeEnums;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,6 +25,24 @@ public class ProjectService {
     private OperationMapper operationMapper;
     @Resource
     private MailToStuService mailToStuService;
+    @Resource
+    private XinProjectService xinProjectService;
+
+    private void dealXinProject(Project dto, int type){
+        String projectType = dto.getProjectTypeId() == null ? "横向科研项目" : "纵向科研项目";
+        XinProject xinProject = new XinProject(dto.getName(), dto.getPoint(), dto.getAuthor(),
+                dto.getState(), dto.getRemark(), dto.getId(), projectType, dto.getStudentId());
+        if(type ==1) {
+            xinProjectService.insertXinProject(xinProject);
+        }else if(type == 2){
+            xinProjectService.updateXinProject(xinProject);
+        }else if(type == 3){
+            xinProjectService.updateXinProject(xinProject.getMid(), xinProject.getType(), xinProject.getState());
+        }else if(type == 4){
+            xinProjectService.deleteXinProject(xinProject.getMid(), xinProject.getType());
+        }
+    }
+
 
     public List<Project> selectProjectListById(Integer studentID) {
         List<Project> list = projectMapper.selectProjectListById(studentID);
@@ -39,26 +54,39 @@ public class ProjectService {
     }
 
     /**
-     * 新增科研专著教材成果
+     * 新增科研学术专著和教材成果
      *
-     * @param project 科研专著教材成果
+     * @param project 科研学术专著和教材成果
      * @return 结果
      */
     public int insertProject(Project project) {
-        return projectMapper.insertProject(project);
+        int rlt = projectMapper.insertProject(project);
+        dealXinProject(project, 1);
+        return rlt;
     }
 
     public int updateProject(Project project) {
+        Project project1 = projectMapper.selectByID(Long.valueOf(project.getId()));
+        project.setProjectTypeId(project1.getProjectTypeId());
+        dealXinProject(project, 2);
         return projectMapper.updateProject(project);
     }
 
     /**
-     * 删除科研专著教材成果
+     * 删除科研学术专著和教材成果
      *
-     * @param ID 科研专著教材成果ID
+     * @param ID 科研学术专著和教材成果ID
      * @return 结果
      */
     public int deleteProjectById(Long ID) {
+//        Project project = new Project();
+//        project.setId(Math.toIntExact(ID));
+        Project project = projectMapper.selectByID(ID);
+        if (project == null) {
+            throw new RuntimeException("该数据不存在");
+        }
+        dealXinProject(project, 4);
+
         return projectMapper.deleteProjectById(ID);
     }
 
@@ -110,10 +138,12 @@ public class ProjectService {
         return list;
     }
 
-    //    修改科研专著教材状态
+    //    修改科研学术专著和教材状态
     public int editState(String state, Long ID) throws MessagingException {
         Project project = projectMapper.getById(Math.toIntExact(ID));
         mailToStuService.sendStuMail(state, project, null, "纵向科研项目");
+        project.setState(state);
+        dealXinProject(project, 3);
         return projectMapper.editState(state, ID);
     }
 

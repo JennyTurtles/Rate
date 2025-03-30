@@ -3,6 +3,7 @@ package org.sys.rate.model;
 import lombok.Data;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,6 +41,8 @@ public class Paper{
      */
     private Long month;
     private String author;
+    private String date;
+    private String fileName;
 
     /**
      * 排名
@@ -50,6 +53,7 @@ public class Paper{
      * 总人数
      */
     private Long total;
+    private Date createtime;
 
     /**
      * 积分
@@ -82,6 +86,7 @@ public class Paper{
     private String pubPage;
     private Publication publication;
     private List<Operation> paperoperList;
+    private List<Operation> operationList;
     private Student student;
     //    private String stuname;
     private String pubName;

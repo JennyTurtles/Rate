@@ -1,6 +1,16 @@
 <template>
   <div>
-
+    <div>
+      <div
+          style="display: flex; justify-content: space-between; margin: 15px 0"
+      >
+        <div>
+          <el-button type="primary" icon="el-icon-plus" @click="showAddPublication">
+            添加期刊
+          </el-button>
+        </div>
+      </div>
+    </div>
     <el-table
         :data="tableData"
         stripe
@@ -45,7 +55,7 @@
       <el-table-column
           align="center"
           width="100px"
-          label="出版年"
+          label="年份"
           prop="year"
       ></el-table-column>
       <el-table-column
@@ -145,7 +155,7 @@
           <span>{{ emp.publicationUrl }}</span
           ><br/>
         </el-form-item>
-        <el-form-item label="出版年:" prop="year">
+        <el-form-item label="年份:" prop="year">
           <span>{{ emp.year }}</span
           ><br/>
         </el-form-item>
@@ -196,14 +206,17 @@
         >
       </span>
     </el-dialog>
-
+    <Paper v-if="dialogVisible_p" :dialogVisible_publication.sync="dialogVisible_p"/>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-
+import Paper from '@/views/student/AddPublication.vue';
 export default {
+  components: {
+    Paper
+  },
   data() {
     return {
       totalCount: 0,
@@ -216,6 +229,7 @@ export default {
       title_show: "",
       loading: false,
       activeName: "commit",
+      dialogVisible_p:false,
       tableData: [], // 表格数据
       emp: {
         id: "",
@@ -254,6 +268,9 @@ export default {
     },
   },
   methods: {
+    showAddPublication() {
+      this.dialogVisible_p = true;
+    },
     sizeChange(currentSize) {
       this.pageSize = currentSize;
       this.init(this.currentPage, this.pageSize);

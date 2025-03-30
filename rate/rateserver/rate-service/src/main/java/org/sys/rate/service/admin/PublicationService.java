@@ -48,6 +48,11 @@ public class PublicationService {
         return res;
     }
 
+    public List<String> selectPublicationListByAbbr(String Abbr, Integer year) {
+        List<String> res = publicationMapper.getPublicationNamesByAbbrYear(Abbr);
+        return res;
+    }
+
     public List<String> selectPublicationListByName(String publicationName) {
         List<String> res = publicationMapper.getPublicationNamesByName(publicationName);
         return res;

@@ -1,122 +1,6 @@
 <template>
   <div>
-    <div>
-      <div
-          style="display: flex; justify-content: space-between; margin: 15px 0"
-      >
-        <div>
-          <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
-            添加专利
-          </el-button>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top: 10px">
-      <el-table
-          :data="emps"
-          stripe
-          border
-          v-loading="loading"
-          :header-cell-style="rowClass"
-          element-loading-text="正在加载..."
-          element-loading-spinner="el-icon-loading"
-          element-loading-background="rgba(0, 0, 0, 0.12)"
-          style="width: 100%"
-      >
-        <el-table-column
-            fixed
-            prop="name"
-            align="center"
-            label="专利名称"
-            min-width="20%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="state"
-            label="状态"
-            min-width="10%"
-            align="center"
-        >
-          <template slot-scope="scope">
-            <span
-                style="padding: 4px"
-                :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
-                size="mini"
-            >
-              {{scope.row.state=="commit"
-                ? "已提交"
-                :scope.row.state=="tea_pass"
-                    ? "导师通过"
-                    :scope.row.state=="tea_reject"
-                        ? "导师驳回"
-                        :scope.row.state=="adm_pass"
-                            ? "管理员通过"
-                            :"管理员驳回"}}
-              </span>
-          </template>
-        </el-table-column>
-        <el-table-column
-            prop="author"
-            align="center"
-            label="参与人"
-            min-width="15%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="point"
-            label="积分"
-            align="center"
-            min-width="8%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="grantedStatus"
-            label="专利状态"
-            align="center"
-            min-width="10%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="operationList[0].remark"
-            style="width:90px"
-            align="center"
-            label="备注"
-            min-width="20%"
-        >
-        </el-table-column>
-        <el-table-column align="center" width="275" label="操 作" min-width="20%">
-          <template slot-scope="scope">
-            <el-button
-                @click="showEditEmpView(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-edit"
-                type="primary"
-                plain
-                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject' || scope.row.state == 'adm_reject'? true:false"
-            >编辑</el-button
-            >
-            <el-button
-                @click="showInfo(scope.row)"
-                style="padding: 4px"
-                size="mini"
-            >查看详情</el-button
-            >
 
-            <el-button
-                @click="deleteEmp(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                type="danger"
-                icon="el-icon-delete"
-                plain
-                v-show="scope.row.state == 'tea_reject' || scope.row.state == 'commit'? true:false"
-            >删除</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
 
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
       <el-form
@@ -188,7 +72,18 @@
           >
             <el-button type="primary" icon="el-icon-upload2"
                        slot="trigger"
-            >选择文件</el-button>&nbsp;&nbsp;&nbsp;&nbsp;
+            >选择文件</el-button>&nbsp;
+          <span>
+            <el-tooltip
+                        effect="dark"
+                        placement="top-start"
+              >
+              <i class="el-icon-info" style="color: #4b8ffe"> </i>
+              <div style="width: 200px" slot="content">
+                  证明材料指:
+              </div>
+	          </el-tooltip>
+	        </span> &nbsp;&nbsp;&nbsp;&nbsp;
             <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
                   &nbsp;&nbsp;大小不能超过10MB
                 </span>
@@ -312,6 +207,7 @@
             :highlight-current="true"
             node-key="id"
             :default-expanded-keys="defaultExpandedKeys"
+            default-expand-all	
         ></el-tree>
       </span>
     </el-dialog>
@@ -331,6 +227,12 @@ import axios from "axios";
 import {postRequest1} from "@/utils/api";
 export default {
   name: "SalSearch",
+  props: {
+    dialogVisible: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       isImage: false,
@@ -434,8 +336,12 @@ export default {
   mounted() {
     this.currentPatentCopy = JSON.parse(JSON.stringify(this.currentPatent));
     this.initEmps();
+    this.showAddEmpView()
   },
   methods: {
+    cancelAdd() {
+      this.$emit('update:dialogVisible', false);
+    },
     previewMethod(type) {
       if(type == '1') {
         this.previewFileMethod(this.currentPatent).then(res => {
@@ -619,6 +525,7 @@ export default {
       this.addButtonState = true;
     },
     showInfo(data){
+
       this.title_show = "显示详情";
       this.currentPatent = data
       this.dialogVisible_showInfo = true
@@ -683,6 +590,14 @@ export default {
       });
     },
     addAward() {//项目提交确认
+      this.$refs['currentPatentCopy'].validate(async (valid) => {
+        if (valid) {
+          // 提交论文的逻辑
+          // 假设添加论文成功
+          this.$emit('add');
+          this.$emit('update:dialogVisible', false);
+        }
+      });
       const params = {};
       params.id = this.currentPatentCopy.id;
       params.name = this.currentPatentCopy.name;

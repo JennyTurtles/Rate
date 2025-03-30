@@ -30,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 专利成果Controller
@@ -62,6 +63,26 @@ public class AwardController {
         return new JsonResult<>(list);
     }
 
+
+    @GetMapping("/studentIDInfo")
+    public JsonResult<Award> getStudentInfo(Integer studentID, Integer id) {
+        List<Award> list = awardService.selectAwardListById(studentID);
+        List<Award> collect = list.stream().filter(paper -> paper.getId() == id.longValue()).collect(Collectors.toList());
+        Award award = collect.get(0);
+        String url = award.getUrl();
+        String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
+//        award.setUrl(replace);
+        collect.get(0).setFileName(replace.substring(replace.lastIndexOf('/')+1));
+        return new JsonResult<>(collect.get(0));
+    }
+
+
+    @GetMapping("/getDtaById")
+    public JsonResult<Award> getDtaById(Long id) {
+        Award award = awardMapper.selectByID(id);
+        return new JsonResult<>(award);
+    }
+
     //    修改专利状态
     @GetMapping("/edit_state")
     public JsonResult getById(String state, Long ID) throws MessagingException {
@@ -85,7 +106,7 @@ public class AwardController {
     @ResponseBody
     public JsonResult addSave(Award award) throws FileNotFoundException {
         Integer res = awardService.insertAward(award);
-        mailToTeacherService.sendTeaCheckMail(award, "科研获奖","添加");
+        mailToTeacherService.sendTeaCheckMail(award, "科研获奖", "添加");
         return new JsonResult(award.getId());
     }
 
@@ -97,7 +118,7 @@ public class AwardController {
     public JsonResult editSave(Award award) throws FileNotFoundException {
         int res = awardService.updateAward(award);
         if (res > 0) {
-            mailToTeacherService.sendTeaCheckMail(award, "科研获奖","修改");
+            mailToTeacherService.sendTeaCheckMail(award, "科研获奖", "修改");
         }
         return new JsonResult(res);
     }
@@ -220,6 +241,7 @@ public class AwardController {
             return RespBean.error("添加失败！");
         }
     }
+
     //管理员修改该学生论文积分
     @PostMapping("/editPoint/{ID}")
     public JsonResult editPoint(@PathVariable Integer ID, @RequestBody Award award) {
