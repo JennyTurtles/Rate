@@ -19,7 +19,7 @@ UPDATE menu SET parentId = 94 WHERE id = 70 ;
 UPDATE menu SET enabled = 0 WHERE id = 69 ;
 UPDATE menu SET name = '期刊添加管理' WHERE id = 107 ;
 UPDATE menu SET name = '项目开发' WHERE id = 130 ;
-UPDATE menu SET name = '工作量记录' WHERE id = 131 ;
+UPDATE menu SET name = '项目工作量' WHERE id = 131 ;
 INSERT INTO menu (id,url, path, component, name, requireAuth, parentId, enabled)
 VALUES (137,'/salary/search/**', '/student/DeclareList', 'DeclareList', '成果申报', 1, 94, 1);
 
@@ -101,56 +101,49 @@ UPDATE menu SET parentId = 43 WHERE id = 131;
 UPDATE menu SET parentId = 43 WHERE id = 133;
 UPDATE menu SET parentId = 43 WHERE id = 134;
 
-DELETE FROM menu_role WHERE id IN (313, 315, 348, 352, 358, 368, 367, 392, 397, 399, 401);
+DELETE FROM menu_role WHERE id IN (307,313, 315, 348, 352, 358, 368, 367, 392, 397, 399, 401);
 DELETE FROM menu_role WHERE id IN (357,359,360,361,387,386,371,363,385,390,384);
 UPDATE menu_role SET rid = 11 WHERE id IN (403, 404);
+
+
+
+
+
 
 INSERT INTO menu (id,url, path, component, name, requireAuth, parentId, enabled)
 VALUES (138,'/salary/search/**', '/teacher/Project', 'Project', '学生成果列表', 1, 43, 1);
 INSERT INTO menu (id,url, path, component, name, requireAuth, parentId, enabled)
 VALUES (139,'/salary/search/**', '/admin/Project', 'Project', '学生成果列表', 1, 43, 1);
 
-INSERT INTO menu_role (mid,rid)
-VALUES (138,9);
-INSERT INTO menu_role (mid,rid)
-VALUES (139,14);
-INSERT INTO menu_role (mid,rid)
-VALUES (108,11);
-
-
-
-
-
-
 ALTER TABLE xin_project
 ADD COLUMN sid INT
 
 ALTER TABLE i_application
-ADD COLUMN createtime DATETIME
+ADD COLUMN createtime DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 ALTER TABLE i_award
-ADD COLUMN createtime DATETIME
+ADD COLUMN createtime DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 ALTER TABLE i_book
-ADD COLUMN createtime DATETIME
+ADD COLUMN createtime DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 ALTER TABLE i_competition
-ADD COLUMN createtime DATETIME
+ADD COLUMN createtime DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 ALTER TABLE i_decision
-ADD COLUMN createtime DATETIME
+ADD COLUMN createtime DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 ALTER TABLE i_patent
-ADD COLUMN createtime DATETIME
+ADD COLUMN createtime DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 ALTER TABLE i_project
-ADD COLUMN createtime DATETIME
+ADD COLUMN createtime DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 ALTER TABLE i_standard
-ADD COLUMN createtime DATETIME
+ADD COLUMN createtime DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 ALTER TABLE paper
-ADD COLUMN createtime DATETIME
+ADD COLUMN createtime DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 
 ALTER TABLE i_project
 ADD COLUMN date DATETIME
@@ -158,9 +151,58 @@ ADD COLUMN date DATETIME
 ALTER TABLE i_project
 ADD COLUMN have_score INT
 
-
-
-
 ALTER TABLE i_competition
 MODIFY date TIMESTAMP;
+
+INSERT INTO menu(`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (141, '/salary/search/**', '/teacher/Project', 'Project', '成果列表', NULL, NULL, 1, 43, 1);
+INSERT INTO menu_role (id,mid,rid)
+VALUES (410,63,8);
+INSERT INTO menu_role (id,mid,rid)
+VALUES (413,141,8);
+INSERT INTO menu_role (id,mid,rid)
+VALUES (414,143,14);
+
+
+INSERT INTO menu_role (id,mid,rid)
+VALUES (415,108,11);
+
+
+
+
+
+
+INSERT INTO menu(`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (142, '/salary/search/**', '/admin/Project', 'Project', '成果列表', NULL, NULL, 1, 43, 1);
+INSERT INTO menu(`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (143, '/salary/search/**', '/admin/Examine', 'tExamine', '待审核列表', NULL, NULL, 1, 43, 1);
+INSERT INTO menu_role (id,mid,rid)
+VALUES (416,142,14);
+UPDATE menu SET enabled = 0 WHERE id = 108;
+
+UPDATE menu SET name = '期刊添加状态' WHERE id = 109 ;
+
+
+
+
+ALTER TABLE i_application
+ADD COLUMN `have_score` int DEFAULT NULL,
+
+ALTER TABLE i_award
+ADD COLUMN `have_score` int DEFAULT NULL,
+
+ALTER TABLE i_book
+ADD COLUMN `have_score` int DEFAULT NULL,
+
+ALTER TABLE i_competition
+ADD COLUMN `have_score` int DEFAULT NULL,
+
+ALTER TABLE i_decision
+ADD COLUMN `have_score` int DEFAULT NULL,
+
+ALTER TABLE i_patent
+ADD COLUMN `have_score` int DEFAULT NULL,
+
+ALTER TABLE i_standard
+ADD COLUMN `have_score` int DEFAULT NULL,
+
+ALTER TABLE paper
+ADD COLUMN `have_score` int DEFAULT NULL,
 
