@@ -715,6 +715,8 @@ export default {
             ) {
               this.datalist.participatesList[i]["score" + j] =
                   this.datalist.scoresListNoExpert[k]["score"];
+              this.datalist.participatesList[i]["scoreNoExpert" + j] =
+                  this.datalist.scoresListNoExpert[k]["score"];
             }
           }
           for (var l = 0; l < scoreByExpert; l++) {
@@ -909,20 +911,25 @@ export default {
     },
     async initAct() {
       if (this.list.count != 0) {
-        this.$store.dispatch("initAct", this.Adata);
+        await this.$store.dispatch("initAct", this.Adata);
       }
     },
     // 刷新
-    refreshact(auto) {
-      this.initAct();
+    async refreshact(auto) {
+      //await this.initAct();
+      if (this.list.count != 0) {
+        await this.$store.dispatch("initAct", this.Adata);
+      }
       // this.$store.dispatch("initAct", this.Adata);
+      console.log(this.$store.state.changeList)
       if (this.$store.state.changeList === true) {
         // this.clear();
         this.datalist = this.datal
+        console.log(this.datal)
         // this.reload();
         // this.$store.commit('INIT_initchangeList',false)
         // this.$store.state.changeList = false
-        this.$store.dispatch("initchangeList");
+        await this.$store.dispatch("initchangeList");
       }
       if(this.datalist.finished){//提交了
         this.watchFinished()

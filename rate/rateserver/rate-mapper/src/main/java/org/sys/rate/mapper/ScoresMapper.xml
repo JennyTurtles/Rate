@@ -85,7 +85,7 @@
     <update id="UpdateScore1">
         update scores
         set score=#{score,jdbcType=DOUBLE}
-        where activityID=#{activityID,jdbcType=INTEGER} and participantID=#{participantID,jdbcType=INTEGER} and scoreItemID=#{scoreItemID,jdbcType=INTEGER}
+        where activityID=#{activityID,jdbcType=INTEGER} and participantID=#{participantID,jdbcType=INTEGER} and scoreItemID=#{scoreItemID,jdbcType=INTEGER} and expertID is null
     </update>
 
     <select id="selectScoreListByAP" resultMap="BaseResultMap">

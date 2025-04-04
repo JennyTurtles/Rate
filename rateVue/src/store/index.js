@@ -86,8 +86,8 @@ const store = new Vuex.Store({
             state.score = data
             sessionStorage.setItem("score", JSON.stringify(state.score));
         },
-        INIT_initchangeList(state) {
-            state.changeList = false
+        INIT_initchangeList(state, value) {
+            state.changeList = value
         }
     },
     actions: { //异步执行mutations方法
@@ -136,7 +136,7 @@ const store = new Vuex.Store({
             return promise
         },
         initAct(context, AI) {
-            // var promise = new Promise((resolve, reject) => {
+            return new Promise ((resolve, reject) => {
                     getRequest("/system/Experts/score?activitiesID=" + AI.Aid + '&expertID=' + AI.Auserid + '&groupId=' + AI.AgroupId).then(value => {
                         if (value) {
                             value = value.extend
@@ -219,7 +219,8 @@ const store = new Vuex.Store({
                                 //如果新老人数不等，即表示有人员变动
                                 if (JSONscore.participatesList.length !== value.participatesList.length) {
                                     Message.warning('人员顺序发生变化，请注意！')
-                                    this.state.changeList = true
+                                    context.commit('INIT_initchangeList', true)
+                                    //this.state.changeList = true
                                 } else {
                                     //通过现有的JSONscore.participatesList和新获取的value.participatesList判断对象顺序是否发生改变(通过学生id比较)
                                     for (let stuid = 0; stuid < length; stuid++) {
@@ -228,18 +229,55 @@ const store = new Vuex.Store({
                                             JSONscore.participatesList[stuid].studentID !== value.participatesList[stuid].studentID) {
                                             Message.warning('参加人员或人员顺序发生变化，请注意！')
                                             //发生变化changeList修改为true，进入修改操作
-                                            this.state.changeList = true
+                                            context.commit('INIT_initchangeList', true)
+                                            //this.state.changeList = true
                                             //只要遍历到有变化的地方，就可以停止遍历直接进行修改
                                             break;
                                         }
                                         //如果对应顺序相等，那么比较里面的详细信息
                                         else if (JSONscore.participatesList[stuid].studentID === value.participatesList[stuid].studentID) {
-                                            //先比较不可修改的分数
+                                            //比较非专家打分中可修改分数且专家未打分的情况
+                                            for (let i = 0; i < value.scoresListNoExpert.length; i++){
+                                                if (value.scoresListNoExpert[i].participantID === value.participatesList[stuid].id){
+                                                    let soreitemID = 0;
+                                                    let scoreitemIndex = -1;
+                                                    for (let j = 0; j < value.scoreitems.length; j++){
+                                                        if (value.scoresListNoExpert[i].scoreItemID === value.scoreitems[j].id){
+                                                            if (value.scoreitems[j].byexpert){
+                                                                soreitemID = value.scoreitems[j].id;
+                                                                scoreitemIndex = j;
+                                                            }
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (soreitemID){
+                                                        // 检查专家是否对该选手打分
+                                                        let exists = value.scoresListByExpert.some(item =>
+                                                            item.scoreItemID === soreitemID &&
+                                                            item.participantID === value.participatesList[stuid].id
+                                                        );
+                                                        // 检查前端是否有打分（前端打分的值是字符串）
+                                                        if (!exists && (typeof JSONscore.participatesList[stuid]["score" + scoreitemIndex] === "number")){
+                                                            if (value.scoresListNoExpert[i].score !== JSONscore.participatesList[stuid]["scoreNoExpert" + scoreitemIndex]){
+                                                                context.commit('INIT_initchangeList', true)
+                                                                //this.state.changeList = true;
+                                                                Message.success(value.participatesList[stuid].student.name+'的信息发生变化!')
+                                                                JSONscore.participatesList[stuid]["score" + scoreitemIndex] = value.scoresListNoExpert[i].score;
+                                                                value.participatesList[stuid]["scoreNoExpert" + scoreitemIndex] = value.scoresListNoExpert[i].score;
+                                                                break;
+                                                            }
+                                                        }
+                                                        value.participatesList[stuid]["scoreNoExpert" + scoreitemIndex] = value.scoresListNoExpert[i].score;
+                                                    }
+                                                }
+                                            }
+                                            //比较不可修改的分数
                                             for (let tempcount = 0; tempcount < count; tempcount++) {
                                                 if (JSONscore.participatesList[stuid]['score' + tempcount] !== value.participatesList[stuid]['score' + tempcount]) {
                                                     Message.success(value.participatesList[stuid].student.name+'的信息发生变化!')
                                                     //发生变化changeList修改为true，进入修改操作
-                                                    this.state.changeList = true
+                                                    context.commit('INIT_initchangeList', true)
+                                                    //this.state.changeList = true
                                                     //只要遍历到有变化的地方，就可以停止遍历直接进行修改
                                                     break;
                                                 }
@@ -258,9 +296,10 @@ const store = new Vuex.Store({
                                             if (JSONscore.participatesList[stuid].student.name !== value.participatesList[stuid].student.name) {
                                                 Message.success('信息发生变化!')
                                                 //发生变化changeList修改为true，进入修改操作
-                                                this.state.changeList = true
+                                                context.commit('INIT_initchangeList', true)
+                                                //this.state.changeList = true
                                                 //只要遍历到有变化的地方，就可以停止遍历直接进行修改
-                                                break;
+                                                //break;
                                             }
                                         }
                                     }
@@ -317,26 +356,27 @@ const store = new Vuex.Store({
                                     }
                                     // 将value提交到vuex中，此时页面保存的是最新的value(包含当前已经评的分)，通过页面信息提示刷新，页面获得新数据
                                      context.commit('INIT_SCORE', value)
+                                     resolve()
                                     //修改完毕后把changeList置为false，应该可以不写
                                     // this.state.changeList = false
                                 } else {
                                     //如果不为真，那在刷新时只要把JSONscore提交即可
                                     context.commit('INIT_SCORE', JSONscore)
+                                    resolve()
                                 }
                             } else {
                                 context.commit('INIT_SCORE', value)
+                                resolve()
                             }
                         }
                     })
-                // resolve()
-            // })
-            // return promise
+            })
         },
         setScoreParticipatesList(context, data) {
             context.commit('INIT_ScoreParticipatesList', data)
         },
         initchangeList(context) {
-            context.commit('INIT_initchangeList')
+            context.commit('INIT_initchangeList', false)
         },
         changePendingMessageange(context, role) {
             getRequest('/oper/basic/getAllTypePendingMessageNumber?role=' + role).then((response) => {

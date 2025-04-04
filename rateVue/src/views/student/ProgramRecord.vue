@@ -8,11 +8,14 @@
           <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
             添加记录
           </el-button>
-          
+          <el-button type="primary" icon="el-icon-plus" @click="showDeclareView">
+            申报成果
+          </el-button>
         </div>
       </div>
       <div style="font-weight: 600; font-size: 14px;">
-        总工作时长: {{ totalWorkHours }}小时
+        <span>总工作时长:&nbsp;&nbsp;{{ totalWorkHours }}小时</span>
+        <span style="margin-left: 80px;">审核通过时长:&nbsp;&nbsp;{{ examinedHours }}小时</span>
       </div>
     </div>
 
@@ -138,7 +141,7 @@
                     min-width: 0px;
                     text-align: left;
                   "
-                >本期总结：</strong
+                >阶段小结：</strong
                 >
                 {{ scope.row.preSum }}
               </p>
@@ -333,6 +336,70 @@
       </span>
     </el-dialog>
 
+
+    <el-dialog
+        :close-on-click-modal="false"
+        :title="declareTitle"
+        :visible.sync="DeclaredialogVisible"
+        @close="handleDeclareCancel"
+        width="50%"
+        center="center"
+    >
+      <div>
+        <span class="isMust">*</span>
+        <span style="margin-left: 20px">总工作时长：{{totalWorkHours}}</span>
+      </div>
+      <el-form
+          :hide-required-asterisk="true"
+          :label-position="labelPosition"
+          label-width="300px"
+          :model="emp"
+          :rules="rules"
+          ref="empForm"
+      >
+        <el-form-item
+            prop="dateStu"
+            label="结束时间:"
+            label-width="80px"
+            style="margin-left: 20px"
+        >
+          <span class="isMust">*</span>
+          <el-date-picker
+              style="width: 200px"
+              value-format="yyyy-MM-dd"
+              v-model="emp.endDateStu"
+              type="date"
+              disabled
+              v-if="!isEdit"
+          ></el-date-picker>
+          <span v-if="isEdit">{{ emp.endDateStu }}</span>
+        </el-form-item>
+
+        <el-form-item
+            label="工作时长:"
+            prop="workHours"
+            label-width="80px"
+            style="margin-left: 20px"
+        ><span class="isMust">*</span>
+          <el-input-number 
+            v-model="emp.workHours" 
+            :min="1" 
+            :max="maxHours"
+            v-if="!isEdit"
+          ></el-input-number>
+          <span v-if="isEdit">{{emp.workHours}}小时</span>
+          <span v-if="!isEdit" style="margin-left: 10px;color: red">( 注：工作时长平均每天不超过10小时 )</span>
+        </el-form-item>
+
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button @click.stop.prevent="handleDeclareCancel">取 消</el-button>
+        <el-button type="primary" @click="doAddEmp()" v-show="true"
+        >申 报 </el-button
+        >
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -352,12 +419,16 @@ export default {
       },  
       emps: [],
       empsSorted: [], // 排序后的数组
+      empsUnderDeclaredId: [], // 审核通过但未申报记录
       loading: false,
       dialogVisible: false,
+      DeclaredialogVisible:false,
       labelPosition: "left",
       title: "",
+      declareTitle: '申报成果',
       title_show: "",
       totalWorkHours:0,
+      examinedHours:0,
       isEdit: false,
       isEditable: true, // 新增标志位，控制日期和工作时长是否可编辑
       total: 0, // 现在显示的数据个数
@@ -381,6 +452,10 @@ export default {
         startDateStu: null,
         endDateStu: null,
         workHours: null
+      },
+      empUnderDeclared: {
+        examinedHours: null,
+        empsUnderDeclaredId: [],
       },
       defaultProps: {
         children: "children",
@@ -475,6 +550,10 @@ export default {
     handleCancel(event) {
       this.isEdit = false;
       this.dialogVisible = false;
+      this.initEmps();
+    },
+    handleDeclareCancel(event){
+      this.DeclaredialogVisible = false;
       this.initEmps();
     },
     startDateChange(){
@@ -626,41 +705,37 @@ export default {
     deleteEmp(data) {
       let confirmationMessage = "";
       let alertMessage = "";
-      if(data.index === 1 || data.index === this.total){
+      if(data.index === 1){
+        confirmationMessage = "删除第1条记录可能导致【第2条记录的阶段小结】需要相应修改，是否继续?";
+      }else if(data.index === this.total){
         confirmationMessage = "此操作将永久删除【第" + data.index + "条记录】, 是否继续?";
       }
       else{
         const before = data.index -1;
         const after = data.index +1;
-        confirmationMessage = "删除第" + data.index + "条记录将会影响【第" + before + "条记录的下期计划与第" + after + "条记录的上期安排】是否继续?";
-        alertMessage = "提示:请检查是否需要修改起始日期为" +this.empsSorted[before-1].startDateStu + "与" + this.empsSorted[after-1].startDateStu + "的两条记录的工作安排！";
+        confirmationMessage = "删除第" + data.index + "条记录可能导致【第" + before + "条记录的下期计划与第" + after + "条记录的阶段小结】需要相应修改，是否继续?";
       }
-
-      if (confirm(confirmationMessage)) {
-        if(data.index === 1 || data.index === this.total){
-          this.deleteRequest("/programRecord/basic/remove/" + data.id + "/" + data.studentID)
-            .then((resp) => {
-              if (resp) {
-                this.dialogVisible = false;
-                this.initEmps();
-              }
-            }).catch((error) => {
-              console.error('Error deleting record:', error);
-            });
-        }else{
-          this.deleteRequest("/programRecord/basic/remove/" + data.id + "/" + data.studentID)
-              .then((resp) => {
-                if (resp) {
-                  this.dialogVisible = false;
-                  this.initEmps();
-                  alert(alertMessage);
-                }
-              }).catch((error) => {
-                console.error('Error deleting record:', error);
-              });
-        }
-        
-      }
+      this.$confirm(confirmationMessage, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 用户点击了“确定”
+        this.deleteRequest("/programRecord/basic/remove/" + data.id + "/" + data.studentID)
+          .then((resp) => {
+            this.$message.success('删除成功!');
+            this.initEmps();
+          }).catch((error) => {
+            console.error('Error deleting record:', error);
+            this.$message.error('删除失败!');
+          });
+      }).catch(() => {
+        // 用户点击了“取消”
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });          
+      });
     },
     doAddEmp() {
       
@@ -709,11 +784,14 @@ export default {
         var empdata = this.emp;
         this.$refs["empForm"].validate((valid) => {
           if (valid) {
+            console.log(empdata);
             this.emp.num = this.total + 1;
             this.emp.preSum = empdata.preSum;
             this.emp.nextPlan = empdata.nextPlan;
             this.emp.startDateStu = empdata.startDateStu;
-            this.emp.endDateStu = this.formatDate(empdata.endDateStu);
+            if (empdata.endDateStu instanceof Date) {
+              this.emp.endDateStu = this.formatDate(empdata.endDateStu);
+            }
             this.emp.workHours = empdata.workHours;
             this.emp.studentID = this.user.id;
             this.emp.isPass = null;
@@ -722,16 +800,28 @@ export default {
             this.getRequest("/programRecord/basic/getBeforeAfterRecordStu", _this.emp)
                 .then((resp) => {
                   if (resp.data!='') {
-                    let alertMessage = "提示：请检查是否需要修改起始日期为" +_this.empsSorted[resp.data[0]-1].startDateStu + "与" + _this.empsSorted[resp.data[1]-1].startDateStu + "的两条记录的工作安排！";
-                    if (confirm("此次添加记录会影响【第" + resp.data[0] + "条记录的下期计划与第" + resp.data[1] + "条记录的上期安排】，是否继续?")){
-                      this.postRequest1("/programRecord/basic/add", _this.emp).then((resp) => {
-                        if (resp) {
-                          this.dialogVisible = false;
-                          this.initEmps();
-                          alert(alertMessage);
-                        }
-                      });
+                    //中间插入记录提示用户会影响前后两条记录工作安排
+                    console.log(resp.data);
+                    if(resp.data.length === 1){
+                      if (confirm("此次添加记录可能导致起始日期为" + resp.data[0].startDateStu + "的工作记录的阶段小结需要相应修改，是否继续?")){
+                        this.postRequest1("/programRecord/basic/add", _this.emp).then((resp) => {
+                          if (resp) {
+                            this.dialogVisible = false;
+                            this.initEmps();
+                          }
+                        });
+                      }
+                    }else{
+                      if (confirm("此次添加记录可能导致起始日期为" +resp.data[0].startDateStu + "的工作记录的下期计划与起始日期为" + resp.data[1].startDateStu + "的工作记录的阶段小结需要相应修改，是否继续?")){
+                        this.postRequest1("/programRecord/basic/add", _this.emp).then((resp) => {
+                          if (resp) {
+                            this.dialogVisible = false;
+                            this.initEmps();
+                          }
+                        });
+                      }
                     }
+                    
                   }else{
                     this.postRequest1("/programRecord/basic/add", _this.emp).then((resp) => {
                       if (resp) {
@@ -771,6 +861,35 @@ export default {
         this.prePlan = "";
       }
     },
+    showDeclareView(){
+      //点击申报成果按钮
+      // this.DeclaredialogVisible = true; 
+      if(this.examinedHours <10){
+        this.$alert('总工作量时长小于1000小时，请满足条件后再申报！', '提示', {
+          confirmButtonText: '确定',
+        });
+      }else{
+        this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的项目成果", '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.postRequest1("/programRecord/basic/add", this.examinedHours).then((resp) => {
+          if (resp) {
+            this.dialogVisible = false;
+            this.initEmps();
+          }
+        });
+        }).catch(() => {
+          // 用户点击了“取消”
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });        
+        })
+      }
+      
+    },
     getFillMiss(){
       const url = '/programRecord/basic/getFillMiss?studentID=' + this.user.id;
       this.getRequest(url)
@@ -802,10 +921,17 @@ export default {
         const url = "/programRecord/basic/getAllRecordStu?studentID=" + studentID;
         const resp = await this.getRequest(url,{headers});
         this.emps = resp.data;
-        this.empsSorted = this.emps.slice().sort((a, b) => a.index - b.index); //按照时间升序的数组
+        this.empsSorted = this.emps.slice().sort((a, b) => a.index - b.index); //按照时间升序的数组，用于显示上期安排
         this.total = resp.data.length;
         // 计算 totalWorkHours
         this.totalWorkHours = this.emps.reduce((total, emp) => total + emp.workHours, 0);
+        // 计算 examinedHours(审核通过时长)
+        this.examinedHours = this.emps.reduce((total, emp) => {
+          if (emp.isPass === "tea_pass") {
+            return total + emp.workHours;
+          }
+          return total;
+        }, 0);
       } catch (err) {
         console.error(err);
       } finally {
