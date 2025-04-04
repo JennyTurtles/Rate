@@ -1,5 +1,6 @@
 package org.sys.rate.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.PublicationSubmission;
 
@@ -7,7 +8,7 @@ import java.util.List;
 
 
 @Mapper
-public interface PublicationSubmissionMapper {
+public interface PublicationSubmissionMapper extends BaseMapper<PublicationSubmission> {
     // 搜索所有的提交记录
     @Select("select p.id, s.name as studentName, CONCAT(i.order, i.name) as indicatorName,publication_id, indicator_id, p.year, student_id, date, state, publication_name, publication_abbr, publisher_name , publication_url, publication_proof_url, comment " +
             "from publication_submission p left join student s on p.student_id = s.ID left join indicator i on p.indicator_id = i.id order by p.date DESC")
@@ -33,4 +34,7 @@ public interface PublicationSubmissionMapper {
 
     @Select("select id from indicator_publication where indicator_id =#{indicatorId} and publication_id=#{publicationId} and year=#{year}")
     Integer check(Integer indicatorId, Integer publicationId, Integer year);
+
+    int update(PublicationSubmission submission);
+
 }

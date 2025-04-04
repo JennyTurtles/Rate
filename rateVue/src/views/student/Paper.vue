@@ -444,8 +444,8 @@
       <span slot="footer" class="dialog-footer">
         <el-button
           @click="
-            dialogVisible_publication = false;
-            dialogVisible = true;
+            dialogVisible_publication = false,
+            dialogVisible = false
           "
           >取 消</el-button
         >

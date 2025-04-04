@@ -21,7 +21,6 @@ import org.sys.rate.service.admin.PublicationService;
 import org.sys.rate.service.admin.PublicationSubmissionService;
 
 import javax.annotation.Resource;
-import java.beans.Transient;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -124,6 +123,31 @@ public class PublicationSubmissionController {
             return RespBean.error("插入数据时发生异常");
         }
     }
+
+
+    @PostMapping("update")
+    public RespBean update( PublicationSubmission submission) {
+        // postRequest1不支持传对象的json
+        PublicationSubmission publicationSubmission = submissionMapper.selectById(submission.getId());
+        if (null == publicationSubmission){
+            return  RespBean.error("该数据不存在,请检查");
+        }
+
+        try {
+            int update = submissionMapper.updateById(submission);
+            if (update > 0) {
+                return RespBean.ok("200");
+            } else {
+                return RespBean.error("未能成功修改 PublicationSubmission");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return RespBean.error("修改数据时发生异常");
+        }
+    }
+
+
+
 
     @PostMapping("/deleteFile")//删除某个文件
     @ResponseBody

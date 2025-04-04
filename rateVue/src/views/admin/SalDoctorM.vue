@@ -61,11 +61,16 @@
         <el-table-column prop="stuNumber" label="学号" align="center"></el-table-column>
         <el-table-column prop="name" label="姓名" align="center" width="80px"></el-table-column>
         <el-table-column prop="username" label="用户名" align="center"></el-table-column>
-
         <el-table-column prop="year" label="入学年份" align="center" width="70px"></el-table-column>
         <el-table-column prop="studentType" label="学生类别" align="center"></el-table-column>
         <el-table-column prop="point" label="积分" align="center" width="60px"></el-table-column>
-        <el-table-column prop="point1" label="达标" align="center" width="60px"></el-table-column>
+<!--        <el-table-column prop="point1" label="达标" align="center" width="60px"></el-table-column>-->
+        <el-table-column prop="point1" label="达标" align="center" width="70px">
+          <template slot-scope="scope">
+            <span v-if="scope.row.point1 === '0'">是</span>
+            <span v-else>{{ scope.row.point1 }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="teachers.name" label="导师姓名" align="center" width="80px"></el-table-column>
         <el-table-column  label="操作" align="center" width="240px">
           <template slot-scope="scope">
@@ -218,34 +223,46 @@ export default {
       }
     },
     exportExcel() {
-      // 获取当前页面的数据
-      const data = this.graduateStudents;
-      if (data.length === 0) {
-        this.$message.warning('没有数据可以导出');
-        return;
-      }
-
-      // 调用后端导出接口
-      this.postRequest('/graduatestudentM/basic/exportGraduateData', data).then((response) => {
+      this.postRequest('/doctorM/basic/exportdoctorData', this.doctorStudents).then((response) => {
+        console.log(response,666)
         if (response) {
-          // 创建一个 Blob 对象并生成下载链接
-          const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          // const blob = new Blob([response.data], {
+          //   type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' // 匹配.xlsx
+          // });
+          // const link = document.createElement('a');
+          // link.href = window.URL.createObjectURL(blob);
+          // link.download = 'graduate_students.xlsx'; // 扩展名改为.xlsx
+          // link.click();
+          // window.URL.revokeObjectURL(link.href);
+          // this.$message.success("导出成功");
+
+          const blob = new Blob([response]);
+          console.log(blob.size)
+          console.log(blob.type)
           const link = document.createElement('a');
           link.href = window.URL.createObjectURL(blob);
-          link.download = 'graduate_students.xlsx';
+          link.download = 'doctor_students.xlsx';  // 使用服务端返回的文件名
           link.click();
           window.URL.revokeObjectURL(link.href);
-        } else {
-          this.$message.error('导出失败，未收到文件数据');
+          this.$message.success("导出成功");
         }
+
+
       }).catch((error) => {
-        console.error(error);
+        console.error('导出失败:', error);
         this.$message.error('导出失败');
       });
     },
 
 
-
+    postRequest(url, data) {
+      return axios.post(url, data, {
+        headers: {
+          'token': this.user.token
+        },
+        responseType: 'blob' // 确保响应类型为 Blob，获取二进制数据
+      });
+    },
 
     handleChange(file) {
       this.show = true;

@@ -28,6 +28,7 @@ public class XinProject {
     private Integer mid; // 中间id
 
     private String type; // 类别
+    private Integer pointtype; // 类别
 
     private Integer sid;//学生ID
 

@@ -1,5 +1,6 @@
 package org.sys.rate.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.sys.rate.model.ProjectBase;
@@ -7,7 +8,6 @@ import org.sys.rate.model.XinProject;
 import org.sys.rate.model.XinProjectVo;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * xin_project Mapper接口
@@ -16,7 +16,7 @@ import java.util.Map;
  * @date 2022-03-13
  */
 @Mapper
-public interface XinProjectMapper
+public interface XinProjectMapper extends BaseMapper<XinProject>
 {
 
     public XinProject selectXinProject(XinProject xinProject);

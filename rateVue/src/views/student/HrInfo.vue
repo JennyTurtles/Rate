@@ -101,7 +101,7 @@ export default {
       else if (this.currentType === "硕士生")
         url = '/graduatestudentM/basic/update'
       else if (this.currentType === "博士生")
-        url ='/doctorM/basic/update'
+        url ='update'
       else
         url = '/student/basic/update'
       if(this.hr.studentID) this.$set(this.hr,'id',this.hr.studentID)

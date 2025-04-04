@@ -2,8 +2,6 @@ package org.sys.rate.model;
 
 import lombok.Data;
 
-import java.sql.Timestamp;
-
 @Data
 public class ProjectData {
     private Integer id;
@@ -23,6 +21,8 @@ public class ProjectData {
     private Long point;
     //图片url
     private String url ;
+
+    private Integer pointtype ;
 
 
 

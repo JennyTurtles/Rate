@@ -1,7 +1,5 @@
 package org.sys.rate.controller.admin;
 
-import cn.hutool.core.date.DateUtil;
-import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
@@ -14,7 +12,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/project/data/basic")
@@ -59,6 +56,7 @@ public class ProjetDataController {
                 projectData.setCategory(x.getType());
                 projectData.setParticipants(x.getSname());
                 projectData.setStatus(x.getState());
+                projectData.setPointtype(x.getPointtype());
                 projectData.setRemark(x.getRemark());
                 projectData.setPoint(Long.parseLong(x.getPoint() + ""));
 
@@ -66,6 +64,15 @@ public class ProjetDataController {
             });
         }
         return new JsonResult<>(list);
+    }
+
+    @GetMapping("/updatePointType")//无页码要求
+    public JsonResult<String> updatePointType(Integer mid,Integer type) {
+    int result =    xinProjectService.updatePointType(mid,type);
+    if (result ==1){
+        throw  new RuntimeException("数据不存在");
+    }
+        return new JsonResult<>("修改积分成功");
     }
 
 
@@ -88,7 +95,8 @@ public class ProjetDataController {
 
                 // 情况 1: pointFront 和 pointBack 都有值
                 if (pointFront != null && pointBack != null) {
-                    if (("adm_pass".equals(state)) && point != null && point >= pointFront && point <= pointBack) {
+//                    if (("adm_pass".equals(state)) && point != null && point >= pointFront && point <= pointBack) {
+                    if ( point != null && point >= pointFront && point <= pointBack) {
                         ProjectData projectData = new ProjectData();
                         projectData.setId(x.getMid());
                         String formattedDate = sdf.format(x.getDate());
@@ -98,12 +106,14 @@ public class ProjetDataController {
                         projectData.setParticipants(x.getSname());
                         projectData.setStatus(x.getState());
                         projectData.setRemark(x.getRemark());
+                        projectData.setPointtype(x.getPointtype());
                         projectData.setPoint(Long.parseLong(x.getPoint() + ""));
                         list.add(projectData);
                     }
                 }// 情况 2: pointFront 有值，pointBack 没有值
                 else if (pointFront != null && pointBack == null) {
-                    if (("adm_pass".equals(state) ) && point != null && point >= pointFront) {
+//                    if (("adm_pass".equals(state) ) && point != null && point >= pointFront) {
+                    if (point != null && point >= pointFront) {
                         ProjectData projectData = new ProjectData();
                         projectData.setId(x.getMid());
                         String formattedDate = sdf.format(x.getDate());
@@ -113,12 +123,14 @@ public class ProjetDataController {
                         projectData.setParticipants(x.getSname());
                         projectData.setStatus(x.getState());
                         projectData.setRemark(x.getRemark());
+                        projectData.setPointtype(x.getPointtype());
                         projectData.setPoint(Long.parseLong(x.getPoint() + ""));
                         list.add(projectData);
                     }
                 } // 情况 3: pointFront 没有值，pointBack 有值
                 else if (pointFront == null && pointBack != null) {
-                    if (("adm_pass".equals(state) ) && point != null && point <= pointBack) {
+//                    if (("adm_pass".equals(state) ) && point != null && point <= pointBack) {
+                    if ( point != null && point <= pointBack) {
                         ProjectData projectData = new ProjectData();
                         projectData.setId(x.getMid());
                         String formattedDate = sdf.format(x.getDate());
@@ -128,6 +140,7 @@ public class ProjetDataController {
                         projectData.setParticipants(x.getSname());
                         projectData.setStatus(x.getState());
                         projectData.setRemark(x.getRemark());
+                        projectData.setPointtype(x.getPointtype());
                         projectData.setPoint(Long.parseLong(x.getPoint() + ""));
                         list.add(projectData);
                     }
@@ -142,6 +155,7 @@ public class ProjetDataController {
                     projectData.setParticipants(x.getSname());
                     projectData.setStatus(x.getState());
                     projectData.setRemark(x.getRemark());
+                    projectData.setPointtype(x.getPointtype());
                     projectData.setPoint(Long.parseLong(x.getPoint() + ""));
                     list.add(projectData);
                 }

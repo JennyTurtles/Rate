@@ -82,23 +82,38 @@
           搜索
         </el-button>
       </div>
+        <el-button
+                icon="el-icon-check"
+                type="primary"
+                @click="batchAudit"
+                :disabled="selectedItems.length === 0"
+                style="margin-left:30px"
+        >
+            批量审核
+        </el-button>
     </div>
 
 
 
 
     <div style="margin-top: 10px">
-      <el-table
-              :data="patents"
-              stripe
-              border
-              v-loading="loading"
-              :header-cell-style="rowClass"
-              element-loading-text="正在加载..."
-              element-loading-spinner="el-icon-loading"
-              element-loading-background="rgba(0, 0, 0, 0.12)"
-              style="width: 100%"
-      >
+        <el-table
+                :data="patents"
+                stripe
+                border
+                v-loading="loading"
+                :header-cell-style="rowClass"
+                element-loading-text="正在加载..."
+                element-loading-spinner="el-icon-loading"
+                element-loading-background="rgba(0, 0, 0, 0.12)"
+                style="width: 100%"
+                @selection-change="handleSelectionChange"
+        >
+            <el-table-column
+                    type="selection"
+                    width="55"
+            >
+            </el-table-column>
         <el-table-column
                 prop="studentName"
                 align="center"
@@ -1729,8 +1744,8 @@
     name: "SalSearch",
     data() {
       return {
-
-        isImage: false,
+          selectedItems: [],
+          isImage: false,
         isPdf: false,
           isApproved: false,
         dialogPreviewPdfFile: false,
@@ -2012,6 +2027,67 @@
       this.searchPatentListByCondicitions(1, 10);
     },
     methods: {
+
+        handleSelectionChange(selection) {
+            this.selectedItems = selection;
+        },
+
+        batchAudit() {
+            if (this.selectedItems.length === 0) {
+                this.$message.warning('请选择要审核的记录');
+                return;
+            }
+
+            const auditPromises = this.selectedItems.map(item => {
+                const state = 'adm_pass'; // 假设批量审核通过
+                const urlMap = {
+                    '学术论文': '/paper/basic/edit_state',
+                    '授权专利': '/patent/basic/edit_state',
+                    '科研获奖': '/award/basic/edit_state',
+                    '学术专著和教材': '/monograph/basic/edit_state',
+                    '纵向科研项目': '/project/basic/edit_state',
+                    '横向科研项目': '/project/basic/edit_state',
+                    '学科竞赛': '/competition/basic/edit_state',
+                    '决策咨询': '/decision/basic/edit_state',
+                    '产品应用': '/product/basic/edit_state',
+                    '制定标准': '/standard/basic/edit_state'
+                };
+
+                const url = `${urlMap[item.type]}?state=${state}&ID=${item.id}`;
+                return this.getRequest(url).then(response => {
+                    if (response) {
+                        this.doAddOper1(state, '', item.id, item.type); // 调用 doAddOper 方法记录日志
+                    }
+                });
+            });
+
+            Promise.all(auditPromises).then(responses => {
+                this.$message.success('批量审核成功');
+                this.selectedItems = []; // 清空选中的记录
+                this.searchPatentListByCondicitions(this.currentPage, this.pageSize); // 刷新数据
+            }).catch(error => {
+                this.$message.error('批量审核失败');
+                console.error(error);
+            });
+        },
+
+        async doAddOper1(state, remark, id, type) {
+            this.oper.state = state;
+            this.oper.remark = remark;
+            this.oper.prodId = id;
+            this.oper.prodType = type;
+            this.oper.time = this.dateFormatFunc(new Date());
+            this.oper.operatorRole = this.role;
+            if (this.oper.state == "tea_pass" || this.oper.state == 'adm_pass') {
+                this.oper.operationName = "审核通过";
+            } else if (this.oper.state == "tea_reject" || this.oper.state == 'adm_reject') {
+                this.oper.operationName = "审核驳回";
+            }
+            await this.postRequest1("/oper/basic/add", this.oper);
+        },
+
+
+
       previewMethod(type) {
         if(type == '1') {
           this.previewFileMethod(this.emp).then(res => {

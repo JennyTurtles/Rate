@@ -123,6 +123,7 @@ export default {
   methods: {
     submitDeclaration() {
       this.close();
+console.log(this.selectedOption+"=================")
 
       switch (this.selectedOption) {
         case '学术论文':
@@ -159,6 +160,7 @@ export default {
           this.$message.error("未选择有效选项");
       }
 
+      console.log("showAddPaperDialog"+this.showAddPaperDialog)
     },
     close() {
       this.showAddPaperDialog = false;

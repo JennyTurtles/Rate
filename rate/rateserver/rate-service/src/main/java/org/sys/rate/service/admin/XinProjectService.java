@@ -1,12 +1,11 @@
 package org.sys.rate.service.admin;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.XinProjectMapper;
-import org.sys.rate.model.Paper;
 import org.sys.rate.model.ProjectBase;
 import org.sys.rate.model.XinProject;
 import org.sys.rate.model.XinProjectVo;
@@ -86,5 +85,18 @@ public class XinProjectService {
 
     public List<XinProject> selectList(XinProjectVo xinProjectVo) {
         return     xinProjectMapper.selectXinProjectList(xinProjectVo);
+    }
+
+    public int updatePointType(Integer mid,Integer type) {
+        XinProject xinProject = xinProjectMapper.selectOne(new QueryWrapper<XinProject>().eq("mid",mid));
+        if (null!= xinProject){
+            xinProject.setPointtype(type);
+            xinProjectMapper.updateById(xinProject);
+            //TODO 看是否改其余的表,待定
+        }else {
+            return 1;
+        }
+
+        return 0;
     }
 }

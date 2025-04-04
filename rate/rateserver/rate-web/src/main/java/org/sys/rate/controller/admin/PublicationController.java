@@ -1,21 +1,16 @@
 package org.sys.rate.controller.admin;
 
-import com.baomidou.mybatisplus.extension.api.R;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.IndicatorMapper;
 import org.sys.rate.mapper.PaperMapper;
 import org.sys.rate.mapper.PublicationMapper;
-
-import org.sys.rate.model.*;
-import org.sys.rate.service.admin.PublicationService;
+import org.sys.rate.model.Indicator;
+import org.sys.rate.model.Publication;
+import org.sys.rate.model.RespBean;
 import org.sys.rate.service.admin.IndicatorService;
+import org.sys.rate.service.admin.PublicationService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;

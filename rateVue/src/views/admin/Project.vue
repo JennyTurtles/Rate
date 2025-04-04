@@ -209,6 +209,24 @@
                       size="mini"
               >查看详情
               </el-button>
+                <!-- 计入积分按钮 -->
+                <el-button
+                        v-if="scope.row.status === 'adm_pass'"
+                @click="addPoints(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                type="success"
+                >计入积分</el-button>
+
+                <!-- 取消积分按钮 -->
+                <el-button
+                        v-if="scope.row.status === 'adm_pass'"
+                @click="removePoints(scope.row)"
+                style="padding: 4px"
+                size="mini"
+                type="danger"
+                >取消积分</el-button>
+
 
 <!--              <el-button-->
 <!--                  @click="deleteEmp(scope.row)"-->
@@ -3096,6 +3114,52 @@
       this.fetchProjects(); // 在组件创建时获取数据
     },
     methods: {
+        // 计入积分
+        addPoints(row) {
+            this.$confirm("确定要将此成果计入积分吗？", "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning"
+            }).then(() => {
+                const url = `project/data/basic/updatePointType?mid=${row.id}&type=1`;
+                this.getRequest(url).then((resp) => {
+                    if (resp) {
+                        this.$message.success("计入积分成功！");
+                        row.pointsAdded = true; // 更新行状态
+                        this.initEmps(); // 重新加载数据
+                    }
+                }).catch(() => {
+                    this.$message.error("计入积分失败！");
+                });
+            }).catch(() => {
+                this.$message.info("已取消操作");
+            });
+        },
+
+        // 取消积分
+        removePoints(row) {
+            this.$confirm("确定要取消此成果的积分吗？", "提示", {
+                confirmButtonText: "确定",
+                cancelButtonText: "取消",
+                type: "warning"
+            }).then(() => {
+                const url = `project/data/basic/updatePointType?mid=${row.id}&type=2`;
+                this.getRequest(url).then((resp) => {
+                    if (resp) {
+                        this.$message.success("取消积分成功！");
+                        row.pointsAdded = false; // 更新行状态
+                        this.initEmps(); // 重新加载数据
+                    }
+                }).catch(() => {
+                    this.$message.error("取消积分失败！");
+                });
+            }).catch(() => {
+                this.$message.info("已取消操作");
+            });
+    },
+
+
+
       rejectDialogConfirm(){
         if (this.role == 'teacher')
           this.auditing_commit('tea_reject')
@@ -3465,7 +3529,8 @@
       },
       dateFormatFunc(date) {
         // 假设这是一个日期格式化的方法
-        return date.toISOString().replace('T', ' ').slice(0, 23) + isoString.slice(19);
+        //return date.toISOString().replace('T', ' ').slice(0, 23) + isoString.slice(19);
+          return date.toISOString().replace('T', ' ').slice(0, 19);
       },
       // 学术论文
       deletePaperEmpMethod(data) {
@@ -4153,7 +4218,8 @@
         await this.postRequest1("/oper/basic/add", this.oper);
         // await this.searchPatentListByCondicitions(this.currentPage, this.pageSize)
         // 重新加载数据
-        await this.initEmps();
+          await   this.fetchProjects();
+         this.initEmps();
       },
       doAddEmp() {//确定添加论文
         const params = {};
@@ -4439,10 +4505,18 @@
         const status = row.status;
         const y = cellValue;
         let x = 0;
-
-        if (status === 'adm_pass') {
+        const pointtype = row.pointtype;
+        if (pointtype===0&& status === 'adm_pass'){
           x = y;
+        }else if (pointtype===1){
+          x = y;
+        }else if (pointtype===2){
+          x = 0;
         }
+
+        // if (status === 'adm_pass') {
+        //   x = y;
+        // }
 
         return `${x}/${y}`;
       },

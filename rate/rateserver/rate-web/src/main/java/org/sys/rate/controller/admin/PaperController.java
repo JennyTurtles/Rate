@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.InfosMapper;
 import org.sys.rate.mapper.PaperMapper;
-import org.sys.rate.model.Monograph;
 import org.sys.rate.model.Msg;
 import org.sys.rate.model.Paper;
 import org.sys.rate.model.RespBean;
@@ -29,12 +28,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**
@@ -127,8 +123,7 @@ public class PaperController {
      * 新增保存论文成果
      */
     @PostMapping("/add")
-    @ResponseBody
-    public JsonResult addSave(Paper paper) {
+    public JsonResult addSave( Paper paper) {
         paperService.insertPaper(paper);
         mailToTeacherService.sendTeaCheckMail(paper, "学术论文", "添加");
 //        xinProjectService.insertPaper(paper);

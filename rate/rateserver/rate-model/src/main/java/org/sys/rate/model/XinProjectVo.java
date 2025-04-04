@@ -10,4 +10,5 @@ public class XinProjectVo {
  private String   pointFront;
  private String   state;
  private String   studentName;
+ private Integer   pointtype;
 }

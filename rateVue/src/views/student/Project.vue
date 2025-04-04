@@ -1081,7 +1081,7 @@
 
     <!-- 学术论文添加或修改对话框  -->
     <!-- 添加论文对话框 -->
-    <el-dialog :title="title" :visible.sync="dialogVisible_publication_Paper" width="50%" center>
+    <el-dialog :title="title" :visible.sync="dialogVisible_publication_Paper" @closed="handlePaperDialogClosed"width="50%" center>
       <el-form
           :hide-required-asterisk="true"
           :label-position="labelPosition"
@@ -2649,7 +2649,11 @@ export default {
   },
   methods: {
 
-
+    handlePaperDialogClosed() {
+      this.currentEmp = { /* 初始状态 */ };
+      this.files = [];
+      this.urlFile = '';
+    },
 
     fetchProjects() {
       this.loading = true;
@@ -3757,9 +3761,8 @@ export default {
     editPaper(params) {
       this.$refs["currentEmp"].validate(async (valid) => {
         if (valid) {
-            //TODO
-            console.log("======"+params)
-            console.log("======3123133"+this.currentEmp)
+
+
           params.ID = this.currentEmp.id;
           this.postRequest1("/paper/basic/edit", params).then((resp) => {
             if (resp) {
@@ -3839,6 +3842,7 @@ export default {
       } else {
         this.$refs["currentEmp"].validate( (valid) => {
           if (valid) {
+              console.log(params)
             this.postRequest1("/paper/basic/add", params).then(
                 (resp) => {
                   if (resp) {
@@ -4086,11 +4090,17 @@ export default {
       const y = cellValue;
       let x = 0;
 
-      if (status === 'adm_pass') {
-        x = y;
-      }
+        const pointtype = row.pointtype;
+        if (pointtype===0&& status === 'adm_pass'){
+            x = y;
+        }else if (pointtype===1){
+            x = y;
+        }else if (pointtype===2){
+            x = 0;
+        }
 
-      return `${x}/${y}`;
+
+        return `${x}/${y}`;
     },
     throttleSearchType() {
       if (this.currentCompetitionCopy.date == null || this.currentCompetitionCopy.date == '') return;
@@ -4266,7 +4276,7 @@ export default {
     handleShowInfo(data) {
       this.title_show = "显示详情";
 
-      console.log(data)
+
       this.currentProjectSummary = data
       this.showInfoMap(data)
       this.isPdf = this.isImage = false; //初始化
@@ -4341,6 +4351,17 @@ export default {
       if (data.category === '学术论文') {
         this.title = "编辑论文信息";
         this.dialogVisible_publication_Paper = true
+        this.currentEmp = {
+          name: '',
+          year: '',
+          month: '',
+          date: '',
+          startPage: '',
+          endPage: '',
+          author: '',
+          url: '',
+          // 其他字段初始化...
+        };
         this.getRequest("/paper/basic/studentIDInfo?studentID=" + this.user.id + "&id=" + data.id).then((resp) => {
           this.loading = false;
           if (resp) {

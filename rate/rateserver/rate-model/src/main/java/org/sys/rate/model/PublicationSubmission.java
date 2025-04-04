@@ -1,5 +1,7 @@
 package org.sys.rate.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +22,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@TableName("publication_submission")
 public class PublicationSubmission {
     private Integer id;
     private Integer indicatorId;
@@ -35,7 +38,9 @@ public class PublicationSubmission {
     private String publicationAbbr;
     private String publicationUrl;
     private String publicationProofUrl;
+    @TableField(exist = false)
     private String studentName;
+    @TableField(exist = false)
     private String indicatorName;
     private String comment;
 }

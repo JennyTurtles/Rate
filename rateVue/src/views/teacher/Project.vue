@@ -4457,9 +4457,16 @@
                 const y = cellValue;
                 let x = 0;
 
-                if (status === 'adm_pass') {
+                const pointtype = row.pointtype;
+                if (pointtype===0&& status === 'adm_pass'){
                     x = y;
+                }else if (pointtype===1){
+                    x = y;
+                }else if (pointtype===2){
+                    x = 0;
                 }
+
+
 
                 return `${x}/${y}`;
             },
