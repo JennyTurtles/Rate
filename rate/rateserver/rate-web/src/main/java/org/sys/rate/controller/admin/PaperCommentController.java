@@ -133,7 +133,11 @@ public class PaperCommentController {
             return RespBean.error("获取毕业设计信息错误！");
         }
     }
-
+    @GetMapping("/getBeforeAfterCommentStu")
+    public JsonResult<List> getBeforeAfterRecordStu(PaperComment paperComment) {
+        List<PaperComment> combinedList = paperCommentService.getBeforeAfterRecordStu(paperComment);
+        return new JsonResult(combinedList);
+    }
     /**
      * 通过thesisID返回需要打印的pdf文件
      */

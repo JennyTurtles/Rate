@@ -320,7 +320,7 @@
               style="width: 80%"
               prefix-icon="el-icon-edit"
               v-model="emp.nextPlan"
-              placeholder="请输入下期安排："
+              placeholder="请输入下期计划："
               :show-word-limit="true"
               :rows="8"
               :maxlength="200"
@@ -443,6 +443,17 @@ export default {
       showTimeSelect2: false,
       fillMiss: 0,
       maxHours: 70,
+      oper: {
+        operatorRole: "student",
+        operatorId: JSON.parse(localStorage.getItem('user')).id,
+        operatorName: JSON.parse(localStorage.getItem('user')).name,
+        prodType: '横向科研项目',
+        operationName: '学生提交',
+        state: '',
+        remark: '',
+        prodId: null,
+        time: null
+      },
       emp: {
         id: null,
         num: null,
@@ -486,7 +497,7 @@ export default {
         preSum: [
           {
             required: true,
-            message: "请输入上期总结",
+            message: "请输入阶段小结",
             trigger: "blur",
             min: 1,
           },
@@ -706,7 +717,10 @@ export default {
       let confirmationMessage = "";
       let alertMessage = "";
       if(data.index === 1){
-        confirmationMessage = "删除第1条记录可能导致【第2条记录的阶段小结】需要相应修改，是否继续?";
+        if(this.total === 1)
+          confirmationMessage = "此操作将永久删除【第" + data.index + "条记录】, 是否继续?";
+        else
+          confirmationMessage = "删除第1条记录可能导致【第2条记录的阶段小结】需要相应修改，是否继续?";
       }else if(data.index === this.total){
         confirmationMessage = "此操作将永久删除【第" + data.index + "条记录】, 是否继续?";
       }
@@ -864,31 +878,39 @@ export default {
     showDeclareView(){
       //点击申报成果按钮
       // this.DeclaredialogVisible = true; 
-      if(this.examinedHours <10){
+      const params = {};
+      params.state = "commit";
+      params.studentId = this.user.id;
+      params.author = this.user.name;
+      params.workHours = this.examinedHours;
+      if(this.examinedHours <1000){
         this.$alert('总工作量时长小于1000小时，请满足条件后再申报！', '提示', {
           confirmButtonText: '确定',
         });
       }else{
-        this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的项目成果", '提示', {
+        this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的横向科研项目项目", '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.postRequest1("/programRecord/basic/add", this.examinedHours).then((resp) => {
+        this.postRequest1("/programRecord/basic/addResult", params).then((resp) => {
           if (resp) {
-            this.dialogVisible = false;
+            this.$message.success('添加成功！')
             this.initEmps();
+            this.doAddOper("commit", resp.data);
           }
         });
-        }).catch(() => {
-          // 用户点击了“取消”
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          });        
         })
       }
       
+    },
+    async doAddOper(state, resultID) {
+      this.oper.state = state
+      this.oper.prodId = resultID
+      this.oper.time = this.dateFormatFunc(new Date());
+      await this.postRequest1("/oper/basic/add", this.oper)
+      await this.initEmps();
+      this.$message.success('操作成功');
     },
     getFillMiss(){
       const url = '/programRecord/basic/getFillMiss?studentID=' + this.user.id;

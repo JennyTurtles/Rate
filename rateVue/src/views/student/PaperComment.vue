@@ -63,11 +63,11 @@
           style="width: 100%"
           v-loading.fullscreen.lock="loading"
       >
-        <el-table-column align="center" label="操作" width="220px">
+        <el-table-column align="center" label="操作" width="300px">
           <template slot-scope="scope">
             <div
                 style="
-                text-align: center;
+                text-align: left;
                 height: 300px;
                 display: flex;
                 flex-direction: column;
@@ -75,7 +75,7 @@
               "
             >
               <div style="margin-bottom: 10px; left: 0">
-                提交次序:
+                时间次序:
                 <span
                     style="
                     display: inline-block;
@@ -84,7 +84,7 @@
                     margin-left: 10px;
                   "
                 >
-                  {{ scope.$index + 1 }}
+                  {{ scope.row.index}}
                 </span>
               </div>
               <div style="margin-bottom: 10px">
@@ -104,7 +104,7 @@
                 <span
                     style="
                     display: inline-block;
-                    width: 100px;
+                    width: 205px;
                     text-align: left;
                     margin-left: 10px;
                   "
@@ -116,7 +116,7 @@
                 >
                   {{
                     scope.row.isPass == "tea_pass"
-                        ? "导师通过"
+                        ? "导师通过（若需修改请联系导师驳回）"
                         : scope.row.isPass == "tea_deny"
                             ? "导师驳回"
                             : "暂无"
@@ -127,7 +127,7 @@
               </div>
               <div style="display: flex; justify-content: center">
                 <el-button
-                    @click="showEditEmpView(scope.$index + 1, scope.row)"
+                    @click="showEditEmpView(scope.row)"
                     style="padding: 4px; margin-right: 10px"
                     size="mini"
                     icon="el-icon-edit"
@@ -144,10 +144,7 @@
                     icon="el-icon-delete"
                     plain="plain"
                     v-show="
-                    scope.$index === total - 1 && scope.row.isPass != 'tea_pass'
-                      ? true
-                      : false
-                  "
+                    scope.row.isPass != 'tea_pass'? true: false"
                 >删除
                 </el-button>
               </div>
@@ -165,7 +162,7 @@
                     min-width: 0px;
                     text-align: left;
                   "
-                >上期总结：</strong
+                >阶段小结：</strong
                 >
                 {{ scope.row.preSum }}
               </p>
@@ -214,17 +211,6 @@
           :rules="rules"
           ref="empForm"
       >
-        <el-form-item
-            label="提交次序:"
-            prop="num"
-            label-width="80px"
-            style="margin-left: 20px"
-        >
-          <!-- <span class="isMust">*</span> -->
-          <span>
-            {{ curIndex }}
-          </span>
-        </el-form-item>
 
         <el-row>
           <el-form-item
@@ -242,9 +228,9 @@
                 placeholder="请选择指导时间"
                 :picker-options="pickerOptions"
                 @change="dateChange(emp.dateStu,emp.num)"
-                v-if="showTimeSelect2"
+                v-if="!isEdit"
             ></el-date-picker>
-            <span v-if="showTimeSelect">{{ emp.dateStu }}</span>
+            <span v-if="isEdit">{{ emp.dateStu }}</span>
 
             <el-tooltip
                 effect="light"
@@ -268,7 +254,7 @@
                     left: 0;
                     right: 0;
                     height: 2px;
-                    background-color: #303133;
+                    background-color: #409eff;
                     top: 28px;
                     transform: translateY(-1px);
                   "
@@ -279,7 +265,7 @@
         </el-row>
 
         <el-form-item
-            label="上期总结:"
+            label="阶段小结:"
             prop="preSum"
             label-width="80px"
             style="margin-left: 20px"
@@ -291,7 +277,7 @@
               style="width: 80%"
               prefix-icon="el-icon-edit"
               v-model="emp.preSum"
-              placeholder="请输入上期总结"
+              placeholder="请输入阶段小结"
               :show-word-limit="true"
               :rows="8"
               :maxlength="350"
@@ -311,7 +297,7 @@
               style="width: 80%"
               prefix-icon="el-icon-edit"
               v-model="emp.nextPlan"
-              placeholder="请输入下期安排"
+              placeholder="请输入下期计划"
               :show-word-limit="true"
               :rows="8"
               :maxlength="350"
@@ -352,6 +338,7 @@ export default {
       },
       pictLoading: false,
       emps: [],
+      empsSorted: [], // 排序后的数组
       loading: false,
       dialogVisible: false,
       dialogVisible_show: false,
@@ -397,7 +384,7 @@ export default {
         preSum: [
           {
             required: true,
-            message: "请输入上期总结",
+            message: "请输入阶段小结",
             trigger: "blur",
             min: 1,
           },
@@ -591,26 +578,44 @@ export default {
     },
     disabledTime(date) {
       const today = new Date();
+      today.setHours(0,0,0,0);
+      const currentTime = new Date(date);
+      currentTime.setHours(0,0,0,0); //只考虑日期，不考虑时间
+      //超过今天的日期不允许填写
+      if (currentTime > today)
+        return true;
+
+       //如果当前日期与 emps 数组中的某个 dateStu 相等，则禁选
+      const isDateExists = this.emps.some(emp => {
+        const empDate = new Date(emp.dateStu);
+        empDate.setHours(0, 0, 0, 0); // 忽略时间部分
+        return empDate.getTime() === currentTime.getTime();
+      });
+
+      if (isDateExists) {
+        return true; // 禁选该日期
+      }
+
       if (this.fillMiss === 0){
         const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
         switch (this.timeChoose) {
           case 10:
-          case 13:
+          // case 13:
             return false;
-          case 15:
+          // case 15:
           case 11:
             return (
                 date.getTime() <= new Date(this.preDate).getTime() ||
                 date.getTime() < sevenDaysAgo.getTime() ||
                 date.getTime() > today.getTime()
             );
-          case 12:
-            return date.getTime() >= new Date(this.nextDate).getTime();
-          case 14:
-            return (
-                date.getTime() >= new Date(this.nextDate).getTime() ||
-                date.getTime() <= new Date(this.preDate).getTime()
-            );
+          // case 12:
+          //   return date.getTime() >= new Date(this.nextDate).getTime();
+          // case 14:
+          //   return (
+          //       date.getTime() >= new Date(this.nextDate).getTime() ||
+          //       date.getTime() <= new Date(this.preDate).getTime()
+          //   );
           default:
             console.log("时间限制出现了其他的问题！请检查");
             return true;
@@ -664,7 +669,7 @@ export default {
     },
     emptyEmp() {
       this.emp = {
-        dateStu: new Date().toLocaleDateString('en-CA'), //转换成yyyy-mm-dd格式
+        dateStu: null, //转换成yyyy-mm-dd格式
         id: null,
         num: this.total + 1,
         preSum: "",
@@ -675,53 +680,79 @@ export default {
     },
 
     //编辑按钮
-    showEditEmpView(index, data) {
+    showEditEmpView(data) {
       this.title = "编辑记录信息";
 
-      this.emp = data;
+      this.emp ={ ...data };// 使用对象展开运算符确保所有属性都被正确复制
       this.isEdit = true;
-      this.curIndex = index;
       // 修改编辑时日期的显示状态
       this.showTimeSelect = this.emp.isPass !== "tea_pass" ? false : true;
       this.showTimeSelect2 = this.emp.isPass !== "tea_pass" ? true : false;
 
-      if (index > 1) {
+      if (data.index > 1) {
         this.showTooltip = true;
-        this.prePlan = this.emps[index - 2].nextPlan;
-        // 不是第一条记录
-        if (index < this.total) {
-          this.timeChoose = 14;
-          this.preDate = this.emps[index - 2].dateStu;
-          this.nextDate = this.emps[index].dateStu;
-        } else if ((index = this.total)) {
-          this.timeChoose = 15;
-          this.preDate = this.emps[index - 2].dateStu;
-        }
+        this.prePlan = this.empsSorted[data.index - 2].nextPlan;
+        // 不是最后一条记录
+        // if (data.index < this.total) {
+        //   this.timeChoose = 14;
+        //   this.preDate = this.empsSorted[data.index - 2].dateStu;
+        //   this.nextDate = this.empsSorted[data.index].dateStu;
+        // } else if ((data.index= this.total)) {
+        //   this.timeChoose = 15;
+        //   this.preDate = this.empsSorted[data.index - 2].dateStu;
+        // }
       } else {
         this.showTooltip = false;
         this.prePlan = "";
-        // 是第一条记录
-        if (this.total > 1) {
-          this.timeChoose = 12;
-          this.nextDate = this.emps[index].dateStu;
-        } else if (this.total == 1) {
-          this.timeChoose = 13;
-        }
+        // // 是第一条记录
+        // if (this.total > 1) {
+        //   this.timeChoose = 12;
+        //   this.nextDate = this.empsSorted[data.index].dateStu;
+        // } else if (this.total == 1) {
+        //   this.timeChoose = 13;
+        // }
       }
 
       this.dialogVisible = true;
     },
     deleteEmp(data) {
-      const confirmationMessage = "此操作将永久删除【第" + data.num + "条记录】, 是否继续?";
-      if (confirm(confirmationMessage)) {
-        this.deleteRequest("/paperComment/basic/remove/" + data.num + "/" + data.thesisID)
-            .then((resp) => {
-              if (resp) {
-                this.dialogVisible = false;
-                this.initEmps();
-              }
-            });
+      let confirmationMessage = "";
+      let alertMessage = "";
+      if(data.index === 1){
+        if(this.total === 1)
+          confirmationMessage = "此操作将永久删除【第" + data.index + "条记录】, 是否继续?";
+        else
+          confirmationMessage = "删除第1条记录可能导致【第2条记录的阶段小结】需要相应修改，是否继续?";
+      }else if(data.index === this.total){
+        confirmationMessage = "此操作将永久删除【第" + data.index + "条记录】, 是否继续?";
+      }else{
+        const before = data.index -1;
+        const after = data.index +1;
+        confirmationMessage = "删除第" + data.index + "条记录可能导致【第" + before + "条记录的下期计划与第" + after + "条记录的阶段小结】需要相应修改，是否继续?";
       }
+      this.$confirm(confirmationMessage, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 用户点击了“确定”
+        this.deleteRequest("/paperComment/basic/remove/" + data.num + "/" + data.thesisID)
+          .then((resp) => {
+            this.dialogVisible = false;
+            this.$message.success('删除成功!');
+            this.initEmps();
+          }).catch((error) => {
+            console.error('Error deleting record:', error);
+            this.dialogVisible = false;
+            this.$message.error('删除失败!');
+          });
+      }).catch(() => {
+        // 用户点击了“取消”
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        });          
+      });
     },
     doAddEmp() {
       if (this.isEdit) {
@@ -734,7 +765,7 @@ export default {
             this.emp.num = this.curIndex;
             this.emp.preSum = empdata.preSum;
             this.emp.nextPlan = empdata.nextPlan;
-            this.emp.dateStu = empdata.dateStu;
+            // this.emp.dateStu = empdata.dateStu;
             this.emp.studentID = this.user.id;
             this.emp.thesisID = empdata.thesisID;
             this.emp.dateTea = null;
@@ -762,25 +793,46 @@ export default {
             this.emp.studentID = this.user.id;
             this.emp.thesisID = this.thesisID;
             this.emp.isPass = null;
-
             const _this = this;
 
-            // if (this.total > 0) {
-            //   let date1 = Date.parse(this.emps[this.total - 1].dateStu);
-            //   let date2 = Date.parse(this.emp.dateStu);
-            //
-            //   if (date1 + 86400000 > date2) {
-            //     this.$message.error({message: "请选择合适的指导时间！"});
-            //     return;
-            //   }
-            // }
+            this.getRequest("/paperComment/basic/getBeforeAfterCommentStu", _this.emp)
+                .then((resp) => {
+                  if (resp.data!='') {
+                    //中间插入记录提示用户会影响前后两条记录工作安排
+                    console.log(resp.data);
+                    if(resp.data.length === 1){
+                      if (confirm("此次添加记录可能导致起始日期为" + resp.data[0].dateStu + "的工作记录的阶段小结需要相应修改，是否继续?")){
+                        this.postRequest1("/paperComment/basic/add?total=" + this.total + 1, _this.emp).then((resp) => {
+                          if (resp) {
+                            this.dialogVisible = false;
+                            this.initEmps();
+                          }
+                        });
+                      }
+                    }else{
+                      if (confirm("此次添加记录可能导致起始日期为" +resp.data[0].dateStu + "的工作记录的下期计划与起始日期为" + resp.data[1].dateStu + "的工作记录的阶段小结需要相应修改，是否继续?")){
+                        this.postRequest1("/paperComment/basic/add?total=" + this.total + 1, _this.emp).then((resp) => {
+                          if (resp) {
+                            this.dialogVisible = false;
+                            this.initEmps();
+                          }
+                        });
+                      }
+                    }
+                    
+                  }else{
+                    this.postRequest1("/paperComment/basic/add?total=" + this.total + 1, _this.emp).then((resp) => {
+                      if (resp) {
+                        this.dialogVisible = false;
+                        this.initEmps();
+                      }
+                    });
+                  }
+                })
+                .catch((error) => {
+                  console.error(error);
+                });
 
-            this.postRequest1("/paperComment/basic/add?total=" + this.total + 1, _this.emp).then((resp) => {
-              if (resp) {
-                this.dialogVisible = false;
-                this.initEmps();
-              }
-            });
           }
         });
       }
@@ -826,6 +878,7 @@ export default {
           this.isShowAddButton = true;
           const resp = await this.getRequest(url);
           this.emps = resp.data;
+          this.empsSorted = this.emps.slice().sort((a, b) => a.index - b.index); //按照时间升序的数组，用于显示上期安排
           // for (let i = 0; i < this.emps.length; i++) {
           //   this.emps[i].num = i + 1;
           // }

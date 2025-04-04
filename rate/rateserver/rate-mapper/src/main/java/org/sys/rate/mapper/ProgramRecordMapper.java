@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.GraduateStudent;
 import org.sys.rate.model.ProgramRecord;
+import org.sys.rate.model.ProgramResult;
 
 import java.util.List;
 
@@ -41,4 +42,7 @@ public interface ProgramRecordMapper {
     @Update("update programrecord set dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass} where ID = #{ID}")
     int updateTeaComment(ProgramRecord programRecord);
 
+    int addResult(ProgramResult programResult);
+
+    ProgramResult selectProgramResultById(Long id);
 }

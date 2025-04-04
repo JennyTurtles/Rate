@@ -54,6 +54,7 @@ ALTER TABLE programrecord MODIFY COLUMN ID INT AUTO_INCREMENT;
 UPDATE menu
 SET path = '/student/DeclareList',
     component = 'DeclareList',
+		parentId = 43,
     name = '成果申报'
 WHERE id = 70;
 
@@ -155,6 +156,8 @@ ALTER TABLE i_competition
 MODIFY date TIMESTAMP;
 
 INSERT INTO menu(`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (141, '/salary/search/**', '/teacher/Project', 'Project', '成果列表', NULL, NULL, 1, 43, 1);
+INSERT INTO menu(`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (142, '/salary/search/**', '/admin/Project', 'Project', '成果列表', NULL, NULL, 1, 43, 1);
+INSERT INTO menu(`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (143, '/salary/search/**', '/admin/Examine', 'tExamine', '待审核列表', NULL, NULL, 1, 43, 1);
 INSERT INTO menu_role (id,mid,rid)
 VALUES (410,63,8);
 INSERT INTO menu_role (id,mid,rid)
@@ -171,8 +174,7 @@ VALUES (415,108,11);
 
 
 
-INSERT INTO menu(`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (142, '/salary/search/**', '/admin/Project', 'Project', '成果列表', NULL, NULL, 1, 43, 1);
-INSERT INTO menu(`id`, `url`, `path`, `component`, `name`, `iconCls`, `keepAlive`, `requireAuth`, `parentId`, `enabled`) VALUES (143, '/salary/search/**', '/admin/Examine', 'tExamine', '待审核列表', NULL, NULL, 1, 43, 1);
+
 INSERT INTO menu_role (id,mid,rid)
 VALUES (416,142,14);
 UPDATE menu SET enabled = 0 WHERE id = 108;
@@ -183,26 +185,64 @@ UPDATE menu SET name = '期刊添加状态' WHERE id = 109 ;
 
 
 ALTER TABLE i_application
-ADD COLUMN `have_score` int DEFAULT NULL,
+ADD COLUMN `have_score` int DEFAULT NULL;
 
 ALTER TABLE i_award
-ADD COLUMN `have_score` int DEFAULT NULL,
+ADD COLUMN `have_score` int DEFAULT NULL;
 
 ALTER TABLE i_book
-ADD COLUMN `have_score` int DEFAULT NULL,
+ADD COLUMN `have_score` int DEFAULT NULL;
 
 ALTER TABLE i_competition
-ADD COLUMN `have_score` int DEFAULT NULL,
+ADD COLUMN `have_score` int DEFAULT NULL;
 
 ALTER TABLE i_decision
-ADD COLUMN `have_score` int DEFAULT NULL,
+ADD COLUMN `have_score` int DEFAULT NULL;
 
 ALTER TABLE i_patent
-ADD COLUMN `have_score` int DEFAULT NULL,
+ADD COLUMN `have_score` int DEFAULT NULL;
 
 ALTER TABLE i_standard
-ADD COLUMN `have_score` int DEFAULT NULL,
+ADD COLUMN `have_score` int DEFAULT NULL;
 
 ALTER TABLE paper
-ADD COLUMN `have_score` int DEFAULT NULL,
+ADD COLUMN `have_score` int DEFAULT NULL;
+
+ALTER TABLE doctor
+ADD COLUMN `point1` int DEFAULT NULL COMMENT '差多少分达到毕业要求'
+
+ALTER TABLE graduatestudent
+ADD COLUMN `point1` int DEFAULT NULL COMMENT '差多少分达到毕业要求'
+
+
+
+
+
+
+UPDATE menu SET parentId = 43 WHERE id = 137;
+UPDATE menu
+SET path = '/student/DeclareList',
+    component = 'DeclareList',
+		parentId = 43,
+    name = '成果申报'
+WHERE id = 70;
+UPDATE menu SET enabled = 1 WHERE id = 95;
+UPDATE menu SET enabled = 2 WHERE id = 52;
+
+
+
+
+
+
+
+
+CREATE TABLE `programresults` (
+  `ID` int NOT NULL AUTO_INCREMENT,
+  `studentID` int NOT NULL,
+  `isPass` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT '单次提交导师是否通过',
+  `workHours` double(3,1) DEFAULT NULL COMMENT '项目时长',
+  PRIMARY KEY (`ID`) USING BTREE,
+  KEY `studentID` (`studentID`) USING BTREE,
+  CONSTRAINT `programresults_ibfk_1` FOREIGN KEY (`studentID`) REFERENCES `graduatestudent` (`ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 

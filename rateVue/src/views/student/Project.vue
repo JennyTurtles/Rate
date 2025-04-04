@@ -628,67 +628,30 @@
       <el-form
           :label-position="labelPosition"
           label-width="80px"
-          :model="currentProject"
+          :model="currentProgram"
           style="margin-left: 20px">
 
-        <el-form-item label="项目名称:" prop="name">
-            <span>{{ currentProject.name }}</span
-            ><br/>
-        </el-form-item>
-        <el-form-item label="立项年月:" prop="date">
-            <span>{{ currentProject.startDate }}</span
-            ><br/>
-        </el-form-item>
-        <el-form-item label="结项年月:" prop="date">
-            <span>{{ currentProject.startDate }}</span
-            ><br/>
-        </el-form-item>
-        <el-form-item label="作者列表:" prop="author">
-            <span>{{ currentProject.author }}</span
-            ><br/>
-        </el-form-item>
-        <el-form-item label="作者人数:" prop="total">
-            <span>{{ currentProject.total }}</span
-            ><br/>
-        </el-form-item>
-        <el-form-item label="作者排名:" prop="rank">
-            <span>{{ currentProject.rank }}</span
+        <el-form-item label="项目时长:" prop="point">
+            <span>{{ currentProgram.workHours }}</span
             ><br/>
         </el-form-item>
         <el-form-item label="成果积分:" prop="point">
-            <span>{{ currentProject.point }}</span
+            <span>{{ currentProgram.point }}</span
             ><br/>
         </el-form-item>
         <el-form-item label="成果状态:" prop="state">
             <span>{{
-                currentProject.state == "commit"
+                currentProgram.state == "commit"
                     ? "学生提交"
-                    : currentProject.state == "tea_pass"
+                    : currentProgram.state == "tea_pass"
                         ? "导师通过"
-                        : currentProject.state == "tea_reject"
+                        : currentProgram.state == "tea_reject"
                             ? "导师驳回"
-                            : currentProject.state == "adm_pass"
+                            : currentProgram.state == "adm_pass"
                                 ? "管理员通过"
                                 : "管理员驳回"
               }}</span
             ><br/>
-        </el-form-item>
-        <el-form-item label="证明材料:" prop="url">
-          <span v-if="currentProject.url == '' || currentProject.url == null ? true : false">无证明材料</span>
-          <div v-else>
-            {{ currentProject.url | fileNameFilter }}
-            <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-            <el-button @click="previewMethod('6')">下载</el-button>
-          </div>
-          <div style="margin-top: 5px">
-            <el-image
-                v-show="false"
-                ref="previewImage"
-                style="width: 100px; height: 100px"
-                :src="previewUrl"
-                :preview-src-list="previewImageSrcList">
-            </el-image>
-          </div>
         </el-form-item>
         <br/>
         <div>
@@ -1081,7 +1044,7 @@
 
     <!-- 学术论文添加或修改对话框  -->
     <!-- 添加论文对话框 -->
-    <el-dialog :title="title" :visible.sync="dialogVisible_publication_Paper" @closed="handlePaperDialogClosed"width="50%" center>
+    <el-dialog :title="title" :visible.sync="dialogVisible_publication_Paper" width="50%" center>
       <el-form
           :hide-required-asterisk="true"
           :label-position="labelPosition"
@@ -2369,7 +2332,7 @@ export default {
         publisher: '',
         isbn: ''
       },
-      //纵向科研项目 横向科研项目
+      //纵向科研项目 
       currentProject: {
         id: null,
         name: null,
@@ -2384,6 +2347,17 @@ export default {
         remark: '',
         projectTypeId: '',
         projectType: {}
+      },
+      //横向科研项目
+      currentProgram: {
+        id: null,
+        name: null,
+        studentId: '',
+        state: '',
+        point: "",
+        remark: '',
+        indicatorId: '',
+        workHours:'',
       },
       // 学科竞赛
       currentCompetition: {
@@ -2649,11 +2623,7 @@ export default {
   },
   methods: {
 
-    handlePaperDialogClosed() {
-      this.currentEmp = { /* 初始状态 */ };
-      this.files = [];
-      this.urlFile = '';
-    },
+
 
     fetchProjects() {
       this.loading = true;
@@ -3761,8 +3731,9 @@ export default {
     editPaper(params) {
       this.$refs["currentEmp"].validate(async (valid) => {
         if (valid) {
-
-
+            //TODO
+            console.log("======"+params)
+            console.log("======3123133"+this.currentEmp)
           params.ID = this.currentEmp.id;
           this.postRequest1("/paper/basic/edit", params).then((resp) => {
             if (resp) {
@@ -3786,16 +3757,16 @@ export default {
       this.$message.success('操作成功');
     },
 
-      async doAddOperType(state, paperID,type,name) {
-          this.oper.state = state
-          this.oper.prodId = paperID
-          this.oper.operationName = "修改"+name
-          this.oper.prodType = type
-          this.oper.time = this.dateFormatFunc(new Date());
-          await this.postRequest1("/oper/basic/add", this.oper)
-          await this.initEmps();
-          this.$message.success('操作成功');
-      },
+    async doAddOperType(state, paperID,type,name) {
+        this.oper.state = state
+        this.oper.prodId = paperID
+        this.oper.operationName = "修改"+name
+        this.oper.prodType = type
+        this.oper.time = this.dateFormatFunc(new Date());
+        await this.postRequest1("/oper/basic/add", this.oper)
+        await this.initEmps();
+        this.$message.success('操作成功');
+    },
     doAddEmp() {//确定添加论文
       const params = {};
       params.name = this.currentEmp.name;
@@ -3842,7 +3813,6 @@ export default {
       } else {
         this.$refs["currentEmp"].validate( (valid) => {
           if (valid) {
-              console.log(params)
             this.postRequest1("/paper/basic/add", params).then(
                 (resp) => {
                   if (resp) {
@@ -4090,17 +4060,11 @@ export default {
       const y = cellValue;
       let x = 0;
 
-        const pointtype = row.pointtype;
-        if (pointtype===0&& status === 'adm_pass'){
-            x = y;
-        }else if (pointtype===1){
-            x = y;
-        }else if (pointtype===2){
-            x = 0;
-        }
+      if (status === 'adm_pass') {
+        x = y;
+      }
 
-
-        return `${x}/${y}`;
+      return `${x}/${y}`;
     },
     throttleSearchType() {
       if (this.currentCompetitionCopy.date == null || this.currentCompetitionCopy.date == '') return;
@@ -4205,7 +4169,7 @@ export default {
         '科研获奖': 'currentAward',
         '学术专著和教材': 'currentMonograph',
         '纵向科研项目': 'currentProject',
-        '横向科研项目': 'currentProject',
+        '横向科研项目': 'currentProgram',
         '学科竞赛': 'currentCompetition',
         '决策咨询': 'currentDecision',
         '产品应用': 'currentProduct',
@@ -4217,7 +4181,7 @@ export default {
         '科研获奖': '/award',
         '学术专著和教材': '/monograph',
         '纵向科研项目': '/project',
-        '横向科研项目': '/project',
+        '横向科研项目': '/programRecord',
         '学科竞赛': '/competition',
         '决策咨询': '/decision',
         '产品应用': '/product',
@@ -4276,19 +4240,23 @@ export default {
     handleShowInfo(data) {
       this.title_show = "显示详情";
 
-
+      console.log(data)
       this.currentProjectSummary = data
       this.showInfoMap(data)
-      this.isPdf = this.isImage = false; //初始化
-      this.previewUrl = '';
-      this.previewImageSrcList = [];
-      this.isDataUrl(data)
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=' + data.category).then((resp) => {
         this.loading = false;
         if (resp) {
           this.operList = resp.obj
         }
       });
+      //横向科研项目没有证明材料
+      if (data.category==='横向科研项目') {
+        return;
+      }
+      this.isPdf = this.isImage = false; //初始化
+      this.previewUrl = '';
+      this.previewImageSrcList = [];
+      this.isDataUrl(data)
     },
     // 显示项目详情对话框
     showInfo(data) {
@@ -4351,17 +4319,6 @@ export default {
       if (data.category === '学术论文') {
         this.title = "编辑论文信息";
         this.dialogVisible_publication_Paper = true
-        this.currentEmp = {
-          name: '',
-          year: '',
-          month: '',
-          date: '',
-          startPage: '',
-          endPage: '',
-          author: '',
-          url: '',
-          // 其他字段初始化...
-        };
         this.getRequest("/paper/basic/studentIDInfo?studentID=" + this.user.id + "&id=" + data.id).then((resp) => {
           this.loading = false;
           if (resp) {

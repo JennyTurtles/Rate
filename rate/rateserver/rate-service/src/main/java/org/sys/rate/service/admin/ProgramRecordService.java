@@ -6,6 +6,9 @@ import org.sys.rate.mapper.GraduateStudentMapper;
 import org.sys.rate.mapper.ProgramRecordMapper;
 import org.sys.rate.model.PaperComment;
 import org.sys.rate.model.ProgramRecord;
+import org.sys.rate.model.ProgramResult;
+import org.sys.rate.model.XinProject;
+import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -20,7 +23,10 @@ public class ProgramRecordService {
     ProgramRecordMapper programRecordMapper;
     @Resource
     GraduateStudentMapper graduateStudentMapper;
-
+    @Resource
+    private MailToStuService mailToStuService;
+    @Resource
+    private XinProjectService xinProjectService;
     // 添加记录
     public Integer addSave(ProgramRecord programRecord) {
         Integer studentID = programRecordMapper.getIDByStudentID(programRecord.getStudentID());
@@ -113,5 +119,18 @@ public class ProgramRecordService {
         combinedList.addAll(list3);
         combinedList.addAll(list2);
         return  combinedList;
+    }
+
+    public int addResult(ProgramResult programResult) {
+        int rlt = programRecordMapper.addResult(programResult);
+
+        XinProject xinProject = new XinProject("横向科研项目申报", 2, programResult.getAuthor(),
+                programResult.getState(), programResult.getRemark(), programResult.getId(), "横向科研项目", programResult.getStudentId());
+        xinProjectService.insertXinProject(xinProject);
+        return rlt;
+    }
+
+    public ProgramResult selectProgramResultById(Long id) {
+        return programRecordMapper.selectProgramResultById(id);
     }
 }

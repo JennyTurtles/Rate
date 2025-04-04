@@ -221,12 +221,12 @@
           class="edit_dialog"
           :title="title_edit"
           :visible.sync="dialogVisible_edit"
-          width="520px"
+          width="590px"
           center
       >
         <el-form
             :label-position="labelPosition"
-            label-width="80px"
+            label-width="100px"
             :model="emp"
             :rules="rulesPublication"
             ref="publicationForm"
@@ -235,7 +235,7 @@
           <el-form-item label="期刊全称:" prop="publicationName">
             <el-input v-model="emp.publicationName"></el-input>
           </el-form-item>
-          <el-form-item label="期刊简称:" prop="publicationAbbr">
+          <el-form-item label="期刊简称:">
             <el-input v-model="emp.publicationAbbr"></el-input>
           </el-form-item>
           <el-form-item label="出版社:" prop="publisherName">

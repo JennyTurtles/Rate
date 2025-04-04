@@ -110,8 +110,8 @@ public class Download {
                 data.put("preSum" + (i + 1), adaptRows(paperComments.get(i).getPreSum(), PRESUMROWS));
                 data.put("nextPlan" + (i + 1), adaptRows(paperComments.get(i).getNextPlan(), NEXTPLANROWS));
                 data.put("tutorComment" + (i + 1), paperComments.get(i).getTutorComment() == null || paperComments.get(i).getTutorComment().isEmpty() ? " " : paperComments.get(i).getTutorComment());
-                data.put("DateStu" + (i + 1), paperComments.get(i).getDateStu());
-                data.put("DateTea" + (i + 1), paperComments.get(i).getDateTea() == null || paperComments.get(i).getDateTea().isEmpty() ? "" : paperComments.get(i).getDateTea());
+                data.put("DateStu" + (i + 1), paperComments.get(i).getDateStu() == null ? "" : paperComments.get(i).getDateStu().toString());
+                data.put("DateTea" + (i + 1), paperComments.get(i).getDateTea() == null ? "" : paperComments.get(i).getDateTea().toString());
             }
 
             // 7遍历data 给pdf表单表格赋值
