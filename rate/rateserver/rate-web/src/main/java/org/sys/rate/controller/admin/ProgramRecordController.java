@@ -112,9 +112,34 @@ public class ProgramRecordController {
         return new JsonResult(programResult.getId());
     }
 
+    @PostMapping("/editResult")
+    @ResponseBody
+    public JsonResult editResult(ProgramResult programResult) throws FileNotFoundException {
+        Integer res = programRecordService.editResult(programResult);
+//        mailToTeacherService.sendTeaCheckMail(programResult, "横向科研项目", "添加");
+        return new JsonResult(programResult.getId());
+    }
+
     @GetMapping("/getDtaById")
     public JsonResult<ProgramResult> getDtaById(Long id) {
         ProgramResult programResult = programRecordService.selectProgramResultById(id);
         return new JsonResult<>(programResult);
+    }
+
+    @GetMapping("/getCountByStuID")
+    public JsonResult<Integer> getDtaByStuID(int id) {
+        int res = programRecordService.getDtaByStuID(id);
+        return new JsonResult<>(res);
+    }
+
+    @GetMapping("/edit_state")
+    public JsonResult getById(String state, Long ID) throws MessagingException {
+        return new JsonResult(programRecordService.editState(state, ID));
+    }
+
+    @DeleteMapping("/remove/{ID}")
+    public JsonResult remove(@PathVariable Long ID) {
+        Integer res = programRecordService.deleteById(ID);
+        return new JsonResult(res);
     }
 }

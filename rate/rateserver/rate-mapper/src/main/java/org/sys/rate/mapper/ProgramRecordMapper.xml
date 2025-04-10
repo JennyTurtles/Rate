@@ -63,13 +63,61 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="studentId != null">student_id,</if>
             <if test="workHours != null">work_hours,</if>
+            <if test="author != null">author,</if>
             <if test="state != null">state,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="studentId != null">#{studentId},</if>
             <if test="workHours != null">#{workHours},</if>
+            <if test="author != null">#{author},</if>
             <if test="state != null">#{state},</if>        </trim>
     </insert>
+
+    <update id="updateResult" parameterType="org.sys.rate.model.ProgramResult">
+        update programresults
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="workHours != null">work_hours =#{workHours},</if>
+            <if test="state != null">state =#{state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete
+        from programresults
+        where id = #{ID}
+    </delete>
+
+    <select id="selectHorizontalProjectNumberOfPendingMessing" resultType="java.lang.Integer">
+        select count(*)
+        from programresults
+        where state = #{state}
+    </select>
+
+    <select id="searchHorizontalProjectByConditions" resultMap="programResult">
+        SELECT book.*,i.max_date, j.remark, s.name as sname, i.name as iname, i.score
+        FROM programresults book
+        JOIN (
+        SELECT prod_id,MAX(i_oper.date) max_date
+        FROM i_oper
+        WHERE prod_type = '横向科研项目'
+        GROUP BY prod_id
+        ) i ON book.id = i.prod_id
+        JOIN (
+        SELECT prod_id,remark,`date`
+        FROM i_oper
+        WHERE prod_type = '横向科研项目'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+        JOIN indicator i ON book.indicator_id = i.id
+        JOIN student s ON s.ID = book.student_id
+        <where>
+            <if test="projectName != null and projectName != ''">and book.name like concat('%', #{projectName}, '%')</if>
+            <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
+            <if test="state != null and state != ''">and book.state = #{state}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
+        </where>
+        ORDER BY book.id DESC
+    </select>
 
     <select id="selectProgramResultById" parameterType="Long" resultMap="programResult">
         <include refid="selectResultVo"/>
@@ -140,6 +188,15 @@
                 AND workHoursTotal &lt;= #{maxWorkHours}
             </if>
     </select>
+
+    <update id="editState" parameterType="org.sys.rate.model.ProgramResult">
+        update programresults
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null">state = #{state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
     <select id="getGraduateStudentsOfTutorID" resultType="org.sys.rate.model.GraduateStudent">
         SELECT
             g.ID,

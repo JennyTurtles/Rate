@@ -74,6 +74,9 @@ public class XinProjectController {
     private ProductService productService;
     @Resource
     private  XinProjectService xinProjectService;
+    @Resource
+    private ProgramRecordService programRecordService;
+
 
     @PostMapping("/searchProjectByConditions")
     public Msg searchPaperByConditions(@RequestBody Map<String, String> params) {
@@ -179,7 +182,7 @@ public class XinProjectController {
 
     public List<ProjectBase> searchHorizontalProjectByConditions(Map<String, String> params) {
 
-        List<Project> list = projectService.searchHorizontalProjectByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"));
+        List<ProgramResult> list = programRecordService.searchHorizontalProjectByConditions(params.get("studentName"), params.get("state"), params.get("name"), params.get("pointFront"), params.get("pointBack"));
 
         List<ProjectBase> dataArr = new LinkedList<>();
         if(!CollectionUtils.isEmpty(list)){

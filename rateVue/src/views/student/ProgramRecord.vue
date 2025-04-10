@@ -883,26 +883,40 @@ export default {
       params.studentId = this.user.id;
       params.author = this.user.name;
       params.workHours = this.examinedHours;
-      if(this.examinedHours <1000){
-        this.$alert('总工作量时长小于1000小时，请满足条件后再申报！', '提示', {
-          confirmButtonText: '确定',
-        });
-      }else{
-        this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的横向科研项目项目", '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.postRequest1("/programRecord/basic/addResult", params).then((resp) => {
-          if (resp) {
-            this.$message.success('添加成功！')
-            this.initEmps();
-            this.doAddOper("commit", resp.data);
-          }
-        });
-        })
-      }
-      
+      const url = '/programRecord/basic/getCountByStuID?id=' + this.user.id;
+      this.getRequest(url)
+          .then((resp) => {
+            console.log(resp)
+            if (resp.total !== 0) {
+              this.$alert('已申报过横向科研项目成果，请前往修改或删除！', '提示', {
+                confirmButtonText: '确定',
+              });
+              this.$router.push('/student/Project');
+            } else{
+              if(this.examinedHours <1000){
+                this.$alert('总工作量时长小于1000小时，请满足条件后再申报！', '提示', {
+                  confirmButtonText: '确定',
+                });
+              }else{
+                this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的横向科研项目项目", '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                this.postRequest1("/programRecord/basic/addResult", params).then((resp) => {
+                  if (resp) {
+                    this.$message.success('添加成功！')
+                    this.initEmps();
+                    this.doAddOper("commit", resp.data);
+                  }
+                });
+                })
+              }
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
     },
     async doAddOper(state, resultID) {
       this.oper.state = state
@@ -910,7 +924,6 @@ export default {
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper)
       await this.initEmps();
-      this.$message.success('操作成功');
     },
     getFillMiss(){
       const url = '/programRecord/basic/getFillMiss?studentID=' + this.user.id;

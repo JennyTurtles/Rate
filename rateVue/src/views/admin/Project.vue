@@ -908,55 +908,39 @@
         <el-form
             :label-position="labelPosition"
             label-width="80px"
-            :model="currentProject"
+            :model="currentProgram"
             style="margin-left: 20px">
 
-          <el-form-item label="项目名称:" prop="name">
-            <span>{{ currentProject.name }}</span
-            ><br/>
-          </el-form-item>
-          <el-form-item label="立项年月:" prop="date">
-            <span>{{ currentProject.startDate }}</span
-            ><br/>
-          </el-form-item>
-          <el-form-item label="结项年月:" prop="date">
-            <span>{{ currentProject.startDate }}</span
-            ><br/>
-          </el-form-item>
-          <el-form-item label="作者列表:" prop="author">
-            <span>{{ currentProject.author }}</span
-            ><br/>
-          </el-form-item>
-          <el-form-item label="作者人数:" prop="total">
-            <span>{{ currentProject.total }}</span
-            ><br/>
-          </el-form-item>
-          <el-form-item label="作者排名:" prop="rank">
-            <span>{{ currentProject.rank }}</span
-            ><br/>
-          </el-form-item>
-          <el-form-item label="成果积分:" prop="point">
-            <span>{{ currentProject.point }}</span
-            ><br/>
-          </el-form-item>
+            <el-form-item label="成果名称:" prop="name">
+                <span>横向科研项目申报</span
+                ><br/>
+            </el-form-item>
+            <el-form-item label="项目时长:" >
+                <span>{{ currentProgram.workHours }}</span
+                ><br/>
+            </el-form-item>
+            <el-form-item label="成果积分:" prop="point">
+                <span>{{ currentProgram.point }}</span
+                ><br/>
+            </el-form-item>
           <el-form-item label="成果状态:" prop="state">
             <span>{{
-                currentProject.state == "commit"
+                currentProgram.state == "commit"
                     ? "学生提交"
-                    : currentProject.state == "tea_pass"
+                    : currentProgram.state == "tea_pass"
                         ? "导师通过"
-                        : currentProject.state == "tea_reject"
+                        : currentProgram.state == "tea_reject"
                             ? "导师驳回"
-                            : currentProject.state == "adm_pass"
+                            : currentProgram.state == "adm_pass"
                                 ? "管理员通过"
                                 : "管理员驳回"
               }}</span
             ><br/>
           </el-form-item>
           <el-form-item label="证明材料:" prop="url">
-            <span v-if="currentProject.url == '' || currentProject.url == null ? true : false">无证明材料</span>
+            <span v-if="currentProgram.url == '' || currentProgram.url == null ? true : false">无证明材料</span>
             <div v-else>
-              {{ currentProject.url | fileNameFilter }}
+              {{ currentProgram.url | fileNameFilter }}
               <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
               <el-button @click="previewMethod('9')">下载</el-button>
             </div>
@@ -990,7 +974,7 @@
         <span slot="footer" class="dialog-footer">
           <el-button
                   id="but_pass"
-                  v-show="(currentProject.state == 'commit' || (currentProject.state == 'tea_pass' && role == 'admin')) ? true : false"
+                  v-show="(currentProgram.state == 'commit' || (currentProgram.state == 'tea_pass' && role == 'admin')) ? true : false"
                   @click="(()=>{
                    auditing_commit('adm_pass')
                 }) "
@@ -998,19 +982,19 @@
           >审核通过</el-button>
             <el-button
                     id="but_reject"
-                    v-show="(currentProject.state == 'commit' || (currentProject.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    v-show="(currentProgram.state == 'commit' || (currentProgram.state == 'tea_pass' && role == 'admin')) ? true : false"
                     @click="rejectDialog"
                     type="primary"
             >审核不通过</el-button>
             <el-button
                     id="but_reject"
-                    v-show="(currentProject.state=='tea_reject' || currentProject.state=='adm_reject' || currentProject.state == 'adm_pass' || (currentProject.state=='tea_pass' && role == 8))? true:false"
+                    v-show="(currentProgram.state=='tea_reject' || currentProgram.state=='adm_reject' || currentProgram.state == 'adm_pass' || (currentProgram.state=='tea_pass' && role == 8))? true:false"
                     @click="dialogVisible_show = false"
                     type="primary"
             >关闭</el-button>
         </span>
       </el-dialog>
-      <el-dialog v-model="currentProject" :visible.sync="isShowInfo">
+      <el-dialog v-model="currentProgram" :visible.sync="isShowInfo">
         <el-input
                 type="textarea"
                 :rows="4"
@@ -1023,15 +1007,7 @@
           <el-button @click="isShowInfo = false">取消</el-button>
         </span>
       </el-dialog>
-      <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
-        <tcurrentProjectlate v-if="isPdf">
-          <vue-office-pdf
-                  :src="previewUrl"
-                  style="height: 100vh;"
-          />
-        </tcurrentProjectlate>
 
-      </el-dialog>
 
       <!--学科竞赛查看详情-->
       <el-dialog
@@ -2698,7 +2674,7 @@
           prodId: null,
           time: null
         },
-        select_point:['全部',0,1,3,4,6,9,12,15],
+        select_point:['全部',0,1,2,3,4,6,9,12,15],
         option:["全部","学生提交","导师通过","管理员通过","导师驳回","管理员驳回"],
         showTree: false, // 控制树形组件的显示与隐藏
         publish: {
@@ -2840,7 +2816,7 @@
           publisher: '',
           isbn: ''
         },
-        //纵向科研项目 横向科研项目
+        //纵向科研项目 
         currentProject: {
           id: null,
           name: null,
@@ -2856,6 +2832,17 @@
           projectTypeId: '',
           projectType: {}
         },
+        //横向科研项目
+        currentProgram: {
+         id: null,
+         name: null,
+         studentId: '',
+         state: '',
+         point: "",
+         remark: '',
+         indicatorId: '',
+         workHours:'',
+         },
         // 学科竞赛
         currentCompetition: {
           id: null,
@@ -3121,7 +3108,7 @@
                 cancelButtonText: "取消",
                 type: "warning"
             }).then(() => {
-                const url = `project/data/basic/updatePointType?mid=${row.id}&type=1`;
+                const url = `project/data/basic/updatePointType?mid=${row.id}&type=${row.category}&pointtype=1`;
                 this.getRequest(url).then((resp) => {
                     if (resp) {
                         this.$message.success("计入积分成功！");
@@ -3143,7 +3130,7 @@
                 cancelButtonText: "取消",
                 type: "warning"
             }).then(() => {
-                const url = `project/data/basic/updatePointType?mid=${row.id}&type=2`;
+                const url = `project/data/basic/updatePointType?mid=${row.id}&type=${row.category}&pointtype=2`;
                 this.getRequest(url).then((resp) => {
                     if (resp) {
                         this.$message.success("取消积分成功！");
@@ -3369,23 +3356,23 @@
         })
       },
       rolePass20(state) {
-        let url = "/project/basic/edit_state?state=" + state + "&ID="+this.currentProject.id;
+        let url = "/programRecord/basic/edit_state?state=" + state + "&ID="+this.currentProgram.id;
         this.dialogVisible_show=false
         if(state.indexOf('reject') >= 0){
-          this.currentProject.operationList[0].remark = this.reason;
+            this.currentProgram.operationList[0].remark = this.reason;
         }
         this.getRequest(url).then((resp) => {
-          this.loading = false;
-          if (resp) {
-            this.currentProject.state = state
-            this.$message({
-              type: 'success',
-              message: '操作成功'
-            })
-            this.doAddOper(state, this.reason, this.currentProject.id,'横向科研项目');
-            let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
-            this.$store.dispatch('changePendingMessageange', roleParam);
-          }
+            this.loading = false;
+            if (resp) {
+                this.currentProgram.state = state
+                this.$message({
+                    type: 'success',
+                    message: '操作成功'
+                })
+                this.doAddOper(state, this.reason, this.currentProgram.id,'横向科研项目');
+                let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
+                this.$store.dispatch('changePendingMessageange', roleParam);
+            }
         })
       },
       rolePass4(state) {
@@ -4623,7 +4610,7 @@
           '科研获奖': 'currentAward',
           '学术专著和教材': 'currentMonograph',
           '纵向科研项目': 'currentProject',
-          '横向科研项目': 'currentProject',
+          '横向科研项目': 'currentProgram',
           '学科竞赛': 'currentCompetition',
           '决策咨询': 'currentDecision',
           '产品应用': 'currentProduct',
@@ -4635,7 +4622,7 @@
           '科研获奖': '/award',
           '学术专著和教材': '/monograph',
           '纵向科研项目': '/project',
-          '横向科研项目': '/project',
+          '横向科研项目': '/programRecord',
           '学科竞赛': '/competition',
           '决策咨询': '/decision',
           '产品应用': '/product',
@@ -4693,20 +4680,21 @@
       },
       handleShowInfo(data) {
         this.title_show = "显示详情";
-
         console.log(data)
         this.currentProjectSummary = data
         this.showInfoMap(data)
+        this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=' + data.category).then((resp) => {
+            this.loading = false;
+            if (resp) {
+                this.operList = resp.obj
+            }
+        });
+        if(data.category==='横向科研项目')
+            return;
         this.isPdf = this.isImage = false; //初始化
         this.previewUrl = '';
         this.previewImageSrcList = [];
         this.isDataUrl(data)
-        this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=' + data.category).then((resp) => {
-          this.loading = false;
-          if (resp) {
-            this.operList = resp.obj
-          }
-        });
       },
       // 显示项目详情对话框
       showInfo(data) {

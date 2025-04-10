@@ -51,7 +51,7 @@
     <!-- 添加标准对话框 -->
     <Standard v-if="showAddStandardDialog" :dialogVisible.sync="showAddStandardDialog" @close="handleDialogClose" @add="addStandard" />
     <!-- 添加横向科研项目对话框 -->
-    <AcademicCompetition v-if="showAddAcademicCompetitionDialog" :dialogVisible.sync="showAddAcademicCompetitionDialog" @add="addAcademicCompetition" />
+    <AcademicCompetition v-if="showAddAcademicCompetitionDialog"  @add="addAcademicCompetition" />
     <!-- 添加决策咨询对话框 -->
     <Decision v-if="showAddDecisionDialog" :dialogVisible.sync="showAddDecisionDialog" @add="addDecision"/>
     <!-- 添加产品对话框 -->
@@ -107,6 +107,16 @@ export default {
         '产品应用': '/student/Product',
         '制定标准': '/student/Standard'
       },
+      oper: {
+        operatorRole: "student",
+        operatorId: JSON.parse(localStorage.getItem('user')).id,
+        operatorName: JSON.parse(localStorage.getItem('user')).name,
+        operationName: '学生提交',
+        state: '',
+        remark: '',
+        prodId: null,
+        time: null
+      },
       selectedOption: '学术论文', // 默认选中第一个选项
       showAddPaperDialog: false, // 控制添加论文对话框显示
       showAddPatentDialog: false, // 控制添加专利对话框显示
@@ -123,7 +133,6 @@ export default {
   methods: {
     submitDeclaration() {
       this.close();
-console.log(this.selectedOption+"=================")
 
       switch (this.selectedOption) {
         case '学术论文':
@@ -142,7 +151,7 @@ console.log(this.selectedOption+"=================")
           this.showAddResearchProjectDialog = true;
           break;
         case '横向科研项目':
-          this.showAddHorizontalResearchProjectDialog = true;
+          this.addProgramResult();
           break;
         case '学科竞赛':
           this.showAddAcademicCompetitionDialog = true;
@@ -213,12 +222,13 @@ console.log(this.selectedOption+"=================")
       this.$router.push('/student/Project');
       this.close();
     },
-    addHorizontalProject() {
-      // 添加横向科研项目的逻辑
-      // 假设添加横向科研项目成功
-      this.$router.push('/student/Project');
-      this.close();
-    },
+    
+    // addHorizontalProject() {
+    //   // 添加横向科研项目的逻辑
+    //   // 假设添加横向科研项目成功
+    //   this.$router.push('/student/Project');
+    //   this.close();
+    // },
     addAcademicCompetition() {
       // 添加学科竞赛的逻辑
       // 假设添加学科竞赛成功
@@ -242,8 +252,93 @@ console.log(this.selectedOption+"=================")
       // 假设添加制定标准成功
       this.$router.push('/student/Project');
       this.close();
-    }
+    },
+    async addProgramResult(){
+      this.loading = true;
+      const user = JSON.parse(localStorage.getItem("user"));
+      const studentID = user && user.id;
+      console.log("studentID"+studentID)
+      if (!studentID) {
+        console.error("无法从存储中获取学生ID。");
+        return;
+      }
+      const headers = {
+        'token': localStorage.getItem('user') ? user.token : ''
+      };
+
+      const url = "/programRecord/basic/getAllRecordStu?studentID=" + studentID;
+      const res = await this.getRequest(url,{headers});
+      this.emps = res.data;
+      this.total = res.data.length;
+      // 计算 totalWorkHours
+      this.totalWorkHours = this.emps.reduce((total, emp) => total + emp.workHours, 0);
+      // 计算 examinedHours(审核通过时长)
+      this.examinedHours = this.emps.reduce((total, emp) => {
+        if (emp.isPass === "tea_pass") {
+          return total + emp.workHours;
+        }
+        return total;
+      }, 0);
+      const params = {};
+      params.state = "commit";
+      params.studentId = studentID;
+      params.author = user.name;
+      params.workHours = this.examinedHours;
+      const url1 = '/programRecord/basic/getCountByStuID?id=' + user.id;
+      this.$emit('add');
+      this.$emit('update:dialogVisible', false);
+      this.getRequest(url1)
+          .then((resp) => {
+            if (resp.total !== 0) {
+              this.$alert('已申报过横向科研项目成果，请修改或删除！', '提示', {
+                confirmButtonText: '确定',
+              });
+              this.$router.push('/student/Project');
+            } else{
+              if(this.examinedHours === 0){
+                this.$alert('请先填写工作量，满足条件后再申报！', '提示', {
+                  confirmButtonText: '确定',
+                });
+                this.$router.push('/student/ProgramRecord');
+              }
+              else if(this.examinedHours <1000){
+                this.$alert('总工作量时长为'+ params.workHours + '小时，小于1000小时，请先填写工作量，满足条件后再申报！', '提示', {
+                  confirmButtonText: '确定',
+                });
+                this.$router.push('/student/ProgramRecord');
+              }
+              else{
+                this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的横向科研项目项目", '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                this.postRequest1("/programRecord/basic/addResult", params).then((resp) => {
+                  if (resp) {
+                    this.$message.success('添加成功！')
+                    this.doAddOper("commit", resp.data);
+                    this.$router.push('/student/Project');
+                  }
+                });
+                })
+              }
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      // this.$router.push('/student/Project');
+      this.close();
+    },
+    async doAddOper(state, resultID) {
+      this.oper.state = state
+      this.oper.prodId = resultID
+      this.oper.time = this.dateFormatFunc(new Date());
+      this.oper.prodType='横向科研项目',
+      await this.postRequest1("/oper/basic/add", this.oper)
+    },
   },
+  
 
 };
 

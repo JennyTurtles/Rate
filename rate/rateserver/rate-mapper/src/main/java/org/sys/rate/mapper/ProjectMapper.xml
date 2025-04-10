@@ -264,12 +264,12 @@
     </select>
 
     <select id="selectProjectListByYear" resultType="org.sys.rate.model.Project"></select>
-    <select id="selectProjectNumberOfPendingMessing" resultType="Integer">
+    <select id="selectProjectNumberOfPendingMessing" resultType="java.lang.Integer">
         select count(*)
         from i_project
         where state = #{state} and project_type_id != -1
     </select>
-    <select id="selectHorizontalProjectNumberOfPendingMessing" resultType="Integer">
+    <select id="selectHorizontalProjectNumberOfPendingMessing" resultType="java.lang.Integer">
         select count(*)
         from i_project
         where state = #{state} and project_type_id = -1

@@ -1070,68 +1070,34 @@
           <el-form
                   :label-position="labelPosition"
                   label-width="80px"
-                  :model="currentProject"
+                  :model="currentProgram"
                   style="margin-left: 20px">
-
-              <el-form-item label="项目名称:" prop="name">
-            <span>{{ currentProject.name }}</span
-            ><br/>
-              </el-form-item>
-              <el-form-item label="立项年月:" prop="date">
-            <span>{{ currentProject.startDate }}</span
-            ><br/>
-              </el-form-item>
-              <el-form-item label="结项年月:" prop="date">
-            <span>{{ currentProject.startDate }}</span
-            ><br/>
-              </el-form-item>
-              <el-form-item label="作者列表:" prop="author">
-            <span>{{ currentProject.author }}</span
-            ><br/>
-              </el-form-item>
-              <el-form-item label="作者人数:" prop="total">
-            <span>{{ currentProject.total }}</span
-            ><br/>
-              </el-form-item>
-              <el-form-item label="作者排名:" prop="rank">
-            <span>{{ currentProject.rank }}</span
-            ><br/>
-              </el-form-item>
-              <el-form-item label="成果积分:" prop="point">
-            <span>{{ currentProject.point }}</span
-            ><br/>
-              </el-form-item>
-              <el-form-item label="成果状态:" prop="state">
-            <span>{{
-                currentProject.state == "commit"
+            <el-form-item label="成果名称:">
+                <span>横向科研项目申报</span
+                ><br/>
+            </el-form-item>
+            <el-form-item label="项目时长:" >
+                <span>{{ currentProgram.workHours }}</span
+                ><br/>
+            </el-form-item>
+            <el-form-item label="成果积分:" prop="point">
+                <span>{{ currentProgram.point }}</span
+                ><br/>
+            </el-form-item>
+            <el-form-item label="成果状态:" prop="state">
+              <span>{{
+                currentProgram.state == "commit"
                     ? "已提交"
-                    : currentProject.state == "tea_pass"
+                    : currentProgram.state == "tea_pass"
                         ? "导师通过"
-                        : currentProject.state == "tea_reject"
+                        : currentProgram.state == "tea_reject"
                             ? "导师驳回"
-                            : currentProject.state == "adm_pass"
+                            : currentProgram.state == "adm_pass"
                                 ? "管理员通过"
                                 : "管理员驳回"
               }}</span
             ><br/>
               </el-form-item>
-            <el-form-item label="证明材料:" prop="url">
-              <span v-if="currentProject.url == '' || currentProject.url == null ? true : false">无证明材料</span>
-              <div v-else>
-                {{ currentProject.url | fileNameFilter }}
-                <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                <el-button @click="previewMethod('9')">下载</el-button>
-              </div>
-              <div style="margin-top: 5px">
-                <el-image
-                    v-show="false"
-                    ref="previewImage"
-                    style="width: 100px; height: 100px"
-                    :src="previewUrl"
-                    :preview-src-list="previewImageSrcList">
-                </el-image>
-              </div>
-            </el-form-item>
               <br/>
               <div>
                   <span>历史操作:</span>
@@ -1150,10 +1116,10 @@
               </div>
           </el-form>
 
-          <span slot="footer" class="dialog-footer" :model="currentProject">
+          <span slot="footer" class="dialog-footer" :model="currentProgram">
             <el-button
                     id="but_pass"
-                    v-show="(currentProject.state == 'commit' || (currentProject.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    v-show="(currentProgram.state == 'commit' || (currentProgram.state == 'tea_pass' && role == 'admin')) ? true : false"
                     @click="(()=>{
                   if (role == 'teacher')
                    auditing_commit('tea_pass')
@@ -1164,13 +1130,13 @@
             >审核通过</el-button>
             <el-button
                     id="but_reject"
-                    v-show="(currentProject.state == 'commit' || (currentProject.state == 'tea_pass' && role == 'admin')) ? true : false"
+                    v-show="(currentProgram.state == 'commit' || (currentProgram.state == 'tea_pass' && role == 'admin')) ? true : false"
                     @click="rejectDialog"
                     type="primary"
             >审核不通过</el-button>
             <el-button
                     id="but_reject"
-                    v-show="(currentProject.state=='tea_reject' || currentProject.state=='adm_reject' || currentProject.state == 'adm_pass' || (currentProject.state=='tea_pass' && role == 8))? true:false"
+                    v-show="(currentProgram.state=='tea_reject' || currentProgram.state=='adm_reject' || currentProgram.state == 'adm_pass' || (currentProgram.state=='tea_pass' && role == 8))? true:false"
                     @click="dialogVisible_show = false"
                     type="primary"
             >关闭</el-button>
@@ -1797,6 +1763,17 @@
           startPage: '',
           endPage: ''
         },
+        //横向科研项目
+        currentProgram: {
+          id: null,
+          name: null,
+          studentId: '',
+          state: '',
+          point: "",
+          remark: '',
+          indicatorId: '',
+          workHours:'',
+        },
         //授权专利
         currentPatent: {
           id: '',
@@ -1864,7 +1841,7 @@
                   }
               },
           },
-        //纵向科研项目 横向科研项目
+        //纵向科研项目 
         currentProject: {
           id: null,
           name: null,
@@ -2046,7 +2023,7 @@
                     '科研获奖': '/award/basic/edit_state',
                     '学术专著和教材': '/monograph/basic/edit_state',
                     '纵向科研项目': '/project/basic/edit_state',
-                    '横向科研项目': '/project/basic/edit_state',
+                    '横向科研项目': '/programRecord/basic/edit_state',
                     '学科竞赛': '/competition/basic/edit_state',
                     '决策咨询': '/decision/basic/edit_state',
                     '产品应用': '/product/basic/edit_state',
@@ -2371,20 +2348,20 @@
             })
         },
         rolePass20(state) {
-            let url = "/project/basic/edit_state?state=" + state + "&ID="+this.currentProject.id;
+            let url = "/programRecord/basic/edit_state?state=" + state + "&ID="+this.currentProgram.id;
             this.dialogVisible_show=false
             if(state.indexOf('reject') >= 0){
-                this.currentProject.operationList[0].remark = this.reason;
+                this.currentProgram.operationList[0].remark = this.reason;
             }
             this.getRequest(url).then((resp) => {
                 this.loading = false;
                 if (resp) {
-                    this.currentProject.state = state
+                    this.currentProgram.state = state
                     this.$message({
                         type: 'success',
                         message: '操作成功'
                     })
-                    this.doAddOper(state, this.reason, this.currentProject.id,'横向科研项目');
+                    this.doAddOper(state, this.reason, this.currentProgram.id,'横向科研项目');
                     let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
                     this.$store.dispatch('changePendingMessageange', roleParam);
                 }
@@ -2566,7 +2543,7 @@
           '科研获奖': 'currentAward',
           '学术专著和教材': 'currentMonograph',
           '纵向科研项目': 'currentProject',
-          '横向科研项目': 'currentProject',
+          '横向科研项目': 'currentProgram',
           '学科竞赛': 'currentCompetition',
           '决策咨询': 'currentDecision',
           '产品应用': 'currentProduct',
@@ -2578,7 +2555,7 @@
           '科研获奖': '/award',
           '学术专著和教材': '/monograph',
           '纵向科研项目': '/project',
-          '横向科研项目': '/project',
+          '横向科研项目': '/programRecord',
           '学科竞赛': '/competition',
           '决策咨询': '/decision',
           '产品应用': '/product',
@@ -2601,21 +2578,24 @@
         this.handleShowInfo(data);
       },
       handleShowInfo(data) {
+
         this.title_show = "显示详情";
 
         console.log(data)
         this.currentProjectSummary = data
         this.showInfoMap(data)
-        this.isPdf = this.isImage = false; //初始化
-        this.previewUrl = '';
-        this.previewImageSrcList = [];
-        this.isDataUrl(data)
         this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=' + data.type).then((resp) => {
           this.loading = false;
           if (resp) {
             this.operList = resp.obj
           }
         });
+        if(data.type==='横向科研项目')
+          return;
+        this.isPdf = this.isImage = false; //初始化
+        this.previewUrl = '';
+        this.previewImageSrcList = [];
+        this.isDataUrl(data)
       },
 
       isDataUrl(data) {

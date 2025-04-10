@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.*;
 import org.sys.rate.model.GraduateStudent;
 import org.sys.rate.model.ProgramRecord;
 import org.sys.rate.model.ProgramResult;
+import org.sys.rate.model.Project;
 
 import java.util.List;
 
@@ -45,4 +46,29 @@ public interface ProgramRecordMapper {
     int addResult(ProgramResult programResult);
 
     ProgramResult selectProgramResultById(Long id);
+
+    Integer updateResult(ProgramResult programResult);
+
+    @Select("select count(*) from programresults where programresults.student_id = #{id}")
+    int getDtaByStuID(int id);
+
+    Integer selectHorizontalProjectNumberOfPendingMessing(String state);
+
+    List<ProgramResult> searchHorizontalProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
+
+    int editState(String state, Long id);
+
+    @Select("select * from programresults where ID = #{ID}")
+    ProgramResult getById(Integer ID);
+
+    Integer deleteById(Long id);
+
+    @Select("SELECT id FROM programresults WHERE student_id = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
+    public Integer checkScore(int stuID);
+
+    @Update("UPDATE programresults SET state = #{state},have_score = #{valid} WHERE id = #{ID}")
+    public Integer editState2(String state, Long ID, Integer valid);
+
+    @Update("UPDATE graduatestudent SET point = point + #{score} WHERE studentID = #{stuID}")
+    public int updateScore(Long stuID,Long score);
 }
