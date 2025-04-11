@@ -211,7 +211,7 @@
               </el-button>
                 <!-- 计入积分按钮 -->
                 <el-button
-                        v-if="scope.row.status === 'adm_pass'"
+                        v-if="scope.row.status === 'adm_pass'&&scope.row.pointtype === 2"
                 @click="addPoints(scope.row)"
                 style="padding: 4px"
                 size="mini"
@@ -220,7 +220,7 @@
 
                 <!-- 取消积分按钮 -->
                 <el-button
-                        v-if="scope.row.status === 'adm_pass'"
+                        v-if="(scope.row.status === 'adm_pass')&&(scope.row.pointtype === 0 ||scope.row.pointtype === 1)"
                 @click="removePoints(scope.row)"
                 style="padding: 4px"
                 size="mini"
