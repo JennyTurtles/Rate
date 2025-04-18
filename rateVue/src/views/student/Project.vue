@@ -3731,7 +3731,8 @@ export default {
       params.state = "commit";
       params.studentID = this.user.id
       params.pubPage = `${this.currentEmp.startPage}-${this.currentEmp.endPage}`;
-      if (this.currentEmp.startPage == '' || this.currentEmp.startPage == null || this.currentEmp.endPage == '' || this.currentEmp.endPage == null) {
+      if ((this.currentEmp.startPage == "" || this.currentEmp.startPage == null) !==
+      (this.currentEmp.endPage == "" || this.currentEmp.endPage == null)) {
         this.$message.warning('请填写正确页码！')
         return
       }
@@ -3739,6 +3740,13 @@ export default {
         this.$message.warning('请填写正确页码！')
         return
       }
+
+      if((this.currentEmp.startPage == "" || this.currentEmp.startPage == null)&&(this.currentEmp.endPage == "" || this.currentEmp.endPage == null)){
+        params.pubPage = "";
+      }else{
+        params.pubPage = `${this.currentEmp.startPage}-${this.currentEmp.endPage}`;
+      }
+
       if (params.url == '' || params.url == null) {
         this.$message.error('请上传证明材料！')
         return
@@ -3757,8 +3765,9 @@ export default {
       if (params.publicationID < 0) return;
       params.publicationID = this.publicationId;
         if (this.currentEmp.id) {//emptyEmp中没有将id设置为空 所以可以判断
-            params.year = this.currentEmp.date.getFullYear();
-            params.month = this.currentEmp.date.getMonth() + 1;
+            var data = new Date(this.currentEmp.date);
+            params.year = data.getFullYear();
+            params.month = data.getMonth() + 1;
 
             this.editPaper(params);
       } else {

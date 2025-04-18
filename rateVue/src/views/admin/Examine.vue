@@ -124,7 +124,7 @@
           <el-table-column
                   prop="createtime"
                   align="center"
-                  label="申报时间"
+                  label="操作时间"
                   min-width="15%"
           >
           </el-table-column>

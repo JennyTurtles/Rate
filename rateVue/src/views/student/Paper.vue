@@ -3,7 +3,7 @@
 
 
     <!-- 添加论文对话框 -->
-    <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
+    <el-dialog :title="title" :visible.sync="dialogVisible" :before-close="closeDialog" width="50%" center >
       <el-form
         :hide-required-asterisk="true"
         :label-position="labelPosition"
@@ -113,7 +113,7 @@
           label-width="80px"
           style="margin-left: 20px"
         >
-          <span class="isMust">*</span>
+          <!-- <span class="isMust">*</span> -->
           <el-input
             size="mini"
             style="width: 32%"
@@ -136,7 +136,7 @@
           label-width="80px"
           style="margin-left: 20px"
         >
-
+        <span class="isMust">*</span>
           <el-upload
             :file-list="files"
             action="#"
@@ -194,7 +194,7 @@
       </div>
 
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button @click="closeDialog">取 消</el-button>
         <el-button type="primary" @click="doAddEmp()">提 交</el-button>
       </span>
     </el-dialog>
@@ -813,6 +813,12 @@ export default {
       var formData = new FormData();
       this.filesPublication.push(file);
       formData.append("file", this.filesPublication[0].raw);
+      const loadingInstance = this.$loading({
+        lock: true,
+        text: '正在上传中，请稍候...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
       axios
         .post("/publicationSubmission/upload", formData, {
           headers: {
@@ -821,6 +827,7 @@ export default {
         })
         .then(
           (response) => {
+            loadingInstance.close();
             this.$message({
               message: "上传成功！",
             });
@@ -829,7 +836,13 @@ export default {
             this.publish.publicationProofUrl = response.data;
           },
           () => {}
-        );
+        ).catch((error) => {
+        // 关闭上传中的提示
+        loadingInstance.close();
+
+        this.$message.error('上传失败，请重试！');
+        console.error('上传失败:', error);
+      });
     },
     checkYear() {
       if (this.timer) {
@@ -1077,6 +1090,12 @@ export default {
       var formData = new FormData();
       this.files.push(file);
       formData.append("file", this.files[0].raw);
+      const loadingInstance = this.$loading({
+        lock: true,
+        text: '正在上传中，请稍候...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
       axios
         .post("/achievements/basic/upload", formData, {
           headers: {
@@ -1085,6 +1104,7 @@ export default {
         })
         .then(
           (response) => {
+            loadingInstance.close();
             this.$message({
               message: "上传成功！",
             });
@@ -1092,7 +1112,13 @@ export default {
             this.urlFile = response.data;
           },
           () => {}
-        );
+        ).catch((error) => {
+          // 关闭上传中的提示
+          loadingInstance.close();
+
+          this.$message.error('上传失败，请重试！');
+          console.error('上传失败:', error);
+      });
     },
     timechange(picker) {
       //选择日历调用的方法
@@ -1105,6 +1131,11 @@ export default {
       this.currentEmp.year = data.getFullYear();
       this.currentEmp.month = data.getMonth() + 1;
       this.disabledInput = false;
+    },
+    closeDialog() {
+      // 触发 update 事件，通知父组件更新 dialogVisible_p 的值为 false
+      this.dialogVisible = false;
+      this.$emit('update:dialogVisible', false);
     },
     judgeWriter() {
       //输入作者框 失去焦点触发事件
@@ -1287,22 +1318,28 @@ export default {
       params.point = this.paperPoint;
       params.state = "commit";
       params.studentID = this.user.id;
-      params.pubPage = `${this.currentEmp.startPage}-${this.currentEmp.endPage}`;
+      
       if (
-        this.currentEmp.startPage == "" ||
-        this.currentEmp.startPage == null ||
-        this.currentEmp.endPage == "" ||
-        this.currentEmp.endPage == null
+        (this.currentEmp.startPage == "" || this.currentEmp.startPage == null) !==
+        (this.currentEmp.endPage == "" || this.currentEmp.endPage == null)
       ) {
         this.$message.warning("请填写正确页码！");
         return;
       }
+
       if (
         parseInt(this.currentEmp.startPage) > parseInt(this.currentEmp.endPage)
       ) {
         this.$message.warning("请填写正确页码！");
         return;
       }
+
+      if((this.currentEmp.startPage == "" || this.currentEmp.startPage == null)&&(this.currentEmp.endPage == "" || this.currentEmp.endPage == null)){
+        params.pubPage = "";
+      }else{
+        params.pubPage = `${this.currentEmp.startPage}-${this.currentEmp.endPage}`;
+      }
+
       if (params.url == "" || params.url == null) {
         this.$message.error("请上传证明材料！");
         return;
