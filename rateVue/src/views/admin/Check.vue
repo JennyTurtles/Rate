@@ -45,7 +45,7 @@
       <el-table-column
           align="center"
           width="100px"
-          label="期刊简称"
+          label=""
           prop="publicationAbbr"
       ></el-table-column>
       <el-table-column

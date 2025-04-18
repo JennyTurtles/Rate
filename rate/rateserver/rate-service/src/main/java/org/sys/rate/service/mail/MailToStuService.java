@@ -29,15 +29,30 @@ public class MailToStuService {
             return;
         }
 
+//        SendMailContent sendMailContent;
+//        if (paper != null) {
+//            sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(paper.getStudentID()));
+//        } else {
+//            sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(production.getStudentId()));
+//        }
+//        if (sendMailContent == null) {
+//            return;
+//        }
         SendMailContent sendMailContent;
         if (paper != null) {
             sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(paper.getStudentID()));
         } else {
+            if (production == null) {
+                // 处理 production 为 null 的情况，例如记录日志或者返回
+                System.err.println("production 对象为 null，无法获取学生 ID");
+                return;
+            }
             sendMailContent = sendMailContentService.getSendMailContent(Math.toIntExact(production.getStudentId()));
         }
         if (sendMailContent == null) {
             return;
         }
+
 
         Mail mail = mailService.handleNullPointerException();
         if (mail == null) {

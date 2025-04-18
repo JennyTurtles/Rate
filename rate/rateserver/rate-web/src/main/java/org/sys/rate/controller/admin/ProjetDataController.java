@@ -68,7 +68,7 @@ public class ProjetDataController {
 
     @GetMapping("/updatePointType")//无页码要求
     public JsonResult<String> updatePointType(Integer mid,Integer type) {
-    int result =    xinProjectService.updatePointType(mid,type);
+    int result =xinProjectService.updatePointType(mid,type);
     if (result ==1){
         throw  new RuntimeException("数据不存在");
     }
