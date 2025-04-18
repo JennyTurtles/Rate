@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-dialog title="选择指标点分类" center :visible.sync="showTree" width="60%">
+    <el-dialog title="选择指标点分类" center :visible.sync="showTree"  width="60%">
       <span class="el-tree-node">
         <el-tree
             :data="data"
@@ -16,6 +16,7 @@
       :title="title_publication"
       :visible.sync="dialogVisible_publication"
       @close="cannotAddPublish = true"
+      :before-close="closeDialog"
       width="50%"
       center
     >
@@ -125,7 +126,7 @@
       <span slot="footer" class="dialog-footer">
         <el-button
           @click="
-            dialogVisible_publication = false;
+            closeDialog
           "
           >取 消</el-button
         >
@@ -323,6 +324,11 @@ export default {
         that.data = resp.obj[1];
       });
     },
+    closeDialog() {
+      // 触发 update 事件，通知父组件更新 dialogVisible_p 的值为 false
+      this.dialogVisible_publication = false;
+      this.$emit('update:dialogVisible_publication', false);
+    },
 
     handleNodeClick(data, node) {
       if (data.children.length == 0) {
@@ -422,12 +428,19 @@ export default {
       var formData = new FormData();
       this.filesPublication.push(file);
       formData.append("file", this.filesPublication[0].raw)
+      const loadingInstance = this.$loading({
+        lock: true,
+        text: '正在上传中，请稍候...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
       this.postRequest("/publicationSubmission/upload", formData, {
         headers: {
           'token': this.user ? this.user.token : ''
         }
       }).then(
           (response) => {
+            loadingInstance.close();
             this.$message({
               message: '上传成功！'
             })
@@ -437,7 +450,13 @@ export default {
             console.log( this.publish.publicationProofUrl)
           }, () => {
           }
-      )
+      ).catch((error) => {
+          // 关闭上传中的提示
+          loadingInstance.close();
+
+          this.$message.error('上传失败，请重试！');
+          console.error('上传失败:', error);
+      });
     }
     ,
     checkYear() {
@@ -557,6 +576,7 @@ export default {
               if (resp && resp.msg === "200") {
                 this.$message.success("成功发送！");
                 await this.emptyPublish()
+                // 触发自定义事件，通知父组件刷新数据
               }
             } catch (error) {
               this.$message.error(error);

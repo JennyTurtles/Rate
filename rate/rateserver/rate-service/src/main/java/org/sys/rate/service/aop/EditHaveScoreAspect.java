@@ -29,8 +29,12 @@ public class EditHaveScoreAspect {
     public void editHaveScoreForPaper() {
     }
 
+    @Pointcut("execution(* org.sys.rate.service.admin.ProgramRecordService.editState(..))")
+    public void editHaveScoreForProgramResult() {
+    }
+
     // 对paper以外的8种成果AOP
-    @Before("editHaveScore() && ! editHaveScoreForPaper()")
+    @Before("editHaveScore() && ! editHaveScoreForPaper() && !editHaveScoreForProgramResult()")
     public void aroundEditHaveScore(JoinPoint joinPoint) {
         String state = joinPoint.getArgs()[0].toString();
         Long ID = (Long) joinPoint.getArgs()[1];

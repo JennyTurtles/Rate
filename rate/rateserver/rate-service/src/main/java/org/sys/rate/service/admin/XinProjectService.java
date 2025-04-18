@@ -5,7 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.sys.rate.mapper.XinProjectMapper;
+import org.sys.rate.mapper.*;
+import org.sys.rate.model.ProgramResult;
 import org.sys.rate.model.ProjectBase;
 import org.sys.rate.model.XinProject;
 import org.sys.rate.model.XinProjectVo;
@@ -19,7 +20,6 @@ public class XinProjectService {
 
     @Autowired
     private XinProjectMapper xinProjectMapper;
-
 
     public List<XinProject> selectListByIds(Integer studentID) {
         XinProject xinProject = new XinProject();
@@ -87,16 +87,64 @@ public class XinProjectService {
         return     xinProjectMapper.selectXinProjectList(xinProjectVo);
     }
 
-    public int updatePointType(Integer mid,Integer type) {
-        XinProject xinProject = xinProjectMapper.selectOne(new QueryWrapper<XinProject>().eq("mid",mid));
-        if (null!= xinProject){
-            xinProject.setPointtype(type);
+    public int updatePointType(Integer mid, String type, Integer pointtype) {
+        XinProject xinProject = xinProjectMapper.selectOne(new QueryWrapper<XinProject>().eq("mid", mid).eq("type", type));
+        if (null != xinProject) {
+            xinProject.setPointtype(pointtype);
             xinProjectMapper.updateById(xinProject);
-            //TODO 看是否改其余的表,待定
-        }else {
+            // TODO 看是否改其余的表,待定
+        } else {
             return 1;
+        }
+        if (pointtype == 1) {
+            if (type.equals("学术论文")) {
+                int i = xinProjectMapper.updatePaperScore(1, mid);
+            } else if (type.equals("学术专著和教材")) {
+                int i = xinProjectMapper.updateBookScore(1, mid);
+            } else if (type.equals("授权专利")) {
+                int i = xinProjectMapper.updatePatentScore(1, mid);
+            } else if (type.equals("科研获奖")) {
+                int i = xinProjectMapper.updateAwardScore(1, mid);
+            } else if (type.equals("纵向科研项目")) {
+                int i = xinProjectMapper.updateProjectScore(1, mid);
+            } else if (type.equals("横向科研项目")) {
+                int i = xinProjectMapper.updateProgramScore(1, mid);
+            } else if (type.equals("学科竞赛")) {
+                int i = xinProjectMapper.updateCompetitionScore(1, mid);
+            } else if (type.equals("决策咨询")) {
+                int i = xinProjectMapper.updateDecisionScore(1, mid);
+            } else if (type.equals("指定标准")) {
+                int i = xinProjectMapper.updateApplicationScore(1, mid);
+            } else if (type.equals("产品应用")) {
+                int i = xinProjectMapper.updateStandardScore(1, mid);
+            }
+            xinProjectMapper.addStudentScore(xinProject.getPoint(),xinProject.getSid());
+        } else if (pointtype == 2) {
+            if (type.equals("学术论文")) {
+                int i = xinProjectMapper.updatePaperScore(0, mid);
+            } else if (type.equals("学术专著和教材")) {
+                int i = xinProjectMapper.updateBookScore(0, mid);
+            } else if (type.equals("授权专利")) {
+                int i = xinProjectMapper.updatePatentScore(0, mid);
+            } else if (type.equals("科研获奖")) {
+                int i = xinProjectMapper.updateAwardScore(0, mid);
+            } else if (type.equals("纵向科研项目")) {
+                int i = xinProjectMapper.updateProjectScore(0, mid);
+            } else if (type.equals("横向科研项目")) {
+                int i = xinProjectMapper.updateProgramScore(0, mid);
+            } else if (type.equals("学科竞赛")) {
+                int i = xinProjectMapper.updateCompetitionScore(0, mid);
+            } else if (type.equals("决策咨询")) {
+                int i = xinProjectMapper.updateDecisionScore(0, mid);
+            } else if (type.equals("指定标准")) {
+                int i = xinProjectMapper.updateApplicationScore(0, mid);
+            } else if (type.equals("产品应用")) {
+                int i = xinProjectMapper.updateStandardScore(0, mid);
+            }
+            xinProjectMapper.removeStudentScore(xinProject.getPoint(),xinProject.getSid());
         }
 
         return 0;
     }
+
 }

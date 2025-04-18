@@ -1,6 +1,7 @@
 package org.sys.rate.controller.admin;
 
 import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.Msg;
@@ -44,6 +45,10 @@ public class OperationController {
     private ProjectMapper projectMapper;
     @Resource
     private XinProjectMapper xinProjectMapper;
+    @Resource
+    private productionMapper productionMapper;
+    @Autowired
+    private ProgramRecordMapper programRecordMapper;
 
     @PostMapping("/add")
     public RespBean addOper(Operation oper) {
@@ -96,7 +101,7 @@ public class OperationController {
         Integer patentRes = patentMapper.selectPatentNumberOfPendingMessing(state);
         Integer paperRes = paperMapper.selectPaperNumberOfPendingMessing(state);
         Integer projectRes = projectMapper.selectProjectNumberOfPendingMessing(state);
-        Integer horizontalProjectRes = projectMapper.selectHorizontalProjectNumberOfPendingMessing(state);
+        Integer horizontalProjectRes = programRecordMapper.selectHorizontalProjectNumberOfPendingMessing(state);
         Integer productRes = productMapper.selectProductNumberOfPendingMessing(state);
         Integer monographRes = monographMapper.selectMonographNumberOfPendingMessing(state);
         Integer decisionRes = decisionMapper.selectDecisionNumberOfPendingMessing(state);

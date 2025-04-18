@@ -55,6 +55,8 @@ public class Production {
 
     Integer point;
 
+    @DateTimeFormat(pattern = "yyyy-MM")
+    @JsonFormat(pattern = "yyyy-MM", timezone = "GMT+8")
     Date createtime;
 
 

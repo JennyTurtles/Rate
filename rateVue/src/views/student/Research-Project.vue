@@ -60,15 +60,16 @@
               value-key="id"
               filterable
               remote
-              clearable
+              clearable="true"
               reserve-keyword
               @change="selectOption($event)"
               placeholder="请输入科研项目类别"
               loading-text="搜索中..."
               :remote-method="selectProjectTypeMethod"
-              :loading="searchTypeLoading">
+              :loading="searchTypeLoading"
+              popper-class="custom-select-dropdown">
             <el-option
-                style="width: 550px;overflow: scroll"
+                style="width: 550px;"
                 v-for="item in selectProjectTypeList"
                 :key="item.id"
                 :label="item.name"
@@ -240,6 +241,7 @@ export default {
       currentIndicator: {},
       zeroPointReason: '',
       searchTypeLoading: false,
+      uploadLoading: false,
       selectProjectType: '',
       selectProjectTypeName: '',
       isAuthorIncludeSelf: true,
@@ -400,18 +402,32 @@ export default {
       var formData=new FormData();
       this.files.push(file);
       formData.append("file",this.files[0].raw)
+
+      const loadingInstance = this.$loading({
+        lock: true,
+        text: '正在上传中，请稍候...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
       axios.post("/achievements/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? this.user.token : ''
         }
       }).then((response)=> {
+          loadingInstance.close();
           this.$message({
             message: '上传成功！'
           })
           //获取文件路径
           this.urlFile = response.data
         }
-      )
+      ).catch((error) => {
+        // 关闭上传中的提示
+        loadingInstance.close();
+
+        this.$message.error('上传失败，请重试！');
+        console.error('上传失败:', error);
+      })
     },
     judgeMember(){//输入作者框 失去焦点触发事件
       var val = this.currentProjectCopy.author;
@@ -670,5 +686,8 @@ export default {
 .slide-fade-leave-active {
   transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
 }
-
+.custom-select-dropdown {
+  max-height: 200px; /* 设置最大高度 */
+  overflow-y: auto; /* 添加垂直滚动条 */
+}
 </style>

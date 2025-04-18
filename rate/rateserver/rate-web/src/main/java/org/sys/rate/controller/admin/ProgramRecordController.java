@@ -4,14 +4,13 @@ import org.springframework.web.bind.annotation.*;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.GraduateStudentMapper;
 import org.sys.rate.mapper.ProgramRecordMapper;
-import org.sys.rate.model.GraduateStudent;
-import org.sys.rate.model.PaperComment;
-import org.sys.rate.model.ProgramRecord;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.ProgramRecordService;
+import org.sys.rate.service.mail.MailToTeacherService;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +26,8 @@ public class ProgramRecordController {
     GraduateStudentMapper graduateStudentMapper;
     @Resource
     ProgramRecordService programRecordService;
-
+    @Resource
+    MailToTeacherService mailToTeacherService;
     @GetMapping("/getAllRecordStu")
     public JsonResult<List> getAllRecordStu(Integer studentID) {
         List<ProgramRecord> combinedList = programRecordService.getAllRecordStu(studentID);
@@ -99,5 +99,47 @@ public class ProgramRecordController {
     @PostMapping("/updateTea")
     public JsonResult updateTeaComment(@RequestBody ProgramRecord programRecord) {
         return new JsonResult(programRecordMapper.updateTeaComment(programRecord));
+    }
+
+    /**
+     * 新增保存论文成果
+     */
+    @PostMapping("/addResult")
+    @ResponseBody
+    public JsonResult addResult(ProgramResult programResult) throws FileNotFoundException {
+        Integer res = programRecordService.addResult(programResult);
+//        mailToTeacherService.sendTeaCheckMail(programResult, "横向科研项目", "添加");
+        return new JsonResult(programResult.getId());
+    }
+
+    @PostMapping("/editResult")
+    @ResponseBody
+    public JsonResult editResult(ProgramResult programResult) throws FileNotFoundException {
+        Integer res = programRecordService.editResult(programResult);
+//        mailToTeacherService.sendTeaCheckMail(programResult, "横向科研项目", "添加");
+        return new JsonResult(programResult.getId());
+    }
+
+    @GetMapping("/getDtaById")
+    public JsonResult<ProgramResult> getDtaById(Long id) {
+        ProgramResult programResult = programRecordService.selectProgramResultById(id);
+        return new JsonResult<>(programResult);
+    }
+
+    @GetMapping("/getCountByStuID")
+    public JsonResult<Integer> getDtaByStuID(int id) {
+        int res = programRecordService.getDtaByStuID(id);
+        return new JsonResult<>(res);
+    }
+
+    @GetMapping("/edit_state")
+    public JsonResult getById(String state, Long ID) throws MessagingException {
+        return new JsonResult(programRecordService.editState(state, ID));
+    }
+
+    @DeleteMapping("/remove/{ID}")
+    public JsonResult remove(@PathVariable Long ID) {
+        Integer res = programRecordService.deleteById(ID);
+        return new JsonResult(res);
     }
 }

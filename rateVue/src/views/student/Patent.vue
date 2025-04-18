@@ -443,6 +443,12 @@ export default {
       }
       var formData=new FormData();
       this.files.push(file);
+      const loadingInstance = this.$loading({
+        lock: true,
+        text: '正在上传中，请稍候...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
       formData.append("file",this.files[0].raw)
       axios.post("/achievements/basic/upload",formData,{
         headers:{
@@ -450,6 +456,7 @@ export default {
         }
       }).then(
           (response)=>{
+            loadingInstance.close();
             this.$message({
               message:'上传成功！'
             })
@@ -457,7 +464,13 @@ export default {
             //获取文件路径
             this.urlFile=response.data
           },()=>{}
-      )
+      ).catch((error) => {
+          // 关闭上传中的提示
+          loadingInstance.close();
+
+          this.$message.error('上传失败，请重试！');
+          console.error('上传失败:', error);
+      });
     },
     judgePatentee(){//输入作者框 失去焦点触发事件
       var author = this.currentPatentCopy.author;

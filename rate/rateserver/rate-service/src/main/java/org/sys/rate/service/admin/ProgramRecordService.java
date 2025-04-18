@@ -4,10 +4,11 @@ import cn.hutool.core.util.RandomUtil;
 import org.springframework.stereotype.Service;
 import org.sys.rate.mapper.GraduateStudentMapper;
 import org.sys.rate.mapper.ProgramRecordMapper;
-import org.sys.rate.model.PaperComment;
-import org.sys.rate.model.ProgramRecord;
+import org.sys.rate.model.*;
+import org.sys.rate.service.mail.MailToStuService;
 
 import javax.annotation.Resource;
+import javax.mail.MessagingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,7 +21,10 @@ public class ProgramRecordService {
     ProgramRecordMapper programRecordMapper;
     @Resource
     GraduateStudentMapper graduateStudentMapper;
-
+    @Resource
+    private MailToStuService mailToStuService;
+    @Resource
+    private XinProjectService xinProjectService;
     // 添加记录
     public Integer addSave(ProgramRecord programRecord) {
         Integer studentID = programRecordMapper.getIDByStudentID(programRecord.getStudentID());
@@ -113,5 +117,62 @@ public class ProgramRecordService {
         combinedList.addAll(list3);
         combinedList.addAll(list2);
         return  combinedList;
+    }
+
+    public int addResult(ProgramResult programResult) {
+        int rlt = programRecordMapper.addResult(programResult);
+
+        XinProject xinProject = new XinProject("横向科研项目申报", 2, programResult.getAuthor(),
+                programResult.getState(), programResult.getRemark(), programResult.getId(), "横向科研项目", programResult.getStudentId());
+        xinProjectService.insertXinProject(xinProject);
+        return rlt;
+    }
+
+    public ProgramResult selectProgramResultById(Long id) {
+        return programRecordMapper.selectProgramResultById(id);
+    }
+
+    public Integer editResult(ProgramResult programResult) {
+        XinProject xinProject = new XinProject("横向科研项目申报", 2, programResult.getAuthor(),
+                "commit", programResult.getRemark(), programResult.getId(), "横向科研项目", programResult.getStudentId());
+        xinProjectService.updateXinProject(xinProject);
+        return programRecordMapper.updateResult(programResult);
+    }
+
+    public int getDtaByStuID(int id) {
+        return programRecordMapper.getDtaByStuID(id);
+
+    }
+
+    public List<ProgramResult> searchHorizontalProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack) {
+        List<ProgramResult> list = programRecordMapper.searchHorizontalProjectByConditions(studentName, state, projectName, pointFront, pointBack);
+        return list;
+    }
+
+    public int editState(String state, Long ID) throws MessagingException {
+        ProgramResult programResult = programRecordMapper.getById(Math.toIntExact(ID));
+//        mailToStuService.sendStuMail(state, project, null, "纵向科研项目");
+        programResult.setState(state);
+        XinProject xinProject = new XinProject("横向科研项目申报", 2, programResult.getAuthor(),
+                programResult.getState(), programResult.getRemark(), programResult.getId(), "横向科研项目", programResult.getStudentId());
+        xinProjectService.updateXinProject(xinProject);
+        if (state.equals("adm_pass")) {
+            int stuID = programResult.getStudentId();
+            int score = programResult.getPoint();
+            if (programRecordMapper.checkScore(stuID) != null) { // 已经申报过成果,将该论文的have_score设置为0
+                return programRecordMapper.editState2(state, ID, 0);
+            } else {
+                programRecordMapper.editState2(state, ID, 1);
+                return programRecordMapper.updateScore((long) stuID, (long) score);
+            }
+        }
+        return programRecordMapper.editState(state, ID);
+    }
+
+    public Integer deleteById(Long id) {
+        ProgramResult programResult = new ProgramResult();
+        programResult.setId(id.intValue());
+        xinProjectService.deleteXinProject(id.intValue(), "横向科研项目");
+        return programRecordMapper.deleteById(id);
     }
 }

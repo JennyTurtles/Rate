@@ -3,7 +3,7 @@
     <!-- 这里显示学生的姓名和毕业设计的题目 -->
     <div
         style="display: flex; justify-content: flex-start; margin: 15px 0; font-weight: bold;">
-      <div>{{ stuName }}({{ studentNumber }})</div>
+      <div>学生姓名：{{ stuName }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学生学号：{{ studentNumber }}</div>
       <!-- <div style="margin: 0 auto;">{{ thesis.name }}</div> -->
       <div style="margin-left: 20px;">{{ thesis.name }}</div>
       <div style="margin-left: auto">
@@ -32,7 +32,7 @@
               <div style="margin-bottom: 10px;left">指导期次:
                 <span
                     style="color: black;font-size:bold;display: inline-block; width: 100px; text-align: left; margin-left: 10px;">
-                                    第{{ scope.row.num }}次
+                                    第{{ scope.row.index }}次
                                 </span>
               </div>
               <div style="margin-bottom: 10px;">
@@ -90,7 +90,7 @@
           <template slot-scope="scope">
             <div class="table-cell">
               <p>
-                <strong style="display: inline-block; min-width: 0px; text-align: left;">上期总结：</strong>
+                <strong style="display: inline-block; min-width: 0px; text-align: left;">阶段小结：</strong>
                 {{ scope.row.preSum }}</p>
 
               <p>
@@ -124,13 +124,13 @@
           :rules="rules"
           ref="empForm">
         <el-form-item
-            label="提交次序:"
+            label="指导期次:"
             prop="num"
             label-width="80px"
             style="margin-left: 20px">
           <!-- <span class="isMust">*</span> -->
           <div>
-            {{ curIndex }}
+            {{ emp.index }}
           </div>
         </el-form-item>
         <el-form-item
@@ -157,7 +157,7 @@
                 type="date"
                 placeholder="请选择评价时间"
                 :picker-options="pickerOptions"
-                :default-value="new Date()"></el-date-picker>
+            ></el-date-picker>
 
             <el-tooltip
                 effect="light"
@@ -166,9 +166,9 @@
                 placement="top"
                 v-if="showTooltip">
                             <span
-                                style="display: inline-block; margin-left: 20px; color: #409eff; position: relative;">上期总结
+                                style="display: inline-block; margin-left: 20px; color: #409eff; position: relative;">上期安排
                                 <span
-                                    style="position: absolute; bottom: 0px; left: 0; right: 0; height: 2px; background-color: #303133; top: 28px; transform: translateY(-1px);"></span>
+                                    style="position: absolute; bottom: 0px; left: 0; right: 0; height: 2px; background-color: #409eff; top: 28px; transform: translateY(-1px);"></span>
                             </span>
 
             </el-tooltip>
@@ -258,7 +258,7 @@ export default {
       showAdvanceSearchView: false,
       allDeps: [],
       emps: [],
-
+      empsSorted: [],
       loading: false,
       dialogVisible: false,
       dialogVisible_show: false,
@@ -297,7 +297,7 @@ export default {
         preSum: "",
         nextPlan: "",
         dateStu: new Date(),
-        dateTea: new Date(),
+        dateTea: null,
         tutorComment: ""
       },
       defaultProps: {
@@ -449,31 +449,24 @@ export default {
     showEditEmpView(data) {
       // this.initPositions();
       this.title = "填写评价";
-      this.emp = data;
+      this.emp ={ ...data };// 使用对象展开运算符确保所有属性都被正确复制
       this.showDateStu = data.dateStu;
-      let sortedEmps = this
-          .emps
-          .slice()
-          .sort((a, b) => a.num - b.num);
-      this.sortedEmps = sortedEmps;
-      // this.emps.num = data.num; console.log(this.emps);  也就是这个可以获取当前表格中的所有数据
-      this.curIndex = data.num
 
-      if (data.num > 1) {
+      if (data.index > 1) {
         this.showTooltip = true;
         this.prePlan = this
-            .sortedEmps[data.num - 2]
+            .empsSorted[data.index - 2]
             .nextPlan;
         this.preDate = this
-            .sortedEmps[data.num - 1]
+            .empsSorted[data.index - 1]
             .dateStu;
-        // 不是第一条记录
-        if (data.num < this.total) {
+        // 不是最后一条记录
+        if (data.index < this.total) {
           this.timeChoose = 10;
           this.nextDate = this
-              .sortedEmps[data.num]
+              .empsSorted[data.index]
               .dateStu;
-        } else if (data.num = this.total) {
+        } else if (data.index = this.total) {
           this.timeChoose = 11;
 
         }
@@ -482,12 +475,12 @@ export default {
         this.prePlan = "";
         // 是第一条记录
         this.preDate = this
-            .sortedEmps[0]
+            .empsSorted[0]
             .dateStu;
         if (this.total > 1) {
           this.timeChoose = 10;
           this.nextDate = this
-              .sortedEmps[1]
+              .empsSorted[1]
               .dateStu;
         } else if (this.total == 1) {
           this.timeChoose = 11;
@@ -498,14 +491,15 @@ export default {
 
       this.dialogVisible = true;
       this.emp.isPass = 'tea_pass';
-      let now = new Date()
-      let year = now.getFullYear() // 得到年份
-      let month = now.getMonth() // 得到月份
-      let date = now.getDate() // 得到日期
-      month = month + 1
-      month = month.toString().padStart(2, '0')
-      date = date.toString().padStart(2, '0')
-      this.emp.dateTea = year + '-' + month + '-' + date;
+      // let now = new Date()
+      // let year = now.getFullYear() // 得到年份
+      // let month = now.getMonth() // 得到月份
+      // let date = now.getDate() // 得到日期
+      // month = month + 1
+      // month = month.toString().padStart(2, '0')
+      // date = date.toString().padStart(2, '0')
+      // this.emp.dateTea = year + '-' + month + '-' + date;
+      this.emp.dateTea = data.dateStu;
       console.log(this.emp)
     },
     deleteEmp(data) {
@@ -547,6 +541,7 @@ export default {
           const commentResponse = await this.getRequest(`/paperComment/basic/getAllComment?thesisID=${this.thesis.id}`);
           if (commentResponse) {
             this.emps = commentResponse.data;
+            this.empsSorted = this.emps.slice().sort((a, b) => a.index - b.index); //按照时间升序的数组，用于显示上期安排
             this.total = commentResponse.data.length;
           }
         }

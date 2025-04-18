@@ -25,7 +25,7 @@
           <template slot-scope="scope">
             <div
                 style="text-align: left; height: 300px; display: flex; flex-direction: column; justify-content: center;">
-              <div style="margin-bottom: 10px;">指导期次:
+              <div style="margin-bottom: 10px;">工作期次:
                 <span style="color: black;display: inline-block; text-align: left; margin-left: 10px;">
                   第{{ scope.row.index }}次</span>
               </div>
@@ -81,7 +81,7 @@
           <template slot-scope="scope">
             <div class="table-cell">
               <p>
-                <strong style="display: inline-block; min-width: 0px; text-align: left;">本期总结：</strong>
+                <strong style="display: inline-block; min-width: 0px; text-align: left;">阶段小结：</strong>
                 {{ scope.row.preSum }}</p>
 
               <p>
@@ -115,12 +115,12 @@
           :rules="rules"
           ref="empForm">
         <el-form-item
-            label="提交次序:"
+            label="时间次序:"
             prop="num"
             label-width="80px"
             style="margin-left: 20px">
           <div>
-            {{ emp.num }}
+            {{ emp.index }}
           </div>
         </el-form-item>
         <el-form-item
@@ -411,28 +411,23 @@ export default {
     showEditEmpView(data) {
       // this.initPositions();
       this.title = "填写评价";
-      this.emp = data;
-      let sortedEmps = this
-          .emps
-          .slice()
-          .sort((a, b) => a.num - b.num);
-      this.sortedEmps = sortedEmps;
+      this.emp ={ ...data };// 使用对象展开运算符确保所有属性都被正确复制
       // this.emps.num = data.num; console.log(this.emps);  也就是这个可以获取当前表格中的所有数据
       //this.curIndex = data.num
 
       if (data.index > 1) {
         this.showTooltip = true;
         this.prePlan = this
-            .sortedEmps[data.num - 2]
+            .empsSorted[data.index - 2]
             .nextPlan;
         this.preDate = this
-            .sortedEmps[data.num - 1]
+            .empsSorted[data.index - 1]
             .dateStu;
         // 不是第一条记录
         if (data.num < this.total) {
           this.timeChoose = 10;
           this.nextDate = this
-              .sortedEmps[data.num]
+              .empsSorted[data.num]
               .dateStu;
         } else if (data.num = this.total) {
           this.timeChoose = 11;
@@ -442,12 +437,12 @@ export default {
         this.prePlan = "";
         // 是第一条记录
         this.preDate = this
-            .sortedEmps[0]
+            .empsSorted[0]
             .dateStu;
         if (this.total > 1) {
           this.timeChoose = 10;
           this.nextDate = this
-              .sortedEmps[1]
+              .empsSorted[1]
               .dateStu;
         } else if (this.total == 1) {
           this.timeChoose = 11;
@@ -489,7 +484,7 @@ export default {
         const RecordResponse = await this.getRequest(`/programRecord/basic/getAllRecordTea?studentID=${this.stuID}`);
         if (RecordResponse) {
           this.emps = RecordResponse.data;
-          this.empsSorted = this.emps.slice().sort((a, b) => a.index - b.index); //按照时间升序的数组
+          this.empsSorted = this.emps.slice().sort((a, b) => a.index - b.index); //按照时间升序的数组，用于显示上期安排
           //console.log(this.emps)
           this.total = RecordResponse.data.length;
         }

@@ -3,6 +3,7 @@ package org.sys.rate.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 import org.sys.rate.model.ProjectBase;
 import org.sys.rate.model.XinProject;
 import org.sys.rate.model.XinProjectVo;
@@ -40,4 +41,40 @@ public interface XinProjectMapper extends BaseMapper<XinProject>
     List<XinProject> selectXinProjectList(XinProjectVo xinProjectVo);
 
     XinProject selectById(@Param(value = "operatorId")Integer operatorId);
+
+    @Update("UPDATE paper SET have_score = #{have_score} WHERE ID = #{id}")
+    public int updatePaperScore(Integer have_score,Integer id);
+
+    @Update("UPDATE i_patent SET have_score = #{have_score} WHERE ID = #{id}")
+    public int updatePatentScore(Integer have_score,Integer id);
+
+    @Update("UPDATE i_book SET have_score = #{have_score} WHERE ID = #{id}")
+    public int updateBookScore(Integer have_score,Integer id);
+
+    @Update("UPDATE i_award SET have_score = #{have_score} WHERE ID = #{id}")
+    public int updateAwardScore(Integer have_score,Integer id);
+
+    @Update("UPDATE programresults SET have_score = #{have_score} WHERE ID = #{id}")
+    public int updateProgramScore(Integer have_score,Integer id);
+
+    @Update("UPDATE i_project SET have_score = #{have_score} WHERE ID = #{id}")
+    public int updateProjectScore(Integer have_score,Integer id);
+
+    @Update("UPDATE i_competition SET have_score = #{have_score} WHERE ID = #{id}")
+    public int updateCompetitionScore(Integer have_score,Integer id);
+
+    @Update("UPDATE i_decision SET have_score = #{have_score} WHERE ID = #{id}")
+    public int updateDecisionScore(Integer have_score,Integer id);
+
+    @Update("UPDATE i_application SET have_score = #{have_score} WHERE ID = #{id}")
+    public int updateApplicationScore(Integer have_score,Integer id);
+
+    @Update("UPDATE i_standard SET have_score = #{have_score} WHERE ID = #{id}")
+    public int updateStandardScore(Integer have_score,Integer id);
+
+    @Update("UPDATE graduatestudent SET point = point - #{score} WHERE studentID = #{id}")
+    public int removeStudentScore(Integer score,Integer id);
+
+    @Update("UPDATE graduatestudent SET point = point + #{score} WHERE studentID = #{id}")
+    public int addStudentScore(Integer score,Integer id);
 }
