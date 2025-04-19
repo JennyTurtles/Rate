@@ -312,7 +312,7 @@
           <div v-else>
             {{ emp.url | fileNameFilter }}
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-            <el-button @click="previewMethod('9')">下载</el-button>
+            <el-button @click="previewMethod('2')">下载</el-button>
           </div>
           <div style="margin-top: 5px">
             <el-image
@@ -451,7 +451,7 @@
           <div v-else>
             {{ currentPatent.url | fileNameFilter }}
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-            <el-button @click="previewMethod('9')">下载</el-button>
+            <el-button @click="previewMethod('3')">下载</el-button>
           </div>
           <div style="margin-top: 5px">
             <el-image
@@ -593,7 +593,7 @@
           <div v-else>
             {{ currentAward.url | fileNameFilter }}
             <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-            <el-button @click="previewMethod('9')">下载</el-button>
+            <el-button @click="previewMethod('4')">下载</el-button>
           </div>
           <div style="margin-top: 5px">
             <el-image
@@ -848,7 +848,7 @@
               <div v-else>
                 {{ currentProject.url | fileNameFilter }}
                 <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                <el-button @click="previewMethod('9')">下载</el-button>
+                <el-button @click="previewMethod('6')">下载</el-button>
               </div>
               <div style="margin-top: 5px">
                 <el-image
@@ -972,7 +972,7 @@
               <div v-else>
                 {{ currentProject.url | fileNameFilter }}
                 <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                <el-button @click="previewMethod('9')">下载</el-button>
+                <el-button @click="previewMethod('6')">下载</el-button>
               </div>
               <div style="margin-top: 5px">
                 <el-image
@@ -1213,7 +1213,7 @@
               <div v-else>
                 {{ currentProject.url | fileNameFilter }}
                 <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                <el-button @click="previewMethod('9')">下载</el-button>
+                <el-button @click="previewMethod('7')">下载</el-button>
               </div>
               <div style="margin-top: 5px">
                 <el-image
@@ -1345,7 +1345,7 @@
               <div v-else>
                 {{ currentDecision.url | fileNameFilter }}
                 <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                <el-button @click="previewMethod('9')">下载</el-button>
+                <el-button @click="previewMethod('8')">下载</el-button>
               </div>
               <div style="margin-top: 5px">
                 <el-image
@@ -1613,7 +1613,7 @@
               <div v-else>
                 {{ currentStandard.url | fileNameFilter }}
                 <el-button @click="previewMethod('1')" v-show="isImage || isPdf">预览</el-button>
-                <el-button @click="previewMethod('9')">下载</el-button>
+                <el-button @click="previewMethod('10')">下载</el-button>
               </div>
               <div style="margin-top: 5px">
                 <el-image
@@ -2019,7 +2019,7 @@
         else if (type == '5'){//学术专著和教材
             this.downloadFileMethod(this.currentMonograph);
         }
-        else if (type == '6'){//横向-纵向
+        else if (type == '6'){//纵向
             this.downloadFileMethod(this.currentProject);
         }
         else if (type == '7'){//学科竞赛

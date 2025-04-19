@@ -98,7 +98,10 @@
           and ex.teacherId = e.ID
           and ac.status='open'
     </select>
-
+    <!-- TeachersMapper.xml -->
+    <select id="selectUsername" resultType="org.sys.rate.model.Teachers">
+    SELECT * FROM teachers WHERE username = #{username}
+</select>
     <select id="selectByUsername" parameterType="String" resultType="java.lang.Integer">
         select e.ID
         from teacher e

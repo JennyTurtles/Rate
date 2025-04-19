@@ -306,6 +306,7 @@ Vue.prototype.initTutor = function (user){
     }
 }
 Vue.prototype.previewFileMethod = function (data){ //预览证明材料
+    console.log('File URL:', data.url);
     return axios({
         url: '/achievements/basic/downloadByUrl',
         method: 'post',

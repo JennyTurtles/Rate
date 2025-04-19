@@ -3,10 +3,7 @@ package org.sys.rate.mapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
-import org.sys.rate.model.Activities;
-import org.sys.rate.model.Scores;
-import org.sys.rate.model.Teacher;
-import org.sys.rate.model.Teachers;
+import org.sys.rate.model.*;
 
 import java.util.List;
 

@@ -9,11 +9,11 @@ import java.util.List;
 @Mapper
 public interface StudentMapper {
     List<Student> getTotal();
-
+    Student selectByUsername(String username);
     Student loadUserByUsername(String username);
 
     //    List<Role> getAdminRolesById(Integer id);
-    Student getStuByIDNumber(String IDNumber);
+    Student getStuByIDNumber(String username);
 
     Student getById(Integer ID);
 

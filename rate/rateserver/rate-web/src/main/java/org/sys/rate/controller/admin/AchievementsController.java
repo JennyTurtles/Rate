@@ -1,8 +1,5 @@
 package org.sys.rate.controller.admin;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamResource;
@@ -12,23 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
-import org.sys.rate.mapper.PaperMapper;
-import org.sys.rate.model.Msg;
-import org.sys.rate.model.Paper;
 import org.sys.rate.model.RespBean;
-import org.sys.rate.service.admin.IndicatorService;
-import org.sys.rate.service.admin.PaperService;
-import org.sys.rate.service.admin.PublicationService;
-import org.sys.rate.service.mail.MailToTeacherService;
 
-import javax.annotation.Resource;
-import javax.mail.MessagingException;
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 
@@ -73,6 +61,11 @@ public class AchievementsController {
     @ResponseBody
     public ResponseEntity<InputStreamResource> downloadFile(String url) throws IOException {
         File file  = new File(url);
+        System.out.println("File Path: " + file.getAbsolutePath());
+        if (!file.exists()) {
+            System.out.println("File does not exist: " + file.getAbsolutePath());
+            throw new FileNotFoundException("File not found: " + file.getAbsolutePath());
+        }
         InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
 
         String name = file.getName();

@@ -3,12 +3,10 @@ package org.sys.rate.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.sys.rate.mapper.*;
-import org.sys.rate.model.*;
-import org.sys.rate.service.admin.GraduateStudentService;
-import org.sys.rate.service.admin.UnderGraduateService;
+import org.sys.rate.model.RespBean;
+import org.sys.rate.model.Student;
+import org.sys.rate.model.Teachers;
 import org.sys.rate.service.expert.ExpertService;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/registerUser")
@@ -32,6 +30,10 @@ public class RegisterController {
         //没有就插入，同时判断选择注册的身份
         //String stuType = student.getStuType();
         try{
+            Student existingStu = studentMapper.selectByUsername(student.getUsername());
+            if (existingStu != null ) {
+                return RespBean.error("用户名已存在，请更换！");
+            }
             String password = ExpertService.sh1(student.getPassword());
             student.setPassword(password);
             student.setRole("");
@@ -111,19 +113,18 @@ public class RegisterController {
         }
         return RespBean.ok("ok",null);
     }
-
-    //忘记密码里面，通过输入身份证号和role查找用户
+     //忘记密码里面，通过输入用户名和role查找用户
     @GetMapping("/getUserByIdNumber")
-    public RespBean getUserByIdNumber(String role,String idNumber){
-        if(idNumber.equals("")){
+    public RespBean getUserByIdNumber(String role,String username){
+        if(username.equals("")){
             return RespBean.ok("null",null);
         }else {
             try {
                 if(role.equals("student")){
-                    Student stu = studentMapper.getStuByIDNumber(idNumber);
+                    Student stu = studentMapper.getStuByIDNumber(username);
                     return RespBean.ok("student",stu);
                 }else if(role.equals("teacher")){
-                    Teachers tea =teachersMapper.getTeaByIDNumber(idNumber);
+                    Teachers tea =teachersMapper.getTeaByIDNumber(username);
                     return RespBean.ok("teacher",tea);
                 }
             }catch (Exception e){

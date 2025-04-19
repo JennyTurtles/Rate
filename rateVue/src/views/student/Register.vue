@@ -190,6 +190,7 @@ export default {
     },
 
     register() {
+
       // if (this.currentInstitution == '') {
       //   this.$message.warning('请输入单位！')
       //   return
