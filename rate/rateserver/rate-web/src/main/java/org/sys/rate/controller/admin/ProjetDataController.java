@@ -226,6 +226,7 @@ public class ProjetDataController {
         List<Product> productList = productService.selectListByIds(studentID);
         list.addAll(productToProjectDataList(productList));
 
+
         // 制定标准
         List<Standard> standardList = standardService.selectListByIds(studentID);
         list.addAll(standardToProjectDataList(standardList));
