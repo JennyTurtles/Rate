@@ -101,7 +101,7 @@ export default {
         '科研获奖': '/student/ResearchAward',
         '学术专著和教材': '/student/AcademicMonograph',
         '纵向科研项目': '/student/ResearchProject',
-        '横向科研项目': '/student/HorizontalResearchProject',
+        '科研项目工作量': '/student/HorizontalResearchProject',
         '学科竞赛': '/student/AcademicCompetition',
         '决策咨询': '/student/Decision',
         '产品应用': '/student/Product',
@@ -150,7 +150,7 @@ export default {
         case '纵向科研项目':
           this.showAddResearchProjectDialog = true;
           break;
-        case '横向科研项目':
+        case '科研项目工作量':
           this.addProgramResult();
           break;
         case '学科竞赛':
