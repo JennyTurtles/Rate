@@ -24,7 +24,7 @@ public interface DecisionMapper
      * @param ID
      * @return
      */
-    @Select("select * from i_patent where ID = #{ID}")
+    @Select("select * from i_decision where ID = #{ID}")
     Decision getById(Integer ID);
 
     /**

@@ -189,7 +189,7 @@
             prop="tutorComment"
             label-width="80px"
             style="margin-left: 20px;">
-          <span class="isMust">*</span>
+          <!-- <span class="isMust">*</span> -->
           <el-input
               type="textarea"
               size="medium"

@@ -48,31 +48,35 @@
         order by date desc
     </select>
     <select id="searchPaperByConditions" resultType="org.sys.rate.model.ProjectBase">
-
-select
- id ,
-  sname  AS studentName,
-  name,
-  state,remark ,date, type,
-point
-
- from xin_project
-<where>
-<if test="studentName!= null and studentName != '' ">
-    sname = #{studentName}
-</if>
-    <if test="name != null and name != '' ">
-        name = #{name}
-    </if>
-    <if test="state!= null and state != '' ">
-        state = #{state}
-    </if>
-    <if test="studentName!= null and studentName != '' ">
-        sname = #{studentName}
-    </if>
-
-</where>
-order by date DESC
+        SELECT
+        xp.name,
+        xp.state,
+        xp.remark,
+        xp.date,
+        xp.type,
+        xp.mid AS id,
+        xp.point,
+        xp.sid AS studentId,
+        s.name AS studentName
+        FROM
+        xin_project xp
+        LEFT JOIN
+        student s ON xp.sid = s.ID
+        <where>
+            <if test="studentName != null and studentName != ''">
+                AND xp.sname = #{studentName}
+            </if>
+            <if test="name != null and name != ''">
+                AND xp.name = #{name}
+            </if>
+            <if test="teacherId != null and teacherId != ''">
+                AND xp.sid IN (
+                SELECT studentID FROM graduatestudent WHERE tutorID = #{teacherId}
+                )
+            </if>
+        </where>
+        ORDER BY
+        xp.date DESC
     </select>
 <!--    <select id="selectXinProjectList" resultType="org.sys.rate.model.XinProject"-->
 <!--            parameterType="org.sys.rate.model.XinProjectVo">-->
@@ -107,9 +111,15 @@ order by date DESC
             <if test="state!= null and state!= '' ">
                 and state = #{state}
             </if>
+            <if test="teacherId != null and teacherId != ''">
+                AND sid IN (
+                    SELECT studentID FROM graduatestudent WHERE tutorID = #{teacherId}
+                )
+            </if>
         </where>
         order by date DESC
     </select>
+
 
     <select id="selectById" resultType="org.sys.rate.model.XinProject" parameterType="java.lang.Integer">
         select * from xin_project where id = #{operatorId}

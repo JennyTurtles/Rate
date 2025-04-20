@@ -103,7 +103,7 @@
         <el-table-column
                 prop="studentName"
                 align="center"
-                label="学生姓名"
+                label="申报人"
                 min-width="15%"
         >
         </el-table-column>
@@ -187,10 +187,6 @@
                     size="mini"
             >审核</el-button
             >
-            <el-button v-show="scope.row.state == 'adm_pass' ? true : false" @click="changePointMethod(scope.row)" style="padding: 4px"
-                       size="mini">
-              {{scope.row.changePointButton}}
-            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -2506,6 +2502,7 @@
           this.getRequest(urlMap[data.type] + "/basic/getDtaById?id=" + data.id).then((resp) => {
             this.loading = false;
             if (resp) {
+              // console.log(urlMap[data.type] + "/basic/getDtaById?id=" + data.id)
               this[dataMap[data.type]] = resp.data;
             }
           });
@@ -2515,11 +2512,11 @@
       // 显示项目详情对话框
       showInfo(data) {
         this.currentType = data.type; // 存储当前所选数据的 type
+        // console.log(data)
         this.handleShowInfo(data);
       },
       handleShowInfo(data) {
         this.title_show = "显示详情";
-
         console.log(data)
         this.currentProjectSummary = data
         this.showInfoMap(data)
@@ -2587,17 +2584,13 @@
         params.name = this.searchPatentName;
         params.pageNum = pageNum.toString();
         params.pageSize = pageSize.toString();
-        this.postRequest('/xinproject/basic/searchProjectByConditions', params).then((response) => {
+        params.teacherId = JSON.parse(localStorage.getItem("user")).id.toString()
+        this.postRequest('/xinproject/basic/searchProjectByConditionsTea', params).then((response) => {
           if(response) {
-            this.patents = response.extend.res[0];
-            this.patents.map(item => {
-              if(item.have_score == 1) {
-                this.$set(item, 'changePointButton', '取消积分')
-              } else {
-                this.$set(item, 'changePointButton', '计入积分')
-              }
-            })
+            this.patents = response.extend.res[0].filter(patent => patent.state === 'commit');
+
             this.totalCount = response.extend.res[1];
+            // console.log("patent",this.patents)
           }else this.projectList = [];
         })
       }

@@ -85,19 +85,47 @@ public class XinProjectController {
 
         dataArr.addAll(getPaperLst(params));
         dataArr.addAll(searchDecisionByConditions(params));
-
         dataArr.addAll(searchProjectByConditions(params));
         dataArr.addAll(searchHorizontalProjectByConditions(params));
         dataArr.addAll(searchProductByConditions(params));
         dataArr.addAll(searchStandardByConditions(params));
         dataArr.addAll(searchMonographByConditions(params));
-
         dataArr.addAll(searchCompetitionByConditions(params));
         dataArr.addAll(searchAwardByConditions(params));
         dataArr.addAll(searchPatentByConditions(params));
 
         dataArr.sort(Comparator.comparing(
                 ProjectBase::getCreatetime,
+                Comparator.nullsLast(Comparator.reverseOrder()) // 时间倒排，null 值排在最后
+        ));
+
+        Object[] res = {dataArr, dataArr.size()}; // res是分页后的数据，0是总条数
+        return Msg.success().add("res", res);
+    }
+    @PostMapping("/searchProjectByConditionsTea")
+    public Msg searchProjectByConditionsTea(@RequestBody Map<String, String> params) {
+        List<ProjectBase> list = new LinkedList<>();
+        list =  xinProjectService.searchPaperByConditions(params);
+        List<ProjectBase> dataArr = new LinkedList<>();
+        if(!CollectionUtils.isEmpty(list)){
+            list.stream().forEach(x->{
+                ProjectBase base = new ProjectBase();
+                base.setId(x.getId());
+                base.setStudentId(x.getStudentId());
+                base.setStudentName(x.getStudentName());
+                base.setName(x.getName());
+                base.setState(x.getState());
+                base.setPoint(x.getPoint());
+                base.setHaveScore(x.getHaveScore());
+                base.setRemark(x.getRemark());
+                base.setCreatetime(x.getDate());
+                base.setDate(x.getDate());
+                base.setType(x.getType());
+                dataArr.add(base);
+            });
+        }
+        dataArr.sort(Comparator.comparing(
+                ProjectBase::getDate,
                 Comparator.nullsLast(Comparator.reverseOrder()) // 时间倒排，null 值排在最后
         ));
 

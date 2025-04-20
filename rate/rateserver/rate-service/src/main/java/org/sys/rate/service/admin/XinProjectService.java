@@ -57,7 +57,7 @@ public class XinProjectService {
         String state ="";
         String pointFront ="";
         String pointBack ="";
-
+        String teacherId ="";
 
 
         if (!StringUtils.isEmpty(params.get("studentName"))){
@@ -75,12 +75,16 @@ public class XinProjectService {
         if (!StringUtils.isEmpty(params.get("pointBack"))){
             pointBack=params.get("pointBack");
         };
+        if (!StringUtils.isEmpty(params.get("teacherId"))){
+            teacherId=params.get("teacherId");
+        };
 
         return xinProjectMapper.searchPaperByConditions(studentName,
                 name,
                 state,
                 pointFront,
-                pointBack);
+                pointBack,
+                teacherId);
     }
 
     public List<XinProject> selectList(XinProjectVo xinProjectVo) {

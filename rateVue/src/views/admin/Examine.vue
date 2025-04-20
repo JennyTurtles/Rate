@@ -117,7 +117,7 @@
         <el-table-column
                 prop="studentName"
                 align="center"
-                label="学生姓名"
+                label="申报人"
                 min-width="15%"
         >
         </el-table-column>
@@ -2581,13 +2581,12 @@
       },
       // 显示项目详情对话框
       showInfo(data) {
-          this.currentType = data.type; // 存储当前所选数据的 type
+        this.currentType = data.type; // 存储当前所选数据的 type
         this.handleShowInfo(data);
       },
       handleShowInfo(data) {
 
         this.title_show = "显示详情";
-
         console.log(data)
         this.currentProjectSummary = data
         this.showInfoMap(data)

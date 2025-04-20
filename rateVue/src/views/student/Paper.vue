@@ -25,10 +25,10 @@
             prefix-icon="el-icon-edit"
             v-model="currentEmp.name"
             placeholder="请输入论文名称"
-            maxlength="50"
+            maxlength="100"
           ></el-input>
           <span style="margin-left: 10px"
-            >{{ currentEmp.name ? currentEmp.name.length : 0 }}/50</span
+            >{{ currentEmp.name ? currentEmp.name.length : 0 }}/100</span
           >
         </el-form-item>
         <el-form-item
@@ -335,7 +335,7 @@
       :title="title_publication"
       :visible.sync="dialogVisible_publication"
       @close="cannotAddPublish = true"
-      width="50%"
+      width="60%"
       center
     >
       <el-form
@@ -399,7 +399,7 @@
         <span class="isMust" style="left: -140px;">*</span>
         <el-input
             size="mini"
-            style="width:40%"
+            style="width:50%"
             prefix-icon="el-icon-edit"
             v-model="publish.year"
             @blur="checkYear"
@@ -1376,7 +1376,7 @@ export default {
                         this.$message.success('添加成功！')
                         this.dialogVisible = false;
                         this.doAddOper("commit", resp.data);
-                        this.$router.push('/student/Project');
+                        // this.$router.push('/student/Project');
                       }
                     });
           }

@@ -195,31 +195,31 @@ export default {
     addPaper() {
       // 添加论文的逻辑
       // 假设添加论文成功
-      this.$router.push('/student/Project');
+      // this.$router.push('/student/Project');
       this.close();
     },
     addPatent() {
       // 添加专利的逻辑
       // 假设添加专利成功
-      this.$router.push('/student/Project');
+      // this.$router.push('/student/Project');
       this.close();
     },
     addResearchAward() {
       // 添加科研获奖的逻辑
       // 假设添加科研获奖成功
-      this.$router.push('/student/Project');
+      // this.$router.push('/student/Project');
       this.close();
     },
     addAcademicMonograph() {
       // 添加学术专著和教材的逻辑
       // 假设添加学术专著和教材成功
-      this.$router.push('/student/Project');
+      // this.$router.push('/student/Project');
       this.close();
     },
     addResearchProject() {
       // 添加纵向科研项目的逻辑
       // 假设添加纵向科研项目成功
-      this.$router.push('/student/Project');
+      // this.$router.push('/student/Project');
       this.close();
     },
     
@@ -232,25 +232,25 @@ export default {
     addAcademicCompetition() {
       // 添加学科竞赛的逻辑
       // 假设添加学科竞赛成功
-      this.$router.push('/student/Project');
+      // this.$router.push('/student/Project');
       this.close();
     },
     addDecision() {
       // 添加决策咨询的逻辑
       // 假设添加决策咨询成功
-      this.$router.push('/student/Project');
+      // this.$router.push('/student/Project');
       this.close();
     },
     addProduct() {
       // 添加撰写项目文档的逻辑
       // 假设添加成功
-      this.$router.push('/student/Project');
+      // this.$router.push('/student/Project');
       this.close();
     },
     addStandard() {
       // 添加制定标准的逻辑
       // 假设添加制定标准成功
-      this.$router.push('/student/Project');
+      // this.$router.push('/student/Project');
       this.close();
     },
     async addProgramResult(){

@@ -2747,6 +2747,7 @@
                 }
                 params.state = state;
                 params.name = this.searchPatentName;
+                params.teacherId = JSON.parse(localStorage.getItem("user")).id
                 this.postRequest('/project/data/basic/teacherOrAdmin',params).then((resp) => {
                     this.loading = false;
                     if (resp) {

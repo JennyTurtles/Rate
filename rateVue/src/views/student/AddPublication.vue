@@ -17,7 +17,7 @@
       :visible.sync="dialogVisible_publication"
       @close="cannotAddPublish = true"
       :before-close="closeDialog"
-      width="50%"
+      width="60%"
       center
     >
       <el-form
@@ -81,7 +81,7 @@
         <span class="isMust" style="left: -140px;">*</span>
         <el-input
             size="mini"
-            style="width:40%"
+            style="width:50%"
             prefix-icon="el-icon-edit"
             v-model="publish.year"
             @blur="checkYear"

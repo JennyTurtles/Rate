@@ -35,8 +35,8 @@ public interface XinProjectMapper extends BaseMapper<XinProject>
                                               @Param(value = "name")  String name,
                                               @Param(value = "state")  String state,
                                               @Param(value = "pointFront")  String pointFront,
-                                              @Param(value = "pointBack")   String pointBack);
-
+                                              @Param(value = "pointBack")   String pointBack,
+                                              @Param(value = "teacherId")   String teacherId);
 
     List<XinProject> selectXinProjectList(XinProjectVo xinProjectVo);
 
@@ -77,4 +77,5 @@ public interface XinProjectMapper extends BaseMapper<XinProject>
 
     @Update("UPDATE graduatestudent SET point = point + #{score} WHERE studentID = #{id}")
     public int addStudentScore(Integer score,Integer id);
+
 }

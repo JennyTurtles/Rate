@@ -23,7 +23,7 @@
         <el-table-column
             prop="applyTime"
             label="操作时间"
-            min-width="15%"
+            min-width="20%"
             align="center"
         >
         </el-table-column>
@@ -76,7 +76,7 @@
         </el-table-column>
         <el-table-column
             prop="remark"
-            min-width="20%"
+            min-width="15%"
             align="center"
             label="备注"
         >
