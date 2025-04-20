@@ -198,7 +198,7 @@ public class XinProjectController {
                 base.setRemark(x.getRemark());
                 base.setCreatetime(x.getCreatetime());
                 base.setDate(x.getDate());
-                base.setType(ProjectTypeEnums.HORIZONTAL_RESEARCH_PROJECT.getDisplayName());
+                base.setType("项目开发");
                 dataArr.add(base);
             });
         }
@@ -223,7 +223,7 @@ public class XinProjectController {
                 base.setRemark(x.getRemark());
                 base.setCreatetime(x.getCreatetime());
                 base.setDate(x.getDate());
-                base.setType(ProjectTypeEnums.PRODUCT_APPLICATION.getDisplayName());
+                base.setType("撰写项目文档");
                 dataArr.add(base);
             });
         }

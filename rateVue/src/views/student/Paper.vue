@@ -13,7 +13,7 @@
         ref="currentEmp"
       >
         <el-form-item
-          label="论文名称:"6
+          label="论文名称:"
           prop="name"
           label-width="80px"
           style="margin-left: 20px"

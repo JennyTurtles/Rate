@@ -122,8 +122,8 @@ public class ProgramRecordService {
     public int addResult(ProgramResult programResult) {
         int rlt = programRecordMapper.addResult(programResult);
 
-        XinProject xinProject = new XinProject("横向科研项目申报", 2, programResult.getAuthor(),
-                programResult.getState(), programResult.getRemark(), programResult.getId(), "横向科研项目", programResult.getStudentId());
+        XinProject xinProject = new XinProject("项目开发申报", 3, programResult.getAuthor(),
+                programResult.getState(), programResult.getRemark(), programResult.getId(), "项目开发", programResult.getStudentId());
         xinProjectService.insertXinProject(xinProject);
         return rlt;
     }
@@ -133,8 +133,8 @@ public class ProgramRecordService {
     }
 
     public Integer editResult(ProgramResult programResult) {
-        XinProject xinProject = new XinProject("横向科研项目申报", 2, programResult.getAuthor(),
-                "commit", programResult.getRemark(), programResult.getId(), "横向科研项目", programResult.getStudentId());
+        XinProject xinProject = new XinProject("项目开发申报", 3, programResult.getAuthor(),
+                "commit", programResult.getRemark(), programResult.getId(), "项目开发", programResult.getStudentId());
         xinProjectService.updateXinProject(xinProject);
         return programRecordMapper.updateResult(programResult);
     }
@@ -153,8 +153,8 @@ public class ProgramRecordService {
         ProgramResult programResult = programRecordMapper.getById(Math.toIntExact(ID));
 //        mailToStuService.sendStuMail(state, project, null, "纵向科研项目");
         programResult.setState(state);
-        XinProject xinProject = new XinProject("横向科研项目申报", 2, programResult.getAuthor(),
-                programResult.getState(), programResult.getRemark(), programResult.getId(), "横向科研项目", programResult.getStudentId());
+        XinProject xinProject = new XinProject("项目开发申报", 3, programResult.getAuthor(),
+                programResult.getState(), programResult.getRemark(), programResult.getId(), "项目开发", programResult.getStudentId());
         xinProjectService.updateXinProject(xinProject);
         if (state.equals("adm_pass")) {
             int stuID = programResult.getStudentId();
@@ -172,7 +172,7 @@ public class ProgramRecordService {
     public Integer deleteById(Long id) {
         ProgramResult programResult = new ProgramResult();
         programResult.setId(id.intValue());
-        xinProjectService.deleteXinProject(id.intValue(), "横向科研项目");
+        xinProjectService.deleteXinProject(id.intValue(), "项目开发");
         return programRecordMapper.deleteById(id);
     }
 }

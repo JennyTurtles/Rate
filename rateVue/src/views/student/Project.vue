@@ -617,7 +617,7 @@
         </span>
     </el-dialog>
 
-    <!--横向科研项目查看详情-->
+    <!--项目开发查看详情-->
     <el-dialog
         class="showInfo_dialog"
         :title="title_show"
@@ -631,7 +631,7 @@
           :model="currentProgram"
           style="margin-left: 20px">
         <el-form-item label="成果名称:">
-            <span>横向科研项目申报</span
+            <span>项目开发申报</span
             ><br/>
         </el-form-item>
         <el-form-item label="项目时长:" >
@@ -859,7 +859,7 @@
         </span>
     </el-dialog>
 
-    <!--产品应用查看详情-->
+    <!--项目文档查看详情-->
     <el-dialog
         class="showInfo_dialog"
         :title="title_show"
@@ -873,11 +873,11 @@
           :model="currentProduct"
           style="margin-left: 20px">
 
-        <el-form-item label="产品名称:" prop="name">
+        <el-form-item label="文档名称:" prop="name">
             <span>{{ currentProduct.name }}</span
             ><br/>
         </el-form-item>
-        <el-form-item label="受理日期:" prop="date">
+        <el-form-item label="完成日期:" prop="date">
             <span>{{ currentProduct.date }}</span
             ><br/>
         </el-form-item>
@@ -1593,7 +1593,7 @@
           <el-button type="primary" @click="addProject">提 交</el-button>
         </span>
     </el-dialog>
-    <!-- 添加横向科研项目对话框-->
+    <!-- 添加项目开发对话框-->
     <el-dialog :title="title" :visible.sync="dialogVisible_publication_HorizontalResearchProject" width="50%" center>
       <el-form
           :hide-required-asterisk="true"
@@ -1611,7 +1611,7 @@
         </el-form-item>
       </el-form>
       <div style="margin-left: 20px;">
-        <span style="color:gray;font-size:10px">将会获得：2积分</span>
+        <span style="color:gray;font-size:10px">将会获得：3积分</span>
         <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
       </div>
       <span slot="footer" class="dialog-footer">
@@ -1830,7 +1830,7 @@
           <el-button type="primary" @click="addDecision">提 交</el-button>
         </span>
     </el-dialog>
-    <!-- 添加产品应用对话框-->
+    <!-- 添加项目文档对话框-->
     <el-dialog :title="title" :visible.sync="dialogVisible_publication_Product" width="50%" center>
       <el-form
           :hide-required-asterisk="true"
@@ -1840,14 +1840,14 @@
           :model="currentProductCopy"
           ref="currentProductCopy"
       >
-        <el-form-item label="产品名称:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="文档名称:" prop="name" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
               v-model="currentProductCopy.name"
-              placeholder="请输入产品名称"
+              placeholder="请输入文档名称"
           ></el-input>
         </el-form-item>
         <el-form-item label="完成年月:" prop="date" label-width="80px" style="margin-left: 20px;">
@@ -1872,7 +1872,7 @@
         </el-form-item>
         <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
-          <el-button ref="selectBtn" size="mini" type="text" @click="initTrees('产品应用')">{{ indicatorBtn }}</el-button>
+          <el-button ref="selectBtn" size="mini" type="text" @click="initTrees('撰写项目文档')">{{ indicatorBtn }}</el-button>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
@@ -2177,7 +2177,7 @@ export default {
       dialogVisible_showInfo_AcademicCompetition: false,
       // 决策咨询查看详情按钮
       dialogVisible_showInfo_Decision: false,
-      // 产品应用查看详情按钮
+      // 项目文档查看详情按钮
       dialogVisible_showInfo_Product: false,
       // 制定标准查看详情按钮
       dialogVisible_showInfo_Standard: false,
@@ -2198,7 +2198,7 @@ export default {
       dialogVisible_publication_AcademicCompetition: false,
       // 决策咨询编辑显示
       dialogVisible_publication_Decision: false,
-      // 产品应用编辑显示
+      // 项目文档编辑显示
       dialogVisible_publication_Product: false,
       // 制定标准编辑显示
       dialogVisible_publication_Standard: false,
@@ -2338,7 +2338,7 @@ export default {
         decisionTypeId:'',
         decisionType: {}
       },
-      // 产品应用
+      // 项目文档
       currentProduct: {
         id: '',
         name: '',
@@ -2441,7 +2441,7 @@ export default {
       selectDecisionType: {},
       selectDecisionTypeList: [],
       decisionPoint: 0,
-      //产品应用编辑数据
+      //项目文档编辑数据
       currentProductCopy: {},
       productPoint: 0,
       //制定标准编辑数据
@@ -2495,10 +2495,10 @@ export default {
       rules_Decision: {
         name: [{required: true, message: "请输入决策名称", trigger: "blur"}]
       },
-      //产品应用编辑表单验证
+      //项目文档编辑表单验证
       rules_Product: {
-        name: [{required: true, message: "请输入产品名称", trigger: "blur"}],
-        author: [{required: true, message: "请输入产品作者", trigger: "blur"}],
+        name: [{required: true, message: "请输入文档名称", trigger: "blur"}],
+        author: [{required: true, message: "请输入文档作者", trigger: "blur"}],
         date: [{required: true, message: "请选择完成时间", trigger: "blur"}]
       },
       //制定标准编辑表单验证
@@ -2783,7 +2783,7 @@ export default {
       })
     },
 
-    // 产品应用
+    // 项目文档
     deleteProductEmpMethod(data) {
       return new Promise((resolve, reject) => {
             this.deleteRequest("/product/basic/remove/" + data.id).then((resp) => {
@@ -2796,7 +2796,7 @@ export default {
     deleteProductOperationList(data) {
       const params = {}
       params.prodId = data.id;
-      params.prodType = '产品应用'
+      params.prodType = '撰写项目文档'
       return new Promise((resolve, reject) => {
         this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
           resolve('success');
@@ -3708,8 +3708,8 @@ export default {
     async doAddOperType(state, paperID,type,name) {
         this.oper.state = state
         this.oper.prodId = paperID
-        if(type==="横向科研项目")
-          this.oper.operationName = "更新项目工作时长"
+        if(type==="项目开发")
+          this.oper.operationName = "更新项目开发工作时长"
         else
           this.oper.operationName = "修改"+name
         this.oper.prodType = type
@@ -4117,10 +4117,10 @@ export default {
         '科研获奖': 'dialogVisible_showInfo_ResearchAward',
         '学术专著和教材': 'dialogVisible_showInfo_AcademicMonograph',
         '纵向科研项目': 'dialogVisible_showInfo_ResearchProject',
-        '横向科研项目': 'dialogVisible_showInfo_HorizontalResearchProject',
+        '项目开发': 'dialogVisible_showInfo_HorizontalResearchProject',
         '学科竞赛': 'dialogVisible_showInfo_AcademicCompetition',
         '决策咨询': 'dialogVisible_showInfo_Decision',
-        '产品应用': 'dialogVisible_showInfo_Product',
+        '撰写项目文档': 'dialogVisible_showInfo_Product',
         '制定标准': 'dialogVisible_showInfo_Standard'
       }
       const dataMap = {
@@ -4129,10 +4129,10 @@ export default {
         '科研获奖': 'currentAward',
         '学术专著和教材': 'currentMonograph',
         '纵向科研项目': 'currentProject',
-        '横向科研项目': 'currentProgram',
+        '项目开发': 'currentProgram',
         '学科竞赛': 'currentCompetition',
         '决策咨询': 'currentDecision',
-        '产品应用': 'currentProduct',
+        '撰写项目文档': 'currentProduct',
         '制定标准': 'currentStandard'
       }
       const urlMap = {
@@ -4141,10 +4141,10 @@ export default {
         '科研获奖': '/award',
         '学术专著和教材': '/monograph',
         '纵向科研项目': '/project',
-        '横向科研项目': '/programRecord',
+        '项目开发': '/programRecord',
         '学科竞赛': '/competition',
         '决策咨询': '/decision',
-        '产品应用': '/product',
+        '撰写项目文档': '/product',
         '制定标准': '/standard'
       }
       if (typeMap[data.category]) {
@@ -4199,9 +4199,8 @@ export default {
     },
     handleShowInfo(data) {
       this.title_show = "显示详情";
-
-      console.log(data)
       this.currentProjectSummary = data
+      console.log("data",data)
       this.showInfoMap(data)
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=' + data.category).then((resp) => {
         this.loading = false;
@@ -4210,7 +4209,7 @@ export default {
         }
       });
       //横向科研项目没有证明材料
-      if (data.category==='横向科研项目') {
+      if (data.category==='项目开发') {
         return;
       }
       this.isPdf = this.isImage = false; //初始化
@@ -4246,7 +4245,7 @@ export default {
       else if (type == '5'){//学术专著和教材
         this.downloadFileMethod(this.currentMonograph);
       }
-      else if (type == '6'){//横向-纵向
+      else if (type == '6'){//纵向
         this.downloadFileMethod(this.currentProject);
       }
       else if (type == '7'){//学科竞赛
@@ -4255,7 +4254,7 @@ export default {
       else if (type == '8'){//决策咨询
         this.downloadFileMethod(this.currentDecision);
       }
-      else if (type == '9'){//产品应用
+      else if (type == '9'){//项目文档
         this.downloadFileMethod(this.currentProduct);
       }
       else if (type == '10'){//指定标准
@@ -4399,9 +4398,9 @@ export default {
             this.isAuthorIncludeSelf = true;
           }
         });
-      } else if (data.category === '横向科研项目') {
+      } else if (data.category === '项目开发') {
         this.dialogVisible_publication_HorizontalResearchProject = true;
-        this.title = "更新横向项目工作时长";
+        this.title = "更新项目开发工作时长";
         const userID = this.user.id
         this.getRequest("/programRecord/basic/getDtaById?id=" + data.id).then((resp) => {
           if (resp) {
@@ -4466,9 +4465,9 @@ export default {
             this.urlFile = this.currentDecisionCopy.url;
           }
         });
-      } else if (data.category === '产品应用') {
+      } else if (data.category === '撰写项目文档') {
         this.dialogVisible_publication_Product = true;
-        this.title = "编辑产品信息";
+        this.title = "编辑文档信息";
         this.getRequest("/product/basic/studentIDInfo?studentID=" + this.user.id + "&id=" + data.id).then((resp) => {
           if (resp) {
             this.currentSelectedIndicator = resp.data.indicator;
@@ -4592,7 +4591,7 @@ export default {
                 if (resp) {
                   this.dialogVisible_publication_Product = false;
                   // this.doAddOper("commit", this.currentProductCopy.id);
-                  this.doAddOperType("commit", this.currentProductCopy.id,"产品应用","产品应用");
+                  this.doAddOperType("commit", this.currentProductCopy.id,"撰写项目文档","项目文档");
                   this.$message.success('编辑成功！')
                   this.initEmps();
                 }
@@ -4748,7 +4747,7 @@ export default {
             if (resp) {
               this.dialogVisible_publication_HorizontalResearchProject = false;
               // this.doAddOper("commit", this.currentProjectCopy.id);
-              this.doAddOperType("commit", this.tempID,"横向科研项目","项目工作时长");
+              this.doAddOperType("commit", this.tempID,"项目开发","项目工作时长");
               this.initEmps();
 
             }
@@ -4763,7 +4762,7 @@ export default {
       params.workHours = this.nowHours;
       params.id = this.tempID
       if(this.nowHours==this.workHours){
-          this.$alert('无需更新', '提示', {
+          this.$alert('工作时长已更新至最新，无需提交', '提示', {
             confirmButtonText: '确定',
           });
           return;
@@ -4826,7 +4825,7 @@ export default {
             this.$message.error('删除失败!');
           })
         })
-      } else if (data.category === '横向科研项目') {
+      } else if (data.category === '项目开发') {
         this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?").then(() => {
           Promise.all([this.deleteHorizontalProjectEmpMethod(data), this.deleteHorizontalProjectOperationList(data)]).then(res => {
             this.$message.success('删除成功!');
@@ -4855,7 +4854,7 @@ export default {
             this.$message.error('删除失败!');
           })
         })
-      } else if (data.category === '产品应用') {
+      } else if (data.category === '撰写项目文档') {
         this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?").then(() => {
           Promise.all([this.deleteProductEmpMethod(data), this.deleteProductOperationList(data)]).then(res => {
             this.$message.success('删除成功!');

@@ -208,12 +208,12 @@ ADD COLUMN `have_score` int DEFAULT NULL;
 ALTER TABLE paper
 ADD COLUMN `have_score` int DEFAULT NULL;
 
-ALTER TABLE doctor
-ADD COLUMN `point1` int DEFAULT NULL COMMENT '差多少分达到毕业要求'
 
-ALTER TABLE graduatestudent
-ADD COLUMN `point1` int DEFAULT NULL COMMENT '差多少分达到毕业要求'
-
+-- ALTER TABLE doctor
+-- ADD COLUMN `point1` int DEFAULT NULL COMMENT '差多少分达到毕业要求'
+-- 
+-- ALTER TABLE graduatestudent
+-- ADD COLUMN `point1` int DEFAULT NULL COMMENT '差多少分达到毕业要求'
 
 
 
@@ -231,18 +231,92 @@ UPDATE menu SET enabled = 2 WHERE id = 52;
 
 
 
+ALTER TABLE xin_project
+ADD COLUMN `pointtype` int DEFAULT 0 COMMENT '是否计入积分,0-正常管理员审核通过  1-计入积分,2-取消积分';
+
 
 
 
 
 
 CREATE TABLE `programresults` (
-  `ID` int NOT NULL AUTO_INCREMENT,
-  `studentID` int NOT NULL,
-  `isPass` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_unicode_ci DEFAULT NULL COMMENT '单次提交导师是否通过',
-  `workHours` double(3,1) DEFAULT NULL COMMENT '项目时长',
-  PRIMARY KEY (`ID`) USING BTREE,
-  KEY `studentID` (`studentID`) USING BTREE,
-  CONSTRAINT `programresults_ibfk_1` FOREIGN KEY (`studentID`) REFERENCES `graduatestudent` (`ID`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '项目主键',
+  `name` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '项目开发申报',
+  `student_id` int NOT NULL COMMENT '学号',
+	`work_hours` double NOT NULL COMMENT '项目工作量时长',
+  `state` varchar(10) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '描述项目成果的审核的进度',
+  `indicator_id` int COMMENT '指标点主键',
+	`author` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '作者列表',
+  `point` smallint DEFAULT 3,
+  `createtime` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `have_score` int DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `indicator_id` (`indicator_id`) USING BTREE,
+  KEY `student_id` (`student_id`) USING BTREE,
+  CONSTRAINT `programresults_ibfk_1` FOREIGN KEY (`indicator_id`) REFERENCES `indicator` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `programresults_ibfk_2` FOREIGN KEY (`student_id`) REFERENCES `student` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC;
+
+
+INSERT INTO indicator (`name`, `type`, `order`, `score`, `father_id`, `rankN`)
+VALUES ('CCF A类学术论文', '学术论文', '1.1.4', 12, 220, 0);
+
+UPDATE indicator SET name = 'CCF B类学术论文' WHERE id =162;
+
+INSERT INTO indicator (`name`, `type`, `order`, `score`, `father_id`, `rankN`)
+VALUES ('CCF T1类学术论文', '学术论文', '2.1.4', 9, 228, 0);
+
+UPDATE indicator SET name = 'CCF C类学术论文' WHERE id =180;
+
+INSERT INTO indicator (`name`, `type`, `order`, `score`, `father_id`, `rankN`)
+VALUES ('发表时暂无分区的SCI检索论文', '学术论文', '3.1.4', 6, 235, 0);
+
+UPDATE indicator SET rankN = 0 WHERE id IN (178,179,180,181);
+
+UPDATE indicator SET name = '授权专利' , type='授权专利',score = 3 WHERE id =248;
+
+UPDATE indicator 
+SET name = '申请国家发明专利或PCT专利，并已进入实质审查阶段（仅硕士纳入积分范围）',
+    type = '授权专利',
+    score = 3
+WHERE id = 202;
+
+UPDATE indicator SET name = '学术专著和教材',type='学术专著和教材', score = 3 WHERE id = 249;
+
+UPDATE indicator 
+SET name = '公开出版学术著作或教材',
+    type = '学术专著和教材',
+		`order`='5.2.1',
+    score = 3,
+		father_id = 249
+WHERE id = 203;
+
+UPDATE indicator SET name = '撰写项目文档',type='撰写项目文档', score = 3 WHERE id = 250;
+
+UPDATE indicator 
+SET name = '独立撰写完整的项目调研报告、国内外研究综述、需求分析报告、项目申请书、技术设计报告、项目结题报告等项目文档。具体成果形式和工作量由导师管理，由学院考核认定',
+    type = '撰写项目文档',
+		`order`='5.3.1',
+    score = 3,
+		father_id = 250
+WHERE id = 205;
+
+UPDATE indicator SET name = '项目开发',type='项目开发', score = 3 WHERE id = 251;
+
+UPDATE indicator SET score = 3 WHERE id = 201;
+
+UPDATE indicator 
+SET name = '独立完成重要横向或纵向科研项目的研发、编码、测试、部署与维护等工作，并撰写完整的过程性文档。具体成果形式和工作量由导师管理，由学院考核认定',
+    type = '项目开发',
+		`order`='5.4.1',
+    score = 3,
+		father_id = 251
+WHERE id = 206;
+
+DELETE FROM indicator WHERE id in (252,207,208);
+
+
+
+
+
 

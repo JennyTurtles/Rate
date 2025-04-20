@@ -50,9 +50,9 @@
                         auto-complete="off"
                         placeholder="请输入密码"></el-input>
             </el-form-item>
-            <div class="setPassword" v-show="loginForm.role !== 'admin'">
+            <!-- <div class="setPassword" v-show="loginForm.role !== 'admin'">
               <span @click="forgetPassword">忘记密码?</span>
-            </div>
+            </div> -->
             <div class="footer">
               <div>
                 <el-button size="normal"

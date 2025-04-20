@@ -182,4 +182,10 @@ public class MonographController {
         Integer res = monographMapper.editPoint(monograph);
         return new JsonResult(res);
     }
+
+    @GetMapping("/getCountByStuIDIndicatorID")
+    public JsonResult<Integer> getDtaByStuID(int id,int indicatorId) {
+        int res = monographMapper.getDtaByStuID(id,indicatorId);
+        return new JsonResult<>(res);
+    }
 }

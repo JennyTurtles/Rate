@@ -23,7 +23,7 @@ public class ProductService {
 
     private void dealXinProject(Product dto, int type){
         XinProject xinProject = new XinProject(dto.getName(), dto.getPoint(), dto.getAuthor(),
-                dto.getState(), dto.getRemark(), dto.getId(), ProjectTypeEnums.PRODUCT_APPLICATION.getDisplayName(), dto.getStudentId());
+                dto.getState(), dto.getRemark(), dto.getId(), "撰写项目文档", dto.getStudentId());
         if(type ==1) {
             xinProjectService.insertXinProject(xinProject);
         }else if(type == 2){

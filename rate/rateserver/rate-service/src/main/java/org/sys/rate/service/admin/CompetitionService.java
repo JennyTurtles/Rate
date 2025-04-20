@@ -128,7 +128,6 @@ public class CompetitionService {
     public int editState(String state, Long ID) throws MessagingException {
         Competition competition = competitionMapper.getById(Math.toIntExact(ID));
         mailToStuService.sendStuMail(state, competition, null, "学科竞赛");
-
         competition.setState(state);
         dealXinProject(competition, 3);
         return competitionMapper.editState(state, ID);

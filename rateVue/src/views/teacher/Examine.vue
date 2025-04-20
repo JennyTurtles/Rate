@@ -123,6 +123,13 @@
                 min-width="15%"
         >
         </el-table-column>
+        <el-table-column
+              prop="type"
+              label="类别"
+              align="center"
+              min-width="10%"
+          >
+        </el-table-column>
         <!-- width="200" -->
         <el-table-column
                 prop="state"
@@ -1065,7 +1072,7 @@
                   :model="currentProgram"
                   style="margin-left: 20px">
             <el-form-item label="成果名称:">
-                <span>横向科研项目申报</span
+                <span>项目开发申报</span
                 ><br/>
             </el-form-item>
             <el-form-item label="项目时长:" >
@@ -1420,7 +1427,7 @@
 
       </el-dialog>
 
-      <!--产品应用查看详情-->
+      <!--项目文档查看详情-->
       <el-dialog
               class="showInfo_dialog"
               :title="title_show"
@@ -1434,11 +1441,11 @@
                   :model="currentProduct"
                   style="margin-left: 20px">
 
-              <el-form-item label="产品名称:" prop="name">
+              <el-form-item label="文档名称:" prop="name">
             <span>{{ currentProduct.name }}</span
             ><br/>
               </el-form-item>
-              <el-form-item label="受理日期:" prop="date">
+              <el-form-item label="完成日期:" prop="date">
             <span>{{ currentProduct.date }}</span
             ><br/>
               </el-form-item>
@@ -1771,7 +1778,7 @@
           remark: '',
           indicatorId: ''
         },
-        //横向科研项目
+        //项目开发
         currentProgram: {
           id: null,
           name: null,
@@ -1881,7 +1888,7 @@
           decisionTypeId:'',
           decisionType: {}
         },
-        // 产品应用
+        // 项目文档
         currentProduct: {
           id: '',
           name: '',
@@ -1930,7 +1937,7 @@
         dialogVisible_showInfo_AcademicCompetition: false,
         // 决策咨询查看详情按钮
         dialogVisible_showInfo_Decision: false,
-        // 产品应用查看详情按钮
+        // 项目文档查看详情按钮
         dialogVisible_showInfo_Product: false,
         // 制定标准查看详情按钮
         dialogVisible_showInfo_Standard: false,
@@ -2028,7 +2035,7 @@
         else if (type == '8'){//决策咨询
             this.downloadFileMethod(this.currentDecision);
         }
-        else if (type == '9'){//产品应用
+        else if (type == '9'){//项目文档
             this.downloadFileMethod(this.currentProduct);
         }
         else if (type == '10'){//指定标准
@@ -2114,7 +2121,7 @@
               // 直接调用 rolePass
               this.rolePass4(state);
             }
-            else if ("产品应用" == this.emp.type) {
+            else if ("撰写项目文档" == this.emp.type) {
               // 直接调用 rolePass
               this.rolePass5(state);
             }
@@ -2126,7 +2133,7 @@
               // 直接调用 rolePass
               this.rolePass6(state);
             }
-            else if ("横向科研项目" == this.emp.type) {
+            else if ("项目开发" == this.emp.type) {
               // 直接调用 rolePass
               this.rolePass20(state);
             }
@@ -2153,7 +2160,7 @@
           // 直接调用 rolePass
           this.rolePass4(state);
         }
-        else if ("产品应用" == this.currentType) {
+        else if ("撰写项目文档" == this.currentType) {
           // 直接调用 rolePass
           this.rolePass5(state);
         }
@@ -2165,7 +2172,7 @@
           // 直接调用 rolePass
           this.rolePass6(state);
         }
-        else if ("横向科研项目" == this.currentType) {
+        else if ("项目开发" == this.currentType) {
           // 直接调用 rolePass
           this.rolePass20(state);
         }
@@ -2294,7 +2301,7 @@
                         type: 'success',
                         message: '操作成功'
                     })
-                    this.doAddOper(state, this.reason, this.currentProgram.id,'横向科研项目');
+                    this.doAddOper(state, this.reason, this.currentProgram.id,'项目开发');
                     let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
                     this.$store.dispatch('changePendingMessageange', roleParam);
                 }
@@ -2334,7 +2341,7 @@
                         type: 'success',
                         message: '操作成功'
                     })
-                    this.doAddOper(state, this.reason, this.currentProduct.id,'产品应用');
+                    this.doAddOper(state, this.reason, this.currentProduct.id,'撰写项目文档');
                     let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
                     this.$store.dispatch('changePendingMessageange', roleParam);
                 }
@@ -2464,10 +2471,10 @@
           '科研获奖': 'dialogVisible_showInfo_ResearchAward',
           '学术专著和教材': 'dialogVisible_showInfo_AcademicMonograph',
           '纵向科研项目': 'dialogVisible_showInfo_ResearchProject',
-          '横向科研项目': 'dialogVisible_showInfo_HorizontalResearchProject',
+          '项目开发': 'dialogVisible_showInfo_HorizontalResearchProject',
           '学科竞赛': 'dialogVisible_showInfo_AcademicCompetition',
           '决策咨询': 'dialogVisible_showInfo_Decision',
-          '产品应用': 'dialogVisible_showInfo_Product',
+          '撰写项目文档': 'dialogVisible_showInfo_Product',
           '制定标准': 'dialogVisible_showInfo_Standard'
         }
         const dataMap = {
@@ -2476,10 +2483,10 @@
           '科研获奖': 'currentAward',
           '学术专著和教材': 'currentMonograph',
           '纵向科研项目': 'currentProject',
-          '横向科研项目': 'currentProgram',
+          '项目开发': 'currentProgram',
           '学科竞赛': 'currentCompetition',
           '决策咨询': 'currentDecision',
-          '产品应用': 'currentProduct',
+          '撰写项目文档': 'currentProduct',
           '制定标准': 'currentStandard'
         }
         const urlMap = {
@@ -2488,10 +2495,10 @@
           '科研获奖': '/award',
           '学术专著和教材': '/monograph',
           '纵向科研项目': '/project',
-          '横向科研项目': '/programRecord',
+          '项目开发': '/programRecord',
           '学科竞赛': '/competition',
           '决策咨询': '/decision',
-          '产品应用': '/product',
+          '撰写项目文档': '/product',
           '制定标准': '/standard'
         }
         if (typeMap[data.type]) {
@@ -2522,7 +2529,7 @@
             this.operList = resp.obj
           }
         });
-        if(data.type==='横向科研项目')
+        if(data.type==='项目开发')
           return;
         this.isPdf = this.isImage = false; //初始化
         this.previewUrl = '';

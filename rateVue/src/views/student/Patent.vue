@@ -641,16 +641,27 @@ export default {
       } else {
         this.$refs["currentPatentCopy"].validate((valid) => {
           if (valid) {
-            params.studentId = this.user.id
-            this.postRequest1("/patent/basic/add", params).then(
-                (resp) => {
-                  if (resp) {
-                    this.$message.success('添加成功！')
-                    this.dialogVisible = false;
-                    this.doAddOper("commit", resp.data);
-                  }
-                }
-            );
+            //检查当前专利是否是指标点5.1.1且是否申报过（该指标点只能申报一次）
+            const url1 = '/patent/basic/getCountByStuIDIndicatorID?id=' + this.user.id + '&indicatorId=202'; 
+            this.getRequest(url1)
+            .then((resp) => {
+              if (resp.total !== 0 && params.indicatorId === 202) {
+                this.$alert('已申报过指标点为5.1.1的专利，此指标点不允许多次申报！', '提示', {
+                  confirmButtonText: '确定',
+                });
+              }else{
+                params.studentId = this.user.id
+                this.postRequest1("/patent/basic/add", params).then(
+                    (resp) => {
+                      if(resp) {
+                        this.$message.success('添加成功！')
+                        this.dialogVisible = false;
+                        this.doAddOper("commit", resp.data);
+                      }
+                    }
+                )
+              }
+            })
           }
         });
       }

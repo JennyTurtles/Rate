@@ -54,9 +54,9 @@
     <AcademicCompetition v-if="showAddAcademicCompetitionDialog"  @add="addAcademicCompetition" />
     <!-- 添加决策咨询对话框 -->
     <Decision v-if="showAddDecisionDialog" :dialogVisible.sync="showAddDecisionDialog" @add="addDecision"/>
-    <!-- 添加产品对话框 -->
+    <!-- 添加撰写项目文档对话框 -->
     <Product v-if="showAddProductDialog" :dialogVisible.sync="showAddProductDialog" @add="addProduct" />
-    <!-- 添加产品对话框 -->
+    <!-- 添加项目开发对话框 -->
     <HorizontalResearchProject v-if="showAddHorizontalResearchProjectDialog" :dialogVisible.sync="showAddHorizontalResearchProjectDialog" @add="addHorizontalProject"/>
   </div>
 </template>
@@ -101,11 +101,11 @@ export default {
         '科研获奖': '/student/ResearchAward',
         '学术专著和教材': '/student/AcademicMonograph',
         '纵向科研项目': '/student/ResearchProject',
-        '科研项目工作量': '/student/HorizontalResearchProject',
+        '制定标准': '/student/Standard',
         '学科竞赛': '/student/AcademicCompetition',
         '决策咨询': '/student/Decision',
-        '产品应用': '/student/Product',
-        '制定标准': '/student/Standard'
+        '撰写项目文档': '/student/Product',
+        '项目开发': '/student/HorizontalResearchProject',
       },
       oper: {
         operatorRole: "student",
@@ -150,7 +150,7 @@ export default {
         case '纵向科研项目':
           this.showAddResearchProjectDialog = true;
           break;
-        case '科研项目工作量':
+        case '项目开发':
           this.addProgramResult();
           break;
         case '学科竞赛':
@@ -159,7 +159,7 @@ export default {
         case '决策咨询':
           this.showAddDecisionDialog = true;
           break;
-        case '产品应用':
+        case '撰写项目文档':
           this.showAddProductDialog = true;
           break;
         case '制定标准':
@@ -242,8 +242,8 @@ export default {
       this.close();
     },
     addProduct() {
-      // 添加产品应用的逻辑
-      // 假设添加产品应用成功
+      // 添加撰写项目文档的逻辑
+      // 假设添加成功
       this.$router.push('/student/Project');
       this.close();
     },
@@ -290,7 +290,7 @@ export default {
       this.getRequest(url1)
           .then((resp) => {
             if (resp.total !== 0) {
-              this.$alert('已申报过横向科研项目成果，请修改或删除！', '提示', {
+              this.$alert('已申报过项目开发成果，此类别不允许多次申报，请修改或删除！', '提示', {
                 confirmButtonText: '确定',
               });
               this.$router.push('/student/Project');
@@ -308,7 +308,7 @@ export default {
                 this.$router.push('/student/ProgramRecord');
               }
               else{
-                this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的横向科研项目项目", '提示', {
+                this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的项目", '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
@@ -334,7 +334,7 @@ export default {
       this.oper.state = state
       this.oper.prodId = resultID
       this.oper.time = this.dateFormatFunc(new Date());
-      this.oper.prodType='横向科研项目',
+      this.oper.prodType='项目开发',
       await this.postRequest1("/oper/basic/add", this.oper)
     },
   },

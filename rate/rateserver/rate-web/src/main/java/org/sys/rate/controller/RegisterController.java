@@ -28,10 +28,10 @@ public class RegisterController {
     @PostMapping("/stu")
     public RespBean registerStu(@RequestBody Student student){
         //没有就插入，同时判断选择注册的身份
-        //String stuType = student.getStuType();
+        //String stuType = student.getStuType()
         try{
-            Student existingStu = studentMapper.selectByUsername(student.getUsername());
-            if (existingStu != null ) {
+            int existingStu = studentMapper.selectCountByUsername(student.getUsername());
+            if (existingStu >0 ) {
                 return RespBean.error("用户名已存在，请更换！");
             }
             String password = ExpertService.sh1(student.getPassword());
@@ -109,6 +109,7 @@ public class RegisterController {
 //            }
             studentMapper.insertStuFromRegister(student);
         }catch (Exception e){
+            e.printStackTrace(); // 打印异常堆栈信息
             return RespBean.error("error",null);
         }
         return RespBean.ok("ok",null);

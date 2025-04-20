@@ -18,7 +18,6 @@
         <span style="margin-left: 80px;">审核通过时长:&nbsp;&nbsp;{{ examinedHours }}小时</span>
       </div>
     </div>
-
     <div style="margin-top: 10px">
       <el-table
           class="table-with-shadow"
@@ -447,7 +446,7 @@ export default {
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '横向科研项目',
+        prodType: '项目开发',
         operationName: '学生提交',
         state: '',
         remark: '',
@@ -888,7 +887,7 @@ export default {
           .then((resp) => {
             console.log(resp)
             if (resp.total !== 0) {
-              this.$alert('已申报过横向科研项目成果，请前往修改或删除！', '提示', {
+              this.$alert('已申报过项目成果，此类别不允许多次申报，请前往修改或删除！', '提示', {
                 confirmButtonText: '确定',
               });
               this.$router.push('/student/Project');
@@ -898,7 +897,7 @@ export default {
                   confirmButtonText: '确定',
                 });
               }else{
-                this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的横向科研项目项目", '提示', {
+                this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的项目", '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'

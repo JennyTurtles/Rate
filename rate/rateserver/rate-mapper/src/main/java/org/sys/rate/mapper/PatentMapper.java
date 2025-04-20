@@ -98,4 +98,7 @@ public interface PatentMapper
 
     @Update("UPDATE i_patent SET have_score = #{have_score} WHERE id = #{id}")
     public Integer editPoint(Patent patent);
+
+    @Select("select count(*) from i_patent where student_id = #{id} and indicator_id = #{indicatorID}" )
+    int getDtaByStuID(int id, int indicatorID);
 }

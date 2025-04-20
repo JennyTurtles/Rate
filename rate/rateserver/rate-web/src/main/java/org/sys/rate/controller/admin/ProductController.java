@@ -107,7 +107,7 @@ public class ProductController {
     @ResponseBody
     public JsonResult addSave(Product product) throws FileNotFoundException {
         Integer res = productService.insertProduct(product);
-        mailToTeacherService.sendTeaCheckMail(product, "产品应用", "添加");
+        mailToTeacherService.sendTeaCheckMail(product, "撰写项目文档", "添加");
         return new JsonResult(product.getId());
     }
 
@@ -190,5 +190,11 @@ public class ProductController {
         product.setId(ID);
         Integer res = productMapper.editPoint(product);
         return new JsonResult(res);
+    }
+
+    @GetMapping("/getCountByStuID")
+    public JsonResult<Integer> getDtaByStuID(int id) {
+        int res = productMapper.getDtaByStuID(id);
+        return new JsonResult<>(res);
     }
 }

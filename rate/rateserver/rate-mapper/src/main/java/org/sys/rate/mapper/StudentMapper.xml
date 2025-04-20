@@ -36,9 +36,9 @@
         select * from student
         where ID=#{ID}
     </select>
-    <select id="selectByUsername" resultType="org.sys.rate.model.Student">
-    SELECT * FROM student WHERE username = #{username}
-</select>
+    <select id="selectCountByUsername" resultType="java.lang.Integer">
+        SELECT count(*) FROM student WHERE username = #{username}
+    </select>
     <insert id="insert" parameterType="org.sys.rate.model.Student">
         insert into student (name, studentnumber, telephone, email
         )

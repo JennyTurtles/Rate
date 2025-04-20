@@ -320,12 +320,6 @@
                     @click="rejectDialog"
                     type="primary"
             >审核不通过</el-button>
-            <el-button
-                    id="but_reject"
-                    v-show="(emp.state=='tea_reject' || emp.state=='adm_reject' || emp.state == 'adm_pass' || (emp.state=='tea_pass' && role == 8))? true:false"
-                    @click="dialogVisible_show = false"
-                    type="primary"
-            >关闭</el-button>
         </span>
         </el-dialog>
         <el-dialog v-model="emp" :visible.sync="isShowInfo">
@@ -457,12 +451,6 @@
                     @click="rejectDialog"
                     type="primary"
             >审核不通过</el-button>
-            <el-button
-                    id="but_reject"
-                    v-show="(currentPatent.state=='tea_reject' || currentPatent.state=='adm_reject' || currentPatent.state == 'adm_pass' || (currentPatent.state=='tea_pass' && role == 8))? true:false"
-                    @click="dialogVisible_show = false"
-                    type="primary"
-            >关闭</el-button>
         </span>
         </el-dialog>
         <el-dialog v-model="currentPatent" :visible.sync="isShowInfo">
@@ -600,12 +588,6 @@
                     @click="rejectDialog"
                     type="primary"
             >审核不通过</el-button>
-            <el-button
-                    id="but_reject"
-                    v-show="(currentAward.state=='tea_reject' || currentAward.state=='adm_reject' || currentAward.state == 'adm_pass' || (currentAward.state=='tea_pass' && role == 8))? true:false"
-                    @click="dialogVisible_show = false"
-                    type="primary"
-            >关闭</el-button>
         </span>
         </el-dialog>
         <el-dialog v-model="currentAward" :visible.sync="isShowInfo">
@@ -728,12 +710,6 @@
                     @click="rejectDialog"
                     type="primary"
             >审核不通过</el-button>
-            <el-button
-                    id="but_reject"
-                    v-show="(currentMonograph.state=='tea_reject' || currentMonograph.state=='adm_reject' || currentMonograph.state == 'adm_pass' || (currentMonograph.state=='tea_pass' && role == 8))? true:false"
-                    @click="dialogVisible_showInfo_AcademicMonograph = false"
-                    type="primary"
-            >关闭</el-button>
         </span>
         </el-dialog>
         <el-dialog v-model="currentMonograph" :visible.sync="isShowInfo">
@@ -859,12 +835,6 @@
                     @click="rejectDialog"
                     type="primary"
             >审核不通过</el-button>
-            <el-button
-                    id="but_reject"
-                    v-show="(currentProject.state=='tea_reject' || currentProject.state=='adm_reject' || currentProject.state == 'adm_pass' || (currentProject.state=='tea_pass' && role == 8))? true:false"
-                    @click="dialogVisible_show = false"
-                    type="primary"
-            >关闭</el-button>
         </span>
         </el-dialog>
         <el-dialog v-model="currentProject" :visible.sync="isShowInfo">
@@ -889,7 +859,7 @@
             </tcurrentProjectlate>
 
         </el-dialog>
-        <!--横向科研项目查看详情-->
+        <!--项目开发查看详情-->
         <el-dialog
                 class="showInfo_dialog"
                 :title="title_show"
@@ -904,7 +874,7 @@
                     style="margin-left: 20px">
 
             <el-form-item label="成果名称:" prop="name">
-                <span>横向科研项目申报</span
+                <span>项目开发申报</span
                 ><br/>
             </el-form-item>
             <el-form-item label="项目时长:" >
@@ -962,12 +932,6 @@
                     @click="rejectDialog"
                     type="primary"
             >审核不通过</el-button>
-            <el-button
-                    id="but_reject"
-                    v-show="(currentProgram.state=='tea_reject' || currentProgram.state=='adm_reject' || currentProgram.state == 'adm_pass' || (currentProgram.state=='tea_pass' && role == 8))? true:false"
-                    @click="dialogVisible_show = false"
-                    type="primary"
-            >关闭</el-button>
         </span>
         </el-dialog>
         <el-dialog v-model="currentProgram" :visible.sync="isShowInfo">
@@ -1093,12 +1057,6 @@
                     @click="rejectDialog"
                     type="primary"
             >审核不通过</el-button>
-            <el-button
-                    id="but_reject"
-                    v-show="(currentCompetition.state=='tea_reject' || currentCompetition.state=='adm_reject' || currentCompetition.state == 'adm_pass' || (currentCompetition.state=='tea_pass' && role == 8))? true:false"
-                    @click="dialogVisible_show = false"
-                    type="primary"
-            >关闭</el-button>
         </span>
         </el-dialog>
 
@@ -1218,12 +1176,6 @@
                     @click="rejectDialog"
                     type="primary"
             >审核不通过</el-button>
-            <el-button
-                    id="but_reject"
-                    v-show="(currentDecision.state=='tea_reject' || currentDecision.state=='adm_reject' || currentDecision.state == 'adm_pass' || (currentDecision.state=='tea_pass' && role == 8))? true:false"
-                    @click="dialogVisible_show = false"
-                    type="primary"
-            >关闭</el-button>
         </span>
         </el-dialog>
         <el-dialog v-model="currentDecision" :visible.sync="isShowInfo">
@@ -1249,7 +1201,7 @@
 
         </el-dialog>
 
-        <!--产品应用查看详情-->
+        <!--项目文档查看详情-->
         <el-dialog
                 class="showInfo_dialog"
                 :title="title_show"
@@ -1263,11 +1215,11 @@
                     :model="currentProduct"
                     style="margin-left: 20px">
 
-                <el-form-item label="产品名称:" prop="name">
+                <el-form-item label="文档名称:" prop="name">
             <span>{{ currentProduct.name }}</span
             ><br/>
                 </el-form-item>
-                <el-form-item label="受理日期:" prop="date">
+                <el-form-item label="完成日期:" prop="date">
             <span>{{ currentProduct.date }}</span
             ><br/>
                 </el-form-item>
@@ -1353,12 +1305,6 @@
                     @click="rejectDialog"
                     type="primary"
             >审核不通过</el-button>
-            <el-button
-                    id="but_reject"
-                    v-show="(currentProduct.state=='tea_reject' || currentProduct.state=='adm_reject' || currentProduct.state == 'adm_pass' || (currentProduct.state=='tea_pass' && role == 8))? true:false"
-                    @click="dialogVisible_show = false"
-                    type="primary"
-            >关闭</el-button>
         </span>
         </el-dialog>
         <el-dialog v-model="currentProduct" :visible.sync="isShowInfo">
@@ -1488,12 +1434,6 @@
                     @click="rejectDialog"
                     type="primary"
             >审核不通过</el-button>
-            <el-button
-                    id="but_reject"
-                    v-show="(currentStandard.state=='tea_reject' || currentStandard.state=='adm_reject' || currentStandard.state == 'adm_pass' || (currentStandard.state=='tea_pass' && role == 8))? true:false"
-                    @click="dialogVisible_show = false"
-                    type="primary"
-            >关闭</el-button>
         </span>
         </el-dialog>
         <el-dialog v-model="currentStandard" :visible.sync="isShowInfo">
@@ -1518,1111 +1458,6 @@
             </tcurrentStandardlate>
 
         </el-dialog>
-
-        <!-- 学术论文添加或修改对话框  -->
-        <!-- 添加论文对话框 -->
-        <el-dialog :title="title" :visible.sync="dialogVisible_publication_Paper" width="50%" center>
-            <el-form
-                    :hide-required-asterisk="true"
-                    :label-position="labelPosition"
-                    label-width="150px"
-                    :model="currentEmp"
-                    :rules="rules_Paper"
-                    ref="currentEmp"
-            >
-                <el-form-item label="论文名称:" prop="name" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentEmp.name"
-                            placeholder="请输入论文名称"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item prop="year" label="发表年月:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-date-picker
-                            style="width:155px"
-                            v-model="currentEmp.date"
-                            type="month"
-                            placeholder="请选择发表年月"
-                    ></el-date-picker>
-                </el-form-item>
-                <el-form-item label="所属期刊:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentEmp.pubName"
-                            placeholder="请输入论文名称"
-                    ></el-input>
-                </el-form-item>
-
-                <el-form-item prop="author" label="作者列表:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentEmp.author"
-                            placeholder="请输入作者,如有多个用分号分隔"
-                    ></el-input>
-                </el-form-item>
-
-                <el-form-item label="页码:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width: 32%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentEmp.startPage"
-                            placeholder="开始页码"
-                    ></el-input> &nbsp;-&nbsp;
-                    <el-input
-                            size="mini"
-                            style="width: 32%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentEmp.endPage"
-                            placeholder="结尾页码"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
-                    <el-upload
-                            :file-list="files"
-                            action="#"
-                            :limit="1"
-                            :headers="headers"
-                            :on-remove="handleDelete"
-                            :auto-upload="false"
-                            :on-change="handleChangeFiles"
-                            :on-exceed="handleExceed"
-                    >
-                        <el-button type="primary" icon="el-icon-upload2"
-                                   slot="trigger"
-                        >选择文件
-                        </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
-                    &nbsp;&nbsp;大小不能超过10MB
-                  </span>
-                    </el-upload>
-                </el-form-item>
-            </el-form>
-            <div style="margin-left: 20px;">
-                <span style="color:gray;font-size:10px">{{ publication_detail }}</span>
-                <span
-                        style="color: #409eff;  cursor: pointer;font-size:10px"
-                        @click="openUpdateDialog"
-                        v-if="publication_detail !== null && publication_detail.length > 0"
-                >
-                    结果有误？点击修改此期刊
-                  </span>
-            </div>
-            <div style="margin-left: 20px;font-size: 10px;margin-top: 5px;">
-                没有找到期刊？
-                <span
-                        style="color: #409eff;  cursor: pointer;"
-                        @click="openAddDialog"
-                >
-                    点击添加新的期刊
-                  </span> &nbsp;&nbsp;&nbsp;&nbsp;
-                <span
-                        style="color: #409eff;  cursor: pointer;"
-                        @click="openCheckVue"
-                >
-                    查看期刊审核进度
-                  </span>
-            </div>
-            <div style="margin-left: 20px;margin-top: 5px;">
-                <span style="color:gray;font-size:10px">将会获得：{{ paperPoint }}积分</span>
-            </div>
-            <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible_publication_Paper = false">取 消</el-button>
-          <el-button type="primary" @click="doAddEmp()">提 交</el-button>
-        </span>
-        </el-dialog>
-        <!--添加专利对话框-->
-        <el-dialog :title="title" :visible.sync="dialogVisible_publication_Patent" width="50%" center>
-            <el-form
-                    :hide-required-asterisk="true"
-                    :label-position="labelPosition"
-                    label-width="150px"
-                    :rules="rules_Patent"
-                    :model="currentPatentCopy"
-                    ref="currentPatentCopy"
-            >
-                <el-form-item label="专利名称:" prop="name" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentPatentCopy.name"
-                            placeholder="请输入专利名称"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-button ref="selectBtn" size="mini" type="text" @click="initTrees('授权专利')">{{ indicatorBtn }}</el-button>
-                </el-form-item>
-                <el-form-item prop="grantedStatus" label="专利状态:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-select
-                            size="mini"
-                            style="width:80%"
-
-                            prefix-icon="el-icon-edit"
-                            v-model="currentPatentCopy.grantedStatus"
-                            placeholder="请选择专利状态"
-                    >
-                        <el-option v-for="item in patentStatusList" :key="item.value" :value="item.name"
-                                   :label="item.name"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item :label="currentPatentCopy.grantedStatus ? currentPatentCopy.grantedStatus + '年月:' : '状态年月:'"
-                              prop="date"
-                              label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-date-picker
-                            v-model="currentPatentCopy.date"
-                            type="month"
-                            value-format="yyyy-MM"
-                            placeholder="状态年月">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item prop="author" label="参与人:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentPatentCopy.author"
-                            placeholder="请输入参与人,如有多个用分号按顺位分隔"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-upload
-                            :file-list="files"
-                            action="#"
-                            :limit="1"
-                            :headers="headers"
-                            :on-remove="handleDelete"
-                            :auto-upload="false"
-                            :on-change="handleChangeFiles"
-                            :on-exceed="handleExceed"
-                    >
-                        <el-button type="primary" icon="el-icon-upload2"
-                                   slot="trigger"
-                        >选择文件
-                        </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
-                    &nbsp;&nbsp;大小不能超过10MB
-                  </span>
-                    </el-upload>
-                </el-form-item>
-            </el-form>
-            <div style="margin-left: 20px;">
-                <span style="color:gray;font-size:10px">将会获得：{{ patentPoint }}积分</span>
-                <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
-            </div>
-            <span slot="footer" class="dialog-footer">
-          <el-button @click="cancelAddPatent">取 消</el-button>
-          <el-button type="primary" @click="addAwardPatent" v-show="addButtonState">提 交</el-button>
-        </span>
-        </el-dialog>
-        <!--添加科研获奖对话框-->
-        <el-dialog :title="title" :visible.sync="dialogVisible_publication_ResearchAward" width="50%" center>
-            <el-form
-                    :hide-required-asterisk="true"
-                    :label-position="labelPosition"
-                    label-width="150px"
-                    :model="currentAwardCopy"
-                    :rules="rules_ResearchAward"
-                    ref="currentAwardCopy"
-            >
-                <el-form-item label="奖励名称:" label-width="80px" style="margin-left: 20px;" prop="name">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentAwardCopy.name"
-                            placeholder="请输入奖励名称"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="获奖年月:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-date-picker
-                            style="width: 80%"
-                            v-model="currentAwardCopy.date"
-                            @change="changeAwardDate($event)"
-                            type="month"
-                            value-format="yyyy-MM"
-                            placeholder="选择年月">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-button size="mini" type="text" @click="initTrees('科研获奖')">{{ indicatorBtn }}</el-button>
-                </el-form-item>
-                <el-form-item label="奖励级别:" label-width="80px" style="margin-left: 20px;" prop="awardLevel">
-                    <span class="isMust">*</span>
-                    <el-select size="mini" v-model="currentAwardCopy.awardLevel" placeholder="请选择奖励级别" style="width: 80%"
-                               @change="selectedAwardLevel = false">
-                        <el-option v-for="item in awardLevelList" :key="item.value" :value="item.label"
-                                   :label="item.label"></el-option>
-                    </el-select>
-                </el-form-item>
-
-                <el-form-item label="奖励类别:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-select
-                            :disabled="disabledSelectAwardType || selectedAwardLevel"
-                            v-model="selectAwardType"
-                            value-key="id"
-                            filterable
-                            remote
-                            clearable
-                            reserve-keyword
-                            placeholder="请选择科研获奖类别"
-                            loading-text="搜索中..."
-                            @focus="selectAwardTypeMethod($event)"
-                            :loading="searchTypeLoading">
-                        <el-option
-                                v-for="item in selectAwardTypeList"
-                                :key="item.id"
-                                :label="item.name"
-                                :value="item">
-                        </el-option>
-                    </el-select>
-                    <el-tooltip class="item" effect="dark" content="如：国家科技进步奖、国家技术发明奖、国家自然科学奖等" placement="top-start">
-                        <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
-                    </el-tooltip>
-                </el-form-item>
-                <el-form-item label="获奖人:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            id="input_member"
-                            size="mini"
-                            style="width: 80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentAwardCopy.author"
-                            placeholder="请输入获奖人,如有多个用分号分隔"
-                    ></el-input>
-                </el-form-item>
-
-                <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-upload
-                            :file-list="files"
-                            action="#"
-                            :limit="1"
-                            :headers="headers"
-                            :on-remove="handleDelete"
-                            :auto-upload="false"
-                            :on-change="handleChangeFiles"
-                            :on-exceed="handleExceed"
-                    >
-                        <el-button type="primary" icon="el-icon-upload2"
-                                   slot="trigger"
-                        >选择文件
-                        </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
-                    &nbsp;&nbsp;大小不能超过10MB
-                  </span>
-                    </el-upload>
-                </el-form-item>
-            </el-form>
-            <div style="margin-left: 20px;">
-                <span style="color:gray;font-size:10px">将会获得：{{ awardPoint }}积分</span>
-                <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
-            </div>
-            <span slot="footer" class="dialog-footer">
-          <el-button @click="cancelAdd">取 消</el-button>
-          <el-button type="primary" @click="addResearchAward">提 交</el-button>
-        </span>
-        </el-dialog>
-        <!--添加学术和专著对话框-->
-        <el-dialog :title="title" :visible.sync="dialogVisible_publication_AcademicMonograph" width="50%" center>
-            <el-form
-                    :hide-required-asterisk="true"
-                    :label-position="labelPosition"
-                    label-width="150px"
-                    :model="currentMonographCopy"
-                    :rules="rules_Monograph"
-                    ref="currentMonographCopy"
-            >
-                <el-form-item label="著作名称:" label-width="80px" style="margin-left: 20px;" prop="name">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentMonographCopy.name"
-                            placeholder="请输入专著或教材名称"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="完成年月:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-date-picker
-                            style="width: 80%"
-                            v-model="currentMonographCopy.date"
-                            type="month"
-                            value-format="yyyy-MM"
-                            placeholder="选择年月">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="完成人:" label-width="80px" style="margin-left: 20px;" prop="author">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width: 80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentMonographCopy.author"
-                            placeholder="请输入完成人,如有多个用分号分隔"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="出版社:" label-width="80px" style="margin-left: 20px;" prop="publisher">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width: 80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentMonographCopy.publisher"
-                            placeholder="请输入专著或教材出版社"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="ISBN:" label-width="80px" style="margin-left: 20px;" prop="isbn">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width: 80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentMonographCopy.isbn"
-                            placeholder="请输入专著或教材ISBN"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-button ref="selectBtn" size="mini" type="text" @click="initTrees('学术专著和教材')">{{
-                        indicatorBtn
-                        }}
-                    </el-button>
-                </el-form-item>
-
-                <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-upload
-                            :file-list="files"
-                            action="#"
-                            :limit="1"
-                            :headers="headers"
-                            :on-remove="handleDelete"
-                            :auto-upload="false"
-                            :on-change="handleChangeFiles"
-                            :on-exceed="handleExceed"
-                    >
-                        <el-button type="primary" icon="el-icon-upload2"
-                                   slot="trigger"
-                        >选择文件
-                        </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
-                    &nbsp;&nbsp;大小不能超过10MB
-                  </span>
-                    </el-upload>
-                </el-form-item>
-            </el-form>
-            <div style="margin-left: 20px;">
-                <span style="color:gray;font-size:10px">将会获得：{{ monographPoint }}积分</span>
-                <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
-            </div>
-            <span slot="footer" class="dialog-footer">
-          <el-button @click="cancelMonographAdd">取 消</el-button>
-          <el-button type="primary" @click="addMonograph" v-show="addButtonState">提 交</el-button>
-        </span>
-        </el-dialog>
-        <!-- 添加纵向科研项目对话框 -->
-        <el-dialog :title="title" :visible.sync="dialogVisible_publication_ResearchProject" width="50%" center>
-            <el-form
-                    :hide-required-asterisk="true"
-                    :label-position="labelPosition"
-                    label-width="150px"
-                    :model="currentProjectCopy"
-                    :rules="rules_ResearchProject"
-                    ref="currentProjectCopy"
-            >
-                <el-form-item label="项目名称:" label-width="80px" style="margin-left: 20px;" prop="name">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentProjectCopy.name"
-                            placeholder="请输入科研项目名称"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="立项年月:" label-width="80px" style="margin-left: 20px;" prop="startDate">
-                    <span class="isMust">*</span>
-                    <el-date-picker
-                            style="width: 80%"
-                            v-model="currentProjectCopy.startDate"
-                            type="month"
-                            @change="changeProjectStartDate($event)"
-                            value-format="yyyy-MM"
-                            placeholder="选择立项年月">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="结项年月:" label-width="80px" style="margin-left: 20px;">
-                    <el-date-picker
-                            style="width: 80%"
-                            v-model="currentProjectCopy.endDate"
-                            type="month"
-                            value-format="yyyy-MM"
-                            placeholder="选择结项年月">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="参与人:" label-width="80px" style="margin-left: 20px;" prop="author">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width: 80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentProjectCopy.author"
-                            placeholder="请输入参与人,如有多个用分号分隔"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="项目类别:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-select
-                            :disabled="disabledSelectProjectType"
-                            v-model="selectProjectType"
-                            value-key="id"
-                            filterable
-                            remote
-                            clearable
-                            reserve-keyword
-                            @change="selectOption($event)"
-                            placeholder="请输入科研项目类别"
-                            loading-text="搜索中..."
-                            :remote-method="selectProjectTypeMethod"
-                            :loading="searchTypeLoading">
-                        <el-option
-                                style="width: 550px;overflow: scroll"
-                                v-for="item in selectProjectTypeList"
-                                :key="item.id"
-                                :label="item.name"
-                                :value="item">
-                        </el-option>
-                    </el-select>
-                    <el-tooltip class="item" effect="dark"
-                                content="如：国家自然科学基金面上项目、
-                                    973计划、
-                                    863计划、
-                                    上海市科委项目、
-                                    人才计划项目(曙光、晨光、扬帆、浦江、启明星A类等）等" placement="top-start">
-                        <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
-                    </el-tooltip>
-                </el-form-item>
-
-                <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-upload
-                            :file-list="files"
-                            action="#"
-                            :limit="1"
-                            :headers="headers"
-                            :on-remove="handleDelete"
-                            :auto-upload="false"
-                            :on-change="handleChangeFiles"
-                            :on-exceed="handleExceed"
-                    >
-                        <el-button type="primary" icon="el-icon-upload2"
-                                   slot="trigger"
-                        >选择文件
-                        </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
-                    &nbsp;&nbsp;大小不能超过10MB
-                  </span>
-                    </el-upload>
-                </el-form-item>
-            </el-form>
-            <div style="margin-left: 20px;">
-                <span style="color:gray;font-size:10px">将会获得：{{ projectPoint }}积分</span>
-                <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
-            </div>
-            <span slot="footer" class="dialog-footer">
-          <el-button @click="cancelResearchAdd">取 消</el-button>
-          <el-button type="primary" @click="addProject">提 交</el-button>
-        </span>
-        </el-dialog>
-        <!-- 添加横向科研项目对话框-->
-        <el-dialog :title="title" :visible.sync="dialogVisible_publication_HorizontalResearchProject" width="50%" center>
-            <el-form
-                    :hide-required-asterisk="true"
-                    :label-position="labelPosition"
-                    label-width="150px"
-                    :rules="rules_HorizonResearchProject"
-                    :model="currentProjectCopy"
-                    ref="currentProjectCopy"
-            >
-                <el-form-item label="项目名称:" prop="name" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentProjectCopy.name"
-                            placeholder="请输入项目名称"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="立项年月:" prop="startDate" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-date-picker
-                            v-model="currentProjectCopy.startDate"
-                            type="month"
-                            value-format="yyyy-MM"
-                            placeholder="立项年月">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="结项年月:" label-width="80px" style="margin-left: 20px;">
-                    <el-date-picker
-                            style="width: 80%"
-                            v-model="currentProjectCopy.endDate"
-                            type="month"
-                            value-format="yyyy-MM"
-                            placeholder="选择结项年月">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item prop="author" label="完成人:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentProjectCopy.author"
-                            placeholder="请输入完成人,如有多个用分号按顺位分隔"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-button ref="selectBtn" size="mini" type="text" @click="initTrees('横向科研项目')">{{ indicatorBtn }}
-                    </el-button>
-                </el-form-item>
-                <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-upload
-                            :file-list="files"
-                            action="#"
-                            :limit="1"
-                            :headers="headers"
-                            :on-remove="handleDelete"
-                            :auto-upload="false"
-                            :on-change="handleChangeFiles"
-                            :on-exceed="handleExceed"
-                    >
-                        <el-button type="primary" icon="el-icon-upload2"
-                                   slot="trigger"
-                        >选择文件
-                        </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
-                    &nbsp;&nbsp;大小不能超过10MB
-                  </span>
-                    </el-upload>
-                </el-form-item>
-            </el-form>
-            <div style="margin-left: 20px;">
-                <span style="color:gray;font-size:10px">将会获得：{{ projectPoint }}积分</span>
-                <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
-            </div>
-            <span slot="footer" class="dialog-footer">
-          <el-button @click="cancelAddProject">取 消</el-button>
-          <el-button type="primary" @click="addHorizontal" v-show="addButtonState">提 交</el-button>
-        </span>
-        </el-dialog>
-        <!-- 添加学科竞赛对话框 -->
-        <el-dialog :title="title" :visible.sync="dialogVisible_publication_AcademicCompetition" width="50%" center>
-            <el-form
-                    :hide-required-asterisk="true"
-                    :label-position="labelPosition"
-                    label-width="150px"
-                    :model="currentCompetitionCopy"
-                    :rules="rules_Competition"
-                    ref="currentCompetitionCopy"
-            >
-                <el-form-item label="竞赛名称:" label-width="80px" style="margin-left: 20px;" prop="name">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentCompetitionCopy.name"
-                            placeholder="请输入学科竞赛名称"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="获奖年月:" label-width="80px" style="margin-left: 20px;" prop="date">
-                    <span class="isMust">*</span>
-                    <el-date-picker
-                            style="width: 80%"
-                            v-model="currentCompetitionCopy.date"
-                            type="month"
-                            @change="changeCompetitionStartDate($event)"
-                            value-format="yyyy-MM"
-                            placeholder="选择获奖年月">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-button size="mini" type="text" @click="initTrees('学科竞赛')">{{ indicatorBtn }}</el-button>
-                </el-form-item>
-                <el-form-item label="竞赛类别:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-select
-                            :disabled="disabledSelectCompetitionType"
-                            v-model="selectCompetitionType"
-                            value-key="id"
-                            filterable
-                            remote
-                            clearable
-                            reserve-keyword
-                            placeholder="请输入学科竞赛类别"
-                            loading-text="搜索中..."
-                            @focus="selectCompetitionTypeMethod"
-                            :loading="searchTypeLoading">
-                        <el-option
-                                v-for="item in selectCompetitionTypeList"
-                                :key="item.id"
-                                :label="item.name"
-                                :value="item">
-                        </el-option>
-                    </el-select>
-                    <el-tooltip class="item" effect="dark" content="如：挑战杯、互联网+等" placement="top-start">
-                        <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
-                    </el-tooltip>
-                </el-form-item>
-                <el-form-item label="获奖人:" label-width="80px" style="margin-left: 20px;" prop="author">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width: 80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentCompetitionCopy.author"
-                            placeholder="请输入获奖人,如有多个用分号分隔"
-                    ></el-input>
-                </el-form-item>
-                <!--                <el-form-item label="竞赛级别:" label-width="80px" style="margin-left: 20px;" prop="competitionLevel">-->
-                <!--                  <span class="isMust">*</span>-->
-                <!--                  <el-select v-model="currentCompetitionCopy.competitionLevel">-->
-                <!--                    <el-option v-for="item in competitionLevelList" :key="item" :value="item" :label="item"></el-option>-->
-                <!--                  </el-select>-->
-                <!--                </el-form-item>-->
-                <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-upload
-                            :file-list="files"
-                            action="#"
-                            :limit="1"
-                            :headers="headers"
-                            :on-remove="handleDelete"
-                            :auto-upload="false"
-                            :on-change="handleChangeFiles"
-                            :on-exceed="handleExceed"
-                    >
-                        <el-button type="primary" icon="el-icon-upload2"
-                                   slot="trigger"
-                        >选择文件
-                        </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
-                    &nbsp;&nbsp;大小不能超过10MB
-                  </span>
-                    </el-upload>
-                </el-form-item>
-            </el-form>
-            <div style="margin-left: 20px;">
-                <span style="color:gray;font-size:10px">将会获得：{{ competitionPoint }}积分</span>
-                <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
-            </div>
-            <span slot="footer" class="dialog-footer">
-          <el-button @click="cancellationAdd">取 消</el-button>
-          <el-button type="primary" @click="addCompetition">提 交</el-button>
-        </span>
-        </el-dialog>
-        <!-- 添加决策咨询对话框 -->
-        <el-dialog :title="title" :visible.sync="dialogVisible_publication_Decision" width="50%" center>
-            <el-form
-                    :hide-required-asterisk="true"
-                    :label-position="labelPosition"
-                    label-width="150px"
-                    :model="currentDecisionCopy"
-                    :rules="rules_Decision"
-                    ref="currentDecisionCopy"
-            >
-                <el-form-item label="决策名称:" label-width="80px" style="margin-left: 20px;" prop="name">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentDecisionCopy.name"
-                            placeholder="请输入决策名称"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="制定年月:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-date-picker
-                            style="width: 80%"
-                            v-model="currentDecisionCopy.date"
-                            @change="changeDecisionStartDate($event)"
-                            type="month"
-                            value-format="yyyy-MM"
-                            placeholder="选择年月">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-button size="mini" type="text" @click="initTrees('决策咨询')">{{ indicatorBtn }}</el-button>
-                </el-form-item>
-                <el-form-item label="决策类别:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-select
-                            :disabled="disabledSelectDecisionType || JSON.stringify(currentIndicator) == '{}'"
-                            v-model="selectDecisionType"
-                            value-key="id"
-                            filterable
-                            remote
-                            clearable
-                            reserve-keyword
-                            loading-text="搜索中..."
-                            :loading="searchTypeLoading"
-                            placeholder="请输入决策咨询类别"
-                            @focus="selectDecisionTypeMethod">
-                        <el-option
-                                v-for="item in selectDecisionTypeList"
-                                :key="item.id"
-                                :label="item.name"
-                                :value="item">
-                        </el-option>
-                    </el-select>
-                    <el-tooltip class="item" effect="dark" content="如：参与撰写完整的项目需求报告、技术设计报告、综述报告等" placement="top-start">
-                        <i class="el-icon-question" style="margin-left: 10px;font-size: 16px"></i>
-                    </el-tooltip>
-                </el-form-item>
-                <el-form-item label="制定人:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            id="input_member"
-                            size="mini"
-                            style="width: 80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentDecisionCopy.author"
-                            placeholder="请输入制定人,如有多个用分号分隔"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-upload
-                            :file-list="files"
-                            action="#"
-                            :limit="1"
-                            :headers="headers"
-                            :on-remove="handleDelete"
-                            :auto-upload="false"
-                            :on-change="handleChangeFiles"
-                            :on-exceed="handleExceed"
-                    >
-                        <el-button type="primary" icon="el-icon-upload2"
-                                   slot="trigger"
-                        >选择文件
-                        </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
-                    &nbsp;&nbsp;大小不能超过10MB
-                  </span>
-                    </el-upload>
-                </el-form-item>
-            </el-form>
-            <div style="margin-left: 20px;">
-                <span style="color:gray;font-size:10px">将会获得：{{ decisionPoint }}积分</span>
-                <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
-            </div>
-            <span slot="footer" class="dialog-footer">
-          <el-button @click="canceldecisionAdd">取 消</el-button>
-          <el-button type="primary" @click="addDecision">提 交</el-button>
-        </span>
-        </el-dialog>
-        <!-- 添加产品应用对话框-->
-        <el-dialog :title="title" :visible.sync="dialogVisible_publication_Product" width="50%" center>
-            <el-form
-                    :hide-required-asterisk="true"
-                    :label-position="labelPosition"
-                    label-width="150px"
-                    :rules="rules_Product"
-                    :model="currentProductCopy"
-                    ref="currentProductCopy"
-            >
-                <el-form-item label="产品名称:" prop="name" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentProductCopy.name"
-                            placeholder="请输入产品名称"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="完成年月:" prop="date" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-date-picker
-                            v-model="currentProductCopy.date"
-                            type="month"
-                            value-format="yyyy-MM"
-                            placeholder="完成年月">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item prop="author" label="完成人:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentProductCopy.author"
-                            placeholder="请输入完成人,如有多个用分号按顺位分隔"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-button ref="selectBtn" size="mini" type="text" @click="initTrees('产品应用')">{{ indicatorBtn }}</el-button>
-                </el-form-item>
-                <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-upload
-                            :file-list="files"
-                            action="#"
-                            :limit="1"
-                            :headers="headers"
-                            :on-remove="handleDelete"
-                            :auto-upload="false"
-                            :on-change="handleChangeFiles"
-                            :on-exceed="handleExceed"
-                    >
-                        <el-button type="primary" icon="el-icon-upload2"
-                                   slot="trigger"
-                        >选择文件
-                        </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
-                    &nbsp;&nbsp;大小不能超过10MB
-                  </span>
-                    </el-upload>
-                </el-form-item>
-            </el-form>
-            <div style="margin-left: 20px;">
-                <span style="color:gray;font-size:10px">将会获得：{{ productPoint }}积分</span>
-                <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
-            </div>
-            <span slot="footer" class="dialog-footer">
-          <el-button @click="cancelAddProduct">取 消</el-button>
-          <el-button type="primary" @click="addAward" v-show="addButtonState">提 交</el-button>
-        </span>
-        </el-dialog>
-        <!-- 添加制定标准对话框-->
-        <el-dialog :title="title" :visible.sync="dialogVisible_publication_Standard" width="50%" center>
-            <el-form
-                    :hide-required-asterisk="true"
-                    :label-position="labelPosition"
-                    label-width="150px"
-                    :rules="rules_standard"
-                    :model="currentStandardCopy"
-                    ref="currentStandardCopy"
-            >
-                <el-form-item label="标准名称:" prop="name" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentStandardCopy.name"
-                            placeholder="请输入标准名称"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="制定年月:" prop="date" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-date-picker
-                            v-model="currentStandardCopy.date"
-                            type="month"
-                            value-format="yyyy-MM"
-                            placeholder="制定年月">
-                    </el-date-picker>
-                </el-form-item>
-                <el-form-item prop="author" label="制定人:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="currentStandardCopy.author"
-                            placeholder="请输入制定人,如有多个用分号按顺位分隔"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-button ref="selectBtn" size="mini" type="text" @click="initTrees('制定标准')">{{ indicatorBtn }}</el-button>
-                </el-form-item>
-                <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-upload
-                            :file-list="files"
-                            action="#"
-                            :limit="1"
-                            :headers="headers"
-                            :on-remove="handleDelete"
-                            :auto-upload="false"
-                            :on-change="handleChangeFiles"
-                            :on-exceed="handleExceed"
-                    >
-                        <el-button type="primary" icon="el-icon-upload2"
-                                   slot="trigger"
-                        >选择文件
-                        </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
-                    &nbsp;&nbsp;大小不能超过10MB
-                  </span>
-                    </el-upload>
-                </el-form-item>
-            </el-form>
-            <div style="margin-left: 20px;">
-                <span style="color:gray;font-size:10px">将会获得：{{ standardPoint }}积分</span>
-                <span style="color:gray;font-size:10px;margin-left: 8px">{{ zeroPointReason }}</span>
-            </div>
-            <span slot="footer" class="dialog-footer">
-          <el-button @click="cancelAddStandard">取 消</el-button>
-          <el-button type="primary" @click="addStandard">提 交</el-button>
-        </span>
-        </el-dialog>
-
-
-        <!-- 添加或修改期刊对话框  -->
-        <el-dialog :title="title_publication" :visible.sync="dialogVisible_publication" @close="cannotAddPublish=true"
-                   width="50%" center>
-            <el-form
-                    :hide-required-asterisk="true"
-                    :label-position="labelPosition"
-                    label-width="180px"
-                    :model="publish"
-                    :rules="rulesPublication"
-                    ref="publicationForm"
-            >
-                <el-form-item label="期刊全称:" prop="publicationName" label-width="90px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="publish.publicationName"
-                            placeholder="请输入期刊全称"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="刊物简称:" prop="publicationAbbr" label-width="90px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="publish.publicationAbbr"
-                            placeholder="请输入刊物简称"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="出版社:" prop="publisherName" label-width="90px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="publish.publisherName"
-                            placeholder="请输入出版社"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="网址:" prop="publicationUrl" label-width="90px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="publish.publicationUrl"
-                            placeholder="请输入网址"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="录入年份:" prop="year" label-width="90px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-input
-                            size="mini"
-                            style="width:80%"
-                            prefix-icon="el-icon-edit"
-                            v-model="publish.year"
-                            placeholder="请输入录入年份"
-                    ></el-input>
-                </el-form-item>
-                <el-form-item label="指标点分类:" prop="indicatorName" label-width="90px" style="margin-left: 20px;">
-                    <span class="isMust">*</span>
-                    <el-button ref="selectBtn" size="mini" type="text" @click="showTreeDialog01">{{ buttonText }}</el-button>
-                </el-form-item>
-                <el-form-item label="证明材料:" prop="publicationProofUrl" label-width="90px" style="margin-left: 20px;">
-                    <el-upload
-                            :file-list="filesPublication"
-                            action="#"
-                            :limit="1"
-                            :headers="headers"
-                            :on-remove="handleDeletePublication"
-                            :auto-upload="false"
-                            :on-change="handleChangeFilesPublication"
-                            :on-exceed="handleExceed"
-                    >
-                        <el-button type="primary" icon="el-icon-upload2"
-                                   slot="trigger"
-                        >选择文件
-                        </el-button>&nbsp;&nbsp;&nbsp;&nbsp;
-                        <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
-                    &nbsp;&nbsp;大小不能超过10MB
-                  </span>
-                    </el-upload>
-                </el-form-item>
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible_publication = false;dialogVisible=true">取 消</el-button>
-          <el-button type="primary" @click="doAddPublish" :disabled="cannotAddPublish">提 交</el-button>
-        </span>
-        </el-dialog>
-
-        <el-dialog title="" center :visible.sync="showTreeDialog" width="60%">
-            <div slot="title">
-                <div>选择指标点分类</div>
-                <div style="font-size: 14px;margin-top: 10px">以下仅显示本类型的指标点</div>
-            </div>
-            <span class="el-tree-node">
-          <el-tree
-                  :data="indicatorData"
-                  :props="defaultProps"
-                  @node-click="handleNodeClickPatent"
-                  :expand-on-click-node="false"
-                  :highlight-current="true"
-                  node-key="id"
-                  :default-expanded-keys="defaultExpandedKeys"
-          ></el-tree>
-        </span>
-        </el-dialog>
-
-        <el-dialog title="选择指标点分类" center :visible.sync="showTree" width="60%">
-        <span class="el-tree-node">
-          <el-tree
-                  :data="data"
-                  :props="defaultProps"
-                  @node-click="handleNodeClick"
-                  :expand-on-click-node="false"
-                  :highlight-current="true"
-                  default-expand-all
-          ></el-tree>
-        </span>
-        </el-dialog>
-
     </div>
 </template>
 <script>
@@ -2708,7 +1543,7 @@
                 dialogVisible_showInfo_AcademicCompetition: false,
                 // 决策咨询查看详情按钮
                 dialogVisible_showInfo_Decision: false,
-                // 产品应用查看详情按钮
+                // 项目文档查看详情按钮
                 dialogVisible_showInfo_Product: false,
                 // 制定标准查看详情按钮
                 dialogVisible_showInfo_Standard: false,
@@ -2729,7 +1564,7 @@
                 dialogVisible_publication_AcademicCompetition: false,
                 // 决策咨询编辑显示
                 dialogVisible_publication_Decision: false,
-                // 产品应用编辑显示
+                // 项目文档编辑显示
                 dialogVisible_publication_Product: false,
                 // 制定标准编辑显示
                 dialogVisible_publication_Standard: false,
@@ -2866,7 +1701,7 @@
                     decisionTypeId:'',
                     decisionType: {}
                 },
-                // 产品应用
+                // 项目文档
                 currentProduct: {
                     id: '',
                     name: '',
@@ -2963,7 +1798,7 @@
                 selectDecisionType: {},
                 selectDecisionTypeList: [],
                 decisionPoint: 0,
-                //产品应用编辑数据
+                //项目文档编辑数据
                 currentProductCopy: {},
                 productPoint: 0,
                 //制定标准编辑数据
@@ -3017,10 +1852,10 @@
                 rules_Decision: {
                     name: [{required: true, message: "请输入决策名称", trigger: "blur"}]
                 },
-                //产品应用编辑表单验证
+                //项目文档编辑表单验证
                 rules_Product: {
-                    name: [{required: true, message: "请输入产品名称", trigger: "blur"}],
-                    author: [{required: true, message: "请输入产品作者", trigger: "blur"}],
+                    name: [{required: true, message: "请输入文档名称", trigger: "blur"}],
+                    author: [{required: true, message: "请输入文档作者", trigger: "blur"}],
                     date: [{required: true, message: "请选择完成时间", trigger: "blur"}]
                 },
                 //制定标准编辑表单验证
@@ -3132,7 +1967,7 @@
                             // 直接调用 rolePass
                             this.rolePass4(state);
                         }
-                        else if ("产品应用" == this.emp.type) {
+                        else if ("撰写项目文档" == this.emp.type) {
                             // 直接调用 rolePass
                             this.rolePass5(state);
                         }
@@ -3144,7 +1979,7 @@
                             // 直接调用 rolePass
                             this.rolePass6(state);
                         }
-                        else if ("横向科研项目" == this.emp.type) {
+                        else if ("项目开发" == this.emp.type) {
                             // 直接调用 rolePass
                             this.rolePass20(state);
                         }
@@ -3171,7 +2006,7 @@
                     // 直接调用 rolePass
                     this.rolePass4(state);
                 }
-                else if ("产品应用" == this.currentType) {
+                else if ("撰写项目文档" == this.currentType) {
                     // 直接调用 rolePass
                     this.rolePass5(state);
                 }
@@ -3183,7 +2018,7 @@
                     // 直接调用 rolePass
                     this.rolePass6(state);
                 }
-                else if ("横向科研项目" == this.currentType) {
+                else if ("项目开发" == this.currentType) {
                     // 直接调用 rolePass
                     this.rolePass20(state);
                 }
@@ -3312,7 +2147,7 @@
                             type: 'success',
                             message: '操作成功'
                         })
-                        this.doAddOper(state, this.reason, this.currentProgram.id,'横向科研项目');
+                        this.doAddOper(state, this.reason, this.currentProgram.id,'项目开发');
                         let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
                         this.$store.dispatch('changePendingMessageange', roleParam);
                     }
@@ -3352,7 +2187,7 @@
                             type: 'success',
                             message: '操作成功'
                         })
-                        this.doAddOper(state, this.reason, this.currentProduct.id,'产品应用');
+                        this.doAddOper(state, this.reason, this.currentProduct.id,'撰写项目文档');
                         let roleParam = this.role.indexOf('admin') >= 0 ? 'admin' : this.role.indexOf('teacher') >= 0 ? 'teacher' : '';
                         this.$store.dispatch('changePendingMessageange', roleParam);
                     }
@@ -3596,7 +2431,7 @@
             deleteHorizontalProjectOperationList(data) {
                 const params = {}
                 params.prodId = data.id;
-                params.prodType = '横向科研项目'
+                params.prodType = '项目开发'
                 return new Promise((resolve, reject) => {
                     this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
                         resolve('success');
@@ -3646,7 +2481,7 @@
                 })
             },
 
-            // 产品应用
+            // 项目文档
             deleteProductEmpMethod(data) {
                 return new Promise((resolve, reject) => {
                         this.deleteRequest("/product/basic/remove/" + data.id).then((resp) => {
@@ -3659,7 +2494,7 @@
             deleteProductOperationList(data) {
                 const params = {}
                 params.prodId = data.id;
-                params.prodType = '产品应用'
+                params.prodType = '撰写项目文档'
                 return new Promise((resolve, reject) => {
                     this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
                         resolve('success');
@@ -4540,10 +3375,10 @@
                     '科研获奖': 'dialogVisible_showInfo_ResearchAward',
                     '学术专著和教材': 'dialogVisible_showInfo_AcademicMonograph',
                     '纵向科研项目': 'dialogVisible_showInfo_ResearchProject',
-                    '横向科研项目': 'dialogVisible_showInfo_HorizontalResearchProject',
+                    '项目开发': 'dialogVisible_showInfo_HorizontalResearchProject',
                     '学科竞赛': 'dialogVisible_showInfo_AcademicCompetition',
                     '决策咨询': 'dialogVisible_showInfo_Decision',
-                    '产品应用': 'dialogVisible_showInfo_Product',
+                    '撰写项目文档': 'dialogVisible_showInfo_Product',
                     '制定标准': 'dialogVisible_showInfo_Standard'
                 }
                 const dataMap = {
@@ -4552,10 +3387,10 @@
                     '科研获奖': 'currentAward',
                     '学术专著和教材': 'currentMonograph',
                     '纵向科研项目': 'currentProject',
-                    '横向科研项目': 'currentProgram',
+                    '项目开发': 'currentProgram',
                     '学科竞赛': 'currentCompetition',
                     '决策咨询': 'currentDecision',
-                    '产品应用': 'currentProduct',
+                    '撰写项目文档': 'currentProduct',
                     '制定标准': 'currentStandard'
                 }
                 const urlMap = {
@@ -4564,10 +3399,10 @@
                     '科研获奖': '/award',
                     '学术专著和教材': '/monograph',
                     '纵向科研项目': '/project',
-                    '横向科研项目': '/programRecord',
+                    '项目开发': '/programRecord',
                     '学科竞赛': '/competition',
                     '决策咨询': '/decision',
-                    '产品应用': '/product',
+                    '撰写项目文档': '/product',
                     '制定标准': '/standard'
                 }
                 if (typeMap[data.category]) {
@@ -4631,7 +3466,7 @@
                         this.operList = resp.obj
                     }
                 });
-                if(data.category==='横向科研项目')
+                if(data.category==='项目开发')
                     return;
                 this.isPdf = this.isImage = false; //初始化
                 this.previewUrl = '';
@@ -4678,7 +3513,7 @@
                 else if (type == '8'){//决策咨询
                     this.downloadFileMethod(this.currentDecision);
                 }
-                else if (type == '9'){//产品应用
+                else if (type == '9'){//项目文档
                     this.downloadFileMethod(this.currentProduct);
                 }
                 else if (type == '10'){//指定标准
@@ -4809,7 +3644,7 @@
                             this.isAuthorIncludeSelf = true;
                         }
                     });
-                } else if (data.category === '横向科研项目') {
+                } else if (data.category === '项目开发') {
                     this.dialogVisible_publication_HorizontalResearchProject = true;
                     this.title = "编辑项目信息";
                     this.getRequest("/project/basic/studentIDInfo?studentID=" + this.user.id + "&id=" + data.id + "&type=1").then((resp) => {
@@ -4875,9 +3710,9 @@
                             this.urlFile = this.currentDecisionCopy.url;
                         }
                     });
-                } else if (data.category === '产品应用') {
+                } else if (data.category === '撰写项目文档') {
                     this.dialogVisible_publication_Product = true;
-                    this.title = "编辑产品信息";
+                    this.title = "编辑项目文档信息";
                     this.getRequest("/product/basic/studentIDInfo?studentID=" + this.user.id + "&id=" + data.id).then((resp) => {
                         if (resp) {
                             this.currentSelectedIndicator = resp.data.indicator;
@@ -5252,7 +4087,7 @@
                             this.$message.error('删除失败!');
                         })
                     })
-                } else if (data.category === '横向科研项目') {
+                } else if (data.category === '项目开发') {
                     this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?").then(() => {
                         Promise.all([this.deleteHorizontalProjectEmpMethod(data), this.deleteHorizontalProjectOperationList(data)]).then(res => {
                             this.$message.success('删除成功!');
@@ -5279,7 +4114,7 @@
                             this.$message.error('删除失败!');
                         })
                     })
-                } else if (data.category === '产品应用') {
+                } else if (data.category === '撰写项目文档') {
                     this.$confirm("此操作将永久删除【" + data.name + "】, 是否继续?").then(() => {
                         Promise.all([this.deleteProductEmpMethod(data), this.deleteProductOperationList(data)]).then(res => {
                             this.$message.success('删除成功!');

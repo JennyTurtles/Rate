@@ -63,7 +63,7 @@ public interface ProgramRecordMapper {
 
     Integer deleteById(Long id);
 
-    @Select("SELECT id FROM programresults WHERE student_id = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
+    @Select("SELECT id FROM programresults WHERE student_id = #{stuID} AND point = 3 AND state = 'adm_pass' LIMIT 1")
     public Integer checkScore(int stuID);
 
     @Update("UPDATE programresults SET state = #{state},have_score = #{valid} WHERE id = #{ID}")

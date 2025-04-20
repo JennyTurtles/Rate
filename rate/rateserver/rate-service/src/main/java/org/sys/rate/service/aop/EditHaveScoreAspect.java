@@ -52,13 +52,13 @@ public class EditHaveScoreAspect {
         // 2分的成果，且已发表过同类的成果，have_score设置为0
         Integer studentID = production.getStudentId();
         Integer point = production.getPoint();
-        if(point.equals(2) && productionMapper.checkScore(table,studentID) != null){
+        if(point.equals(3) && productionMapper.checkScore(table,studentID) != null){
             productionMapper.editHaveScore(table, state,ID, 0);
             return;
         }
 
         // 其他的成果，have_score设置为1，更新研究生表的积分
-//        productionMapper.editHaveScore(table, state,ID, 1);
+        productionMapper.editHaveScore(table, state,ID, 1);
         graduateStudentMapper.updateScore(Long.valueOf(studentID), point.longValue());
     }
 

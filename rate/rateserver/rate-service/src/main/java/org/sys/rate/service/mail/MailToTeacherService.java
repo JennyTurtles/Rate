@@ -54,12 +54,12 @@ public class MailToTeacherService {
         typeMap.put("学术论文", 1);
         typeMap.put("授权专利", 2);
         typeMap.put("科研获奖", 3);
-        typeMap.put("横向科研项目", 4);
+        typeMap.put("项目开发", 4);
         typeMap.put("纵向科研项目", 10);
         typeMap.put("制定标准", 5);
         typeMap.put("决策咨询", 6);
         typeMap.put("学术专著和教材", 7);
-        typeMap.put("产品应用", 8);
+        typeMap.put("撰写项目文档", 8);
         typeMap.put("学科竞赛", 9);
     }
 
@@ -75,89 +75,88 @@ public class MailToTeacherService {
 
     // 当提交或者修改成功，会调用下面的代码
     public <T extends Production> void sendTeaCheckMail(T production, String type, String addOrUpdate) throws FileNotFoundException {
-        File file = new File(production.getUrl());
-        String isFileEmpty = "";
-
-        if (!file.exists()) {
-            isFileEmpty = "无，可以驳回后请学生重新上传";
-        }
-        SendMailContent sendMailContent = sendMailContentService.getSendMailContent(production.getStudentId());
-        if (sendMailContent == null) {
-            return;
-        }
-
-        Mail mail = mailService.handleNullPointerException();
-        if (mail == null) {
-            return;
-        }
-
-        if (StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
-            EmailErrorLog emailErrorLog = new EmailErrorLog();
-            emailErrorLog.setErrorType("给导师发件错误");
-            emailErrorLog.setErrorDescription("对应的导师没有邮箱地址。系统邮箱：" + mail.getEmailAddress() + "。成果信息：" + production.toString());
-            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
-            emailErrorLogService.addEmailErrorLog(emailErrorLog);
-            return;
-        }
-
-        String subject = "请在教学系统中审核" + sendMailContent.getStudentName() + "的" + type + "成果，成果编号：" + production.getId();
-
-        StringBuilder contentBuilder = new StringBuilder();
-        contentBuilder.append("尊敬的").append(sendMailContent.getTeacherName()).append("老师：<br>");
-        contentBuilder.append("您好！<br>");
-        contentBuilder.append("<b>您的学生").append(sendMailContent.getStudentName()).append("已经在系统中" + addOrUpdate + "成果申报。</b><br>");
-        contentBuilder.append("成果标题：").append(production.getName()).append("<br>");
-
-        switch (typeMap.get(type)) {
-            case 2:
-                contentBuilder.append("状态年月：").append(sdf.format(production.getDate())).append("<br>");
-                contentBuilder.append("参与人：").append(production.getAuthor()).append("<br>");
-                break;
-            case 3:
-            case 9:
-                contentBuilder.append("获奖年月：").append(sdf.format(production.getDate())).append("<br>");
-                contentBuilder.append("获奖人：").append(production.getAuthor()).append("<br>");
-                break;
-            case 4:
-            case 10:
-                contentBuilder.append("立项时间：").append(sdf.format(production.getStartDate())).append("<br>");
-                contentBuilder.append("参与人：").append(production.getAuthor()).append("<br>");
-                break;
-            case 5:
-            case 6:
-                contentBuilder.append("制定年月：").append(sdf.format(production.getDate())).append("<br>");
-                contentBuilder.append("制定人：").append(production.getAuthor()).append("<br>");
-                break;
-            case 7:
-                contentBuilder.append("完成年月：").append(sdf.format(production.getDate())).append("<br>");
-                contentBuilder.append("完成人：").append(production.getAuthor()).append("<br>");
-                contentBuilder.append("出版社：").append(production.getPublisher()).append("<br>");
-                break;
-            case 8:
-                contentBuilder.append("完成年月：").append(sdf.format(production.getDate())).append("<br>");
-                contentBuilder.append("完成人：").append(production.getAuthor()).append("<br>");
-                break;
-
-            default:
-                // 默认情况
-                break;
-        }
-        contentBuilder.append("提交时间：").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("<br>");
-        contentBuilder.append("证明材料：").append(StringUtil.isEmpty(isFileEmpty) ? "请查看邮件附件" : isFileEmpty).append("<br><br>");
-        contentBuilder.append("<b>您可以登录<a href=\"http://106.15.36.190:8081/#/teacher\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
-        contentBuilder.append("如果回复本邮件，方式如下：<br>");
-        contentBuilder.append("(1) 若审核<b>通过</b>该成果，请在邮件中<span style=\"color:red;\">仅保留</span>以下三行并回复。<br>");
-        contentBuilder.append("成果类型：").append(type).append("<br>");
-        contentBuilder.append("成果编号：").append(production.getId()).append("<br>");
-        contentBuilder.append("审核结果：").append("通过").append("<br>");
-        contentBuilder.append("(2) 若<b>驳回</b>该成果，请在邮件中<span style=\"color:red;\">仅保留</span>以下四行并回复。<br>");
-        contentBuilder.append("成果类型：").append(type).append("<br>");
-        contentBuilder.append("成果编号：").append(production.getId()).append("<br>");
-        contentBuilder.append("审核结果：").append("驳回").append("<br>");
-        contentBuilder.append("审核理由：<span style=\"color:red;\">(请填写理由)</span><br><br>");
-        contentBuilder.append(this.systemMessage);
-        sendMails.sendMailAsync(sendMailContent.getTeacherEmail(), subject, contentBuilder.toString(), file);
-
+//        File file = new File(production.getUrl());
+//        String isFileEmpty = "";
+//
+//        if (!file.exists()) {
+//            isFileEmpty = "无，可以驳回后请学生重新上传";
+//        }
+//        SendMailContent sendMailContent = sendMailContentService.getSendMailContent(production.getStudentId());
+//        if (sendMailContent == null) {
+//            return;
+//        }
+//
+//        Mail mail = mailService.handleNullPointerException();
+//        if (mail == null) {
+//            return;
+//        }
+//
+//        if (StrUtil.isEmpty(sendMailContent.getTeacherEmail())) {
+//            EmailErrorLog emailErrorLog = new EmailErrorLog();
+//            emailErrorLog.setErrorType("给导师发件错误");
+//            emailErrorLog.setErrorDescription("对应的导师没有邮箱地址。系统邮箱：" + mail.getEmailAddress() + "。成果信息：" + production.toString());
+//            emailErrorLog.setTimestamp(new Timestamp(System.currentTimeMillis()));
+//            emailErrorLogService.addEmailErrorLog(emailErrorLog);
+//            return;
+//        }
+//
+//        String subject = "请在教学系统中审核" + sendMailContent.getStudentName() + "的" + type + "成果，成果编号：" + production.getId();
+//
+//        StringBuilder contentBuilder = new StringBuilder();
+//        contentBuilder.append("尊敬的").append(sendMailContent.getTeacherName()).append("老师：<br>");
+//        contentBuilder.append("您好！<br>");
+//        contentBuilder.append("<b>您的学生").append(sendMailContent.getStudentName()).append("已经在系统中" + addOrUpdate + "成果申报。</b><br>");
+//        contentBuilder.append("成果标题：").append(production.getName()).append("<br>");
+//
+//        switch (typeMap.get(type)) {
+//            case 2:
+//                contentBuilder.append("状态年月：").append(sdf.format(production.getDate())).append("<br>");
+//                contentBuilder.append("参与人：").append(production.getAuthor()).append("<br>");
+//                break;
+//            case 3:
+//            case 9:
+//                contentBuilder.append("获奖年月：").append(sdf.format(production.getDate())).append("<br>");
+//                contentBuilder.append("获奖人：").append(production.getAuthor()).append("<br>");
+//                break;
+//            case 4:
+//            case 10:
+//                contentBuilder.append("立项时间：").append(sdf.format(production.getStartDate())).append("<br>");
+//                contentBuilder.append("参与人：").append(production.getAuthor()).append("<br>");
+//                break;
+//            case 5:
+//            case 6:
+//                contentBuilder.append("制定年月：").append(sdf.format(production.getDate())).append("<br>");
+//                contentBuilder.append("制定人：").append(production.getAuthor()).append("<br>");
+//                break;
+//            case 7:
+//                contentBuilder.append("完成年月：").append(sdf.format(production.getDate())).append("<br>");
+//                contentBuilder.append("完成人：").append(production.getAuthor()).append("<br>");
+//                contentBuilder.append("出版社：").append(production.getPublisher()).append("<br>");
+//                break;
+//            case 8:
+//                contentBuilder.append("完成年月：").append(sdf.format(production.getDate())).append("<br>");
+//                contentBuilder.append("完成人：").append(production.getAuthor()).append("<br>");
+//                break;
+//
+//            default:
+//                // 默认情况
+//                break;
+//        }
+//        contentBuilder.append("提交时间：").append(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("<br>");
+//        contentBuilder.append("证明材料：").append(StringUtil.isEmpty(isFileEmpty) ? "请查看邮件附件" : isFileEmpty).append("<br><br>");
+//        contentBuilder.append("<b>您可以登录<a href=\"http://106.15.36.190:8081/#/teacher\" target=\"_blank\">教学系统</a>进行审核，也可以直接回复本邮件完成审核。</b><br>");
+//        contentBuilder.append("如果回复本邮件，方式如下：<br>");
+//        contentBuilder.append("(1) 若审核<b>通过</b>该成果，请在邮件中<span style=\"color:red;\">仅保留</span>以下三行并回复。<br>");
+//        contentBuilder.append("成果类型：").append(type).append("<br>");
+//        contentBuilder.append("成果编号：").append(production.getId()).append("<br>");
+//        contentBuilder.append("审核结果：").append("通过").append("<br>");
+//        contentBuilder.append("(2) 若<b>驳回</b>该成果，请在邮件中<span style=\"color:red;\">仅保留</span>以下四行并回复。<br>");
+//        contentBuilder.append("成果类型：").append(type).append("<br>");
+//        contentBuilder.append("成果编号：").append(production.getId()).append("<br>");
+//        contentBuilder.append("审核结果：").append("驳回").append("<br>");
+//        contentBuilder.append("审核理由：<span style=\"color:red;\">(请填写理由)</span><br><br>");
+//        contentBuilder.append(this.systemMessage);
+//        sendMails.sendMailAsync(sendMailContent.getTeacherEmail(), subject, contentBuilder.toString(), file);
     }
 
     // !导师回信审核有较为普通的错误，会经过这个代码

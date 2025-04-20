@@ -107,16 +107,16 @@ public class XinProjectService {
                 int i = xinProjectMapper.updateAwardScore(1, mid);
             } else if (type.equals("纵向科研项目")) {
                 int i = xinProjectMapper.updateProjectScore(1, mid);
-            } else if (type.equals("横向科研项目")) {
+            } else if (type.equals("项目开发")) {
                 int i = xinProjectMapper.updateProgramScore(1, mid);
             } else if (type.equals("学科竞赛")) {
                 int i = xinProjectMapper.updateCompetitionScore(1, mid);
             } else if (type.equals("决策咨询")) {
                 int i = xinProjectMapper.updateDecisionScore(1, mid);
             } else if (type.equals("指定标准")) {
-                int i = xinProjectMapper.updateApplicationScore(1, mid);
-            } else if (type.equals("产品应用")) {
                 int i = xinProjectMapper.updateStandardScore(1, mid);
+            } else if (type.equals("撰写项目文档")) {
+                int i = xinProjectMapper.updateApplicationScore(1, mid);
             }
             xinProjectMapper.addStudentScore(xinProject.getPoint(),xinProject.getSid());
         } else if (pointtype == 2) {
@@ -130,16 +130,16 @@ public class XinProjectService {
                 int i = xinProjectMapper.updateAwardScore(0, mid);
             } else if (type.equals("纵向科研项目")) {
                 int i = xinProjectMapper.updateProjectScore(0, mid);
-            } else if (type.equals("横向科研项目")) {
+            } else if (type.equals("项目开发")) {
                 int i = xinProjectMapper.updateProgramScore(0, mid);
             } else if (type.equals("学科竞赛")) {
                 int i = xinProjectMapper.updateCompetitionScore(0, mid);
             } else if (type.equals("决策咨询")) {
                 int i = xinProjectMapper.updateDecisionScore(0, mid);
             } else if (type.equals("指定标准")) {
-                int i = xinProjectMapper.updateApplicationScore(0, mid);
-            } else if (type.equals("产品应用")) {
                 int i = xinProjectMapper.updateStandardScore(0, mid);
+            } else if (type.equals("撰写项目文档")) {
+                int i = xinProjectMapper.updateApplicationScore(0, mid);
             }
             xinProjectMapper.removeStudentScore(xinProject.getPoint(),xinProject.getSid());
         }

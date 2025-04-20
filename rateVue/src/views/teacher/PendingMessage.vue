@@ -24,11 +24,11 @@ export default {
     return {
       typeMap: {
         'MAIN': {
-          name: '授权专利',
+          name: '待审核',
           path: '/teacher/tProject1'
         },
         'adminMain': {
-          name: '授权专利',
+          name: '待审核',
           path: '/admin/Examine'
         },
         'paper': {

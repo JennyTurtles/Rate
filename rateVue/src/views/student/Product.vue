@@ -11,14 +11,14 @@
           :model="currentProductCopy"
           ref="currentProductCopy"
       >
-        <el-form-item label="产品名称:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="文档名称:" prop="name" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
               v-model="currentProductCopy.name"
-              placeholder="请输入产品名称"
+              placeholder="请输入文档名称"
           ></el-input>
         </el-form-item>
         <el-form-item label="完成年月:" prop="date" label-width="80px" style="margin-left: 20px;">
@@ -100,11 +100,11 @@
           :model="currentProduct"
           style="margin-left: 20px">
 
-        <el-form-item label="产品名称:" prop="name">
+        <el-form-item label="项目文档名称:" prop="name">
           <span>{{ currentProduct.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="受理日期:" prop="date">
+        <el-form-item label="完成日期:" prop="date">
           <span>{{ currentProduct.date }}</span
           ><br />
         </el-form-item>
@@ -257,7 +257,7 @@ export default {
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '产品应用',
+        prodType: '撰写项目文档',
         operationName: '',
         state: '',
         remark: '',
@@ -279,8 +279,8 @@ export default {
         indicatorId:''
       },
       rules: {
-        name: [{ required: true, message: "请输入产品名称", trigger: "blur" }],
-        author: [{ required: true, message: "请输入产品作者", trigger: "blur" }],
+        name: [{ required: true, message: "请输入文档名称", trigger: "blur" }],
+        author: [{ required: true, message: "请输入文档作者", trigger: "blur" }],
         date: [{ required: true, message: "请选择完成时间", trigger: "blur" }]
       }
     };
@@ -330,7 +330,7 @@ export default {
       }
     },
     initTree() {
-      this.getRequest("/indicator/getAllByType?type=产品应用").then( resp => {
+      this.getRequest("/indicator/getAllByType?type=撰写项目文档").then( resp => {
         this.showTreeDialog = true;
         this.defaultExpandedKeys = [];
         if (resp) {
@@ -453,7 +453,7 @@ export default {
     showEditEmpView(data) {
       this.currentSelectedIndicator = data.indicator;
       this.dialogVisible = true;
-      this.title = "编辑产品信息";
+      this.title = "编辑项目文档信息";
       this.currentProductCopy = JSON.parse(JSON.stringify(data));
       this.files = [
         {
@@ -480,7 +480,7 @@ export default {
       } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
         this.isImage = true;
       }
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=产品应用').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=撰写项目文档').then((resp) => {
         this.loading = false;
         if (resp) {
           this.operList = resp.obj
@@ -509,7 +509,7 @@ export default {
     deleteOperationList(data) {
       const params = {}
       params.prodId = data.id;
-      params.prodType = '产品应用'
+      params.prodType = '撰写项目文档'
       return new Promise((resolve, reject) => {
         this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
           resolve('success');
@@ -574,16 +574,28 @@ export default {
       } else {
         this.$refs["currentProductCopy"].validate((valid) => {
           if (valid) {
-            params.studentId = this.user.id
-            this.postRequest1("/product/basic/add", params).then(
-                (resp) => {
-                  if (resp) {
-                    this.$message.success('添加成功！')
-                    this.dialogVisible = false;
-                    this.doAddOper("commit", resp.data);
-                  }
-                }
-            );
+            const url1 = '/product/basic/getCountByStuID?id=' + this.user.id;
+            this.getRequest(url1)
+            .then((resp) => {
+              console.log(resp)
+              if (resp.total !== 0) {
+                this.$alert('已申报过撰写项目文档成果，此类别不允许多次申报！', '提示', {
+                  confirmButtonText: '确定',
+                });
+              }else{
+                params.studentId = this.user.id
+                this.postRequest1("/product/basic/add", params).then(
+                    (resp) => {
+                      if (resp) {
+                        this.$message.success('添加成功！')
+                        this.dialogVisible = false;
+                        this.doAddOper("commit", resp.data);
+                      }
+                    }
+                );
+              }
+            })
+           
           }
         });
       }
@@ -591,7 +603,7 @@ export default {
     async doAddOper(state, productID) {
       this.oper.state = state
       this.oper.prodId = productID
-      this.oper.operationName = "提交产品"
+      this.oper.operationName = "提交项目文档"
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper)
       await this.initEmps();
@@ -599,7 +611,7 @@ export default {
     showAddEmpView() {//点击添加科研项目按钮
       this.addButtonState = true;
       this.isAuthorIncludeSelf = false;
-      this.title = "添加产品";
+      this.title = "添加项目文档";
       this.dialogVisible = true;
       this.urlFile = '';
       this.files = [];

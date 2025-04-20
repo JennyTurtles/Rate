@@ -65,12 +65,15 @@
             <if test="workHours != null">work_hours,</if>
             <if test="author != null">author,</if>
             <if test="state != null">state,</if>
+            indicator_id,
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="studentId != null">#{studentId},</if>
             <if test="workHours != null">#{workHours},</if>
             <if test="author != null">#{author},</if>
-            <if test="state != null">#{state},</if>        </trim>
+            <if test="state != null">#{state},</if>
+            251
+        </trim>
     </insert>
 
     <update id="updateResult" parameterType="org.sys.rate.model.ProgramResult">
@@ -100,13 +103,13 @@
         JOIN (
         SELECT prod_id,MAX(i_oper.date) max_date
         FROM i_oper
-        WHERE prod_type = '横向科研项目'
+        WHERE prod_type = '项目开发'
         GROUP BY prod_id
         ) i ON book.id = i.prod_id
         JOIN (
         SELECT prod_id,remark,`date`
         FROM i_oper
-        WHERE prod_type = '横向科研项目'
+        WHERE prod_type = '项目开发'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
         JOIN indicator i ON book.indicator_id = i.id
         JOIN student s ON s.ID = book.student_id

@@ -205,4 +205,10 @@ public class PatentController {
         Integer res = patentMapper.editPoint(patent);
         return new JsonResult(res);
     }
+
+    @GetMapping("/getCountByStuIDIndicatorID")
+    public JsonResult<Integer> getDtaByStuID(int id,int indicatorId) {
+        int res = patentMapper.getDtaByStuID(id,indicatorId);
+        return new JsonResult<>(res);
+    }
 }
