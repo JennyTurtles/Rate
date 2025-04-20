@@ -280,8 +280,6 @@ export default {
       })
           .then((res1) => {
             // 检查返回值是否包含 code: 500
-
-
             if (res1.length === 0) { // 数据完整，没有空数据
               url = '/doctorM/basic/importDoctors?institutionID=' + this.user.institutionID;
               axios.post(url, fd, {

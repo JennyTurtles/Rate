@@ -1,21 +1,10 @@
 package org.sys.rate.controller.admin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-
-import com.csvreader.CsvWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.sys.rate.config.CSVReader;
 import org.sys.rate.mapper.ActivitiesMapper;
 import org.sys.rate.mapper.GroupsMapper;
 import org.sys.rate.mapper.ParticipatesMapper;
@@ -24,14 +13,13 @@ import org.sys.rate.service.admin.*;
 import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.POIUtils;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @RestController
@@ -285,9 +273,10 @@ public class ParticipatesBasicController {
     private GraduateStudentService graduateStudentService;
 
     @PostMapping("/checkGraduate")
-    public List<String> checkGraduate(@RequestParam Integer groupid,MultipartFile file){
+    public Msg checkGraduate(@RequestParam Integer groupid,MultipartFile file){
         int index=1;
-        return graduateStudentService.checkGraduateStudent(file,index);
+        Msg msg =  graduateStudentService.checkGraduateStudent(file,index,groupid);
+        return msg;
     }
     @Resource
     private DoctorService  doctorservice;
