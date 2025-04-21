@@ -69,8 +69,8 @@
 <!--        <el-table-column prop="point1" label="达标" align="center" width="70px"></el-table-column>-->
         <el-table-column prop="point1" label="达标" align="center" width="70px">
           <template slot-scope="scope">
-            <span v-if="scope.row.point1 === '0'">是</span>
-            <span v-else>{{ scope.row.point1 }}</span>
+            <span v-if="scope.row.point >= 6">是</span>
+            <span v-else>{{ 6-scope.row.point }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="teachers.name" label="导师姓名" align="center" width="80px"></el-table-column>
@@ -601,7 +601,13 @@ export default {
     initGraduateStudents(curr,pagesize){
       this.getRequest('/graduatestudentM/basic/getGraduateStudents?pageNum=' + curr + '&pageSize=' + pagesize).then((response)=>{
         if(response.code == 200){
-          this.graduateStudents = response.extend.res[0]
+          this.graduateStudents = response.extend.res[0].map(student => {
+            // 如果 point 属性为 null 或 undefined，则设置为 0
+            if (student.point == null || student.point === undefined) {
+              student.point = 0;
+            }
+            return student;
+          });
           this.totalCount = response.extend.res[1]
         }
       })
