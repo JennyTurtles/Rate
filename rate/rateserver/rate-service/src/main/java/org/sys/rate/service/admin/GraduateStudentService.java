@@ -186,14 +186,14 @@ public class GraduateStudentService {
                 boolean isTypeEmpty = true;
 
                 List<UnderGraduate> dataArr = new LinkedList<>();
+                UnderGraduate underGraduate = new UnderGraduate();
                 for (int k = 0; k < Cells; k++) {
                     HSSFCell cell = row.getCell(k);
                     String columnName = map.get(k);
-
+                    boolean isTutorName = false;
                     if (cell != null) {
                         cell.setCellType(CellType.STRING);
                         String cellValue = cell.getStringCellValue();
-                        UnderGraduate underGraduate = new UnderGraduate();
                         if ("姓名".equals(columnName) && !cellValue.equals("")) {
                             isNameEmpty = false;
                         }
@@ -205,9 +205,12 @@ public class GraduateStudentService {
                             isTuturNoEmpty = false;
                             underGraduate.setTutorJobNumber(cellValue);
                         }
-                        if ("导师姓名".equals(columnName) && !cellValue.equals("")) {
-                            isTuturNameEmpty = false;
-                            underGraduate.setTutorName(cellValue);
+                        if ("导师姓名".equals(columnName)) {
+                            isTutorName = true;
+                            if(!cellValue.equals("")){
+                                isTuturNameEmpty = false;
+                                underGraduate.setTutorName(cellValue);
+                            }
                         }
                         if ("入学年份".equals(columnName) && !cellValue.equals("")) {
                             isYearEmpty = false;
@@ -230,7 +233,7 @@ public class GraduateStudentService {
                                 }
                             }
                         }
-                        if(!isTuturNameEmpty || !isTuturNoEmpty ){
+                        if((!isTuturNameEmpty || !isTuturNoEmpty)&& isTutorName ){
                             dataArr.add(underGraduate);
                         }
                     }
@@ -315,6 +318,7 @@ public class GraduateStudentService {
             UnderGraduate underGraduatenderGraduate = underList.get(i);
             String jobNumber = underGraduatenderGraduate.getTutorJobNumber();
             String name = underGraduatenderGraduate.getTutorName();
+            name = name.replaceAll("\\(.*?\\)", "");
 
             // ------------------------- 新增校验逻辑 -------------------------
             if (jobNumber != null && !jobNumber.isEmpty()) {
@@ -322,10 +326,12 @@ public class GraduateStudentService {
                 Teachers dbTeacher = teachersMapper.selectTeaByJobnumber(jobNumber);
                 if (dbTeacher == null) {
                     errors.add("工号 " + jobNumber + " 对应的导师不存在");
+                    return errors;
                 }
                 // 如果同时有姓名，需验证是否匹配
                 if (name != null && !name.isEmpty() && !name.equals(dbTeacher.getName())) {
                     errors.add("工号 " + jobNumber + " 与姓名 " + name + " 不匹配");
+                    return errors;
                 }
                 underGraduatenderGraduate.setTeachers(dbTeacher);
                 underGraduatenderGraduate.setTutorID(dbTeacher.getID());
@@ -334,8 +340,10 @@ public class GraduateStudentService {
                 List<Teachers> teachers = teachersMapper.selectTeasByName(Collections.singletonList(name));
                 if (teachers.isEmpty()) {
                     errors.add("未找到姓名为 " + name + " 的导师");
+                    return errors;
                 } else if (teachers.size() > 1) {
                     errors.add("第【" + rowIndex + "】行的导师姓名\"" + name + "\"存在重名情况，请填写工号信息");
+                    return errors;
                 }
                 if(!teachers.isEmpty()){
                 underGraduatenderGraduate.setTeachers(teachers.get(0));
