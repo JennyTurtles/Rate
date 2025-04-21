@@ -8,6 +8,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.CellType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.mapper.*;
 import org.sys.rate.model.*;
@@ -350,6 +352,7 @@ public class GraduateStudentService {
 
 
     //管理员导入研究生，只添加，即使已经存在了该条数据也不更新
+    @Transactional
     public RespBean addGraduate(List<GraduateStudent> graduateList) {
 
         List<String> jobTeas = new ArrayList<>(); //记录导师的工号`
@@ -395,6 +398,7 @@ public class GraduateStudentService {
             id = graduateStudentMapper.checkStudentExist(graduateStudent.getStuNumber(), graduateStudent.getName(), graduateStudent.getInstitutionID());
             if (id != null) {
                 if (id.equals(-1)) {
+                    TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
                     return RespBean.error("学生学号和姓名不匹配");
                 }
                 graduateStudent.setStudentID(id);

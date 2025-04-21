@@ -412,7 +412,7 @@ export default {
       let url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID
       return url;
     },
-    // handleChange(file) {
+ // handleChange(file) {
     //   this.show = true;
     //   var that = this;
     //   let fd = new FormData();
@@ -502,8 +502,11 @@ export default {
           'token': this.user.token
         },
       })
-          .then((res1) => {
-            if (res1.code === 200) { // 数据完整，直接导入
+          .then(async (res1) => {
+            console.log("res1",res1)
+            const resText = await res1.text(); // 将 Blob 转换为字符串
+            const resJson = JSON.parse(resText); // 将字符串解析为 JSON 对象
+            if (resJson.code === 200) { // 数据完整，直接导入
               url = '/graduatestudentM/basic/importGraduate?institutionID=' + this.user.institutionID;
               axios.post(url, fd, {
                 headers: {
@@ -521,7 +524,8 @@ export default {
               });
             } else { // 数据不完整，用户确认后导入
               let h = this.$createElement;
-              const msg = res1.msg; // 提取 msg 信息
+              const msg = resJson.msg; // 提取 msg 信息
+              // console.log(res1)
               this.$confirm(h('div', null, [h('p', null, msg)]), '提示', {
                 confirmButtonText: '确定',
                 showCancelButton: false,
@@ -556,9 +560,6 @@ export default {
             this.$message.error(err.message.msg);
           });
     },
-
-
-
 
 
     downloadExcel(){
