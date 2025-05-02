@@ -1,5 +1,5 @@
 ALTER TABLE paper
-MODIFY name VARCHAR(100);
+MODIFY name VARCHAR(200);
 
 UPDATE menu SET enabled = 0 WHERE path = '/student/Paper';
 UPDATE menu SET enabled = 0 WHERE path = '/student/Patent';
@@ -70,6 +70,8 @@ UPDATE menu_role SET mid = 70 WHERE id = 404;
 
 
 
+ALTER TABLE i_publication
+MODIFY url VARCHAR(200);
 
 ALTER TABLE i_publication
 MODIFY name VARCHAR(200);
@@ -315,7 +317,16 @@ WHERE id = 206;
 
 DELETE FROM indicator WHERE id in (252,207,208);
 
+ALTER TABLE programrecord
+MODIFY `workHours` double(4,1) DEFAULT NULL COMMENT '工作时长'
 
+UPDATE menu
+SET name = '项目工作量审核'
+WHERE id = 133;
+
+UPDATE menu
+SET name = '项目工作量审核'
+WHERE id = 134;
 
 
 

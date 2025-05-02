@@ -161,7 +161,7 @@
               >
               <i class="el-icon-info" style="color: #4b8ffe"> </i>
               <div style="width: 200px" slot="content">
-                  证明材料指:
+                  证明材料指:能证明成果获得人、成果等级的所有证明材料（多个文件需打包上传）
               </div>
 	          </el-tooltip>
 	        </span>
@@ -370,7 +370,7 @@
         ></el-input>
       </el-form-item>
       <el-form-item label="出版社:" prop="publisherName" label-width="130px" style="margin-left: 20px;">
-        <span class="isMust" style="left: -140px;">*</span>
+        <!-- <span class="isMust" style="left: -140px;">*</span> -->
         <el-input
             size="mini"
             style="width:40%"
@@ -381,7 +381,7 @@
         ></el-input>
       </el-form-item>
       <el-form-item label="网址:" prop="publicationUrl" label-width="130px" style="margin-left: 20px;">
-        <span class="isMust" style="left: -140px;">*</span>
+        <!-- <span class="isMust" style="left: -140px;">*</span> -->
         <el-input
             size="mini"
             style="width:40%"
@@ -425,7 +425,7 @@
           >选择文件
           </el-button>&nbsp;
           <span>
-            <el-tooltip
+            <!-- <el-tooltip
                         effect="dark"
                         placement="top-start"
               >
@@ -433,7 +433,7 @@
               <div style="width: 200px" slot="content">
                   证明材料指:
               </div>
-	          </el-tooltip>
+	          </el-tooltip> -->
 	        </span> &nbsp;&nbsp;&nbsp;&nbsp;
           <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpeg rar zip类型文件
                   &nbsp;&nbsp;大小不能超过10MB
@@ -443,10 +443,7 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button
-          @click="
-            dialogVisible_publication = false,
-            dialogVisible = false
-          "
+          @click="closeAddDialog"
           >取 消</el-button
         >
         <el-button
@@ -614,15 +611,15 @@ export default {
         publicationName: [
           { required: true, message: "请输入期刊全称", trigger: "blur" },
         ],
-        publicationAbbr: [
-          { required: false, message: "请输入刊物简称", trigger: "blur" },
-        ],
-        publisherName: [
-          { required: true, message: "请输入出版社", trigger: "blur" },
-        ],
-        publicationUrl: [
-          { required: true, message: "请输入网址", trigger: "blur" },
-        ],
+        // publicationAbbr: [
+        //   { required: false, message: "请输入刊物简称", trigger: "blur" },
+        // ],
+        // publisherName: [
+        //   { required: true, message: "请输入出版社", trigger: "blur" },
+        // ],
+        // publicationUrl: [
+        //   { required: true, message: "请输入网址", trigger: "blur" },
+        // ],
         year: [{ required: true, message: "请输入录入年份", trigger: "blur" }],
       },
     };
@@ -996,6 +993,7 @@ export default {
         return;
       }
       this.publicationName = val;
+      console.log(this.publicationName);
       var url =
         "/publication/getInfByNameYear?year=" +
         this.currentEmp.year +
@@ -1032,6 +1030,13 @@ export default {
             this.publishToDatabase.check_duplicates.indicatorId = indicatorIds;
             this.publishToDatabase.check_duplicates.year = years;
             this.inputDisabled = true;
+            this.$message({
+              message: "请确认！所选期刊(会议)" + this.publicationName + "在" + this.currentEmp.year + '年，按照东华大学毕业要求，属于' 
+              +resp.obj.indicatorList[0].order +"类," + "分值为" +this.selectedPublicationScore+"分",
+              type: 'warning',
+              duration:15000,
+              showClose:true
+            });
           } else {
 
             this.$message.warning(
@@ -1135,6 +1140,11 @@ export default {
     closeDialog() {
       // 触发 update 事件，通知父组件更新 dialogVisible_p 的值为 false
       this.dialogVisible = false;
+      this.$emit('update:dialogVisible', false);
+    },
+    closeAddDialog(){
+      this.dialogVisible_publication = false,
+      this.dialogVisible = false
       this.$emit('update:dialogVisible', false);
     },
     judgeWriter() {

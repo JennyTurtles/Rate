@@ -318,7 +318,8 @@ public class GraduateStudentService {
             UnderGraduate underGraduatenderGraduate = underList.get(i);
             String jobNumber = underGraduatenderGraduate.getTutorJobNumber();
             String name = underGraduatenderGraduate.getTutorName();
-            name = name.replaceAll("\\(.*?\\)", "");
+            if(name != null && !name.isEmpty())
+                name = name.replaceAll("\\(.*?\\)", "");
 
             // ------------------------- 新增校验逻辑 -------------------------
             if (jobNumber != null && !jobNumber.isEmpty()) {

@@ -885,32 +885,39 @@ export default {
       const url = '/programRecord/basic/getCountByStuID?id=' + this.user.id;
       this.getRequest(url)
           .then((resp) => {
-            console.log(resp)
+            // console.log(resp)
             if (resp.total !== 0) {
               this.$alert('已申报过项目成果，此类别不允许多次申报，请前往修改或删除！', '提示', {
                 confirmButtonText: '确定',
               });
               this.$router.push('/student/Project');
             } else{
-              if(this.examinedHours <1000){
-                this.$alert('总工作量时长小于1000小时，请满足条件后再申报！', '提示', {
-                  confirmButtonText: '确定',
-                });
-              }else{
-                this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的项目", '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-              }).then(() => {
-                this.postRequest1("/programRecord/basic/addResult", params).then((resp) => {
-                  if (resp) {
-                    this.$message.success('添加成功！')
-                    this.initEmps();
-                    this.doAddOper("commit", resp.data);
+              const timeUrl = '/dict/basic/getDictValue?item=workHours'
+              this.getRequest(timeUrl).then((resp2)=>{
+                if(resp2.status === 200){
+                  const needHours = parseInt(resp2.obj)
+                  if(this.examinedHours < needHours){
+                  this.$alert('总工作量时长小于' + needHours + '小时，请满足条件后再申报！', '提示', {
+                    confirmButtonText: '确定',
+                  });
+                  }else{
+                    this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的项目", '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                  }).then(() => {
+                    this.postRequest1("/programRecord/basic/addResult", params).then((resp) => {
+                      if (resp) {
+                        this.$message.success('添加成功！')
+                        this.initEmps();
+                        this.doAddOper("commit", resp.data);
+                      }
+                    });
+                    })
                   }
-                });
-                })
-              }
+                }
+                
+              })
             }
           })
           .catch((error) => {

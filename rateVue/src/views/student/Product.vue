@@ -43,7 +43,7 @@
         </el-form-item>
         <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
-          <el-button ref="selectBtn" size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
+          <el-button ref="selectBtn" size="mini" type="text" @click="initTree()" class="indicator-btn">{{indicatorBtn}}</el-button>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
@@ -67,7 +67,7 @@
                 >
                 <i class="el-icon-info" style="color: #4b8ffe"> </i>
                 <div style="width: 200px" slot="content">
-                    证明材料指:
+                    证明材料指:能证明成果获得人、成果等级的所有证明材料（多个文件需打包上传）
                 </div>
               </el-tooltip>
             </span>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -574,6 +574,7 @@ export default {
       } else {
         this.$refs["currentProductCopy"].validate((valid) => {
           if (valid) {
+            const url2 = '/product/basic/getCountByStuID?id=' + this.user.id;
             const url1 = '/product/basic/getCountByStuID?id=' + this.user.id;
             this.getRequest(url1)
             .then((resp) => {
@@ -676,5 +677,11 @@ export default {
   /* .slide-fade-leave-active for below version 2.1.8 */ {
   transform: translateX(10px);
   opacity: 0;
+}
+.indicator-btn {
+  white-space: normal; /* 允许文本换行 */
+  max-width: 80%; 
+  text-align: left;
+  display: inline-block; /* 确保宽度生效 */
 }
 </style>

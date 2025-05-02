@@ -100,7 +100,7 @@
                 >
                 <i class="el-icon-info" style="color: #4b8ffe"> </i>
                 <div style="width: 200px" slot="content">
-                    证明材料指:
+                    证明材料指:能证明成果获得人、成果等级的所有证明材料（多个文件需打包上传）
                 </div>
               </el-tooltip>
             </span>&nbsp;&nbsp;&nbsp;&nbsp;

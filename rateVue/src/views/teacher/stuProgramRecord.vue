@@ -61,7 +61,7 @@
                     icon="el-icon-edit"
                     type="primary"
                     plain="plain"
-                    v-show="scope.row.isPass === 'tea_pass'||scope.row.isPass === 'tea_deny'?false:true">填写评价
+                    v-show="scope.row.isPass === 'tea_pass'||scope.row.isPass === 'tea_deny'?false:true">审核
                 </el-button>
                 <el-button
                     @click="showRefuseEmpView(scope.row)"
@@ -135,11 +135,31 @@
             label="工作区间:"
             label-width="80px"
             style="margin-left: 20px">
-          <div>
+          <span>
             {{ emp.startDateStu }} 至 {{ emp.endDateStu }}
+          </span>
+          <el-tooltip
+                effect="light"
+                popper-class="btnitem"
+                :content="prePlan"
+                placement="top"
+                v-if="showTooltip">
+                            <span
+                                style="display: inline-block; margin-left: 20px; color: #409eff; position: relative;">本期计划
+                                <span
+                                    style="position: absolute; bottom: 0px; left: 0; right: 0; height: 2px; background-color: #303133; top: 28px; transform: translateY(-1px);"></span>
+                            </span>
+
+            </el-tooltip>
+        </el-form-item>
+        <el-form-item
+            label="阶段小结:"
+            label-width="80px"
+            style="margin-left: 20px">
+          <div>
+            {{ emp.preSum }}
           </div>
         </el-form-item>
-
         <el-row>
           <el-form-item
               prop="dateTea"
@@ -156,19 +176,6 @@
                 :picker-options="pickerOptions"
                 :default-value="new Date()"></el-date-picker>
 
-            <el-tooltip
-                effect="light"
-                popper-class="btnitem"
-                :content="prePlan"
-                placement="top"
-                v-if="showTooltip">
-                            <span
-                                style="display: inline-block; margin-left: 20px; color: #409eff; position: relative;">上期总结
-                                <span
-                                    style="position: absolute; bottom: 0px; left: 0; right: 0; height: 2px; background-color: #303133; top: 28px; transform: translateY(-1px);"></span>
-                            </span>
-
-            </el-tooltip>
           </el-form-item>
         </el-row>
 

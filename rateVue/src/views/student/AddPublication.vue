@@ -52,7 +52,7 @@
         ></el-input>
       </el-form-item>
       <el-form-item label="出版社:" prop="publisherName" label-width="130px" style="margin-left: 20px;">
-        <span class="isMust" style="left: -140px;">*</span>
+        <!-- <span class="isMust" style="left: -140px;">*</span> -->
         <el-input
             size="mini"
             style="width:40%"
@@ -63,7 +63,7 @@
         ></el-input>
       </el-form-item>
       <el-form-item label="网址:" prop="publicationUrl" label-width="130px" style="margin-left: 20px;">
-        <span class="isMust" style="left: -140px;">*</span>
+        <!-- <span class="isMust" style="left: -140px;">*</span> -->
         <el-input
             size="mini"
             style="width:40%"
@@ -107,7 +107,7 @@
           >选择文件
           </el-button>&nbsp;
           <span>
-            <el-tooltip
+            <!-- <el-tooltip
                         effect="dark"
                         placement="top-start"
               >
@@ -115,7 +115,7 @@
               <div style="width: 200px" slot="content">
                   证明材料指:
               </div>
-	          </el-tooltip>
+	          </el-tooltip> -->
 	        </span> &nbsp;&nbsp;&nbsp;&nbsp;
           <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpeg rar zip类型文件
                   &nbsp;&nbsp;大小不能超过10MB
@@ -285,15 +285,15 @@ export default {
         publicationName: [
           {required: true, message: '请输入期刊全称', trigger: 'blur'}
         ],
-        publicationAbbr: [
-          {required: false, message: '请输入刊物简称', trigger: 'blur'}
-        ],
-        publisherName: [
-          {required: true, message: '请输入出版社', trigger: 'blur'}
-        ],
-        publicationUrl: [
-          {required: true, message: '请输入网址', trigger: 'blur'}
-        ],
+        // publicationAbbr: [
+        //   {required: false, message: '请输入刊物简称', trigger: 'blur'}
+        // ],
+        // publisherName: [
+        //   {required: true, message: '请输入出版社', trigger: 'blur'}
+        // ],
+        // publicationUrl: [
+        //   {required: true, message: '请输入网址', trigger: 'blur'}
+        // ],
         year: [
           {required: true, message: '请输入年份', trigger: 'blur'},
         ],

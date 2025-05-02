@@ -67,10 +67,13 @@
         <el-table-column prop="studentType" label="学生类别" align="center"></el-table-column>
         <el-table-column prop="point" label="积分" align="center" width="60px"></el-table-column>
 <!--        <el-table-column prop="point1" label="达标" align="center" width="70px"></el-table-column>-->
-        <el-table-column prop="point1" label="达标" align="center" width="70px">
+        <el-table-column prop="point1" label="达标" align="center" width="120px">
           <template slot-scope="scope">
-            <span v-if="scope.row.point >= 6">是</span>
-            <span v-else>{{ 6-scope.row.point }}</span>
+            <span v-if="scope.row.studentType==='专硕' && scope.row.point >= zhuanPoint">是</span>
+            <span v-else-if="scope.row.studentType==='学硕' && scope.row.point >= xuePoint">是</span>
+            <span v-else-if="scope.row.studentType==='专硕' && scope.row.point < zhuanPoint">{{ zhuanPoint-scope.row.point }}</span>
+            <span v-else-if="scope.row.studentType==='学硕' && scope.row.point < xuePoint">{{ xuePoint-scope.row.point }}</span>
+            <span v-else>学生类别不合规</span>
           </template>
         </el-table-column>
         <el-table-column prop="teachers.name" label="导师姓名" align="center" width="80px"></el-table-column>
@@ -165,6 +168,8 @@ export default {
       pageSizes:[10,20,30,50,100],
       totalCount:0,
       currentPage:1,
+      zhuanPoint:'',
+      xuePoint:'',
       pageSize:20,
       selectYearsList:[],
       select_teachers:[],
@@ -203,6 +208,7 @@ export default {
     this.user = JSON.parse(localStorage.getItem('user'))
     this.initSelectYearsList()
     this.initGraduateStudents(this.currentPage,this.pageSize)
+    this.initPoint();
   },
   methods:{
 
@@ -263,10 +269,21 @@ export default {
 
 
 
-
-
-
-
+    initPoint(){
+      this.getRequest('/dict/basic/getDictValue?item=xuePoint').then(resp=>{
+        if(resp.status == 200){
+          this.xuePoint = parseInt(resp.obj)
+          // console.log(this.xuePoint)
+        }
+      })
+      this.getRequest('/dict/basic/getDictValue?item=zhuanPoint').then(resp=>{
+        if(resp.status == 200){
+          this.zhuanPoint = parseInt(resp.obj)
+          // console.log(this.zhuanPoint)
+        }
+      })
+      
+    },
     searchTeaNameMethod(val) {
       if(val) {
         if(this.dialogEdit){
@@ -501,8 +518,7 @@ export default {
           "Content-Type": "multipart/form-data",
           'token': this.user.token
         },
-      })
-          .then(async (res1) => {
+      }).then(async (res1) => {
             console.log("res1",res1)
             const resText = await res1.text(); // 将 Blob 转换为字符串
             const resJson = JSON.parse(resText); // 将字符串解析为 JSON 对象
@@ -527,8 +543,8 @@ export default {
               const msg = resJson.msg; // 提取 msg 信息
               // console.log(res1)
               this.$confirm(h('div', null, [h('p', null, msg)]), '提示', {
-                confirmButtonText: '确定',
-                showCancelButton: false,
+                confirmButtonText: '继续导入',
+                cancelButtonText: '取消导入',
                 type: 'warning'
               }).then(() => {
                 that.loading = true;
@@ -549,6 +565,7 @@ export default {
                   } else {
                     this.$message.error(res.msg || "导入失败");
                   }
+                  // this.initGraduateStudents(this.currentPage,this.pageSize)
                 }).catch((err) => {
                   that.loading = false;
                   this.$message.error(err.response ? err.response.data.msg : "导入失败");
