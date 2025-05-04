@@ -71,4 +71,6 @@ public interface ProgramRecordMapper {
 
     @Update("UPDATE graduatestudent SET point = point + #{score} WHERE studentID = #{stuID}")
     public int updateScore(Long stuID,Long score);
+
+    List<ProgramResult> selectProgramResultListById(Integer studentId);
 }

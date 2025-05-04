@@ -142,4 +142,10 @@ public class ProgramRecordController {
         Integer res = programRecordService.deleteById(ID);
         return new JsonResult(res);
     }
+
+    @GetMapping("/studentID")//无页码要求
+    public JsonResult<List> getById(Integer studentID) {
+        List<ProgramResult> list = programRecordService.selectListByIds(studentID);
+        return new JsonResult<>(list);
+    }
 }

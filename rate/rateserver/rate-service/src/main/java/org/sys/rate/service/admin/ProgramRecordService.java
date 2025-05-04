@@ -175,4 +175,8 @@ public class ProgramRecordService {
         xinProjectService.deleteXinProject(id.intValue(), "项目开发");
         return programRecordMapper.deleteById(id);
     }
+
+    public List<ProgramResult> selectListByIds(Integer studentID) {
+        return programRecordMapper.selectProgramResultListById(studentID);
+    }
 }

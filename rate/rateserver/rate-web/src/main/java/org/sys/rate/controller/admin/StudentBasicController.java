@@ -37,6 +37,8 @@ public class StudentBasicController {
     private ProductMapper productMapper;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ProgramRecordMapper  programRecordMapper;
 
     @Autowired
     StudentService StudentService;
@@ -57,6 +59,7 @@ public class StudentBasicController {
     @Autowired
     DoctorMapper doctorMapper;
 
+
     @GetMapping("/getall")
     public List<Student> getAllStudent() {
         return StudentService.getAllStudent();
@@ -66,7 +69,7 @@ public class StudentBasicController {
         List<Patent> patentList = patentMapper.selectListByIds(studentId);
         List<Paper> paperList = paperMapper.selectListByIds(studentId);
         List<Project> projectList = projectMapper.selectProjectListById(studentId);
-        List<Project> horizontalProjectList = projectMapper.selectHorizontalProjectListById(studentId);
+        List<ProgramResult> programResults = programRecordMapper.selectProgramResultListById(studentId);
         List<Product> productList = productMapper.selectListByIds(studentId);
         List<Monograph> monographList = monographMapper.selectMonographListById(studentId);
         List<Decision> decisionList = decisionMapper.selectDecisionListById(studentId);
@@ -76,7 +79,7 @@ public class StudentBasicController {
         return Msg.success().add("patent", patentList)
                 .add("paper", paperList).add("project", projectList).add("product", productList)
                 .add("monograph", monographList).add("decision", decisionList).add("standard", standardList)
-                .add("award", awardList).add("competition", competitionList).add("horizontalProject", horizontalProjectList);
+                .add("award", awardList).add("competition", competitionList).add("programResults", programResults);
     }
 
     @GetMapping("/getStuByIDNumber")

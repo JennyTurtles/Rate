@@ -202,6 +202,79 @@
             >关闭</el-button>
         </span>
     </el-dialog>
+
+    <!--项目开发查看详情-->
+    <el-dialog
+        title="查看详情"
+        :visible.sync="dialogVisibleOProgramResultSInfo"
+        width="520px"
+        center>
+      <el-form
+          :model="currentAchievementOfEdit"
+          style="margin-left: 20px"
+      >
+        <el-form-item label="成果名称:">
+          <span>{{ currentAchievementOfEdit.name }}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="学生姓名:">
+          <span>{{ currentAchievementOfEdit.student.name }}</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="学生姓名:">
+          <span>{{ currentAchievementOfEdit.workHours }}小时</span
+          ><br />
+        </el-form-item>
+        <el-form-item label="成果状态:">
+          <span>{{currentAchievementOfEdit.state=="commit"
+              ? "学生提交"
+              :currentAchievementOfEdit.state=="tea_pass"
+                  ? "导师通过"
+                  :currentAchievementOfEdit.state=="tea_reject"
+                      ? "导师驳回"
+                      :currentAchievementOfEdit.state=="adm_pass"
+                          ? "管理员通过"
+                          :"管理员驳回"}}</span
+          ><br />
+        </el-form-item>
+        <div >
+          <span>历史操作:</span>
+          <div style="margin-top:10px;border:1px solid lightgrey;margin-left:2em;width:400px;height:150px;overflow:scroll">
+            <div  v-for="item in operList" :key="item.time" style="margin-top:18px;color:gray;margin-left:5px">
+              <div>
+                <p>{{item.time | dataFormat}}&nbsp;&nbsp;&nbsp;{{item.operatorName}}&nbsp;&nbsp;&nbsp;{{item.operationName}}</p>
+                <p v-show="item.remark == '' ? false : true">驳回理由：{{item.remark}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-form>
+      <span slot="footer" class="dialog-footer" :model="currentAchievementOfEdit">
+            <el-button
+                id="but_pass"
+                v-show="(currentAchievementOfEdit.state == 'commit' || (currentAchievementOfEdit.state == 'tea_pass' && role == 'admin')) ? true : false"
+                @click="(()=>{
+                  if (role == 'teacher')
+                   examineMethod('tea_pass')
+                  else if (role == 'admin')
+                   examineMethod('adm_pass')
+                }) "
+                type="primary"
+            >审核通过</el-button>
+            <el-button
+                id="but_reject"
+                v-show="(currentAchievementOfEdit.state == 'commit' || (currentAchievementOfEdit.state == 'tea_pass' && role == 'admin')) ? true : false"
+                @click="dialogOfReject = true"
+                type="primary"
+            >审核不通过</el-button>
+            <el-button
+                id="but_reject"
+                v-show="(currentAchievementOfEdit.state=='tea_reject' || currentAchievementOfEdit.state=='adm_reject' || currentAchievementOfEdit.state == 'adm_pass' || (currentAchievementOfEdit.state=='tea_pass' && role == 8))? true:false"
+                @click="dialogVisibleOProgramResultSInfo = false"
+                type="primary"
+            >关闭</el-button>
+        </span>
+    </el-dialog>
     <el-dialog :visible.sync="dialogPreviewPdfFile" style="width: 100%;height: 100%" fullscreen>
       <template v-if="isPdf">
         <vue-office-pdf
@@ -239,9 +312,11 @@ export default {
       rejectReason: '', //绑定驳回理由
       dialogOfReject: false, //审核驳回对话框
       pageLoadingStatus: true,
+      nowType:"",
       tabsActivateName: '0',
       tabsTableLoading: false,
       dialogVisibleOfDetailInfo: false,//查看详情
+      dialogVisibleOProgramResultSInfo:false,//项目开发详情
       tabsTableData: [],
       currentAchievementOfEdit: {
         name: '',
@@ -257,9 +332,9 @@ export default {
         {label: "学术专著和教材", name: "monograph"},
         {label: "学科竞赛", name: "competition"},
         {label: "纵向科研项目", name: "project"},
-        {label: "横向科研项目", name: "horizontalProject"},
+        {label: "项目开发", name: "programResults"},
         {label: "决策咨询", name: "decision"},
-        {label: "产品应用", name: "product"},
+        {label: "撰写项目文档", name: "product"},
         {label: "制定标准", name: "standard"}
       ],
       dynamicTabs: []
@@ -372,8 +447,8 @@ export default {
     },
     rolePass(status) {
       let url = ''
-      if(this.tabActivateOfIndexName == 'horizontalProject') {
-        url = `/project/basic/edit_state?state=${status}&ID=${this.currentAchievementOfEdit.id}`;
+      if(this.tabActivateOfIndexName == 'programResults') {
+        url = `/programRecord/basic/edit_state?state=${status}&ID=${this.currentAchievementOfEdit.id}`;
       } else {
         url = `/${this.tabActivateOfIndexName}/basic/edit_state?state=${status}&ID=${this.currentAchievementOfEdit.id}`;
       }
@@ -431,14 +506,15 @@ export default {
       })
     },
     tabChange(tab, event) {
+      this.nowType = this.dynamicTabs[tab.index].name
       this.getTableDataMethod(this.dynamicTabs[tab.index].name);
     },
     getTableDataMethod(data) {
       let url = '';
-      if(data != 'horizontalProject') {
+      if(data != 'programResults') {
         url = `/${data}/basic/studentID?studentID=${this.$route.query.studentId}`;
       } else {
-        url = `/project/basic/studentID/horizontal?studentID=${this.$route.query.studentId}`;
+        url = `/programRecord/basic/studentID?studentID=${this.$route.query.studentId}`;
       }
       this.tabsTableLoading = true;
       this.getRequest(url).then(response => {
@@ -460,15 +536,23 @@ export default {
       })
     },
     showDetailInfo(data) {
+      this.operList = [];
       this.currentAchievementOfEdit = data;
-      this.dialogVisibleOfDetailInfo = true;
-      this.isPdf = this.isImage = false;
-      this.previewUrl = '';
-      this.previewImageSrcList = [];
-      if(data.url.includes('.pdf')) { //判断文件类型
-        this.isPdf = true;
-      } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
-        this.isImage = true;
+      if(this.nowType!='programResults')
+      {
+        this.dialogVisibleOfDetailInfo = true;
+        this.isPdf = this.isImage = false;
+        this.previewUrl = '';
+        this.previewImageSrcList = [];
+        if(data.url.includes('.pdf')) { //判断文件类型
+          this.isPdf = true;
+        } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
+          this.isImage = true;
+        }
+      } 
+      else{
+        // this.dialogVisibleOfDetailInfo = true;
+        this.dialogVisibleOProgramResultSInfo = true;
       }
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=' + this.tabActivateOfIndexLabel).then((resp) => {
         if (resp) {

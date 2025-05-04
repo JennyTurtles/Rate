@@ -1030,6 +1030,7 @@ export default {
             this.publishToDatabase.check_duplicates.indicatorId = indicatorIds;
             this.publishToDatabase.check_duplicates.year = years;
             this.inputDisabled = true;
+            this.$message.closeAll();
             this.$message({
               message: "请确认！所选期刊(会议)" + this.publicationName + "在" + this.currentEmp.year + '年，按照东华大学毕业要求，属于' 
               +resp.obj.indicatorList[0].order +"类," + "分值为" +this.selectedPublicationScore+"分",
@@ -1139,6 +1140,7 @@ export default {
     },
     closeDialog() {
       // 触发 update 事件，通知父组件更新 dialogVisible_p 的值为 false
+      this.$message.closeAll()
       this.dialogVisible = false;
       this.$emit('update:dialogVisible', false);
     },
@@ -1328,7 +1330,7 @@ export default {
       params.point = this.paperPoint;
       params.state = "commit";
       params.studentID = this.user.id;
-      
+      this.$message.closeAll()
       if (
         (this.currentEmp.startPage == "" || this.currentEmp.startPage == null) !==
         (this.currentEmp.endPage == "" || this.currentEmp.endPage == null)

@@ -83,7 +83,7 @@
 
 <!--    学生专利页面初始化-->
     <select id="selectListByIds" resultMap="PatentResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.granted_status, a.indicator_id, a.date,ind.level,
+        SELECT a.id,a.name, a.author,a.have_score, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.granted_status, a.indicator_id, a.date,ind.level,
                j.remark,ind.name as iname,ind.score, ind.id as indicatorid, s.name as sname
         FROM i_patent a
                  JOIN (

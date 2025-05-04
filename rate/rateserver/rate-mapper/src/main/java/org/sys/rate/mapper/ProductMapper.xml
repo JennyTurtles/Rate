@@ -81,7 +81,7 @@
 
 <!--    学生产品页面初始化-->
     <select id="selectListByIds" resultMap="ProductResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score, s.name as sname
+        SELECT a.id,a.name, a.author, a.rank, a.total, a.have_score, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score, s.name as sname
         FROM i_application a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date

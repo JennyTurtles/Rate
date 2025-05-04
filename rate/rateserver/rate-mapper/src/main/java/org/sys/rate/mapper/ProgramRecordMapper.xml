@@ -98,28 +98,28 @@
     </select>
 
     <select id="searchHorizontalProjectByConditions" resultMap="programResult">
-        SELECT book.*,i.max_date, j.remark, s.name as sname, i.name as iname, i.score
-        FROM programresults book
+        SELECT res.*,i.max_date, j.remark, s.name as sname, i.name as iname, i.score
+        FROM programresults res
         JOIN (
         SELECT prod_id,MAX(i_oper.date) max_date
         FROM i_oper
         WHERE prod_type = '项目开发'
         GROUP BY prod_id
-        ) i ON book.id = i.prod_id
+        ) i ON res.id = i.prod_id
         JOIN (
         SELECT prod_id,remark,`date`
         FROM i_oper
         WHERE prod_type = '项目开发'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
-        JOIN indicator i ON book.indicator_id = i.id
-        JOIN student s ON s.ID = book.student_id
+        JOIN indicator i ON res.indicator_id = i.id
+        JOIN student s ON s.ID = res.student_id
         <where>
-            <if test="projectName != null and projectName != ''">and book.name like concat('%', #{projectName}, '%')</if>
+            <if test="projectName != null and projectName != ''">and res.name like concat('%', #{projectName}, '%')</if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
-            <if test="state != null and state != ''">and book.state = #{state}</if>
-            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
+            <if test="state != null and state != ''">and res.state = #{state}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and res.point between #{pointFront} and #{pointBack}</if>
         </where>
-        ORDER BY book.id DESC
+        ORDER BY res.id DESC
     </select>
 
     <select id="selectProgramResultById" parameterType="Long" resultMap="programResult">
@@ -221,5 +221,23 @@
             g.tutorID = #{tutorID}
         GROUP BY
             g.ID, g.stuNumber, g.studentType, g.specialty, g.fillMiss, g.year, s.name;
+    </select>
+    <select id="selectProgramResultListById" resultMap="programResult" parameterType="Integer">
+        SELECT res.id,res.name,res.have_score, res.author, res.point, res.student_id,res.work_hours, res.state, res.indicator_id, j.remark,ind.name as iname,ind.score, s.name as sname
+        FROM programresults res
+                 JOIN (
+            SELECT prod_id,MAX(i_oper.date) max_date
+            FROM i_oper
+            WHERE prod_type = '项目开发'
+            GROUP BY prod_id
+        ) i ON res.id = i.prod_id
+                 JOIN (
+            SELECT prod_id,remark,`date`
+            FROM i_oper
+            WHERE prod_type = '项目开发'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+                 JOIN indicator ind ON ind.id = res.indicator_id AND res.student_id = #{studentID}
+                 JOIN student s ON s.ID = res.student_id
+        ORDER BY res.id DESC;
     </select>
 </mapper>
