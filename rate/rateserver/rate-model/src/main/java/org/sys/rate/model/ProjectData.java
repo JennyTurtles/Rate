@@ -11,6 +11,8 @@ public class ProjectData {
     private String name;
     // 类别
     private String category;
+    // 申报人
+    private String studentName;
     // 参与人
     private String participants;
     // 状态

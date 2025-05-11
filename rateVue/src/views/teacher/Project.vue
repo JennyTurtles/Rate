@@ -1,7 +1,7 @@
 <template>
     <div>
         <h2 >成果列表</h2>
-        <div>
+        <div v-if="showSearch">
             <label>学生姓名：</label>
             <input type="text"
                    style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
@@ -98,6 +98,13 @@
                         label="序号"
                         align="center"
                         min-width="8%"
+                >
+                </el-table-column>
+                <el-table-column
+                    prop="studentName"
+                    align="center"
+                    label="申报人"
+                    min-width="15%"
                 >
                 </el-table-column>
                 <el-table-column
@@ -1473,6 +1480,7 @@
                 // 项目列表数据
                 emps: [],
                 data: [],
+                showSearch:true,
                 reason:"",
                 isShowInfo:false,
                 role:"teacher",
@@ -1919,12 +1927,22 @@
         },
         mounted() {
             //this.currentProjectSummaryCopy = JSON.parse(JSON.stringify(this.currentProduct));
-            this.initEmps();
-            this.showAddEmpView()
-            this.getData();
+            const username = decodeURIComponent(this.$route.query.username || '');
+            if (username) {
+                this.searchStudentName = username;
+                this.initEmps(); // 使用这个 username 去查询数据
+            } else {
+                this.initEmps();// 默认加载所有数据
+            }
+            const showSearchQuery = this.$route.query.showSearch;
+            this.showSearch = showSearchQuery === 'false' ? false : true
+            Boolean(showSearchQuery);
+            // this.initEmps();
+            // this.showAddEmpView()
+            // this.getData();
         },
         created() {
-            this.fetchProjects(); // 在组件创建时获取数据
+            // this.fetchProjects(); // 在组件创建时获取数据
         },
         methods: {
             rejectDialogConfirm(){
@@ -2752,6 +2770,7 @@
                     this.loading = false;
                     if (resp) {
                         this.emps = resp.data;
+                        console.log(this.emps)
                     }
                 }).catch(() => {
                     this.loading = false;

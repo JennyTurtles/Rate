@@ -94,7 +94,7 @@ public class PublicationController {
             publicationMapper.updateIndicatorPublicationYear(publication);
             return RespBean.ok("修改期刊成功");
         }catch (DuplicateKeyException e){
-            return RespBean.ok("修改期刊成功"); // 不处理
+            return RespBean.error("修改失败"); // 不处理
         }
     }
 

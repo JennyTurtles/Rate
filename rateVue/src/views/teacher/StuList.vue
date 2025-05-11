@@ -35,7 +35,16 @@
         <el-table-column  label="操作" align="center" width="180px">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" plain @click="resetPasswordShow(scope.row)" style="padding: 4px">重置密码</el-button>
-            <el-button size="mini" type="primary" plain @click="showDetailInfo(scope.row)" style="padding: 4px">查看详情</el-button>
+            <!-- <el-button size="mini" type="primary" plain @click="showDetailInfo(scope.row)" style="padding: 4px">成果列表</el-button> -->
+            <el-button 
+              size="mini" 
+              type="primary" 
+              plain 
+              @click="goToProject(scope.row.name)" 
+              style="padding: 4px"
+            >
+              成果列表
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -177,6 +186,16 @@ export default {
       this.selectYearsList.sort((a,b)=>{
         return b - a;
       })
+    },
+    goToProject(username) {
+      let url = this.$router.resolve({
+        path: '/teacher/project',
+        query: {
+          username: encodeURIComponent(username),
+          showSearch: false
+        }
+      });
+      window.open(url.href, '_blank');
     },
     initGraduateStudents(curr,pagesize){
       let tempYear = this.selectYear

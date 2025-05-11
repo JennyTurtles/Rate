@@ -3,7 +3,7 @@
 
 
     <div>
-      <div>
+      <div v-if="showSearch">
         <label>学生姓名：</label>
         <input type="text"
                style="margin-left:5px;width:80px;height:30px;padding:0 30px 0 15px;
@@ -101,6 +101,13 @@
               align="center"
               min-width="8%"
           >
+          </el-table-column>
+          <el-table-column
+                    prop="studentName"
+                    align="center"
+                    label="申报人"
+                    min-width="15%"
+                >
           </el-table-column>
           <el-table-column
               prop="applyTime"
@@ -1469,6 +1476,7 @@
         data: [],
         reason:"",
         isShowInfo:false,
+        showSearch:true,
         role:"admin",
         currentType: '',
         projects: [], // 用于存储项目数据
@@ -1912,12 +1920,22 @@
     },
     mounted() {
       //this.currentProjectSummaryCopy = JSON.parse(JSON.stringify(this.currentProduct));
-      this.initEmps();
-      this.showAddEmpView()
-      this.getData();
+      // this.initEmps();
+      // this.showAddEmpView()
+      // this.getData();
+      const username = decodeURIComponent(this.$route.query.username || '');
+      if (username) {
+          this.searchStudentName = username;
+          this.initEmps(); // 使用这个 username 去查询数据
+      } else {
+          this.initEmps();// 默认加载所有数据
+      }
+      const showSearchQuery = this.$route.query.showSearch;
+      this.showSearch = showSearchQuery === 'false' ? false : true
+      Boolean(showSearchQuery);
     },
     created() {
-      this.fetchProjects(); // 在组件创建时获取数据
+      // this.fetchProjects(); // 在组件创建时获取数据
     },
     methods: {
         // 计入积分

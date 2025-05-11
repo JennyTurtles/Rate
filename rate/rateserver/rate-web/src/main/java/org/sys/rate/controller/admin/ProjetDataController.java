@@ -102,6 +102,7 @@ public class ProjetDataController {
                         String formattedDate = sdf.format(x.getDate());
                         projectData.setApplyTime(formattedDate);
                         projectData.setName(x.getName());
+                        projectData.setStudentName(x.getStudentName());
                         projectData.setCategory(x.getType());
                         projectData.setParticipants(x.getSname());
                         projectData.setStatus(x.getState());
@@ -120,6 +121,7 @@ public class ProjetDataController {
                         projectData.setApplyTime(formattedDate);
                         projectData.setName(x.getName());
                         projectData.setCategory(x.getType());
+                        projectData.setStudentName(x.getStudentName());
                         projectData.setParticipants(x.getSname());
                         projectData.setStatus(x.getState());
                         projectData.setRemark(x.getRemark());
@@ -137,6 +139,7 @@ public class ProjetDataController {
                         projectData.setApplyTime(formattedDate);
                         projectData.setName(x.getName());
                         projectData.setCategory(x.getType());
+                        projectData.setStudentName(x.getStudentName());
                         projectData.setParticipants(x.getSname());
                         projectData.setStatus(x.getState());
                         projectData.setRemark(x.getRemark());
@@ -152,6 +155,7 @@ public class ProjetDataController {
                     projectData.setApplyTime(formattedDate);
                     projectData.setName(x.getName());
                     projectData.setCategory(x.getType());
+                    projectData.setStudentName(x.getStudentName());
                     projectData.setParticipants(x.getSname());
                     projectData.setStatus(x.getState());
                     projectData.setRemark(x.getRemark());
@@ -162,26 +166,6 @@ public class ProjetDataController {
             }
 
         }
-
-
-//        if(xinProjects != null && !xinProjects.isEmpty()){
-//
-//            xinProjects.forEach(x -> {
-//                ProjectData projectData = new ProjectData();
-//                projectData.setId(x.getMid());
-////                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//                String formattedDate = sdf.format(x.getDate());
-//                projectData.setApplyTime(formattedDate);
-//                projectData.setName(x.getName());
-//                projectData.setCategory(x.getType());
-//                projectData.setParticipants(x.getSname());
-//                projectData.setStatus(x.getState());
-//                projectData.setRemark(x.getRemark());
-//                projectData.setPoint(Long.parseLong(x.getPoint()+""));
-//
-//                list.add(projectData);
-//            });
-//        }
         return new JsonResult<>(list);
     }
 

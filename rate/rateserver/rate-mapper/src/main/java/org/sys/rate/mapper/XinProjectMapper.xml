@@ -64,7 +64,7 @@
         student s ON xp.sid = s.ID
         <where>
             <if test="studentName != null and studentName != ''">
-                AND xp.sname = #{studentName}
+                AND xp.sid in (SELECT ID FROM student WHERE name = #{studentName})
             </if>
             <if test="name != null and name != ''">
                 AND xp.name = #{name}
@@ -99,11 +99,23 @@
     <select id="selectXinProjectList" resultType="org.sys.rate.model.XinProject"
             parameterType="org.sys.rate.model.XinProjectVo">
         select
-        *
-        from xin_project
+        xp.name,
+        xp.state,
+        xp.remark,
+        xp.date,
+        xp.type,
+        xp.sname,
+        xp.mid,
+        xp.point,
+        xp.pointtype,
+        xp.sid AS studentId,
+        s.name AS studentName
+        from xin_project xp
+        LEFT JOIN
+        student s ON xp.sid = s.ID
         <where>
-            <if test="studentName!= null and studentName!= '' ">
-                sname like concat('%', #{studentName}, '%')
+            <if test="studentName != null and studentName != ''">
+                AND xp.sid in (SELECT ID FROM student WHERE name = #{studentName})
             </if>
             <if test="name!= null and name!= '' ">
                 and name = #{name}

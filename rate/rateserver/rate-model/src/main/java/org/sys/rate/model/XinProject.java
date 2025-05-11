@@ -17,6 +17,8 @@ public class XinProject {
 
     private Integer point; // 积分
 
+    private String studentName; //申报人
+
     private Timestamp date; // 操作时间
 
     private String sname; // 参与人
