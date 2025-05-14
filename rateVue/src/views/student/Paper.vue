@@ -1198,7 +1198,7 @@ export default {
           ) {
             //导师在作者列表中且老师不是一作, 或者老师不在列表中
             this.$confirm(
-              "第一作者不是导师【 " + info.teacherName + " 】！积分将为【0】分",
+              "第一作者不是导师【 " + info.teacherName + " 】或本人！积分将为【0】分",
               "提示",
               {
                 confirmButtonText: "关闭",
@@ -1388,7 +1388,7 @@ export default {
                         this.$message.success('添加成功！')
                         this.dialogVisible = false;
                         this.doAddOper("commit", resp.data);
-                        // this.$router.push('/student/Project');
+                        this.$router.push('/student/Project');
                       }
                     });
           }

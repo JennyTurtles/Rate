@@ -40,7 +40,7 @@
               size="mini" 
               type="primary" 
               plain 
-              @click="goToProject(scope.row.name)" 
+              @click="goToProject(scope.row.studentID)" 
               style="padding: 4px"
             >
               成果列表
@@ -187,11 +187,11 @@ export default {
         return b - a;
       })
     },
-    goToProject(username) {
+    goToProject(studentID) {
       let url = this.$router.resolve({
         path: '/teacher/project',
         query: {
-          username: encodeURIComponent(username),
+          studentID: encodeURIComponent(studentID),
           showSearch: false
         }
       });

@@ -4200,7 +4200,7 @@ export default {
     handleShowInfo(data) {
       this.title_show = "显示详情";
       this.currentProjectSummary = data
-      console.log("data",data)
+      // console.log("data",data)
       this.showInfoMap(data)
       this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=' + data.category).then((resp) => {
         this.loading = false;

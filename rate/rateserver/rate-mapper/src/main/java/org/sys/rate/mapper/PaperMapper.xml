@@ -233,9 +233,14 @@
         ORDER BY p.ID DESC
     </select>
 
-    <select id="selectPaperNumberOfPendingMessing" resultType="Integer">
+    <select id="selectPaperNumberOfPendingMessing" resultType="java.lang.Integer">
         select count(*)
         from paper
-        where state = #{state}
+        <where>
+            state = #{state}
+            <if test="ID!=null">
+                and studentID in (select studentID from graduatestudent where tutorID = #{ID})
+            </if>
+        </where>
     </select>
 </mapper>

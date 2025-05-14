@@ -170,9 +170,14 @@
             #{ID}
         </foreach>
     </delete>
-    <select id="selectProductNumberOfPendingMessing" resultType="Integer">
+    <select id="selectProductNumberOfPendingMessing" resultType="java.lang.Integer">
         select count(*)
         from i_application
-        where state = #{state}
+        <where>
+            state = #{state}
+            <if test="ID!=null">
+                and student_id in (select studentID from graduatestudent where tutorID = #{ID})
+            </if>
+        </where>
     </select>
 </mapper>

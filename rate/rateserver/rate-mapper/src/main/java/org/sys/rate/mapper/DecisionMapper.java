@@ -82,7 +82,7 @@ public interface DecisionMapper
     public Decision selectByID(Long ID);
 
     public List<Decision> searchDecisionByConditions(String studentName, String state, String decisionName, String pointFront, String pointBack);
-    public Integer selectDecisionNumberOfPendingMessing(String state);
+    public Integer selectDecisionNumberOfPendingMessing(String state,Integer ID);
 
     @Update("UPDATE i_decision SET have_score = #{have_score} WHERE id = #{id}")
     public Integer editPoint(Decision decision);

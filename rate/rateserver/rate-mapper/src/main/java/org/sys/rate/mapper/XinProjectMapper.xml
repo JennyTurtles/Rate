@@ -132,6 +132,33 @@
         order by date DESC
     </select>
 
+    <select id="selectProjectDataListByIds" resultType="org.sys.rate.model.XinProject"
+            parameterType="org.sys.rate.model.XinProjectVo">
+        select
+        xp.name,
+        xp.state,
+        xp.remark,
+        xp.date,
+        xp.type,
+        xp.sname,
+        xp.mid,
+        xp.point,
+        xp.pointtype,
+        xp.sid AS studentId,
+        s.name AS studentName
+        from xin_project xp
+        LEFT JOIN
+        student s ON xp.sid = s.ID
+        <where>
+            xp.sid = #{studentId}
+            <if test="teacherId != null and teacherId != ''">
+                AND sid IN (
+                SELECT studentID FROM graduatestudent WHERE tutorID = #{teacherId}
+                )
+            </if>
+        </where>
+        order by date DESC
+    </select>
 
     <select id="selectById" resultType="org.sys.rate.model.XinProject" parameterType="java.lang.Integer">
         select * from xin_project where id = #{operatorId}

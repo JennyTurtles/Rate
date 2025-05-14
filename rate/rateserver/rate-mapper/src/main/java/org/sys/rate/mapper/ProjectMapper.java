@@ -84,7 +84,7 @@ public interface ProjectMapper
     public List<Project> searchProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
     public List<Project> searchHorizontalProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
 
-    Integer selectProjectNumberOfPendingMessing(String state);
+    Integer selectProjectNumberOfPendingMessing(String state,Integer ID);
     Integer selectHorizontalProjectNumberOfPendingMessing(String state);
 
     @Update("UPDATE i_project SET have_score = #{have_score} WHERE id = #{id}")

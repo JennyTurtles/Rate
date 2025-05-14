@@ -2,6 +2,7 @@
   <div class="box">
     <el-form class="registerContainer" :label-width="labelWidth" :rules="rules" label-position="right">
       <el-form-item label="姓名:">
+        <span class="isMust" style="left: -52px;">*</span>
         <el-input style="width: 60%" v-model="user.name" :disabled="userInfoIsDisabled"></el-input>
       </el-form-item>
 
@@ -21,9 +22,11 @@
 <!--        </el-autocomplete>-->
 <!--      </el-form-item>-->
       <el-form-item label="电话:">
+        <span class="isMust" style="left: -52px;">*</span>
         <el-input style="width: 60%" v-model="user.telephone" :disabled="userInfoIsDisabled"></el-input>
       </el-form-item>
       <el-form-item label="邮箱:">
+        <span class="isMust" style="left: -52px;">*</span>
         <el-input style="width: 60%" v-model="user.email" :disabled="userInfoIsDisabled"></el-input>
       </el-form-item>
 
@@ -70,12 +73,13 @@
 <!--        </el-form-item>-->
 <!--      </div>-->
       <el-form-item label="用户名:">
+        <span class="isMust" style="left: -66px;">*</span>
         <el-input style="width: 60%" v-model="user.username" :disabled="usernameAndPwdIsDisabled"></el-input>
       </el-form-item>
       <el-form-item label="密码:">
-        <span class="isMust" style="margin-left: 26px">*</span>
+        <span class="isMust" style="left: -52px;">*</span>
         <el-input style="width: 60%" v-model="user.password" type="password" :disabled="usernameAndPwdIsDisabled" 　
-                  @blur="checkPassword"></el-input>
+                  @blur="checkPassword" ></el-input>
       </el-form-item>
       <el-form-item label="确认密码:" prop="confirmPassword">
         <span class="isMust">*</span>
@@ -83,9 +87,11 @@
                   @blur="checkPasswordSame"></el-input>
       </el-form-item>
       <el-form-item label="密保问题:">
+        <span class="isMust">*</span>
         <el-input style="width: 60%" v-model="user.registerQuestion" :disabled="userInfoIsDisabled"></el-input>
       </el-form-item>
       <el-form-item label="密保答案:">
+        <span class="isMust">*</span>
         <el-input style="width: 60%" v-model="user.registerAnswer" :disabled="userInfoIsDisabled"></el-input>
       </el-form-item>
       <div class="footer">
@@ -199,6 +205,26 @@ export default {
       //   this.$message.warning('请选择注册的学生身份！')
       //   return
       // }
+      if (this.user.name == null || this.user.name == '') {
+        this.$message.warning('请输入姓名！')
+        return
+      }
+      if (this.user.telephone == null || this.user.telephone == '') {
+        this.$message.warning('请输入电话！')
+        return
+      }
+      if (this.user.email == null || this.user.email == '') {
+        this.$message.warning('请输入邮箱！')
+        return
+      }
+      if (this.user.username == null || this.user.username == '') {
+        this.$message.warning('请输入用户名！')
+        return
+      }
+      if (this.user.password == null || this.user.password == '') {
+        this.$message.warning('请输入密码！')
+        return
+      }
       if (this.user.registerQuestion == null || this.user.registerQuestion == '') {
         this.$message.warning('请输入密保问题！')
         return
@@ -289,4 +315,8 @@ export default {
   top: 2px;
   left: -80px;
 }
+/* ::v-deep .el-input__inner::placeholder {
+  color: #e31d1d;
+  font-size: 9px;
+} */
 </style>

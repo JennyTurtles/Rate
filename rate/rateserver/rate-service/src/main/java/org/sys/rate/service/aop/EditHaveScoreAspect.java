@@ -49,7 +49,7 @@ public class EditHaveScoreAspect {
         if (table.equals("i_monograph")) table = "i_book";
         Production production = productionMapper.checkProductionById(table, ID.intValue());
 
-        // 2分的成果，且已发表过同类的成果，have_score设置为0
+        // 3分的成果，且已发表过同类的成果，have_score设置为0
         Integer studentID = production.getStudentId();
         Integer point = production.getPoint();
         if(point.equals(3) && productionMapper.checkScore(table,studentID) != null){

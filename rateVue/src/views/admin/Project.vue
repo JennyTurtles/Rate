@@ -1923,10 +1923,9 @@
       // this.initEmps();
       // this.showAddEmpView()
       // this.getData();
-      const username = decodeURIComponent(this.$route.query.username || '');
-      if (username) {
-          this.searchStudentName = username;
-          this.initEmps(); // 使用这个 username 去查询数据
+      const studentID = decodeURIComponent(this.$route.query.studentID || '');
+      if (studentID) {
+          this.initEmpsByStuId(studentID); // 使用这个  studentID 去查询数据
       } else {
           this.initEmps();// 默认加载所有数据
       }
@@ -2635,6 +2634,20 @@
         //     this.emps = resp.data;
         //   }
         // });
+      },
+      initEmpsByStuId(studentID){
+        this.loading = true;
+        const params = {};
+        params.studentId = studentID;
+        this.postRequest("/project/data/basic/teacherOrAdminById",params).then((resp) => {
+          this.loading = false;
+            if (resp) {
+              this.emps = resp.data;
+            }
+        }).catch(() => {
+          this.loading = false;
+          this.$message.error('获取项目数据失败');
+        });
       },
       cancelAddStandard() {
         this.dialogVisible_publication_Standard = false;

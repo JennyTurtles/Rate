@@ -151,4 +151,7 @@ public class XinProjectService {
         return 0;
     }
 
+    public List<XinProject> selectProjectDataListByIds(XinProjectVo xinProjectVo) {
+        return xinProjectMapper.selectProjectDataListByIds(xinProjectVo);
+    }
 }

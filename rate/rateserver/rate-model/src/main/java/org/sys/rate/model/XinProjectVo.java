@@ -12,4 +12,5 @@ public class XinProjectVo {
   private String   studentName;
   private Integer   pointtype;
   private Integer teacherId;
+  private Integer studentId;
 }

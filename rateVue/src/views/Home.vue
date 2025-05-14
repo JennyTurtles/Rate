@@ -523,6 +523,11 @@ export default {
           }
         });
       }
+      localStorage.removeItem("user");
+      sessionStorage.clear(); // 
+      this.$store.commit("initRoutes", []); // 清空路由
+      this.$router.push("/login"); // 跳转到登录页
+
     },
     registerTitle() {
       return "注册为" + this.selectStuType;

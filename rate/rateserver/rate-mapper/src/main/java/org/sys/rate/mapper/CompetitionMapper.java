@@ -81,7 +81,7 @@ public interface CompetitionMapper
     public Competition selectByID(@Param("ID") Long ID);
 
     public List<Competition> searchCompetitionByConditions(String studentName, String state, String competitionName, String pointFront, String pointBack);
-    public Integer selectCompetitionNumberOfPendingMessing(String state);
+    public Integer selectCompetitionNumberOfPendingMessing(String state,Integer ID);
 
     @Update("UPDATE i_competition SET have_score = #{have_score} WHERE id = #{id}")
     public Integer editPoint(Competition competition);

@@ -911,6 +911,7 @@ export default {
                         this.$message.success('添加成功！')
                         this.initEmps();
                         this.doAddOper("commit", resp.data);
+                        this.$router.push('/student/Project');
                       }
                     });
                     })

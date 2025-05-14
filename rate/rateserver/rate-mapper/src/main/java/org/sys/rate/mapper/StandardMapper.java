@@ -93,7 +93,7 @@ public interface StandardMapper
     public Standard selectByID(Long ID);
 
     public List<Standard> searchStandardByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
-    public Integer selectStandardNumberOfPendingMessing(String state);
+    public Integer selectStandardNumberOfPendingMessing(String state,Integer ID);
 
     @Update("UPDATE i_standard SET have_score = #{have_score} WHERE id = #{id}")
     public Integer editPoint(Standard standard);

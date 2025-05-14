@@ -89,27 +89,28 @@ public class OperationController {
     }
 
     @GetMapping("/getAllTypePendingMessageNumber") //获取所有类别的导师通过状态的成果
-    public Msg getAllTypePendingMessage(String role) {
+    public Msg getAllTypePendingMessage(String role,Integer id) {
         Integer res = 0;
         String state = "";
         //分角色请求合并为一个
         if(role.equals("admin")) {
             state = "tea_pass";
+            id = null;
         } else if(role.equals("teacher")) {
             state = "commit";
         }
-        Integer patentRes = patentMapper.selectPatentNumberOfPendingMessing(state);
-        Integer paperRes = paperMapper.selectPaperNumberOfPendingMessing(state);
-        Integer projectRes = projectMapper.selectProjectNumberOfPendingMessing(state);
-        Integer horizontalProjectRes = programRecordMapper.selectHorizontalProjectNumberOfPendingMessing(state);
-        Integer productRes = productMapper.selectProductNumberOfPendingMessing(state);
-        Integer monographRes = monographMapper.selectMonographNumberOfPendingMessing(state);
-        Integer decisionRes = decisionMapper.selectDecisionNumberOfPendingMessing(state);
-        Integer standardRes = standardMapper.selectStandardNumberOfPendingMessing(state);
-        Integer awardRes = awardMapper.selectAwardNumberOfPendingMessing(state);
-        Integer competitionRes = competitionMapper.selectCompetitionNumberOfPendingMessing(state);
+        Integer patentRes = patentMapper.selectPatentNumberOfPendingMessing(state,id);
+        Integer paperRes = paperMapper.selectPaperNumberOfPendingMessing(state,id);
+        Integer projectRes = projectMapper.selectProjectNumberOfPendingMessing(state,id);
+        Integer horizontalProjectRes = programRecordMapper.selectHorizontalProjectNumberOfPendingMessing(state,id);
+        Integer productRes = productMapper.selectProductNumberOfPendingMessing(state,id);
+        Integer monographRes = monographMapper.selectMonographNumberOfPendingMessing(state,id);
+        Integer decisionRes = decisionMapper.selectDecisionNumberOfPendingMessing(state,id);
+        Integer standardRes = standardMapper.selectStandardNumberOfPendingMessing(state,id);
+        Integer awardRes = awardMapper.selectAwardNumberOfPendingMessing(state,id);
+        Integer competitionRes = competitionMapper.selectCompetitionNumberOfPendingMessing(state,id);
         res = paperRes + patentRes + productRes + projectRes + monographRes + decisionRes + standardRes + awardRes + competitionRes + horizontalProjectRes;
-        return Msg.success().add("count", res).add("patent", patentRes).add("patent", patentRes)
+        return Msg.success().add("count", res).add("patent", patentRes)
                 .add("paper", paperRes).add("project", projectRes).add("product", productRes)
                 .add("monograph", monographRes).add("decision", decisionRes).add("standard", standardRes)
                 .add("award", awardRes).add("competition", competitionRes).add("horizontalProject", horizontalProjectRes);

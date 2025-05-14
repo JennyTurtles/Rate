@@ -78,4 +78,5 @@ public interface XinProjectMapper extends BaseMapper<XinProject>
     @Update("UPDATE graduatestudent SET point = point + #{score} WHERE studentID = #{id}")
     public int addStudentScore(Integer score,Integer id);
 
+    List<XinProject> selectProjectDataListByIds(XinProjectVo xinProjectVo);
 }

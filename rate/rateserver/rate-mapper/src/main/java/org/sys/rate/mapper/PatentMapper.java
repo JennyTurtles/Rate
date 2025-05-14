@@ -94,7 +94,7 @@ public interface PatentMapper
 
     public List<Patent> searchPatentByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
 
-    public Integer selectPatentNumberOfPendingMessing(String state);
+    public Integer selectPatentNumberOfPendingMessing(String state, Integer ID);
 
     @Update("UPDATE i_patent SET have_score = #{have_score} WHERE id = #{id}")
     public Integer editPoint(Patent patent);

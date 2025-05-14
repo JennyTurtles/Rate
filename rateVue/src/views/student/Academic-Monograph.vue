@@ -105,7 +105,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="cancelAdd">取 消</el-button>
-        <el-button type="primary" @click="addMonograph" v-show="addButtonState">提 交</el-button>
+        <el-button type="primary" @click="addMonograph">提 交</el-button>
       </span>
     </el-dialog>
 
@@ -259,7 +259,7 @@ export default {
       },
       files:[],//选择上传的文件列表
       urlFile:'',//文件路径
-      addButtonState: false,//是否允许添加专著或教材
+      addButtonState: true,//是否允许添加专著或教材
       operList:[],//每个专著或教材的历史操作记录
       options:[],//存储所有类型对象
       labelPosition: "left",
@@ -571,8 +571,6 @@ export default {
     addMonograph() {//专著或教材提交确认
       this.$refs['currentMonographCopy'].validate(async (valid) => {
         if (valid) {
-          // 提交论文的逻辑
-          // 假设添加论文成功
           this.$emit('add');
           this.$emit('update:dialogVisible', false);
         }
@@ -622,6 +620,7 @@ export default {
                         this.$message.success('添加成功！')
                         this.dialogVisible = false;
                         this.doAddOper("commit", resp.data);
+                        this.$router.push('/student/Project');
                       }
                     }
                 );

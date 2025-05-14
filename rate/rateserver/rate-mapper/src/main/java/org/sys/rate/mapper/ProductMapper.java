@@ -92,7 +92,7 @@ public interface ProductMapper
     public Product selectByID(Long ID);
 
     public List<Product> searchProductByConditions(String studentName, String state, String productName, String pointFront, String pointBack);
-    public Integer selectProductNumberOfPendingMessing(String state);
+    public Integer selectProductNumberOfPendingMessing(String state,Integer ID);
 
     @Update("UPDATE i_application SET have_score = #{have_score} WHERE id = #{id}")
     public Integer editPoint(Product product);

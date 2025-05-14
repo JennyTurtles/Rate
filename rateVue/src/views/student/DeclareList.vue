@@ -168,8 +168,6 @@ export default {
         default:
           this.$message.error("未选择有效选项");
       }
-
-      console.log("showAddPaperDialog"+this.showAddPaperDialog)
     },
     close() {
       this.showAddPaperDialog = false;
@@ -210,7 +208,7 @@ export default {
       // this.$router.push('/student/Project');
       this.close();
     },
-    addAcademicMonograph() {
+      addAcademicMonograph() {
       // 添加学术专著和教材的逻辑
       // 假设添加学术专著和教材成功
       // this.$router.push('/student/Project');

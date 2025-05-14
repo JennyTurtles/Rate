@@ -83,7 +83,7 @@ public interface AwardMapper
     public Award selectByID(Long ID);
 
     public List<Award> searchAwardByConditions(String studentName, String state, String awardName, String pointFront, String pointBack);
-    public Integer selectAwardNumberOfPendingMessing(String state);
+    public Integer selectAwardNumberOfPendingMessing(String state,Integer ID);
 
     @Update("UPDATE i_award SET have_score = #{have_score} WHERE id = #{id}")
     public Integer editPoint(Award award);

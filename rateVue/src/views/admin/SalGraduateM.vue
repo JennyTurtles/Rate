@@ -87,7 +87,7 @@
                 size="mini" 
                 type="primary" 
                 plain 
-                @click="goToProject(scope.row.name)" 
+                @click="goToProject(scope.row.studentID)" 
                 style="padding: 4px"
               >
               成果列表
@@ -243,11 +243,11 @@ export default {
       });
     },
 
-    goToProject(username) {
+    goToProject(studentID) {
       let url = this.$router.resolve({
         path: '/admin/project',
         query: {
-          username: encodeURIComponent(username),
+          studentID: encodeURIComponent(studentID),
           showSearch: false
         }
       });
@@ -351,7 +351,13 @@ export default {
       this.getRequest(url).then((resp)=>{
         if(resp){
           if(resp.status == 200){
-            this.graduateStudents = resp.obj[0]
+            this.graduateStudents = resp.obj[0].map(student => {
+            // 如果 point 属性为 null 或 undefined，则设置为 0
+            if (student.point == null || student.point === undefined) {
+              student.point = 0;
+            }
+            return student;
+          });
             this.totalCount = resp.obj[1]
           }
         }

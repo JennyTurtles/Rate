@@ -52,7 +52,7 @@ public interface ProgramRecordMapper {
     @Select("select count(*) from programresults where programresults.student_id = #{id}")
     int getDtaByStuID(int id);
 
-    Integer selectHorizontalProjectNumberOfPendingMessing(String state);
+    Integer selectHorizontalProjectNumberOfPendingMessing(String state,Integer ID);
 
     List<ProgramResult> searchHorizontalProjectByConditions(String studentName, String state, String projectName, String pointFront, String pointBack);
 

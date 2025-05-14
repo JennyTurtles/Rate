@@ -82,7 +82,7 @@ public interface MonographMapper
     public Monograph selectByID(Long ID);
 
     public List<Monograph> searchMonographByConditions(String studentName, String state, String monoName, String pointFront, String pointBack);
-    public Integer selectMonographNumberOfPendingMessing(String state);
+    public Integer selectMonographNumberOfPendingMessing(String state,Integer ID);
 
     @Update("UPDATE i_book SET have_score = #{have_score} WHERE id = #{id}")
     public Integer editPoint(Monograph monograph);

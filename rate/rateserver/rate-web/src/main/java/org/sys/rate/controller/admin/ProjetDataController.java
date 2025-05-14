@@ -169,6 +169,33 @@ public class ProjetDataController {
         return new JsonResult<>(list);
     }
 
+    @PostMapping("/teacherOrAdminById")
+    public JsonResult<List> teacherOrAdminById(@RequestBody XinProjectVo xinProjectVo) {
+        List<ProjectData> list = new ArrayList<>();
+        List<XinProject> xinProjects = xinProjectService.selectProjectDataListByIds(xinProjectVo);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        if (xinProjects != null && !xinProjects.isEmpty()) {
+            for (XinProject x : xinProjects) {
+                Integer point = x.getPoint();
+                String state = x.getState();
+                ProjectData projectData = new ProjectData();
+                projectData.setId(x.getMid());
+                String formattedDate = sdf.format(x.getDate());
+                projectData.setApplyTime(formattedDate);
+                projectData.setName(x.getName());
+                projectData.setStudentName(x.getStudentName());
+                projectData.setCategory(x.getType());
+                projectData.setParticipants(x.getSname());
+                projectData.setStatus(x.getState());
+                projectData.setRemark(x.getRemark());
+                projectData.setPointtype(x.getPointtype());
+                projectData.setPoint(Long.parseLong(x.getPoint() + ""));
+                list.add(projectData);
+            }
+
+        }
+        return new JsonResult<>(list);
+    }
 
     @GetMapping("/studentID_old")//无页码要求
     public JsonResult<List> getById(Integer studentID) {

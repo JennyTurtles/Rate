@@ -231,9 +231,14 @@
     </select>
 
     <select id="selectCompetitionListByYear" resultType="org.sys.rate.model.Competition"></select>
-    <select id="selectCompetitionNumberOfPendingMessing" resultType="Integer">
+    <select id="selectCompetitionNumberOfPendingMessing" resultType="java.lang.Integer">
         select count(*)
         from i_competition
-        where state = #{state}
+        <where>
+            state = #{state}
+            <if test="ID!=null">
+                and student_id in (select studentID from graduatestudent where tutorID = #{ID})
+            </if>
+        </where>
     </select>
 </mapper>

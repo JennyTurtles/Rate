@@ -1,5 +1,6 @@
 package org.sys.rate.model;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ public class XinProject {
 
     private Integer point; // 积分
 
+    @TableField(exist = false)
     private String studentName; //申报人
 
     private Timestamp date; // 操作时间

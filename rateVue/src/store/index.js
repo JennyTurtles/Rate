@@ -379,7 +379,12 @@ const store = new Vuex.Store({
             context.commit('INIT_initchangeList', false)
         },
         changePendingMessageange(context, role) {
-            getRequest('/oper/basic/getAllTypePendingMessageNumber?role=' + role).then((response) => {
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user || !user.id) {
+                console.error("用户信息未加载，无法获取待办消息");
+                return;
+            }
+            getRequest('/oper/basic/getAllTypePendingMessageNumber?role='+ role +'&id=' + user.id).then((response) => {
                 if (response) {
                     context.commit('changePendingMessage', response.extend);
                 }

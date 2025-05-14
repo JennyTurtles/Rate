@@ -7,9 +7,9 @@ proxyObj['/ws'] = {
 
 proxyObj['/'] = {
         ws: false,
-        // target: 'http://localhost:8081',
+        target: 'http://localhost:8081',
         // target: 'http://106.15.36.190:8081',
-        target: 'http://219.228.76.150:8081',
+        // target: 'http://219.228.76.150:8081',
         changeOrigin: true,
         pathRewrite: {
             '^/api': ''
@@ -19,8 +19,8 @@ module.exports = {
 	productionSourceMap: false,
     publicPath:'./',
     devServer: {
-        host: '0.0.0.0',
-        // host: 'localhost',
+        // host: '0.0.0.0',
+        host: 'localhost',
         port: 8080,
         proxy: proxyObj,
 		disableHostCheck: true,

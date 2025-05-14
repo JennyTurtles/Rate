@@ -267,7 +267,12 @@
     <select id="selectProjectNumberOfPendingMessing" resultType="java.lang.Integer">
         select count(*)
         from i_project
-        where state = #{state} and project_type_id != -1
+        <where>
+            state = #{state}
+            <if test="ID!=null">
+                and student_id in (select studentID from graduatestudent where tutorID = #{ID})
+            </if>
+        </where>
     </select>
     <select id="selectHorizontalProjectNumberOfPendingMessing" resultType="java.lang.Integer">
         select count(*)

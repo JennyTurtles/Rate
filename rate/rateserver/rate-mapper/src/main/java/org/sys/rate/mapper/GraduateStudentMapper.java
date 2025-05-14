@@ -42,10 +42,10 @@ public interface GraduateStudentMapper {
 
     int updateWithInstitutionID(GraduateStudent graduateStudent);
 
-    @Update("UPDATE graduatestudent SET point = point + #{score} WHERE studentID = #{stuID}")
+    @Update("UPDATE graduatestudent SET point = IFNULL(point,0) + #{score} WHERE studentID = #{stuID}")
     public int updateScore(Long stuID,Long score);
 
-    @Update("UPDATE graduatestudent SET point = point - #{score} WHERE studentID = #{stuID}")
+    @Update("UPDATE graduatestudent SET point = IFNULL(point,0) - #{score} WHERE studentID = #{stuID}")
     public int updateScoreSub(Long stuID,Long score);
 
     @Update("UPDATE graduatestudent SET point1 = CASE " +

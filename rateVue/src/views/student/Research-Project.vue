@@ -568,8 +568,6 @@ export default {
     addProject() {//科研项目提交确认
       this.$refs['currentProjectCopy'].validate(async (valid) => {
         if (valid) {
-          // 提交论文的逻辑
-          // 假设添加论文成功
           this.$emit('add');
           this.$emit('update:dialogVisible', false);
         }
@@ -613,6 +611,7 @@ export default {
                     this.$message.success('添加成功！')
                     this.dialogVisible = false;
                     this.doAddOper("commit", resp.data);
+                    this.$router.push('/student/Project');
                   }
                 }
             );
