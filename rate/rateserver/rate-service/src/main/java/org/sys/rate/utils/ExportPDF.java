@@ -22,6 +22,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.StandardOpenOption;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -160,7 +161,13 @@ public class ExportPDF {
             data.put("preSum" + (i + 1), adaptRows(paperComments.get(i).getPreSum(), PRESUMROWS));
             data.put("nextPlan" + (i + 1), adaptRows(paperComments.get(i).getNextPlan(), NEXTPLANROWS));
             data.put("tutorComment" + (i + 1), paperComments.get(i).getTutorComment() == null || paperComments.get(i).getTutorComment().isEmpty() ? " " : paperComments.get(i).getTutorComment());
-            data.put("DateStu" + (i + 1), paperComments.get(i).getDateStu());
+            if (paperComments.get(i).getDateStu() != null) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                data.put("DateStu" + (i + 1), sdf.format(paperComments.get(i).getDateStu()));
+            } else {
+                data.put("DateStu" + (i + 1), "");
+            }
+            //data.put("DateStu" + (i + 1), paperComments.get(i).getDateStu());
             //data.put("DateTea" + (i + 1), paperComments.get(i).getDateTea() == null || paperComments.get(i).getDateTea().isEmpty() ? "" : paperComments.get(i).getDateTea());
         }
         data.put("year", LocalDateTime.now().getYear() + "");
