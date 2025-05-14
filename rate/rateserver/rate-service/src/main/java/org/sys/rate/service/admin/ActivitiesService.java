@@ -206,12 +206,12 @@ public class ActivitiesService {
         activity.cleanCount();
         activity.fillNewInfo(newActivityInfo);
         Integer oldActID = activity.getId();
+        Boolean isParent = false;
         if (!newActivityInfo.isSub()) // 用于克隆子活动，将子活动作为主活动
             activity.setParentID(null);
         activitiesMapper.insert(activity);
         Integer newActID = activity.getId();
         activityGrantMapper.insertRecordOfAddActivity(newActivityInfo.getAdminID(),newActID);
-        cloneDetail(newActID,oldActID);
         if (!newActivityInfo.isSub()){
             if (activity.getHaveSub() == 1){ // 有子活动则克隆子活动，此处后续使用多线程优化
                 cloneSubActivity(newActID,oldActID);
@@ -219,6 +219,7 @@ public class ActivitiesService {
             }//else
                 //(newActID,oldActID); //分组不克隆，先注释
         }
+        cloneDetail(newActID,oldActID);
         return newActID;
     }
 
@@ -257,9 +258,14 @@ public class ActivitiesService {
     public void cloneSubActivity(Integer newActID, Integer oldActID){
         // k-v: 老子活动ID -> 新子活动ID
         Map<Integer,Integer> subActMap = new HashMap<>();
+        Activities parentAct = activitiesMapper.queryById(newActID);
         activitiesMapper.getSubActivities(oldActID).forEach(subActivity -> {
             subActivity.setParentID(newActID);
             subActivity.setSub(true);
+            //子活动克隆的时候不能设置时间，所以统一按照新克隆的主活动设置
+            subActivity.setStartDate(parentAct.getStartDate());
+            subActivity.setVisibleDate(parentAct.getVisibleDate());
+            subActivity.setEnterDate(parentAct.getEnterDate());
             Integer newSubActID =  cloneActivity(subActivity); // 获得克隆后的子活动ID
             subActMap.put(subActivity.getId(),newSubActID);
         });
@@ -306,13 +312,18 @@ public class ActivitiesService {
         cloneDisplayItem(newActID,oldActID);
     }
 
+
+    //考虑到有子活动的活动需要所有子活动的Map，所以提出来当全局变量
+    Map<Integer,Integer> scoreItemMap = new HashMap<>();
+    Map<Integer,Integer> infoItemMap = new HashMap<>();
+    Map<Integer,Integer> displayItemMap = new HashMap<>();
     @Transactional
     public void cloneDisplayItem(Integer newActID, Integer oldActID){
         // 获取老活动中所有的展示项目
         List<DisplayItem> displayItems = displayItemMapper.getAllDisplayItemNoOrder(oldActID); // 严格按照添加顺序返回，避免找不到displayItem的ID
-        Map<Integer,Integer> scoreItemMap = new HashMap<>();
-        Map<Integer,Integer> infoItemMap = new HashMap<>();
-        Map<Integer,Integer> displayItemMap = new HashMap<>();
+//        Map<Integer,Integer> scoreItemMap = new HashMap<>();
+//        Map<Integer,Integer> infoItemMap = new HashMap<>();
+//        Map<Integer,Integer> displayItemMap = new HashMap<>();
 
         // 构建新老活动评分项的映射 老活动评分项ID -> 新活动评分项ID
         List<Integer> oldScoreItemID = scoreItemMapper.getIDByActivityID(oldActID);
