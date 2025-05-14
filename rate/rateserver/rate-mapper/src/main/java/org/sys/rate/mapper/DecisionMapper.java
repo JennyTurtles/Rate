@@ -24,7 +24,7 @@ public interface DecisionMapper
      * @param ID
      * @return
      */
-    @Select("select * from i_patent where ID = #{ID}")
+    @Select("select * from i_decision where ID = #{ID}")
     Decision getById(Integer ID);
 
     /**
@@ -72,13 +72,13 @@ public interface DecisionMapper
     @Select("SELECT ID FROM i_patent WHERE studentID = #{stuID} AND point = 2 AND state = 'adm_pass' LIMIT 1")
     public Integer checkScore(Long stuID);
 
-    @Update("UPDATE i_patent SET state = #{state},have_score = #{valid} WHERE ID = #{ID}")
+    @Update("UPDATE i_decision SET state = #{state},have_score = #{valid} WHERE ID = #{ID}")
     public Integer editState2(String state, Long ID, Integer valid);
 
     @Update("UPDATE graduatestudent SET point = point + #{score} WHERE ID = #{stuID}")
     public int updateScore(Long stuID,Long score);
 
-    @Select("SELECT * FROM i_patent WHERE  ID = #{ID}")
+    @Select("SELECT * FROM i_decision WHERE  ID = #{ID}")
     public Decision selectByID(Long ID);
 
     public List<Decision> searchDecisionByConditions(String studentName, String state, String decisionName, String pointFront, String pointBack);

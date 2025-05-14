@@ -48,6 +48,16 @@ public interface GraduateStudentMapper {
     @Update("UPDATE graduatestudent SET point = point - #{score} WHERE studentID = #{stuID}")
     public int updateScoreSub(Long stuID,Long score);
 
+    @Update("UPDATE graduatestudent SET point1 = CASE " +
+            "WHEN studentType = '专硕' AND point < 6 THEN 6 - point " +
+            "WHEN studentType = '专硕' AND point >= 6 THEN 0 " +
+            "WHEN studentType = '学硕' AND point < 4 THEN 4 - point " +
+            "WHEN studentType = '学硕' AND point >= 4 THEN 0 " +
+            "ELSE point1 END " +
+            "WHERE studentID = #{studentID}")
+    int updatePoint1(Integer studentID);
+
+
     GraduateStudent checkStuNumber(@Param("stuNumber") String record, @Param("institutionID") Integer institutionID);
 
 }

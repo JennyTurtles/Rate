@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class Standard extends Production{
     private String remark;
+    private String fileName;
 }

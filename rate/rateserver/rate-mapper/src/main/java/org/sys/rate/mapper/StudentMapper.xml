@@ -36,7 +36,9 @@
         select * from student
         where ID=#{ID}
     </select>
-
+    <select id="selectCountByUsername" resultType="java.lang.Integer">
+        SELECT count(*) FROM student WHERE username = #{username}
+    </select>
     <insert id="insert" parameterType="org.sys.rate.model.Student">
         insert into student (name, studentnumber, telephone, email
         )
@@ -119,7 +121,7 @@
     <select id="getStuByIDNumber" resultMap="BaseResultMap">
         select *
         from student
-        where IDNumber = #{IDNumber}
+        where username = #{username}
     </select>
 
     <insert id="insertFROMImport" parameterType="org.sys.rate.model.Student" useGeneratedKeys="true" keyProperty="ID">
@@ -157,7 +159,7 @@
         #{name,jdbcType=VARCHAR},
         #{username,jdbcType=VARCHAR},
         #{password,jdbcType=VARCHAR}, #{telephone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR},false, #{role,jdbcType=VARCHAR},
-                #{registerQuestion,jdbcType=VARCHAR}, #{registerQuestion,jdbcType=VARCHAR}
+                #{registerQuestion,jdbcType=VARCHAR}, #{registerAnswer,jdbcType=VARCHAR}
         )
     </insert>
 
@@ -183,12 +185,10 @@
         where ID=#{ID}
     </update>
     <update id="updatePassword">
-        update student
-        <set>
-            <if test="pass != '' and pass != null">password=#{pass,jdbcType=VARCHAR},</if>
-        </set>
-        where ID=#{ID}
-    </update>
+    UPDATE student
+    SET password = #{password}
+    WHERE ID = #{ID}
+</update>
     <delete id="deleteStudent" parameterType="Integer">
         delete from student where ID = #{ID};
     </delete>

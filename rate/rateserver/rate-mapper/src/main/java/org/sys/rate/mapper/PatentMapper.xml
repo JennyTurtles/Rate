@@ -7,6 +7,7 @@
         <id property="id" column="id" jdbcType="INTEGER"/>
         <result property="studentId" column="student_id"/>
         <result property="name" column="name"/>
+        <result property="createtime" column="createtime"/>
         <result property="date" column="date"/>
         <result property="author" column="author"/>
         <result property="url" column="url"/>
@@ -41,7 +42,7 @@
     </resultMap>
 
     <sql id="selectPaperVo">
-        select id,student_id,name,date,author,url,grantedStatus,indicatorId,state
+        select *
         from i_patent
     </sql>
 
@@ -82,7 +83,7 @@
 
 <!--    学生专利页面初始化-->
     <select id="selectListByIds" resultMap="PatentResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.granted_status, a.indicator_id, a.date,ind.level,
+        SELECT a.id,a.name, a.author,a.have_score, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.granted_status, a.indicator_id, a.date,ind.level,
                j.remark,ind.name as iname,ind.score, ind.id as indicatorid, s.name as sname
         FROM i_patent a
                  JOIN (

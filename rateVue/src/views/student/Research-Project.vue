@@ -1,135 +1,7 @@
 <template>
   <div>
-    <div>
-      <div
-          style="display: flex; justify-content: space-between; margin: 15px 0"
-      >
-        <div>
-          <el-button type="primary" icon="el-icon-plus" @click="addProjectDialog">
-            添加纵向科研项目
-          </el-button>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top: 10px;">
-      <el-table
-          :data="projectsList"
-          stripe
-          border
-          v-loading="loading"
-          :header-cell-style="rowClass"
-          element-loading-text="正在加载..."
-          element-loading-spinner="el-icon-loading"
-          element-loading-background="rgba(0, 0, 0, 0.12)"
-          style="width: 100%;"
-      >
-        <el-table-column
-            fixed
-            prop="name"
-            align="center"
-            label="科研项目名称"
-            min-width="15%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="state"
-            label="状态"
-            min-width="10%"
-            align="center"
-        >
-          <template slot-scope="scope">
-            <span
-                style="padding: 4px"
-                :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
-                size="mini"
-            >
-              {{scope.row.state=="commit"
-                ? "已提交"
-                :scope.row.state=="tea_pass"
-                    ? "导师通过"
-                    :scope.row.state=="tea_reject"
-                        ? "导师驳回"
-                        :scope.row.state=="adm_pass"
-                            ? "管理员通过"
-                            :"管理员驳回"}}
-              </span>
-          </template>
-        </el-table-column>
-        <el-table-column
-            prop="projectType.name"
-            label="项目类别"
-            align="center"
-            min-width="15%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="author"
-            align="center"
-            label="完成人"
-            min-width="15%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="startDate"
-            label="立项年月"
-            align="center"
-            min-width="10%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="endDate"
-            min-width="10%"
-            align="center"
-            label="结项年月"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="point"
-            label="积分"
-            align="center"
-            min-width="8%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="operationList[0].remark"
-            min-width="20%"
-            align="center"
-            label="备注"
-        >
-        </el-table-column>
-        <el-table-column align="center" width="280px" label="操 作" min-width="20%">
-          <template slot-scope="scope">
-            <el-button
-                @click="showEditEmpView(scope.row, scope.$index)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-edit"
-                type="primary"
-                plain
-                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject' || scope.row.state == 'adm_reject'? true : false"
-            >编辑</el-button
-            >
-            <el-button
-                @click="showInfo(scope.row)"
-                style="padding: 4px"
-                size="mini"
-            >查看详情</el-button
-            >
-            <el-button
-                @click="deleteProject(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                type="danger"
-                icon="el-icon-delete"
-                plain
-                v-show="scope.row.state == 'tea_reject' || scope.row.state == 'commit'? true:false"
-            >删除</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-    <!-- 添加科研科研项目对话框 -->
+
+    <!-- 添加纵向科研项目对话框 -->
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
       <el-form
           :hide-required-asterisk="true"
@@ -188,15 +60,16 @@
               value-key="id"
               filterable
               remote
-              clearable
+              clearable="true"
               reserve-keyword
               @change="selectOption($event)"
               placeholder="请输入科研项目类别"
               loading-text="搜索中..."
               :remote-method="selectProjectTypeMethod"
-              :loading="searchTypeLoading">
+              :loading="searchTypeLoading"
+              popper-class="custom-select-dropdown">
             <el-option
-                style="width: 550px;overflow: scroll"
+                style="width: 550px;"
                 v-for="item in selectProjectTypeList"
                 :key="item.id"
                 :label="item.name"
@@ -227,7 +100,18 @@
           >
             <el-button type="primary" icon="el-icon-upload2"
                        slot="trigger"
-            >选择文件</el-button>&nbsp;&nbsp;&nbsp;&nbsp;
+            >选择文件</el-button>&nbsp;
+            <span>
+              <el-tooltip
+                          effect="dark"
+                          placement="top-start"
+                >
+                <i class="el-icon-info" style="color: #4b8ffe"> </i>
+                <div style="width: 200px" slot="content">
+                    证明材料指:能证明成果获得人、成果等级的所有证明材料（多个文件需打包上传）
+                </div>
+              </el-tooltip>
+            </span>&nbsp;&nbsp;&nbsp;&nbsp;
             <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
                   &nbsp;&nbsp;大小不能超过10MB
                 </span>
@@ -341,6 +225,12 @@ import {postRequest1} from "@/utils/api";
 import {debounce} from "@/utils/debounce";
 export default {
   name: "SalSearch",
+  props: {
+    dialogVisible: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       isImage: false,
@@ -351,6 +241,7 @@ export default {
       currentIndicator: {},
       zeroPointReason: '',
       searchTypeLoading: false,
+      uploadLoading: false,
       selectProjectType: '',
       selectProjectTypeName: '',
       isAuthorIncludeSelf: true,
@@ -419,6 +310,7 @@ export default {
   mounted() {
     this.currentProjectCopy = JSON.parse(JSON.stringify(this.currentProject));
     this.initProjectsList();
+    this.addProjectDialog()
   },
   methods: {
     previewMethod(type) {
@@ -482,6 +374,7 @@ export default {
     },
     cancelAdd() {
       this.dialogVisible = false;
+      this.$emit('update:dialogVisible', false);
     },
     handleDelete() {//删除选择的文件
       var file={filepath:this.urlFile}
@@ -509,18 +402,32 @@ export default {
       var formData=new FormData();
       this.files.push(file);
       formData.append("file",this.files[0].raw)
+
+      const loadingInstance = this.$loading({
+        lock: true,
+        text: '正在上传中，请稍候...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
       axios.post("/achievements/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? this.user.token : ''
         }
       }).then((response)=> {
+          loadingInstance.close();
           this.$message({
             message: '上传成功！'
           })
           //获取文件路径
           this.urlFile = response.data
         }
-      )
+      ).catch((error) => {
+        // 关闭上传中的提示
+        loadingInstance.close();
+
+        this.$message.error('上传失败，请重试！');
+        console.error('上传失败:', error);
+      })
     },
     judgeMember(){//输入作者框 失去焦点触发事件
       var val = this.currentProjectCopy.author;
@@ -659,6 +566,14 @@ export default {
       });
     },
     addProject() {//科研项目提交确认
+      this.$refs['currentProjectCopy'].validate(async (valid) => {
+        if (valid) {
+          // 提交论文的逻辑
+          // 假设添加论文成功
+          this.$emit('add');
+          this.$emit('update:dialogVisible', false);
+        }
+      });
       const params = {};
       params.name = this.currentProjectCopy.name;
       params.url = this.urlFile;
@@ -771,5 +686,8 @@ export default {
 .slide-fade-leave-active {
   transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
 }
-
+.custom-select-dropdown {
+  max-height: 200px; /* 设置最大高度 */
+  overflow-y: auto; /* 添加垂直滚动条 */
+}
 </style>

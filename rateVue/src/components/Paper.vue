@@ -94,8 +94,15 @@
                   @click="searchEmps(1, 10)"
                   :disabled="showAdvanceSearchView"
                   style="margin-left:10px"
-                  >
+                >
                   搜索
+              </el-button>
+              <el-button
+                  type="primary"
+                  @click="openAddPaperDialog"
+                  style="margin-left:10px"
+                >
+                  添加论文
               </el-button>
           </div>
     </div>
@@ -312,14 +319,11 @@
                           :"管理员驳回"}}</span
           ><br />
         </el-form-item>
-        <el-form-item label="发表年份:">
-          <span>{{emp.year}}</span
+        <el-form-item label="发表年月:">
+          <span>{{emp.year}}-{{ emp.month }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="发表月份:">
-          <span>{{emp.month}}</span
-          ><br />
-        </el-form-item>
+
         <el-form-item label="证明材料:">
           &nbsp;&nbsp;&nbsp;&nbsp;
           <div v-if="emp.url == '' || emp.url == null ? true:false" >无证明材料</div>
@@ -678,6 +682,13 @@ export default {
         scoreItemCount: "0",
         comment: "论文备注example：关于xxx的论文",
       };
+    },
+    openAddPaperDialog() {
+      this.dialogVisible_show = true;
+      this.emptyEmp();
+    },
+    closeDialog() {
+      this.dialogVisible_show = false;
     },
     showEditEmpView_show(data) {
       this.title_show = "显示详情";

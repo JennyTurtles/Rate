@@ -9,7 +9,7 @@ import java.util.List;
 
 @Mapper
 public interface PaperCommentMapper {
-    @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment  where #{thesisID} = thesisID ORDER BY isPass, dateStu")
+    @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment  where #{thesisID} = thesisID ORDER BY dateStu")
     List<PaperComment> selectCommentList(Integer thesisID);
 
 
@@ -30,7 +30,7 @@ public interface PaperCommentMapper {
             "ORDER BY st.year DESC, st.semester DESC LIMIT 1;")
     Integer getThesisID(int stuID);
 
-    @Update("update papercomment set dateStu = #{dateStu}, preSum = #{preSum}, nextPlan = #{nextPlan},dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass}, num = #{num} where thesisID = #{thesisID} and ID = #{ID}")
+    @Update("update papercomment set  preSum = #{preSum}, nextPlan = #{nextPlan},dateTea = #{dateTea}, tutorComment = #{tutorComment}, isPass = #{isPass}, num = #{num} where thesisID = #{thesisID} and ID = #{ID}")
     int updateStuComment(PaperComment paperComment);
 
     @Select("SELECT t.id, t.studentid, t.NAME, t.url, t.YEAR, t.MONTH, t.tutorid, t.grade, t.start_thesis_id FROM thesis t, student s, undergraduate u WHERE u.studentID = #{stuID} and t.studentID = u.ID and u.studentID = s.ID and t.start_thesis_id = #{startThesisID}")
@@ -45,6 +45,8 @@ public interface PaperCommentMapper {
     Thesis getThesisByTID(Integer thesisID);
 
     List<Student> getStuThesisWithDate(Integer tutorId, Integer startThesisID);
+
+    List<Student> getStuThesisWithNoDate(Integer tutorId);
 
     @Select("select ID, thesisID, dateStu, dateTea, preSum, nextPlan, tutorComment, num, isPass from papercomment where #{thesisID} = thesisID ORDER BY dateStu")
     List<PaperComment> selectCommentListStuOrderByNum(Integer thesisID);
@@ -77,4 +79,7 @@ public interface PaperCommentMapper {
 
     @Select("select * from papercomment where ID = #{ID}")
     PaperComment selectByID(Integer ID);
+
+    @Select("select * from papercomment where #{thesisID} = thesisID ORDER BY dateStu")
+    List<PaperComment> selectRecordListStu(int thesisID);
 }

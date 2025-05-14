@@ -93,6 +93,10 @@
                         class="submenu"
                         @click="handleOpen(subItem)"
                     >
+                      <i
+                          style="color: #409eff; margin-right: 5px"
+                          :class="subItem.iconCls"
+                      ></i>
                       {{ subItem.name }}
                     </el-menu-item>
                     <template v-else-if="subItem.enabled && subItem.children">
@@ -310,6 +314,7 @@ export default {
   data: function () {
     return {
       checkPwdState: false,
+
       checkOldPwdState: false,
       isStudentRole: false, //判断当前角色是否是学生中的四个角色之一，后续判断是否发送待办消息的请求和页面显示
       tutorName: '',
@@ -333,11 +338,6 @@ export default {
       register_select: "",
     };
   },
-  computed: {
-    user() {
-      return JSON.parse(localStorage.getItem("user"));
-    },
-  },
   mounted() {
     this.routes = JSON.parse(sessionStorage.getItem("initRoutes"));
     // 获取浏览器可视区域高度
@@ -345,28 +345,34 @@ export default {
     this.role = JSON.parse(localStorage.getItem("user")).role;
     this.roleName = JSON.parse(localStorage.getItem("user")).roleName; //后来优化返回的一个字符串角色，不用固定数字(role id)代替了
     this.name = JSON.parse(localStorage.getItem("user")).name;
+
     window.onresize = function temp() {
       this.clientHeight = `${document.documentElement.clientHeight}`;
     };
-    console.log(this.user)
+    // console.log("=========",this.roleName)
     //如果是学生不显示待办消息，如果是专家并且角色只有专家（没有研究生导师等等的身份）就不显示待办消息
-    if (this.roleName === '')
+    if (this.roleName == ''){
       this.isStudentRole = true;
-    else if (this.roleName.indexOf('doctor') < 0 &&
-        this.roleName.indexOf('undergraduate') < 0 &&
-        this.roleName.indexOf('graduate') < 0 &&
-        this.roleName.indexOf('participants') < 0 &&
-        this.roleName !== 'expert' && this.roleName !== 'expert;') {
+    } else if (this.roleName.indexOf('doctor') < 0 &&
+            this.roleName.indexOf('undergraduate') < 0 &&
+            this.roleName.indexOf('graduate') < 0 &&
+            this.roleName.indexOf('participants') < 0 &&
+            this.roleName !== 'expert' && this.roleName !== 'expert;'&& this.roleName.indexOf('ROLE_super_admin') < 0 ) {
       this.isStudentRole = false;
-    }
-    else
+    } else{
       this.isStudentRole = true;
+    }
+
 
     if (!this.isStudentRole) {
       let roleParam = this.roleName.indexOf('admin') >= 0 ? 'admin' : this.roleName.indexOf('teacher') >= 0 ? 'teacher' : '';
       this.$store.dispatch('changePendingMessageange', roleParam); //不是学生才会发送请求
     }
-    console.log(this.roleName)
+  },
+  computed: {
+    user() {
+      return JSON.parse(localStorage.getItem("user"));
+    },
   },
   watch: {
     // 如果 `clientHeight` 发生改变，这个函数就会运行
@@ -395,6 +401,7 @@ export default {
       }
 
     },
+
     pendingMessageRoute() { //点击待办消息导航
       this.$router.push('/pending/message');
     },
@@ -521,6 +528,11 @@ export default {
       return "注册为" + this.selectStuType;
     },
     handleOpen(subItem) {
+      if (subItem.path === '/Admin/ExceptionLog') {
+        // 允许访问异常信息查看页面，不进行权限验证
+        this.$router.push(subItem.path);
+        return;
+      }
       if (
           JSON.parse(localStorage.getItem("user")) === null ||
           this.role != JSON.parse(localStorage.getItem("user")).role ||
@@ -579,6 +591,7 @@ export default {
       window.location.href = "https://cas.dhu.edu.cn/authserver/logout?service=http://up.dhu.edu.cn" + url;
     },
     commandHandler(cmd) {
+
       console.log(this.roleName)
       if (cmd == "logout") {
         this.$confirm("此操作将注销登录, 是否继续?", "提示", {

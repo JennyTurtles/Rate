@@ -45,7 +45,7 @@
       <el-table-column
           align="center"
           width="100px"
-          label="期刊简称"
+          label=""
           prop="publicationAbbr"
       ></el-table-column>
       <el-table-column
@@ -63,7 +63,7 @@
       <el-table-column
           align="center"
           width="100px"
-          label="出版年"
+          label="进入该分类的年份"
           prop="year"
       ></el-table-column>
       <el-table-column
@@ -119,14 +119,14 @@
         class="showInfo_dialog"
         :title="title_show"
         :visible.sync="dialogVisible_show"
-        width="520px"
+        width="700px"
         center
     >
       <el-form
           :label-position="labelPosition"
-          label-width="80px"
+          label-width="140px"
           :model="emp"
-          style="margin-left: 20px"
+          style="margin-left:20px"
       >
         <el-form-item label="学生姓名:" prop="studentName">
           <span>{{ emp.studentName }}</span
@@ -149,7 +149,7 @@
           <span>{{ emp.publicationUrl }}</span
           ><br/>
         </el-form-item>
-        <el-form-item label="出版年:" prop="year">
+        <el-form-item label="进入该分类的年份:" prop="year">
           <span>{{ emp.year }}</span
           ><br/>
         </el-form-item>
@@ -331,25 +331,26 @@ export default {
       }
     },
     download(data) {
-      var fileName = data.publicationProofUrl.split("/").reverse()[0];
-      // console.log(fileName);
-      var url = encodeURIComponent(data.publicationProofUrl);
-      axios({
-        url: "/paper/basic/downloadByUrl?url=" + url,
-        method: "GET",
-        headers: {'Content-Type': 'application/json'},
-        responseType: "blob",
-      }).then((response) => {
-        // console.log(response);
-        const url = window.URL.createObjectURL(new Blob([response]));
-
-        const link = document.createElement("a");
-        link.href = url;
-        link.setAttribute("download", fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      });
+      this.downloadFileMethod1(data);
+      // var fileName = data.publicationProofUrl.split("/").reverse()[0];
+      // // console.log(fileName);
+      // var url = encodeURIComponent(data.publicationProofUrl);
+      // axios({
+      //   url: "/paper/basic/downloadByUrl?url=" + url,
+      //   method: "GET",
+      //   headers: {'Content-Type': 'application/json'},
+      //   responseType: "blob",
+      // }).then((response) => {
+      //   // console.log(response);
+      //   const url = window.URL.createObjectURL(new Blob([response]));
+      //
+      //   const link = document.createElement("a");
+      //   link.href = url;
+      //   link.setAttribute("download", fileName);
+      //   document.body.appendChild(link);
+      //   link.click();
+      //   document.body.removeChild(link);
+      // });
     },
 
     emptyEmp() {

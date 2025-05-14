@@ -14,6 +14,7 @@
         <result property="point" column="point"/>
         <result property="rank" column="rank"/>
         <result property="total" column="total"/>
+        <result property="createtime" column="createtime"/>
         <result property="competitionLevel" column="competition_level"/>
         <result property="indicatorId" column="indicator_id"/>
         <result property="have_score" column="have_score"/>
@@ -80,7 +81,13 @@
         </where>
     </select>
 
-<!--    学生科研项目页面初始化-->
+    <select id="selectByID" resultMap="CompetitionResult">
+        SELECT i.*, type.`name` as tname, type.id as projectTypeId, type.year FROM i_competition i
+        left join i_competition_type type ON type.id = i.competition_type_id
+        WHERE i.id = #{ID}
+    </select>
+
+    <!--    学生科研项目页面初始化-->
     <select id="selectCompetitionListById" resultMap="CompetitionResult">
         SELECT a.*,i.max_date,j.remark, type.`name` as tname, type.id as projectTypeId, type.year,ind.id as indicatorid, ind.name as iname, ind.score, ind.rankN, s.name as sname
         FROM i_competition a
@@ -112,7 +119,7 @@
             <if test="`rank` != null ">and `rank` = #{rank}</if>
             <if test="total != null ">and total = #{total}</if>
             <if test="point != null ">and point = #{point}</if>
-            <if test=" != null ">and  = #{}</if>
+            <if test=" != null ">and = #{}</if>
             <if test="url != null ">and url = #{url}</if>
         </where>
     </select>
@@ -122,7 +129,8 @@
         where id = #{id}
     </select>
 
-    <insert id="insertCompetition" parameterType="org.sys.rate.model.Competition" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertCompetition" parameterType="org.sys.rate.model.Competition" useGeneratedKeys="true"
+            keyProperty="id">
         insert into i_competition
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
@@ -210,10 +218,14 @@
         JOIN i_competition_type ip ON book.competition_type_id = ip.id
         JOIN student s ON s.ID = book.student_id
         <where>
-            <if test="competitionName != null and competitionName != ''">and book.name like concat('%', #{competitionName}, '%')</if>
+            <if test="competitionName != null and competitionName != ''">and book.name like concat('%',
+                #{competitionName}, '%')
+            </if>
             <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
             <if test="state != null and state != ''">and book.state = #{state}</if>
-            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point between #{pointFront} and #{pointBack}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and book.point
+                between #{pointFront} and #{pointBack}
+            </if>
         </where>
         ORDER BY book.id DESC
     </select>

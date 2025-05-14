@@ -185,7 +185,7 @@
         <div
             class="select_div"
             v-show="ispubShow && publicationName ? true : false"
-            :style="'height:${menuHeight}'"
+            style="max-height: 250px; width: 500px;overflow-y: auto; "
             @mouseover="ispubFlag = true"
             @mouseleave="ispubFlag = false"
         >
@@ -1376,16 +1376,19 @@ export default {
       const url = `/indicator/getProductByTypeName?indicatorType=${encodeURIComponent(
           this.searchSelectType
       )}&fullName=${encodeURIComponent(val)}`;
+      console.log(1)
       this.getRequest(url).then((resp) => {
         this.loading = false;
         // console.log(resp)
         if (resp && resp.obj.length !== 0) {
           // console.log(resp.obj)
           resp.obj.forEach((item) => {
+            let data = {};
             // const data = {name: item.name};
             if (this.searchPathInf.type == "publication") {
               data.abbr = item.abbr;
               data.id = item.id;
+              data.name = item.name;
               data.indicatorName = item.indicatorName;
               data.publisher = item.publisher;
               data.url = item.url;

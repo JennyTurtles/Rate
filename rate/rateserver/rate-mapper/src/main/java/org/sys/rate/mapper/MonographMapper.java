@@ -87,4 +87,6 @@ public interface MonographMapper
     @Update("UPDATE i_book SET have_score = #{have_score} WHERE id = #{id}")
     public Integer editPoint(Monograph monograph);
 
+    @Select("select count(*) from i_book where student_id = #{id} and indicator_id = #{indicatorId}" )
+    int getDtaByStuID(int id, int indicatorId);
 }

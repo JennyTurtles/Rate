@@ -1,122 +1,6 @@
 <template>
   <div>
-    <div>
-      <div
-          style="display: flex; justify-content: space-between; margin: 15px 0"
-      >
-        <div>
-          <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
-            添加专利
-          </el-button>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top: 10px">
-      <el-table
-          :data="emps"
-          stripe
-          border
-          v-loading="loading"
-          :header-cell-style="rowClass"
-          element-loading-text="正在加载..."
-          element-loading-spinner="el-icon-loading"
-          element-loading-background="rgba(0, 0, 0, 0.12)"
-          style="width: 100%"
-      >
-        <el-table-column
-            fixed
-            prop="name"
-            align="center"
-            label="专利名称"
-            min-width="20%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="state"
-            label="状态"
-            min-width="10%"
-            align="center"
-        >
-          <template slot-scope="scope">
-            <span
-                style="padding: 4px"
-                :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
-                size="mini"
-            >
-              {{scope.row.state=="commit"
-                ? "已提交"
-                :scope.row.state=="tea_pass"
-                    ? "导师通过"
-                    :scope.row.state=="tea_reject"
-                        ? "导师驳回"
-                        :scope.row.state=="adm_pass"
-                            ? "管理员通过"
-                            :"管理员驳回"}}
-              </span>
-          </template>
-        </el-table-column>
-        <el-table-column
-            prop="author"
-            align="center"
-            label="参与人"
-            min-width="15%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="point"
-            label="积分"
-            align="center"
-            min-width="8%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="grantedStatus"
-            label="专利状态"
-            align="center"
-            min-width="10%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="operationList[0].remark"
-            style="width:90px"
-            align="center"
-            label="备注"
-            min-width="20%"
-        >
-        </el-table-column>
-        <el-table-column align="center" width="275" label="操 作" min-width="20%">
-          <template slot-scope="scope">
-            <el-button
-                @click="showEditEmpView(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-edit"
-                type="primary"
-                plain
-                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject' || scope.row.state == 'adm_reject'? true:false"
-            >编辑</el-button
-            >
-            <el-button
-                @click="showInfo(scope.row)"
-                style="padding: 4px"
-                size="mini"
-            >查看详情</el-button
-            >
 
-            <el-button
-                @click="deleteEmp(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                type="danger"
-                icon="el-icon-delete"
-                plain
-                v-show="scope.row.state == 'tea_reject' || scope.row.state == 'commit'? true:false"
-            >删除</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
 
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
       <el-form
@@ -188,7 +72,18 @@
           >
             <el-button type="primary" icon="el-icon-upload2"
                        slot="trigger"
-            >选择文件</el-button>&nbsp;&nbsp;&nbsp;&nbsp;
+            >选择文件</el-button>&nbsp;
+          <span>
+            <el-tooltip
+                        effect="dark"
+                        placement="top-start"
+              >
+              <i class="el-icon-info" style="color: #4b8ffe"> </i>
+              <div style="width: 200px" slot="content">
+                  证明材料指:能证明成果获得人、成果等级的所有证明材料（多个文件需打包上传）
+              </div>
+	          </el-tooltip>
+	        </span> &nbsp;&nbsp;&nbsp;&nbsp;
             <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
                   &nbsp;&nbsp;大小不能超过10MB
                 </span>
@@ -312,6 +207,7 @@
             :highlight-current="true"
             node-key="id"
             :default-expanded-keys="defaultExpandedKeys"
+            default-expand-all	
         ></el-tree>
       </span>
     </el-dialog>
@@ -331,6 +227,12 @@ import axios from "axios";
 import {postRequest1} from "@/utils/api";
 export default {
   name: "SalSearch",
+  props: {
+    dialogVisible: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       isImage: false,
@@ -434,8 +336,12 @@ export default {
   mounted() {
     this.currentPatentCopy = JSON.parse(JSON.stringify(this.currentPatent));
     this.initEmps();
+    this.showAddEmpView()
   },
   methods: {
+    cancelAdd() {
+      this.$emit('update:dialogVisible', false);
+    },
     previewMethod(type) {
       if(type == '1') {
         this.previewFileMethod(this.currentPatent).then(res => {
@@ -537,6 +443,12 @@ export default {
       }
       var formData=new FormData();
       this.files.push(file);
+      const loadingInstance = this.$loading({
+        lock: true,
+        text: '正在上传中，请稍候...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
       formData.append("file",this.files[0].raw)
       axios.post("/achievements/basic/upload",formData,{
         headers:{
@@ -544,6 +456,7 @@ export default {
         }
       }).then(
           (response)=>{
+            loadingInstance.close();
             this.$message({
               message:'上传成功！'
             })
@@ -551,7 +464,13 @@ export default {
             //获取文件路径
             this.urlFile=response.data
           },()=>{}
-      )
+      ).catch((error) => {
+          // 关闭上传中的提示
+          loadingInstance.close();
+
+          this.$message.error('上传失败，请重试！');
+          console.error('上传失败:', error);
+      });
     },
     judgePatentee(){//输入作者框 失去焦点触发事件
       var author = this.currentPatentCopy.author;
@@ -619,6 +538,7 @@ export default {
       this.addButtonState = true;
     },
     showInfo(data){
+
       this.title_show = "显示详情";
       this.currentPatent = data
       this.dialogVisible_showInfo = true
@@ -683,6 +603,14 @@ export default {
       });
     },
     addAward() {//项目提交确认
+      this.$refs['currentPatentCopy'].validate(async (valid) => {
+        if (valid) {
+          // 提交论文的逻辑
+          // 假设添加论文成功
+          this.$emit('add');
+          this.$emit('update:dialogVisible', false);
+        }
+      });
       const params = {};
       params.id = this.currentPatentCopy.id;
       params.name = this.currentPatentCopy.name;
@@ -713,16 +641,27 @@ export default {
       } else {
         this.$refs["currentPatentCopy"].validate((valid) => {
           if (valid) {
-            params.studentId = this.user.id
-            this.postRequest1("/patent/basic/add", params).then(
-                (resp) => {
-                  if (resp) {
-                    this.$message.success('添加成功！')
-                    this.dialogVisible = false;
-                    this.doAddOper("commit", resp.data);
-                  }
-                }
-            );
+            //检查当前专利是否是指标点5.1.1且是否申报过（该指标点只能申报一次）
+            const url1 = '/patent/basic/getCountByStuIDIndicatorID?id=' + this.user.id + '&indicatorId=202'; 
+            this.getRequest(url1)
+            .then((resp) => {
+              if (resp.total !== 0 && params.indicatorId === 202) {
+                this.$alert('已申报过指标点为5.1.1的专利，此指标点不允许多次申报！', '提示', {
+                  confirmButtonText: '确定',
+                });
+              }else{
+                params.studentId = this.user.id
+                this.postRequest1("/patent/basic/add", params).then(
+                    (resp) => {
+                      if(resp) {
+                        this.$message.success('添加成功！')
+                        this.dialogVisible = false;
+                        this.doAddOper("commit", resp.data);
+                      }
+                    }
+                )
+              }
+            })
           }
         });
       }

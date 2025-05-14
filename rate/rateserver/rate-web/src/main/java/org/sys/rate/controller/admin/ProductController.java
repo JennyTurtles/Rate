@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sys.rate.config.JsonResult;
 import org.sys.rate.mapper.ProductMapper;
-import org.sys.rate.model.Msg;
-import org.sys.rate.model.Patent;
-import org.sys.rate.model.Product;
-import org.sys.rate.model.RespBean;
+import org.sys.rate.model.*;
 import org.sys.rate.service.admin.IndicatorService;
 import org.sys.rate.service.admin.ProductService;
 import org.sys.rate.service.mail.MailToTeacherService;
@@ -29,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 专利成果Controller
@@ -56,6 +54,23 @@ public class ProductController {
     public JsonResult<List> getById(Integer studentID) {
         List<Product> list = productService.selectListByIds(studentID);
         return new JsonResult<>(list);
+    }
+
+    @GetMapping("/getDtaById")
+    public JsonResult<Product> getDtaById(Long id){
+        Product product = productMapper.selectPaperById(id);
+        return new JsonResult<>(product);
+    }
+    @GetMapping("/studentIDInfo")
+    public JsonResult<Product> getStudentInfo(Integer studentID, Integer id) {
+        List<Product> list = productService.selectListByIds(studentID);
+        List<Product> collect = list.stream().filter(paper -> paper.getId() == id.longValue()).collect(Collectors.toList());
+        Product product = collect.get(0);
+        String url = product.getUrl();
+        String replace = url.replaceAll("#\\$%[a-f0-9-]+#\\$%", "");
+//        product.setUrl(replace);
+        collect.get(0).setFileName(replace.substring(replace.lastIndexOf('/')+1));
+        return new JsonResult<>(collect.get(0));
     }
 
     //    修改专利状态
@@ -92,7 +107,7 @@ public class ProductController {
     @ResponseBody
     public JsonResult addSave(Product product) throws FileNotFoundException {
         Integer res = productService.insertProduct(product);
-        mailToTeacherService.sendTeaCheckMail(product, "产品应用", "添加");
+        mailToTeacherService.sendTeaCheckMail(product, "撰写项目文档", "添加");
         return new JsonResult(product.getId());
     }
 
@@ -175,5 +190,11 @@ public class ProductController {
         product.setId(ID);
         Integer res = productMapper.editPoint(product);
         return new JsonResult(res);
+    }
+
+    @GetMapping("/getCountByStuID")
+    public JsonResult<Integer> getDtaByStuID(int id) {
+        int res = productMapper.getDtaByStuID(id);
+        return new JsonResult<>(res);
     }
 }

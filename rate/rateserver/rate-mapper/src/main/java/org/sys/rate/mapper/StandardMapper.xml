@@ -8,6 +8,7 @@
         <result property="studentId" column="student_id"/>
         <result property="name" column="name"/>
         <result property="date" column="date"/>
+        <result property="createtime" column="createtime"/>
         <result property="author" column="author"/>
         <result property="url" column="url"/>
         <result property="state" column="state"/>
@@ -39,7 +40,7 @@
     </resultMap>
 
     <sql id="selectPaperVo">
-        select id,student_id,name,date,author,url,indicatorId,state
+        select *
         from i_standard
     </sql>
 
@@ -80,7 +81,7 @@
 
 <!--    学生页面初始化-->
     <select id="selectListByIds" resultMap="StandardResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score, ind.id as indicatorid,
+        SELECT a.id,a.name, a.author, a.rank, a.total, a.have_score, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score, ind.id as indicatorid,
             s.name as sname
         FROM i_standard a
                  JOIN (

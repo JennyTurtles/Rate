@@ -1,21 +1,15 @@
 package org.sys.rate.service.aop;
 
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.sys.rate.mapper.GraduateStudentMapper;
-import org.sys.rate.mapper.PaperMapper;
 import org.sys.rate.mapper.productionMapper;
 import org.sys.rate.model.Production;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 @Component
 @Aspect
@@ -35,8 +29,12 @@ public class EditHaveScoreAspect {
     public void editHaveScoreForPaper() {
     }
 
+    @Pointcut("execution(* org.sys.rate.service.admin.ProgramRecordService.editState(..))")
+    public void editHaveScoreForProgramResult() {
+    }
+
     // 对paper以外的8种成果AOP
-    @Before("editHaveScore() && ! editHaveScoreForPaper()")
+    @Before("editHaveScore() && ! editHaveScoreForPaper() && !editHaveScoreForProgramResult()")
     public void aroundEditHaveScore(JoinPoint joinPoint) {
         String state = joinPoint.getArgs()[0].toString();
         Long ID = (Long) joinPoint.getArgs()[1];
@@ -48,12 +46,13 @@ public class EditHaveScoreAspect {
         String productionName = serviceName.substring(serviceName.lastIndexOf(".") + 1, serviceName.indexOf("Service"));
         String table = "i_" + productionName.toLowerCase();
         if (table.equals("i_product")) table = "i_application";
+        if (table.equals("i_monograph")) table = "i_book";
         Production production = productionMapper.checkProductionById(table, ID.intValue());
 
         // 2分的成果，且已发表过同类的成果，have_score设置为0
         Integer studentID = production.getStudentId();
         Integer point = production.getPoint();
-        if(point.equals(2) && productionMapper.checkScore(table,studentID) != null){
+        if(point.equals(3) && productionMapper.checkScore(table,studentID) != null){
             productionMapper.editHaveScore(table, state,ID, 0);
             return;
         }

@@ -102,3 +102,16 @@ public class AdminService implements UserDetailsService {
         return RespBean.ok("添加成功",null);
     }
 }
+//    public RespBean addNew(Admin hr) {
+//        int result;
+//
+//            hr.setEnabled(true);
+//            String encodePass = ExpertService.sh1(hr.getPassword());
+//            hr.setPassword(encodePass);
+//            result = adminMapper.insert(hr);//添加管理员
+//            //需要在管理员_菜单表中添加记录
+//
+//
+//        return RespBean.ok("添加成功",null);
+//    }
+//}

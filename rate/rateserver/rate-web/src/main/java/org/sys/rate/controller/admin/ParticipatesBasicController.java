@@ -1,20 +1,10 @@
 package org.sys.rate.controller.admin;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-
-import com.csvreader.CsvWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.sys.rate.config.CSVReader;
 import org.sys.rate.mapper.ActivitiesMapper;
 import org.sys.rate.mapper.GroupsMapper;
 import org.sys.rate.mapper.ParticipatesMapper;
@@ -23,14 +13,13 @@ import org.sys.rate.service.admin.*;
 import org.sys.rate.service.expert.ExpertService;
 import org.sys.rate.utils.POIUtils;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 @RestController
@@ -280,6 +269,34 @@ public class ParticipatesBasicController {
         return POIUtils.check(file);
     }
 
+    @Resource
+    private GraduateStudentService graduateStudentService;
+
+    @PostMapping("/checkGraduate")
+    public Msg checkGraduate(@RequestParam Integer groupid,MultipartFile file){
+        int index=1;
+        Msg msg =  graduateStudentService.checkGraduateStudent(file,index,groupid);
+        return msg;
+    }
+    @Resource
+    private DoctorService  doctorservice;
+    @PostMapping("/checkDoctor")
+    public Msg checkDoctor(@RequestParam Integer groupid,MultipartFile file){
+      int index=1;
+        Msg msg = doctorservice.checkGraduateStudent(file, index,groupid);
+        return msg;
+//        Msg msg = new Msg();
+//        msg.setCode(500);
+//        msg.setMsg(strings.toString());
+//        return   msg;
+//        return Msg.fail().add("500",strings);
+    }
+    @Resource
+    private UnderGraduateService  underservice;
+    @PostMapping("/checkunder")
+    public Msg checkunder(@RequestParam Integer groupid,MultipartFile file){
+        return underservice.checkGraduateStudent(file);
+    }
     @GetMapping("/getParticipantIDByIdNumber")
     @ResponseBody
     public Msg getParticipantIDByIdNumber(@RequestParam Integer activityID,@RequestParam Integer participantID){

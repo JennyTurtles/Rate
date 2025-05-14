@@ -11,6 +11,7 @@
         :on-success="onSuccess"
         style="display: inline-flex; margin-left: 8px"
         :action="UploadUrl()"
+        :http-request="handleChange"
     >
       <el-button icon="el-icon-plus" type="success">导入学生</el-button>
     </el-upload>
@@ -52,6 +53,7 @@
         </el-select>
       </div>
       <el-button @click="filterBtn" style="margin-left: 30px;" type="primary">筛选</el-button>
+      <el-button icon="el-icon-download" type="primary" @click="exportExcel">导出数据</el-button>
     </div>
     <div style="margin-top: 10px">
       <el-table
@@ -59,13 +61,18 @@
         <el-table-column prop="stuNumber" label="学号" align="center"></el-table-column>
         <el-table-column prop="name" label="姓名" align="center" width="80px"></el-table-column>
         <el-table-column prop="username" label="用户名" align="center"></el-table-column>
-        <el-table-column prop="telephone" label="电话" align="center" width="80px"></el-table-column>
-        <el-table-column prop="email" label="邮箱" align="center"></el-table-column>
         <el-table-column prop="year" label="入学年份" align="center" width="70px"></el-table-column>
         <el-table-column prop="studentType" label="学生类别" align="center"></el-table-column>
         <el-table-column prop="point" label="积分" align="center" width="60px"></el-table-column>
+<!--        <el-table-column prop="point1" label="达标" align="center" width="60px"></el-table-column>-->
+        <el-table-column prop="point1" label="达标" align="center" width="70px">
+          <template slot-scope="scope">
+            <span v-if="scope.row.point1 === '0'">是</span>
+            <span v-else>{{ scope.row.point1 }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="teachers.name" label="导师姓名" align="center" width="80px"></el-table-column>
-        <el-table-column  label="操作" align="center" width="180px">
+        <el-table-column  label="操作" align="center" width="240px">
           <template slot-scope="scope">
             <el-button size="mini" plain @click="editDialogShow(scope.row)" type="primary" style="padding: 4px">编辑</el-button>
             <el-button size="mini" type="danger" plain @click="deleteUnder(scope.row)" style="padding: 4px">删除</el-button>
@@ -141,6 +148,7 @@
 
 <script>
 import {debounce} from "@/utils/debounce";
+import axios from "axios";
 
 export default {
   name: "SalDoctorM",
@@ -214,6 +222,151 @@ export default {
         this.debounceSearch(val)
       }
     },
+    exportExcel() {
+      this.postRequest('/doctorM/basic/exportdoctorData', this.doctorStudents).then((response) => {
+        console.log(response,666)
+        if (response) {
+          // const blob = new Blob([response.data], {
+          //   type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' // 匹配.xlsx
+          // });
+          // const link = document.createElement('a');
+          // link.href = window.URL.createObjectURL(blob);
+          // link.download = 'graduate_students.xlsx'; // 扩展名改为.xlsx
+          // link.click();
+          // window.URL.revokeObjectURL(link.href);
+          // this.$message.success("导出成功");
+
+          const blob = new Blob([response]);
+          console.log(blob.size)
+          console.log(blob.type)
+          const link = document.createElement('a');
+          link.href = window.URL.createObjectURL(blob);
+          link.download = 'doctor_students.xlsx';  // 使用服务端返回的文件名
+          link.click();
+          window.URL.revokeObjectURL(link.href);
+          this.$message.success("导出成功");
+        }
+
+
+      }).catch((error) => {
+        console.error('导出失败:', error);
+        this.$message.error('导出失败');
+      });
+    },
+
+
+    postRequest(url, data) {
+      return axios.post(url, data, {
+        headers: {
+          'token': this.user.token
+        },
+        responseType: 'blob' // 确保响应类型为 Blob，获取二进制数据
+      });
+    },
+
+    handleChange(file) {
+      this.show = true;
+      var that = this;
+      let fd = new FormData();
+      let fileName = file.file.name + new Date().getTime();
+      fd.append("file", file.file);
+      fd.append("key", fileName);
+      let url = "/participants/basic/checkDoctor?groupid=0";
+      this.postRequest(url, fd, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          'token': this.user.token
+        },
+      })
+          .then((res1) => {
+            // 检查返回值是否包含 code: 500
+            if (res1.length === 0) { // 数据完整，没有空数据
+              url = '/doctorM/basic/importDoctors?institutionID=' + this.user.institutionID;
+              axios.post(url, fd, {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                  'token': that.user.token
+                },
+              }).then((res) => {
+                this.$message({
+                  message: "导入成功",
+                  type: 'success' // 确保消息框是绿色的
+                });
+                this.initDoctorStudents(this.currentPage, this.pageSize); // 导入成功后重新加载数据
+              }).catch((err) => {
+                this.$message.error(err.response ? err.response.data.msg : "导入失败");
+              });
+            } else {
+              if (res1.code === 200) {
+                // 如果 code 为 200，不显示弹窗，直接执行导入逻辑
+                that.loading = true;
+                url = '/doctorM/basic/importDoctors?institutionID=' + this.user.institutionID;
+                axios.post(url, fd, {
+                  headers: {
+                    "Content-Type": "multipart/form-data",
+                    'token': that.user.token
+                  },
+                }).then((res) => {
+                  that.loading = false;
+                  if (res.status === 200) {
+                    this.initDoctorStudents(this.currentPage, this.pageSize); // 导入成功后重新加载数据
+                    this.$message({
+                      message: '导入成功',
+                      type: 'success' // 确保消息框是绿色的
+                    });
+                  } else {
+                    this.$message.error(res.msg || "导入失败");
+                  }
+                }).catch((err) => {
+                  that.loading = false;
+                  this.$message.error(err.response ? err.response.data.msg : "导入失败");
+                });
+              } else {
+                // 如果 code 不为 200，显示包含错误信息的弹窗
+                let h = this.$createElement;
+                const msg = res1.msg; // 提取 msg 信息
+                this.$confirm(h('div', null, [h('p', null, msg)]), '提示', {
+                  confirmButtonText: '确定',
+                  showCancelButton: false,
+                  type: 'warning'
+                }).then(() => {
+                  if (res1.code === 500) {
+                    // 如果 code 是 500，抛出自定义错误
+                    throw new Error(res1.msg);
+                  }
+                  that.loading = true;
+                  url = '/doctorM/basic/importDoctors?institutionID=' + this.user.institutionID;
+                  axios.post(url, fd, {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                      'token': that.user.token
+                    },
+                  }).then((res) => {
+                    that.loading = false;
+                    if (res.status === 200) {
+                      this.initDoctorStudents(this.currentPage, this.pageSize); // 导入成功后重新加载数据
+                      this.$message({
+                        message: '导入成功',
+                        type: 'success' // 确保消息框是绿色的
+                      });
+                    } else {
+                      this.$message.error(res.msg || "导入失败");
+                    }
+                  }).catch((err) => {
+                    that.loading = false;
+                    this.$message.error(err.response ? err.response.data.msg : "导入失败");
+                  });
+                });
+              }
+            }
+
+          })
+          .catch((err) => {
+            this.$message.error(err.message.msg);
+          });
+    },
+
+
     closeDialogReset(){
       this.dialogResetPassword = false
     },
@@ -256,6 +409,14 @@ export default {
             this.doctorStudents = resp.obj[0]
             this.totalCount = resp.obj[1]
           }
+        }
+      })
+    },
+    initGraduateStudents(curr,pagesize){
+      this.getRequest('/doctorM/basic/getDoctorStudents?pageNum=' + curr + '&pageSize=' + pagesize).then((response)=>{
+        if(response.code == 200){
+          this.graduateStudents = response.extend.res[0]
+          this.totalCount = response.extend.res[1]
         }
       })
     },
@@ -337,7 +498,7 @@ export default {
         this.$message.success("导入成功")
         this.initDoctorStudents(1,this.pageSize)
       }else {
-        this.$message.error("导入失败")
+        this.$message.error(res.msg)
       }
     },
     beforeUpload() {

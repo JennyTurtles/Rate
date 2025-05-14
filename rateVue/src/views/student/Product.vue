@@ -1,122 +1,6 @@
 <template>
   <div>
-    <div>
-      <div
-          style="display: flex; justify-content: space-between; margin: 15px 0"
-      >
-        <div>
-          <el-button type="primary" icon="el-icon-plus" @click="showAddEmpView">
-            添加产品
-          </el-button>
-        </div>
-      </div>
-    </div>
-    <div style="margin-top: 10px">
-      <el-table
-          :data="emps"
-          stripe
-          border
-          v-loading="loading"
-          :header-cell-style="rowClass"
-          element-loading-text="正在加载..."
-          element-loading-spinner="el-icon-loading"
-          element-loading-background="rgba(0, 0, 0, 0.12)"
-          style="width: 100%"
-      >
-        <el-table-column
-            fixed
-            prop="name"
-            align="center"
-            label="产品名称"
-            min-width="15%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="state"
-            label="状态"
-            min-width="10%"
-            align="center"
-        >
-          <template slot-scope="scope">
-            <span
-                style="padding: 4px"
-                :style="(scope.row.state=='tea_reject' || scope.row.state=='adm_reject') ? {'color':'red'}:{'color':'gray'}"
-                size="mini"
-            >
-              {{scope.row.state=="commit"
-                ? "已提交"
-                :scope.row.state=="tea_pass"
-                    ? "导师通过"
-                    :scope.row.state=="tea_reject"
-                        ? "导师驳回"
-                        :scope.row.state=="adm_pass"
-                            ? "管理员通过"
-                            :"管理员驳回"}}
-              </span>
-          </template>
-        </el-table-column>
-        <el-table-column
-            prop="author"
-            align="center"
-            label="完成人"
-            min-width="10%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="indicator.name"
-            label="产品类别"
-            align="center"
-            min-width="15%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="point"
-            label="积分"
-            align="center"
-            min-width="10%"
-        >
-        </el-table-column>
-        <el-table-column
-            prop="operationList[0].remark"
-            style="width:90px"
-            align="center"
-            label="备注"
-            min-width="25%"
-        >
-        </el-table-column>
-        <el-table-column align="center" width="275" label="操 作" min-width="20%">
-          <template slot-scope="scope">
-            <el-button
-                @click="showEditEmpView(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                icon="el-icon-edit"
-                type="primary"
-                plain
-                v-show="scope.row.state == 'commit' || scope.row.state == 'tea_reject' || scope.row.state == 'adm_reject'? true : false"
-            >编辑</el-button
-            >
-            <el-button
-                @click="showInfo(scope.row)"
-                style="padding: 4px"
-                size="mini"
-            >查看详情</el-button
-            >
 
-            <el-button
-                @click="deleteEmp(scope.row)"
-                style="padding: 4px"
-                size="mini"
-                type="danger"
-                icon="el-icon-delete"
-                plain
-                v-show="scope.row.state == 'tea_reject' || scope.row.state == 'commit'? true:false"
-            >删除</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
 
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" center>
       <el-form
@@ -127,14 +11,14 @@
           :model="currentProductCopy"
           ref="currentProductCopy"
       >
-        <el-form-item label="产品名称:" prop="name" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="文档名称:" prop="name" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
           <el-input
               size="mini"
               style="width:80%"
               prefix-icon="el-icon-edit"
               v-model="currentProductCopy.name"
-              placeholder="请输入产品名称"
+              placeholder="请输入文档名称"
           ></el-input>
         </el-form-item>
         <el-form-item label="完成年月:" prop="date" label-width="80px" style="margin-left: 20px;">
@@ -159,7 +43,7 @@
         </el-form-item>
         <el-form-item label="指标点:" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
-          <el-button ref="selectBtn" size="mini" type="text" @click="initTree()">{{indicatorBtn}}</el-button>
+          <el-button ref="selectBtn" size="mini" type="text" @click="initTree()" class="indicator-btn">{{indicatorBtn}}</el-button>
         </el-form-item>
         <el-form-item label="证明材料:" prop="url" label-width="80px" style="margin-left: 20px;">
           <span class="isMust">*</span>
@@ -175,7 +59,18 @@
           >
             <el-button type="primary" icon="el-icon-upload2"
                        slot="trigger"
-            >选择文件</el-button>&nbsp;&nbsp;&nbsp;&nbsp;
+            >选择文件</el-button>&nbsp;
+            <span>
+              <el-tooltip
+                          effect="dark"
+                          placement="top-start"
+                >
+                <i class="el-icon-info" style="color: #4b8ffe"> </i>
+                <div style="width: 200px" slot="content">
+                    证明材料指:能证明成果获得人、成果等级的所有证明材料（多个文件需打包上传）
+                </div>
+              </el-tooltip>
+            </span>&nbsp;&nbsp;&nbsp;&nbsp;
             <span style="color:gray;font-size:11px">只允许doc docx pdf jpg png jpe rar zip类型文件
                   &nbsp;&nbsp;大小不能超过10MB
                 </span>
@@ -205,11 +100,11 @@
           :model="currentProduct"
           style="margin-left: 20px">
 
-        <el-form-item label="产品名称:" prop="name">
+        <el-form-item label="项目文档名称:" prop="name">
           <span>{{ currentProduct.name }}</span
           ><br />
         </el-form-item>
-        <el-form-item label="受理日期:" prop="date">
+        <el-form-item label="完成日期:" prop="date">
           <span>{{ currentProduct.date }}</span
           ><br />
         </el-form-item>
@@ -294,6 +189,7 @@
             :highlight-current="true"
             node-key="id"
             :default-expanded-keys="defaultExpandedKeys"
+            default-expand-all	
         ></el-tree>
       </span>
     </el-dialog>
@@ -313,6 +209,12 @@ import axios from "axios";
 import {postRequest1} from "@/utils/api";
 export default {
   name: "SalSearch",
+  props: {
+    dialogVisible: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       isImage: false,
@@ -355,7 +257,7 @@ export default {
         operatorRole: "student",
         operatorId: JSON.parse(localStorage.getItem('user')).id,
         operatorName: JSON.parse(localStorage.getItem('user')).name,
-        prodType: '产品应用',
+        prodType: '撰写项目文档',
         operationName: '',
         state: '',
         remark: '',
@@ -377,8 +279,8 @@ export default {
         indicatorId:''
       },
       rules: {
-        name: [{ required: true, message: "请输入产品名称", trigger: "blur" }],
-        author: [{ required: true, message: "请输入产品作者", trigger: "blur" }],
+        name: [{ required: true, message: "请输入文档名称", trigger: "blur" }],
+        author: [{ required: true, message: "请输入文档作者", trigger: "blur" }],
         date: [{ required: true, message: "请选择完成时间", trigger: "blur" }]
       }
     };
@@ -392,6 +294,7 @@ export default {
   mounted() {
     this.currentProductCopy = JSON.parse(JSON.stringify(this.currentProduct));
     this.initEmps();
+    this.showAddEmpView()
   },
   methods: {
     previewMethod(type) {
@@ -427,7 +330,7 @@ export default {
       }
     },
     initTree() {
-      this.getRequest("/indicator/getAllByType?type=产品应用").then( resp => {
+      this.getRequest("/indicator/getAllByType?type=撰写项目文档").then( resp => {
         this.showTreeDialog = true;
         this.defaultExpandedKeys = [];
         if (resp) {
@@ -442,6 +345,7 @@ export default {
     //添加 编辑框点击取消出发事件
     cancelAddProduct() {
       this.dialogVisible = false;
+      this.$emit('update:dialogVisible', false);
     },
     handleDelete() {//删除选择的文件
       var file={
@@ -473,12 +377,19 @@ export default {
       var formData=new FormData();
       this.files.push(file);
       formData.append("file",this.files[0].raw)
+      const loadingInstance = this.$loading({
+        lock: true,
+        text: '正在上传中，请稍候...',
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
       axios.post("/achievements/basic/upload",formData,{
         headers:{
           'token': localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : ''
         }
       }).then(
           (response)=>{
+            loadingInstance.close();
             this.$message({
               message:'上传成功！'
             })
@@ -486,7 +397,13 @@ export default {
             //获取文件路径
             this.urlFile=response.data
           },()=>{}
-      )
+      ).catch((error) => {
+          // 关闭上传中的提示
+          loadingInstance.close();
+
+          this.$message.error('上传失败，请重试！');
+          console.error('上传失败:', error);
+      });
     },
     judgeProductee(){//输入作者框 失去焦点触发事件
       var val = this.currentProductCopy.author;
@@ -536,7 +453,7 @@ export default {
     showEditEmpView(data) {
       this.currentSelectedIndicator = data.indicator;
       this.dialogVisible = true;
-      this.title = "编辑产品信息";
+      this.title = "编辑项目文档信息";
       this.currentProductCopy = JSON.parse(JSON.stringify(data));
       this.files = [
         {
@@ -563,7 +480,7 @@ export default {
       } else if(data.url.includes('.jpg') || data.url.includes('.png') || data.url.includes('.jpe') || data.url.includes('.JPG') || data.url.includes('.PNG') || data.url.includes('.JPE')) {
         this.isImage = true;
       }
-      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=产品应用').then((resp) => {
+      this.getRequest("/oper/basic/List?prodId=" + data.id + '&type=撰写项目文档').then((resp) => {
         this.loading = false;
         if (resp) {
           this.operList = resp.obj
@@ -592,7 +509,7 @@ export default {
     deleteOperationList(data) {
       const params = {}
       params.prodId = data.id;
-      params.prodType = '产品应用'
+      params.prodType = '撰写项目文档'
       return new Promise((resolve, reject) => {
         this.postRequest('/oper/basic/deleteOperationList', params).then(res => {
           resolve('success');
@@ -616,6 +533,14 @@ export default {
       });
     },
     addAward() {//项目提交确认
+      this.$refs['currentProductCopy'].validate(async (valid) => {
+        if (valid) {
+          // 提交论文的逻辑
+          // 假设添加论文成功
+          this.$emit('add');
+          this.$emit('update:dialogVisible', false);
+        }
+      });
       const params = {};
       params.id = this.currentProductCopy.id;
       params.name = this.currentProductCopy.name;
@@ -649,16 +574,29 @@ export default {
       } else {
         this.$refs["currentProductCopy"].validate((valid) => {
           if (valid) {
-            params.studentId = this.user.id
-            this.postRequest1("/product/basic/add", params).then(
-                (resp) => {
-                  if (resp) {
-                    this.$message.success('添加成功！')
-                    this.dialogVisible = false;
-                    this.doAddOper("commit", resp.data);
-                  }
-                }
-            );
+            const url2 = '/product/basic/getCountByStuID?id=' + this.user.id;
+            const url1 = '/product/basic/getCountByStuID?id=' + this.user.id;
+            this.getRequest(url1)
+            .then((resp) => {
+              console.log(resp)
+              if (resp.total !== 0) {
+                this.$alert('已申报过撰写项目文档成果，此类别不允许多次申报！', '提示', {
+                  confirmButtonText: '确定',
+                });
+              }else{
+                params.studentId = this.user.id
+                this.postRequest1("/product/basic/add", params).then(
+                    (resp) => {
+                      if (resp) {
+                        this.$message.success('添加成功！')
+                        this.dialogVisible = false;
+                        this.doAddOper("commit", resp.data);
+                      }
+                    }
+                );
+              }
+            })
+           
           }
         });
       }
@@ -666,7 +604,7 @@ export default {
     async doAddOper(state, productID) {
       this.oper.state = state
       this.oper.prodId = productID
-      this.oper.operationName = "提交产品"
+      this.oper.operationName = "提交项目文档"
       this.oper.time = this.dateFormatFunc(new Date());
       await this.postRequest1("/oper/basic/add", this.oper)
       await this.initEmps();
@@ -674,7 +612,7 @@ export default {
     showAddEmpView() {//点击添加科研项目按钮
       this.addButtonState = true;
       this.isAuthorIncludeSelf = false;
-      this.title = "添加产品";
+      this.title = "添加项目文档";
       this.dialogVisible = true;
       this.urlFile = '';
       this.files = [];
@@ -739,5 +677,11 @@ export default {
   /* .slide-fade-leave-active for below version 2.1.8 */ {
   transform: translateX(10px);
   opacity: 0;
+}
+.indicator-btn {
+  white-space: normal; /* 允许文本换行 */
+  max-width: 80%; 
+  text-align: left;
+  display: inline-block; /* 确保宽度生效 */
 }
 </style>

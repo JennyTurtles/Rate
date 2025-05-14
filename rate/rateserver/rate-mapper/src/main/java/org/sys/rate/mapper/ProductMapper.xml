@@ -8,6 +8,7 @@
         <result property="studentId" column="student_id"/>
         <result property="name" column="name"/>
         <result property="date" column="date"/>
+        <result property="createtime" column="createtime"/>
         <result property="author" column="author"/>
         <result property="url" column="url"/>
         <result property="state" column="state"/>
@@ -39,7 +40,7 @@
     </resultMap>
 
     <sql id="selectPaperVo">
-        select id,student_id,name,date,author,url,indicatorId,state
+        select  id,student_id,name,date,author,url,indicator_id,state,point,total
         from i_application
     </sql>
 
@@ -49,13 +50,13 @@
         JOIN (
         SELECT prod_id,MAX(i_oper.date) max_date
         FROM i_oper
-        WHERE prod_type = '产品应用'
+        WHERE prod_type = '撰写项目文档'
         GROUP BY prod_id
         ) i ON book.id = i.prod_id
         JOIN (
         SELECT prod_id,remark,`date`
         FROM i_oper
-        WHERE prod_type = '产品应用'
+        WHERE prod_type = '撰写项目文档'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
         JOIN indicator i ON book.indicator_id = i.id
         JOIN student s ON s.ID = book.student_id
@@ -80,18 +81,18 @@
 
 <!--    学生产品页面初始化-->
     <select id="selectListByIds" resultMap="ProductResult" parameterType="Integer">
-        SELECT a.id,a.name, a.author, a.rank, a.total, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score, s.name as sname
+        SELECT a.id,a.name, a.author, a.rank, a.total, a.have_score, a.point, a.url, a.student_id, a.state, a.indicator_id, a.date, j.remark,ind.name as iname,ind.score, s.name as sname
         FROM i_application a
                  JOIN (
             SELECT prod_id,MAX(i_oper.date) max_date
             FROM i_oper
-            WHERE prod_type = '产品应用'
+            WHERE prod_type = '撰写项目文档'
             GROUP BY prod_id
         ) i ON a.id = i.prod_id
                  JOIN (
             SELECT prod_id,remark,`date`
             FROM i_oper
-            WHERE prod_type = '产品应用'
+            WHERE prod_type = '撰写项目文档'
         ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
                  JOIN indicator ind ON ind.id = a.indicator_id AND a.student_id = #{studentID}
                  JOIN student s ON s.ID = a.student_id
@@ -99,7 +100,8 @@
     </select>
 
     <select id="selectPaperById" parameterType="Long" resultMap="ProductResult">
-        <include refid="selectPaperVo"/>
+         select  *
+        from i_application
         where ID = #{ID}
     </select>
 

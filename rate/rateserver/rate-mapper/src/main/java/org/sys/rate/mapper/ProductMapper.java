@@ -34,6 +34,7 @@ public interface ProductMapper
      * @return 专利成果
      */
     public Product selectProductById(Long ID);
+    public Product selectPaperById(Long ID);
 
     /**
      * 查询专利成果列表
@@ -95,4 +96,7 @@ public interface ProductMapper
 
     @Update("UPDATE i_application SET have_score = #{have_score} WHERE id = #{id}")
     public Integer editPoint(Product product);
+
+    @Select("select count(*) from i_application where student_id = #{id}")
+    int getDtaByStuID(int id);
 }

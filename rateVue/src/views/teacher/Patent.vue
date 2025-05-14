@@ -358,7 +358,7 @@
           type="textarea"
           :rows="4"
           v-model="reason"
-          placeholder="请输入专利驳回理由"
+          placeholder="请输入驳回理由"
       >
       </el-input>
       <span slot="footer">

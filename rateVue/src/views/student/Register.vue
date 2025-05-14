@@ -1,6 +1,6 @@
 <template>
   <div class="box">
-    <el-form class="registerContainer" :label-width="labelWidth" :rules="rules">
+    <el-form class="registerContainer" :label-width="labelWidth" :rules="rules" label-position="right">
       <el-form-item label="姓名:">
         <el-input style="width: 60%" v-model="user.name" :disabled="userInfoIsDisabled"></el-input>
       </el-form-item>
@@ -190,6 +190,7 @@ export default {
     },
 
     register() {
+
       // if (this.currentInstitution == '') {
       //   this.$message.warning('请输入单位！')
       //   return

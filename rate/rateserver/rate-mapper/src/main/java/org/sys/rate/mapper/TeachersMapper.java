@@ -17,7 +17,7 @@ import java.util.List;
 @Mapper
 public interface TeachersMapper {
     int updatePasswordAndUsername(Teachers record);
-
+    Teachers selectUsername(String username);
     int insertTeaFromRegister(Teachers record);//注册添加
 
 

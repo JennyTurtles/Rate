@@ -25,6 +25,113 @@
         <association property="teachers" resultMap="TeacherResultMap"/>
     </resultMap>
 
+    <resultMap type="org.sys.rate.model.ProgramResult" id="programResult">
+        <id property="id" column="id" jdbcType="INTEGER"/>
+        <result property="studentId" column="student_id"/>
+        <result property="name" column="name"/>
+        <result property="createtime" column="createtime"/>
+        <result property="state" column="state"/>
+        <result property="point" column="point"/>
+        <result property="workHours" column="work_hours"/>
+        <result property="have_score" column="have_score"/>
+        <result property="indicatorId" column="indicator_id"/>
+        <association property="student" javaType="org.sys.rate.model.Student">
+            <id property="ID" column="ID" jdbcType="INTEGER"/>
+            <result property="name" column="sname"/>
+        </association>
+        <association property="indicator" javaType="org.sys.rate.model.Indicator">
+            <id property="id" column="indicatorid" jdbcType="INTEGER"/>
+            <result property="name" column="iname"/>
+            <result property="score" column="score"/>
+            <result property="level" column="level"/>
+        </association>
+        <collection property="operationList" ofType="org.sys.rate.model.Operation">
+            <result property="operatorRole" column="operator_role"/>
+            <result property="operatorId" column="operator_id"/>
+            <result property="operatorName" column="operator_name"/>
+            <result property="prodType" column="prod_type"/>
+            <result property="prodId" column="prod_id"/>
+            <result property="time" column="operdate"/>
+            <result property="operationName" column="operation_name"/>
+            <result property="state" column="state"/>
+            <result property="remark" column="remark"/>
+        </collection>
+    </resultMap>
+
+    <insert id="addResult" parameterType="org.sys.rate.model.ProgramResult" useGeneratedKeys="true" keyProperty="id">
+        insert into programresults
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="studentId != null">student_id,</if>
+            <if test="workHours != null">work_hours,</if>
+            <if test="author != null">author,</if>
+            <if test="state != null">state,</if>
+            indicator_id,
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="studentId != null">#{studentId},</if>
+            <if test="workHours != null">#{workHours},</if>
+            <if test="author != null">#{author},</if>
+            <if test="state != null">#{state},</if>
+            251
+        </trim>
+    </insert>
+
+    <update id="updateResult" parameterType="org.sys.rate.model.ProgramResult">
+        update programresults
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="workHours != null">work_hours =#{workHours},</if>
+            <if test="state != null">state =#{state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete
+        from programresults
+        where id = #{ID}
+    </delete>
+
+    <select id="selectHorizontalProjectNumberOfPendingMessing" resultType="java.lang.Integer">
+        select count(*)
+        from programresults
+        where state = #{state}
+    </select>
+
+    <select id="searchHorizontalProjectByConditions" resultMap="programResult">
+        SELECT res.*,i.max_date, j.remark, s.name as sname, i.name as iname, i.score
+        FROM programresults res
+        JOIN (
+        SELECT prod_id,MAX(i_oper.date) max_date
+        FROM i_oper
+        WHERE prod_type = '项目开发'
+        GROUP BY prod_id
+        ) i ON res.id = i.prod_id
+        JOIN (
+        SELECT prod_id,remark,`date`
+        FROM i_oper
+        WHERE prod_type = '项目开发'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+        JOIN indicator i ON res.indicator_id = i.id
+        JOIN student s ON s.ID = res.student_id
+        <where>
+            <if test="projectName != null and projectName != ''">and res.name like concat('%', #{projectName}, '%')</if>
+            <if test="studentName != null and studentName != ''">and s.name like concat('%', #{studentName}, '%')</if>
+            <if test="state != null and state != ''">and res.state = #{state}</if>
+            <if test="pointFront != null and pointBack != null and pointFront != '' and pointBack != ''">and res.point between #{pointFront} and #{pointBack}</if>
+        </where>
+        ORDER BY res.id DESC
+    </select>
+
+    <select id="selectProgramResultById" parameterType="Long" resultMap="programResult">
+        <include refid="selectResultVo"/>
+        where ID = #{ID}
+    </select>
+
+    <sql id="selectResultVo">
+        select *
+        from programresults
+    </sql>
+
     <select id="getStuByFilter" resultMap="GraduateStudentResultMap">
         SELECT
             g.ID,
@@ -84,6 +191,15 @@
                 AND workHoursTotal &lt;= #{maxWorkHours}
             </if>
     </select>
+
+    <update id="editState" parameterType="org.sys.rate.model.ProgramResult">
+        update programresults
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="state != null">state = #{state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
     <select id="getGraduateStudentsOfTutorID" resultType="org.sys.rate.model.GraduateStudent">
         SELECT
             g.ID,
@@ -105,5 +221,23 @@
             g.tutorID = #{tutorID}
         GROUP BY
             g.ID, g.stuNumber, g.studentType, g.specialty, g.fillMiss, g.year, s.name;
+    </select>
+    <select id="selectProgramResultListById" resultMap="programResult" parameterType="Integer">
+        SELECT res.id,res.name,res.have_score, res.author, res.point, res.student_id,res.work_hours, res.state, res.indicator_id, j.remark,ind.name as iname,ind.score, s.name as sname
+        FROM programresults res
+                 JOIN (
+            SELECT prod_id,MAX(i_oper.date) max_date
+            FROM i_oper
+            WHERE prod_type = '项目开发'
+            GROUP BY prod_id
+        ) i ON res.id = i.prod_id
+                 JOIN (
+            SELECT prod_id,remark,`date`
+            FROM i_oper
+            WHERE prod_type = '项目开发'
+        ) j ON i.prod_id = j.prod_id AND i.max_date = j.`date`
+                 JOIN indicator ind ON ind.id = res.indicator_id AND res.student_id = #{studentID}
+                 JOIN student s ON s.ID = res.student_id
+        ORDER BY res.id DESC;
     </select>
 </mapper>
