@@ -33,16 +33,16 @@
         </el-form-item>
         <el-form-item
           prop="year"
-          label="发表年月:"
-          label-width="80px"
+          label="发表/录用年月:"
+          label-width="110px"
           style="margin-left: 20px"
         >
-          <span class="isMust">*</span>
+          <span class="isMust" style="left: -130px">*</span>
           <el-date-picker
-            style="width: 155px"
+            style="width: 190px"
             v-model="currentEmp.date"
             type="month"
-            placeholder="请选择发表年月"
+            placeholder="请选择发表/录用年月"
             @change="timechange"
           ></el-date-picker>
         </el-form-item>
@@ -605,7 +605,7 @@ export default {
         author: [
           { required: true, message: "请输入作者列表", trigger: "blur" },
         ],
-        year: [{ required: true, message: "请选择发表年月", trigger: "blur" }],
+        year: [{ required: true, message: "请选择发表/录用年月", trigger: "blur" }],
       },
       rulesPublication: {
         publicationName: [

@@ -897,7 +897,7 @@ export default {
                 if(resp2.status === 200){
                   const needHours = parseInt(resp2.obj)
                   if(this.examinedHours < needHours){
-                  this.$alert('总工作量时长小于' + needHours + '小时，请满足条件后再申报！', '提示', {
+                  this.$alert('已审核通过的总工作量时长小于' + needHours + '小时，请满足条件后再申报！', '提示', {
                     confirmButtonText: '确定',
                   });
                   }else{

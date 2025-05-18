@@ -80,6 +80,9 @@ public class ExportPDF {
             student = studentService.getByUndergraduateId(thesis.getStudentID());
             teacher = teachersService.getById(thesis.getTutorID());
             paperComments = paperCommentService.selectCommentListStuOrderByNum(thesisID);
+            for(int i=1; i <= paperComments.size(); i++){
+                paperComments.get(i-1).setIndex(i);
+            }
             if (paperComments.size() > 30) {
                 paperComments = paperComments.subList(0, 30);
             }
@@ -156,7 +159,7 @@ public class ExportPDF {
 
 
         for (int i = 0; i < paperComments.size(); i++) {
-            data.put("num" + (i + 1), paperComments.get(i).getNum());
+            data.put("num" + (i + 1), paperComments.get(i).getIndex());
             data.put("page" + (i + 1), i + 1);
             data.put("preSum" + (i + 1), adaptRows(paperComments.get(i).getPreSum(), PRESUMROWS));
             data.put("nextPlan" + (i + 1), adaptRows(paperComments.get(i).getNextPlan(), NEXTPLANROWS));

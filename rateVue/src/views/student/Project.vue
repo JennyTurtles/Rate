@@ -134,7 +134,7 @@
         center>
       <el-form
           :label-position="labelPosition"
-          label-width="100px"
+          label-width="110px"
           :model="emp"
           ref="empForm"
           style="margin-left: 20px"
@@ -173,7 +173,7 @@
             <span>{{ emp.rank }}</span
             ><br/>
         </el-form-item>
-        <el-form-item label="发表年月:">
+        <el-form-item label="发表/录用年月:">
             <span>{{ emp.year }}-{{ emp.month }}</span
             ><br/>
         </el-form-item>
@@ -1071,13 +1071,13 @@
 <!--            ><br/>-->
 <!--          </el-form-item>-->
 
-        <el-form-item prop="year" label="发表年月:" label-width="80px" style="margin-left: 20px;">
-          <span class="isMust">*</span>
+        <el-form-item prop="date" label="发表/录用年月:" label-width="110px" style="margin-left: 20px;">
+          <span class="isMust" style="left: -130px">*</span>
           <el-date-picker
-              style="width:155px"
+              style="width:190px"
               v-model="currentEmp.date"
               type="month"
-              placeholder="请选择发表年月"
+              placeholder="请选择发表/录用年月"
           ></el-date-picker>
         </el-form-item>
         <el-form-item label="所属期刊:" label-width="80px" style="margin-left: 20px;">
@@ -1104,7 +1104,7 @@
         </el-form-item>
 
         <el-form-item label="页码:" label-width="80px" style="margin-left: 20px;">
-          <span class="isMust">*</span>
+          <!-- <span class="isMust">*</span> -->
           <el-input
               size="mini"
               style="width: 32%"
@@ -1285,7 +1285,7 @@
               placeholder="请输入奖励名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="获奖年月:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="获奖年月:" label-width="80px" style="margin-left: 20px;" prop="date">
           <span class="isMust">*</span>
           <el-date-picker
               style="width: 80%"
@@ -1398,7 +1398,7 @@
               placeholder="请输入专著或教材名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="完成年月:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="完成年月:" label-width="80px" style="margin-left: 20px;" prop="date">
           <span class="isMust">*</span>
           <el-date-picker
               style="width: 80%"
@@ -1747,7 +1747,7 @@
               placeholder="请输入决策名称"
           ></el-input>
         </el-form-item>
-        <el-form-item label="制定年月:" label-width="80px" style="margin-left: 20px;">
+        <el-form-item label="制定年月:" label-width="80px" style="margin-left: 20px;"  prop="date">
           <span class="isMust">*</span>
           <el-date-picker
               style="width: 80%"
@@ -2451,7 +2451,7 @@ export default {
       rules_Paper: {
         name: [{required: true, message: "请输入论文名", trigger: "blur"}],
         author: [{required: true, message: "请输入作者列表", trigger: "blur"}],
-        year: [{required: true, message: "请选择发表年月", trigger: "blur"}]
+        date: [{required: true, message: "请选择发表/录用年月", trigger: "blur"}]
       },
       // 授权专利编辑表单验证
       rules_Patent: {
@@ -2464,13 +2464,15 @@ export default {
       rules_ResearchAward: {
         name: [{required: true, message: "请输入奖励名称", trigger: "blur"}],
         awardClass: [{required: true, message: "请输入奖励类别", trigger: "blur"}],
-        awardLevel: [{required: true, message: "请输入奖励级别", trigger: "blur"}]
+        awardLevel: [{required: true, message: "请输入奖励级别", trigger: "blur"}],
+        date: [{required: true, message: "请选择获奖时间", trigger: "blur"}],
       },
       //学术专著和教材编辑表单验证
       rules_Monograph: {
         name: [{required: true, message: "请输入专著或教材名称", trigger: "blur"}],
         publisher: [{required: true, message: "请输入专著或教材出版社", trigger: "blur"}],
-        isbn: [{required: true, message: "请输入专著或教材ISBN", trigger: "blur"}]
+        isbn: [{required: true, message: "请输入专著或教材ISBN", trigger: "blur"}],
+        date: [{required: true, message: "请选择完成时间", trigger: "blur"}],
       },
       //纵向科研项目编辑表单验证
       rules_ResearchProject: {
@@ -2493,7 +2495,8 @@ export default {
       },
       //决策咨询编辑表单验证
       rules_Decision: {
-        name: [{required: true, message: "请输入决策名称", trigger: "blur"}]
+        name: [{required: true, message: "请输入决策名称", trigger: "blur"}],
+        date: [{required: true, message: "请输入指定年月", trigger: "blur"}]
       },
       //项目文档编辑表单验证
       rules_Product: {

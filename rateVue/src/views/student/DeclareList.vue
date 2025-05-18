@@ -255,7 +255,6 @@ export default {
       this.loading = true;
       const user = JSON.parse(localStorage.getItem("user"));
       const studentID = user && user.id;
-      console.log("studentID"+studentID)
       if (!studentID) {
         console.error("无法从存储中获取学生ID。");
         return;
@@ -299,27 +298,34 @@ export default {
                 });
                 this.$router.push('/student/ProgramRecord');
               }
-              else if(this.examinedHours <1000){
-                this.$alert('总工作量时长为'+ params.workHours + '小时，小于1000小时，请先填写工作量，满足条件后再申报！', '提示', {
-                  confirmButtonText: '确定',
-                });
-                this.$router.push('/student/ProgramRecord');
-              }
-              else{
-                this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的项目", '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                type: 'warning'
-              }).then(() => {
-                this.postRequest1("/programRecord/basic/addResult", params).then((resp) => {
-                  if (resp) {
-                    this.$message.success('添加成功！')
-                    this.doAddOper("commit", resp.data);
-                    this.$router.push('/student/Project');
+               const timeUrl = '/dict/basic/getDictValue?item=workHours'
+                this.getRequest(timeUrl).then((resp2)=>{
+                  if(resp2.status === 200){
+                    const needHours = parseInt(resp2.obj)
+                    if(this.examinedHours <needHours){
+                    this.$alert('已审核通过的总工作量时长小于' + needHours + '小时，请先填写工作量，满足条件后再申报！', '提示', {
+                      confirmButtonText: '确定',
+                    });
+                    this.$router.push('/student/ProgramRecord');
+                    }
+                    else{
+                      this.$confirm("是否申报工作量为【" + this.examinedHours + "】小时的项目", '提示', {
+                      confirmButtonText: '确定',
+                      cancelButtonText: '取消',
+                      type: 'warning'
+                    }).then(() => {
+                      this.postRequest1("/programRecord/basic/addResult", params).then((resp) => {
+                        if (resp) {
+                          this.$message.success('添加成功！')
+                          this.doAddOper("commit", resp.data);
+                          this.$router.push('/student/Project');
+                        }
+                      });
+                      })
+                    }
                   }
-                });
-                })
-              }
+              })
+              
             }
           })
           .catch((error) => {
