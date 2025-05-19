@@ -49,16 +49,24 @@ public class ProjetDataController {
             xinProjects.forEach(x -> {
                 ProjectData projectData = new ProjectData();
                 projectData.setId(x.getMid());
+
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                String formattedDate = sdf.format(x.getDate());
+                String formattedDate = x.getDate() != null ? sdf.format(x.getDate()) : null;
                 projectData.setApplyTime(formattedDate);
-                projectData.setName(x.getName());
-                projectData.setCategory(x.getType());
-                projectData.setParticipants(x.getSname());
-                projectData.setStatus(x.getState());
-                projectData.setPointtype(x.getPointtype());
-                projectData.setRemark(x.getRemark());
-                projectData.setPoint(Long.parseLong(x.getPoint() + ""));
+
+                projectData.setName(x.getName() != null ? x.getName() : null);
+                projectData.setCategory(x.getType() != null ? x.getType() : null);
+                projectData.setParticipants(x.getSname() != null ? x.getSname() : null);
+                projectData.setStatus(x.getState() != null ? x.getState() : null);
+                projectData.setPointtype(x.getPointtype() != null ? x.getPointtype() : null);
+                projectData.setRemark(x.getRemark() != null ? x.getRemark() : null);
+
+                Integer point = x.getPoint();
+                if (point != null) {
+                    projectData.setPoint(Long.parseLong(point.toString()));
+                } else {
+                    projectData.setPoint(null); // 或者设置默认值 0L
+                }
 
                 list.add(projectData);
             });
@@ -178,18 +186,33 @@ public class ProjetDataController {
             for (XinProject x : xinProjects) {
                 Integer point = x.getPoint();
                 String state = x.getState();
+
                 ProjectData projectData = new ProjectData();
                 projectData.setId(x.getMid());
-                String formattedDate = sdf.format(x.getDate());
-                projectData.setApplyTime(formattedDate);
-                projectData.setName(x.getName());
-                projectData.setStudentName(x.getStudentName());
-                projectData.setCategory(x.getType());
-                projectData.setParticipants(x.getSname());
-                projectData.setStatus(x.getState());
-                projectData.setRemark(x.getRemark());
-                projectData.setPointtype(x.getPointtype());
-                projectData.setPoint(Long.parseLong(x.getPoint() + ""));
+
+                // 处理日期格式化可能为空的情况
+                projectData.setApplyTime(x.getDate() != null ? sdf.format(x.getDate()) : null);
+
+                // 设置基础信息，避免空指针
+                projectData.setName(x.getName() != null ? x.getName() : null);
+                projectData.setStudentName(x.getStudentName() != null ? x.getStudentName() : null);
+                projectData.setCategory(x.getType() != null ? x.getType() : null);
+                projectData.setParticipants(x.getSname() != null ? x.getSname() : null);
+                projectData.setStatus(state != null ? state : null);
+                projectData.setRemark(x.getRemark() != null ? x.getRemark() : null);
+                projectData.setPointtype(x.getPointtype() != null ? x.getPointtype() : null);
+
+                // 设置积分，处理 point 为 null 的情况
+                if (point != null) {
+                    try {
+                        projectData.setPoint(Long.parseLong(point.toString()));
+                    } catch (NumberFormatException e) {
+                        projectData.setPoint(null); // 解析失败也设为 null
+                    }
+                } else {
+                    projectData.setPoint(null); // 原始值为 null，直接设为 null
+                }
+
                 list.add(projectData);
             }
 
