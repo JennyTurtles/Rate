@@ -109,6 +109,7 @@ public class ExportPDF {
 
             Map<String, Object> model = generatePDFTemplateData(thesis, student, teacher, paperComments);
             fillPDFTemplateFields(ps, form, FontSong, model);
+
             //ps.setFormFlattening(true);
         } catch (Exception e) {
             handlePDFExportError(e, fileName);
@@ -249,7 +250,7 @@ public class ExportPDF {
             return;
         }
         BufferedInputStream br = new BufferedInputStream(new FileInputStream(f));
-        byte[] buf = new byte[1024];
+        byte[] buf = new byte[8192];
         int len = 0;
 
         response.reset(); // 非常重要

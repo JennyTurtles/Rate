@@ -1501,7 +1501,7 @@ export default {
    if (this.mode === 'admin' || this.mode === 'adminSub')
      url = '/participants/basic/export?activityID=' + data.id;
    else
-     url = "/participants/basic/exportTG?groupID="+ data.groupID;
+     url = "/participants/basic/exportTG?groupID="+ this.groupIDForSub;
    axios({
       url: url,
       method: 'get',
